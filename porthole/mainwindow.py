@@ -36,6 +36,24 @@ from views import CategoryView, PackageView, DependsView
 class MainWindow:
     """Main Window class to setup and manage main window interface."""
     
+    class EmergeOptions:
+        """ Holds common emerge options """
+        def __init__(self):
+            self.pretend = False
+            self.fetch = False
+            self.verbose = False
+
+        def get_opts(self):
+            """ Return currently set options in a string """
+            opt_string = ' '
+            if self.pretend:
+                opt_string += '--pretend '
+            if self.fetch:
+                opt_string += '--fetchonly '
+            if self.verbose:
+                opt_string += '--verbose '
+            return opt_string
+
     def __init__(self):
         #setup glade
         self.gladefile = "porthole.glade"
@@ -54,7 +72,9 @@ class MainWindow:
             "on_about" : self.about,
             "view_filter_changed" : self.view_filter_changed,
             "on_pretend1_activate" : self.pretend_set,
-            "on_notebook_switch_page" : self.notebook_changed
+            "on_notebook_switch_page" : self.notebook_changed,
+            "on_fetch_activate" : self.fetch_set,
+            "on_verbose_activate" : self.verbose_set
             }
         self.wtree.signal_autoconnect(callbacks)
         # aliases for convenience
@@ -78,8 +98,8 @@ class MainWindow:
         self.wtree.get_widget("dependencies_scrolled_window").add(self.deps_view)
         #setup sudo use
         self.use_sudo = -1
-        #want to use -p option for pretend?
-        self.pretend = ""
+        # let's store some emerge options
+        self.options = self.EmergeOptions()
         # upgrades loaded?
         self.upgrades_loaded = False
         # summary view
@@ -170,13 +190,13 @@ class MainWindow:
     def setup_command(self, command, callback = None):
         """Setup the command to run with sudo or not at all"""
         env = {"FEATURES": "notitles"}  # Don't try to set the titlebar
-        if self.use_sudo == -1 and not self.pretend:
+        if self.use_sudo == -1 and not self.options.pretend:
             self.check_for_root(callback)
         else:
             if self.use_sudo:
                 if self.use_sudo == 1:
                     ProcessWindow("sudo " + command, env)
-                elif self.pretend and command != "emerge sync":
+                elif self.options.pretend and command != "emerge sync":
                     ProcessWindow(command, env)
                 else:
                     print "Sorry, can't do that!"
@@ -185,16 +205,21 @@ class MainWindow:
 
     def pretend_set(self, widget):
         """Set whether or not we are going to use the --pretend flag"""
-        if widget.get_active():
-            self.pretend = "--pretend "
-        else:
-            self.pretend = ""
+        self.options.pretend = widget.get_active()
+
+    def fetch_set(self, widget):
+        """Set whether or not we are going to use the --fetchonly flag"""
+        self.options.fetch = widget.get_active()
+
+    def verbose_set(self, widget):
+        """Set whether or not we are going to use the --verbose flag"""
+        self.options.verbose = widget.get_active()
 
     def emerge_package(self, widget):
         """Emerge the currently selected package."""
         package = get_treeview_selection(
             self.package_view, 2)
-        command = self.setup_command("emerge " + self.pretend
+        command = self.setup_command("emerge" + self.options.get_opts()
             + package.get_category() + "/" +
             package.get_name(), self.emerge_package)
 
@@ -202,13 +227,16 @@ class MainWindow:
         """Unmerge the currently selected package."""
         package = get_treeview_selection(
             self.package_view, 2)
-        command = self.setup_command("emerge unmerge " +
-            self.pretend + package.get_category() + "/" +
+        command = self.setup_command("emerge unmerge" +
+            self.options.get_opts() + package.get_category() + "/" +
             package.get_name(), self.unmerge_package)
 
     def sync_tree(self, widget):
         """Sync the portage tree and reload it when done."""
-        command = self.setup_command("emerge sync", self.sync_tree)
+        sync = "emerge sync"
+        if self.options.verbose:
+            sync += " --verbose"
+        command = self.setup_command(sync, self.sync_tree)
 
     def upgrade_packages(self, widget):
         """Upgrade selected packages that have newer versions available."""
@@ -223,8 +251,9 @@ class MainWindow:
                     packages_list += model.get_value(iter, 0) + " "
                 # step to next iter
                 iter = model.iter_next(iter)
-            dprint("Trying emerge -u " + packages_list)
-            self.setup_command("emerge -u " + packages_list, self.upgrade_packages)
+            dprint("Trying emerge -u" + self.options.get_opts() + packages_list)
+            self.setup_command("emerge -u" + self.options.get_opts() +
+                               packages_list, self.upgrade_packages)
         else:
             dprint("Upgrades not loaded; we should display a dialog here!")
             dprint("Upgrading all packages in world file...")
