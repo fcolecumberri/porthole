@@ -837,12 +837,12 @@ class ProcessManager:
         if not self.directory:
             self.set_directory()
         try:
-            FileSel("Porthole-Terminal: Open log File").run(self.window,
-                                                        self.directory,
+            FileSel(self.title + ": Open log File").run(self.window,
+                                                        self.directory+"*.log",
                                                         self.open_ok_func)
         except:
-            FileSel("Porthole-Terminal: Open log File").run(None,
-                                                        None,
+            FileSel(self.title + ": Open log File").run(None,
+                                                        self.directory+"*.log",
                                                         self.open_ok_func)
 
     def do_save_as(self, widget):
@@ -870,7 +870,7 @@ class ProcessManager:
 
     def save_as_buffer(self):
         dprint("entering save_as_buffer")
-        return FileSel("Porthole-Terminal: Save File").run(self.window,
+        return FileSel(self.title + ": Save File").run(self.window,
                                                            self.filename,
                                                            self.save_as_ok_func)
 
