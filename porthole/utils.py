@@ -46,7 +46,6 @@ import portagelib
 import os
 import grp
 import pwd
-#import cPickle
 
 # if using gnome, see if we can import it
 try:

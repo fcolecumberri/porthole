@@ -116,7 +116,7 @@ class ProcessManager:
         gtk.timeout_add(100, self.update)
 
     def set_tags(self):
-        """ set the text formatting tags as described in TAG_LIST """
+        """ set the text formatting tags from prefs object """
         # NOTE: for ease of maintenance, all tabs have every tag
         #       defined for use.  Currently the code determines
         #       when & where to use the tags
@@ -200,6 +200,13 @@ class ProcessManager:
         self.move_up = self.wtree.get_widget("move_up1")
         self.move_down = self.wtree.get_widget("move_down1")
         self.queue_remove = self.wtree.get_widget("remove1")
+        # Catch clicks on info, caution & warning tabs
+        self.info_text = self.wtree.get_widget("info_text")
+        self.info_conn = self.info_text.connect("button_press_event", self.line_clicked)
+        self.info_text = self.wtree.get_widget("cautions_text")
+        self.info_conn = self.info_text.connect("button_press_event", self.line_clicked)
+        self.info_text = self.wtree.get_widget("warnings_text")
+        self.info_conn = self.info_text.connect("button_press_event", self.line_clicked)
         # catch clicks to the queue tree
         self.queue_tree.connect("cursor_changed", self.queue_clicked)
         # process output buffer
@@ -266,6 +273,31 @@ class ProcessManager:
             # after it until emerge is finished.
             # Also causes runaway recursion.
             self.window.connect("size_request", self.on_size_request)
+
+    def line_clicked(self, widget, event):
+        """ Double clicking on line will bring that line in the process
+            window into focus
+        """
+        if event.type == 5:
+            # Convert x,y window coords to buffer coords and get line text
+            x = int(event.x)
+            y = int(event.y)
+            bufcoords = widget.window_to_buffer_coords(gtk.TEXT_WINDOW_TEXT,x,y)
+            #textbuf = widget.get_buffer()
+            iStart = widget.get_iter_at_location(0,y)  # start at beginning of line
+            iEnd = widget.get_iter_at_location(100,y)  # far enough past number
+            try:
+                # get line number from textbuffer (0 based)
+                line = int(iStart.get_text(iEnd)[0:6]) - 1 
+                # Get the process window textview                        
+                textview = self.wtree.get_widget("process_text")
+                # Get the iter based on the line number index
+                iter = textview.get_buffer().get_iter_at_line_index(line,0)
+                # Scroll to the line, try to position mid-screen
+                textview.scroll_to_iter(iter, 0.0, True, 0, 0.5)
+                # Display the tab
+                self.notebook.set_current_page(TAB_PROCESS)
+            except: pass
 
     def switch_page(self, notebook, page, page_num):
         """callback function changes the current_page setting in the term structure"""
