@@ -34,6 +34,7 @@ except ImportError:
                      'You will not be able to open web pages.')
 
 def load_web_page(name):
+    """Try to load a web page in the default browser"""
     try:
         webbrowser.open(name)
     except:
@@ -45,18 +46,23 @@ def get_icon_for_package(package):
     if package.is_installed:
         installed = package.get_installed()
         installed.sort()
-        latest_installed = installed[-1]
-        latest_available = package.get_latest_ebuild()
+        latest_installed = portagelib.get_version(installed[-1])
+        latest_available = portagelib.get_version(package.get_latest_ebuild(0))
+        print latest_installed, latest_available
         if latest_installed == latest_available:
             #they are the same version, so you are up to date
             icon = gtk.STOCK_YES
         else:
-            #let the user know there is an upgrade available
-            icon = gtk.STOCK_GO_FORWARD
+            if latest_installed > latest_available:
+                #it's a downgrade!
+                icon = gtk.STOCK_GO_BACK
+            else:
+                #let the user know there is an upgrade available
+                icon = gtk.STOCK_GO_FORWARD
     else:
         #just put the STOCK_NO icon
         icon = gtk.STOCK_NO
-    return icon
+    return icon       
 
 def is_root():
     """Returns true if process runs as root."""
