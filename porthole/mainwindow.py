@@ -103,6 +103,8 @@ class MainWindow:
                                                     self.prefs.main.height)
         # initialize our data
         self.init_data()
+        # set if we are root or not
+        self.is_root = is_root()
         if self.prefs.main.show_nag_dialog:
             # let the user know if he can emerge or not
             self.check_for_root()
@@ -132,7 +134,6 @@ class MainWindow:
 
     def check_for_root(self):
         """figure out if the user can emerge or not..."""
-        self.is_root = is_root()
         if not self.is_root:
             self.no_root_dialog = SingleButtonDialog("You are not root!",
                             self.wtree.get_widget("main_window"),
