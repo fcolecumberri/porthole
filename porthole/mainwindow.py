@@ -59,13 +59,13 @@ class MainWindow:
             "on_pretend1_activate" : self.pretend_set,
             "on_notebook_switch_page" : self.notebook_changed,
             "on_fetch_activate" : self.fetch_set,
-            "on_verbose_activate" : self.verbose_set
+            "on_verbose_activate" : self.verbose_set,
+            "on_search_descriptions1_activate" : self.search_set
             }
         self.wtree.signal_autoconnect(callbacks)
         # aliases for convenience
         self.notebook = self.wtree.get_widget("notebook")
         # set unfinished items to not be sensitive
-        self.wtree.get_widget("view_statistics1").set_sensitive(gtk.FALSE)
         self.wtree.get_widget("contents2").set_sensitive(gtk.FALSE)
         # self.wtree.get_widget("btn_help").set_sensitive(gtk.FALSE)
         # setup the category view
@@ -115,6 +115,8 @@ class MainWindow:
         self.upgrades_loaded = False
         # upgrade loading callback
         self.upgrades_loaded_callback = None
+        # descriptions loaded?
+        self.desc_loaded = False
         # declare the database
         self.db = None
         # load the db
@@ -205,6 +207,10 @@ class MainWindow:
         """Set whether or not we are going to use the --verbose flag"""
         self.prefs.emerge.verbose = widget.get_active()
 
+    def search_set(self, widget):
+        """Set whether or not to search descriptions"""
+        self.prefs.main.search_desc = widget.get_active()
+
     def emerge_package(self, widget):
         """Emerge the currently selected package."""
         package = get_treeview_selection(self.package_view, 2)
@@ -258,21 +264,56 @@ class MainWindow:
         # get rid of the dialog
         self.upgrades_loaded_dialog.destroy()
 
+    def load_descriptions_list(self):
+        """ Load a list of all descriptions for searching """
+        self.desc_dialog = SingleButtonDialog("Please Wait!",
+                self.wtree.get_widget("main_window"),
+                "Loading package descriptions...",
+                self.desc_dialog_response, "_Cancel", True)
+        self.desc_thread = DescriptionReader(self.db.list)
+        self.desc_thread.start()
+        gtk.timeout_add(100, self.desc_thread_update)
+
+    def desc_dialog_response(self, widget, response):
+        """ Get response from description loading dialog """
+        self.desc_thread.please_die()
+        self.desc_thread.join()
+        self.desc_dialog.destroy()
+
+    def desc_thread_update(self):
+        """ Update status of description loading process """
+        if self.desc_thread.done:
+            # grab the db
+            self.desc_db = self.desc_thread.descriptions
+            # kill off the thread
+            self.desc_thread.join()
+            self.desc_loaded = True
+            # search with descriptions
+            self.package_search(None)
+            return gtk.FALSE
+        else:
+            # print self.desc_thread.count
+            fraction = self.desc_thread.count / float(len(self.db.list))
+            self.desc_dialog.progbar.set_text(str(int(fraction * 100)) + "%")
+            self.desc_dialog.progbar.set_fraction(fraction)
+        return gtk.TRUE
+
     def package_search(self, widget):
         """Search package db with a string and display results."""
+        if not self.desc_loaded and self.prefs.main.search_desc:
+            self.load_descriptions_list()
+            return
         search_term = self.wtree.get_widget("search_entry").get_text()
         if search_term:
             search_results = self.package_view.search_model
             search_results.clear()
             re_object = re.compile(search_term, re.I)
             count = 0
-            search_desc = self.wtree.get_widget(
-                "search_descriptions1").get_active()
             # no need to sort self.db.list; it is already sorted
             for name, data in self.db.list:
                 searchstring = name
-                if search_desc:
-                    desc = data.get_properties().description
+                if self.prefs.main.search_desc:
+                    desc = self.desc_db[name]
                     searchstring += desc
                 if re_object.search(searchstring):
                     count += 1
@@ -406,7 +447,7 @@ class MainWindow:
             return gtk.FALSE
         else:
             fraction = self.ut.count / float(self.db.installed_count)
-            self.wait_dialog.progbar.set_text(str(fraction * 100)[:2] + "%")
+            self.wait_dialog.progbar.set_text(str(int(fraction * 100)) + "%")
             self.wait_dialog.progbar.set_fraction(fraction)
         return gtk.TRUE
 
@@ -443,19 +484,31 @@ class MainWindow:
         self.prefs.main.vpane = self.wtree.get_widget("vpane").get_position()
 
 
+class CommonReader(threading.Thread):
+    """ Common data reading class that works in a seperate thread """
+    def __init__(self):
+        """ Initialize """
+        threading.Thread.__init__(self)
+        # for keeping status
+        self.count = 0
+        # we aren't done yet
+        self.done = False
+        # cancelled will be set when the thread should stop
+        self.cancelled = False
+        # quit even if thread is still running
+        self.setDaemon(1)
 
-class UpgradableReader(threading.Thread):
+    def please_die(self):
+        """ Tell the thread to die """
+        self.cancelled = True
+
+class UpgradableReader(CommonReader):
     """ Read available upgrades and store them in a treemodel """
     def __init__(self, upgrade_model, installed):
         """ Initialize """
-        threading.Thread.__init__(self)
+        CommonReader.__init__(self)
         self.upgrade_results = upgrade_model
         self.installed_items = installed
-        self.count = 0
-        self.done = False
-        self.cancelled = False
-        # quit even if this thread is still running
-        self.setDaemon(1)
     
     def run(self):
         """fill upgrade tree"""
@@ -484,5 +537,18 @@ class UpgradableReader(threading.Thread):
         # set the thread as finished
         self.done = True
 
-    def please_die(self):
-        self.cancelled = True
+class DescriptionReader(CommonReader):
+    """ Read and store package descriptions for searching """
+    def __init__(self, packages):
+        """ Initialize """
+        CommonReader.__init__(self)
+        self.packages = packages
+
+    def run(self):
+        """ Load all descriptions """
+        self.descriptions = {}
+        for name, package in self.packages:
+            if self.cancelled: self.done = True; return
+            self.descriptions[name] = package.get_properties().description
+            self.count += 1
+        self.done = True
