@@ -179,18 +179,29 @@ class ProcessWindow(threading.Thread):
             self.append(text)
             gtk.threads_leave()
 
+        CR = 13
+        esc = 27
+        catch_seq = False
+        escape_seq = "" # catch the escape sequence
+        line_num = 0
+        dline = ""  # for debug mode
+        start_of_line = False
+        sol = self.textbuffer.get_start_iter()
         try:
             dprint('begining run of os.read() loop')
-            line_num = 0
-            dline = ""  # for debug mode
-            start_of_line = False
-            sol = self.textbuffer.get_start_iter()
             while True:
                 text = os.read(self.fd, 1)
                 if not text:
                     dprint('unexpected break -- no text')
                     break
-##                 elif text == '\033':  # escape
+                elif ord(text) == esc or catch_seq: # catch portage escape sequ ence NOCOLOR bugs
+                    catch_seq = True
+                    if ord(text) != esc:
+                        escape_seq += text
+                    if text == 'm':
+                        catch_seq = False
+                        dprint('escape_seq='+escape_seq)
+                        escape_seq = ""
                 elif text == "\b":
                     self.backspace()
                 elif 32 <= ord(text) <= 127 or text == '\n': # no unprintable
@@ -201,17 +212,17 @@ class ProcessWindow(threading.Thread):
                     append(text)
                     if text == '\n':
                         line_num += 1
-                        dline += '|eol|'
-                        dprint(dline)
-                        dline = ""
-                    else:
-                        dline += text
+##                        dline += '|eol|'
+##                        dprint(dline)
+##                        dline = ""
+##                    else:
+##                        dline += text
                 elif ord(text) == 13:
                     start_of_line = True
-                    dline = dline + '|' + str(ord(text)) + "|"
+##                    dline = dline + '|' + str(ord(text)) + "|"
                     dprint("unprintable char :"+ str(ord(text)))
-                else:
-                    dline = dline + '|' + str(ord(text)) + "|"
+##                else:
+##                    dline = dline + '|' + str(ord(text)) + "|"
         except OSError:
             pass  # if the process is killed
         except Exception, e:

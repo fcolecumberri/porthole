@@ -238,6 +238,8 @@ class MainWindow:
         sync = "emerge sync"
         if self.prefs.emerge.verbose:
             sync += " --verbose"
+        if self.prefs.emerge.nospinner:
+            sync += " --nospinner "
         self.setup_command(sync)
 
     def upgrade_packages(self, widget):

@@ -136,6 +136,7 @@ class EmergeOptions:
         self.pretend = False
         self.fetch = False
         self.verbose = False
+        self.nospinner = True # currently hidden
 
     def get_string(self):
         """ Return currently set options in a string """
@@ -146,6 +147,8 @@ class EmergeOptions:
             opt_string += '--fetchonly '
         if self.verbose:
             opt_string += '--verbose '
+        if self.nospinner:
+            opt_string += '--nospinner '
         return opt_string
 
 class WindowPreferences:
