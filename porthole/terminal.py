@@ -566,7 +566,7 @@ class ProcessManager:
         iter = self.process_list[0][2]
         # set icon according to success or failure
         if self.Failed:
-            self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_CANCEL))
+            self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_STOP))
         else:
             self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_APPLY))
         # remove process from list
