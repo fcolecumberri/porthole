@@ -16,7 +16,7 @@ setup(name = "Porthole",
       # py_modules is a list of all our python modules
       py_modules = ["about", "depends", "metadata",
                     "portagelib", "porthole", "process",
-                    "summary", "utils"],
+                    "mainwindow", "summary", "utils"],
       # data_files is a list of non-python files we need
       # and where to install them
       data_files = [("pixmaps",
