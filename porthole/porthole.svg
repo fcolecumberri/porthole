@@ -53,6 +53,19 @@
      gridspacingy="5mm"
      gridspacingx="5mm"
      snaptogrid="false" />
+  <text
+     style="fill:black;stroke:none;font-family:URW Bookman L;font-style:normal;font-weight:bold;font-size:300;fill-opacity:1;stroke-opacity:1;stroke-width:1pt;stroke-linejoin:miter;stroke-linecap:butt;text-anchor:start;writing-mode:lr;"
+     x="233.884993"
+     y="443.713749"
+     id="text688"
+     transform="scale(0.833752,0.833752)">
+    <tspan
+       x="233.884995"
+       y="443.713745"
+       sodipodi:role="line"
+       id="tspan697">
+P</tspan>
+  </text>
   <path
      style="fill:#ffffff;fill-rule:evenodd;stroke:none;stroke-opacity:1;stroke-width:1pt;stroke-linejoin:miter;stroke-linecap:butt;fill-opacity:0.403922;"
      d="M 360 171.919 L 210 399.419 L 218.75 406.919 L 385 181.919 C 385 181.919 328.75 271.919 366.25 298.169 C 428.75 340.669 290 488.169 425 311.919 C 425 289.419 400 185.669 400 185.669 L 360 171.919 z "
