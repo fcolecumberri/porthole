@@ -470,6 +470,7 @@ class ProcessManager:
         if not self.reader.process_running:
             if self.resume_available:
                 self.start_queue(True)
+		dprint("TERMINAL: add_process; self.resume_available")
             else:
                 # pending processes, run the next one in the list
                 self.start_queue(False)

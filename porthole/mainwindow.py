@@ -178,7 +178,7 @@ class MainWindow:
         self.db_thread.start()
         #test = 87/0  # used to test pycrash is functioning
         self.reload = True
-        self.db_timeout = gtk.timeout_add(100, self.update_db_read)
+        self.db_timeout = gtk.timeout_add(200, self.update_db_read)
         # set status
         self.set_statusbar("Reading package database: %i packages read"
                            % 0)
@@ -483,11 +483,18 @@ class MainWindow:
         self.current_category_cursor = self.category_view.get_cursor()
         if not self.reload:
             self.current_package_cursor = None
-        #dprint("Category cursor = ")
-        #dprint(self.current_category_cursor)
+        #dprint("Category cursor = " +str(self.current_category_cursor))
+	#dprint(self.current_category_cursor[0][1])
         mode = self.wtree.get_widget("view_filter").get_history()
-        if not category:
+        if not category or self.current_category_cursor[0][1] == None:
+	    #dprint("MAINWINDOW: category_changed(); category=False or self.current_category_cursor[0][1]=None")
             packages = None
+	    self.current_package_name = None
+	    self.current_package_cursor = None
+            self.current_package_path = None
+	    self.package_view.PACKAGES = 0
+            self.package_view.set_view(self.package_view.PACKAGES)
+            self.package_view.clear()
         elif mode == self.SHOW_ALL:
             packages = self.db.categories[category]
         elif mode == self.SHOW_INSTALLED:
