@@ -150,8 +150,9 @@ class ProcessManager:
         self.queue_tab.showing = False
         # setup the regular expression objects for searching later
         self.re_object_caution = None
-        self.re_object_warning = None
+        self.re_object_warning = re.compile("WARNING:",re.I)
         self.re_object_info = re.compile("^>>> [^/]", re.I)
+        self.re_object_info2 = re.compile("^ \* ", re.I)
         self.re_object_emerge = re.compile("^>>> emerge [^/]", re.I)
         # flag that the window is now visible
         self.window_visible = True
@@ -340,7 +341,16 @@ class ProcessManager:
                             # add the pkg info to all other tabs to identify fom what
                             # pkg messages came from but no need to show it if it isn't
                             self.append_all(self.process_buffer,False)
-                        elif self.re_object_info.search(self.process_buffer):
+                        elif self.re_object_warning.search(self.process_buffer):
+                            # warning string has been found, show info tab if needed
+                            if not self.warning_tab.showing:
+                                self.show_tab(TAB_WARNING)
+                                self.warning_tab.showing = True
+                            # insert the line into the info text buffer
+                            self.warning_text.insert(self.warning_text.get_end_iter(),\
+                                                  self.process_buffer)
+                        elif self.re_object_info.search(self.process_buffer) or \
+                             self.re_object_info2.search(self.process_buffer):
                             # info string has been found, show info tab if needed
                             if not self.info_tab.showing:
                                 self.show_tab(TAB_INFO)
