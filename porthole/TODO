@@ -7,7 +7,7 @@ Release 0.4.?
 - Updating the info for a selected package in a separate thread may make the gui more responsive
 - Faster dependency calculations by only partially loading the tree
 - USE flags & features editor(s) (being worked on)
-- Look into caching the allnodes package list as portage-2.0.51 and newer no longer cache virtuals
+- Look into caching the allnodes package list as portage-2.0.51 and newer no longer caches virtuals
 - Remove the view selector and integrate them with the categories. 
 - Code the clipboard functions
 - begin adding right click menus for many areas

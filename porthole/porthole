@@ -21,6 +21,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
+APP = 'porthole'
 
 # setup our path so we can load our custom modules
 from sys import path
@@ -51,11 +52,13 @@ try:
 except ImportError:
     print "pycrash module not found.  For best debug info Please emerge >= dev-python/pycrash-0.4pre2"
     
+
 from thread import *
 from sys import argv, exit, stderr
 import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, time
 from getopt import getopt, GetoptError
+import locale, gettext
 
 def usage():
     tabs = "\t\t"
@@ -88,6 +91,8 @@ if __name__ == "__main__":
 	    from version import version
 	    import utils as _utils
 	    from mainwindow import MainWindow
+	    i18n_DIR = DATA_PATH + 'i18n'
+
 	    path_set = True
 
     if not path_set: # then run the installed modules
@@ -97,6 +102,7 @@ if __name__ == "__main__":
 	    DATA_PATH = "/usr/share/porthole/"
 	    from porthole import utils as _utils
 	    from porthole.mainwindow import MainWindow
+	    i18n_DIR = DATA_PATH + 'i18n'
 	except:
 	    print "NO installed porthole modules found!   Please run with the --local flag"
 
@@ -111,6 +117,14 @@ if __name__ == "__main__":
         elif opt in ("-h", "--help"):
             usage()
             exit()
+ 
+    locale.setlocale (locale.LC_ALL, '')
+    gettext.bindtextdomain (APP, i18n_DIR)
+    gettext.textdomain (APP)
+    gettext.install (APP, i18n_DIR, unicode=1)
+    gtk.glade.bindtextdomain (APP, i18n_DIR)
+    gtk.glade.textdomain (APP)
+
     if pycrash_found == True:
         _utils.dprint("pycrash module initializing")
         _utils.dprint("If a crash occurs check the /var/log/porthole/crash.html file and post it to porthole bugs")
@@ -124,6 +138,8 @@ if __name__ == "__main__":
     # load prefs
     prefs = _utils.PortholePreferences()
     prefs.DATA_PATH = DATA_PATH
+    prefs.APP = APP
+    prefs.i18n_DIR = i18n_DIR
     # load config info
     config = _utils.PortholeConfiguration(DATA_PATH)
     # create the main window

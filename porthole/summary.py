@@ -32,7 +32,7 @@ class Summary(gtk.TextView):
     """ Class to manage display and contents of package info tab """
     def __init__(self):
         """ Initialize object """
-        gtk.TextView.__init__(self)
+	gtk.TextView.__init__(self)
         self.set_wrap_mode(gtk.WRAP_WORD)
         self.set_editable(gtk.FALSE)
         self.set_cursor_visible(gtk.FALSE)

@@ -49,7 +49,7 @@ class MainWindow:
         self.config = config
         # setup glade
         self.gladefile = self.prefs.DATA_PATH + "porthole.glade"
-        self.wtree = gtk.glade.XML(self.gladefile, "main_window")
+        self.wtree = gtk.glade.XML(self.gladefile, "main_window", self.prefs.APP)
         # register callbacks  note: gtk.mainquit deprecated
         callbacks = {
             "on_main_window_destroy" : self.goodbye,
@@ -76,11 +76,12 @@ class MainWindow:
 	    "on_re_init_portage" : self.re_init_portage,
 	    "on_cancel_btn" : self.on_cancel_btn,
             "on_main_window_size_request" : self.size_update
-            }
-        self.wtree.signal_autoconnect(callbacks)
-        # aliases for convenience
+	    }
+	self.wtree.signal_autoconnect(callbacks)
+	self.set_statusbar("Starting")
+	# aliases for convenience
 	self.mainwindow = self.wtree.get_widget("main_window")
-        self.notebook = self.wtree.get_widget("notebook")
+	self.notebook = self.wtree.get_widget("notebook")
         self.changelog = self.wtree.get_widget("changelog").get_buffer()
         self.installed_files = self.wtree.get_widget("installed_files").get_buffer()
         self.ebuild = self.wtree.get_widget("ebuild").get_buffer()
@@ -90,20 +91,18 @@ class MainWindow:
         # setup the category view
         self.category_view = CategoryView()
         self.category_view.register_callback(self.category_changed)
-        self.wtree.get_widget(
-            "category_scrolled_window").add(self.category_view)
+        result = self.wtree.get_widget("category_scrolled_window").add(self.category_view)
         # setup the package treeview
         self.package_view = PackageView()
         self.package_view.register_callbacks(self.package_changed, None, self.pkg_path_callback)
-        self.wtree.get_widget("package_scrolled_window").add(self.package_view)
+        result = self.wtree.get_widget("package_scrolled_window").add(self.package_view)
         # setup the dependency treeview
         self.deps_view = DependsView()
-        self.wtree.get_widget(
-            "dependencies_scrolled_window").add(self.deps_view)
+        result = self.wtree.get_widget("dependencies_scrolled_window").add(self.deps_view)
         # summary view
         scroller = self.wtree.get_widget("summary_text_scrolled_window");
         self.summary = Summary()
-        scroller.add(self.summary)
+        result = scroller.add(self.summary)
         self.summary.show()
         # how should we setup our saved menus?
         if self.prefs.emerge.pretend:
@@ -116,9 +115,6 @@ class MainWindow:
             self.wtree.get_widget("verbose4").set_active(gtk.TRUE)
         if self.prefs.main.search_desc:
             self.wtree.get_widget("search_descriptions1").set_active(gtk.TRUE)
-        # restore last window width/height
-        self.mainwindow.resize(self.prefs.main.width,
-                                                    self.prefs.main.height)
         # setup a convienience tuple
 	self.tool_widgets = ["emerge_package1","adv_emerge_package1","unmerge_package1","btn_emerge",
 			     "btn_adv_emerge","btn_unmerge", "btn_sync"]
@@ -130,8 +126,10 @@ class MainWindow:
 	# get an empty tooltip
 	self.synctooltip = gtk.Tooltips()
 	self.sync_tip = _(" Syncronise Package Database \n The last sync was done:\n")
+        # restore last window width/height
+        self.mainwindow.resize(self.prefs.main.width, self.prefs.main.height)
 	# move horizontal and vertical panes
-        #dprint("MAINWINDOW: __init__() before hpane; %d, vpane; %d" %(self.prefs.main.hpane, self.prefs.main.vpane))
+        dprint("MAINWINDOW: __init__() before hpane; %d, vpane; %d" %(self.prefs.main.hpane, self.prefs.main.vpane))
         self.wtree.get_widget("hpane").set_position(self.prefs.main.hpane)
         self.wtree.get_widget("vpane").set_position(self.prefs.main.vpane)
 	# Intercept the window delete event signal
@@ -153,13 +151,10 @@ class MainWindow:
         self.process_manager = ProcessManager(environment(), self.prefs, self.config, False)
         dprint("MAIN: Showing main window")
 
+
     def init_data(self):
         # set things we can't do unless a package is selected to not sensitive
         self.set_package_actions_sensitive(gtk.FALSE)
-        #self.category_view.clear()  # clear just in case it's populated
-        # clear search results
-        #if self.wtree.get_widget("view_filter").get_history() != self.SHOW_SEARCH:
-        #    self.package_view.clear()
 	dprint("MAINWINDOW: init_data(); Initializing data")
         # upgrades loaded?
         self.upgrades_loaded = False
@@ -295,10 +290,10 @@ class MainWindow:
 	    self.db_save_variables()
             self.progressbar.set_text("100%")
 	    self.progressbar.set_fraction(1.0)
-            #~ dprint("MAINWINDOW: db_thread is done...")
-            #~ dprint("MAINWINDOW: db_thread.join...")
-            #~ self.db_thread.join()
-            #~dprint("MAINWINDOW: db_thread.join is done...")
+            dprint("MAINWINDOW: db_thread is done...")
+            dprint("MAINWINDOW: db_thread.join...")
+            self.db_thread.join()
+            dprint("MAINWINDOW: db_thread.join is done...")
             self.db = self.db_thread.get_db()
             self.set_statusbar(_("Populating tree ..."))
             self.update_statusbar(self.SHOW_ALL)
@@ -474,9 +469,15 @@ class MainWindow:
                 iter = model.iter_next(iter)
             dprint("MAIN: Updating packages...")
             for package in packages_list.split():
-                if not self.setup_command(package.split('/')[1], "emerge -u" +
-                            self.prefs.emerge.get_string() + package):
-                    return
+		if package not in self.ut.world:
+			dprint("MAINWINDOW: upgrade_packages(); dependancy selected: " +
+				package)
+			if not self.setup_command(package.split('/')[1], "emerge -u --oneshot" +
+				self.prefs.emerge.get_string() + package):
+			    return
+		elif not self.setup_command(package.split('/')[1], "emerge -u" +
+				self.prefs.emerge.get_string() + package):
+		    return
         else:
             dprint("MAIN: Upgrades not loaded; upgrade world?")
             self.upgrades_loaded_dialog = YesNoDialog(_("Upgrade requested"),
@@ -937,8 +938,8 @@ class MainWindow:
         self.prefs.main.height = pos[1]
         self.prefs.main.hpane = self.wtree.get_widget("hpane").get_position()
         self.prefs.main.vpane = self.wtree.get_widget("vpane").get_position()
-        #dprint("MAINWINDOW: size_update() hpane; %d, vpane; %d" \
-        #       %(self.prefs.main.hpane, self.prefs.main.vpane))
+        #~ dprint("MAINWINDOW: size_update() hpane; %d, vpane; %d" \
+               #~ %(self.prefs.main.hpane, self.prefs.main.vpane))
 
     def clear_notebook(self):
         """ Clear all notebook tabs & disable them """
@@ -1033,6 +1034,7 @@ class UpgradableReader(CommonReader):
         self.upgrade_results = upgrade_model
         self.installed_items = installed
 	self.upgrade_only = upgrade_only
+	self.world = []
     
     def run(self):
         """fill upgrade tree"""
@@ -1050,12 +1052,12 @@ class UpgradableReader(CommonReader):
         # using this file, only packages explicitly installed by
         # the user are upgraded by default
 	try:
-	    world = open("/var/lib/portage/world", "r").read().split()
+	    self.world = open("/var/lib/portage/world", "r").read().split()
 	except:
 	    dprint("MAINWINDOW: UpgradableReader(); Failure to locate file: '/var/lib/portage/world'")
 	    dprint("MAINWINDOW: UpgradableReader(); Trying '/var/cache/edb/world'")
 	    try:
-	        world = open("/var/cache/edb/world", "r").read().split()
+	        self.world = open("/var/cache/edb/world", "r").read().split()
 		dprint("OK")
 	    except:
 		dprint("MAINWINDOW: UpgradableReader(); Failed to locate the world file")
@@ -1065,7 +1067,7 @@ class UpgradableReader(CommonReader):
             self.upgrade_results.set_value(iter, 0, full_name)
             self.upgrade_results.set_value(iter, 2, package)
             self.upgrade_results.set_value(iter, 1,
-                                           full_name in world
+                                           full_name in self.world
                                            and gtk.TRUE or gtk.FALSE)
         # set the thread as finished
         self.done = True

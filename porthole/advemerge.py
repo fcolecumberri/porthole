@@ -42,7 +42,7 @@ class AdvancedEmergeDialog:
 
         # Parse glade file
         self.gladefile = prefs.DATA_PATH + "advemerge.glade"
-        self.wtree = gtk.glade.XML(self.gladefile, "adv_emerge_dialog")
+        self.wtree = gtk.glade.XML(self.gladefile, "adv_emerge_dialog", self.prefs.APP)
      
         # register callbacks
         callbacks = {"on_ok_clicked" : self.ok_clicked,
