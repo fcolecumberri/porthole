@@ -54,7 +54,8 @@ class MainWindow:
             "on_category_view_cursor_changed" : self.category_changed,
             "on_package_view_cursor_changed" : self.package_changed,
             "view_filter_changed" : self.view_filter_changed,
-            "on_pretend1_activate" : self.pretend_set
+            "on_pretend1_activate" : self.pretend_set,
+            "on_notebook_switch_page" : self.notebook_changed
             }
         self.wtree.signal_autoconnect(callbacks)
         # aliases for convenience
@@ -339,8 +340,18 @@ class MainWindow:
         """Catch when the user changes packages."""
         package = self.get_treeview_selection(treeview, 2)
         self.summary.update_package_info(package)
-        self.depends.fill_depends_tree(self.deps_view, package)
+        #if the user is looking at the deps we need to update them
+        notebook = self.wtree.get_widget("notebook")
+        if notebook.get_current_page() == 1:
+            self.depends.fill_depends_tree(self.deps_view, package)
         self.set_package_actions_sensitive(gtk.TRUE)
+
+    def notebook_changed(self, widget, pointer, index):
+        """Catch when the user changes the notebook"""
+        if index == 1:
+            #fill the deps view!
+            package = self.get_treeview_selection(self.package_view, 2)
+            self.depends.fill_depends_tree(self.deps_view, package)
 
     SHOW_ALL = 0
     SHOW_INSTALLED = 1
