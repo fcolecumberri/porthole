@@ -55,7 +55,8 @@ class MainWindow:
             "on_about" : self.about,
             "on_category_view_cursor_changed" : self.category_changed,
             "on_package_view_cursor_changed" : self.package_changed,
-            "view_filter_changed" : self.view_filter_changed
+            "view_filter_changed" : self.view_filter_changed,
+            "on_pretend1_activate" : self.pretend_set
             }
         self.wtree.signal_autoconnect(callbacks)
         # aliases for convenience
@@ -64,8 +65,10 @@ class MainWindow:
         self.notebook = self.wtree.get_widget("notebook")
         #set unfinished items to not be sensitive
         self.wtree.get_widget("view_statistics1").set_sensitive(gtk.FALSE)
-        self.wtree.get_widget("search_descriptions1").set_sensitive(gtk.FALSE)
-        self.wtree.get_widget("pretend1").set_sensitive(gtk.FALSE)
+        self.wtree.get_widget("contents2").set_sensitive(gtk.FALSE)
+        self.wtree.get_widget("btn_help").set_sensitive(gtk.FALSE)
+        #set things we can't do unless a package is selected to not sensitive
+        self.set_package_actions_sensitive(gtk.FALSE)
         #setup our treemodels
         self.category_model = None
         self.package_model = None
@@ -76,6 +79,8 @@ class MainWindow:
         self.search_results.size = 0
         #setup sudo use
         self.use_sudo = -1
+        #want to use -p option for pretend?
+        self.pretend = ""
         # summary view
         scroller = self.wtree.get_widget("summary_text_scrolled_window");
         self.summary = Summary()
@@ -234,20 +239,28 @@ class MainWindow:
             else:
                 ProcessWindow(command)
 
+    def pretend_set(self, widget):
+        """Set whether or not we are going to use the --pretend flag"""
+        if widget.get_active():
+            self.pretend = "--pretend "
+        else:
+            self.pretend = ""
+
     def emerge_package(self, widget):
         """Emerge the currently selected package."""
         package = self.get_treeview_selection(
             self.wtree.get_widget("package_view"), 2)
-        command = self.setup_command("emerge " + package.get_category() +
-            "/" + package.get_name(), self.emerge_package)
+        command = self.setup_command("emerge " + self.pretend
+            + package.get_category() + "/" +
+            package.get_name(), self.emerge_package)
 
     def unmerge_package(self, widget):
         """Unmerge the currently selected package."""
         package = self.get_treeview_selection(
             self.wtree.get_widget("package_view"), 2)
         command = self.setup_command("emerge unmerge " +
-            package.get_category() + "/" + package.get_name(),
-            self.unmerge_package)
+            self.pretend + package.get_category() + "/" +
+            package.get_name(), self.unmerge_package)
 
     def sync_tree(self, widget):
         """Sync the portage tree and reload it when done."""
@@ -255,7 +268,8 @@ class MainWindow:
 
     def upgrade_packages(self, widget):
         """Upgrade all packages that have newer versions available."""
-        command = self.setup_command("emerge -uD world", self.upgrade_packages)
+        command = self.setup_command("emerge -uD " + self.pretend +
+                                     "world", self.upgrade_packages)
 
     def package_search(self, widget):
         """Search package db with a string and display results."""
@@ -264,9 +278,14 @@ class MainWindow:
             self.search_results.clear()
             re_object = re.compile(search_term, re.I)
             count = 0
+            search_desc = self.wtree.get_widget("search_descriptions1").get_active()
             # no need to sort self.db.list; it is already sorted
             for name, data in self.db.list:
-                if re_object.search(name):
+                searchstring = name
+                if search_desc:
+                    desc = data.get_properties().description
+                    searchstring += desc
+                if re_object.search(searchstring):
                     count += 1
                     iter = self.search_results.insert_before(None, None)
                     self.search_results.set_value(iter, 0, name)
@@ -316,6 +335,7 @@ class MainWindow:
         self.populate_package_tree(packages)
         self.summary.update_package_info(None)
         self.notebook.set_sensitive(gtk.FALSE)
+        self.set_package_actions_sensitive(gtk.FALSE)
 
     def package_changed(self, treeview):
         """Catch when the user changes packages."""
@@ -324,6 +344,7 @@ class MainWindow:
         self.depends.fill_depends_tree(self.wtree.get_widget("depend_view"),
                                   package)
         self.notebook.set_sensitive(gtk.TRUE)
+        self.set_package_actions_sensitive(gtk.TRUE)
 
     SHOW_ALL = 0
     SHOW_INSTALLED = 1
@@ -346,6 +367,7 @@ class MainWindow:
         elif index == self.SHOW_SEARCH:
             cat_scroll.hide()
             self.package_view.set_model(self.search_results)
+        self.set_package_actions_sensitive(gtk.FALSE)
 
     def update_statusbar(self, mode):
         """Update the statusbar for the selected filter"""
@@ -359,6 +381,13 @@ class MainWindow:
         elif mode == self.SHOW_SEARCH:
             text = "%d matches found" % self.search_results.size
         self.set_statusbar(text)
+
+    def set_package_actions_sensitive(self, enabled):
+        """Sets package action buttons/menu items to sensitive or not"""
+        self.wtree.get_widget("emerge_package1").set_sensitive(enabled)
+        self.wtree.get_widget("unmerge_package1").set_sensitive(enabled)
+        self.wtree.get_widget("btn_emerge").set_sensitive(enabled)
+        self.wtree.get_widget("btn_unmerge").set_sensitive(enabled)
 
 
 if __name__ == "__main__":
