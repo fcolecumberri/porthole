@@ -14,7 +14,7 @@
 
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See thefor index in range(1,len(
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
@@ -23,78 +23,86 @@
 '''
 
 import gtk, gtk.glade
+import portagelib
+from version_sort import ver_sort
 from utils import load_web_page, dprint
 from version import version
 
 class AdvancedEmergeDialog:
     """Class to perform advanced emerge dialog functionality."""
 
-    def __init__(self, prefs, package):
+    def __init__(self, prefs, package, setup_command):
+        """ Initialize Advanced Emerge Dialog window """
+        self.prefs = prefs
         # setup glade
-        self.gladefile = prefs.DATA_PATH + "porthole.glade"
+        self.gladefile = prefs.DATA_PATH + "advemerge.glade"
         self.wtree = gtk.glade.XML(self.gladefile, "adv_emerge_dialog")
         self.package = package
+        self.setup_command = setup_command
         # register callbacks
-        callbacks = {"on_adv_ok_clicked" : self.ok_clicked,
-                     "on_adv_help_clicked" : self.help_clicked,
-                     "on_adv_cancel_clicked" : self.cancel_clicked}
+        callbacks = {"on_ok_clicked" : self.ok_clicked,
+                     "on_help_clicked" : self.help_clicked,
+                     "on_cancel_clicked" : self.cancel_clicked,
+                     "on_cbQuiet_clicked" : self.quiet_check,
+                     "on_cbVerbose_clicked" : self.verbose_check}
+
         self.wtree.signal_autoconnect(callbacks)
         self.window = self.wtree.get_widget("adv_emerge_dialog")
-        self.window.set_title("Emerge Settings for " + package.full_name )
+        self.window.set_title("Emerge Parameters for " + package.full_name )
         self.combo = self.wtree.get_widget("clVersion")
 
+        # Set up use flag info
+
+        self.UseFlagFrame = self.wtree.get_widget("frameUseFlags")
+        self.sys_use_flags = portagelib.get_portage_environ("USE").split()
+        self.ufList = []
+        self.build_use_flag_widget()
+      
         # Populate version dropdown list
 
-        verList = [self.package.full_name] + self.package.get_versions()
+        verList = [self.package.full_name] + \
+            ver_sort(self.package.get_versions())
+
+        # Insert equal sign into explicit versions for 
+        # proper emerge operation
+        for index in range(1,len(verList)):
+            verList[index] = '=' + verList[index]
+
         self.combo.set_popdown_strings(verList)
 
 
     def ok_clicked(self, widget):
         """ Interrogate object for settings and start the ebuild """
-        # Build option string 
-
-        options = self.get_options()
-
         # Build use flag string
-
-        use_flags = ''
+        use_flags = self.get_use_flags()
         if len(use_flags) > 0:
             use_flags = "USE='" + use_flags + "' "
         
         # Build accept keyword string
-
         accept_keywords = self.get_keyword()
         if len(accept_keywords) > 0:
             accept_keywords = "ACCEPT_KEYWORDS='" + accept_keywords + "' "
 
         # Send command to be processed
-
-        print use_flags + \
+        command = use_flags + \
             accept_keywords + \
             "emerge " + \
-            options +\
+            self.get_options() + \
             self.combo.entry.get_text()
-        '''
-        self.setup_command(package.get_name(), \
-            use_flags + \
-            accept_keywords + \
-            "emerge " + \
-            options +\
-            self.combo.entry.get_text())
-        '''
 
-        # Dispose of the dialog!
+        # Dispose of the dialog
         self.window.destroy()
+        
+        # Submit the command for processing
+        self.setup_command(self.package.get_name(), command)
 
     def cancel_clicked(self, widget):
-        """Open Porthole's Homepage!"""
+        """ Cancel operation """
         self.window.destroy()
-
 
     def help_clicked(self, widget):
-        """Open Porthole's Homepage!"""
+        """ Display help (someday) """
         self.window.destroy()
-
 
     def get_keyword(self):
         """ Create keyword list from radio buttons """
@@ -112,29 +120,103 @@ class AdvancedEmergeDialog:
                 return KeyWord
         return ''
 
+    def get_use_flags(self):
+        flags = ''
+        for child in self.ufList:
+            flag = child[1][1:]
+            if child[0].get_active():
+                if child[1][0] == '-':
+                    flags += flag + ' '
+            else:
+                if child[1][0] == '+':
+                    flags += '-' + flag + ' '
+        return flags
 
     def get_options(self):
         """ Create keyword list from option checkboxes """
-        List = [('cbBuildpkg', '-b ', '--buildpkg '),
+        List = [('cbBuildPkg', '-b ', '--buildpkg '),
                 ('cbBuildPkgOnly', '-B ', '--buildpkgonly '),
                 ('cbDebug', '-d ', '--debug '),
-                ('cbFetchonly', '-f ', '--fetchonly '),
-                ('cbEmptytree', '-e ', '--emptytree '),
+                ('cbFetchOnly', '-f ', '--fetchonly '),
+                ('cbEmptyTree', '-e ', '--emptytree '),
                 ('cbDeep', '-D ', '--deep '),
-                ('cbNoconfmem', '--noconfmem ', '--noconfmem '),
-                ('cbNodeps', '-O ', '--nodeps '),
-                ('cbNoreplace', '-n ', '--noreplace '),
-                ('cbOneshot', '--oneshot ', '--oneshot '),
-                ('cbOnlydeps', '-o ', '--onlydeps '),
+                ('cbNoConfMem', '--noconfmem ', '--noconfmem '),
+                ('cbNoDeps', '-O ', '--nodeps '),
+                ('cbNoReplace', '-n ', '--noreplace '),
+                ('cbOneShot', '--oneshot ', '--oneshot '),
+                ('cbOnlyDeps', '-o ', '--onlydeps '),
                 ('cbPretend','-p ', '--pretend '),
-                ('cbUpgradeonly','-U ', '--upgradeonly '),
+                ('cbUpgradeOnly','-U ', '--upgradeonly '),
                 ('cbUpdate','-u ', '--update '),
-                ('cbUsepkgonly', '-K ', '--usepkgonly '),
-                ('cbUsepkg', '-k ', '--usepkg '),
+                ('cbUsePkgOnly', '-K ', '--usepkgonly '),
+                ('cbUsePkg', '-k ', '--usepkg '),
                 ('cbQuiet', '-q ', '--quiet '),
                 ('cbVerbose', '-v ', '--verbose ')]
         options = ''
         for Name, ShortOption, LongOption in List:
             if self.wtree.get_widget(Name).get_active():
                 options += LongOption
+        if self.prefs.emerge.nospinner:
+            options += '--nospinner '
         return options
+
+    def quiet_check(self, widget):
+        """ If quiet is selected, disable verbose """
+        if widget.get_active():
+            self.wtree.get_widget("cbVerbose").set_active(gtk.FALSE)
+
+    def verbose_check(self, widget):
+        """ If verbose is selected, disable quiet """
+        if widget.get_active():
+            self.wtree.get_widget("cbQuiet").set_active(gtk.FALSE)
+
+    def build_use_flag_widget(self):
+        """ Create a table layout and populate it with 
+            checkbox widgets representing the available
+            use flags
+        """
+        # Get package use flags
+        props = self.package.get_properties()
+        use_flags = props.get_use_flags()
+
+        # Build table to hold checkboxes
+        size = len(use_flags)
+        maxcol = 3
+        maxrow = size / maxcol - 1
+        if maxrow < 0:
+            maxrow = 0
+        table = gtk.Table(maxrow, maxcol-1, gtk.TRUE)
+        self.UseFlagFrame.add(table)
+
+        self.ufList = []
+
+        # Iterate through use flags collection, create checkboxes
+        # and attach to table
+        col = 0
+        row = 0
+        for flag in use_flags:
+            
+            button = gtk.CheckButton(flag)
+            if flag in self.sys_use_flags:
+                # Display system level flags with a +
+                button = gtk.CheckButton('+' + flag)
+                # By default they are set "on"
+                button.set_active(gtk.TRUE)
+                self.ufList.append([button, '+' + flag])
+            else:
+                # Display unset flags with a -
+                button = gtk.CheckButton('-' + flag)
+                # By default they are set "off"
+                button.set_active(gtk.FALSE)
+                self.ufList.append([button, '-' + flag])
+            # Attach button to table and show it
+            table.attach(button, col, col+1, row, row+1)
+            button.show()
+            # Increment col & row counters
+            col += 1
+            if col > maxcol:
+                col = 0
+                row += 1
+        # Display the entire table
+        table.show()
+

@@ -288,7 +288,7 @@ class MainWindow:
         """Advanced emerge of the currently selected package."""
         package = get_treeview_selection(self.package_view, 2)
         # Activate the advanced emerge dialog window
-        dialog = AdvancedEmergeDialog(self.prefs, package)
+        dialog = AdvancedEmergeDialog(self.prefs, package, self.setup_command)
 
     def unmerge_package(self, widget):
         """Unmerge the currently selected package."""

@@ -27,7 +27,7 @@ from utils import dprint
 from version import version
 
 class RunDialog:
-    """Class to hold about dialog and functionality."""
+    """Class to hold run dialog and functionality."""
 
     def __init__(self, prefs, call_back):
         # setup glade
