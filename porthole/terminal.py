@@ -100,7 +100,7 @@ class ProcessManager:
                      "on_move_up" : self.move_queue_item_up,
                      "on_move_down" : self.move_queue_item_down,
                      "on_remove" : self.remove_queue_item,
-                     "on_quit" : gtk.mainquit}
+                     "on_quit" : self.destroy_window}
         self.wtree.signal_autoconnect(callbacks)
         # setup some aliases for easier access
         self.window = self.wtree.get_widget("process_window")
@@ -262,6 +262,10 @@ class ProcessManager:
                 print "Error in child:"
                 print e
                 os._exit(1)
+
+    def destroy_window(self, widget):
+        """ Destroy the window when the close button is pressed """
+        self.window.destroy()
 
     def on_process_window_destroy(self, widget, data = None):
         """Window was closed"""

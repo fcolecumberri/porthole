@@ -1066,7 +1066,7 @@ Special thanks to Brian Dolbec</property>
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">_Close Window</property>
 			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_process_window_destroy" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
+			  <signal name="activate" handler="on_quit" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
 			    <widget class="GtkImage" id="image294">
