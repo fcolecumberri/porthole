@@ -556,8 +556,10 @@ class MainWindow:
         self.wtree.get_widget("btn_emerge").set_sensitive(enabled)
         if not enabled or enabled and package.is_installed:
             self.wtree.get_widget("btn_unmerge").set_sensitive(enabled)
+            self.wtree.get_widget("unmerge_package1").set_sensitive(enabled)
         else:
             self.wtree.get_widget("btn_unmerge").set_sensitive(not enabled)
+            self.wtree.get_widget("unmerge_package1").set_sensitive(not enabled)
         self.notebook.set_sensitive(enabled)
 
     def size_update(self, widget, gbox):
