@@ -213,6 +213,8 @@ class MainWindow:
                     self.wtree.get_widget("main_window"),
                     "Please run Porthole as root to emerge packages!",
                     None, "_Ok")
+            return 0
+        return 1
 
     def pretend_set(self, widget):
         """Set whether or not we are going to use the --pretend flag"""
@@ -266,8 +268,9 @@ class MainWindow:
                 iter = model.iter_next(iter)
             dprint("MAIN: Updating packages...")
             for package in packages_list.split():
-                self.setup_command(package.split('/')[1], "emerge -u" +
-                        self.prefs.emerge.get_string() + package)
+                if not self.setup_command(package.split('/')[1], "emerge -u" +
+                            self.prefs.emerge.get_string() + package):
+                    return
         else:
             dprint("MAIN: Upgrades not loaded; upgrade world?")
             self.upgrades_loaded_dialog = YesNoDialog("Upgrade requested",
