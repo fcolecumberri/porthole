@@ -327,8 +327,9 @@ class XMLManager:
       """ Set the requested node value(s) in DOM tree
           Parameters: 
              namedef = string representing a node path.
-             value = string or array of strings to set as node text values
-          Returns: an array of strings or None if not found
+             value = any intrinsic type Python variable, list, tuple or
+                     dictionary consisting of basic Python types
+          Returns: nothing
       """
       # First check to make sure DOM is initialized 
 
