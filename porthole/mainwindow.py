@@ -443,7 +443,7 @@ class MainWindow:
                 self.installed_files.set_text("Not installed")
         else:
             dprint("MAIN: No package sent to load_installed_files!")
-            self.installed_files.set_text("No data currently available available.\n\
+            self.installed_files.set_text("No data currently available.\n\
                                            The package may not be installed")
 
     SHOW_ALL = 0
