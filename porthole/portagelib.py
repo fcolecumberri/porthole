@@ -21,8 +21,9 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 """
 
-from sys import exit, stderr
-try:    
+from sys import exit
+from utils import dprint
+try:
     import portage
 except ImportError:
     exit('Could not find portage module.\n'
@@ -277,4 +278,3 @@ if __name__ == "__main__":
             print "Installed:", package.get_installed()
             print "Latest:", get_version(package.get_latest_ebuild())
             print "Latest unmasked:", get_version(package.get_latest_ebuild(0))
-

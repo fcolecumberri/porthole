@@ -28,7 +28,7 @@ import portagelib
 
 from about import AboutDialog
 from depends import DependsTree
-from utils import load_web_page, get_icon_for_package, is_root
+from utils import load_web_page, get_icon_for_package, is_root, dprint
 from process import ProcessWindow
 from summary import Summary
 

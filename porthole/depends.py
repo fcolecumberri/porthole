@@ -24,7 +24,7 @@
 import pygtk
 pygtk.require("2.0") #make sure we have the right version
 import gtk, gobject, portagelib, string
-#from utils import get_icon_for_package
+from utils import dprint
 
 class DependsTree(gtk.TreeStore):
     """Calculate and display dependencies in a treeview"""
@@ -140,6 +140,7 @@ class DependsTree(gtk.TreeStore):
 
     def fill_depends_tree(self, treeview, package):
         """Fill the dependencies tree for a given ebuild"""
+        dprint("Updating deps tree for " + package.get_name())
         ebuild = package.get_latest_ebuild()
         depends = string.split(portagelib.get_property(ebuild, "DEPEND"))
         self.clear()
