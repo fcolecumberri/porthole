@@ -358,11 +358,14 @@ class MainWindow:
                 if package.upgradable():
                     installed += [(package.full_name, package)]
         installed = portagelib.sort(installed)
+        world = open("/var/cache/edb/world", "r").read().split()
         for full_name, package in installed:
             iter = upgrade_results.insert_before(None, None)
             upgrade_results.set_value(iter, 0, full_name)
             upgrade_results.set_value(iter, 2, package)
-            upgrade_results.set_value(iter, 1, gtk.TRUE)
+            upgrade_results.set_value(iter, 1,
+                                      full_name in world
+                                      and gtk.TRUE or gtk.FALSE)
         return
 
     def update_statusbar(self, mode):
