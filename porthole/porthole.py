@@ -38,7 +38,19 @@ try:
     import portagelib
 except ImportError:
     print "Error loading libraries!\nCan't find portagelib!"
+try:
+    import process
+except ImportError:
+    print "Error loading libraries!\nCan't find process!"
 
+def xml_esc(string):
+    """Escape characters that have special meanings in XML"""
+    def subst(c):
+        if c == '<': return '&lt;'
+        elif c == '>': return '&gt;'
+        elif c == '&': return '&amp;'
+        else: return c
+    return ''.join(map(subst, string))
 
 class MainWindow:
     """Main Window class to setup and manage main window interface."""
@@ -67,6 +79,9 @@ class MainWindow:
         self.category_model = None
         self.package_model = None
         self.search_results = None
+        #setup some textbuffers
+        self.summary_buffer = gtk.TextBuffer()
+        self.depend_buffer = gtk.TextBuffer()
         #declare the database
         self.db = None
         #set category treeview header
@@ -120,6 +135,7 @@ class MainWindow:
         return gtk.TRUE
 
     def populate_category_tree(self):
+        '''fill the category tree'''
         last_catmaj = None
         categories = self.db.categories.keys()
         categories.sort()
@@ -139,6 +155,7 @@ class MainWindow:
         self.wtree.get_widget("category_view").set_model(self.category_model)
 
     def populate_package_tree(self, category):
+        '''fill the package tree'''
         view = self.wtree.get_widget("package_view")
         self.package_model = gtk.TreeStore(gobject.TYPE_STRING,
                                            gtk.gdk.Pixbuf)
@@ -168,7 +185,7 @@ class MainWindow:
 
     def sync_tree(self, widget):
         """Sync the portage tree and reload it when done."""
-        pass
+        sync_process = process.ProcessWindow("emerge sync")
 
     def upgrade_packages(self, widget):
         """Upgrade all packages that have newer versions available."""
@@ -186,17 +203,83 @@ class MainWindow:
         """Show about dialog."""
         dialog = AboutDialog()
 
+    def get_treeview_selection(self, treeview, num):
+        """Get the value of whatever is selected in a treeview, num is the column"""
+        model, iter = treeview.get_selection().get_selected()
+        selection = None
+        if iter:
+            selection = model.get_value(iter, num)
+        return selection
+
     def category_changed(self, treeview):
         """Catch when the user changes categories."""
-        model, iter = treeview.get_selection().get_selected()
-        category = None
-        if iter:
-            category = model.get_value(iter, 1)
+        category = self.get_treeview_selection(treeview, 1)
         self.populate_package_tree(category)
+        self.update_package_info(None)
 
-    def package_changed(self, treewiew):
+    def package_changed(self, treeview):
         """Catch when the user changes packages."""
-        pass
+        category = self.get_treeview_selection(self.wtree.get_widget("category_view"), 1)
+        package = self.get_treeview_selection(treeview, 0)
+        self.update_package_info(category + "/" + package)
+
+    def update_package_info(self, package_name):
+        """Update the notebook of information about a selected package"""
+        self.summary_buffer.set_text("", 0)
+        if package_name == None:
+            #it's really a category selected!
+            self.wtree.get_widget("notebook").set_sensitive(gtk.FALSE)
+        else:
+            #put the info into the textview!
+            self.wtree.get_widget("notebook").set_sensitive(gtk.TRUE)
+            #set the package
+            package = portagelib.Package(package_name)
+            package.read_description()
+            package.read_versions()
+            #read it's info
+            description = package.description
+            ebuild = package.get_latest_ebuild()
+            installed = package.get_installed()
+            versions = package.versions
+            homepage = package.get_homepage()
+            use_flags = package.get_use_flags()
+            license = package.get_license()
+            slot = package.get_slot()
+            #build the information together into a buffer
+            ''' TODO:
+                setup tags to make the text pretty
+                get dependencies and show them in the dependency tab/textview
+                figure out what to put into the extras tab...?
+            '''
+            #fill data that must be available:
+            sbuffer = package_name + "\n"
+            #fill in optional data
+            if description:
+                sbuffer += description + "\n"
+            if homepage:
+                sbuffer += homepage + "\n"
+            #put a space between this info and the rest
+            sbuffer += "\n"
+            if installed:
+                for i in range(len(installed)):
+                    installed[i] = portagelib.get_version(installed[i])
+                sbuffer += "Installed Versions: " + string.join(installed, ", ") + "\n"
+            if versions:
+                for i in range(len(versions)):
+                    versions[i] = portagelib.get_version(versions[i])
+                sbuffer += "Available Versions: " + string.join(versions, ", ") + "\n"
+            #put a space between this info and the rest, again
+            sbuffer += "\n"
+            if use_flags:
+                sbuffer += "Use Flags: " + string.join(use_flags, ", ") + "\n"
+            if license:
+                #why is the license returned character for character???
+                sbuffer += "License: " + string.join(license, "") + "\n"
+            if slot:
+                sbuffer += "Slot: " + slot + "\n"
+            self.summary_buffer.insert_at_cursor(sbuffer, len(sbuffer))
+            self.wtree.get_widget("summary_text").set_buffer(self.summary_buffer)
+            
 
 
 class AboutDialog:

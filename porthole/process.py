@@ -93,7 +93,7 @@ class ProcessWindow(threading.Thread):
         append_line('*** process terminated ***')
 
 # Test program,
-# run as ./porthole <any command with parameters>
+# run as ./process <any command with parameters>
 if __name__ == "__main__":
     gtk.threads_init()  # make sure gtk lets other threads run too
     w = ProcessWindow(' '.join(argv[1:]))

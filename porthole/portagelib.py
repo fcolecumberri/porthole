@@ -105,6 +105,7 @@ class Package:
         self.full_name = full_name
         self.description = ''
         self.installed = portage.db['/']['vartree'].dep_match(full_name)
+        self.versions = ''
         #self.read_description()  # too slow, no dough
         
     def get_name(self):
@@ -148,6 +149,9 @@ class Package:
                 "An error occured when reading the description:\n"
                 + str(e))
 
+    def read_versions(self):
+        """Read all versions of the available ebuild"""
+        self.versions = portage.db['/']['porttree'].dep_match(self.full_name)
 
 def sort(list):
     """sort in alphabetic instead of ASCIIbetic order"""
