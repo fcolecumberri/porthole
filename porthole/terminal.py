@@ -85,6 +85,7 @@ class ProcessManager:
         self.reader = ProcessOutputReader(self.update, self.process_done)
         # start the reader
         self.reader.start()
+        gtk.timeout_add(100, self.update)
 
     def show_window(self):
         """ Show the process window """
@@ -321,43 +322,47 @@ class ProcessManager:
         self.append(self.caution_text, text)
         self.append(self.info_text, text)
 
-    def update(self, char):
+    def update(self):
         """ Add text to the buffer """
         # stores line of text in buffer
         # prints line when '\n' is reached
-        if char:
-            # catch portage escape sequence NOCOLOR bugs
-            if ord(char) == 27 or self.catch_seq:
-                    self.catch_seq = True
-                    if ord(char) != 27:
-                        self.escape_seq += char
-                    if char == 'm':
-                        self.catch_seq = False
-                        #dprint('escape_seq='+escape_seq)
-                        self.escape_seq = ""
-            elif char == '\b': # backspace
-                self.process_buffer = self.process_buffer[:-1]
-            elif 32 <= ord(char) <= 127 or char == '\n': # no unprintable
-                self.process_buffer += char
-                if char == '\n': # newline
-                    if self.re_object_emerge.search(self.process_buffer):
-                        self.set_statusbar(self.process_buffer[:-1])
-                        # add the pkg info to all other tabs to identify fom what
-                        # pkg messages came from but no need to show it if it isn't
-                        self.append_all(self.process_buffer,False)
-                    elif self.re_object_info.search(self.process_buffer):
-                        # info string has been found, show info tab if needed
-                        if not self.info_tab.showing:
-                            self.show_tab(TAB_INFO)
-                            self.info_tab.showing = True
-                        # insert the line into the info text buffer
-                        self.info_text.insert(self.info_text.get_end_iter(),\
-                                              self.process_buffer)
-                    self.process_text.insert(self.process_text.get_end_iter(),\
-                                             self.process_buffer)
-                    self.process_buffer = ''
-            elif ord(char) == 13: # carriage return?
-                pass
+        #if not self.reader.string: return gtk.TRUE
+        for char in self.reader.string:
+            if char:
+                # catch portage escape sequence NOCOLOR bugs
+                if ord(char) == 27 or self.catch_seq:
+                        self.catch_seq = True
+                        if ord(char) != 27:
+                            self.escape_seq += char
+                        if char == 'm':
+                            self.catch_seq = False
+                            #dprint('escape_seq='+escape_seq)
+                            self.escape_seq = ""
+                elif char == '\b': # backspace
+                    self.process_buffer = self.process_buffer[:-1]
+                elif 32 <= ord(char) <= 127 or char == '\n': # no unprintable
+                    self.process_buffer += char
+                    if char == '\n': # newline
+                        if self.re_object_emerge.search(self.process_buffer):
+                            self.set_statusbar(self.process_buffer[:-1])
+                            # add the pkg info to all other tabs to identify fom what
+                            # pkg messages came from but no need to show it if it isn't
+                            self.append_all(self.process_buffer,False)
+                        elif self.re_object_info.search(self.process_buffer):
+                            # info string has been found, show info tab if needed
+                            if not self.info_tab.showing:
+                                self.show_tab(TAB_INFO)
+                                self.info_tab.showing = True
+                            # insert the line into the info text buffer
+                            self.info_text.insert(self.info_text.get_end_iter(),\
+                                                  self.process_buffer)
+                        self.process_text.insert(self.process_text.get_end_iter(),\
+                                                 self.process_buffer)
+                        self.process_buffer = ''
+                elif ord(char) == 13: # carriage return?
+                    pass
+        self.reader.string = ""
+        return gtk.TRUE
 
     def set_statusbar(self, string):
         """Update the statusbar without having to use push and pop."""
@@ -590,6 +595,7 @@ class ProcessOutputReader(threading.Thread):
         self.setDaemon(1)  # quit even if this thread is still running
         self.process_running = False
         self.fd = None
+        self.string = ""
 
     def run(self):
         """ Watch for process output """
@@ -603,7 +609,8 @@ class ProcessOutputReader(threading.Thread):
                     char = None
                 if char:
                     # send the char to the update callback
-                    self.update_callback(char)
+                    #self.update_callback(char)
+                    self.string += char
                 else:
                     # clean up, process is terminated
                     self.process_running = False
