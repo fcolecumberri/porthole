@@ -35,8 +35,7 @@ from summary import Summary
 class MainWindow:
     """Main Window class to setup and manage main window interface."""
     
-    def __init__(self, myversion):
-        self.version = myversion
+    def __init__(self):
         #setup glade
         self.gladefile = "porthole.glade"
         self.wtree = gtk.glade.XML(self.gladefile, "main_window")
@@ -309,7 +308,7 @@ class MainWindow:
 
     def about(self, widget):
         """Show about dialog."""
-        dialog = AboutDialog(self.version)
+        dialog = AboutDialog()
 
     def get_treeview_selection(self, treeview, num):
         """Get the value of whatever is selected in a treeview,

@@ -22,12 +22,12 @@
 '''
 
 import gtk, gtk.glade
-from utils import load_web_page
+from utils import load_web_page, version
 
 class AboutDialog:
     """Class to hold about dialog and functionality."""
 
-    def __init__(self, version):
+    def __init__(self):
         #setup glade
         self.gladefile = "porthole.glade"
         self.wtree = gtk.glade.XML(self.gladefile, "about_dialog")

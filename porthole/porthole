@@ -55,6 +55,6 @@ if __name__ == "__main__":
     myicon = gtk.gdk.pixbuf_new_from_file("pixmaps/porthole-icon.png")
     gtk.window_set_default_icon_list(myicon)
     #create the main window
-    myapp = MainWindow(version)
+    myapp = MainWindow()
     #start the program loop
     gtk.mainloop()
