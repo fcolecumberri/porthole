@@ -122,8 +122,11 @@ class PackageView(CommonTreeView):
 
     def _clicked(self, treeview):
         """ Handles treeview clicks """
+        dprint("VIEWS: Package view _clicked() signal caught")
         # get the selection
         package = get_treeview_selection(treeview, 2)
+        #dprint("VIEWS: package = ")
+        #dprint(package)
         if self.current_view == self.UPGRADABLE:
             if package.full_name == self._last_selected:
                 model, iter = self.get_selection().get_selected()
@@ -134,8 +137,10 @@ class PackageView(CommonTreeView):
             elif self._package_changed:
                 self._package_changed(package)
         else:
+            #dprint("VIEWS: full_name != _last_package = %d" %(package.full_name != self._last_selected))
             if package.full_name != self._last_selected:
                 if self._package_changed:
+                    dprint("VIEWS: calling registered package_changed()")
                     self._package_changed(package)
         self._last_selected = package.full_name
 

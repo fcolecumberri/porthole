@@ -141,6 +141,8 @@ class MainWindow:
         self.upgrades_loaded = False
         # upgrade loading callback
         self.upgrades_loaded_callback = None
+        self.current_category = None
+        self.current_package = None
         # descriptions loaded?
         self.desc_loaded = False
         # set notebook tabs to load new package info
@@ -150,10 +152,22 @@ class MainWindow:
         # load the db
         self.db_thread = portagelib.DatabaseReader()
         self.db_thread.start()
+        self.reload = False
         gtk.timeout_add(100, self.update_db_read)
         # set status
         self.set_statusbar("Reading package database: %i packages read"
                            % 0)
+    def reload_db(self):
+        dprint("TERMINAL: reload_db() callback")
+        # load the db
+        self.db_thread = portagelib.DatabaseReader()
+        self.db_thread.start()
+        self.reload = True
+        gtk.timeout_add(100, self.update_db_read)
+        # set status
+        self.set_statusbar("Reading package database: %i packages read"
+                           % 0)
+
 
     def check_for_root(self):
         """figure out if the user can emerge or not..."""
@@ -190,21 +204,38 @@ class MainWindow:
             self.db = self.db_thread.get_db()
             self.set_statusbar("Populating tree ...")
             self.db_thread.join()
-            self.category_view.populate(self.db.categories.keys())
             self.update_statusbar(self.SHOW_ALL)
             self.wtree.get_widget("menubar").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("toolbar").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("view_filter").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("search_entry").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("btn_search").set_sensitive(gtk.TRUE)
-            self.set_package_actions_sensitive(False, None)
+            if not self.reload:
+                dprint("MAINWINDOW: update_db_read()... self.reload = False")
+                self.set_package_actions_sensitive(False, None)
+                self.category_view.populate(self.db.categories.keys())
             # make sure we search again if we reloaded!
             view_filter = self.wtree.get_widget("view_filter")
             if view_filter.get_history() == self.SHOW_SEARCH:
                 self.package_view.size = 0
                 self.package_search(None)
-            # update the views by calling view_filter_changed
-            self.view_filter_changed(view_filter)
+                # update the views by calling view_filter_changed
+                self.view_filter_changed(view_filter)
+            elif self.reload:
+                dprint("MAINWINDOW: update_db_read()... self.reload = True")
+                # reset _last_selected so it thinks this category is new again
+                self.category_view._last_selected = None
+                # re-select the category
+                self.category_view.set_cursor(self.current_category_cursor[0],
+                                              self.current_category_cursor[1])
+                # reset _last_selected so it thinks this package is new again
+                self.package_view._last_selected = None
+                # re-select the package
+                self.package_view.set_cursor(self.current_package_cursor[0],
+                                              self.current_package_cursor[1])
+            else:
+                # update the views by calling view_filter_changed
+                self.view_filter_changed(view_filter)
             return gtk.FALSE  # disconnect from timeout
         return gtk.TRUE
 
@@ -214,8 +245,10 @@ class MainWindow:
                             command[:11] != "emerge sync"):
             if self.prefs.emerge.pretend:
                 callback = lambda: None  # a function that does nothing
-            else:
+            elif package_name == "Sync":
                 callback = self.init_data
+            else:
+                callback = self.reload_db
             #ProcessWindow(command, env, self.prefs, callback)
             self.process_manager.add_process(package_name, command, callback)
         else:
@@ -394,6 +427,11 @@ class MainWindow:
 
     def category_changed(self, category):
         """Catch when the user changes categories."""
+        # log the new category for reloads
+        self.current_category = category
+        self.current_category_cursor = self.category_view.get_cursor()
+        dprint("Category cursor = ")
+        dprint(self.current_category_cursor)
         mode = self.wtree.get_widget("view_filter").get_history()
         if not category:
             packages = None
@@ -409,7 +447,12 @@ class MainWindow:
     def package_changed(self, package):
         """Catch when the user changes packages."""
         dprint("MAINWINDOW: package_changed()")
-        # notebook must sensitive before anything is displayed
+        # log the new package for db reloads
+        self.current_package = package
+        self.current_package_cursor = self.package_view.get_cursor()
+        dprint("Package cursor = ")
+        dprint(self.current_package_cursor)
+        # the notebook must be sensitive before anything is displayed
         # in the tabs, especially the deps_view
         self.set_package_actions_sensitive(gtk.TRUE, package)
         self.summary.update_package_info(package)
@@ -592,9 +635,11 @@ class MainWindow:
         self.wtree.get_widget("unmerge_package1").set_sensitive(enabled)
         self.wtree.get_widget("btn_emerge").set_sensitive(enabled)
         if not enabled or enabled and package.is_installed:
+            dprint("MAINWINDOW: set_package_actions_sensitive() setting unmerge to %d" %enabled)
             self.wtree.get_widget("btn_unmerge").set_sensitive(enabled)
             self.wtree.get_widget("unmerge_package1").set_sensitive(enabled)
         else:
+            dprint("MAINWINDOW: set_package_actions_sensitive() setting unmerge to %d" %(not enabled))
             self.wtree.get_widget("btn_unmerge").set_sensitive(not enabled)
             self.wtree.get_widget("unmerge_package1").set_sensitive(not enabled)
         self.notebook.set_sensitive(enabled)
@@ -606,7 +651,8 @@ class MainWindow:
         self.prefs.main.height = pos[1]
         self.prefs.main.hpane = self.wtree.get_widget("hpane").get_position()
         self.prefs.main.vpane = self.wtree.get_widget("vpane").get_position()
-        #dprint("MAINWINDOW: size_update() hpane; %d, vpane; %d" %(self.prefs.main.hpane, self.prefs.main.vpane))
+        #dprint("MAINWINDOW: size_update() hpane; %d, vpane; %d" \
+        #       %(self.prefs.main.hpane, self.prefs.main.vpane))
 
     def clear_notebook(self):
         """ Clear all notebook tabs & disble them """
