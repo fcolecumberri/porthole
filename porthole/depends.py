@@ -47,7 +47,7 @@ class DependsTree(gtk.TreeStore):
             else:
                 if depend not in ["(", ")", ":"]:
                     try: depend, ops = self.get_ops(depend)
-                    except: dprint("Depend didn't split: " + depend)
+                    except: dprint("DEPENDS: Depend didn't split: " + depend)
                     depend2 = None
                     if ops: # should only be specific if there are operators
                         depend2 = portagelib.extract_package(depend)
@@ -126,7 +126,7 @@ class DependsTree(gtk.TreeStore):
 
     def fill_depends_tree(self, treeview, package):
         """Fill the dependencies tree for a given ebuild"""
-        dprint("Updating deps tree for " + package.get_name())
+        dprint("DEPENDS: Updating deps tree for " + package.get_name())
         ebuild = package.get_latest_ebuild()
         depends = portagelib.get_property(ebuild, "DEPEND").split()
         self.clear()

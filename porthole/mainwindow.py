@@ -119,6 +119,7 @@ class MainWindow:
             self.check_for_root()
         # create and start our process manager
         self.process_manager = ProcessManager(environment(), self.prefs, self.config)
+        dprint("MAIN: Showing main window")
 
     def init_data(self):
         # set things we can't do unless a package is selected to not sensitive
@@ -206,7 +207,7 @@ class MainWindow:
             #ProcessWindow(command, env, self.prefs, callback)
             self.process_manager.add_process(package_name, command, callback)
         else:
-            dprint("Sorry, you aren't root! -> " + command)
+            dprint("MAIN: Sorry, you aren't root! -> " + command)
             self.sorry_dialog = SingleButtonDialog("You are not root!",
                     self.wtree.get_widget("main_window"),
                     "Please run Porthole as root to emerge packages!",
@@ -262,12 +263,12 @@ class MainWindow:
                     packages_list += model.get_value(iter, 0) + " "
                 # step to next iter
                 iter = model.iter_next(iter)
-            dprint("Updating packages...")
+            dprint("MAIN: Updating packages...")
             for package in packages_list.split():
                 self.setup_command(package.split('/')[1], "emerge -u" +
                         self.prefs.emerge.get_string() + package)
         else:
-            dprint("Upgrades not loaded; upgrade world?")
+            dprint("MAIN: Upgrades not loaded; upgrade world?")
             self.upgrades_loaded_dialog = YesNoDialog("Upgrade requested",
                     self.wtree.get_widget("main_window"),
                     "Do you want to upgrade all packages in your world file?",
@@ -465,7 +466,7 @@ class MainWindow:
             self.package_view.clear()
         elif index == self.SHOW_SEARCH:
             cat_scroll.hide();
-            dprint("Showing search results")
+            dprint("MAIN: Showing search results")
             self.package_view.set_view(self.package_view.SEARCH_RESULTS)
         elif index == self.SHOW_UPGRADE:
             if not self.upgrades_loaded:
@@ -651,6 +652,6 @@ class DescriptionReader(CommonReader):
             if self.cancelled: self.done = True; return
             self.descriptions[name] = package.get_properties().description
             if not self.descriptions[name]:
-                dprint(name)
+                dprint("MAIN: No description for " + name)
             self.count += 1
         self.done = True

@@ -26,7 +26,7 @@ import gtk, gobject
 import portagelib
 
 from depends import DependsTree
-from utils import get_treeview_selection, get_icon_for_package
+from utils import get_treeview_selection, get_icon_for_package, dprint
 
 class CommonTreeView(gtk.TreeView):
     """ Common functions used by all views """
@@ -77,6 +77,7 @@ class PackageView(CommonTreeView):
         self.connect("cursor_changed", self._clicked)
         # set default callbacks to nothing
         self.register_callbacks()
+        dprint("VIEWS: Package view initialized")
 
     def set_view(self, view):
         """ Set the current view """
@@ -142,6 +143,7 @@ class PackageView(CommonTreeView):
         """ Populate the current view with packages """
         if not packages:
             return
+        dprint("VIEWS: Populating package view")
         # get the right model
         model = self.get_model()
         model.clear()
@@ -178,6 +180,7 @@ class CategoryView(CommonTreeView):
         self.connect("cursor-changed", self._clicked)
         # register default callback
         self.register_callback()
+        dprint("VIEWS: Category view initialized")
 
     def register_callback(self, category_changed = None):
         """ Register callbacks for events """
@@ -197,6 +200,7 @@ class CategoryView(CommonTreeView):
     def populate(self, categories):
         """Fill the category tree."""
         self.clear()
+        dprint("VIEWS: Populating category view")
         last_catmaj = None
         categories.sort()
         for cat in categories:
@@ -229,6 +233,7 @@ class DependsView(CommonTreeView):
         self.append_column(column)
         # setup the model
         self.model = DependsTree()
+        dprint("VIEWS: Depends view initialized")
 
     def fill_depends_tree(self, treeview, package):
         """ Fill the dependency tree with dependencies """

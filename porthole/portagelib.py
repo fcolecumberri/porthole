@@ -175,7 +175,7 @@ class Package:
                 raise Exception('No ebuild found.')
             return get_properties(latest)
         except Exception, e:
-            dprint(e)
+            dprint("PORTAGELIB: " + e)
             return Properties()
 
     def get_versions(self, include_masked = True):

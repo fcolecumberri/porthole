@@ -22,7 +22,7 @@
 '''
 
 import gtk, gtk.glade
-from utils import load_web_page
+from utils import load_web_page, dprint
 from version import version
 
 class AboutDialog:
@@ -38,6 +38,7 @@ class AboutDialog:
         self.wtree.signal_autoconnect(callbacks)
         window = self.wtree.get_widget("about_dialog")
         window.set_title("About Porthole " + version)
+        dprint("ABOUT: Showing About dialog")
 
     def ok_clicked(self, widget):
         """Get rid of the about dialog!"""

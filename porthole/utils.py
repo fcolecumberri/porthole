@@ -107,7 +107,7 @@ def get_user_home_dir():
 def environment():
     """sets up the environment to run sub processes"""
     HOME = os.getenv("HOME")
-    dprint("HOME = " + str(HOME))
+    dprint("UTILS: HOME = " + str(HOME))
     env = {"FEATURES": "notitles",  # Don't try to set the titlebar
             "NOCOLOR": "true",       # and no colours, please
             "HOME":HOME}
@@ -191,7 +191,7 @@ class PortholePreferences:
 
         # check if directory exists, if not create it
         if not os.access(home + "/.porthole", os.F_OK):
-           dprint("~/.porthole does not exist, creating...")
+           dprint("PREFS: ~/.porthole does not exist, creating...")
            os.mkdir(home + "/.porthole")
 
         # open prefs file if we have access to the file  

@@ -365,9 +365,9 @@ class ProcessManager:
                 
             except Exception, e:
                 # print out the exception
-                dprint("Error in child" + e)
-                print "Error in child:"
-                print e
+                dprint("TERMINAL: Error in child" + e)
+                #print "Error in child:"
+                #print e
                 os._exit(1)
 
     def destroy_window(self, widget):
@@ -534,7 +534,7 @@ class ProcessManager:
         y = x[1].split(" ")
         name = y[0]
         self.filename = name + "." + self.buffer_types[TAB_LABELS[TAB_PROCESS]]
-        dprint("new ebuild detected, new filename: " + self.filename)
+        dprint("TERMINAL: New ebuild detected, new filename: " + self.filename)
         return
 
     def set_statusbar(self, string):
@@ -761,8 +761,8 @@ class ProcessManager:
         try:
             path = self.queue_model.get_path(iter)[0]
         except:
-            dprint("TERMINAL: Couldn't get queue view treeiter path,\
-                    there is probably nothing selected.")
+            dprint("TERMINAL: Couldn't get queue view treeiter path, " \
+                   "there is probably nothing selected.")
             return
         # if the item is not in the process list
         # don't make the controls sensitive and return
@@ -801,7 +801,7 @@ class ProcessManager:
 
     def set_save_buffer(self):
         """determines the notebook tab open and returns the visible buffer"""
-        dprint("entering set_save_buffer")
+        dprint("TERMINAL: Entering set_save_buffer")
         self.tabs_showing = 0
         tabs = 0
         self.tablist = [TAB_LABELS[TAB_PROCESS]]
@@ -811,17 +811,17 @@ class ProcessManager:
             if tab:
                 self.tabs_showing += 1
                 self.tablist += [TAB_LABELS[tabs]]
-        dprint(self.tablist)
+        #dprint(self.tablist)
         page = self.notebook.get_current_page()
         self.buffer_name = self.tablist[page]
         self.buffer_to_save = self.buffers[self.buffer_name]
         self.buffer_type = self.buffer_types[self.buffer_name]
-        dprint("set_save_buffer: " + self.buffer_name + " type: " + self.buffer_type)
+        dprint("TERMINAL: set_save_buffer: " + self.buffer_name + " type: " + self.buffer_type)
         return (self.buffer_name != None)
 
     def open_ok_func(self, filename):
         """callback function from file selector"""
-        dprint("entering callback open_ok_func")
+        dprint("LOG: Entering callback open_ok_func")
         if not self.window_visible: self.show_window()
         if not self.fill_buffer(filename):
             self.set_statusbar("*** Unknown File Loading error")
@@ -833,7 +833,7 @@ class ProcessManager:
 
     def do_open(self, widget):
         """opens the file selctor for file to open"""
-        dprint("entering do_open")
+        dprint("LOG: Entering do_open")
         if not self.directory:
             self.set_directory()
         try:
@@ -847,17 +847,17 @@ class ProcessManager:
 
     def do_save_as(self, widget):
         """determine buffer to save as and saves it"""
-        dprint("entering do_save_as")
+        dprint("LOG: Entering do_save_as")
         if not self.directory:
             self.set_directory()
         if self.set_save_buffer():
             result = self.check_buffer_saved(self.buffer_to_save, False)
         else:
-            dprint("Error: buffer is already saved")
+            dprint("TERMINAL: Error: buffer is already saved")
 
     def do_save(self, widget):
         """determine buffer to save and proceed"""
-        dprint("entering do_save")
+        dprint("LOG: Entering do_save")
         if not self.directory:
             self.set_directory()
         if not self.filename:
@@ -866,17 +866,17 @@ class ProcessManager:
             if self.set_save_buffer():
                 result = self.check_buffer_saved(self.buffer_to_save, True)
             else:
-                dprint("set_save_buffer error")
+                dprint("LOG: set_save_buffer error")
 
     def save_as_buffer(self):
-        dprint("entering save_as_buffer")
+        dprint("LOG: Entering save_as_buffer")
         return FileSel(self.title + ": Save File").run(self.window,
                                                            self.filename,
                                                            self.save_as_ok_func)
 
     def save_as_ok_func(self, filename):
         """file selector callback function"""
-        dprint("entering save_as_ok_func")
+        dprint("LOG: Entering save_as_ok_func")
         old_filename = self.filename
 
         if (not self.filename or filename != self.filename):
@@ -914,7 +914,7 @@ class ProcessManager:
  
     def pretty_name(self):
         """pre-assigns generic filename & serial #"""
-        dprint("entering pretty_name")
+        dprint("LOG: Entering pretty_name")
         # check if filename set and set the extension to the correct buffer type 
         if self.filename and self.filename[:7] != "Untitled":
             filename = os.path.basename(self.filename)
@@ -940,7 +940,7 @@ class ProcessManager:
 
     def fill_buffer(self, filename):
         """loads a file into the reader.string"""
-        dprint("entering fill_buffer")
+        dprint("LOG: Entering fill_buffer")
         self.clear_buffer(None)
         self.warning_count = 0
         self.set_statusbar("*** Loading File : %s" % self.filename)
@@ -962,7 +962,7 @@ class ProcessManager:
             f.close()
             self.reader.string_locked = False
             #self.set_statusbar("*** Log loading complete : %s" % self.filename)
-            dprint("leaving fill_buffer")
+            dprint("LOG: Leaving fill_buffer")
             return gtk.TRUE
         else:
             err = "Error: 'reader.string' currently locked, ensure no process is running"
@@ -976,7 +976,7 @@ class ProcessManager:
 
     def save_buffer(self):
         """save the contens of the buffer"""
-        dprint("entering save_buffer")
+        dprint("LOG: Entering save_buffer")
         result = gtk.FALSE
         have_backup = gtk.FALSE
         if not self.filename:
@@ -1040,12 +1040,12 @@ class ProcessManager:
                 dialog.destroy()
 
         self.set_statusbar("*** File saved : %s" % self.filename)
-        dprint("buffer saved, exiting")
+        dprint("LOG: Buffer saved, exiting")
         return result
 
     def check_buffer_saved(self, buffer, save = False):
         """checks if buffer has been modified before saving again"""
-        dprint("entering check_buffer_saved")
+        dprint("LOG: Entering check_buffer_saved")
         self.filename = self.pretty_name()
         if buffer.get_modified():
             if save:
