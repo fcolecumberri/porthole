@@ -46,7 +46,7 @@ class DependsTree(gtk.TreeStore):
                 else:
                     parent = "Not Using " + depend[1:len(depend) - 1]
             else:
-                if depend != "(" and depend != ")":
+                if depend not in ["(", ")", ":"]:
                     depend, ops = self.get_ops(depend)
                     depend2 = None
                     if ops: #should only be specific if there are operators
