@@ -234,6 +234,8 @@ class ProcessManager:
         self.notebook.remove_page(TAB_INFO)
         self.notebook.remove_page(TAB_CAUTION)
         self.notebook.remove_page(TAB_WARNING)
+        # initialize to None
+        self.pid = None
         # Set formatting tags now that tabs are established
         self.set_tags()
         # text mark to mark the start of the current command
@@ -546,12 +548,14 @@ class ProcessManager:
         # If started and still running
         if self.pid and not self.killed:
             try:
-                os.write(self.reader.fd, "\003")
-                dprint("TERMINAL: cntrl-C sent to process")
-                # make sure the thread notices
-                #os.close(self.reader.fd)
-                # negative pid kills process group
-                #os.kill(-self.pid, signal.SIGKILL)
+                if self.reader.fd:
+                    os.write(self.reader.fd, "\003")
+                    dprint("TERMINAL: cntrl-C sent to process")
+                    # make sure the thread notices
+                    #os.close(self.reader.fd)
+                else: # just in case there is anything left
+                    # negative pid kills process group
+                    os.kill(-self.pid, signal.SIGKILL)
             except OSError:
                 dprint("TERMINAL: kill(), OSError")
                 pass
