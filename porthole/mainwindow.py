@@ -28,7 +28,8 @@ import portagelib
 
 from about import AboutDialog
 from depends import DependsTree
-from utils import load_web_page, get_icon_for_package, is_root, dprint, get_treeview_selection
+from utils import load_web_page, get_icon_for_package, is_root, dprint, \
+     get_treeview_selection
 from process import ProcessWindow
 from summary import Summary
 from views import CategoryView, PackageView, DependsView
@@ -88,14 +89,16 @@ class MainWindow:
         # setup the category view
         self.category_view = CategoryView()
         self.category_view.register_callback(self.category_changed)
-        self.wtree.get_widget("category_scrolled_window").add(self.category_view)
+        self.wtree.get_widget(
+            "category_scrolled_window").add(self.category_view)
         # setup the package treeview
         self.package_view = PackageView()
         self.package_view.register_callbacks(self.package_changed)
         self.wtree.get_widget("package_scrolled_window").add(self.package_view)
         # setup the dependency treeview
         self.deps_view = DependsView()
-        self.wtree.get_widget("dependencies_scrolled_window").add(self.deps_view)
+        self.wtree.get_widget(
+            "dependencies_scrolled_window").add(self.deps_view)
         #setup sudo use
         self.use_sudo = -1
         # let's store some emerge options
@@ -217,26 +220,26 @@ class MainWindow:
 
     def emerge_package(self, widget):
         """Emerge the currently selected package."""
-        package = get_treeview_selection(
-            self.package_view, 2)
-        command = self.setup_command("emerge" + self.options.get_opts()
-            + package.get_category() + "/" +
-            package.get_name(), self.emerge_package)
+        package = get_treeview_selection(self.package_view, 2)
+        self.setup_command("emerge" + self.options.get_opts()
+                           + package.get_category() + "/"
+                           + package.get_name(),
+                           self.emerge_package)
 
     def unmerge_package(self, widget):
         """Unmerge the currently selected package."""
-        package = get_treeview_selection(
-            self.package_view, 2)
-        command = self.setup_command("emerge unmerge" +
-            self.options.get_opts() + package.get_category() + "/" +
-            package.get_name(), self.unmerge_package)
+        package = get_treeview_selection(self.package_view, 2)
+        self.setup_command("emerge unmerge" +
+                           self.options.get_opts() + package.get_category()
+                           + "/" + package.get_name(),
+                           self.unmerge_package)
 
     def sync_tree(self, widget):
         """Sync the portage tree and reload it when done."""
         sync = "emerge sync"
         if self.options.verbose:
             sync += " --verbose"
-        command = self.setup_command(sync, self.sync_tree)
+        self.setup_command(sync, self.sync_tree)
 
     def upgrade_packages(self, widget):
         """Upgrade selected packages that have newer versions available."""
@@ -251,7 +254,8 @@ class MainWindow:
                     packages_list += model.get_value(iter, 0) + " "
                 # step to next iter
                 iter = model.iter_next(iter)
-            dprint("Trying emerge -u" + self.options.get_opts() + packages_list)
+            dprint("Trying emerge -u" + self.options.get_opts()
+                   + packages_list)
             self.setup_command("emerge -u" + self.options.get_opts() +
                                packages_list, self.upgrade_packages)
         else:
@@ -268,7 +272,8 @@ class MainWindow:
             search_results.clear()
             re_object = re.compile(search_term, re.I)
             count = 0
-            search_desc = self.wtree.get_widget("search_descriptions1").get_active()
+            search_desc = self.wtree.get_widget(
+                "search_descriptions1").get_active()
             # no need to sort self.db.list; it is already sorted
             for name, data in self.db.list:
                 searchstring = name
@@ -379,7 +384,8 @@ class MainWindow:
         self.wait_dialog.connect("response", self.wait_dialog_response)
         self.wait_dialog.show_all()
         # create upgrade thread for loading the upgrades
-        self.ut = UpgradableReader(self.package_view.upgrade_model, self.db.installed.items())
+        self.ut = UpgradableReader(self.package_view.upgrade_model,
+                                   self.db.installed.items())
         self.ut.start()
         # add a timeout to check if thread is done
         gtk.timeout_add(100, self.update_upgrade_thread)
