@@ -4,7 +4,7 @@
     ============
     | Terminal |
     -----------------------------------------------------------
-    A graphical process output viewer/filterer and emerge queue
+    A graphical process output viewer/filter and emerge queue
     -----------------------------------------------------------
     Copyright (C) 2003 - 2004 Fredrik Arnerup, Brian Dolbec, 
     Daniel G. Taylor and Wm. F. Wheeler
@@ -40,6 +40,13 @@
         manager = ProcessManager(environment, preferences)
         manager.add_process(package_name, command_to_run, callback)
         ...
+    -------------------------------------------------------------------------
+    References & Notes
+    
+    1. Pygtk2 refs & tutorials - http://www.pygtk.org
+    2. GTK2 text tags can use named colors (see /usr/X11R6/lib/X11/rgb.txt)
+       or standard internet rgb values (e.g. #02FF80)
+ 
 """
 
 # import external [system] modules
@@ -76,7 +83,6 @@ TERMINATED_STRING = "*** process terminated ***\n"
 TABS = [TAB_PROCESS, TAB_WARNING, TAB_CAUTION, TAB_INFO, TAB_QUEUE]
 TAB_LABELS = ["Process", "Warnings", "Cautions", "Information", "Emerge queue"]
 
-
 class ProcessManager:
     """ Manages queued and running processes """
     def __init__(self, env = {}, prefs = None, config = None, log_mode = False):
@@ -108,6 +114,28 @@ class ProcessManager:
         # start the reader
         self.reader.start()
         gtk.timeout_add(100, self.update)
+
+    def set_tags(self):
+        """ set the text formatting tags as described in TAG_LIST """
+        # NOTE: for ease of maintenance, all tabs have every tag
+        #       defined for use.  Currently the code determines
+        #       when & where to use the tags
+        for key in self.prefs.TAG_DICT:
+            for process_tab in [TAB_PROCESS, TAB_WARNING, TAB_CAUTION, TAB_INFO]:
+                text_tag = self.prefs.TAG_DICT[key] 
+                if text_tag[0] == '':
+                    self.term.buffer[process_tab].create_tag(key,\
+                        background=text_tag[1],\
+                        weight=text_tag[2])
+                elif text_tag[1] == '':
+                    self.term.buffer[process_tab].create_tag(key,\
+                        foreground=text_tag[0],\
+                        weight=text_tag[2])
+                else:
+                    self.term.buffer[process_tab].create_tag(key,\
+                        foreground=text_tag[0],\
+                        background=text_tag[1],\
+                        weight=text_tag[2])
 
     def show_window(self):
         """ Show the process window """
@@ -206,97 +234,8 @@ class ProcessManager:
         self.notebook.remove_page(TAB_INFO)
         self.notebook.remove_page(TAB_CAUTION)
         self.notebook.remove_page(TAB_WARNING)
-
-        # Create formatting tags for each textbuffers' tag table
-        # for all emerge process commands bold, white text on navy
-
-        self.term.buffer[TAB_INFO].create_tag('command',\
-                weight=700,\
-                background='navy',\
-                foreground='white')
-        self.term.buffer[TAB_WARNING].create_tag('command',\
-                weight=700,\
-                background='navy',\
-                foreground='white')
-        self.term.buffer[TAB_CAUTION].create_tag('command',\
-                weight=700,\
-                background='navy',\
-                foreground='white')
-        self.term.buffer[TAB_PROCESS].create_tag('command',
-                weight=700,\
-                background='navy',\
-                foreground='white')
-
-        # All emerge lines will be bolded with light green background
-
-        self.term.buffer[TAB_INFO].create_tag('emerge',\
-                weight=700,\
-                background='lightgreen')
-        self.term.buffer[TAB_WARNING].create_tag('emerge',\
-                weight=700,\
-                background='lightgreen')
-        self.term.buffer[TAB_CAUTION].create_tag('emerge',\
-                weight=700,\
-                background='lightgreen')
-        self.term.buffer[TAB_PROCESS].create_tag('emerge',\
-                weight=700,\
-                background='lightgreen')
-
-        # Warning lines will have medium yellow background
-        # in the process & info tabs
-
-        self.term.buffer[TAB_PROCESS].create_tag('warning',\
-                background='#ffffb0')
-        self.term.buffer[TAB_INFO].create_tag('warning',\
-                background='#ffffb0')
-
-        # Info lines will have medium cyan background
-        # in the process tab only
-
-        self.term.buffer[TAB_PROCESS].create_tag('info',\
-                background='#b0ffff')
-
-        # Caution lines will have light red background
-        # in the process & info tabs
-
-        self.term.buffer[TAB_PROCESS].create_tag('caution',\
-                background='pink')
-        self.term.buffer[TAB_INFO].create_tag('caution',\
- 
-                background='pink')
-
-        # Error lines will have bold light text on red background
-        # in process & info tabs
-
-        self.term.buffer[TAB_PROCESS].create_tag('error',\
-                weight=700,\
-                background='red',\
-                foreground='linen')
-        self.term.buffer[TAB_INFO].create_tag('error',\
-                weight=700,\
-                background='red',\
-                foreground='linen')
-
-        # All line numbers will be blue & bold
-
-        self.term.buffer[TAB_PROCESS].create_tag('linenumber',\
-                foreground='blue',\
-                weight=700)
-        self.term.buffer[TAB_INFO].create_tag('linenumber',\
-                foreground='blue',\
-                weight=700)
-        self.term.buffer[TAB_WARNING].create_tag('linenumber',\
-                foreground='blue',\
-                weight=700)
-        self.term.buffer[TAB_CAUTION].create_tag('linenumber',\
-                foreground='blue',\
-                weight=700)
-
-        # Note lines will have magenta text in process
-
-        self.term.buffer[TAB_PROCESS].create_tag('note',\
-                foreground='magenta4')
-
+        # Set formatting tags now that tabs are established
+        self.set_tags()
         # text mark to mark the start of the current command
         self.command_start = None
         # set the window title
@@ -734,13 +673,13 @@ class ProcessManager:
     def finish_update(self):
         if self.warning_count != 0:
             self.append(TAB_INFO, "*** Total warnings count for merge = %d \n"\
-                        %self.warning_count, 'warning')
+                        %self.warning_count, 'note')
             if not self.term.tab_showing[TAB_INFO]:
                 self.show_tab(TAB_INFO)
                 self.term.buffer[TAB_INFO].set_modified(gtk.TRUE)
         if self.caution_count != 0:
             self.append(TAB_INFO, "*** Total cautions count for merge = %d \n"\
-                        %self.caution_count, 'caution')
+                        %self.caution_count, 'note')
             if not self.term.tab_showing[TAB_INFO]:
                 self.show_tab(TAB_INFO)
                 self.term.buffer[TAB_INFO].set_modified(gtk.TRUE)

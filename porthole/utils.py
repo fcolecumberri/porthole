@@ -41,8 +41,12 @@ def dprint(message):
         print >>stderr, message
 
 import pygtk; pygtk.require("2.0") # make sure we have the right version
-import gtk, portagelib
-import os, grp, pwd, cPickle
+import gtk
+import portagelib
+import os
+import grp
+import pwd
+#import cPickle
 
 # if using gnome, see if we can import it
 try:
@@ -274,6 +278,125 @@ class PortholePreferences:
         except XMLManagerError:
            width_verbose = 900   # Default value
         self.terminal.width_verbose = width_verbose
+        
+        # Formatting tags for the terminal window tabs.  
+        # Note: normal font weight = 400 (pango.WEIGHT_NORMAL),
+        #       bold = 700 (pango.WEIGHT_BOLD)
+        # Note: all colors are in hex for future color editor;
+        #       '' means use default color.
+
+        self.TAG_DICT = {}
+        try:
+           forecolor = dom.getitem('/window/terminal/tag/caution/forecolor')
+        except XMLManagerError:
+           forecolor = ''  # Default value
+        try:
+           backcolor = dom.getitem('/window/terminal/tag/caution/backcolor')
+        except XMLManagerError:
+           backcolor = '#ff14b4'  # Default value
+        try:
+           fontweight = dom.getitem('/window/terminal/tag/caution/fontweight')
+        except XMLManagerError:
+           fontweight = 400  # Default value
+        self.TAG_DICT['caution'] = [forecolor, backcolor, fontweight]
+
+        try:
+           forecolor = dom.getitem('/window/terminal/tag/command/forecolor')
+        except XMLManagerError:
+           forecolor = '#ffffff'  # Default value
+        try:
+           backcolor = dom.getitem('/window/terminal/tag/command/backcolor')
+        except XMLManagerError:
+           backcolor = '#000080'  # Default value
+        try:
+           fontweight = dom.getitem('/window/terminal/tag/command/fontweight')
+        except XMLManagerError:
+           fontweight = 700  # Default value
+        self.TAG_DICT['command'] = [forecolor, backcolor, fontweight]
+
+        try:
+           forecolor = dom.getitem('/window/terminal/tag/emerge/forecolor')
+        except XMLManagerError:
+           forecolor = ''  # Default value
+        try:
+           backcolor = dom.getitem('/window/terminal/tag/emerge/backcolor')
+        except XMLManagerError:
+           backcolor = '#90ee90'  # Default value
+        try:
+           fontweight = dom.getitem('/window/terminal/tag/emerge/fontweight')
+        except XMLManagerError:
+           fontweight = 700  # Default value
+        self.TAG_DICT['emerge'] = [forecolor, backcolor, fontweight]
+
+        try:
+           forecolor = dom.getitem('/window/terminal/tag/error/forecolor')
+        except XMLManagerError:
+           forecolor = '#faf0e6'  # Default value
+        try:
+           backcolor = dom.getitem('/window/terminal/tag/error/backcolor')
+        except XMLManagerError:
+           backcolor = '#ff0000'  # Default value
+        try:
+           fontweight = dom.getitem('/window/terminal/tag/error/fontweight')
+        except XMLManagerError:
+           fontweight = 700  # Default value
+        self.TAG_DICT['error'] = [forecolor, backcolor, fontweight]
+
+        try:
+           forecolor = dom.getitem('/window/terminal/tag/info/forecolor')
+        except XMLManagerError:
+           forecolor = ''  # Default value
+        try:
+           backcolor = dom.getitem('/window/terminal/tag/info/backcolor')
+        except XMLManagerError:
+           backcolor = '#b0ffff'  # Default value
+        try:
+           fontweight = dom.getitem('/window/terminal/tag/info/fontweight')
+        except XMLManagerError:
+           fontweight = 400  # Default value
+        self.TAG_DICT['info'] = [forecolor, backcolor, fontweight]
+
+        try:
+           forecolor = dom.getitem('/window/terminal/tag/linenumber/forecolor')
+        except XMLManagerError:
+           forecolor = '#0000ff'  # Default value
+        try:
+           backcolor = dom.getitem('/window/terminal/tag/linenumber/backcolor')
+        except XMLManagerError:
+           backcolor = ''  # Default value
+        try:
+           fontweight = dom.getitem('/window/terminal/tag/linenumber/fontweight')
+        except XMLManagerError:
+           fontweight = 700  # Default value
+        self.TAG_DICT['linenumber'] = [forecolor, backcolor, fontweight]
+
+        try:
+           forecolor = dom.getitem('/window/terminal/tag/note/forecolor')
+        except XMLManagerError:
+           forecolor = '#8b008b'  # Default value
+        try:
+           backcolor = dom.getitem('/window/terminal/tag/note/backcolor')
+        except XMLManagerError:
+           backcolor = ''  # Default value
+        try:
+           fontweight = dom.getitem('/window/terminal/tag/note/fontweight')
+        except XMLManagerError:
+           fontweight = 400  # Default value
+        self.TAG_DICT['note'] = [forecolor, backcolor, fontweight]
+
+        try:
+           forecolor = dom.getitem('/window/terminal/tag/warning/forecolor')
+        except XMLManagerError:
+           forecolor = ''  # Default value
+        try:
+           backcolor = dom.getitem('/window/terminal/tag/warning/backcolor')
+        except XMLManagerError:
+           backcolor = '#eeee80'  # Default value
+        try:
+           fontweight = dom.getitem('/window/terminal/tag/warning/fontweight')
+        except XMLManagerError:
+           fontweight = 400  # Default value
+        self.TAG_DICT['warning'] = [forecolor, backcolor, fontweight]
 
         # Run Dialog window settings
 
@@ -334,7 +457,6 @@ class PortholePreferences:
            pass
         
         # All prefs now loaded or defaulted
-
         del dom   # no longer needed, release memory
 
 
@@ -355,6 +477,12 @@ class PortholePreferences:
         dom.additem('/window/terminal/width', self.terminal.width)
         dom.additem('/window/terminal/height', self.terminal.height)
         dom.additem('/window/terminal/width_verbose', self.terminal.width_verbose)
+        # generate tag keys from dictionary
+        for key in self.TAG_DICT:
+            format_list = self.TAG_DICT[key] 
+            dom.additem('/window/terminal/tag/' + key + '/forecolor', format_list[0])
+            dom.additem('/window/terminal/tag/' + key + '/backcolor', format_list[1])
+            dom.additem('/window/terminal/tag/' + key + '/fontweight', format_list[2])
         dom.additem('/window/run_dialog/width', self.run_dialog.width)
         dom.additem('/window/run_dialog/height', self.run_dialog.height)
         dom.additem('/window/run_dialog/history', self.run_dialog.history)
@@ -376,48 +504,48 @@ class PortholeConfiguration:
         # Handle all the regular expressions.  They will be compiled
         # within this object for the sake of efficiency.
 
-        patternlist = dom.getitem('re_filters/info')
+        patternlist = dom.getitem('/re_filters/info')
         self.info_re_list = []
         for regexp in patternlist:
             self.info_re_list.append(sre.compile(regexp))
 
-        patternlist = dom.getitem('re_filters/notinfo')
+        patternlist = dom.getitem('/re_filters/notinfo')
         self.info_re_notlist = []
         for regexp in patternlist:
             self.info_re_notlist.append(sre.compile(regexp))
 
-        patternlist = dom.getitem('re_filters/warning')
+        patternlist = dom.getitem('/re_filters/warning')
         self.warning_re_list = []
         for regexp in patternlist:
             self.warning_re_list.append(sre.compile(regexp))
 
-        patternlist = dom.getitem('re_filters/notwarning')
+        patternlist = dom.getitem('/re_filters/notwarning')
         self.warning_re_notlist = []
         for regexp in patternlist:
             self.warning_re_notlist.append(sre.compile(regexp))
 
-        patternlist = dom.getitem('re_filters/error')
+        patternlist = dom.getitem('/re_filters/error')
         self.error_re_list = []
         for regexp in patternlist:
             self.error_re_list.append(sre.compile(regexp))
 
-        patternlist = dom.getitem('re_filters/noterror')
+        patternlist = dom.getitem('/re_filters/noterror')
         self.error_re_notlist = []
         for regexp in patternlist:
             self.error_re_notlist.append(sre.compile(regexp))
 
-        patternlist = dom.getitem('re_filters/caution')
+        patternlist = dom.getitem('/re_filters/caution')
         self.caution_re_list = []
         for regexp in patternlist:
             self.caution_re_list.append(sre.compile(regexp))
 
-        patternlist = dom.getitem('re_filters/notcaution')
+        patternlist = dom.getitem('/re_filters/notcaution')
         self.caution_re_notlist = []
         for regexp in patternlist:
             self.caution_re_notlist.append(sre.compile(regexp))
 
-        self.emerge_re = sre.compile(dom.getitem('re_filters/emerge'))
-        self.ebuild_re = sre.compile(dom.getitem('re_filters/ebuild'))
+        self.emerge_re = sre.compile(dom.getitem('/re_filters/emerge'))
+        self.ebuild_re = sre.compile(dom.getitem('/re_filters/ebuild'))
         del dom
 
     def isInfo(self, teststring):

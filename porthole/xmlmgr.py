@@ -126,6 +126,47 @@ class XMLManager:
          root.setAttribute('ver', self.version)
 
 
+   def __FindNode(self, path_list, startnode = None):
+      """ Find the specified node given in path_list
+          Parameters: 
+             path_list = path decomposed as a list
+             startnode = starting node to search, defaults to DOM root
+          Returns: the node or None if not found
+
+          NOTE: This was written because getElementsByTagName() scans
+          through all levels of the document and can give misleading
+          results when duplicate element names exist across
+          multiple levels. 
+      """
+      if startnode == None:
+         try:
+            node = self.__dom.documentElement
+         except:
+            raise XMLManagerError("NodeNotFound", path_list)
+      else:
+         node = startnode
+
+      level = 0  # start with first list item
+      maxlevel = len(path_list)-1  # don't go past end of list
+      while level <= maxlevel:
+         # skip over empty element names
+         if len(path_list[level]) == 0:
+             level += 1
+         if node.hasChildNodes():
+            found = False
+            for x in node.childNodes:
+               if x.nodeType == x.ELEMENT_NODE and x.nodeName == path_list[level]:
+                  found = True
+                  break
+            if found:
+                level += 1  
+                node = x
+            else:
+                raise XMLManagerError("NodeNotFound", path_list)
+         else:
+            raise XMLManagerError("NodeNotFound", path_list)
+      return x
+
    def __NodeText(self,nodelist):
       """ Private function to extract text from child nodes """
       rc = ""
@@ -142,7 +183,7 @@ class XMLManager:
       # Non-string values must be converted to string
       # to be XML compliant.  The py_type attribute records
       # the original value's Python type
-
+   
       newnode = self.__dom.createElement(nodeName)
       node = pnode.appendChild(newnode)
 
@@ -235,41 +276,20 @@ class XMLManager:
           Returns: the data as orignally typed or None if not found
       """
       # Break path into parts and move down the path until we get to
-      # the parent of the desired node (hence len(path)-1)
+      # the parent of the desired node (hence path[0:-2])
 
       path = namedef.split('/')
-      for x in range(1,len(path)):
-         if path[x-1] == '':
-            del path[x-1]
-      x = 0
-      nodelist = self.__dom   # start with a copy of the DOM
-      while x < len(path)-1:
+      node = self.__FindNode(path[0:-1])
 
-         # Raise an exception if the requested path does not exist
+      # Get list of nodes matching end node tag
 
-         try:
-            nodelist = nodelist.getElementsByTagName(path[x])[0]
-         except:
-            raise XMLManagerError("NodeNotFound", namedef)
-
-         if nodelist == []:
-            raise XMLManagerError("NodeNotFound", namedef)
-         x += 1
+      nodelist = node.getElementsByTagName(path[-1])
 
       # Begin iterating through all the children of this node and
-      # compile the nodes into an array.  Type according to py_type
-      # attribute, if attrib does not exist, type at 'str'
+      # compile the node data into an list.  Type according to py_type
+      # attribute, if attrib does not exist, type as 'str'
 
-      temp_list = []
-      try:
-         nodelist = nodelist.getElementsByTagName(path[-1])
-      except:
-         raise XMLManagerError("NodeNotFound", namedef)
-
-      # Raise an exception if the requested node does not exist
-
-      if nodelist == []:
-            raise XMLManagerError("NodeNotFound", namedef)
+      temp_list = []  # initialize list
       for node in nodelist:
          attrib = node.getAttribute('py_type')
 
@@ -344,10 +364,10 @@ class XMLManager:
          if path[x-1] == '':
             del path[x-1]
       x = 0
-      node = self.__dom.documentElement   # start with doc element
+      node = self.__dom.documentElement   # start with root doc element
       while x < len(path)-1:
          try:
-            node = node.getElementsByTagName(path[x])[0]
+             node = self.__FindNode([path[x]], node)
          except:
             # Node doesn't exist, create it
             newnode = self.__dom.createElement(path[x])
@@ -359,7 +379,6 @@ class XMLManager:
 
       self.__InsertValue(node, path[-1], value)
  
-
    def save(self, destination):
       """ Save XML document to disk
           Parameters: 
