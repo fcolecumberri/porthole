@@ -249,7 +249,7 @@ class ProcessManager:
         self.reader.process_running = True
         # show a message that the process is starting
         self.append_all("*** " + command_string + " ***\n")
-        self.set_statusbar("*** " + command_string + " ***\n")
+        self.set_statusbar("*** " + command_string + " ***")
         # pty.fork() creates a new process group
         self.pid, self.reader.fd = pty.fork()
         if self.pid == pty.CHILD:  # child
@@ -323,7 +323,7 @@ class ProcessManager:
                 self.process_buffer += char
                 if char == '\n': # newline
                     if self.re_object_emerge.search(self.process_buffer):
-                        self.set_statusbar(self.process_buffer)
+                        self.set_statusbar(self.process_buffer[:-1])
                     if self.re_object_info.search(self.process_buffer):
                         # info string has been found, show info tab if needed
                         if not self.info_tab.showing:
@@ -350,11 +350,11 @@ class ProcessManager:
         if self.killed:
             # display message that process has been killed
             self.append_all(KILLED_STRING)
-            self.set_statusbar(KILLED_STRING)
+            self.set_statusbar(KILLED_STRING[:-1])
             return
         # display message that process finished
         self.append_all(TERMINATED_STRING)
-        self.set_statusbar(TERMINATED_STRING)
+        self.set_statusbar(TERMINATED_STRING[:-1])
         # set queue icon to done
         iter = self.process_list[0][2]
         self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_APPLY))
