@@ -24,7 +24,7 @@
 #store our version here
 version = 0.1
 
-import os, string, threading, time #if this fails... lol
+import threading #if this fails... lol
 try:
     import pygtk
     pygtk.require("2.0") #make sure we have the right version
