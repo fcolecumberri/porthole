@@ -33,10 +33,10 @@ class Summary(gtk.TextView):
     """ Class to manage display and contents of package info tab """
     def __init__(self):
         """ Initialize object """
-	gtk.TextView.__init__(self)
+        gtk.TextView.__init__(self)
         self.set_wrap_mode(gtk.WRAP_WORD)
-        self.set_editable(gtk.FALSE)
-        self.set_cursor_visible(gtk.FALSE)
+        self.set_editable(False)
+        self.set_cursor_visible(False)
         margin = 10
         self.set_left_margin(margin)
         self.set_right_margin(margin)
@@ -97,7 +97,7 @@ class Summary(gtk.TextView):
                 self.get_window(gtk.TEXT_WINDOW_TEXT).set_cursor(gtk.gdk.Cursor
                                                                  (gtk.gdk.HAND2))
                 self.underlined_url = tag
-        return gtk.FALSE
+        return False
 
     def update_package_info(self, package):
         """ Update the notebook of information about a selected package """
@@ -154,22 +154,22 @@ class Summary(gtk.TextView):
             return
 
         # Get the package info
-	#dprint("SUMMARY: get package info")
+        #dprint("SUMMARY: get package info")
         metadata = package.get_metadata()
         installed = package.get_installed()
         versions = package.get_versions()
         nonmasked = package.get_versions(include_masked = False)
-	best = portagelib.best(installed + nonmasked)
-	#dprint("SUMMARY: best = %s" %best)
-	if best == "": # all versions are masked and the package is not installed
-	    ebuild = package.get_latest_ebuild(True) # get latest masked version
-	else:
-	    ebuild = best
-	#dprint("SUMMARY: getting properties for ebuild version %s" %ebuild)
+        best = portagelib.best(installed + nonmasked)
+        #dprint("SUMMARY: best = %s" %best)
+        if best == "": # all versions are masked and the package is not installed
+            ebuild = package.get_latest_ebuild(True) # get latest masked version
+        else:
+            ebuild = best
+        #dprint("SUMMARY: getting properties for ebuild version %s" %ebuild)
         props = package.get_properties(ebuild)
         description = props.description
         homepages = props.get_homepages() # may be more than one
-	#dprint("SUMMARY: Summary; getting use flags")
+        #dprint("SUMMARY: Summary; getting use flags")
         use_flags = props.get_use_flags()
         license = props.license
         slot = unicode(props.get_slot())
@@ -187,7 +187,7 @@ class Summary(gtk.TextView):
         system_use_flags = portagelib.get_portage_environ("USE")
         if system_use_flags:
             system_use_flags = system_use_flags.split()
-	    #dprint("SUMMARY: system_use_flags = "+str(system_use_flags))
+            #dprint("SUMMARY: system_use_flags = "+str(system_use_flags))
 
         #############################
         # Begin adding text to tab

@@ -39,16 +39,16 @@ class DependsTree(gtk.TreeStore):
         """Read through the depends list and order it nicely
            Returns a list of (parent, dep, satisfied) for each dep"""
         new_list = []
-	use_list = []
+        use_list = []
         ops = ""
-	using_list=False
+        using_list=False
         for depend in depends_list:
             if depend[-1] == "?":
                 if depend[0] != "!":
                     parent = _("Using ") + depend[:-1]
                 else:
                     parent = _("Not Using ") + depend[1:-1]
-		using_list=True
+                using_list=True
             else:
                 if depend not in ["(", ")", ":", "||"]:
                     try: depend, ops = self.get_ops(depend)
@@ -66,13 +66,13 @@ class DependsTree(gtk.TreeStore):
                             satisfied = True
                     else:
                         satisfied = False
-	            if using_list:
+                    if using_list:
                         use_list.append((parent, depend, satisfied))
-		    else:
-		        new_list.append((parent,depend,satisfied))
-		if depend == ")":
-		    using_list = False
-		    parent = None
+                    else:
+                        new_list.append((parent,depend,satisfied))
+                if depend == ")":
+                    using_list = False
+                    parent = None
         return new_list + use_list
                     
 
@@ -95,10 +95,10 @@ class DependsTree(gtk.TreeStore):
                                     size = gtk.ICON_SIZE_MENU, detail = None))
                 last_flag = use_flag
                 depend_iter = self.insert_before(parent_iter, None)
-	    elif use_flag == None:
-	    	depend_iter = self.insert_before(parent,None)
-	    else:
-	        depend_iter = self.insert_before(parent_iter,None)
+            elif use_flag == None:
+                depend_iter = self.insert_before(parent,None)
+            else:
+                depend_iter = self.insert_before(parent_iter,None)
             self.set_value(depend_iter, 0, depend)
             if satisfied:
                 icon = gtk.STOCK_YES

@@ -90,13 +90,13 @@ class AdvancedEmergeDialog:
         
         # Set any emerge options the user wants defaulted
         if self.prefs.emerge.pretend:
-            self.wtree.get_widget("cbPretend").set_active(gtk.TRUE)
+            self.wtree.get_widget("cbPretend").set_active(True)
         if self.prefs.emerge.verbose:
-            self.wtree.get_widget("cbVerbose").set_active(gtk.TRUE)
+            self.wtree.get_widget("cbVerbose").set_active(True)
         if self.prefs.emerge.upgradeonly:
-            self.wtree.get_widget("cbUpgradeOnly").set_active(gtk.TRUE)
+            self.wtree.get_widget("cbUpgradeOnly").set_active(True)
         if self.prefs.emerge.fetch:
-            self.wtree.get_widget("cbFetchOnly").set_active(gtk.TRUE)
+            self.wtree.get_widget("cbFetchOnly").set_active(True)
 
     #-----------------------------------------------
     # GUI Callback function definitions start here
@@ -159,49 +159,49 @@ class AdvancedEmergeDialog:
     def quiet_check(self, widget):
         """ If quiet is selected, disable verbose """
         if widget.get_active():
-            self.wtree.get_widget("cbVerbose").set_active(gtk.FALSE)
+            self.wtree.get_widget("cbVerbose").set_active(False)
 
 
     def verbose_check(self, widget):
         """ If verbose is selected, disable quiet """
         if widget.get_active():
-            self.wtree.get_widget("cbQuiet").set_active(gtk.FALSE)
+            self.wtree.get_widget("cbQuiet").set_active(False)
 
 
     def nodeps_check(self, widget):
         """ If nodeps is selected, disable onlydeps """
         if widget.get_active():
-            self.wtree.get_widget("cbOnlyDeps").set_active(gtk.FALSE)
+            self.wtree.get_widget("cbOnlyDeps").set_active(False)
 
 
     def onlydeps_check(self, widget):
         """ If onlydeps is selected, disable nodeps """
         if widget.get_active():
-            self.wtree.get_widget("cbNoDeps").set_active(gtk.FALSE)
+            self.wtree.get_widget("cbNoDeps").set_active(False)
 
 
     def buildpkg_check(self, widget):
         """ If buildpkg is selected, disable buildpkgonly """
         if widget.get_active():
-            self.wtree.get_widget("cbBuildPkgOnly").set_active(gtk.FALSE)
+            self.wtree.get_widget("cbBuildPkgOnly").set_active(False)
 
 
     def buildpkgonly_check(self, widget):
         """ If buildpkgonly is selected, disable buildpkg """
         if widget.get_active():
-            self.wtree.get_widget("cbBuildPkg").set_active(gtk.FALSE)
+            self.wtree.get_widget("cbBuildPkg").set_active(False)
 
 
     def usepkg_check(self, widget):
         """ If usepkg is selected, disable usepkgonly """
         if widget.get_active():
-            self.wtree.get_widget("cbUsePkgOnly").set_active(gtk.FALSE)
+            self.wtree.get_widget("cbUsePkgOnly").set_active(False)
 
 
     def usepkgonly_check(self, widget):
         """ If usepkgonly is selected, disable usepkg """
         if widget.get_active():
-            self.wtree.get_widget("cbUsePkg").set_active(gtk.FALSE)
+            self.wtree.get_widget("cbUsePkg").set_active(False)
 
     #------------------------------------------
     # Support function definitions start here
@@ -319,7 +319,7 @@ class AdvancedEmergeDialog:
         maxrow = size / maxcol - 1
         if maxrow < 0:
             maxrow = 0
-        table = gtk.Table(maxrow, maxcol-1, gtk.TRUE)
+        table = gtk.Table(maxrow, maxcol-1, True)
         UseFlagFrame.add(table)
 
         self.ufList = []
@@ -335,13 +335,13 @@ class AdvancedEmergeDialog:
                 # Display system level flags with a +
                 button = gtk.CheckButton('+' + flag)
                 # By default they are set "on"
-                button.set_active(gtk.TRUE)
+                button.set_active(True)
                 self.ufList.append([button, '+' + flag])
             else:
                 # Display unset flags with a -
                 button = gtk.CheckButton('-' + flag)
                 # By default they are set "off"
-                button.set_active(gtk.FALSE)
+                button.set_active(False)
                 self.ufList.append([button, '-' + flag])
 
             # Add tooltip, attach button to table and show it off
@@ -383,7 +383,7 @@ class AdvancedEmergeDialog:
         maxrow = size / maxcol - 1
         if maxrow < 0:
             maxrow = 0
-        table = gtk.Table(maxrow, maxcol-1, gtk.TRUE)
+        table = gtk.Table(maxrow, maxcol-1, True)
         KeywordsFrame.add(table)
         self.kwList = []
 

@@ -99,7 +99,7 @@ def load_installed_files(window, view, package):
         if installed."""
         if package:
             installed = package.get_installed()
-            is_installed = installed and gtk.TRUE or gtk.FALSE
+            is_installed = installed and True or False
             window.set_sensitive(is_installed)
             if is_installed:
                 installed.sort()

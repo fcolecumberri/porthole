@@ -27,6 +27,7 @@ import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, gtk.glade, gobject, pango
 import portagelib, os, string
 from portagelib import World
+from dispatcher import Dispatcher
 
 from gettext import gettext as _
 from about import AboutDialog
@@ -121,8 +122,8 @@ class MainWindow:
         self.installed_files = self.wtree.get_widget("installed_files").get_buffer()
         self.ebuild = self.wtree.get_widget("ebuild").get_buffer()
         # set unfinished items to not be sensitive
-        #self.wtree.get_widget("contents2").set_sensitive(gtk.FALSE)
-        # self.wtree.get_widget("btn_help").set_sensitive(gtk.FALSE)
+        #self.wtree.get_widget("contents2").set_sensitive(False)
+        # self.wtree.get_widget("btn_help").set_sensitive(False)
         # setup the category view
         self.category_view = CategoryView()
         self.category_view.register_callback(self.category_changed)
@@ -141,15 +142,15 @@ class MainWindow:
         self.summary.show()
         # how should we setup our saved menus?
         if self.prefs.emerge.pretend:
-            self.wtree.get_widget("pretend1").set_active(gtk.TRUE)
+            self.wtree.get_widget("pretend1").set_active(True)
         if self.prefs.emerge.fetch:
-            self.wtree.get_widget("fetch").set_active(gtk.TRUE)
+            self.wtree.get_widget("fetch").set_active(True)
         if self.prefs.emerge.upgradeonly :
-            self.wtree.get_widget("upgradeonly").set_active(gtk.TRUE)
+            self.wtree.get_widget("upgradeonly").set_active(True)
         if self.prefs.emerge.verbose:
-            self.wtree.get_widget("verbose4").set_active(gtk.TRUE)
+            self.wtree.get_widget("verbose4").set_active(True)
         if self.prefs.main.search_desc:
-            self.wtree.get_widget("search_descriptions1").set_active(gtk.TRUE)
+            self.wtree.get_widget("search_descriptions1").set_active(True)
         # setup a convienience tuple
         self.tool_widgets = ["emerge_package1","adv_emerge_package1","unmerge_package1","btn_emerge",
                      "btn_adv_emerge","btn_unmerge", "btn_sync"]
@@ -184,9 +185,9 @@ class MainWindow:
             self.check_for_root()
         # create and start our process manager
         self.process_manager = ProcessManager(environment(), self.prefs, self.config, False)
-	# Search History
-	self.search_history = {}
-	self.setup_plugins()
+        # Search History
+        self.search_history = {}
+        self.setup_plugins()
         dprint("MAIN: Showing main window")
 
     def setup_plugins( self ):
@@ -204,7 +205,7 @@ class MainWindow:
 
     def init_data(self):
         # set things we can't do unless a package is selected to not sensitive
-        self.set_package_actions_sensitive(gtk.FALSE)
+        self.set_package_actions_sensitive(False)
         dprint("MAINWINDOW: init_data(); Initializing data")
         # upgrades loaded?
         self.upgrades_loaded = False
@@ -258,7 +259,7 @@ class MainWindow:
             self.progress_done(True)
             # set this function to re-run after some time for the thread to stop
             self.reload_db_timeout = gtk.timeout_add(50, self.reload_db)
-            return gtk.TRUE
+            return True
         # upgrades loaded?
         # reset so that it reloads the upgrade list
         self.upgrades_loaded = False
@@ -285,7 +286,7 @@ class MainWindow:
         #self.set_statusbar(_("Obtaining package list "))
         self.status_root = _("Reloading database")
         self.set_statusbar2(self.status_root)
-        return gtk.FALSE
+        return False
 
     def get_sync_time(self):
         """gets and returns the timestamp info saved during
@@ -360,7 +361,7 @@ class MainWindow:
             # todo: display error dialog instead
             self.db_thread.join()
             self.set_statusbar2(self.db_thread.error.decode('ascii', 'replace'))
-            return gtk.FALSE  # disconnect from timeout
+            return False  # disconnect from timeout
         else: # db_thread is done
             self.db_thread_running = False
             self.db_save_variables()
@@ -375,11 +376,11 @@ class MainWindow:
             self.set_statusbar2(self.status_root + _(": Populating tree"))
             self.update_statusbar(SHOW_ALL)
             #~dprint("MAINWINDOW: setting menubar,toolbar,etc to sensitive...")
-            self.wtree.get_widget("menubar").set_sensitive(gtk.TRUE)
-            self.wtree.get_widget("toolbar").set_sensitive(gtk.TRUE)
-            self.wtree.get_widget("view_filter").set_sensitive(gtk.TRUE)
-            self.wtree.get_widget("search_entry").set_sensitive(gtk.TRUE)
-            self.wtree.get_widget("btn_search").set_sensitive(gtk.TRUE)
+            self.wtree.get_widget("menubar").set_sensitive(True)
+            self.wtree.get_widget("toolbar").set_sensitive(True)
+            self.wtree.get_widget("view_filter").set_sensitive(True)
+            self.wtree.get_widget("search_entry").set_sensitive(True)
+            self.wtree.get_widget("btn_search").set_sensitive(True)
             # make sure we search again if we reloaded!
             view_filter = self.wtree.get_widget("view_filter")
             if view_filter.get_history() == SHOW_SEARCH:
@@ -422,9 +423,9 @@ class MainWindow:
             self.reload = False
             self.progress_done(False)
             self.view_filter_changed(view_filter)
-            return gtk.FALSE  # disconnect from timeout
+            return False  # disconnect from timeout
         #dprint("MAINWINDOW: returning from update_db_read() count=%d dbtime=%d"  %(count, self.dbtime))
-        return gtk.TRUE
+        return True
 
     def db_save_variables(self):
         """recalulates and stores persistent database variables into the prefernces"""
@@ -645,14 +646,14 @@ class MainWindow:
                 # kill off the thread
             self.desc_thread.join()
             self.desc_dialog.destroy()
-            return gtk.FALSE
+            return False
         else:
             # print self.desc_thread.count
             if self.db:
                 fraction = self.desc_thread.count / float(len(self.db.list))
                 self.desc_dialog.progbar.set_text(str(int(fraction * 100)) + "%")
                 self.desc_dialog.progbar.set_fraction(fraction)
-        return gtk.TRUE
+        return True
 
     def package_search(self, widget=None):
         """Search package db with a string and display results."""
@@ -790,7 +791,7 @@ class MainWindow:
         #dprint(self.current_package_cursor)
         # the notebook must be sensitive before anything is displayed
         # in the tabs, especially the deps_view
-        self.set_package_actions_sensitive(gtk.TRUE, package)
+        self.set_package_actions_sensitive(True, package)
         self.summary.update_package_info(package)
         # if the user is looking at the deps we need to update them
         cur_page = self.notebook.get_current_page()
@@ -897,6 +898,8 @@ class MainWindow:
         # upgrades are not loaded, create dialog and load them
         self.set_statusbar2(_("Loading upgradable list"))
         # create upgrade thread for loading the upgrades
+        #self.ut = UpgradableReader(Dispatcher(self.Update_upgrades, self.package_view, self.db.installed.items(),
+        #                           self.prefs.emerge.upgradeonly, self.prefs.views ))
         self.ut = UpgradableReader(self.package_view, self.db.installed.items(),
                                    self.prefs.emerge.upgradeonly, self.prefs.views )
         self.ut.start()
@@ -921,7 +924,7 @@ class MainWindow:
         # needs error checking perhaps...
         if self.ut.done:
             if self.ut.cancelled:
-                return gtk.FALSE
+                return False
             self.ut.join()
             self.ut_running = False
             self.upgrades_loaded = True
@@ -936,7 +939,7 @@ class MainWindow:
                     self.package_view.set_view(self.package_view.UPGRADABLE)
                     self.summary.update_package_info(None)
                     #self.wtree.get_widget("category_scrolled_window").hide()
-            return gtk.FALSE
+            return False
         else:
             if self.ut_running:
                 try:
@@ -953,7 +956,7 @@ class MainWindow:
                             self.set_statusbar2(_("Building Dependancy trees"))
                 except:
                     pass
-        return gtk.TRUE
+        return True
 
     def progress_done(self, button_off=False):
         """clears the progress bar"""
@@ -1037,7 +1040,7 @@ class MainWindow:
         """ Clear all notebook tabs & disable them """
         #dprint("MAINWINDOW: clear_notebook()")
         self.summary.update_package_info(None)
-        self.set_package_actions_sensitive(gtk.FALSE)
+        self.set_package_actions_sensitive(False)
         self.deps_view.clear()
         self.changelog.set_text('')
         self.installed_files.set_text('')

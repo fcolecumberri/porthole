@@ -60,7 +60,7 @@ class ProcessWindow(threading.Thread):
         self.scroller.set_shadow_type(gtk.SHADOW_IN)
         self.scroller.add(self.textview)
         self.window.vbox.pack_start(self.scroller,
-                                    gtk.TRUE, gtk.TRUE)
+                                    True, True)
         self.window.connect("realize", self.on_realize)
         self.window.connect("destroy", self.on_destroy)
         self.window.connect("response", self.on_response)

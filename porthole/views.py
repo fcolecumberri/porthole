@@ -184,8 +184,8 @@ class PackageView(CommonTreeView):
                 #else:
                 #    renderer.set_property("background", color)
             else:
-                renderer.set_property("foreground-set", gtk.FALSE)
-                #renderer.set_property("background-set", gtk.FALSE)
+                renderer.set_property("foreground-set", False)
+                #renderer.set_property("background-set", False)
             renderer.set_property("text", full_name)
 
     def _set_model(self):
@@ -237,9 +237,9 @@ class PackageView(CommonTreeView):
             return
         dprint("VIEWS: Populating package view")
         dprint("VIEWS: PackageView.populate(); Threading info: %s" %str(threading.enumerate()) )
-        if self.new_thread:
-            if self.new_thread.isAlive():
-                self.new_thread.join()
+        #~ if self.new_thread:
+            #~ if self.new_thread.isAlive():
+                #~ self.new_thread.join()
         if locate_name:
             dprint("VIEWS: Selecting " + str(locate_name))
         # get the right model
@@ -427,23 +427,23 @@ class DependsView(CommonTreeView):
     def populate_info(self):
         """ Populate the current view with packages """
         model = self.get_model()
-	iter = model.get_iter_first()
+        iter = model.get_iter_first()
         while iter:
-	    package = model.get_value( iter, 2 )
-	    model.set_value(iter, 6, package.get_size())	    
- 	    try:
-  	        installed = package.get_latest_installed()
-		installed = portagelib.get_version( installed )
-	    except IndexError:
-		installed = ""
-	    try:
-		latest = package.get_latest_ebuild()
-		latest = portagelib.get_version( latest )
-	    except IndexError, TypeError:
-	        latest = "Error"
-	    model.set_value(iter, 7, installed)
-	    model.set_value(iter, 8, latest)
-	    model.set_value(iter, 9, package.get_properties().description )
-	    iter = model.iter_next( iter )
+            package = model.get_value( iter, 2 )
+            model.set_value(iter, 6, package.get_size())	    
+            try:
+                installed = package.get_latest_installed()
+                installed = portagelib.get_version( installed )
+            except IndexError:
+                installed = ""
+            try:
+                latest = package.get_latest_ebuild()
+                latest = portagelib.get_version( latest )
+            except IndexError, TypeError:
+                latest = "Error"
+            model.set_value(iter, 7, installed)
+            model.set_value(iter, 8, latest)
+            model.set_value(iter, 9, package.get_properties().description )
+            iter = model.iter_next( iter )
 
 

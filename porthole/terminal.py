@@ -108,8 +108,8 @@ class ProcessManager:
         self.process_list = []
         # the window is not visible until a process is added
         self.window_visible = False
-	self.task_completed = True
-	self.confirm = False
+        self.task_completed = True
+        self.confirm = False
         # filename and serial #
         self.directory = None
         self.filename = None
@@ -262,16 +262,16 @@ class ProcessManager:
             id = self.term.vadjustment[x].connect("value_changed", self.set_scroll)
             self.term.vhandler_id += [id]
             #self.term.auto_scroll[x] = False  # already initialized to True
-	    # create autoscroll end marks to seek to &
-	    end_mark = self.term.buffer[x].create_mark(("end_mark"+str(x)), self.term.buffer[x].get_end_iter(), False)
-	    self.term.end_mark += [end_mark]
+            # create autoscroll end marks to seek to &
+            end_mark = self.term.buffer[x].create_mark(("end_mark"+str(x)), self.term.buffer[x].get_end_iter(), False)
+            self.term.end_mark += [end_mark]
         #dprint("TERMINAL: show_window() -- self.term.vadjustment[]," +
         #       "self.term.vhandler_id[], self.term.autoscroll")
         #dprint(self.term.vadjustment)
         #dprint(self.term.vhandler_id)
         #dprint(self.term.auto_scroll)
         self.notebook.connect("switch-page", self.switch_page)
-	self.window.connect('delete-event', self.confirm_delete)
+        self.window.connect('delete-event', self.confirm_delete)
         if self.prefs:
             self.window.resize((self.prefs.emerge.verbose and
                                 self.prefs.terminal.width_verbose or
@@ -322,15 +322,15 @@ class ProcessManager:
                 # Display the tab
                 self.notebook.set_current_page(TAB_PROCESS)
             except: pass
-        return gtk.FALSE  # Always return false for proper handling
+        return False  # Always return false for proper handling
 
     def switch_page(self, notebook, page, page_num):
         """callback function changes the current_page setting in the term structure"""
         dprint("TERMINAL: switch_page; page_num = %d" %page_num)
         self.term.current_tab = self.term.visible_tablist[page_num]
         if self.term.auto_scroll[self.term.current_tab]:
-		self.scroll_current_view()
-	return
+            self.scroll_current_view()
+        return
 
     def set_scroll(self,  vadjustment):
         """Sets autoscrolling on when moved to bottom of scrollbar"""
@@ -437,7 +437,7 @@ class ProcessManager:
                                 # Clear semaphore, we're done
                                 self.Semaphore.release()
                                 dprint("TERMINAL: add_process; Semaphore released")
-                                return gtk.FALSE
+                                return False
                         else:
                             message = _("The package you selected is already in the emerge queue!")
                             SingleButtonDialog(_("Error Adding Package To Queue!"), None,
@@ -468,7 +468,7 @@ class ProcessManager:
             # show the queue tab!
             if not self.term.tab_showing[TAB_QUEUE]:
                 self.show_tab(TAB_QUEUE)
-                self.queue_menu.set_sensitive(gtk.TRUE)
+                self.queue_menu.set_sensitive(True)
         # Clear semaphore, we're done
         self.Semaphore.release()
         dprint("TERMINAL: add_process; Semaphore released")
@@ -476,7 +476,7 @@ class ProcessManager:
         if not self.reader.process_running:
             if self.resume_available:
                 self.start_queue(True)
-		dprint("TERMINAL: add_process; self.resume_available")
+                dprint("TERMINAL: add_process; self.resume_available")
             else:
                 # pending processes, run the next one in the list
                 self.start_queue(False)
@@ -499,12 +499,12 @@ class ProcessManager:
         else:
             # create the mark
             self.command_start = self.term.buffer[TAB_PROCESS].create_mark( \
-                "command_start",start_iter, gtk.TRUE)
+                "command_start",start_iter, True)
         # set the resume buttons to not be sensitive
-        self.resume_menu.set_sensitive(gtk.FALSE)
-        self.save_menu.set_sensitive(gtk.FALSE)
-        self.save_as_menu.set_sensitive(gtk.FALSE)
-        self.open_menu.set_sensitive(gtk.FALSE)
+        self.resume_menu.set_sensitive(False)
+        self.save_menu.set_sensitive(False)
+        self.save_as_menu.set_sensitive(False)
+        self.open_menu.set_sensitive(False)
         if iter:
             self.queue_model.set_value(iter, 0, 
                              self.render_icon(gtk.STOCK_EXECUTE))
@@ -710,7 +710,7 @@ class ProcessManager:
         # if the string is locked, we'll get it on the next round
         cr_flag = False   # Carriage Return flag
         if self.reader.string_locked or not self.window_visible:
-            return gtk.TRUE
+            return True
         # lock the string
         self.reader.string_locked = True
         for char in self.reader.string:
@@ -767,7 +767,7 @@ class ProcessManager:
                             # Info string has been found, show info tab if needed
                             if not self.term.tab_showing[TAB_INFO]:
                                 self.show_tab(TAB_INFO)
-                                self.term.buffer[TAB_INFO].set_modified(gtk.TRUE)
+                                self.term.buffer[TAB_INFO].set_modified(True)
 
                             # Check for fatal error
                             if self.config.isError(self.process_buffer):
@@ -782,7 +782,7 @@ class ProcessManager:
                             # warning string has been found, show info tab if needed
                             if not self.term.tab_showing[TAB_WARNING]:
                                 self.show_tab(TAB_WARNING)
-                                self.term.buffer[TAB_WARNING].set_modified(gtk.TRUE)
+                                self.term.buffer[TAB_WARNING].set_modified(True)
                             # insert the line into the info text buffer
                             tag = 'warning'
                             self.append(TAB_WARNING, self.process_buffer)
@@ -792,7 +792,7 @@ class ProcessManager:
                             # warning string has been found, show info tab if needed
                             if not self.term.tab_showing[TAB_CAUTION]:
                                 self.show_tab(TAB_CAUTION)
-                                self.term.buffer[TAB_CAUTION].set_modified(gtk.TRUE)
+                                self.term.buffer[TAB_CAUTION].set_modified(True)
                             # insert the line into the info text buffer
                             tag = 'caution'
                             self.append(TAB_CAUTION, self.process_buffer)
@@ -815,14 +815,14 @@ class ProcessManager:
         #dprint("TERMINAL: update() checking file input/reader finished")
         if self.file_input and not self.reader.file_input: # reading file finished
             dprint("LOG: update()... end of file input... cleaning up")
-            self.term.buffer[TAB_PROCESS].set_modified(gtk.FALSE)
+            self.term.buffer[TAB_PROCESS].set_modified(False)
             self.finish_update()
             self.set_statusbar(_("*** Log loading complete : %s") % self.filename)
             self.reader.f.close()
             self.file_input = False
         # unlock the string
         self.reader.string_locked = False
-        return gtk.TRUE
+        return True
 
     def set_file_name(self, line):
         """extracts the ebuild name and assigns it to self.filename"""
@@ -844,13 +844,13 @@ class ProcessManager:
                         %self.warning_count, 'note')
             if not self.term.tab_showing[TAB_INFO]:
                 self.show_tab(TAB_INFO)
-                self.term.buffer[TAB_INFO].set_modified(gtk.TRUE)
+                self.term.buffer[TAB_INFO].set_modified(True)
         if self.caution_count != 0:
             self.append(TAB_INFO, _("*** Total cautions count for merge = %d \n")\
                         %self.caution_count, 'note')
             if not self.term.tab_showing[TAB_INFO]:
                 self.show_tab(TAB_INFO)
-                self.term.buffer[TAB_INFO].set_modified(gtk.TRUE)
+                self.term.buffer[TAB_INFO].set_modified(True)
         return
 
     def process_done(self):
@@ -888,7 +888,7 @@ class ProcessManager:
         # set queue icon to done
         try:
             iter = self.process_list[0][2]
-        	# set icon according to success or failure
+                # set icon according to success or failure
             if self.Failed:
                 self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_STOP))
             else:
@@ -896,7 +896,7 @@ class ProcessManager:
         except: pass
         # remove process from list
         self.process_list = self.process_list[1:]
-	self.task_completed = True
+        self.task_completed = True
         # We're finished, release semaphore
         self.Semaphore.release()
         dprint("TERMINAL: process_done; Semaphore released")
@@ -935,37 +935,37 @@ class ProcessManager:
                 remaining = 0
                 
             if remaining:  # > 0
-                self.skip_first_menu.set_sensitive(gtk.TRUE)
+                self.skip_first_menu.set_sensitive(True)
             else:
-                self.skip_first_menu.set_sensitive(gtk.FALSE)
-            self.resume_menu.set_sensitive(gtk.TRUE)
+                self.skip_first_menu.set_sensitive(False)
+            self.resume_menu.set_sensitive(True)
             # check if there are more queue entries to process
-	    self.Semaphore.acquire()
+            self.Semaphore.acquire()
             if len(self.process_list)> 1:
-                self.skip_queue_menu.set_sensitive(gtk.TRUE)
+                self.skip_queue_menu.set_sensitive(True)
             else:
-                self.skip_queue_menu.set_sensitive(gtk.FALSE)
-	    self.Semaphore.release()
+                self.skip_queue_menu.set_sensitive(False)
+            self.Semaphore.release()
         else:
-            self.resume_menu.set_sensitive(gtk.FALSE)
+            self.resume_menu.set_sensitive(False)
     
     def resume_normal(self, widget):
         """ Resume killed process """
-	Self.Semaphore.acquire()
+        Self.Semaphore.acquire()
         # pass the normal command along with --resume
         name, command, iter, callback = self.process_list[0]
-	command += " --resume"
+        command += " --resume"
         self._run(command, iter)
-	self.Semaphore.release()
+        self.Semaphore.release()
 
     def resume_skip_first(self, widget):
         """ Resume killed process, skipping first package """
-	Self.Semaphore.acquire()
+        Self.Semaphore.acquire()
         # pass the normal command along with --resume --skipfirst
         name, command, iter, callback = self.process_list[0]
         command += " --resume --skipfirst"
         self._run(command, iter)
-	self.Semaphore.release()
+        self.Semaphore.release()
 
     # skip_first needs to be true for the menu callback
     def start_queue(self, skip_first = True):
@@ -982,27 +982,27 @@ class ProcessManager:
             if callback:
                 callback()
             if self.term.tab_showing[TAB_QUEUE]:
-		self.Semaphore.release()
+                self.Semaphore.release()
                 # update the queue tree wait for it to return, it might prevent crashes
                 result = self.queue_clicked(self.queue_tree)
-		self.Semaphore.acquire()
-		# remove process from list
+                self.Semaphore.acquire()
+                # remove process from list
                 self.process_list = self.process_list[1:]
         # check for pending processes, and run them
         #dprint(self.process_list)
         if len(self.process_list):
             dprint("TERMINAL: There are pending processes, running now... [" + \
                     self.process_list[0][0] + "]")
-	    self.task_completed = False
+            self.task_completed = False
             self._run(self.process_list[0][1], self.process_list[0][2])
         else: # re-activate the open/save menu items
-            self.save_menu.set_sensitive(gtk.TRUE)
-            self.save_as_menu.set_sensitive(gtk.TRUE)
-            self.open_menu.set_sensitive(gtk.TRUE)
-	# We're finished, release semaphore
-	self.Semaphore.release()
+            self.save_menu.set_sensitive(True)
+            self.save_as_menu.set_sensitive(True)
+            self.open_menu.set_sensitive(True)
+        # We're finished, release semaphore
+        self.Semaphore.release()
         dprint("TERMINAL: start_queue(); finnished... returning")
-	return
+        return
 
 
 
@@ -1017,10 +1017,10 @@ class ProcessManager:
         self.term.buffer[TAB_WARNING].set_text('')
         self.term.buffer[TAB_CAUTION].set_text('')
         self.term.buffer[TAB_INFO].set_text('')
-        self.term.buffer[TAB_PROCESS].set_modified(gtk.FALSE)
-        self.term.buffer[TAB_WARNING].set_modified(gtk.FALSE)
-        self.term.buffer[TAB_CAUTION].set_modified(gtk.FALSE)
-        self.term.buffer[TAB_INFO].set_modified(gtk.FALSE)
+        self.term.buffer[TAB_PROCESS].set_modified(False)
+        self.term.buffer[TAB_WARNING].set_modified(False)
+        self.term.buffer[TAB_CAUTION].set_modified(False)
+        self.term.buffer[TAB_INFO].set_modified(False)
         self.filename = None
 
     def queue_items_switch(self, direction):
@@ -1105,7 +1105,7 @@ class ProcessManager:
         """Estimates build times based on emerge --pretend output"""
         start_iter = self.term.buffer[TAB_PROCESS].get_iter_at_mark(self.command_start)
         output = self.term.buffer[TAB_PROCESS].get_text(start_iter,
-                                 self.term.buffer[TAB_PROCESS].get_end_iter(), gtk.FALSE)
+                                 self.term.buffer[TAB_PROCESS].get_end_iter(), False)
         package_list = []
         total = datetime.timedelta()        
         for line in output.split("\n"):
@@ -1157,7 +1157,7 @@ class ProcessManager:
 
     def queue_clicked(self, widget):
         """Handle clicks to the queue treeview"""
-	dprint("TERMINAL: queue_clicked()")
+        dprint("TERMINAL: queue_clicked()")
         # Prevent conflicts while changing process queue
         self.Semaphore.acquire()
         # get the selected iter
@@ -1168,9 +1168,9 @@ class ProcessManager:
         except:
             dprint("TERMINAL: Couldn't get queue view treeiter path, " \
                    "there is probably nothing selected.")
-	    # We're finished, release semaphore
-	    self.Semaphore.release()
-	    dprint("TERMINAL: queue_clicked(); finnished... returning")
+            # We're finished, release semaphore
+            self.Semaphore.release()
+            dprint("TERMINAL: queue_clicked(); finnished... returning")
             return False
         # if the item is not in the process list
         # don't make the controls sensitive and return
@@ -1181,38 +1181,38 @@ class ProcessManager:
                 # set the position in the list (+1 so it's not 0)
                 in_list = pos + 1
         if not in_list or in_list == 1:
-            self.move_up.set_sensitive(gtk.FALSE)
-            self.move_down.set_sensitive(gtk.FALSE)
+            self.move_up.set_sensitive(False)
+            self.move_down.set_sensitive(False)
             if not self.killed and in_list == 1:
-                self.queue_remove.set_sensitive(gtk.FALSE)
+                self.queue_remove.set_sensitive(False)
             else:
-                self.queue_remove.set_sensitive(gtk.TRUE)
-	    # We're finished, release semaphore
-	    self.Semaphore.release()
-	    dprint("TERMINAL: queue_clicked(); finnished... returning")
-	    return True
+                self.queue_remove.set_sensitive(True)
+            # We're finished, release semaphore
+            self.Semaphore.release()
+            dprint("TERMINAL: queue_clicked(); finnished... returning")
+            return True
         # if we reach here it's still in the process list
         # activate the delete item
-        self.queue_remove.set_sensitive(gtk.TRUE)
+        self.queue_remove.set_sensitive(True)
         # set the correct directions sensitive
         # shouldn't be able to move the top item up, etc...
         if in_list == 2 or path == 0:
-            self.move_up.set_sensitive(gtk.FALSE)
+            self.move_up.set_sensitive(False)
             if path == len(self.queue_model) - 1:
-                self.move_down.set_sensitive(gtk.FALSE)
+                self.move_down.set_sensitive(False)
             else:
-                self.move_down.set_sensitive(gtk.TRUE)
+                self.move_down.set_sensitive(True)
         elif path == len(self.queue_model) - 1:
-            self.move_up.set_sensitive(gtk.TRUE)
-            self.move_down.set_sensitive(gtk.FALSE)
+            self.move_up.set_sensitive(True)
+            self.move_down.set_sensitive(False)
         else:
             # enable moving the item
-            self.move_up.set_sensitive(gtk.TRUE)
-            self.move_down.set_sensitive(gtk.TRUE)
-	# We're finished, release semaphore
-	self.Semaphore.release()
+            self.move_up.set_sensitive(True)
+            self.move_down.set_sensitive(True)
+        # We're finished, release semaphore
+        self.Semaphore.release()
         dprint("TERMINAL: queue_clicked(); finnished... returning")
-	return True
+        return True
 
     def set_save_buffer(self):
         """Sets the save info for the notebook tab's visible buffer"""
@@ -1231,11 +1231,11 @@ class ProcessManager:
         if not self.window_visible: self.show_window()
         if not self.fill_buffer(filename):
             self.set_statusbar(_("*** Unknown File Loading error"))
-            return gtk.FALSE
+            return False
         else:
             self.filename = filename
             self.set_statusbar(_("*** File Loading... Processing...")) 
-            return gtk.TRUE;
+            return True;
 
     def do_open(self, widget):
         """opens the file selector for file to open"""
@@ -1295,15 +1295,15 @@ class ProcessManager:
                 result = dialog.run()
                 dialog.destroy()
                 if result != gtk.RESPONSE_YES:
-                    return gtk.FALSE
+                    return False
 
         self.filename = filename
 
         if self.save_buffer():
-            return gtk.TRUE
+            return True
         else:
             self.filename = old_filename
-            return gtk.FALSE
+            return False
 
     def set_directory(self):
         """sets the starting directory for file selection"""
@@ -1361,19 +1361,19 @@ class ProcessManager:
                                        gtk.BUTTONS_OK, err);
             result = dialog.run()
             dialog.destroy()
-            return gtk.FALSE
+            return False
 
         self.file_input = True
         self.reader.file_input = True
-        return gtk.TRUE
+        return True
 
     def save_buffer(self):
         """save the contents of the buffer"""
         dprint("LOG: Entering save_buffer")
-        result = gtk.FALSE
-        have_backup = gtk.FALSE
+        result = False
+        have_backup = False
         if not self.filename:
-            return gtk.FALSE
+            return False
 
         bak_filename = self.filename + "~"
         try:
@@ -1388,9 +1388,9 @@ class ProcessManager:
                                            gtk.BUTTONS_OK, err);
                 dialog.run()
                 dialog.destroy()
-                return gtk.FALSE
+                return False
 
-        have_backup = gtk.TRUE
+        have_backup = True
         self.set_statusbar(_("*** saving file: %s") % self.filename)
         try:
             file = open(self.filename, "w")
@@ -1399,19 +1399,19 @@ class ProcessManager:
                 start = self.buffer_to_save.get_start_iter()
                 while not start.is_end():
                     end = start.copy(); end.forward_line()
-                    chars = self.buffer_to_save.get_text(start, end, gtk.FALSE)
+                    chars = self.buffer_to_save.get_text(start, end, False)
                     file.write(chars[7:])
                     chars = ""
                     start.forward_line()
                     
             else: # save the entire buffer
                 start, end = self.buffer_to_save.get_bounds()
-                chars = self.buffer_to_save.get_text(start, end, gtk.FALSE)
+                chars = self.buffer_to_save.get_text(start, end, False)
                 file.write(chars)
 
             file.close()
-            self.buffer_to_save.set_modified(gtk.FALSE)
-            result = gtk.TRUE
+            self.buffer_to_save.set_modified(False)
+            result = True
         except IOError, (errnum, errmsg):
             err = ("Error writing to '%s': %s") % (self.filename, errmsg)
             dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
@@ -1456,7 +1456,7 @@ class ProcessManager:
                 elif result == gtk.RESPONSE_NO:
                     return self.save_as_buffer()
                 else:
-                    return gtk.FALSE
+                    return False
             else: # save_as
                     return self.save_as_buffer()
         else:
@@ -1470,20 +1470,20 @@ class ProcessManager:
             if result == gtk.RESPONSE_YES:
                 return self.save_as_buffer()
             elif result == gtk.RESPONSE_NO:
-                return gtk.FALSE
+                return False
             else:
-                return gtk.FALSE
+                return False
 
 class FileSel(gtk.FileSelection):
     def __init__(self, title):
         gtk.FileSelection.__init__(self, title)
-        self.result = gtk.FALSE
+        self.result = False
 
     def ok_cb(self, button):
         self.hide()
         if self.ok_func(self.get_filename()):
             self.destroy()
-            self.result = gtk.TRUE
+            self.result = True
         else:
             self.show()
 
@@ -1495,7 +1495,7 @@ class FileSel(gtk.FileSelection):
         self.ok_button.connect("clicked", self.ok_cb)
         self.cancel_button.connect("clicked", lambda x: self.destroy())
         self.connect("destroy", lambda x: gtk.main_quit())
-        self.set_modal(gtk.TRUE)
+        self.set_modal(True)
         self.show()
         gtk.main()
         return self.result

@@ -89,30 +89,35 @@ class UpgradableReader(CommonReader):
         for full_name, package in installed_world:
             self.world_count += 1
             self.add_package(full_name, package, package.in_world)
-            self.dep_view.clear()
-            self.dep_view.fill_depends_tree(self.dep_view, package)
-            self.model = self.dep_view.get_model()
-            iter = self.model.get_iter_first()
-            self.dep_list = []
-            self.deps_checked = []
-            self.get_upgrade_deps(iter, full_name)
-            #
-            # read the upgrade tree into a list of packages to upgrade
-            #self.model.foreach(self.tree_node_to_list)
-            if self.cancelled: self.done = True; return
-            if self.dep_list != []:
-                for f_name, pkg, blocker in self.dep_list:
-                    if self.cancelled: self.done = True; return
-                    self.add_deps(pkg.full_name, pkg, pkg.in_world, blocker)
+            self.check_deps(full_name, package)
         if installed_dep != []:
             self.add_package(_("Dependency upgradeable"), None, False, False)
             for full_name, package in installed_dep:
                 self.dep_count += 1
                 if self.cancelled: self.done = True; return
                 self.add_deps(full_name, package, package.in_world, False)
-        #self.world_count += 1
+                self.check_deps(full_name, package)
         # set the thread as finished
         self.done = True
+
+    def check_deps(self, full_name, package):
+        """checks for and adds any upgradeable dependencies to the tree"""
+        self.dep_view.clear()
+        self.dep_view.fill_depends_tree(self.dep_view, package)
+        self.model = self.dep_view.get_model()
+        iter = self.model.get_iter_first()
+        self.dep_list = []
+        self.deps_checked = []
+        self.get_upgrade_deps(iter, full_name)
+        #
+        # read the upgrade tree into a list of packages to upgrade
+        #self.model.foreach(self.tree_node_to_list)
+        if self.cancelled: self.done = True; return
+        if self.dep_list != []:
+            for f_name, pkg, blocker in self.dep_list:
+                if self.cancelled: self.done = True; return
+                self.add_deps(pkg.full_name, pkg, pkg.in_world, blocker)
+
 
     def add_package(self, full_name, package, in_world, header_icon = False):
         """Add a package to the upgrade TreeStore"""
@@ -167,11 +172,18 @@ class UpgradableReader(CommonReader):
                     dprint("READERS: get_upgrade_deps(); OPS cleaned; new full_name = %s" %full_name)
                     name = full_name.split('/')
                     if len(name) > 2:
-                        dprint("READERS: get_upgrade_deps(); dependancy name error for %s" %full_name)
+                        dprint("READERS: get_upgrade_deps(); dependancy name error for %s !!!!!!!!!!!!!!!!!!!!!!" %full_name)
                         return
                     if name[0] == 'virtual': # get a proper package name
                         old_name = name[0]
-                        full_name = portagelib.virtuals[full_name][0]
+                        if name[1].count('-') or name[1].count('.'):
+                            full_name = portagelib.extract_package(full_name)
+                            dprint("READERS: get_upgrade_deps(); extracted virtual name = %s " %full_name)
+                        if portagelib.virtuals.has_key(full_name):
+                            full_name = portagelib.virtuals[full_name][0]
+                        else:
+                            dprint("READERS: get_upgrade_deps(); Key error for virtual name = %s " %full_name)
+                            break
                         dprint("READERS: get_upgrade_deps(); %s evaluated to %s" %(old_name+"/"+name[1], full_name))
                         if blocker and full_name == parent_name:
                             blocker = False
