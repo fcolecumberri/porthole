@@ -43,6 +43,7 @@ from advemerge import AdvancedEmergeDialog
 from plugin import PluginGUI, PluginManager
 from readers import UpgradableReader, DescriptionReader
 from loaders import *
+from version_sort import ver_match
 
 
 EXCEPTION_LIST = ['.','^','$','*','+','?','(',')','\\','[',']','|','{','}']
@@ -53,14 +54,34 @@ SHOW_UPGRADE = 3
 ON = True
 OFF = False
 
+def check_glade():
+	"""determine the libglade version installed
+	and return the correct glade file to use"""
+	porthole_gladefile = "porthole.glade"
+	# determine glade version
+	versions = portagelib.get_installed("gnome-base/libglade")
+	if versions:
+		dprint(versions)
+		old, new = ver_match(versions, ["2.0.1","2.4.0-r99"], ["2.4.1","2.99.99"])
+		if old:
+			porthole_gladefile = "porthole.glade"
+		elif new:
+			porthole_gladefile = "porthole-new.glade"
+	else:
+		dprint("MAINWINDOW: No version list returned for libglade")
+		return None
+	dprint("MAINWINDOW: __init__(); glade file = %s" %porthole_gladefile)
+	return porthole_gladefile
+
 class MainWindow:
     """Main Window class to setup and manage main window interface."""
     def __init__(self, preferences = None, config = None):
+        preferences.use_gladefile = check_glade()
         # setup prefs
         self.prefs = preferences
         self.config = config
         # setup glade
-        self.gladefile = self.prefs.DATA_PATH + "porthole.glade"
+        self.gladefile = self.prefs.DATA_PATH + self.prefs.use_gladefile
         self.wtree = gtk.glade.XML(self.gladefile, "main_window", self.prefs.APP)
         # register callbacks  note: gtk.mainquit deprecated
         callbacks = {
@@ -212,6 +233,7 @@ class MainWindow:
         self.db_timeout = gtk.timeout_add(100, self.update_db_read)
         self.get_sync_time()
         self.synctooltip.set_tip(self.widget["btn_sync"], self.sync_tip + self.last_sync)
+        self.synctooltip.enable()
         # set status
         #self.set_statusbar(_("Obtaining package list "))
         self.status_root = _("Loading database")
@@ -223,9 +245,12 @@ class MainWindow:
         dprint("TERMINAL: reload_db() callback")
         if self.db_thread_running or self.ut_running:
             if self.db_thread_running:
-                dprint("MAINWINDOW: reload_db(); killing db thread")
-                self.db_thread.please_die()
-                self.db_thread_running = False
+                try:
+                    dprint("MAINWINDOW: reload_db(); killing db thread")
+                    self.db_thread.please_die()
+                    self.db_thread_running = False
+                except:
+                    dprint("MAINWINDOW: reload_db(); failed to kill db thread")
             else: # self.ut_running
                 dprint("MAINWINDOW: reload_db(); killing upgrades thread")
                 self.ut.please_die()
@@ -244,6 +269,7 @@ class MainWindow:
         self.current_package_path = None
         # test to reset portage
         #portagelib.reload_portage()
+        portagelib.reload_world()
         # load the db
         self.dbtime = 0
         self.db_thread = portagelib.DatabaseReader()
@@ -252,9 +278,9 @@ class MainWindow:
         #test = 87/0  # used to test pycrash is functioning
         self.reload = True
         self.db_timeout = gtk.timeout_add(100, self.update_db_read)
-        portagelib.reload_world()
         self.get_sync_time()
         self.synctooltip.set_tip(self.widget["btn_sync"], self.sync_tip + self.last_sync)
+        self.synctooltip.enable()
         # set status
         #self.set_statusbar(_("Obtaining package list "))
         self.status_root = _("Reloading database")
@@ -314,6 +340,7 @@ class MainWindow:
     def update_db_read(self):
         """Update the statusbar according to the number of packages read."""
         #count = 0
+        #dprint("MAINWINDOW: update_db_read()")
         if not self.db_thread.done:
             self.dbtime += 1
             if self.db_thread.count > 0:
@@ -482,16 +509,16 @@ class MainWindow:
         dialog = AdvancedEmergeDialog(self.prefs, package, self.setup_command)
 
     def new_plugin_package_tab( self, name, callback, widget ):
-	notebook = self.wtree.get_widget("notebook")
-	label = gtk.Label(name)
-	notebook.append_page(widget, label)
-	page_num = notebook.page_num(widget)
-	self.plugin_package_tabs[name] = [callback, label, page_num]
-	
+        notebook = self.wtree.get_widget("notebook")
+        label = gtk.Label(name)
+        notebook.append_page(widget, label)
+        page_num = notebook.page_num(widget)
+        self.plugin_package_tabs[name] = [callback, label, page_num]
+
     def del_plugin_package_tab( self, name ):
-	notebook = self.wtree.get_widget("notebook")
-	notebook.remove_page(self.plugin_package_tabs[name][1])
-	self.plugin_package_tabs.remove(name)
+        notebook = self.wtree.get_widget("notebook")
+        notebook.remove_page(self.plugin_package_tabs[name][1])
+        self.plugin_package_tabs.remove(name)
 
     def plugin_settings_activate( self, widget ):
         """Shows the plugin settings window"""
@@ -572,7 +599,7 @@ class MainWindow:
            used to add packages to an upgrades list"""
         if model.get_value(iter, 1):
             name = model.get_value(iter, 0)
-	    dprint(name)
+            dprint(name)
             if name not in self.keyorder:
                 self.packages_list[name] = model.get_value(iter, 4) # model.get_value(iter, 2), name]
                 self.keyorder = [name] + self.keyorder 
@@ -645,12 +672,12 @@ class MainWindow:
                     char = "\\" + char
                 search_term += char 
             dprint("MAINWINDOW: package_search() ===> escaped search_term = :%s" %search_term)
-	    #switch to search view in the package_view
+            #switch to search view in the package_view
             search_results = self.package_view.search_model
             search_results.clear()
             re_object = re.compile(search_term, re.I)
             count = 0
-	    package_list = {}
+            package_list = {}
             # no need to sort self.db.list; it is already sorted
             for name, data in self.db.list:
                 searchstrings = [name]
@@ -666,20 +693,20 @@ class MainWindow:
                     search_results.set_value(iter, 5, '')
                     #dprint(data.full_name + " %d" %(data.in_world))
                     search_results.set_value(iter, 4, data.in_world)
-		    search_results.set_value(iter, 6, data.get_size())
-		    installed = data.get_latest_installed()
-		    latest = data.get_latest_ebuild()
-		    try:
-			installed = portagelib.get_version( installed )
-		    except IndexError:
-			installed = ""
-		    try:
-			latest = portagelib.get_version( latest )
-		    except IndexError:
-			latest = "Error"
-		    search_results.set_value(iter, 7, installed)
-		    search_results.set_value(iter, 8, latest)
-		    search_results.set_value(iter, 9, data.get_properties().description )
+                    search_results.set_value(iter, 6, data.get_size())
+                    installed = data.get_latest_installed()
+                    latest = data.get_latest_ebuild()
+                    try:
+                        installed = portagelib.get_version( installed )
+                    except IndexError:
+                        installed = ""
+                    try:
+                        latest = portagelib.get_version( latest )
+                    except IndexError:
+                        latest = "Error"
+                    search_results.set_value(iter, 7, installed)
+                    search_results.set_value(iter, 8, latest)
+                    search_results.set_value(iter, 9, data.get_properties().description )
 
                     # set the icon depending on the status of the package
                     icon = get_icon_for_package(data)
@@ -689,22 +716,22 @@ class MainWindow:
                         view.render_icon(icon,
                                          size = gtk.ICON_SIZE_MENU,
                                          detail = None))
-		    package_list[name] = data
+            package_list[name] = data
             search_results.size = count  # store number of matches
             self.wtree.get_widget("view_filter").set_history(SHOW_SEARCH)
             # in case the search view was already active
             self.update_statusbar(SHOW_SEARCH)
-	    self.search_history[search_term] = package_list
-	    #Add the current search_results to the top of the category view
-            self.category_view.populate(self.search_history.keys())
-	    iter = self.category_view.model.get_iter_first()
-	    while iter != None:
-		if self.category_view.model.get_value( iter, 1 ) == search_term:
-		    selection = self.category_view.get_selection()
-		    selection.select_iter( iter )
-		    break
-		iter = self.category_view.model.iter_next( iter )
-	    self.category_changed( search_term )
+        self.search_history[search_term] = package_list
+        #Add the current search_results to the top of the category view
+        self.category_view.populate(self.search_history.keys())
+        iter = self.category_view.model.get_iter_first()
+        while iter != None:
+            if self.category_view.model.get_value( iter, 1 ) == search_term:
+                selection = self.category_view.get_selection()
+                selection.select_iter( iter )
+                break
+            iter = self.category_view.model.iter_next( iter )
+        self.category_changed( search_term )
 
                 
     def help_contents(self, widget):
@@ -725,8 +752,8 @@ class MainWindow:
         #dprint("Category cursor = " +str(self.current_category_cursor))
         #dprint(self.current_category_cursor[0][1])
         mode = self.wtree.get_widget("view_filter").get_history()
-	if mode == SHOW_SEARCH:	    
-	    packages = self.search_history[category]
+        if mode == SHOW_SEARCH:	    
+            packages = self.search_history[category]
         elif not category or self.current_category_cursor[0][1] == None:
             #dprint("MAINWINDOW: category_changed(); category=False or self.current_category_cursor[0][1]=None")
             packages = None
@@ -781,11 +808,11 @@ class MainWindow:
         elif cur_page == 4:
             load_textfile(self.ebuild, package, "best_ebuild")
             self.ebuild_loaded = True
-	else:
-	    for i in self.plugin_package_tabs:
-		#Search through the plugins dictionary and select the correct one.
-		if self.plugin_package_tabs[i][2] == cur_page:
-		    self.plugin_package_tabs[i][0]( package )
+        else:
+            for i in self.plugin_package_tabs:
+                #Search through the plugins dictionary and select the correct one.
+                if self.plugin_package_tabs[i][2] == cur_page:
+                    self.plugin_package_tabs[i][0]( package )
 
     def notebook_changed(self, widget, pointer, index):
         """Catch when the user changes the notebook"""
@@ -810,11 +837,11 @@ class MainWindow:
                 # load list of installed files
                 load_textfile(self.ebuild, package, "best_ebuild")
                 self.ebuild_loaded = True
-	else:
-	    for i in self.plugin_package_tabs:
-		#Search through the plugins dictionary and select the correct one.
-		if self.plugin_package_tabs[i][2] == index:
-		    self.plugin_package_tabs[i][0]( package )
+            else:
+                for i in self.plugin_package_tabs:
+                    #Search through the plugins dictionary and select the correct one.
+                    if self.plugin_package_tabs[i][2] == index:
+                        self.plugin_package_tabs[i][0]( package )
 
     def view_filter_changed(self, widget):
         """Update the treeviews for the selected filter"""
@@ -822,7 +849,7 @@ class MainWindow:
         index = widget.get_history()
         self.update_statusbar(index)
         cat_scroll = self.wtree.get_widget("category_scrolled_window")
-	self.category_view.set_search( False )
+        self.category_view.set_search( False )
         if index in (SHOW_INSTALLED, SHOW_ALL):
             cat_scroll.show();
             self.category_view.populate(
@@ -832,7 +859,7 @@ class MainWindow:
             self.package_view.set_view(self.package_view.PACKAGES)
             self.package_view.clear()
         elif index == SHOW_SEARCH:
-	    self.category_view.set_search( True )
+            self.category_view.set_search( True )
             if not self.search_loaded:
                 self.set_package_actions_sensitive(False, None)
                 self.category_view.populate(self.search_history.keys())

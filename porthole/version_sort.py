@@ -35,7 +35,7 @@ if __name__ == "__main__":
 import re,string
 from utils import dprint
 from string import zfill
-import portagelib, utils
+import portagelib
 
 ############### new code ###############
 
@@ -50,7 +50,7 @@ fill_size = 3
 def pad_ver(vlist):
     """pads the version string so all number sequences are the same
        length for acurate sorting, borrowed & modified code from new portage vercmp()"""
-    #dprint("pad_ver: pad_ver()  vlist[]")
+    #dprint("VERSION_SORT:  pad_ver();  vlist[]")
     #dprint(vlist)
     # short circuit for  list of 1
     if len(vlist) == 1:
@@ -66,47 +66,47 @@ def pad_ver(vlist):
 
     val_cache = []
 
-    #dprint("VERSION_SORT: pad_ver() checking maximum length value of version pattern") 
+    #dprint("VERSION_SORT: pad_ver(); checking maximum length value of version pattern") 
     for x in vlist:
         #dprint(x)
         max_length = max(max_length, string.count(x, '.'))
         suffix_count = max(suffix_count, string.count(x, "_"))
 
-    #dprint("max_length = %d, suffix_count =%d" \
+    #dprint("VERSION_SORT: pad_ver(); max_length = %d, suffix_count =%d" \
     #       %(max_length, suffix_count))
 
     for val1 in vlist:
-        #dprint("new val1 = %s" %val1)
+        #dprint("VERSION_SORT: pad_ver(); new val1 = %s" %val1)
         match1 = ver_regexp.match(val1)
         # checking that the versions are valid
         if not match1 or not match1.groups():
-            dprint("!!! syntax error in version:")
+            dprint("VERSION_SORT: pad_ver(); !!! syntax error in version:")
             dprint(val1)
             return None
 
 	# building lists of the version parts before the suffix
 	# first part is simple
-        list1 = [zfill(match1.group(2), fill_size)]
+	list1 = [zfill(match1.group(2), fill_size)]
 
 	# extend version numbers
-        # this part would greatly benefit from a fixed-length version pattern
-        if len(match1.group(3)):
-            vlist1 = match1.group(3)[1:].split(".")
-            for i in range(0, max_length):
-                if len(vlist1) <= i or len(vlist1[i]) == 0:
-                    list1.append(zfill("0",fill_size))
-                else:
-                    list1.append(zfill(vlist1[i],fill_size))
+	# this part would greatly benefit from a fixed-length version pattern
+	if len(match1.group(3)):
+	    vlist1 = match1.group(3)[1:].split(".")
+	    for i in range(0, max_length):
+	        if len(vlist1) <= i or len(vlist1[i]) == 0:
+	            list1.append(zfill("0",fill_size))
+	        else:
+	            list1.append(zfill(vlist1[i],fill_size))
 
         # and now the final letter
-        #dprint("final letter")
+        #dprint("VERSION_SORT: pad_ver(); final letter")
         if len(match1.group(5)):
             list1.append(match1.group(5))
         else: # add something to it in case there is a letter in a vlist member
             list1.append("!") # "!" is the first visible printable char
 
         # main version is done, so now the _suffix part
-        #dprint("suffix part")
+        #dprint("VERSION_SORT: pad_ver(); suffix part")
         list1b = match1.group(6).split("_")[1:]
 
         for i in range(0, suffix_count):
@@ -117,12 +117,12 @@ def pad_ver(vlist):
                 slist = suffix_regexp.match(list1b[i]).groups()
                 s1 = str(suffix_value[slist[0]]) + zfill(slist[1], suffix_length)
             if s1:
-                #dprint("s1")
+                #dprint("VERSION_SORT: pad_ver(); s1")
                 #dprint(s1)
                 list1 += [s1]
                 
         # the suffix part is done, so finally the revision
-        #dprint("revision part")
+        #dprint("VERSION_SORT: pad_ver(); revision part")
         r1 = None	
         if match1.group(10):
             r1 = 'r' + zfill(match1.group(10), fill_size)
@@ -135,18 +135,18 @@ def pad_ver(vlist):
         result = ''
         for y in list1:
             result += y
-        #dprint("result= %s" %result)
+        #dprint("VERSION_SORT: pad_ver(); result= %s" %result)
 
         # store the padded version
         val_cache += [result]
 
     #dprint(val_cache)
-    #dprint("VERSION_SORT: pad_ver() done")
+    #dprint("VERSION_SORT: pad_ver(); done")
     return val_cache
 
 def two_list_sort(keylist, versions):
     """sorts the versions list using the keylist values"""
-    #dprint("two_list_sort() keylist, versions")
+    #dprint("VERSION_SORT: two_list_sort() ; keylist, versions")
     #dprint(keylist)
     #dprint(versions)
     dbl_list = {}
@@ -164,20 +164,48 @@ def two_list_sort(keylist, versions):
 
 def ver_sort(versions):
     """sorts a version list according to portage versioning rules"""
-    #dprint("VERSION_SORT: ver_sort()")
-    # convert versions into the padded version only list
-    vlist = []
-    for v in versions:
-        #dprint(v)
-        vlist += [portagelib.get_version(v)]
-        #dprint(vlist)
-    keylist = pad_ver(vlist)
+    keylist = pad_ver(get_versions_only(versions))
     if not keylist: # there was an error
-        dprint("keylist[] creation error")
+        dprint("VERSION_SORT: ver_sort(); keylist[] creation error")
         return (versions + ["error_in_sort"]) 
     sorted = two_list_sort(keylist, versions)
-    #dprint("VERSION_SORT: ver_sort() complete!")
+    #dprint("VERSION_SORT: ver_sort(); complete!")
     return sorted
+
+def get_versions_only(versions):
+	"""inputs a cat/pkg-version list and returns a version list"""
+	#dprint("VERSION_SORT: get_versions()")
+	# convert versions into the padded version only list
+	vlist = []
+	for v in versions:
+		#dprint(v)
+		vlist += [portagelib.get_version(v)]
+		#dprint(vlist)
+	return vlist
+
+
+def ver_match(versions, range1, range2 = None):
+	"""looks for a version match in range1 and optionaly in range2"""
+	if not versions:
+		return None
+	plist = pad_ver(get_versions_only(versions))
+	r1 = pad_ver(range1)
+	if range2:
+		r2 = pad_ver(range2)
+	if not plist:
+		dprint("VERSION_SORT: ver_match(); plist[] creation error")
+		return False, False
+	match1 = False
+	match2 = False
+	for x in plist:
+		if (x >= r1[0] and x <= r1[1]):
+			dprint("VERSION_SORT: ver_match(); match1 %s, %s:%s" %(x,r1[0],r1[1]))
+			match1 = True
+		if range2 and (x >= r2[0] and x <= r2[1]):
+			dprint("VERSION_SORT: ver_match(); match2 %s, %s:%s" %(x,r2[0],r2[1]))
+			match2 = True
+	return match1, match2
+		
 
 if __name__ == "__main__":
 
@@ -193,7 +221,7 @@ if __name__ == "__main__":
                 ]
 
     sorted = ver_sort(versions)
-    dprint("new sorted version list")
+    dprint("VERSION_SORT: new sorted version list")
     dprint(sorted)
 
 

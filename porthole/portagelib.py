@@ -22,7 +22,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 """
 
-from utils import dprint, dsave, get_world
+from utils import dprint, dsave
 from sys import exit
 import string
 from string import digits, zfill
@@ -39,16 +39,32 @@ import threading
 
 # not sure if segfaults are gtk.threads_enter() / _leave() related
 # so...
-import gtk
+#import gtk
 
 from metadata import parse_metadata
 
+def get_world():
+        world = []
+        try:
+            world = open("/var/lib/portage/world", "r").read().split()
+        except:
+            dprint("UTILS: get_world(); Failure to locate file: '/var/lib/portage/world'")
+            dprint("UTILS: get_world(); Trying '/var/cache/edb/world'")
+            try:
+                world = open("/var/cache/edb/world", "r").read().split()
+                dprint("OK")
+            except:
+                dprint("MAINWINDOW: UpgradableReader(); Failed to locate the world file")
+        return world
+
 World = get_world()
+
 def reload_world():
     dprint("PORTAGELIB: reset_world();")
     global World
     World = get_world()
-    
+
+
 def reload_portage():
 	reload(portage)
 
@@ -239,7 +255,7 @@ def get_size( ebuild ):
         raise # Needed else can't exit
     except Exception, e:
         dprint( "PORTAGELIB: get_size Exception:"  )
-	dprint( e )
+        dprint( e )
         mysum="[bad / blank digest]"
     return mysum
 
@@ -256,7 +272,7 @@ def get_digest( ebuild ):
         raise # Needed else can't exit
     except Exception, e:
         dprint( "PORTAGELIB: get_size Exception:"  )
-	dprint( e )
+        dprint( e )
     return digest_file
 
 def get_properties(ebuild):
@@ -280,10 +296,10 @@ class Package:
         Installed_Semaphore.acquire()
         self.is_installed = full_name in installed  # true if installed
         Installed_Semaphore.release()
-	self.latest_ebuild = None
-	self.latest_installed = None
-	self.size = None
-	self.digest_file = None
+        self.latest_ebuild = None
+        self.latest_installed = None
+        self.size = None
+        self.digest_file = None
         self.in_world = full_name in World
 
     def get_installed(self):
@@ -301,31 +317,31 @@ class Package:
     def get_latest_ebuild(self, include_masked = True):
         """Return latest ebuild of a package"""
         # Note: this is slow, see get_versions()
-	if self.latest_ebuild == None:
-	    criterion = include_masked and 'match-all' or 'match-visible'
+        if self.latest_ebuild == None:
+            criterion = include_masked and 'match-all' or 'match-visible'
             self.latest_ebuild = self.latest_ebuild = portage.best(self.get_versions(include_masked))
-	return self.latest_ebuild
+        return self.latest_ebuild
 
     def get_size( self ):
- 	if self.size == None:
- 	    self.size = get_size( self.get_latest_ebuild() )
- 	return self.size
+        if self.size == None:
+            self.size = get_size( self.get_latest_ebuild() )
+        return self.size
 
     def get_digest( self ):
-	if self.digest_file == None:
-	    self.digest_file = get_digest( self.get_latest_ebuild() )
-	return self.digest_file
+        if self.digest_file == None:
+            self.digest_file = get_digest( self.get_latest_ebuild() )
+        return self.digest_file
 
     def get_latest_installed( self ):
- 	if self.latest_installed == None:
- 	    installed_ebuilds = self.get_installed( )
- 	    if len(installed_ebuilds) == 1:
- 		return installed_ebuilds[0]
- 	    elif len(installed_ebuilds) == 0:
- 		return ""
- 	    installed_ebuilds = version_sort.ver_sort( installed_ebuilds )
- 	    self.latest_installed = installed_ebuilds[-1]
- 	return self.latest_installed
+        if self.latest_installed == None:
+            installed_ebuilds = self.get_installed( )
+            if len(installed_ebuilds) == 1:
+                return installed_ebuilds[0]
+            elif len(installed_ebuilds) == 0:
+                return ""
+            installed_ebuilds = version_sort.ver_sort( installed_ebuilds )
+                self.latest_installed = installed_ebuilds[-1]
+        return self.latest_installed
 
     def get_metadata(self):
         """Get a package's metadata, if there is any"""
@@ -334,7 +350,7 @@ class Package:
     def get_properties(self, specific_ebuild = None):
         """ Returns properties of specific ebuild.
            If no ebuild specified, get latest ebuild. """
-	dprint("PORTAGELIB: Package:get_properties()")
+        dprint("PORTAGELIB: Package:get_properties()")
         try:
             if specific_ebuild == None:
                 ebuild = self.get_latest_ebuild()
@@ -371,9 +387,9 @@ class Package:
 def sort(list):
     """sort in alphabetic instead of ASCIIbetic order"""
     dprint("PORTAGELIB: sort()")
-    
     spam = [(x[0].upper(), x) for x in list]
     spam.sort()
+    dprint("PORTAGELIB: sort(); finished")
     return [x[1] for x in spam]
 
 
@@ -443,9 +459,9 @@ class DatabaseReader(threading.Thread):
                 if name == 'timestamp.x' or name[-4:] == "tbz2":  
                     continue
                 self.count += 1
-                gtk.threads_enter()
+                #gtk.threads_enter()
                 data = Package(entry)
-                gtk.threads_leave()
+                #gtk.threads_leave()
                 self.db.categories.setdefault(category, {})[name] = data;
                 if entry in self.installed_list:
                     self.db.installed.setdefault(category, {})[name] = data;
@@ -453,6 +469,7 @@ class DatabaseReader(threading.Thread):
                 self.db.list.append((name, data))
         dprint("PORTAGELIB: read_db(); end of list build; sort is next")
         self.db.list = sort(self.db.list)
+        dprint("PORTAGELIB: read_db(); end of sort, finished")
 
     def get_installed(self):
         """get a new installed list"""
@@ -462,19 +479,21 @@ class DatabaseReader(threading.Thread):
         #installed_list # a better way to do this?
         dprint("PORTAGELIB: get_installed();")
         self.installed_list = portage.db['/']['vartree'].getallnodes()
-        gtk.threads_enter()
+        #gtk.threads_enter()
         global Installed_Semaphore
         global installed
         Installed_Semaphore.acquire()
         installed = self.installed_list
         Installed_Semaphore.release()
-        gtk.threads_leave()
+        #gtk.threads_leave()
         self.new_installed_Semaphore.release()
         
     def run(self):
         """The thread function."""
         self.read_db()
         self.done = True   # tell main thread that this thread has finished
+        dprint("PORTAGELIB: DatabaseReader.run(); finished")
+
 
 
 

@@ -31,8 +31,10 @@ import string
 import sre
 import datetime
 
+#import portagelib
+
 from sys import stderr
-from version import version
+from version import *
 from xmlmgr import XMLManager, XMLManagerError
 from gettext import gettext as _
 
@@ -55,7 +57,6 @@ def dsave(name, item = None):
         home = pwd.getpwuid(os.getuid())[5]
         # pickle it baby, yeah!
         cPickle.dump(item, open(home + "/.porthole/" + name, "w"))
-        
 
 def get_icon_for_package(package):
     """Return an icon for a package"""
@@ -80,20 +81,6 @@ def get_icon_for_upgrade_package(package, prefs):
         icon = gtk.STOCK_GO_DOWN
         color = prefs.world_downgradeable_color
     return icon, color      
-
-def get_world():
-        world = []
-        try:
-            world = open("/var/lib/portage/world", "r").read().split()
-        except:
-            dprint("UTILS: get_world(); Failure to locate file: '/var/lib/portage/world'")
-            dprint("UTILS: get_world(); Trying '/var/cache/edb/world'")
-            try:
-                world = open("/var/cache/edb/world", "r").read().split()
-                dprint("OK")
-            except:
-                dprint("MAINWINDOW: UpgradableReader(); Failed to locate the world file")
-        return world
 
 def is_root():
     """Returns true if process runs as root."""

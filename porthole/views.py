@@ -65,7 +65,7 @@ class PackageView(CommonTreeView):
     """ Self contained treeview of packages """
     def __init__(self):
         """ Initialize """
-	self.new_thread = None
+        self.new_thread = None
         # initialize the treeview
         CommonTreeView.__init__(self)
         # setup some variables for the different views
@@ -75,7 +75,7 @@ class PackageView(CommonTreeView):
 
         # setup the treecolumn
         self._column = gtk.TreeViewColumn(_("Packages"))
-	self._column.set_resizable(True)
+        self._column.set_resizable(True)
         self.append_column(self._column)
 
 	# Setup the Installed Column
@@ -122,23 +122,23 @@ class PackageView(CommonTreeView):
     def set_view(self, view):
         """ Set the current view """
         self.current_view = view
-	text_size = gtk.CellRendererText()
-	text_installed = gtk.CellRendererText()
-	text_latest = gtk.CellRendererText()
-	self._size_column.pack_start(text_size, expand = False)
-	self._size_column.add_attribute(text_size, "text", 6)
-	self._installed_column.pack_start(text_installed, expand = False)
-	self._latest_column.pack_start(text_latest, expand = False)
-	self._installed_column.add_attribute(text_installed, "text", 7)
-	self._latest_column.add_attribute(text_latest, "text", 8)
-	self._latest_column.set_sizing( gtk.TREE_VIEW_COLUMN_AUTOSIZE )
-	self._installed_column.set_sizing( gtk.TREE_VIEW_COLUMN_AUTOSIZE )
-	self._size_column.set_sizing( gtk.TREE_VIEW_COLUMN_AUTOSIZE )
+        text_size = gtk.CellRendererText()
+        text_installed = gtk.CellRendererText()
+        text_latest = gtk.CellRendererText()
+        self._size_column.pack_start(text_size, expand = False)
+        self._size_column.add_attribute(text_size, "text", 6)
+        self._installed_column.pack_start(text_installed, expand = False)
+        self._latest_column.pack_start(text_latest, expand = False)
+        self._installed_column.add_attribute(text_installed, "text", 7)
+        self._latest_column.add_attribute(text_latest, "text", 8)
+        self._latest_column.set_sizing( gtk.TREE_VIEW_COLUMN_AUTOSIZE )
+        self._installed_column.set_sizing( gtk.TREE_VIEW_COLUMN_AUTOSIZE )
+        self._size_column.set_sizing( gtk.TREE_VIEW_COLUMN_AUTOSIZE )
 
-	text_desc = gtk.CellRendererText()
-	self._desc_column.pack_start( text_desc, expand=False )
-	self._desc_column.add_attribute( text_desc, 'text', 9 )
-	self._desc_column.set_sizing( gtk.TREE_VIEW_COLUMN_AUTOSIZE )
+        text_desc = gtk.CellRendererText()
+        self._desc_column.pack_start( text_desc, expand=False )
+        self._desc_column.add_attribute( text_desc, 'text', 9 )
+        self._desc_column.set_sizing( gtk.TREE_VIEW_COLUMN_AUTOSIZE )
 
         self._init_view()
         self._set_model()
@@ -147,10 +147,10 @@ class PackageView(CommonTreeView):
         """ Set the treeview column """
         # clear the column
         self._column.clear()
-	self._size_column.clear()
-	self._latest_column.clear()
-	self._installed_column.clear()
-	self._desc_column.clear()
+        self._size_column.clear()
+        self._latest_column.clear()
+        self._installed_column.clear()
+        self._desc_column.clear()
         if self.current_view == self.UPGRADABLE:
             # add the toggle renderer
             check = gtk.CellRendererToggle()
@@ -171,23 +171,23 @@ class PackageView(CommonTreeView):
         self._column.pack_start(text, expand = True)
         #self._column.add_attribute(text, "text", 0)
         self._column.set_cell_data_func(text, self.render_name, None)
-	text_size = gtk.CellRendererText()
-	text_installed = gtk.CellRendererText()
-	text_latest = gtk.CellRendererText()
-	self._size_column.pack_start(text_size, expand = False)
-	self._size_column.add_attribute(text_size, "text", 6)
-	self._installed_column.pack_start(text_installed, expand = False)
-	self._latest_column.pack_start(text_latest, expand = False)
-	self._installed_column.add_attribute(text_installed, "text", 7)
-	self._latest_column.add_attribute(text_latest, "text", 8)
-	self._latest_column.set_sizing( gtk.TREE_VIEW_COLUMN_GROW_ONLY )
-	self._installed_column.set_sizing( gtk.TREE_VIEW_COLUMN_GROW_ONLY )
-	self._size_column.set_sizing( gtk.TREE_VIEW_COLUMN_GROW_ONLY )
+        text_size = gtk.CellRendererText()
+        text_installed = gtk.CellRendererText()
+        text_latest = gtk.CellRendererText()
+        self._size_column.pack_start(text_size, expand = False)
+        self._size_column.add_attribute(text_size, "text", 6)
+        self._installed_column.pack_start(text_installed, expand = False)
+        self._latest_column.pack_start(text_latest, expand = False)
+        self._installed_column.add_attribute(text_installed, "text", 7)
+        self._latest_column.add_attribute(text_latest, "text", 8)
+        self._latest_column.set_sizing( gtk.TREE_VIEW_COLUMN_GROW_ONLY )
+        self._installed_column.set_sizing( gtk.TREE_VIEW_COLUMN_GROW_ONLY )
+        self._size_column.set_sizing( gtk.TREE_VIEW_COLUMN_GROW_ONLY )
 
-	text_desc = gtk.CellRendererText()
-	self._desc_column.pack_start( text_desc, expand=False )
-	self._desc_column.add_attribute( text_desc, 'text', 9 )
-	self._desc_column.set_sizing( gtk.TREE_VIEW_COLUMN_GROW_ONLY )
+        text_desc = gtk.CellRendererText()
+        self._desc_column.pack_start( text_desc, expand=False )
+        self._desc_column.add_attribute( text_desc, 'text', 9 )
+        self._desc_column.set_sizing( gtk.TREE_VIEW_COLUMN_GROW_ONLY )
 
         # set the last selected to nothing
         self._last_selected = None
@@ -255,11 +255,11 @@ class PackageView(CommonTreeView):
         self._last_selected = package.full_name
 
     def populate(self, packages, locate_name = None):
-	dprint( threading.enumerate() )
-	if self.new_thread:
-	    if self.new_thread.isAlive():
-		self.new_thread.join()
         """ Populate the current view with packages """
+        dprint("VIEWS: PackageView.populate(); Threading info: %s" %str(threading.enumerate()) )
+        if self.new_thread:
+            if self.new_thread.isAlive():
+                self.new_thread.join()
         if not packages:
             return
         dprint("VIEWS: Populating package view")
@@ -291,57 +291,56 @@ class PackageView(CommonTreeView):
                         #self.set_cursor(path) # does not select it at the
                         # correct place in the code to display properly
                         # get the position in the tree and save it instead
-	if self.new_thread:
-	    if self.new_thread.isAlive():
-	        self.new_thread.join()
-	    del self.new_thread
-	self.new_thread = threading.Thread( target=self.populate_info )
-	self.new_thread.start()
+        if self.new_thread:
+            if self.new_thread.isAlive():
+                self.new_thread.join()
+                del self.new_thread
+        self.new_thread = threading.Thread( target=self.populate_info )
+        self.new_thread.start()
 
     def populate_info(self):
         """ Populate the current view with packages """
         model = self.get_model()
-	iter = model.get_iter_first()
-	while iter:
-	    package = model.get_value( iter, 2)
-	    package.get_size()
-	    package.get_latest_installed()
-	    package.get_latest_ebuild()
-	    iter = model.iter_next( iter )
-
-#	self._desc_column.set_sizing( gtk.TREE_VIEW_COLUMN_FIXED )
-#	self._installed_column.set_sizing( gtk.TREE_VIEW_COLUMN_FIXED )
-#	self._latest_column.set_sizing( gtk.TREE_VIEW_COLUMN_FIXED )
-#	self._size_column.set_sizing( gtk.TREE_VIEW_COLUMN_FIXED )
-	iter = model.get_iter_first()
+        iter = model.get_iter_first()
         while iter:
-	    package = model.get_value( iter, 2 )
-	    model.set_value(iter, 6, package.get_size())	    
- 	    try:
-  	        installed = package.get_latest_installed()
-		installed = portagelib.get_version( installed )
-	    except IndexError:
-		installed = ""
-	    try:
-		latest = package.get_latest_ebuild()
-		latest = portagelib.get_version( latest )
-	    except IndexError, TypeError:
-	        latest = "Error"
-	    model.set_value(iter, 7, installed)
-	    model.set_value(iter, 8, latest)
-	    model.set_value(iter, 9, package.get_properties().description )
-	    iter = model.iter_next( iter )
-#	self._desc_column.set_sizing( gtk.TREE_VIEW_COLUMN_AUTOSIZE )
-#	self._installed_column.set_sizing( gtk.TREE_VIEW_COLUMN_AUTOSIZE )
-#	self._latest_column.set_sizing( gtk.TREE_VIEW_COLUMN_AUTOSIZE )
-#	self._size_column.set_sizing( gtk.TREE_VIEW_COLUMN_AUTOSIZE )
+            package = model.get_value( iter, 2)
+            package.get_size()
+            package.get_latest_installed()
+            package.get_latest_ebuild()
+            iter = model.iter_next( iter )
 
+        # self._desc_column.set_sizing( gtk.TREE_VIEW_COLUMN_FIXED )
+        # self._installed_column.set_sizing( gtk.TREE_VIEW_COLUMN_FIXED )
+        # self._latest_column.set_sizing( gtk.TREE_VIEW_COLUMN_FIXED )
+        # self._size_column.set_sizing( gtk.TREE_VIEW_COLUMN_FIXED )
+        iter = model.get_iter_first()
+        while iter:
+            package = model.get_value( iter, 2 )
+            model.set_value(iter, 6, package.get_size())	    
+            try:
+                installed = package.get_latest_installed()
+                installed = portagelib.get_version( installed )
+            except IndexError:
+                installed = ""
+            try:
+                latest = package.get_latest_ebuild()
+                latest = portagelib.get_version( latest )
+            except IndexError, TypeError:
+                latest = "Error"
+            model.set_value(iter, 7, installed)
+            model.set_value(iter, 8, latest)
+            model.set_value(iter, 9, package.get_properties().description )
+            iter = model.iter_next( iter )
+            # self._desc_column.set_sizing( gtk.TREE_VIEW_COLUMN_AUTOSIZE )
+            # self._installed_column.set_sizing( gtk.TREE_VIEW_COLUMN_AUTOSIZE )
+            # self._latest_column.set_sizing( gtk.TREE_VIEW_COLUMN_AUTOSIZE )
+            # self._size_column.set_sizing( gtk.TREE_VIEW_COLUMN_AUTOSIZE )
 
-    #~ def set_all(self, treeview, selected, checklist):
-	#~ """ Sets all (up/down)gradeable packages to value of (selected) accoring to
-	    #~ the checklist[]""" 
-	#~ for len(treeview)
-	#~ self.upgrade_model.set_value(iter, 1, selected)
+            #~ def set_all(self, treeview, selected, checklist):
+            #~ """ Sets all (up/down)gradeable packages to value of (selected) accoring to
+            #~ the checklist[]""" 
+            #~ for len(treeview)
+            #~ self.upgrade_model.set_value(iter, 1, selected)
 
 class CategoryView(CommonTreeView):
     """ Self contained treeview to hold categories """

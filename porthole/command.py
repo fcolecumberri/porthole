@@ -33,7 +33,7 @@ class RunDialog:
 
     def __init__(self, prefs, call_back):
         # setup glade
-        self.gladefile = prefs.DATA_PATH + "porthole.glade"
+        self.gladefile = prefs.DATA_PATH + prefs.use_gladefile
         self.wtree = gtk.glade.XML(self.gladefile, "run_dialog")
         # register callbacks
         callbacks = {"on_help" : self.help,

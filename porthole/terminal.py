@@ -145,7 +145,7 @@ class ProcessManager:
     def show_window(self):
         """ Show the process window """
         # load the glade file
-        self.wtree = gtk.glade.XML(self.prefs.DATA_PATH + "porthole.glade",
+        self.wtree = gtk.glade.XML(self.prefs.DATA_PATH + self.prefs.use_gladefile,
                                    "process_window", self.prefs.APP)
         # these need to be before the callbacks
         # setup some aliases for easier access

@@ -98,23 +98,22 @@ if __name__ == "__main__":
             # running a local version (i.e. not installed in /usr/*)
             from os import getcwd
             DATA_PATH = getcwd() + "/"
-	    from version import version
-	    import utils as _utils
-	    from mainwindow import MainWindow
-	    i18n_DIR = DATA_PATH + 'i18n'
+        from version import version
+        import utils as _utils
+        from mainwindow import MainWindow
+        i18n_DIR = DATA_PATH + 'i18n'
+        path_set = True
 
-	    path_set = True
-
-    if not path_set: # then run the installed modules
-	try:
-	    from porthole.version import version
-	    # set data path for our glade and pixmap files
-	    DATA_PATH = "/usr/share/porthole/"
-	    from porthole import utils as _utils
-	    from porthole.mainwindow import MainWindow
-	    i18n_DIR = DATA_PATH + 'i18n'
-	except:
-	    print "NO installed porthole modules found!   Please run with the --local flag"
+	if not path_set: # then run the installed modules
+		try:
+			from porthole.version import version
+			# set data path for our glade and pixmap files
+			DATA_PATH = "/usr/share/porthole/"
+			from porthole import utils as _utils
+			from porthole.mainwindow import MainWindow
+			i18n_DIR = DATA_PATH + 'i18n'
+		except:
+			print "NO installed porthole modules found!   Please run with the --local flag"
 
     for opt, arg in opts:
         if opt in ("-v", "--version"):
@@ -152,6 +151,7 @@ if __name__ == "__main__":
     prefs.i18n_DIR = i18n_DIR
     # load config info
     config = _utils.PortholeConfiguration(DATA_PATH)
+    prefs.use_gladefile = "not assigned"
     # create the main window
     myapp = MainWindow(prefs, config)
     # start the program loop

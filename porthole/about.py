@@ -31,7 +31,7 @@ class AboutDialog:
 
     def __init__(self, prefs):
         # setup glade
-        self.gladefile = prefs.DATA_PATH + "porthole.glade"
+        self.gladefile = prefs.DATA_PATH + prefs.use_gladefile
         self.wtree = gtk.glade.XML(self.gladefile, "about_dialog")
         # register callbacks
         callbacks = {"on_ok_clicked" : self.ok_clicked,
