@@ -46,7 +46,7 @@ portdir_overlay = get_portage_environ('PORTDIR_OVERLAY')
 keys = [key.lower() for key in portage.auxdbkeys]
 
 # a list of all installed packages
-installed = portage.db['/']['vartree'].getallnodes()
+installed = None
         
 def get_name(full_name):
     """Extract name from full name."""
@@ -252,6 +252,8 @@ class DatabaseReader(threading.Thread):
     def read_db(self):
         """Read portage's database and store it nicely"""
         tree = portage.db['/']['porttree']
+        global installed # what's a better way to do this?
+        installed = portage.db['/']['vartree'].getallnodes()
         try:
             allnodes = tree.getallnodes()
         except OSError, e:
