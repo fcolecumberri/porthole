@@ -743,7 +743,7 @@ class ProcessManager:
             if self.process_list[pos][0] == name:
                 # set the position in the list (+1 so it's not 0)
                 in_list = pos + 1
-        if not in_list or in_list == 1:
+        if not in_list or in_list == 1 or in_list == len(self.process_list):
             self.move_up.set_sensitive(gtk.FALSE)
             self.move_down.set_sensitive(gtk.FALSE)
             if not self.killed and in_list == 1:
