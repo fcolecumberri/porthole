@@ -61,7 +61,9 @@ class MainWindow:
             "on_notebook_switch_page" : self.notebook_changed,
             "on_fetch_activate" : self.fetch_set,
             "on_verbose_activate" : self.verbose_set,
-            "on_search_descriptions1_activate" : self.search_set
+            "on_search_descriptions1_activate" : self.search_set,
+            "on_open_log" : self.open_log,
+            "on_custom_run" : self.custom_run
             }
         self.wtree.signal_autoconnect(callbacks)
         # aliases for convenience
@@ -571,6 +573,17 @@ class MainWindow:
         self.deps_view.clear()
         self.changelog.set_text('')
         self.installed_files.set_text('')
+
+    def open_log(self, widget):
+        """ Open a log of a previous emerge in the terminal window """
+        # show the terminal if it isn't already visible
+        if not self.process_manager.window_visible:
+            self.process_manager.show_window()
+        self.process_manager.do_open(widget)
+
+    def custom_run(self, widget):
+        """ Run a custom command in the terminal window """
+        pass
 
 
 class CommonReader(threading.Thread):
