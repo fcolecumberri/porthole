@@ -75,7 +75,7 @@ class MainWindow:
         self.package_model = None
         self.search_results = gtk.TreeStore(gobject.TYPE_STRING,
                                             gtk.gdk.Pixbuf,
-                                            gobject.TYPE_STRING)
+                                            gobject.TYPE_PYOBJECT) # Package
         # don't know how to read size from TreeStore
         self.search_results.size = 0
         #setup some textbuffers
@@ -182,7 +182,8 @@ class MainWindow:
         '''fill the package tree'''
         view = self.package_view
         self.package_model = gtk.TreeStore(gobject.TYPE_STRING,
-                                           gtk.gdk.Pixbuf)
+                                           gtk.gdk.Pixbuf,
+                                           gobject.TYPE_PYOBJECT) # Package
         if not category:
             view.set_model(self.package_model)
             return
@@ -192,6 +193,7 @@ class MainWindow:
             #go through each package
             iter = self.package_model.insert_before(None, None)
             self.package_model.set_value(iter, 0, name)
+            self.package_model.set_value(iter, 2, packages[name])
             #get an icon for the package
             icon = self.get_icon_for_package(packages[name])
             self.package_model.set_value(
@@ -249,8 +251,7 @@ class MainWindow:
                     count += 1
                     iter = self.search_results.insert_before(None, None)
                     self.search_results.set_value(iter, 0, name)
-                    self.search_results.set_value(iter, 2,
-                                                  data.get_category())
+                    self.search_results.set_value(iter, 2, data)
                     #set the icon depending on the status of the package
                     icon = self.get_icon_for_package(data)
                     view = self.package_view
@@ -289,20 +290,14 @@ class MainWindow:
 
     def package_changed(self, treeview):
         """Catch when the user changes packages."""
-        if self.wtree.get_widget("view_filter").get_history() == 0:
-            category = self.get_treeview_selection(
-                self.category_view, 1)
-        else:
-            #there's no category! did the user search? :)
-            category = self.get_treeview_selection(treeview, 2)
-        package = self.get_treeview_selection(treeview, 0)
-        self.update_package_info(category + "/" + package)
+        package = self.get_treeview_selection(treeview, 2)
+        self.update_package_info(package)
 
     def on_url_event(self, tag, widget, event, iter):
         if event.type == gtk.gdk.BUTTON_RELEASE:
             print self.homepage
 
-    def update_package_info(self, package_name):
+    def update_package_info(self, package):
         """Update the notebook of information about a selected package"""
 
         def append(text, tag = None):
@@ -320,14 +315,13 @@ class MainWindow:
 
         self.summary_buffer.set_text("", 0)
         notebook = self.wtree.get_widget("notebook")
-        notebook.set_sensitive(package_name and gtk.TRUE or gtk.FALSE)
-        if not package_name:
+        notebook.set_sensitive(package and gtk.TRUE or gtk.FALSE)
+        if not package:
             #it's really a category selected!
             return
         #put the info into the textview!
         notebook.set_sensitive(gtk.TRUE)
         #set the package
-        package = portagelib.Package(package_name)
         package.read_description()
         package.read_versions()
         #read it's info
@@ -346,7 +340,7 @@ class MainWindow:
             get dependencies and show them in the dependency tab/textview
             figure out what to put into the extras tab...?
         '''
-        append(package_name, "name"); nl()
+        append(package.get_name(), "name"); nl()
         if description:
             append(description, "description"); nl()
         if metadata and metadata.longdescription:
