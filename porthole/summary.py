@@ -39,6 +39,8 @@ class Summary(gtk.TextView):
         self.buffer = gtk.TextBuffer(tagtable)
         self.set_buffer(self.buffer)
         self.connect("motion_notify_event", self.on_mouse_motion)
+        self.url_tags = []
+        self.underligned_url = False
 
     def create_tag_table(self):
         """Define all markup tags."""
@@ -61,28 +63,29 @@ class Summary(gtk.TextView):
              'useunset':({'foreground':'red'}),
              'masked': ({"style": pango.STYLE_ITALIC}),
              })
-        # React when user clicks on the homepage url
-        self.url_tag = table.lookup('url')
-        self.url_tag.connect("event", self.on_url_event)
         return table
     
     def on_url_event(self, tag, widget, event, iter):
         """Catch when the user clicks the url"""
         if event.type == gtk.gdk.BUTTON_RELEASE:
-            load_web_page(self.homepages[0])
+            load_web_page(tag.get_property("name"))           
 
     def on_mouse_motion(self, widget, event, data = None):
         # we need to call get_pointer, or we won't get any more events
         pointer = self.window.get_pointer()
-        x, y, spam = pointer
+        x, y, spam = self.window.get_pointer()
         x, y = self.window_to_buffer_coords(gtk.TEXT_WINDOW_TEXT, x, y)
-        i = self.get_iter_at_location(x, y)
-        is_url = i.has_tag(self.url_tag)
-        self.url_tag.set_property(
-            "underline", 
-            is_url and pango.UNDERLINE_SINGLE or pango.UNDERLINE_NONE)
-        self.get_window(gtk.TEXT_WINDOW_TEXT).set_cursor(
-            is_url and gtk.gdk.Cursor(gtk.gdk.HAND2) or None)
+        tags = self.get_iter_at_location(x, y).get_tags()
+        if self.underligned_url:
+            self.underligned_url.set_property("underline",pango.UNDERLINE_NONE)
+            self.get_window(gtk.TEXT_WINDOW_TEXT).set_cursor(None)
+            self.underligned_url = None
+        for tag in tags:
+            if tag in self.url_tags:
+                tag.set_property("underline",pango.UNDERLINE_SINGLE)
+                self.get_window(gtk.TEXT_WINDOW_TEXT).set_cursor(gtk.gdk.Cursor
+                                                                 (gtk.gdk.HAND2))
+                self.underligned_url = tag
         return gtk.FALSE
 
     def update_package_info(self, package):
@@ -94,6 +97,13 @@ class Summary(gtk.TextView):
             buffer = self.buffer
             if tag: buffer.insert_with_tags_by_name(iter, text, tag)
             else: buffer.insert(iter, text)
+
+        def append_url(text):
+            tag = self.buffer.create_tag(text)
+            tag.set_property("foreground","blue")
+            tag.connect("event",self.on_url_event)
+            self.url_tags.append(tag)
+            append(text,tag.get_property("name"))
 
         def nl(): append("\n")
         
@@ -117,9 +127,12 @@ class Summary(gtk.TextView):
         props = package.get_properties()
         description = props.description
         homepages = props.get_homepages() # may be more than one
-        self.homepages = homepages  # store url for on_url_event
         use_flags = props.get_use_flags()
         system_use_flags = portagelib.get_portage_environ("USE")
+        table=self.buffer.get_tag_table()
+        for tag in self.url_tags:
+            table.remove(tag)
+        self.url_tags = []
         if system_use_flags:
             system_use_flags = system_use_flags.split()
         license = props.license
@@ -150,7 +163,9 @@ class Summary(gtk.TextView):
             append(description, "description"); nl()
         if metadata and metadata.longdescription:
             nl(); append(metadata.longdescription, "description"); nl()
-        for homepage in homepages: append(homepage, "url"); nl()
+        for homepage in homepages: #append(homepage, "url"); nl()
+            append_url(homepage)
+            nl()
         nl()         # put a space between this info and the rest
         if installed:
             append("Installed versions:\n", "property")
