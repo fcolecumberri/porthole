@@ -96,7 +96,7 @@ def get_user_home_dir():
     """Return the path to the current user's home dir"""
     return pwd.getpwuid(os.getuid())[5]
 
-def Environment():
+def environment():
     """sets up the environment to run sub processes"""
     HOME = os.getenv("HOME")
     dprint("HOME = " + str(HOME))
