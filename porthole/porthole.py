@@ -225,32 +225,13 @@ class MainWindow:
             self.package_model.set_value(iter, 0, name)
             self.package_model.set_value(iter, 2, packages[name])
             #get an icon for the package
-            icon = self.get_icon_for_package(packages[name])
+            icon = get_icon_for_package(packages[name])
             self.package_model.set_value(
                 iter, 1,
                 view.render_icon(icon,
                                  size = gtk.ICON_SIZE_MENU,
                                  detail = None))
         view.set_model(self.package_model)
-
-    def get_icon_for_package(self, package):
-        """Return an icon for a package"""
-        #if it's installed, find out if it can be upgraded
-        if package.is_installed:
-            installed = package.get_installed()
-            installed.sort()
-            latest_installed = installed[-1]
-            latest_available = package.get_latest_ebuild()
-            if latest_installed == latest_available:
-                #they are the same version, so you are up to date
-                icon = gtk.STOCK_YES
-            else:
-                #let the user know there is an upgrade available
-                icon = gtk.STOCK_GO_FORWARD
-        else:
-            #just put the STOCK_NO icon
-            icon = gtk.STOCK_NO
-        return icon
 
     def setup_command(self, command, callback = None):
         """Setup the command to run with sudo or not at all"""
@@ -303,7 +284,7 @@ class MainWindow:
                     self.search_results.set_value(iter, 0, name)
                     self.search_results.set_value(iter, 2, data)
                     #set the icon depending on the status of the package
-                    icon = self.get_icon_for_package(data)
+                    icon = get_icon_for_package(data)
                     view = self.package_view
                     self.search_results.set_value(
                         iter, 1,
