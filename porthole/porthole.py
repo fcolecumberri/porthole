@@ -62,6 +62,10 @@ class MainWindow:
         self.package_view = self.wtree.get_widget("package_view")
         self.category_view = self.wtree.get_widget("category_view")
         self.notebook = self.wtree.get_widget("notebook")
+        #set unfinished items to not be sensitive
+        self.wtree.get_widget("view_statistics1").set_sensitive(gtk.FALSE)
+        self.wtree.get_widget("search_descriptions1").set_sensitive(gtk.FALSE)
+        self.wtree.get_widget("pretend1").set_sensitive(gtk.FALSE)
         #setup our treemodels
         self.category_model = None
         self.package_model = None
