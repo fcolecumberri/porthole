@@ -116,6 +116,11 @@ class ProcessManager:
         self.queue_menu = self.wtree.get_widget("queue1")
         self.statusbar = self.wtree.get_widget("statusbar")
         self.resume_menu = self.wtree.get_widget("resume")
+        self.move_up = self.wtree.get_widget("move_up1")
+        self.move_down = self.wtree.get_widget("move_down1")
+        self.queue_remove = self.wtree.get_widget("remove1")
+        # catch clicks to the queue tree
+        self.queue_tree.connect("cursor_changed", self.queue_clicked)
         # process output buffer
         self.process_buffer = ''
         # set some persistent variables for text capture
@@ -591,6 +596,21 @@ class ProcessManager:
                         "last time you built some of these packages, the " +
                         "estimates I calculate may be inaccurate.\n\n")
 
+    def queue_clicked(self, widget):
+        """Handle clicks to the queue treeview"""
+        # get the selected iter
+        iter = get_treeview_selection(self.queue_tree)
+        # get its path
+        path = self.queue_model.get_path(iter)[0]
+        if (path > 0) and (path < len(self.queue_model) - 1):
+            # enable moving the item
+            self.move_up.set_sensitive(gtk.TRUE)
+            self.move_down.set_sensitive(gtk.TRUE)
+        else:
+            # disable moving the item
+            self.move_up.set_sensitive(gtk.FALSE)
+            self.move_down.set_sensitive(gtk.FALSE)
+
 class ProcessOutputReader(threading.Thread):
     """ Reads output from processes """
     def __init__(self, update_callback, finished_callback):
@@ -631,7 +651,9 @@ class ProcessOutputReader(threading.Thread):
                 else:
                     # clean up, process is terminated
                     self.process_running = False
+                    gtk.threads_enter()
                     self.finished_callback()
+                    gtk.threads_leave()
             else:
                 # sleep for .5 seconds before we check again
                 time.sleep(.5)
@@ -676,7 +698,7 @@ if __name__ == "__main__":
     myicon = gtk.gdk.pixbuf_new_from_file("pixmaps/porthole-icon.png")
     gtk.window_set_default_icon_list(myicon)
     # load prefs
-    prefs = utils.load_user_prefs()
+    prefs = utils.PortholePreferences()
     env = utils.environment()
     # to test the above classes when run standalone
     test = ProcessManager(env, prefs)
