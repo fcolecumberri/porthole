@@ -27,5 +27,6 @@ setup(name = "porthole",
 		       "help/unmerge.html", "help/update.html", "help/warningtab.png"]),
                     (datadir,["advemerge.glade", "porthole.glade", "configuration.xml"]),
 		    (datadir + "locale", []),
+		    ("share/applications", ["porthole.desktop"])
                     ]
       )
