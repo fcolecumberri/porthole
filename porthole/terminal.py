@@ -62,13 +62,17 @@ TAB_QUEUE = 4
 
 class ProcessManager:
     """ Manages queued and running processes """
-    def __init__(self, env = {}, prefs = None):
+    def __init__(self, env = {}, prefs = None, callback = None):
         """ Initialize """
         # copy the environment and preferences
         self.env = env
         self.prefs = prefs
         self.killed = 0
         self.pid = None
+        # this callback, if set, will be called whenever
+        # a process finished (to, for example, reload the
+        # package tree). No variables are passed to it!
+        self.callback = callback
         # process list to store pending processes
         self.process_list = []
         # the window is not visible until a process is added
@@ -233,7 +237,7 @@ class ProcessManager:
         # set process_running so the reader thread reads it's output
         self.reader.process_running = True
         # show a message that the process is starting
-        self.append(self.process_text, "*** " + command_string + " ***\n")
+        self.append_all("*** " + command_string + " ***\n")
         # pty.fork() creates a new process group
         self.pid, self.reader.fd = pty.fork()
         if self.pid == pty.CHILD:  # child
@@ -277,6 +281,16 @@ class ProcessManager:
         iter = buffer.get_end_iter()
         buffer.insert(iter, text)
 
+    def append_all(self, text):
+        """ Append text to all visible buffers """
+        self.append(self.process_text, text)
+        if self.warning_tab.showing:
+            self.append(self.warning_text, text)
+        if self.caution_tab.showing:
+            self.append(self.caution_text, text)
+        if self.info_tab.showing:
+            self.append(self.info_text, text)
+
     def update(self, char):
         """ Add text to the buffer """
         # stores line of text in buffer
@@ -309,9 +323,11 @@ class ProcessManager:
         start the next one if there are any more to be run"""
         # if the last process was killed, stop until the user does something
         if self.killed:
+            # display message that process has been killed
+            self.append_all("*** process killed ***\n")
             return
         # display message that process finished
-        self.append(self.process_text, "*** process terminated ***\n")
+        self.append_all("*** process terminated ***\n")
         # set queue icon to done
         iter = self.process_list[0][2]
         self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_APPLY))
@@ -322,6 +338,9 @@ class ProcessManager:
             dprint("TERMINAL: There are pending processes, running now... [" + \
                     self.process_list[0][0] + "]")
             self._run(self.process_list[0][1], self.process_list[0][2])
+        # if there is a callback set, call it
+        if self.callback:
+            self.callback()
 
     def render_icon(self, icon):
         """ Render an icon for the queue tree """
@@ -483,6 +502,10 @@ class ProcessOutputReader(threading.Thread):
 
 
 if __name__ == "__main__":
+
+    def callback():
+        """ Print a message to display that callbacks are working"""
+        dprint("TERMINAL: Callback caught...")
     
     DATA_PATH = "/usr/share/porthole/"
 
@@ -520,7 +543,7 @@ if __name__ == "__main__":
     prefs = utils.load_user_prefs()
     env = utils.Environment()
     # to test the above classes when run standalone
-    test = ProcessManager(env, prefs)
+    test = ProcessManager(env, prefs, callback)
     test.add_process("kde (-vp)", "emerge -vp kde")
     # un-comment the next line to get the queue to show up
     test.add_process("gnome (-vp)", "emerge -vp gnome")
