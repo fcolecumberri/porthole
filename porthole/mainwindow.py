@@ -88,7 +88,7 @@ class MainWindow:
             "category_scrolled_window").add(self.category_view)
         # setup the package treeview
         self.package_view = PackageView()
-        self.package_view.register_callbacks(self.package_changed)
+        self.package_view.register_callbacks(self.package_changed, None, self.pkg_path_callback)
         self.wtree.get_widget("package_scrolled_window").add(self.package_view)
         # setup the dependency treeview
         self.deps_view = DependsView()
@@ -124,6 +124,9 @@ class MainWindow:
         #                                                self.size_update})
         # initialize our data
         self.init_data()
+        self.current_category = None
+        self.current_package_name = None
+        self.current_package_path = None
         # set if we are root or not
         self.is_root = is_root()
         if self.prefs.main.show_nag_dialog:
@@ -144,11 +147,12 @@ class MainWindow:
         self.upgrades_loaded = False
         # upgrade loading callback
         self.upgrades_loaded_callback = None
-        self.current_category = None
-        self.current_package = None
+        self.current_package_cursor = None
+        self.current_category_cursor = None
         # descriptions loaded?
         self.desc_loaded = False
         self.search_loaded = False
+        self.current_package_path = None
         # set notebook tabs to load new package info
         self.deps_filled = self.changelog_loaded = self.installed_loaded = False
         # declare the database
@@ -169,6 +173,7 @@ class MainWindow:
         # upgrade loading callback
         self.upgrades_loaded_callback = None
         self.search_loaded = False
+        self.current_package_path = None
         # load the db
         self.db_thread = portagelib.DatabaseReader()
         self.db_thread.start()
@@ -178,6 +183,11 @@ class MainWindow:
         self.set_statusbar("Reading package database: %i packages read"
                            % 0)
 
+    def pkg_path_callback(self, path):
+        """callback function to save the path to the package that
+        matched the name passed to the populate() in PackageView"""
+        self.current_package_path = path
+        return
 
     def check_for_root(self):
         """figure out if the user can emerge or not..."""
@@ -223,7 +233,7 @@ class MainWindow:
             # make sure we search again if we reloaded!
             view_filter = self.wtree.get_widget("view_filter")
             if view_filter.get_history() == self.SHOW_SEARCH:
-                dprint("MAINWINDOW: update_db_read()... Search view")
+                #dprint("MAINWINDOW: update_db_read()... Search view")
                 # update the views by calling view_filter_changed
                 self.view_filter_changed(view_filter)
                 if self.reload:
@@ -234,7 +244,7 @@ class MainWindow:
                                                   self.current_package_cursor[1])
             elif self.reload and (view_filter.get_history() == self.SHOW_ALL or
                                   view_filter.get_history() == self.SHOW_INSTALLED):
-                dprint("MAINWINDOW: update_db_read()... self.reload=True ALL or INSTALLED view")
+                #dprint("MAINWINDOW: update_db_read()... self.reload=True ALL or INSTALLED view")
                 # reset _last_selected so it thinks this category is new again
                 self.category_view._last_selected = None
                 # re-select the category
@@ -243,20 +253,14 @@ class MainWindow:
                 # reset _last_selected so it thinks this package is new again
                 self.package_view._last_selected = None
                 # re-select the package
-
-                # insert package search function call here
-                #
-                dprint("current_package_cursor")
-                dprint(self.current_package_cursor[0])  
-                dprint(self.current_package_cursor[1])
-                # change to the returned search position to re-select
-                self.package_view.set_cursor(self.current_package_cursor[0],
-                                              self.current_package_cursor[1])
+                if self.current_package_path <> None:
+                    self.package_view.set_cursor(self.current_package_path,
+                                                 self.current_package_cursor[1])
             else:
-                dprint("MAINWINDOW: update_db_read()... must be an upgradeable view")
+                #dprint("MAINWINDOW: update_db_read()... must be an upgradeable view")
                 self.package_view.clear()
                 self.set_package_actions_sensitive(False, None)
-                #self.category_view.populate(self.db.categories.keys())
+                #self.category_view.populate(self.db.categories.keys(), self.current_category)
                 # update the views by calling view_filter_changed
                 self.view_filter_changed(view_filter)
             return gtk.FALSE  # disconnect from timeout
@@ -463,8 +467,8 @@ class MainWindow:
         # log the new category for reloads
         self.current_category = category
         self.current_category_cursor = self.category_view.get_cursor()
-        dprint("Category cursor = ")
-        dprint(self.current_category_cursor)
+        #dprint("Category cursor = ")
+        #dprint(self.current_category_cursor)
         mode = self.wtree.get_widget("view_filter").get_history()
         if not category:
             packages = None
@@ -474,17 +478,19 @@ class MainWindow:
             packages = self.db.installed[category]
         else:
             raise Exception("The programmer is stupid.");
-        self.package_view.populate(packages)
+        self.package_view.populate(packages, self.current_package_name)
+        #self.package_view.populate(packages)
         self.clear_notebook()
 
     def package_changed(self, package):
         """Catch when the user changes packages."""
-        dprint("MAINWINDOW: package_changed()")
+        #dprint("MAINWINDOW: package_changed()")
         # log the new package for db reloads
-        self.current_package = package
+        self.current_package_name = package.get_name()
         self.current_package_cursor = self.package_view.get_cursor()
-        dprint("Package cursor = ")
-        dprint(self.current_package_cursor)
+        self.current_package_path = self.current_package_cursor[0]
+        #dprint("Package name= %s, cursor = " %str(self.current_package_name))
+        #dprint(self.current_package_cursor)
         # the notebook must be sensitive before anything is displayed
         # in the tabs, especially the deps_view
         self.set_package_actions_sensitive(gtk.TRUE, package)
@@ -669,18 +675,18 @@ class MainWindow:
 
     def set_package_actions_sensitive(self, enabled, package = None):
         """Sets package action buttons/menu items to sensitive or not"""
-        dprint("MAINWINDOW: set_package_actions_sensitive(%d)" %enabled)
+        #dprint("MAINWINDOW: set_package_actions_sensitive(%d)" %enabled)
         self.wtree.get_widget("emerge_package1").set_sensitive(enabled)
         self.wtree.get_widget("adv_emerge_package1").set_sensitive(enabled)
         self.wtree.get_widget("unmerge_package1").set_sensitive(enabled)
         self.wtree.get_widget("btn_emerge").set_sensitive(enabled)
         self.wtree.get_widget("btn_adv_emerge").set_sensitive(enabled)
         if not enabled or enabled and package.is_installed:
-            dprint("MAINWINDOW: set_package_actions_sensitive() setting unmerge to %d" %enabled)
+            #dprint("MAINWINDOW: set_package_actions_sensitive() setting unmerge to %d" %enabled)
             self.wtree.get_widget("btn_unmerge").set_sensitive(enabled)
             self.wtree.get_widget("unmerge_package1").set_sensitive(enabled)
         else:
-            dprint("MAINWINDOW: set_package_actions_sensitive() setting unmerge to %d" %(not enabled))
+            #dprint("MAINWINDOW: set_package_actions_sensitive() setting unmerge to %d" %(not enabled))
             self.wtree.get_widget("btn_unmerge").set_sensitive(not enabled)
             
             self.wtree.get_widget("unmerge_package1").set_sensitive(not enabled)
@@ -698,7 +704,7 @@ class MainWindow:
 
     def clear_notebook(self):
         """ Clear all notebook tabs & disble them """
-        dprint("MAINWINDOW: clear_notebook()")
+        #dprint("MAINWINDOW: clear_notebook()")
         self.summary.update_package_info(None)
         self.set_package_actions_sensitive(gtk.FALSE)
         self.deps_view.clear()

@@ -50,7 +50,7 @@ fill_size = 3
 def pad_ver(vlist):
     """pads the version string so all number sequences are the same
        length for acurate sorting, borrowed & modified code from new portage vercmp()"""
-    dprint("pad_ver: pad_ver()  vlist[]")
+    #dprint("pad_ver: pad_ver()  vlist[]")
     #dprint(vlist)
     # short circuit for  list of 1
     if len(vlist) == 1:
@@ -66,14 +66,14 @@ def pad_ver(vlist):
 
     val_cache = []
 
-    dprint("VERSION_SORT: pad_ver() checking maximum length value of version pattern") 
+    #dprint("VERSION_SORT: pad_ver() checking maximum length value of version pattern") 
     for x in vlist:
         #dprint(x)
         max_length = max(max_length, string.count(x, '.'))
         suffix_count = max(suffix_count, string.count(x, "_"))
 
-    dprint("max_length = %d, suffix_count =%d" \
-           %(max_length, suffix_count))
+    #dprint("max_length = %d, suffix_count =%d" \
+    #       %(max_length, suffix_count))
 
     for val1 in vlist:
         #dprint("new val1 = %s" %val1)
@@ -141,12 +141,12 @@ def pad_ver(vlist):
         val_cache += [result]
 
     #dprint(val_cache)
-    dprint("VERSION_SORT: pad_ver() done")
+    #dprint("VERSION_SORT: pad_ver() done")
     return val_cache
 
 def two_list_sort(keylist, versions):
     """sorts the versions list using the keylist values"""
-    dprint("two_list_sort() keylist, versions")
+    #dprint("two_list_sort() keylist, versions")
     #dprint(keylist)
     #dprint(versions)
     dbl_list = {}
@@ -164,7 +164,7 @@ def two_list_sort(keylist, versions):
 
 def ver_sort(versions):
     """sorts a version list according to portage versioning rules"""
-    dprint("VERSION_SORT: ver_sort()")
+    #dprint("VERSION_SORT: ver_sort()")
     # convert versions into the padded version only list
     vlist = []
     for v in versions:

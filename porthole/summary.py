@@ -106,12 +106,12 @@ class Summary(gtk.TextView):
         ebuild = package.get_latest_ebuild()
         installed = package.get_installed()
         versions = package.get_versions()
-        dprint("SUMMARY: update_package_info(); versions")
-        dprint(versions)
+        #dprint("SUMMARY: update_package_info(); versions")
+        #dprint(versions)
         # Sort the version only list: vlist
         versions = ver_sort(versions)
-        dprint("new sorted versions[]")
-        dprint(versions)
+        #dprint("new sorted versions[]")
+        #dprint(versions)
 
         nonmasked = package.get_versions(include_masked = False)
         props = package.get_properties()

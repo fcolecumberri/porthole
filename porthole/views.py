@@ -115,10 +115,11 @@ class PackageView(CommonTreeView):
         else:
             self.set_model(self.upgrade_model)
 
-    def register_callbacks(self, package_changed = None, upgrade_selected = None):
+    def register_callbacks(self, package_changed = None, upgrade_selected = None, return_path = None):
         """ Register callbacks for events """
         self._package_changed = package_changed
         self._upgrade_selected = upgrade_selected
+        self._return_path = return_path
 
     def _clicked(self, treeview):
         """ Handles treeview clicks """
@@ -144,11 +145,13 @@ class PackageView(CommonTreeView):
                     self._package_changed(package)
         self._last_selected = package.full_name
 
-    def populate(self, packages):
+    def populate(self, packages, locate_name = None):
         """ Populate the current view with packages """
         if not packages:
             return
         dprint("VIEWS: Populating package view")
+        if locate_name:
+            dprint("VIEWS: Selecting " + str(locate_name))
         # get the right model
         model = self.get_model()
         model.clear()
@@ -164,7 +167,17 @@ class PackageView(CommonTreeView):
                 self.render_icon(icon,
                                  size = gtk.ICON_SIZE_MENU,
                                  detail = None))
-
+            if locate_name:
+                if name == locate_name:
+                    path = model.get_path(iter)
+                    if path:
+                        #dprint("VIEWS: populate() path=")
+                        #dprint(path)
+                        # registered callback function to store the path
+                        self._return_path(path)
+                        #self.set_cursor(path) # does not select it at the
+                        # correct place in the code to display properly
+                        # get the position in the tree and save it instead
         
 class CategoryView(CommonTreeView):
     """ Self contained treeview to hold categories """
@@ -244,3 +257,8 @@ class DependsView(CommonTreeView):
         """ Fill the dependency tree with dependencies """
         self.model.fill_depends_tree(treeview, package)
 
+
+
+
+
+        
