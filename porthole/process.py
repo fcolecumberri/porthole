@@ -41,8 +41,8 @@ class ProcessWindow(threading.Thread):
         self.pipe = None
         self.command = command
         self.window = gtk.Dialog(command, None, gtk.DIALOG_NO_SEPARATOR,
-                                 ('_Kill', self.RESPONSE_KILL,
-                                  '_Close', self.RESPONSE_CLOSE))
+                                 ('_Kill', self.RESPONSE_KILL))
+        #                                  '_Close', self.RESPONSE_CLOSE))
         table = gtk.TextTagTable()
         self.textbuffer = gtk.TextBuffer(table)
         tag = gtk.TextTag('tt')
@@ -69,7 +69,7 @@ class ProcessWindow(threading.Thread):
 
     def on_destroy(self, widget, data = None):
         self.kill()
-        gtk.main_quit()
+        #gtk.main_quit()
 
     def kill(self):
         """Kill process."""
@@ -83,9 +83,10 @@ class ProcessWindow(threading.Thread):
     def on_response(self, widget, response_id):
         if response_id == self.RESPONSE_CLOSE:
             self.kill()
-            gtk.main_quit()
+            #gtk.main_quit()
         elif response_id == self.RESPONSE_KILL:
             self.kill()
+            self.window.hide()
 
     def append_line(self, line):
         """Append a line to the end of the text buffer"""
