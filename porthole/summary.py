@@ -28,6 +28,10 @@ from utils import load_web_page
 class Summary(gtk.TextView):
     def __init__(self):
         gtk.TextView.__init__(self)
+        self.set_wrap_mode(gtk.WRAP_WORD)
+        self.set_editable(gtk.FALSE)
+        margin = 10
+        self.set_left_margin(margin); self.set_right_margin(margin)
         tagtable = self.create_tag_table()
         self.buffer = gtk.TextBuffer(tagtable)
         self.set_buffer(self.buffer)
@@ -44,11 +48,13 @@ class Summary(gtk.TextView):
             return table
         table = create(
             {'name': ({'weight': pango.WEIGHT_BOLD,
-                       'scale': pango.SCALE_X_LARGE}),
+                       'scale': pango.SCALE_X_LARGE,
+                       'pixels-above-lines': 5}),
              'description': ({"style": pango.STYLE_ITALIC}),
              'url': ({'foreground': 'blue'}),
              'property': ({'weight': pango.WEIGHT_BOLD}),
-             'value': ({})
+             'value': ({}),
+             'masked': ({"style": pango.STYLE_ITALIC}),
              })
         # React when user clicks on the homepage url
         self.url_tag = table.lookup('url')
@@ -95,6 +101,7 @@ class Summary(gtk.TextView):
         ebuild = package.get_latest_ebuild()
         installed = package.get_installed()
         versions = package.get_versions(); versions.sort()
+        nonmasked = package.get_versions(include_masked = False)
         props = package.get_properties()
         description = props.description
         homepages = props.get_homepages() # may be more than one
@@ -103,6 +110,16 @@ class Summary(gtk.TextView):
         license = props.license
         slot = unicode(props.get_slot())
         #build info into buffer
+
+        def vnums(ebuilds):
+            spam = []
+            for ebuild in ebuilds:
+                version = portagelib.get_version(ebuild)
+                if ebuild not in nonmasked:
+                    version = "(" + version + ")"
+                spam += [version]
+            return ", ".join(spam)
+        
         append(package.full_name, "name"); nl()
         if description:
             append(description, "description"); nl()
@@ -112,21 +129,17 @@ class Summary(gtk.TextView):
         nl()         #put a space between this info and the rest
         if installed:
             append("Installed versions: ", "property")
-            append(", ".join([portagelib.get_version(ebuild)
-                              for ebuild in installed]),
-                   "value")
+            append(vnums(installed), "value")
         else:
             append("Not installed", "property")
         nl()
         if versions:
             append("Available versions: ", "property")
-            append(", ".join([portagelib.get_version(ebuild)
-                              for ebuild in versions]),
-                   "value")
+            append(vnums(versions), "value")
             nl()
         nl()         #put a space between this info and the rest, again
         if use_flags:
-            append("Use Flags: ", "property")
+            append("Use flags: ", "property")
             append(", ".join(use_flags), "value")
             nl()
         if license:
