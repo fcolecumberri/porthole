@@ -24,7 +24,7 @@
 import threading, re
 import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, gtk.glade, gobject, pango
-import portagelib, os
+import portagelib, os, string
 
 from about import AboutDialog
 from utils import load_web_page, get_icon_for_package, is_root, dprint, \
@@ -340,8 +340,24 @@ class MainWindow:
         if not self.desc_loaded and self.prefs.main.search_desc:
             self.load_descriptions_list()
             return
-        search_term = self.wtree.get_widget("search_entry").get_text()
-        if search_term:
+        tmp_search_term = self.wtree.get_widget("search_entry").get_text()
+        #dprint(tmp_search_term)
+        if tmp_search_term:
+            search_term = ''
+            Plus_exeption_count = 0
+            for char in tmp_search_term:
+                #dprint(char)
+                if char == "+":
+                    dprint("MAINWINDOW: package_search()  '+' exception found")
+                    if Plus_exeption_count < 2:
+                        char = "\\" + char
+                    Plus_exeption_count += 1
+                if char == "+" and Plus_exeption_count > 3:
+                    dprint("MAINWINDOW: package_search() TOO many '+' in search string")
+                    # try to prevent the error & correct the string
+                    char = ''
+                search_term += char 
+            dprint("           ===> new search_term = :%s" %search_term)
             search_results = self.package_view.search_model
             search_results.clear()
             re_object = re.compile(search_term, re.I)
@@ -587,7 +603,7 @@ class MainWindow:
         self.prefs.main.height = pos[1]
         self.prefs.main.hpane = self.wtree.get_widget("hpane").get_position()
         self.prefs.main.vpane = self.wtree.get_widget("vpane").get_position()
-        dprint("MAINWINDOW: size_update() hpane; %d, vpane; %d" %(self.prefs.main.hpane, self.prefs.main.vpane))
+        #dprint("MAINWINDOW: size_update() hpane; %d, vpane; %d" %(self.prefs.main.hpane, self.prefs.main.vpane))
 
     def clear_notebook(self):
         """ Clear all notebook tabs & disble them """
