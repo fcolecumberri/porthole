@@ -293,6 +293,7 @@ class DatabaseReader(threading.Thread):
         self.done = False     # false if the thread is still working
         self.count = 0        # number of packages read so far
         self.error = ""       # may contain error message after completion
+        self.count_lock = False
 
     def get_db(self):
         """Returns the database that was read."""
@@ -315,7 +316,13 @@ class DatabaseReader(threading.Thread):
             # why does getallnodes() return timestamps?
             if name == 'timestamp.x' or name[-4:] == "tbz2":  
                 continue
+            while (self.count_lock):
+                dprint("PORTAGELIB: DatabaseReader.read_db() count_lock caught, waiting...")
+                # wait 50 ms and check again
+                time.sleep(0.05)
+            self.count_lock = True
             self.count += 1
+            self.count_lock = False
             data = Package(entry)
             self.db.categories.setdefault(category, {})[name] = data;
             if entry in installed:

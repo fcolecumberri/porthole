@@ -209,18 +209,26 @@ class MainWindow:
     def update_db_read(self):
         """Update the statusbar according to the number of packages read."""
         if not self.db_thread.done:
+            dprint("MAINWINDOW: locking count")
+            self.db_thread.count_lock = True
             self.set_statusbar("Reading package database: %i packages read"
                                % self.db_thread.count)
+            self.db_thread.count_lock = False
+            dprint("MAINWINDOW: unlocking count")
         elif self.db_thread.error:
             # todo: display error dialog instead
             self.db_thread.join()
             self.set_statusbar(self.db_thread.error.decode('ascii', 'replace'))
             return gtk.FALSE  # disconnect from timeout
         else:
+            dprint("MAINWINDOW: db_thread is done...")
             self.db = self.db_thread.get_db()
             self.set_statusbar("Populating tree ...")
+            dprint("MAINWINDOW: db_thread.join...")
             self.db_thread.join()
+            dprint("MAINWINDOW: db_thread.join is done...")
             self.update_statusbar(self.SHOW_ALL)
+            dprint("MAINWINDOW: setting menubar,toolbar,etc to sensitive...")
             self.wtree.get_widget("menubar").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("toolbar").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("view_filter").set_sensitive(gtk.TRUE)
@@ -243,11 +251,14 @@ class MainWindow:
                 #dprint("MAINWINDOW: update_db_read()... self.reload=True ALL or INSTALLED view")
                 # reset _last_selected so it thinks this category is new again
                 self.category_view._last_selected = None
+                dprint("MAINWINDOW: re-select the category")
                 # re-select the category
                 self.category_view.set_cursor(self.current_category_cursor[0],
                                               self.current_category_cursor[1])
+                dprint("MAINWINDOW: reset _last_selected so it thinks this package is new again")
                 # reset _last_selected so it thinks this package is new again
                 self.package_view._last_selected = None
+                dprint("MAINWINDOW: re-select the package")
                 # re-select the package
                 if self.current_package_path <> None:
                     self.package_view.set_cursor(self.current_package_path,
@@ -259,6 +270,7 @@ class MainWindow:
                 #self.category_view.populate(self.db.categories.keys(), self.current_category)
                 # update the views by calling view_filter_changed
                 self.view_filter_changed(view_filter)
+            dprint("Made it thru a reload, returning...")
             self.reload = False
             return gtk.FALSE  # disconnect from timeout
         return gtk.TRUE
