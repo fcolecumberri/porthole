@@ -79,9 +79,9 @@ SLIDER_CLOSE_ENOUGH = 50
 
 # some contant strings that may be internationalized later
 KILLED_STRING = "*** process killed ***\n"
-TERMINATED_STRING = "*** process terminated ***\n"
+TERMINATED_STRING = "*** process completed ***\n"
 TABS = [TAB_PROCESS, TAB_WARNING, TAB_CAUTION, TAB_INFO, TAB_QUEUE]
-TAB_LABELS = ["Process", "Warnings", "Cautions", "Information", "Emerge queue"]
+TAB_LABELS = ["Process", "Warnings", "Cautions", "Summary", "Emerge queue"]
 
 class ProcessManager:
     """ Manages queued and running processes """
@@ -202,11 +202,11 @@ class ProcessManager:
         self.queue_remove = self.wtree.get_widget("remove1")
         # Catch clicks on info, caution & warning tabs
         self.info_text = self.wtree.get_widget("info_text")
-        self.info_conn = self.info_text.connect("button_press_event", self.line_clicked)
+        self.info_conn = self.info_text.connect("button_press_event", self.line_dbl_clicked)
         self.info_text = self.wtree.get_widget("cautions_text")
-        self.info_conn = self.info_text.connect("button_press_event", self.line_clicked)
+        self.info_conn = self.info_text.connect("button_press_event", self.line_dbl_clicked)
         self.info_text = self.wtree.get_widget("warnings_text")
-        self.info_conn = self.info_text.connect("button_press_event", self.line_clicked)
+        self.info_conn = self.info_text.connect("button_press_event", self.line_dbl_clicked)
         # catch clicks to the queue tree
         self.queue_tree.connect("cursor_changed", self.queue_clicked)
         # process output buffer
@@ -274,7 +274,7 @@ class ProcessManager:
             # Also causes runaway recursion.
             self.window.connect("size_request", self.on_size_request)
 
-    def line_clicked(self, widget, event):
+    def line_dbl_clicked(self, widget, event):
         """ Double clicking on line will bring that line in the process
             window into focus
         """
@@ -283,9 +283,10 @@ class ProcessManager:
             x = int(event.x)
             y = int(event.y)
             bufcoords = widget.window_to_buffer_coords(gtk.TEXT_WINDOW_TEXT,x,y)
-            #textbuf = widget.get_buffer()
-            iStart = widget.get_iter_at_location(0,y)  # start at beginning of line
-            iEnd = widget.get_iter_at_location(100,y)  # far enough past number
+            # Set start iter at beginning of line
+            iStart = widget.get_iter_at_location(0,bufcoords[1])
+            # Set end iter far enough right to grab number
+            iEnd = widget.get_iter_at_location(100,bufcoords[1])
             try:
                 # get line number from textbuffer (0 based)
                 line = int(iStart.get_text(iEnd)[0:6]) - 1 

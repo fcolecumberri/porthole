@@ -42,7 +42,6 @@ def dprint(message):
 
 import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk
-import portagelib
 import os
 import grp
 import pwd
@@ -75,7 +74,8 @@ def get_icon_for_package(package):
         icon = gtk.STOCK_YES
     else:
         # just put the STOCK_NO icon
-        icon = gtk.STOCK_NO
+        # switched to blank icon if not installed
+        icon = '' # gtk.STOCK_NO
     return icon       
 
 def is_root():
@@ -284,6 +284,8 @@ class PortholePreferences:
         # Note: all colors are in hex for future color editor;
         #       '' means use default color.
 
+        # Caution tag
+
         self.TAG_DICT = {}
         try:
            forecolor = dom.getitem('/window/terminal/tag/caution/forecolor')
@@ -299,6 +301,8 @@ class PortholePreferences:
            fontweight = 400  # Default value
         self.TAG_DICT['caution'] = [forecolor, backcolor, fontweight]
 
+        # Command tag
+
         try:
            forecolor = dom.getitem('/window/terminal/tag/command/forecolor')
         except XMLManagerError:
@@ -312,6 +316,8 @@ class PortholePreferences:
         except XMLManagerError:
            fontweight = 700  # Default value
         self.TAG_DICT['command'] = [forecolor, backcolor, fontweight]
+
+        # Emerge tag
 
         try:
            forecolor = dom.getitem('/window/terminal/tag/emerge/forecolor')
@@ -327,6 +333,8 @@ class PortholePreferences:
            fontweight = 700  # Default value
         self.TAG_DICT['emerge'] = [forecolor, backcolor, fontweight]
 
+        # Error tag
+
         try:
            forecolor = dom.getitem('/window/terminal/tag/error/forecolor')
         except XMLManagerError:
@@ -340,6 +348,8 @@ class PortholePreferences:
         except XMLManagerError:
            fontweight = 700  # Default value
         self.TAG_DICT['error'] = [forecolor, backcolor, fontweight]
+
+        # Info tag
 
         try:
            forecolor = dom.getitem('/window/terminal/tag/info/forecolor')
@@ -355,6 +365,8 @@ class PortholePreferences:
            fontweight = 400  # Default value
         self.TAG_DICT['info'] = [forecolor, backcolor, fontweight]
 
+        # Line number tag 
+
         try:
            forecolor = dom.getitem('/window/terminal/tag/linenumber/forecolor')
         except XMLManagerError:
@@ -369,6 +381,8 @@ class PortholePreferences:
            fontweight = 700  # Default value
         self.TAG_DICT['linenumber'] = [forecolor, backcolor, fontweight]
 
+        # Note tag
+
         try:
            forecolor = dom.getitem('/window/terminal/tag/note/forecolor')
         except XMLManagerError:
@@ -382,6 +396,8 @@ class PortholePreferences:
         except XMLManagerError:
            fontweight = 400  # Default value
         self.TAG_DICT['note'] = [forecolor, backcolor, fontweight]
+
+        # Warning tag
 
         try:
            forecolor = dom.getitem('/window/terminal/tag/warning/forecolor')
