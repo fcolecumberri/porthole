@@ -29,9 +29,10 @@ import portagelib, os
 from about import AboutDialog
 from depends import DependsTree
 from utils import load_web_page, get_icon_for_package, is_root, dprint, \
-     get_treeview_selection, YesNoDialog, SingleButtonDialog
+     get_treeview_selection, YesNoDialog, SingleButtonDialog, environment
 from process import ProcessWindow
 from summary import Summary
+from terminal import ProcessManager
 from views import CategoryView, PackageView, DependsView
 
 class MainWindow:
@@ -113,6 +114,8 @@ class MainWindow:
         if self.prefs.main.show_nag_dialog:
             # let the user know if he can emerge or not
             self.check_for_root()
+        # create and start our process manager
+        self.process_manager = ProcessManager(environment(), self.prefs)
 
     def init_data(self):
         # set things we can't do unless a package is selected to not sensitive
@@ -189,20 +192,16 @@ class MainWindow:
             return gtk.FALSE  # disconnect from timeout
         return gtk.TRUE
 
-    def setup_command(self, command):
+    def setup_command(self, package_name, command):
         """Setup the command to run or not"""
-        HOME = os.getenv("HOME")
-        dprint("HOME = " + str(HOME))
-        env = {"FEATURES": "notitles",  # Don't try to set the titlebar
-               "NOCOLOR": "true",       # and no colours, please
-                "HOME":HOME}
         if self.is_root or (self.prefs.emerge.pretend and
                             command[:11] != "emerge sync"):
             if self.prefs.emerge.pretend:
                 callback = lambda: None  # a function that does nothing
             else:
                 callback = self.init_data
-            ProcessWindow(command, env, self.prefs, callback)
+            #ProcessWindow(command, env, self.prefs, callback)
+            self.process_manager.add_process(package_name, command, callback)
         else:
             dprint("Sorry, you aren't root! -> " + command)
             self.sorry_dialog = SingleButtonDialog("You are not root!",
@@ -229,13 +228,13 @@ class MainWindow:
     def emerge_package(self, widget):
         """Emerge the currently selected package."""
         package = get_treeview_selection(self.package_view, 2)
-        self.setup_command("emerge" + self.prefs.emerge.get_string()
-                           + package.full_name)
+        self.setup_command(package.get_name(), "emerge" +
+            self.prefs.emerge.get_string() + package.full_name)
 
     def unmerge_package(self, widget):
         """Unmerge the currently selected package."""
         package = get_treeview_selection(self.package_view, 2)
-        self.setup_command("emerge unmerge" +
+        self.setup_command(package.get_name(), "emerge unmerge" +
                 self.prefs.emerge.get_string() + package.full_name)
 
     def sync_tree(self, widget):
@@ -245,7 +244,7 @@ class MainWindow:
             sync += " --verbose"
         if self.prefs.emerge.nospinner:
             sync += " --nospinner "
-        self.setup_command(sync)
+        self.setup_command("Emerge Sync", sync)
 
     def upgrade_packages(self, widget):
         """Upgrade selected packages that have newer versions available."""
@@ -261,8 +260,9 @@ class MainWindow:
                 # step to next iter
                 iter = model.iter_next(iter)
             dprint("Updating packages...")
-            self.setup_command("emerge -u" + self.prefs.emerge.get_string() +
-                               packages_list)
+            for package in packages_list.split():
+                self.setup_command(package.split('/')[1], "emerge -u" +
+                        self.prefs.emerge.get_string() + package)
         else:
             dprint("Upgrades not loaded; upgrade world?")
             self.upgrades_loaded_dialog = YesNoDialog("Upgrade requested",

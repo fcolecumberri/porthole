@@ -37,8 +37,8 @@
         def callback():
             print "This is called when a process finishes"
 
-        manager = ProcessManager(environment, preferences, callback)
-        manager.add_process(package_name, command_to_run)
+        manager = ProcessManager(environment, preferences)
+        manager.add_process(package_name, command_to_run, callback)
         ...
 """
 
@@ -69,17 +69,13 @@ TERMINATED_STRING = "*** process terminated ***\n"
 
 class ProcessManager:
     """ Manages queued and running processes """
-    def __init__(self, env = {}, prefs = None, callback = None):
+    def __init__(self, env = {}, prefs = None):
         """ Initialize """
         # copy the environment and preferences
         self.env = env
         self.prefs = prefs
         self.killed = 0
         self.pid = None
-        # this callback, if set, will be called whenever
-        # a process finished (to, for example, reload the
-        # package tree). No variables are passed to it!
-        self.callback = callback
         # process list to store pending processes
         self.process_list = []
         # the window is not visible until a process is added
@@ -212,7 +208,7 @@ class ProcessManager:
         # insert the tab
         self.notebook.insert_page(tab, hbox, pos)
         
-    def add_process(self, package_name, command_string):
+    def add_process(self, package_name, command_string, callback):
         """ Add a process to the queue """
         # show the window if it isn't yet
         if not self.window_visible:
@@ -223,7 +219,8 @@ class ProcessManager:
         self.queue_model.set_value(iter, 1, str(package_name))
         self.queue_model.set_value(iter, 2, str(command_string))
         # add to our process list
-        self.process_list.append((package_name, command_string, iter))
+        self.process_list.append((package_name, command_string,
+                                                iter, callback))
 
         if len(self.process_list) == 2:
             # if this is the 2nd process in the list
@@ -370,6 +367,8 @@ class ProcessManager:
         # display message that process finished
         self.append_all(TERMINATED_STRING,True)
         self.set_statusbar(TERMINATED_STRING[:-1])
+        # try to get a callback
+        callback = self.process_list[0][3]
         # set queue icon to done
         iter = self.process_list[0][2]
         self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_APPLY))
@@ -381,8 +380,8 @@ class ProcessManager:
                     self.process_list[0][0] + "]")
             self._run(self.process_list[0][1], self.process_list[0][2])
         # if there is a callback set, call it
-        if self.callback:
-            self.callback()
+        if callback:
+            callback()
 
     def render_icon(self, icon):
         """ Render an icon for the queue tree """
@@ -477,10 +476,12 @@ class ProcessManager:
                 if self.process_list[pos][0] == selected[1] and pos > 0:
                     pos += 1
                     sel = self.process_list[pos][0], self.process_list[pos][1],\
-                          self.process_list[pos + direction][2]
+                          self.process_list[pos + direction][2], \
+                          self.process_list[pos][3]
                     prev = self.process_list[pos + direction][0],\
                            self.process_list[pos + direction][1],\
-                           self.process_list[pos][2]
+                           self.process_list[pos][2],\
+                           self.process_list[pos + direction][3]
                     self.process_list[pos] = prev
                     self.process_list[pos + direction] = sel
                     break
@@ -583,7 +584,7 @@ if __name__ == "__main__":
     gtk.window_set_default_icon_list(myicon)
     # load prefs
     prefs = utils.load_user_prefs()
-    env = utils.Environment()
+    env = utils.environment()
     # to test the above classes when run standalone
     test = ProcessManager(env, prefs, callback)
     test.add_process("kde (-vp)", "emerge -vp kde")
