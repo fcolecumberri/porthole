@@ -233,7 +233,7 @@ class MainWindow:
         if package.is_installed:
             installed = package.get_installed()
             installed.sort()
-            latest_installed = installed[len(installed) -1]
+            latest_installed = installed[-1]
             latest_available = package.get_latest_ebuild()
             if latest_installed == latest_available:
                 #they are the same version, so you are up to date
@@ -370,8 +370,8 @@ class MainWindow:
         ebuild = package.get_latest_ebuild()
         installed = package.get_installed()
         versions = package.get_versions(); versions.sort()
-        homepage = package.get_homepage()
-        self.homepage = homepage  # store url for on_url_event
+        homepages = package.get_homepage().split() # may be more than one
+        self.homepages = homepages  # store url for on_url_event
         use_flags = package.get_use_flags()
         license = package.get_license()
         slot = str(package.get_slot())
@@ -380,7 +380,7 @@ class MainWindow:
             get dependencies and show them in the dependency tab/textview
             figure out what to put into the extras tab...?
         '''
-        append(package.get_name(), "name"); nl()
+        append(package.full_name, "name"); nl()
         if description:
             append(description, "description"); nl()
         if metadata and metadata.longdescription:
@@ -390,8 +390,7 @@ class MainWindow:
             append(metadata.longdescription.encode("ascii", "replace"),
                    "description")
             nl()
-        if homepage:
-            append(homepage, "url"); nl()
+        for homepage in homepages: append(homepage, "url"); nl()
         #put a space between this info and the rest
         nl()
         if installed:
