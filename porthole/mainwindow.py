@@ -99,8 +99,6 @@ class MainWindow:
         self.deps_view = DependsView()
         self.wtree.get_widget(
             "dependencies_scrolled_window").add(self.deps_view)
-        #setup sudo use
-        self.use_sudo = -1
         # let's store some emerge options
         self.options = self.EmergeOptions()
         # upgrades loaded?
@@ -124,41 +122,24 @@ class MainWindow:
                            % 0)
         # upgrade loading callback
         self.upgrades_loaded_callback = None
+        # let the user know if he can emerge or not
+        self.check_for_root()
 
-    def check_for_root(self, callback = None):
+    def check_for_root(self):
         """figure out if the user can emerge or not..."""
-        if not is_root():
-            self.sudo_dialog = gtk.Dialog(
+        self.is_root = is_root()
+        if not self.is_root:
+            dialog = gtk.Dialog(
                 "You are not root!",
                 self.wtree.get_widget("main_window"),
                 gtk.DIALOG_MODAL or gtk.DIALOG_DESTROY_WITH_PARENT,
-                ("_Yes", 0))
-            self.sudo_dialog.add_button("_No", 1)
-            sudo_text = gtk.Label("Do you want use the sudo command "
-                                  "to install programs?\nNOTE: sudo "
-                                  "must be setup correctly!")
-            sudo_text.set_padding(5, 5)
-            self.sudo_dialog.vbox.pack_start(sudo_text)
-            sudo_text.show()
-            self.sudo_dialog.connect("response", self.sudo_response)
-            self.sudo_dialog.show_all()
-            if callback:
-                self.sudo_dialog.callback = callback
-        else:
-            self.use_sudo = 0
-            if callback:
-                callback(None)
-
-    def sudo_response(self, widget, response):
-        """Parse response from the user about sudo usage"""
-        if response == 0:
-            self.use_sudo = 1
-        else:
-            self.use_sudo = 2
-        callback = self.sudo_dialog.callback
-        self.sudo_dialog.destroy()
-        if callback:
-            callback(None)
+                ("_Ok", 0))
+            text = gtk.Label("You will not be able to emerge, "
+                                  "unmerge, upgrade or sync packages!")
+            text.set_padding(5, 5)
+            dialog.vbox.pack_start(text)
+            text.show()
+            dialog.show_all()
 
     def set_statusbar(self, string):
         """Update the statusbar without having to use push and pop."""
@@ -190,21 +171,14 @@ class MainWindow:
             return gtk.FALSE  # disconnect from timeout
         return gtk.TRUE
 
-    def setup_command(self, command, callback = None):
-        """Setup the command to run with sudo or not at all"""
+    def setup_command(self, command):
+        """Setup the command to run or not"""
         env = {"FEATURES": "notitles"}  # Don't try to set the titlebar
-        if self.use_sudo == -1 and not self.options.pretend:
-            self.check_for_root(callback)
+        if self.is_root or (self.options.pretend and
+                            command[:11] != "emerge sync"):
+            ProcessWindow(command, env)   
         else:
-            if self.use_sudo:
-                if self.use_sudo == 1:
-                    ProcessWindow("sudo " + command, env)
-                elif self.options.pretend and command != "emerge sync":
-                    ProcessWindow(command, env)
-                else:
-                    print "Sorry, can't do that!"
-            else:
-                ProcessWindow(command, env)
+            dprint("Sorry, can't do that!")
 
     def pretend_set(self, widget):
         """Set whether or not we are going to use the --pretend flag"""
@@ -222,24 +196,20 @@ class MainWindow:
         """Emerge the currently selected package."""
         package = get_treeview_selection(self.package_view, 2)
         self.setup_command("emerge" + self.options.get_opts()
-                           + package.get_category() + "/"
-                           + package.get_name(),
-                           self.emerge_package)
+                           + package.full_name)
 
     def unmerge_package(self, widget):
         """Unmerge the currently selected package."""
         package = get_treeview_selection(self.package_view, 2)
         self.setup_command("emerge unmerge" +
-                           self.options.get_opts() + package.get_category()
-                           + "/" + package.get_name(),
-                           self.unmerge_package)
+                           self.options.get_opts() + package.full_name)
 
     def sync_tree(self, widget):
         """Sync the portage tree and reload it when done."""
         sync = "emerge sync"
         if self.options.verbose:
             sync += " --verbose"
-        self.setup_command(sync, self.sync_tree)
+        self.setup_command(sync)
 
     def upgrade_packages(self, widget):
         """Upgrade selected packages that have newer versions available."""
@@ -254,10 +224,9 @@ class MainWindow:
                     packages_list += model.get_value(iter, 0) + " "
                 # step to next iter
                 iter = model.iter_next(iter)
-            dprint("Trying emerge -u" + self.options.get_opts()
-                   + packages_list)
+            dprint("Updating packages...")
             self.setup_command("emerge -u" + self.options.get_opts() +
-                               packages_list, self.upgrade_packages)
+                               packages_list)
         else:
             dprint("Upgrades not loaded; we should display a dialog here!")
             dprint("Upgrading all packages in world file...")
@@ -451,6 +420,8 @@ class UpgradableReader(threading.Thread):
         self.installed_items = installed
         self.done = False
         self.cancelled = False
+        # quit even if this thread is still running
+        self.setDaemon(1)
     
     def run(self):
         """fill upgrade tree"""
