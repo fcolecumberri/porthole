@@ -136,7 +136,7 @@ class DependsTree(gtk.TreeStore):
         elif operator == "<=":
             retval = (ins_ver <= dep_ver)
         else:
-            portagelib.dprint("Invalid operator passed to is_dep_satisfied()!")
+            dprint("Invalid operator passed to is_dep_satisfied()!")
         return retval
 
     def fill_depends_tree(self, treeview, package):
