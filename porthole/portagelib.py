@@ -79,6 +79,24 @@ def extract_package(ebuild):
         result = "/".join(parts[0:2])
     return result
 
+def get_installed_files(ebuild):
+    """Get a list of installed files for an ebuild, assuming it has
+    been installed."""
+    path = "/var/db/pkg/" + ebuild + "/CONTENTS"
+    print path
+    files = []
+    try:
+        for line in open(path, "r"):
+            try:
+                # hoping some clown doesn't use spaces in filenames ...
+                files.append(line.split()[1]).decode('ascii')
+            except:
+                pass
+    except:
+        pass
+    print files
+    return files
+
 # this is obsolete
 def get_property(ebuild, property):
     """Read a property of an ebuild. Returns a string."""
