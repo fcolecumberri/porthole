@@ -31,7 +31,7 @@ from gettext import gettext as _
 from about import AboutDialog
 from utils import load_web_page, get_icon_for_package, is_root, dprint, \
      get_treeview_selection, YesNoDialog, SingleButtonDialog, environment
-#from process import ProcessWindow
+#from process import ProcessWindow  # no longer used in favour of terminal and would need updating to be used
 from summary import Summary
 from terminal import ProcessManager
 from views import CategoryView, PackageView, DependsView
@@ -82,7 +82,7 @@ class MainWindow:
         self.installed_files = self.wtree.get_widget(
             "installed_files").get_buffer()
         # set unfinished items to not be sensitive
-        self.wtree.get_widget("contents2").set_sensitive(gtk.FALSE)
+        #self.wtree.get_widget("contents2").set_sensitive(gtk.FALSE)
         # self.wtree.get_widget("btn_help").set_sensitive(gtk.FALSE)
         # setup the category view
         self.category_view = CategoryView()
@@ -181,6 +181,8 @@ class MainWindow:
         self.upgrades_loaded_callback = None
         self.search_loaded = False
         self.current_package_path = None
+	# test to reset portage
+	#portagelib.reload_portage()
         # load the db
         self.db_thread = portagelib.DatabaseReader()
         self.db_thread.start()
@@ -233,7 +235,7 @@ class MainWindow:
             self.set_statusbar(_("Reading package database: %i packages read"
                                % self.db_thread.count))
             count = self.db_thread.count
-	    fraction = count / float(self.prefs.database_size)
+	    fraction = min(1.0, max(0,count / float(self.prefs.database_size)))
             self.progressbar.set_text(str(int(fraction * 100)) + "%")
 	    self.progressbar.set_fraction(fraction)
 
@@ -252,6 +254,7 @@ class MainWindow:
             self.db = self.db_thread.get_db()
             self.set_statusbar(_("Populating tree ..."))
             self.update_statusbar(self.SHOW_ALL)
+	    portagelib.reset_use_flags()
             #~dprint("MAINWINDOW: setting menubar,toolbar,etc to sensitive...")
             self.wtree.get_widget("menubar").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("toolbar").set_sensitive(gtk.TRUE)
@@ -509,7 +512,7 @@ class MainWindow:
                 
     def help_contents(self, widget):
         """Show the help file contents."""
-        pass
+        load_web_page('file://' + self.prefs.DATA_PATH + 'help/index.html')
 
     def about(self, widget):
         """Show about dialog."""
@@ -546,7 +549,7 @@ class MainWindow:
 
     def package_changed(self, package):
         """Catch when the user changes packages."""
-        #dprint("MAINWINDOW: package_changed()")
+        dprint("MAINWINDOW: package_changed()")
         # log the new package for db reloads
         self.current_package_name = package.get_name()
         self.current_package_cursor = self.package_view.get_cursor()

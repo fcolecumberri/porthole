@@ -42,7 +42,9 @@ import gtk
 
 from metadata import parse_metadata
 
-
+def reload_portage():
+	reload(portage)
+	
 def get_keywords():
     """ Get the official keywords as a list """
     return portage.grabfile('/usr/portage/profiles/keywords.desc')
@@ -117,7 +119,14 @@ portdir_overlay = get_portage_environ('PORTDIR_OVERLAY')
 
 # Run it once for sake of efficiency
 SystemUseFlags = get_portage_environ("USE").split()
-    
+
+def reset_use_flags():
+    dprint("PORTAGELIB: reset_use_flags();")
+    global SystemUseFlags
+    SystemUseFlags = get_portage_environ("USE").split()
+
+
+
 # lower case is nicer
 keys = [key.lower() for key in portage.auxdbkeys]
 
@@ -209,6 +218,7 @@ class Properties:
 
 def get_properties(ebuild):
     """Get all ebuild variables in one chunk."""
+    dprint("PORTAGELIB: global get_properties()")
     return Properties(dict(zip(keys,
                                portage.portdb.aux_get(ebuild,
                                                       portage.auxdbkeys))))
@@ -254,6 +264,7 @@ class Package:
     def get_properties(self, specific_ebuild = None):
         """ Returns properties of specific ebuild.
            If no ebuild specified, get latest ebuild. """
+	dprint("PORTAGELIB: Package:get_properties()")
         try:
             if specific_ebuild == None:
                 ebuild = self.get_latest_ebuild()
@@ -334,7 +345,7 @@ class DatabaseReader(threading.Thread):
         self.error = ""       # may contain error message after completion
         self.new_installed_Semaphore = threading.Semaphore()
         self.installed_list = None
-	self.allnodes_length = 0
+	self.allnodes_length = 0  # used for calculating the progress bar
 
     def get_db(self):
         """Returns the database that was read."""

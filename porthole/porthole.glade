@@ -341,10 +341,11 @@
 
 		  <child>
 		    <widget class="GtkImageMenuItem" id="contents2">
+		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">_Contents</property>
 		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_help_contents" last_modification_time="Mon, 01 Dec 2003 16:47:02 GMT"/>
-		      <accelerator key="F1" modifiers="0" signal="activate"/>
+		      <signal name="activate" handler="on_help_contents" last_modification_time="Sun, 19 Sep 2004 09:47:02 GMT"/>
+		      <accelerator key="F2" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
 			<widget class="GtkImage" id="image308">

@@ -153,6 +153,7 @@ class Summary(gtk.TextView):
             return
 
         # Get the package info
+	#dprint("SUMMARY: get package info")
         metadata = package.get_metadata()
         ebuild = package.get_latest_ebuild()
         installed = package.get_installed()
@@ -161,6 +162,7 @@ class Summary(gtk.TextView):
         props = package.get_properties()
         description = props.description
         homepages = props.get_homepages() # may be more than one
+	#dprint("SUMMARY: Summary; getting use flags")
         use_flags = props.get_use_flags()
         license = props.license
         slot = unicode(props.get_slot())
@@ -178,6 +180,7 @@ class Summary(gtk.TextView):
         system_use_flags = portagelib.get_portage_environ("USE")
         if system_use_flags:
             system_use_flags = system_use_flags.split()
+	    #dprint("SUMMARY: system_use_flags = "+str(system_use_flags))
 
         #############################
         # Begin adding text to tab

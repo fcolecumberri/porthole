@@ -37,11 +37,21 @@ try:
 except ValueError:
     path.append(PORTAGE_MOD_PATH)
 
+
+pycrash_found = False
 try:
     from pycrash.utils import *
     pycrash_found = True
+    class MyCrash(HTMLPyCrash):
+        #def onExit(self):
+	def onExceptionRaised(self, time):
+	    save_file = utils.get_user_home_dir() + "/.porthole/crash.html"
+	    # saveToFile does not yet return a result: feature request submitted
+	    self.saveToFile(save_file)
+	    print "PORTHOLE: Crash detected.  Please submit a bug report &"
+	    print "         include the " + save_file
 except ImportError:
-    pycrash_found = False
+    print "pycrash module not found.  For best debug info Please emerge >= dev-python/pycrash-0.4pre2"
     
 from thread import *
 
@@ -63,14 +73,6 @@ def usage():
     print "             " + tabs + "Also if PyCrash-0.4pre2 or newer is found it will use it"
     print "             " + tabs + "to try to save additional crash info to send in for debugging"
 
-class MyCrash(HTMLPyCrash):
-	#def onExit(self):
-         def onExceptionRaised(self, time):
-            save_file = utils.get_user_home_dir() + "/.porthole/porthole-pycrash.html"
-            # saveToFile does not yet return a result: feature request submitted
-	    self.saveToFile(save_file)
-            print "PORTHOLE: Crash detected.  Please submit a bug report &"
-            print "         include the " + save_file
 
 
 if __name__ == "__main__":
@@ -95,13 +97,11 @@ if __name__ == "__main__":
         elif opt in ("-h", "--help"):
             usage()
             exit()
-    if pycrash_found:
+    if pycrash_found == True:
         utils.dprint("pycrash module initializing")
-        utils.dprint("If a crash occurs check the ~/.porthole/porthole-pycrash.html file and post it to porthole bugs")
+        utils.dprint("If a crash occurs check the ~/.porthole/crash.html file and post it to porthole bugs")
         p = MyCrash({'AppName': 'Porthole', 'Version': version, 'SendTo': 'porthole bugs'})
         p.enable() #New in PyCrash-0.4pre2
-    else:
-        utils.dprint("pycrash module not found.  For best debug info Please emerge >= dev-python/pycrash-0.4pre2")
     # make sure gtk lets threads run
     gtk.threads_init()
     # setup our app icon

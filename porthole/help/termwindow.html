@@ -17,7 +17,7 @@
 <p>
 Porthole is just a front-end for the emerge command which can generate 
  amazing amounts of output.
- &nbsp;The challenge for the most users is to discover what's important
+ &nbsp;The challenge for most users is to discover what's important
  and what is not out of the thousands of lines of emerge output.
  &nbsp;Porthole's answer to this challenge is the terminal window.
 </p>
@@ -52,10 +52,11 @@ for the previous one to finish!
 <li><u>Save Log</u> - Save the contents of the process window to a file.
  &nbsp;The default directory is /home/<i>userid</i>/.porthole/.
  &nbsp;Saving the log automatically clears the process, caution,
- warning and summary tabs.
+ warning and summary tabs.<i>  If the tab buffers are large it could take a while
+ to clear & release the memory, be patient.</i>
 <li><u>Save Log As</u> - Save the contents of the process window to a file.
  &nbsp;The default directory is /home/<i>userid</i>/.porthole/.
-<li><u>Open Log</u> - 
+<li><u>Open Log</u> - Opens a previously saved log
 <li><u>Close Window</u> - Close the terminal window.
 </ul>
 <div class='figright'>
@@ -66,6 +67,7 @@ Figure 1. Porthole Terminal Window
 <h3>Edit Menu</h3>
 <ul>
 <li><u>Clear</u> - Empties the process, caution, warning and summary tabs.
+<i>  If the tab buffers are large it could take a while to clear & release the memory, be patient.</i>
  &nbsp;
 </ul>
 
@@ -142,7 +144,7 @@ One of the really useful features of this tab is the ability to jump
  directly to the message location in the process terminal by simply
 double-clicking on the line in question.
  &nbsp;When you do this Porthole will switch to the process tab and 
-bring the desired line into focus near the center of the tab.
+bring the desired line into focus near the center of the tab's window.
  &nbsp; When you find an error it is good to check the process window
  because there may be additional lines associated with the error that
 were not picked up by the filter.
