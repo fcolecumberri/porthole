@@ -117,10 +117,12 @@ class MainWindow:
             sudo_text.show()
             self.sudo_dialog.connect("response", self.sudo_response)
             self.sudo_dialog.show_all()
+            if callback:
+                self.sudo_dialog.callback = callback
         else:
             self.use_sudo = 0
-        if callback:
-            self.sudo_dialog.callback = callback
+            if callback:
+                callback(None)
 
     def sudo_response(self, widget, response):
         """Parse response from the user about sudo usage"""
