@@ -46,17 +46,20 @@ class MainWindow:
         self.gladefile = "porthole.glade"
         self.wtree = gtk.glade.XML(self.gladefile, "main_window")
         #register callbacks
-        callbacks = {"on_main_window_destroy" : gtk.mainquit,
-                     "on_quit1_activate" : gtk.mainquit,
-                     "on_emerge_package" : self.emerge_package,
-                     "on_unmerge_package" : self.unmerge_package,
-                     "on_sync_tree" : self.sync_tree,
-                     "on_upgrade_packages" : self.upgrade_packages,
-                     "on_package_search" : self.package_search,
-                     "on_help_contents" : self.help_contents,
-                     "on_about" : self.about,
-                     "on_category_view_cursor_changed" : self.category_changed,
-                     "on_package_view_cursor_changed" : self.package_changed}
+        callbacks = {
+            "on_main_window_destroy" : gtk.mainquit,
+            "on_quit1_activate" : gtk.mainquit,
+            "on_emerge_package" : self.emerge_package,
+            "on_unmerge_package" : self.unmerge_package,
+            "on_sync_tree" : self.sync_tree,
+            "on_upgrade_packages" : self.upgrade_packages,
+            "on_package_search" : self.package_search,
+            "on_search_entry_activate": self.package_search,
+            "on_help_contents" : self.help_contents,
+            "on_about" : self.about,
+            "on_category_view_cursor_changed" : self.category_changed,
+            "on_package_view_cursor_changed" : self.package_changed
+            }
         self.wtree.signal_autoconnect(callbacks)
         #setup our treemodels
         self.category_model = None
