@@ -184,6 +184,8 @@ class Database:
         self.list = []
         # category dictionary with sorted lists of installed packages
         self.installed = {}
+        #keep track of the number of installed packages
+        self.installed_count = 0
         
     def get_package(self, full_name):
         """Get a Package object based on full name."""
@@ -232,6 +234,7 @@ class DatabaseReader(threading.Thread):
             self.db.categories.setdefault(category, {})[name] = data;
             if entry in installed:
                 self.db.installed.setdefault(category, {})[name] = data;
+                self.db.installed_count += 1
             self.db.list.append((name, data))
         self.db.list = sort(self.db.list)
         

@@ -333,6 +333,8 @@ class MainWindow:
                 index == self.SHOW_ALL
                 and self.db.categories.keys()
                 or self.db.installed.keys())
+            if self.package_model:
+                self.package_model.clear()
             self.package_view.set_model(self.package_model)
             self.summary.update_package_info(None)
         elif index == self.SHOW_SEARCH:
@@ -345,7 +347,8 @@ class MainWindow:
             text = "%d packages in %d categories" % (len(self.db.list),
                                                      len(self.db.categories))
         elif mode == self.SHOW_INSTALLED:
-            pass
+            text = "%d packages in %d categories" % (self.db.installed_count,
+                                                     len(self.db.installed))
         elif mode == self.SHOW_SEARCH:
             text = "%d matches found" % self.search_results.size
         self.set_statusbar(text)
