@@ -91,6 +91,7 @@ class ProcessManager:
         # the window is not visible until a process is added
         self.window_visible = False
         # filename and serial #
+        self.directory = None
         self.filename = None
         self.untitled_serial = -1
         # create the process reader
@@ -132,13 +133,16 @@ class ProcessManager:
                         TAB_LABELS[TAB_INFO]:self.info_text,
                         TAB_LABELS[TAB_QUEUE]:None}
         self.buffer_types = {TAB_LABELS[TAB_PROCESS]:"log",
-                        TAB_LABELS[TAB_WARNING]:"warn",
+                        TAB_LABELS[TAB_WARNING]:"warning",
                         TAB_LABELS[TAB_CAUTION]:"caution",
                         TAB_LABELS[TAB_INFO]:"info",
                         TAB_LABELS[TAB_QUEUE]:None}
         self.queue_menu = self.wtree.get_widget("queue1")
         self.statusbar = self.wtree.get_widget("statusbar")
         self.resume_menu = self.wtree.get_widget("resume")
+        self.save_menu = self.wtree.get_widget("save1")
+        self.save_as_menu = self.wtree.get_widget("save_as")
+        self.open_menu = self.wtree.get_widget("open")
         self.move_up = self.wtree.get_widget("move_up1")
         self.move_down = self.wtree.get_widget("move_down1")
         self.queue_remove = self.wtree.get_widget("remove1")
@@ -175,6 +179,7 @@ class ProcessManager:
         self.caution_tab.showing = False
         self.info_tab.showing = False
         self.queue_tab.showing = False
+        self.tablist = [TAB_LABELS[TAB_PROCESS]]
         # Create formatting tags for each textbuffers' tag table
         self.info_text.create_tag('command',\
                 weight=700,\
@@ -318,6 +323,9 @@ class ProcessManager:
                 "command_start",start_iter, gtk.TRUE)
         # set the resume buttons to not be sensitive
         self.resume_menu.set_sensitive(gtk.FALSE)
+        self.save_menu.set_sensitive(gtk.FALSE)
+        self.save_as_menu.set_sensitive(gtk.FALSE)
+        self.open_menu.set_sensitive(gtk.FALSE)
         if iter:
             self.queue_model.set_value(iter, 0, 
                              self.render_icon(gtk.STOCK_EXECUTE))
@@ -437,12 +445,15 @@ class ProcessManager:
                             tag = 'emerge'
                             self.append(self.info_text, self.process_buffer, tag)
                             self.append(self.warning_text, self.process_buffer, tag)
+                            if not self.file_input:
+                                self.set_file_name(self.process_buffer)
 
                         elif self.config.isInfo(self.process_buffer):
                             # info string has been found, show info tab if needed
                             if not self.info_tab.showing:
                                 self.show_tab(TAB_INFO)
                                 self.info_tab.showing = True
+                                self.info_text.set_modified(gtk.TRUE)
                             # insert the line into the info text buffer
                             tag = 'info'
                             self.append(self.info_text, self.process_buffer)
@@ -455,10 +466,22 @@ class ProcessManager:
                             if not self.warning_tab.showing:
                                 self.show_tab(TAB_WARNING)
                                 self.warning_tab.showing = True
+                                self.warning_text.set_modified(gtk.TRUE)
                             # insert the line into the info text buffer
                             tag = 'warning'
                             self.append(self.warning_text, self.process_buffer)
                             self.warning_count += 1
+
+                        elif self.config.isCaution(self.process_buffer):
+                            # warning string has been found, show info tab if needed
+                            if not self.caution_tab.showing:
+                                self.show_tab(TAB_CAUTION)
+                                self.caution_tab.showing = True
+                                self.caution_text.set_modified(gtk.TRUE)
+                            # insert the line into the info text buffer
+                            tag = None # yet
+                            self.append(self.caution_text, self.process_buffer)
+                            self.caution_count += 1
 
                         self.append(self.process_text, self.process_buffer, tag)
                         self.process_buffer = ''  # reset buffer
@@ -466,6 +489,7 @@ class ProcessManager:
                     pass
         self.reader.string = ""
         if self.file_input:
+            self.process_text.set_modified(gtk.FALSE)
             if self.warning_count != 0:
                 self.append(self.info_text, "*** Total warnings count for merge = %d \n"\
                             %self.warning_count, 'warning')
@@ -474,6 +498,15 @@ class ProcessManager:
         # unlock the string
         self.reader.string_locked = False
         return gtk.TRUE
+
+    def set_file_name(self, line):
+        """extracts the ebuild name and assigns it to self.filename"""
+        x = line.split("/")
+        y = x[1].split(" ")
+        name = y[0]
+        self.filename = name + "." + self.buffer_types[TAB_LABELS[TAB_PROCESS]]
+        dprint("new ebuild detected, new filename: " + self.filename)
+        return
 
     def set_statusbar(self, string):
         """Update the statusbar without having to use push and pop."""
@@ -516,6 +549,10 @@ class ProcessManager:
             dprint("TERMINAL: There are pending processes, running now... [" + \
                     self.process_list[0][0] + "]")
             self._run(self.process_list[0][1], self.process_list[0][2])
+        else: # re-activate the open/save menu items
+            self.save_menu.set_sensitive(gtk.TRUE)
+            self.save_as_menu.set_sensitive(gtk.TRUE)
+            self.open_menu.set_sensitive(gtk.TRUE)
         # if there is a callback set, call it
         if callback:
             callback()
@@ -552,12 +589,6 @@ class ProcessManager:
         name, command, iter = self.process_list[0]
         self._run(command + " --resume --skipfirst", iter)
 
-    def save_log(self, widget):
-        """ Save text buffer to a log """
-        # get filename from user
-        #filename = ?
-        #self.log(filename)
-        pass
 
     def log(self, filename = None):
         """ Log emerge output to a file """
@@ -591,6 +622,10 @@ class ProcessManager:
         self.warning_text.set_text('')
         self.caution_text.set_text('')
         self.info_text.set_text('')
+        self.process_text.set_modified(gtk.FALSE)
+        self.warning_text.set_modified(gtk.FALSE)
+        self.caution_text.set_modified(gtk.FALSE)
+        self.info_text.set_modified(gtk.FALSE)
 
     def queue_items_switch(self, direction):
         """ Switch two adjacent queue items;
@@ -757,8 +792,19 @@ class ProcessManager:
     def set_save_buffer(self):
         """determines the notebook tab open and returns the visible buffer"""
         dprint("entering set_save_buffer")
+        self.tabs_showing = 0
+        tabs = 0
+        self.tablist = [TAB_LABELS[TAB_PROCESS]]
+        for tab in [self.warning_tab.showing, self.caution_tab.showing,
+                    self.info_tab.showing, self.queue_tab.showing]:
+            tabs += 1
+            if tab:
+                self.tabs_showing += 1
+                self.tablist += [TAB_LABELS[tabs]]
+        dprint(self.tablist)
         page = self.notebook.get_current_page()
-        self.buffer_name = TAB_LABELS[page]
+        self.buffer_name = self.tablist[page]
+        dprint(self.buffer_name)
         self.buffer_to_save = self.buffers[self.buffer_name]
         self.buffer_type = self.buffer_types[self.buffer_name]
         dprint("set_save_buffer: " + self.buffer_name + " type: " + self.buffer_type)
@@ -777,45 +823,76 @@ class ProcessManager:
     def do_open(self, widget):
         """opens the file selctor for file to open"""
         dprint("entering do_open")
+        if not self.directory:
+            self.set_directory()
         FileSel().run(self.window, "Open log File", None, self.open_ok_func)
 
     def do_save_as(self, widget):
         """determine buffer to save as and saves it"""
         dprint("entering do_save_as")
+        if not self.directory:
+            self.set_directory()
         if self.set_save_buffer():
-            self.filename = self.pretty_name()
-            result = self.save_as_buffer()
+            #self.filename = self.pretty_name()
+            result = self.check_buffer_saved(self.buffer_to_save, False)
         else:
-            dprint("set_save_buffer error")
+            dprint("Error: buffer is already saved")
 
     def do_save(self, widget):
         """determine buffer to save and proceed"""
         dprint("entering do_save")
+        if not self.directory:
+            self.set_directory()
         if not self.filename:
             self.do_save_as(widget)
         else:
             if self.set_save_buffer():
-                result = self.save_buffer()    
+                result = self.check_buffer_saved(self.buffer_to_save, True)
             else:
                 dprint("set_save_buffer error")
 
+    def set_directory(self):
+        """sets the starting directory for file selection"""
+        if not self.directory:
+            # no directory was specified, so we are making one up
+            dprint("LOG: directory not specified, saving to ~/.porthole/logs")
+            self.directory = get_user_home_dir()
+            if os.access(self.directory + "/.porthole", os.F_OK):
+                if not os.access(self.directory + "/.porthole/logs", os.F_OK):
+                    dprint("LOG: Creating logs directory in " + self.directory +
+                           "/.porthole/logs")
+                    os.mkdir(self.directory + "/.porthole/logs")
+                self.directory += "/.porthole/logs/"
+                os.chdir(self.directory)
+ 
     def pretty_name(self):
         """pre-assigns generic filename & serial #"""
         dprint("entering pretty_name")
         if self.filename:
-            return os.path.basename(self.filename)
+            filename = os.path.basename(self.filename)
+            filename = filename.split(".")
+            newname = ""
+            for x in filename[:-1]:
+                newname += x
+            self.filename = newname + "." + self.buffer_type
+            dprint(self.filename)
+            return self.filename
         else:
+            if not self.directory:
+                self.set_directory()
             if self.untitled_serial == -1:
                 self.untitled_serial += 1
 
             if self.untitled_serial == 1:
                 return ("Untitled.%s" % self.type)
             else:
-                return ("Untitled #%d.%s" % (self.untitled_serial, self.buffer_type))
+                return ("Untitled-%d.%s" % (self.untitled_serial, self.buffer_type))
 
     def fill_buffer(self, filename):
         """loads a file into the reader.string"""
         dprint("entering fill_buffer")
+        self.clear_buffer(None)
+        self.warning_count = 0
         self.set_statusbar("*** Loading File : %s" % self.filename)
         try:
             f = open(filename, "r")
@@ -834,7 +911,7 @@ class ProcessManager:
             self.reader.string = f.read()
             f.close()
             self.reader.string_locked = False
-            self.set_statusbar("*** Log loading complete : %s" % self.filename)
+            #self.set_statusbar("*** Log loading complete : %s" % self.filename)
             dprint("leaving fill_buffer")
             return gtk.TRUE
         else:
@@ -888,8 +965,9 @@ class ProcessManager:
                 start, end = self.buffer_to_save.get_bounds()
                 chars = self.buffer_to_save.get_text(start, end, gtk.FALSE)
                 file.write(chars)
-               
+
             file.close()
+            self.buffer_to_save.set_modified(gtk.FALSE)
             result = gtk.TRUE
         except IOError, (errnum, errmsg):
             err = "Error writing to '%s': %s" % (self.filename, errmsg)
@@ -942,27 +1020,31 @@ class ProcessManager:
             self.filename = old_filename
             return gtk.FALSE
 
-    def check_buffer_saved(self, buffer):
+    def check_buffer_saved(self, buffer, save = False):
         """checks if buffer has been modified before saving again"""
         dprint("entering check_buffer_saved")
         if buffer.get_modified():
-            pretty_name = self.pretty_name()
-            msg = "Save log to '%s'?" % pretty_name
-            dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
-                                       gtk.MESSAGE_QUESTION,
-                                       gtk.BUTTONS_YES_NO, msg);
-            dialog.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-            result = dialog.run()
-            dialog.destroy()
-            if result == gtk.RESPONSE_YES:
-                if self.filename:
-                    return self.save_buffer()
+            self.filename = self.pretty_name()
+            if save:
+                msg = "Save log to '%s'?" % self.filename
+                dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
+                                           gtk.MESSAGE_QUESTION,
+                                           gtk.BUTTONS_YES_NO, msg);
+                dialog.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+                result = dialog.run()
+                dialog.destroy()
+                if result == gtk.RESPONSE_YES:
+                    if self.filename:
+                        return self.save_buffer()
+                    return self.save_as_buffer()
+                elif result == gtk.RESPONSE_NO:
+                    return self.save_as_buffer()
+                else:
+                    return gtk.FALSE
+            else: # save_as
                 return self.save_as_buffer()
-            elif result == gtk.RESPONSE_NO:
-                return gtk.TRUE
-            else:
-                return gtk.FALSE
         else:
+            dprint("buffer already saved/not modified")
             return gtk.TRUE
 
 class FileSel(gtk.FileSelection):

@@ -22,12 +22,14 @@
       <warning-3>.*[\s][Ee][Rr][Rr][Oo][Rr][:\!,\s]</warning-3>
       <warning-4>.*[Ss]yntax\s[Ee]rror</warning-4>
     </warning>
-    <notwarning py_type='list' item_count='4'>
+    <notwarning py_type='list' item_count='6'>
       <notwarning-1>.*[Ii]f you wanted to set the \-\-build type</notwarning-1>
       <notwarning-2>.*checking for compiler warning flags to use</notwarning-2>
       <notwarning-3>.*checking compiler warning flags</notwarning-3>
       <notwarning-4>.*remember to run.*libtool</notwarning-4>
-    </notwarning>
+      <notwarning-5>.*warning: -jN forced in submake:</notwarning-5>
+      <notwarning-6>.*has not been installed in `/usr/lib</notwarning-6>
+   </notwarning>
     <error py_type='list' item_count='1'>
       <error-1>^\!\!\!\sERROR\:.*\sfailed\.</error-1>
     </error>
