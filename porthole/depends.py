@@ -50,7 +50,7 @@ class DependsTree(gtk.TreeStore):
                     parent = _("Not Using ") + depend[1:-1]
 		using_list=True
             else:
-                if depend not in ["(", ")", ":"]:
+                if depend not in ["(", ")", ":", "||"]:
                     try: depend, ops = self.get_ops(depend)
                     except: dprint("DEPENDS: Depend didn't split: " + depend)
                     depend2 = None

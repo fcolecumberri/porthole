@@ -845,14 +845,16 @@ class MainWindow:
             self.package_view.set_view(self.package_view.SEARCH_RESULTS)
         elif index == SHOW_UPGRADE:
             dprint("MAINWINDOW: view_filter_changed(); upgrade selected")
+            cat_scroll.hide();
+            self.package_view.set_view(self.package_view.UPGRADABLE)
             if not self.upgrades_loaded:
                 self.load_upgrades_list()
+                self.package_view.clear()
                 dprint("MAINWINDOW: view_filter_changed(); back from load_upgrades_list()")
             else:
                 # already loaded, just show them!
                 dprint("MAINWINDOW: view_filter_changed(); showing loaded upgrades")
-                cat_scroll.hide();
-                self.package_view.set_view(self.package_view.UPGRADABLE)
+                #self.package_view.set_view(self.package_view.UPGRADABLE)
                 self.summary.update_package_info(None)
         # clear the notebook tabs
         self.clear_notebook()
@@ -866,13 +868,14 @@ class MainWindow:
 
     def load_upgrades_list(self):
         # upgrades are not loaded, create dialog and load them
-        self.set_statusbar2(_("Loading upgradable"))
+        self.set_statusbar2(_("Loading upgradable list"))
         # create upgrade thread for loading the upgrades
         self.ut = UpgradableReader(self.package_view, self.db.installed.items(),
                                    self.prefs.emerge.upgradeonly, self.prefs.views )
         self.ut.start()
         self.ut_running = True
         dprint("MAINWINDOW: load_upgrades_list(); starting upgrades thread")
+        self.build_deps = False
         # add a timeout to check if thread is done
         gtk.timeout_add(200, self.update_upgrade_thread)
         self.set_cancel_btn(ON)
@@ -903,14 +906,22 @@ class MainWindow:
                 if self.last_view_setting == SHOW_UPGRADE:
                     self.package_view.set_view(self.package_view.UPGRADABLE)
                     self.summary.update_package_info(None)
-                    self.wtree.get_widget("category_scrolled_window").hide()
+                    #self.wtree.get_widget("category_scrolled_window").hide()
             return gtk.FALSE
         else:
             if self.ut_running:
                 try:
-                    fraction = self.ut.count / float(self.db.installed_count)
-                    self.progressbar.set_text(str(int(fraction * 100)) + "%")
-                    self.progressbar.set_fraction(fraction)
+                    if self.build_deps:
+                        fraction = self.ut.world_count / float(self.ut.world_total)
+                        self.progressbar.set_text(str(int(fraction * 100)) + "%")
+                        self.progressbar.set_fraction(fraction)
+                    else:
+                        fraction = self.ut.count / float(self.db.installed_count)
+                        self.progressbar.set_text(str(int(fraction * 100)) + "%")
+                        self.progressbar.set_fraction(fraction)
+                        if fraction == 1:
+                            self.build_deps = True
+                            self.set_statusbar2(_("Building Dependancy trees"))
                 except:
                     pass
         return gtk.TRUE
@@ -1082,11 +1093,11 @@ class UpgradableReader(CommonReader):
         self.upgrade_only = upgrade_only
         #self.world = []
         self.view_prefs = view_prefs
+        self.upgradeables = {}
  
     def run(self):
         """fill upgrade tree"""
         self.upgrade_results.clear()    # clear the treemodel
-        installed = []
         installed_world = []
         installed_dep = []
         # find upgradable packages
@@ -1095,30 +1106,42 @@ class UpgradableReader(CommonReader):
                 self.count += 1
                 if self.cancelled: self.done = True; return
                 if package.upgradable(self.upgrade_only):
-                    if package.in_world: #if full_name in self.world:
-                        installed_world += [(package.full_name, package, True)]
+                    if package.in_world:
+                        installed_world += [(package.full_name, package)]
                     else:
-                        installed_dep += [(package.full_name, package, False)]
+                        installed_dep += [(package.full_name, package)]
+                    self.upgradeables[package.full_name] = package
         installed_world = portagelib.sort(installed_world)
         installed_dep = portagelib.sort(installed_dep)
-        installed = installed_world + installed_dep
+        #installed = installed_world + installed_dep
+        self.world_total = len(installed_world) + 1 + len(installed_dep) +1
+        self.world_count = 0
         #self.add_package(_("---- World upgradeable ----"), None, True)
-        for full_name, package, in_world in installed_world:
-            self.dep_view.fill_depends_tree(self.dep_view, package)
+        for full_name, package in installed_world:
+            self.world_count += 1
+            self.add_package(full_name, package, package.in_world)
             self.dep_view.clear()
+            self.dep_view.fill_depends_tree(self.dep_view, package)
             self.model = self.dep_view.get_model()
-            dep_list = self.get_upgrade_deps()
+            iter = self.model.get_iter_first()
+            self.dep_list = []
+            self.deps_checked = []
+            self.get_upgrade_deps(iter, full_name)
+            #
+            # read the upgrade tree into a list of packages to upgrade
+            #self.model.foreach(self.tree_node_to_list)
             if self.cancelled: self.done = True; return
-            self.add_package(full_name, package, in_world)
-            if len(dep_list):
-                for full_name, package, in_world in depends_list:
+            if self.dep_list != []:
+                for f_name, pkg, blocker in self.dep_list:
                     if self.cancelled: self.done = True; return
-                    self.add_deps(full_name, package, in_world)
-        if len(installed_dep):
+                    self.add_deps(pkg.full_name, pkg, pkg.in_world, blocker)
+        if installed_dep != []:
             self.add_package(_("Dependency upgradeable"), None, False, False)
-            for full_name, package, in_world in installed_dep:
+            for full_name, package in installed_dep:
+                self.world_count += 1
                 if self.cancelled: self.done = True; return
-                self.add_deps(full_name, package, in_world)
+                self.add_deps(full_name, package, package.in_world, False)
+        self.world_count += 1
         # set the thread as finished
         self.done = True
 
@@ -1137,29 +1160,106 @@ class UpgradableReader(CommonReader):
         self.upgrade_results.set_value(self.parent, 3, self.upgrade_view.render_icon(icon,
                              size = gtk.ICON_SIZE_MENU,
                              detail = None))
-                                           
-    def get_upgrade_deps(self):
-        """traverses the depenancy tree to get deps that need to be upgraded""" 
-        list = []
-        iter = self.model.get_iter_first()
-        while iter:
-                package = self.model.get_value(iter, 2)
-                full_name = package.full_name
-                if (package.in_world and package.upgradable(self.upgrade_only)) or \
-                   not self.model.get_value(iter, 3):
-                        list += [full_name, package, package.in_world]
-                iter = self.model.iter_next(iter)
-        dprint(list)
-        return list
 
-    def add_deps(self, full_name, package, in_world):
+    def get_upgrade_deps(self, iter, parent_name):
+        list = []
+        while iter:
+                dprint("MAINWINDOW: get_upgrade_deps();processing iter: model.get_value(iter, 0) %s" %self.model.get_value(iter, 0))
+                blocker = False
+                ignore = False
+                version = None
+                package = self.model.get_value(iter, 2)
+                if package:
+                    full_name = package.full_name
+                    dprint("MAINWINDOW: get_upgrade_deps(); processing package: %s" %full_name)
+                    if full_name[0] == '!':
+                        blocker = True
+                    if full_name[0] == '=':
+                        require_version = True
+                    while full_name[0] in ['<','>','=','!']:
+                        full_name = full_name[1:]
+                    if full_name[-1] == '*':
+                        full_name = full_name[:-1]
+                    dprint("OPS cleaned; new full_name = %s" %full_name)
+                    name = full_name.split('/')
+                    if len(name) > 2:
+                        dprint("MAINWINDOW: get_upgrade_deps(); dependancy name error for %s" %full_name)
+                        return
+                    if name[0] == 'virtual': # get a proper package name
+                        old_name = name[0]
+                        full_name = portagelib.virtuals[full_name][0]
+                        dprint("MAINWINDOW: get_upgrade_deps(); %s evaluated to %s" %(old_name+"/"+name[1], full_name))
+                        if blocker and full_name == parent_name:
+                            blocker = False
+                            ignore = True # Ignore the self blocking package
+                    elif name[1].count('-') or name[1].count('.'):
+                        full_name = portagelib.extract_package(full_name)
+                        if blocker and full_name <> None:
+                            version = portagelib.get_version(full_name)
+                    if full_name and not full_name in self.deps_checked:
+                        #if full_name:
+                        self.deps_checked.append(full_name)
+                        dprint("MAINWINDOW: get_upgrade_deps(); extracted dep name = %s" %full_name)
+                        if blocker:
+                            pkg = portagelib.Package(full_name)
+                            if pkg.is_installed:
+                                if version and version in pkg.get_installed():
+                                    self.dep_list += [(full_name, pkg, blocker)]
+                                else:
+                                    self.dep_list += [(full_name, pkg, blocker)]
+                        elif not ignore and self.upgradeables.has_key(full_name): # or not self.model.get_value(iter, 3):
+                            pkg = portagelib.Package(full_name)
+                            if self.model.iter_has_child(iter):
+                                # check for dependency upgrades
+                                child_iter = self.model.iter_children(iter)
+                                self.get_upgrade_deps(child_iter, full_name)
+                            self.dep_list += [(full_name, pkg, blocker)]
+                    else: # Failed to extract the package name
+                            dprint("MAINWINDOW: get_upgrade_deps(); failed to get extracted package ==> dep name = %s" %full_name)
+                else:
+                    #dprint(self.model.iter_has_child(iter))
+                    if self.model.iter_has_child(iter):
+                        # check for dependency upgrades
+                        child_iter = self.model.iter_children(iter)
+                        self.get_upgrade_deps(child_iter, parent_name)
+                    else:
+                        dprint("MAINWINDOW: get_upgrade_deps(); !!!!!!!!!!!!!!!!!!!!!!!!!! package = None")
+                iter = self.model.iter_next(iter)
+        return
+
+    def tree_node_to_list(self, model, path, iter):
+        """callback function from gtk.TreeModel.foreach(),
+           used to add packages to an upgrades list"""
+        if model.get_value(iter, 2):
+                #dprint("processing iter: model.get_value(iter, 0) %s" %self.model.get_value(iter, 0))
+                package = self.model.get_value(iter, 2)
+                if package:
+                    full_name = package.full_name
+                    dprint("processesing package: %s" %full_name)
+                    while full_name[0] in ['<','>','=']:
+                        full_name = full_name[1:]
+                    #~ if full_name.split('/')[1].count('.'):
+                    full_name = portagelib.extract_package(full_name)
+                    if full_name:
+                        dprint("extracted dep name = %s" %full_name)
+                        pkg = portagelib.Package(full_name)
+                        if (pkg.upgradable()):# or not self.model.get_value(iter, 3):
+                            self.dep_list += [(full_name, pkg)]
+        return False
+
+
+    def add_deps(self, full_name, package, in_world, blocker):
         """Add all dependencies to the tree"""
+        dprint("MAINWINDOW: UpgradableReader.add_deps() name = %s" %full_name)
         child_iter = self.upgrade_results.insert_before(self.parent, None)
         self.upgrade_results.set_value(child_iter, 1, in_world)
         self.upgrade_results.set_value(child_iter, 4, in_world)
         self.upgrade_results.set_value(child_iter, 0, full_name)
         self.upgrade_results.set_value(child_iter, 2, package)
-        icon, color = get_icon_for_upgrade_package(package, self.view_prefs) #gtk.STOCK_GO_UP
+        if blocker:
+            icon, color = gtk.STOCK_STOP, 'red'
+        else:
+            icon, color = get_icon_for_upgrade_package(package, self.view_prefs) #gtk.STOCK_GO_UP
         self.upgrade_results.set_value(child_iter, 5, color)
         self.upgrade_results.set_value(child_iter, 3, self.upgrade_view.render_icon(icon,
                                        size = gtk.ICON_SIZE_MENU, detail = None))

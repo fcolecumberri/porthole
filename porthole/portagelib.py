@@ -123,6 +123,7 @@ def reset_use_flags():
     global SystemUseFlags
     SystemUseFlags = get_portage_environ("USE").split()
 
+virtuals = portage.settings.virtuals
 
 # lower case is nicer
 keys = [key.lower() for key in portage.auxdbkeys]
