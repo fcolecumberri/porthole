@@ -25,7 +25,7 @@ import pygtk
 pygtk.require('2.0')
 import gtk, threading
 from popen2 import Popen4
-from os import kill
+from os import kill, environ
 import signal
 from sys import argv
 
@@ -33,13 +33,14 @@ class ProcessWindow(threading.Thread):
     RESPONSE_CLOSE = 0
     RESPONSE_KILL = 1
     
-    def __init__(self, command):
+    def __init__(self, command, environment = {}):
         threading.Thread.__init__(self)
         self.setDaemon(1)  # quit even if this thread is still running
         self.killed = 0
         self.line = ''
         self.pipe = None
         self.command = command
+        self.environment = environment
         self.window = gtk.Dialog(command, None, gtk.DIALOG_NO_SEPARATOR,
                                  ('_Kill', self.RESPONSE_KILL))
         #                                  '_Close', self.RESPONSE_CLOSE))
@@ -114,6 +115,11 @@ class ProcessWindow(threading.Thread):
             gtk.threads_enter()
             self.append(text)
             gtk.threads_leave()
+
+        # set environment; this will affect the environment for
+        # the entire parent program as well(I think)
+        for name, value in self.environment.items():
+            environ[name] = value
         self.pipe = Popen4(self.command)
         try:
             while True:

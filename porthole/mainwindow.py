@@ -228,16 +228,17 @@ class MainWindow:
 
     def setup_command(self, command, callback = None):
         """Setup the command to run with sudo or not at all"""
+        env = {"FEATURES": "notitles"}  # Don't try to set the titlebar
         if self.use_sudo == -1:
             self.check_for_root(callback)
         else:
             if self.use_sudo:
                 if self.use_sudo == 1:
-                    ProcessWindow("sudo " + command)
+                    ProcessWindow("sudo " + command, env)
                 else:
                     print "Sorry, can't do that!"
             else:
-                ProcessWindow(command)
+                ProcessWindow(command, env)
 
     def pretend_set(self, widget):
         """Set whether or not we are going to use the --pretend flag"""
