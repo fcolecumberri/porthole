@@ -70,6 +70,7 @@ class MainWindow:
             "on_downgrade_activate" : self.upgradeonly_set,
             "on_open_log" : self.open_log,
             "on_run_custom" : self.custom_run,
+            "on_reload_db" : self.reload_db,
             "on_main_window_size_request" : self.size_update
             }
         self.wtree.signal_autoconnect(callbacks)
@@ -163,7 +164,7 @@ class MainWindow:
         # set status
         self.set_statusbar("Reading package database: %i packages read"
                            % 0)
-    def reload_db(self):
+    def reload_db(self, *widget):
         dprint("TERMINAL: reload_db() callback")
         # upgrades loaded?
         # reset so that it reloads the upgrade list
