@@ -258,8 +258,9 @@ class DatabaseReader(threading.Thread):
             return
         for entry in allnodes:
             category, name = entry.split('/')
-            if name == 'timestamp.x':  # why does getallnodes()
-                continue               # return timestamps?
+            # why does getallnodes() return timestamps?
+            if name == 'timestamp.x' or name[-4:] == "tbz2":  
+                continue
             self.count += 1
             data = Package(entry)
             self.db.categories.setdefault(category, {})[name] = data;
