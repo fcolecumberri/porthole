@@ -70,6 +70,15 @@ def get_version(ebuild):
             result += '-' + parts[3]
     return result
 
+def extract_package(ebuild):
+    """Returns cat/package from input, which can be either
+       cat/package-ebuild or just cat/package"""
+    result = ebuild
+    parts = portage.catpkgsplit(ebuild)
+    if parts:
+        result = "/".join(parts[0:2])
+    return result
+
 # this is obsolete
 def get_property(ebuild, property):
     """Read a property of an ebuild. Returns a string."""
