@@ -277,12 +277,12 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkCheckMenuItem" id="downgrade">
+		    <widget class="GtkCheckMenuItem" id="upgradeonly">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Allow _Downgrades</property>
+		      <property name="label" translatable="yes">_Upgrades Only</property>
 		      <property name="use_underline">True</property>
 		      <property name="active">False</property>
-		      <signal name="activate" handler="on_downgrade_activate" last_modification_time="Sun, 18 Jan 2004 09:41:05 GMT"/>
+		      <signal name="activate" handler="on_upgradeonly_activate" last_modification_time="Sat, 11 Sept 2004 17:29:05 GMT"/>
 		      <accelerator key="W" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 		    </widget>
 		  </child>

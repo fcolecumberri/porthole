@@ -272,8 +272,8 @@ class Package:
         criterion = include_masked and 'match-all' or 'match-visible'
         return portage.portdb.xmatch(criterion, self.full_name)
 
-    def upgradable(self):
-        """Returns true if an unmasked upgrade is available"""
+    def upgradable(self, upgrade_only = False):
+        """Returns true if an unmasked upgrade/downgrade is available"""
         # Note: this is slow, see get_versions()
         installed = self.get_installed()
         if not installed:
@@ -281,7 +281,10 @@ class Package:
         versions = self.get_versions(False);
         if not versions:
             return False
-        best = portage.best(installed + versions)
+	if upgrade_only:
+	    best = portage.best(installed + versions)  # upgrade only
+	else:
+	    best = portage.best(versions) # upgrade or downgrade
         return best not in installed
 
 

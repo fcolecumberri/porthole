@@ -68,7 +68,7 @@ class MainWindow:
             "on_fetch_activate" : self.fetch_set,
             "on_verbose_activate" : self.verbose_set,
             "on_search_descriptions1_activate" : self.search_set,
-            "on_downgrade_activate" : self.upgradeonly_set,
+            "on_upgradeonly_activate" : self.upgradeonly_set,
             "on_open_log" : self.open_log,
             "on_run_custom" : self.custom_run,
             "on_reload_db" : self.reload_db,
@@ -245,14 +245,14 @@ class MainWindow:
         else: # db_thread is done
 	    self.prefs.database_size = self.db_thread.allnodes_length
 	    self.progress_done()
-            dprint("MAINWINDOW: db_thread is done...")
-            dprint("MAINWINDOW: db_thread.join...")
-            self.db_thread.join()
-            dprint("MAINWINDOW: db_thread.join is done...")
+            #~ dprint("MAINWINDOW: db_thread is done...")
+            #~ dprint("MAINWINDOW: db_thread.join...")
+            #~ self.db_thread.join()
+            #~dprint("MAINWINDOW: db_thread.join is done...")
             self.db = self.db_thread.get_db()
             self.set_statusbar(_("Populating tree ..."))
             self.update_statusbar(self.SHOW_ALL)
-            dprint("MAINWINDOW: setting menubar,toolbar,etc to sensitive...")
+            #~dprint("MAINWINDOW: setting menubar,toolbar,etc to sensitive...")
             self.wtree.get_widget("menubar").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("toolbar").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("view_filter").set_sensitive(gtk.TRUE)
@@ -277,14 +277,14 @@ class MainWindow:
                 #dprint("MAINWINDOW: update_db_read()... self.reload=True ALL or INSTALLED view")
                 # reset _last_selected so it thinks this category is new again
                 self.category_view._last_selected = None
-                dprint("MAINWINDOW: re-select the category")
+                #~dprint("MAINWINDOW: re-select the category")
                 # re-select the category
                 self.category_view.set_cursor(self.current_category_cursor[0],
                                               self.current_category_cursor[1])
-                dprint("MAINWINDOW: reset _last_selected so it thinks this package is new again")
+                #~dprint("MAINWINDOW: reset _last_selected so it thinks this package is new again")
                 # reset _last_selected so it thinks this package is new again
                 self.package_view._last_selected = None
-                dprint("MAINWINDOW: re-select the package")
+                #~dprint("MAINWINDOW: re-select the package")
                 # re-select the package
                 if self.current_package_path <> None:
                     self.package_view.set_cursor(self.current_package_path,
@@ -299,7 +299,7 @@ class MainWindow:
             dprint("MAINWINDOW: Made it thru a reload, returning...")
             self.reload = False
             return gtk.FALSE  # disconnect from timeout
-        dprint("MAINWINDOW: returning from update_db_read() count=%d" %count)
+        #~ dprint("MAINWINDOW: returning from update_db_read() count=%d" %count)
         return gtk.TRUE
 
     def setup_command(self, package_name, command):
@@ -337,7 +337,16 @@ class MainWindow:
 
     def upgradeonly_set(self, widget):
         """Set whether or not we are going to use the --upgradeonly flag"""
-        self.prefs.emerge.upgradeonly = (not widget.get_active())
+        self.prefs.emerge.upgradeonly = widget.get_active()
+	# reset the upgrades list due to the change
+	self.upgrades_loaded = False
+	view_filter = self.wtree.get_widget("view_filter")
+	if view_filter.get_history() == self.SHOW_UPGRADE:
+                #dprint("MAINWINDOW: upgradeonly_set()...reload upgradeable view")
+                self.package_view.clear()
+                self.set_package_actions_sensitive(False, None)
+                # update the views by calling view_filter_changed
+                self.view_filter_changed(view_filter)
 
     def search_set(self, widget):
         """Set whether or not to search descriptions"""
@@ -674,7 +683,7 @@ class MainWindow:
         self.set_statusbar2(_("Loading upgradable"))
         # create upgrade thread for loading the upgrades
         self.ut = UpgradableReader(self.package_view.upgrade_model,
-                                   self.db.installed.items())
+                                   self.db.installed.items(), self.prefs.emerge.upgradeonly)
         self.ut.start()
         # add a timeout to check if thread is done
         gtk.timeout_add(200, self.update_upgrade_thread)
@@ -825,11 +834,12 @@ class CommonReader(threading.Thread):
 
 class UpgradableReader(CommonReader):
     """ Read available upgrades and store them in a treemodel """
-    def __init__(self, upgrade_model, installed):
+    def __init__(self, upgrade_model, installed, upgrade_only):
         """ Initialize """
         CommonReader.__init__(self)
         self.upgrade_results = upgrade_model
         self.installed_items = installed
+	self.upgrade_only = upgrade_only
     
     def run(self):
         """fill upgrade tree"""
@@ -840,7 +850,7 @@ class UpgradableReader(CommonReader):
             for name, package in packages.items():
                 self.count += 1
                 if self.cancelled: self.done = True; return
-                if package.upgradable():
+                if package.upgradable(self.upgrade_only):
                     installed += [(package.full_name, package)]
         installed = portagelib.sort(installed)
         # read system world file
