@@ -67,10 +67,15 @@ class MainWindow:
             "view_filter_changed" : self.view_filter_changed
             }
         self.wtree.signal_autoconnect(callbacks)
+        # aliases for convenience
+        self.package_view = self.wtree.get_widget("package_view")
+        self.category_view = self.wtree.get_widget("category_view")
         #setup our treemodels
         self.category_model = None
         self.package_model = None
-        self.search_results = None
+        self.search_results = gtk.TreeStore(gobject.TYPE_STRING,
+                                            gtk.gdk.Pixbuf,
+                                            gobject.TYPE_STRING)
         #setup some textbuffers
         tagtable = self.create_tag_table()
         self.summary_buffer = gtk.TextBuffer(tagtable)
@@ -82,7 +87,7 @@ class MainWindow:
         category_column = gtk.TreeViewColumn("Categories",
                                              gtk.CellRendererText(),
                                              markup = 0)
-        self.wtree.get_widget("category_view").append_column(category_column)
+        self.category_view.append_column(category_column)
         #set package treeview header
         package_column = gtk.TreeViewColumn("Packages")
         package_pixbuf = gtk.CellRendererPixbuf()
@@ -91,7 +96,7 @@ class MainWindow:
         package_text = gtk.CellRendererText()
         package_column.pack_start(package_text, expand = True)
         package_column.add_attribute(package_text, "text", 0)
-        self.wtree.get_widget("package_view").append_column(package_column)
+        self.package_view.append_column(package_column)
         #move horizontal and vertical panes
         self.wtree.get_widget("hpane").set_position(200)
         self.wtree.get_widget("vpane").set_position(250)
@@ -169,11 +174,11 @@ class MainWindow:
             self.category_model.set_value(sub_cat_iter, 0, catmin)
             # store full category name in hidden field
             self.category_model.set_value(sub_cat_iter, 1, cat)
-        self.wtree.get_widget("category_view").set_model(self.category_model)
+        self.category_view.set_model(self.category_model)
 
     def populate_package_tree(self, category):
         '''fill the package tree'''
-        view = self.wtree.get_widget("package_view")
+        view = self.package_view
         self.package_model = gtk.TreeStore(gobject.TYPE_STRING,
                                            gtk.gdk.Pixbuf)
         if not category:
@@ -233,10 +238,7 @@ class MainWindow:
         """Search package db with a string and display results."""
         search_term = self.wtree.get_widget("search_entry").get_text()
         if search_term:
-            if self.search_results:
-                self.search_results.clear()
-            else:
-                self.search_results = gtk.TreeStore(gobject.TYPE_STRING, gtk.gdk.Pixbuf, gobject.TYPE_STRING)
+            self.search_results.clear()
             re_object = re.compile(search_term, re.I)
             count = 0
             for entry in self.flat_sort(self.db.list):
@@ -250,11 +252,12 @@ class MainWindow:
                     self.search_results.set_value(iter, 0, name)
                     #set the icon depending on the status of the package
                     icon = self.get_icon_for_package(data)
-                    self.search_results.set_value(iter, 1, self.wtree.
-                                get_widget("package_view").
-                                render_icon( icon,
-                                size = gtk.ICON_SIZE_MENU,
-                                detail = None))
+                    view = self.package_view
+                    self.search_results.set_value(
+                        iter, 1,
+                        view.render_icon(icon,
+                                         size = gtk.ICON_SIZE_MENU,
+                                         detail = None))
                     self.search_results.set_value(iter, 2, category)
             self.wtree.get_widget("view_filter").set_history(2)
                 
@@ -274,7 +277,8 @@ class MainWindow:
         dialog = AboutDialog()
 
     def get_treeview_selection(self, treeview, num):
-        """Get the value of whatever is selected in a treeview, num is the column"""
+        """Get the value of whatever is selected in a treeview,
+        num is the column"""
         model, iter = treeview.get_selection().get_selected()
         selection = None
         if iter:
@@ -291,7 +295,7 @@ class MainWindow:
         """Catch when the user changes packages."""
         if self.wtree.get_widget("view_filter").get_history() == 0:
             category = self.get_treeview_selection(
-                self.wtree.get_widget("category_view"), 1)
+                self.category_view, 1)
         else:
             #there's no category! did the user search? :)
             category = self.get_treeview_selection(treeview, 2)
@@ -389,20 +393,20 @@ class MainWindow:
             append(slot, "value");
             nl()
 
+    SHOW_ALL = 0
+    SHOW_INSTALLED = 1
+    SHOW_SEARCH = 2
     def view_filter_changed(self, widget):
         index = widget.get_history()
-        if index == 0:
+        if index == self.SHOW_ALL:
             self.wtree.get_widget("category_scrolled_window").show()
-            self.wtree.get_widget("package_view").set_model(self.package_model)
+            self.package_view.set_model(self.package_model)
             self.update_package_info(None)
-        elif index == 1:
+        elif index == self.SHOW_INSTALLED:
             pass
-        elif index == 2:
-            if self.search_results:
-                self.wtree.get_widget("category_scrolled_window").hide()
-                self.wtree.get_widget("package_view").set_model(self.search_results)
-            else:
-                widget.set_history(0)
+        elif index == self.SHOW_SEARCH:
+            self.wtree.get_widget("category_scrolled_window").hide()
+            self.package_view.set_model(self.search_results)
 
 
 class AboutDialog:
