@@ -102,13 +102,40 @@ class web_page(threading.Thread):
 def get_icon_for_package(package):
     """Return an icon for a package"""
     # if it's installed, find out if it can be upgraded
-    if package.is_installed:
+    if package and package.is_installed:
         icon = gtk.STOCK_YES
     else:
         # just put the STOCK_NO icon
         # switched to blank icon if not installed
         icon = '' # gtk.STOCK_NO
     return icon       
+
+def get_icon_for_upgrade_package(package, prefs):
+    """Return an icon and foreground text color for a package"""
+    if not package:
+        return '', 'blue'
+    #  find out if it can be upgraded
+    if package.upgradable(upgrade_only = True):
+        icon = gtk.STOCK_GO_UP
+        color = prefs.world_upgradeable_color
+    else: # it's a downgrade
+        icon = gtk.STOCK_GO_DOWN
+        color = prefs.world_downgradeable_color
+    return icon, color      
+
+def get_world():
+        world = []
+        try:
+            world = open("/var/lib/portage/world", "r").read().split()
+        except:
+            dprint("UTILS: get_world(); Failure to locate file: '/var/lib/portage/world'")
+            dprint("UTILS: get_world(); Trying '/var/cache/edb/world'")
+            try:
+                world = open("/var/cache/edb/world", "r").read().split()
+                dprint("OK")
+            except:
+                dprint("MAINWINDOW: UpgradableReader(); Failed to locate the world file")
+        return world
 
 def is_root():
     """Returns true if process runs as root."""
@@ -220,6 +247,11 @@ class WindowPreferences:
         self.width = width      # width
         self.height = height    # height
 
+class ViewOptions:
+	""" Holds foreground colors for a package name"""
+	def __init__(self):
+		self.world_upgradeable_color = ''
+		self.world_downgradeable_color = ''
 
 class PortholePreferences:
     """ Holds all of Porthole's user configurable preferences """
@@ -514,6 +546,18 @@ class PortholePreferences:
         except XMLManagerError:
            pass
 
+        # Views config variables
+
+	self.views = ViewOptions()
+	#~ try:
+		#~ self.views.world_upgradeable_color = dom.getitem('/views/world_upgradeable_color')
+	#~ except XMLManagerError:
+	self.views.world_upgradeable_color = '' #'green'
+	try:
+		self.views.world_downgradeable_color = dom.getitem('/views/world_downgradeable_color')
+	except XMLManagerError:
+		self.views.world_downgradeable_color = 'red'
+
 	# Misc. variables
 
 	try:
@@ -570,10 +614,12 @@ class PortholePreferences:
         dom.additem('/emerge/options/verbose', self.emerge.verbose)
         dom.additem('/emerge/options/upgradeonly', self.emerge.upgradeonly)
         dom.additem('/emerge/options/nospinner', self.emerge.nospinner)
-	dom.additem('/database/size', self.database_size)
-	#dprint("UTILS: save(); self.dbtime = %d" %self.dbtime)
-	dom.additem('/database/dbtime', self.dbtime)
-	dom.additem('/database/dbtotals', self.dbtotals)
+        dom.additem('/views/world_upgradeable_color', self.views.world_upgradeable_color)
+        dom.additem('/views/world_downgradeable_color', self.views.world_downgradeable_color)
+        dom.additem('/database/size', self.database_size)
+        #dprint("UTILS: save(); self.dbtime = %d" %self.dbtime)
+        dom.additem('/database/dbtime', self.dbtime)
+        dom.additem('/database/dbtotals', self.dbtotals)
         dom.save(self.__PFILE)
         del dom   # no longer needed, release memory
 

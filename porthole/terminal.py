@@ -531,32 +531,32 @@ class ProcessManager:
 
     def menu_quit(self, widget):
         """ hide the window when the close button is pressed """
-	dprint("TERMINAL: menu_quit()")
-	if self.confirm_delete():
-	    return
+        dprint("TERMINAL: menu_quit()")
+        if self.confirm_delete():
+            return
         dprint("TERMINAL: menu==>quit clicked... starting destruction")
         self.window.destroy()
 
     def on_process_window_destroy(self, widget, data = None):
         """Window was closed"""
-	dprint("TERMINAL: on_process_window_destroy()")
+        dprint("TERMINAL: on_process_window_destroy()")
         # kill any running processes
-	self.kill_process()
+        self.kill_process()
         # make sure to reset the process list
-	self.Semaphore.acquire()
+        self.Semaphore.acquire()
         self.process_list = []
-	self.Semaphore.release()
+        self.Semaphore.release()
         # the window is no longer showing
         self.window_visible = False
         self.wtree = None
         if __name__ == "__main__":
             # if running standalone, quit
-	    try:
+            try:
                 gtk.main_quit()
-	    except:
-		gtk.mainquit()
-	dprint("TERMINAL: on_process_window_destroy(); ...destroying now")
-	self.window.destroy
+            except:
+                gtk.mainquit()
+        dprint("TERMINAL: on_process_window_destroy(); ...destroying now")
+        self.window.destroy
 
     def kill_process(self, widget = None, confirm = False):
         """ Kill currently running process """
@@ -570,14 +570,14 @@ class ProcessManager:
             self.Semaphore.release()
             dprint("TERMINAL: kill_process; Semaphore released")
             return True
-	#~ if widget or confirm:
-	    #~ self.confirm = False
-	if self.kill():
-	    # We're finished, release semaphore
+        #~ if widget or confirm:
+            #~ self.confirm = False
+        if self.kill():
+            # We're finished, release semaphore
             self.Semaphore.release()
             dprint("TERMINAL: kill_process; Semaphore released")
-	    return False
-	if self.log_mode:
+            return False
+        if self.log_mode:
             dprint("LOG: set statusbar -- log killed")
             self.set_statusbar(_("***Log Process Killed!"))
         else:
@@ -629,21 +629,21 @@ class ProcessManager:
         return True
 
     def confirm_delete(self, widget = None, *event):
-	if self.task_completed:
-	    return False
-	err = _("Confirm: Kill the Running Process")
+        if self.task_completed:
+            return False
+        err = _("Confirm: Kill the Running Process")
         dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
                                 gtk.MESSAGE_QUESTION,
                                 gtk.BUTTONS_YES_NO, err);
         result = dialog.run()
         dialog.destroy()
         if result != gtk.RESPONSE_YES:
-	    dprint("TERMINAL: confirm_delete(); stopping delete")
+            dprint("TERMINAL: confirm_delete(); stopping delete")
             return True
-	dprint("TERMINAL: confirm_delete(); confirmed")
-	return False
+        dprint("TERMINAL: confirm_delete(); confirmed")
+        return False
 
-	
+
     def overwrite(self, num, text, tagname = None):
         """ Overwrite text to a text buffer.  Line numbering based on
             the process window line count is automatically added.
@@ -668,7 +668,7 @@ class ProcessManager:
     def scroll_current_view(self):
         """scrolls the current_tab"""
         if self.term.current_tab != TAB_QUEUE:
-	    self.term.view[self.term.current_tab].scroll_mark_onscreen(self.term.end_mark[self.term.current_tab])
+            self.term.view[self.term.current_tab].scroll_mark_onscreen(self.term.end_mark[self.term.current_tab])
 
     def append(self, num, text, tagname = None):
         """ Append text to a text buffer.  Line numbering based on
@@ -689,7 +689,7 @@ class ProcessManager:
         else:
            self.term.buffer[num].insert_with_tags_by_name(iter, text, tagname)
         if self.term.auto_scroll[num] and num == self.term.current_tab:
-	    self.scroll_current_view()
+            self.scroll_current_view()
 
     def append_all(self, text, all = False, tag = None):
         """ Append text to all buffers """
@@ -1611,7 +1611,8 @@ class ProcessOutputReader(threading.Thread):
                         gtk.threads_leave()
             else:
                 # sleep for .5 seconds before we check again
-                time.sleep(.5)
+                if time:
+                    time.sleep(.5)
 
 
 if __name__ == "__main__":

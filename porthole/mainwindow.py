@@ -29,17 +29,22 @@ import portagelib, os, string
 
 from gettext import gettext as _
 from about import AboutDialog
-from utils import load_web_page, get_icon_for_package, is_root, dprint, \
+from utils import load_web_page, get_icon_for_package, get_icon_for_upgrade_package, is_root, dprint, \
      get_treeview_selection, YesNoDialog, SingleButtonDialog, environment, \
-     pretend_check, help_check
+     pretend_check, help_check, get_world
 #from process import ProcessWindow  # no longer used in favour of terminal and would need updating to be used
 from summary import Summary
 from terminal import ProcessManager
-from views import CategoryView, PackageView, DependsView
+from views import CategoryView, PackageView, DependsView, CommonTreeView
+from depends import DependsTree
 from command import RunDialog
 from advemerge import AdvancedEmergeDialog
 
 EXCEPTION_LIST = ['.','^','$','*','+','?','(',')','\\','[',']','|','{','}']
+SHOW_ALL = 0
+SHOW_INSTALLED = 1
+SHOW_SEARCH = 2
+SHOW_UPGRADE = 3
 
 class MainWindow:
     """Main Window class to setup and manage main window interface."""
@@ -73,15 +78,15 @@ class MainWindow:
             "on_open_log" : self.open_log,
             "on_run_custom" : self.custom_run,
             "on_reload_db" : self.reload_db,
-	    "on_re_init_portage" : self.re_init_portage,
-	    "on_cancel_btn" : self.on_cancel_btn,
+            "on_re_init_portage" : self.re_init_portage,
+            "on_cancel_btn" : self.on_cancel_btn,
             "on_main_window_size_request" : self.size_update
-	    }
-	self.wtree.signal_autoconnect(callbacks)
-	self.set_statusbar("Starting")
-	# aliases for convenience
-	self.mainwindow = self.wtree.get_widget("main_window")
-	self.notebook = self.wtree.get_widget("notebook")
+        }
+        self.wtree.signal_autoconnect(callbacks)
+        self.set_statusbar("Starting")
+        # aliases for convenience
+        self.mainwindow = self.wtree.get_widget("main_window")
+        self.notebook = self.wtree.get_widget("notebook")
         self.changelog = self.wtree.get_widget("changelog").get_buffer()
         self.installed_files = self.wtree.get_widget("installed_files").get_buffer()
         self.ebuild = self.wtree.get_widget("ebuild").get_buffer()
@@ -116,24 +121,24 @@ class MainWindow:
         if self.prefs.main.search_desc:
             self.wtree.get_widget("search_descriptions1").set_active(gtk.TRUE)
         # setup a convienience tuple
-	self.tool_widgets = ["emerge_package1","adv_emerge_package1","unmerge_package1","btn_emerge",
-			     "btn_adv_emerge","btn_unmerge", "btn_sync"]
-	self.widget = {}
-	for x in self.tool_widgets:
-		self.widget[x] = self.wtree.get_widget(x)
-		if not self.widget[x]:
-			dprint("MAINWINDOW: __init__(); Failure to obtain widget '%s'" %x)
-	# get an empty tooltip
-	self.synctooltip = gtk.Tooltips()
-	self.sync_tip = _(" Syncronise Package Database \n The last sync was done:\n")
+        self.tool_widgets = ["emerge_package1","adv_emerge_package1","unmerge_package1","btn_emerge",
+                     "btn_adv_emerge","btn_unmerge", "btn_sync"]
+        self.widget = {}
+        for x in self.tool_widgets:
+            self.widget[x] = self.wtree.get_widget(x)
+            if not self.widget[x]:
+                dprint("MAINWINDOW: __init__(); Failure to obtain widget '%s'" %x)
+        # get an empty tooltip
+        self.synctooltip = gtk.Tooltips()
+        self.sync_tip = _(" Syncronise Package Database \n The last sync was done:\n")
         # restore last window width/height
         self.mainwindow.resize(self.prefs.main.width, self.prefs.main.height)
-	# move horizontal and vertical panes
+        # move horizontal and vertical panes
         dprint("MAINWINDOW: __init__() before hpane; %d, vpane; %d" %(self.prefs.main.hpane, self.prefs.main.vpane))
         self.wtree.get_widget("hpane").set_position(self.prefs.main.hpane)
         self.wtree.get_widget("vpane").set_position(self.prefs.main.vpane)
-	# Intercept the window delete event signal
-	self.mainwindow.connect('delete-event', self.confirm_delete)
+        # Intercept the window delete event signal
+        self.mainwindow.connect('delete-event', self.confirm_delete)
         # initialize some variable to fix the hpane jump bug
         self.hpane_bug_count = 0
         self.hpane_bug = True
@@ -155,7 +160,7 @@ class MainWindow:
     def init_data(self):
         # set things we can't do unless a package is selected to not sensitive
         self.set_package_actions_sensitive(gtk.FALSE)
-	dprint("MAINWINDOW: init_data(); Initializing data")
+        dprint("MAINWINDOW: init_data(); Initializing data")
         # upgrades loaded?
         self.upgrades_loaded = False
         # upgrade loading callback
@@ -173,18 +178,19 @@ class MainWindow:
         # declare the database
         self.db = None
         # load the db
-	self.dbtime = 0
+        self.dbtime = 0
         self.db_thread = portagelib.DatabaseReader()
         self.db_thread.start()
         self.reload = False
         self.db_timeout = gtk.timeout_add(100, self.update_db_read)
-	self.get_sync_time()
-	self.synctooltip.set_tip(self.widget["btn_sync"], self.sync_tip + self.last_sync)
+        self.world = get_world()
+        self.get_sync_time()
+        self.synctooltip.set_tip(self.widget["btn_sync"], self.sync_tip + self.last_sync)
         # set status
         self.set_statusbar(_("Obtaining package list "))
-	self.set_statusbar2(_("Loading database"))
-	self.progressbar = self.wtree.get_widget("progressbar1")
-	self.wtree.get_widget("btn_cancel").set_sensitive(False)
+        self.set_statusbar2(_("Loading database"))
+        self.progressbar = self.wtree.get_widget("progressbar1")
+        self.wtree.get_widget("btn_cancel").set_sensitive(False)
 
     def reload_db(self, *widget):
         dprint("TERMINAL: reload_db() callback")
@@ -195,43 +201,44 @@ class MainWindow:
         self.upgrades_loaded_callback = None
         self.search_loaded = False
         self.current_package_path = None
-	# test to reset portage
-	#portagelib.reload_portage()
+        # test to reset portage
+        #portagelib.reload_portage()
         # load the db
-	self.dbtime = 0
+        self.dbtime = 0
         self.db_thread = portagelib.DatabaseReader()
         self.db_thread.start()
         #test = 87/0  # used to test pycrash is functioning
         self.reload = True
         self.db_timeout = gtk.timeout_add(100, self.update_db_read)
-	self.get_sync_time()
-	self.synctooltip.set_tip(self.widget["btn_sync"], self.sync_tip + self.last_sync)
+        self.world = get_world()
+        self.get_sync_time()
+        self.synctooltip.set_tip(self.widget["btn_sync"], self.sync_tip + self.last_sync)
         # set status
         self.set_statusbar(_("Obtaining package list "))
         self.set_statusbar2(_("Reloading database"))
 
     def get_sync_time(self):
-	"""gets and returns the timestamp info saved during
-	   the last portage tree sync"""
-	self.last_sync = _("Unknown")
-	try:
-	    f = open(portagelib.portdir + "/metadata/timestamp")
-	    data = f.read(); f.close()
-	    if data:
-		try:
-		    dprint("MAINWINDOW: get_sync_time(); trying utf_8 encoding")
-		    self.last_sync = (str(data).decode('utf_8').encode("utf_8",'replace'))
-		except:
-		    try:
-		        dprint("MAINWINDOW: get_sync_time(); trying iso-8859-1 encoding")
-			self.last_sync = (str(data).decode('iso-8859-1').encode('utf_8', 'replace'))
-		    except:
-			dprint("MAINWINDOW: get_sync_time(); Failure = unknown encoding")
-	    else:
-		dprint("MAINWINDOW: get_sync_time(); No data read")
-	except:
-	    dprint("MAINWINDOW: get_sync_time(); file open or read error")
-	
+        """gets and returns the timestamp info saved during
+           the last portage tree sync"""
+        self.last_sync = _("Unknown")
+        try:
+            f = open(portagelib.portdir + "/metadata/timestamp")
+            data = f.read(); f.close()
+            if data:
+                try:
+                    dprint("MAINWINDOW: get_sync_time(); trying utf_8 encoding")
+                    self.last_sync = (str(data).decode('utf_8').encode("utf_8",'replace'))
+                except:
+                    try:
+                        dprint("MAINWINDOW: get_sync_time(); trying iso-8859-1 encoding")
+                        self.last_sync = (str(data).decode('iso-8859-1').encode('utf_8', 'replace'))
+                    except:
+                        dprint("MAINWINDOW: get_sync_time(); Failure = unknown encoding")
+            else:
+                dprint("MAINWINDOW: get_sync_time(); No data read")
+        except:
+            dprint("MAINWINDOW: get_sync_time(); file open or read error")
+
     def pkg_path_callback(self, path):
         """callback function to save the path to the package that
         matched the name passed to the populate() in PackageView"""
@@ -261,7 +268,7 @@ class MainWindow:
 
     def set_statusbar2(self, string):
         """Update the statusbar without having to use push and pop."""
-	dprint("MAINWINDOW: set_statusbar2(); " + string)
+        dprint("MAINWINDOW: set_statusbar2(); " + string)
         statusbar2 = self.wtree.get_widget("statusbar2")
         statusbar2.pop(0)
         statusbar2.push(0, string)
@@ -270,16 +277,16 @@ class MainWindow:
         """Update the statusbar according to the number of packages read."""
         #count = 0
         if not self.db_thread.done:
-	    self.dbtime += 1
-	    if self.db_thread.count > 0:
-		self.set_statusbar(_("Reading package database: %i packages read"
-				     % self.db_thread.count))
+            self.dbtime += 1
+            if self.db_thread.count > 0:
+                self.set_statusbar(_("Reading package database: %i packages read"
+                                     % self.db_thread.count))
             #count = self.db_thread.count
-	    #dprint("self.prefs.dbtime = ")
-	    #dprint(self.prefs.dbtime)
-	    fraction = min(1.0, max(0,(self.dbtime / float(self.prefs.dbtime))))
+            #dprint("self.prefs.dbtime = ")
+            #dprint(self.prefs.dbtime)
+            fraction = min(1.0, max(0,(self.dbtime / float(self.prefs.dbtime))))
             self.progressbar.set_text(str(int(fraction * 100)) + "%")
-	    self.progressbar.set_fraction(fraction)
+            self.progressbar.set_fraction(fraction)
 
         elif self.db_thread.error:
             # todo: display error dialog instead
@@ -287,17 +294,17 @@ class MainWindow:
             self.set_statusbar(self.db_thread.error.decode('ascii', 'replace'))
             return gtk.FALSE  # disconnect from timeout
         else: # db_thread is done
-	    self.db_save_variables()
+            self.db_save_variables()
             self.progressbar.set_text("100%")
-	    self.progressbar.set_fraction(1.0)
+            self.progressbar.set_fraction(1.0)
             dprint("MAINWINDOW: db_thread is done...")
             dprint("MAINWINDOW: db_thread.join...")
             self.db_thread.join()
             dprint("MAINWINDOW: db_thread.join is done...")
             self.db = self.db_thread.get_db()
             self.set_statusbar(_("Populating tree ..."))
-            self.update_statusbar(self.SHOW_ALL)
-	    #~portagelib.reset_use_flags()
+            self.update_statusbar(SHOW_ALL)
+            #~portagelib.reset_use_flags()
             #~dprint("MAINWINDOW: setting menubar,toolbar,etc to sensitive...")
             self.wtree.get_widget("menubar").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("toolbar").set_sensitive(gtk.TRUE)
@@ -306,19 +313,19 @@ class MainWindow:
             self.wtree.get_widget("btn_search").set_sensitive(gtk.TRUE)
             # make sure we search again if we reloaded!
             view_filter = self.wtree.get_widget("view_filter")
-            if view_filter.get_history() == self.SHOW_SEARCH:
+            if view_filter.get_history() == SHOW_SEARCH:
                 #dprint("MAINWINDOW: update_db_read()... Search view")
                 # update the views by calling view_filter_changed
                 self.view_filter_changed(view_filter)
                 if self.reload:
                     # reset _last_selected so it thinks this package is new again
                     self.package_view._last_selected = None
-                    if self.current_package_cursor[0]: # should fix a type error in set_cursor; from pycrash report
+                    if self.current_package_cursor != None and self.current_package_cursor[0]: # should fix a type error in set_cursor; from pycrash report
                         # re-select the package
                         self.package_view.set_cursor(self.current_package_cursor[0],
                                                      self.current_package_cursor[1])
-            elif self.reload and (view_filter.get_history() == self.SHOW_ALL or \
-                                  view_filter.get_history() == self.SHOW_INSTALLED) and \
+            elif self.reload and (view_filter.get_history() == SHOW_ALL or \
+                                  view_filter.get_history() == SHOW_INSTALLED) and \
                                   self.current_category_cursor != None:
                 #dprint("MAINWINDOW: update_db_read()... self.reload=True ALL or INSTALLED view")
                 # reset _last_selected so it thinks this category is new again
@@ -344,29 +351,29 @@ class MainWindow:
                 self.view_filter_changed(view_filter)
             dprint("MAINWINDOW: Made it thru a reload, returning...")
             self.reload = False
-	    self.progress_done()
+            self.progress_done()
             return gtk.FALSE  # disconnect from timeout
         #dprint("MAINWINDOW: returning from update_db_read() count=%d dbtime=%d"  %(count, self.dbtime))
         return gtk.TRUE
 
     def db_save_variables(self):
-	"""recalulates and stores persistent database variables into the prefernces"""
-	self.prefs.database_size = self.db_thread.allnodes_length
-	# store only the last 10 reload times
-	if len(self.prefs.dbtotals)==10:
-	    self.prefs.dbtotals = self.prefs.dbtotals[1:]+[str(self.dbtime)]
-	else:
-	    self.prefs.dbtotals += [str(self.dbtime)]
-	# calculate the average time to use for the progress bar calculations
-	total = 0
-	count = 0
-	for time in self.prefs.dbtotals:
-	    total += int(time)
-	    count += 1
-	#dprint("MAINWINDOW: db_save_variables(); total = %d : count = %d" %(total,count))
-	self.prefs.dbtime = int(total/count)
-	dprint("MAINWINDOW: db_save_variables(); dbtime = %d" %self.dbtime)
-	dprint("MAINWINDOW: db_save_variables(); new average load time = %d cycles" %self.prefs.dbtime)
+        """recalulates and stores persistent database variables into the prefernces"""
+        self.prefs.database_size = self.db_thread.allnodes_length
+        # store only the last 10 reload times
+        if len(self.prefs.dbtotals)==10:
+            self.prefs.dbtotals = self.prefs.dbtotals[1:]+[str(self.dbtime)]
+        else:
+            self.prefs.dbtotals += [str(self.dbtime)]
+        # calculate the average time to use for the progress bar calculations
+        total = 0
+        count = 0
+        for time in self.prefs.dbtotals:
+            total += int(time)
+            count += 1
+        #dprint("MAINWINDOW: db_save_variables(); total = %d : count = %d" %(total,count))
+        self.prefs.dbtime = int(total/count)
+        dprint("MAINWINDOW: db_save_variables(); dbtime = %d" %self.dbtime)
+        dprint("MAINWINDOW: db_save_variables(); new average load time = %d cycles" %self.prefs.dbtime)
 
 
     def setup_command(self, package_name, command):
@@ -405,10 +412,10 @@ class MainWindow:
     def upgradeonly_set(self, widget):
         """Set whether or not we are going to use the --upgradeonly flag"""
         self.prefs.emerge.upgradeonly = widget.get_active()
-	# reset the upgrades list due to the change
-	self.upgrades_loaded = False
-	view_filter = self.wtree.get_widget("view_filter")
-	if view_filter.get_history() == self.SHOW_UPGRADE:
+        # reset the upgrades list due to the change
+        self.upgrades_loaded = False
+        view_filter = self.wtree.get_widget("view_filter")
+        if view_filter.get_history() == SHOW_UPGRADE:
                 #dprint("MAINWINDOW: upgradeonly_set()...reload upgradeable view")
                 self.package_view.clear()
                 self.set_package_actions_sensitive(False, None)
@@ -447,43 +454,52 @@ class MainWindow:
         self.setup_command("Emerge Sync", sync)
 
     def on_cancel_btn(self, widget):
-	"""cancel button callback function"""
-	dprint("MAINWINDOW: on_cancel_btn() callback")
-	# terminate the thread
-	self.ut.please_die()
-	self.ut.join()
-	self.progress_done()
+        """cancel button callback function"""
+        dprint("MAINWINDOW: on_cancel_btn() callback")
+        # terminate the thread
+        self.ut.please_die()
+        self.ut.join()
+        self.progress_done()
 
     def upgrade_packages(self, widget):
         """Upgrade selected packages that have newer versions available."""
         if self.upgrades_loaded:
+            dprint("MAINWINDOW: upgrade_packages() upgrades loaded")
             # create a list of packages to be upgraded
-            packages_list = ""
-            model = self.package_view.upgrade_model
-            iter = model.get_iter_first()
-            while(iter):
-                # upgrade only if it's checked!
-                if model.get_value(iter, 1):
-                    packages_list += model.get_value(iter, 0) + " "
-                # step to next iter
-                iter = model.iter_next(iter)
-            dprint("MAIN: Updating packages...")
-            for package in packages_list.split():
-		if package not in self.ut.world:
-			dprint("MAINWINDOW: upgrade_packages(); dependancy selected: " +
-				package)
-			if not self.setup_command(package.split('/')[1], "emerge -u --oneshot" +
-				self.prefs.emerge.get_string() + package):
-			    return
-		elif not self.setup_command(package.split('/')[1], "emerge -u" +
-				self.prefs.emerge.get_string() + package):
-		    return
+            self.packages_list = {}
+            self.keyorder = []
+            self.up_model = self.package_view.upgrade_model
+            # read the upgrade tree into a list of packages to upgrade
+            self.up_model.foreach(self.tree_node_to_list)
+            #dprint(self.packages_list)
+            #dprint(self.keyorder)
+            for key in self.keyorder:
+                if not self.packages_list[key]:
+                        dprint("MAINWINDOW: upgrade_packages(); dependancy selected: " + key)
+                        if not self.setup_command(key, "emerge -u --oneshot" +
+                                self.prefs.emerge.get_string() + key.split('/')[1]):
+                            return
+                elif not self.setup_command(key, "emerge -u" +
+                                self.prefs.emerge.get_string() + ' ' + key.split('/')[1]):
+                    return
         else:
             dprint("MAIN: Upgrades not loaded; upgrade world?")
             self.upgrades_loaded_dialog = YesNoDialog(_("Upgrade requested"),
                     self.mainwindow,
                     _("Do you want to upgrade all packages in your world file?"),
                      self.upgrades_loaded_dialog_response)
+
+    def tree_node_to_list(self, model, path, iter):
+        """callback function from gtk.TreeModel.foreach(),
+           used to add packages to an upgrades list"""
+        if model.get_value(iter, 1):
+            name = model.get_value(iter, 0)
+	    dprint(name)
+            if name not in self.keyorder:
+                self.packages_list[name] = model.get_value(iter, 4) # model.get_value(iter, 2), name]
+                self.keyorder = [name] + self.keyorder 
+        return False
+
 
     def upgrades_loaded_dialog_response(self, widget, response):
         """ Get and parse user's response """
@@ -521,7 +537,7 @@ class MainWindow:
                 self.desc_loaded = True
                 # search with descriptions
                 self.package_search(None)
-			# kill off the thread
+                # kill off the thread
             self.desc_thread.join()
             self.desc_dialog.destroy()
             return gtk.FALSE
@@ -567,18 +583,21 @@ class MainWindow:
                     iter = search_results.insert_before(None, None)
                     search_results.set_value(iter, 0, name)
                     search_results.set_value(iter, 2, data)
+                    search_results.set_value(iter, 5, '')
+                    #dprint(data.full_name + " %d" %(data.full_name in self.world))
+                    search_results.set_value(iter, 4, data.full_name in self.world)
                     # set the icon depending on the status of the package
                     icon = get_icon_for_package(data)
                     view = self.package_view
                     search_results.set_value(
-                        iter, 1,
+                        iter, 3,
                         view.render_icon(icon,
                                          size = gtk.ICON_SIZE_MENU,
                                          detail = None))
             search_results.size = count  # store number of matches
-            self.wtree.get_widget("view_filter").set_history(self.SHOW_SEARCH)
+            self.wtree.get_widget("view_filter").set_history(SHOW_SEARCH)
             # in case the search view was already active
-            self.update_statusbar(self.SHOW_SEARCH)
+            self.update_statusbar(SHOW_SEARCH)
                 
     def help_contents(self, widget):
         """Show the help file contents."""
@@ -596,20 +615,20 @@ class MainWindow:
         if not self.reload:
             self.current_package_cursor = None
         #dprint("Category cursor = " +str(self.current_category_cursor))
-	#dprint(self.current_category_cursor[0][1])
+        #dprint(self.current_category_cursor[0][1])
         mode = self.wtree.get_widget("view_filter").get_history()
         if not category or self.current_category_cursor[0][1] == None:
-	    #dprint("MAINWINDOW: category_changed(); category=False or self.current_category_cursor[0][1]=None")
+            #dprint("MAINWINDOW: category_changed(); category=False or self.current_category_cursor[0][1]=None")
             packages = None
-	    self.current_package_name = None
-	    self.current_package_cursor = None
+            self.current_package_name = None
+            self.current_package_cursor = None
             self.current_package_path = None
-	    self.package_view.PACKAGES = 0
+            self.package_view.PACKAGES = 0
             self.package_view.set_view(self.package_view.PACKAGES)
             self.package_view.clear()
-        elif mode == self.SHOW_ALL:
+        elif mode == SHOW_ALL:
             packages = self.db.categories[category]
-        elif mode == self.SHOW_INSTALLED:
+        elif mode == SHOW_INSTALLED:
             packages = self.db.installed[category]
         else:
             raise Exception("The programmer is stupid.");
@@ -620,6 +639,12 @@ class MainWindow:
     def package_changed(self, package):
         """Catch when the user changes packages."""
         dprint("MAINWINDOW: package_changed()")
+        if not package:
+            self.clear_notebook()
+            self.current_package_name = ''
+            self.current_package_cursor = self.package_view.get_cursor()
+            self.current_package_path = self.current_package_cursor[0]
+            return
         # log the new package for db reloads
         self.current_package_name = package.get_name()
         self.current_package_cursor = self.package_view.get_cursor()
@@ -675,27 +700,27 @@ class MainWindow:
         """ Load and display the changelog for a package """
         if package:
             try:
-		try:
+                try:
                     f = open(portagelib.portdir + '/' + package.full_name
                             + "/ChangeLog")
                     data = f.read(); f.close()
-		except:
+                except:
                     f = open(portagelib.portdir_overlay + '/' + package.full_name
                             + "/ChangeLog")
                     data = f.read(); f.close()
 
-		if data:
-		    try:
-			dprint("MAINWINDOW: load_changelog(); trying utf_8 encoding")
-			self.changelog.set_text(str(data).decode('utf_8').encode("utf_8",'replace'))
-		    except:
-			    try:
-			        dprint("MAINWINDOW: load_changelog(); trying iso-8859-1 encoding")
-			        self.changelog.set_text(str(data).decode('iso-8859-1').encode('utf_8', 'replace'))
-			    except:
-				dprint("MAINWINDOW: load_changelog(); Failure = unknown encoding")
-				self.changelog.set_text(_("This Change log has an unknown encoding method to porthole \n") + \
-							_("Please report this to bugs.gentoo.org and pothole's bugtracker"))
+                if data:
+                    try:
+                        dprint("MAINWINDOW: load_changelog(); trying utf_8 encoding")
+                        self.changelog.set_text(str(data).decode('utf_8').encode("utf_8",'replace'))
+                    except:
+                        try:
+                            dprint("MAINWINDOW: load_changelog(); trying iso-8859-1 encoding")
+                            self.changelog.set_text(str(data).decode('iso-8859-1').encode('utf_8', 'replace'))
+                        except:
+                            dprint("MAINWINDOW: load_changelog(); Failure = unknown encoding")
+                            self.changelog.set_text(_("This Change log has an unknown encoding method to porthole \n") + \
+                                                    _("Please report this to bugs.gentoo.org and pothole's bugtracker"))
                 else:
                     self.changelog.set_text(_("Change log is Empty"))
             except:
@@ -711,38 +736,38 @@ class MainWindow:
             installed = package.get_installed()
             versions = package.get_versions()
             nonmasked = package.get_versions(include_masked = False)
-	    best = portagelib.best(installed + nonmasked)
-	    if best == "": # all versions are masked and the package is not installed
-	        ebuild = package.get_latest_ebuild(True) # get latest masked version
-	    else:
-	        ebuild = best
-	    dprint(package.full_name)
-	    dprint(ebuild)
-	    ebuild_name = (ebuild.split('/')[1]) + ".ebuild"
-	    dprint(ebuild_name)
+            best = portagelib.best(installed + nonmasked)
+            if best == "": # all versions are masked and the package is not installed
+                ebuild = package.get_latest_ebuild(True) # get latest masked version
+            else:
+                ebuild = best
+            dprint(package.full_name)
+            dprint(ebuild)
+            ebuild_name = (ebuild.split('/')[1]) + ".ebuild"
+            dprint(ebuild_name)
 
             try:
-		try:
+                try:
                     f = open(portagelib.portdir + '/' + package.full_name
                             + "/" + ebuild_name)
                     data = f.read(); f.close()
-		except:
+                except:
                     f = open(portagelib.portdir_overlay + '/' + package.full_name
                             + "/" + ebuild_name)
                     data = f.read(); f.close()
 
-		if data:
-		    try:
-			dprint("MAINWINDOW: load_ebuild(); trying utf_8 encoding")
-			self.ebuild.set_text(str(data).decode('utf_8').encode("utf_8",'replace'))
-		    except:
-			    try:
-			        dprint("MAINWINDOW: load_ebuild(); trying iso-8859-1 encoding")
-			        self.ebuild.set_text(str(data).decode('iso-8859-1').encode('utf_8', 'replace'))
-			    except:
-				dprint("MAINWINDOW: load_ebuild(); Failure = unknown encoding")
-				self.ebuild.set_text(_("This ebuild has an unknown encoding method to porthole \n") + \
-							_("Please report this to bugs.gentoo.org and pothole's bugtracker"))
+                if data:
+                    try:
+                        dprint("MAINWINDOW: load_ebuild(); trying utf_8 encoding")
+                        self.ebuild.set_text(str(data).decode('utf_8').encode("utf_8",'replace'))
+                    except:
+                        try:
+                            dprint("MAINWINDOW: load_ebuild(); trying iso-8859-1 encoding")
+                            self.ebuild.set_text(str(data).decode('iso-8859-1').encode('utf_8', 'replace'))
+                        except:
+                            dprint("MAINWINDOW: load_ebuild(); Failure = unknown encoding")
+                            self.ebuild.set_text(_("This ebuild has an unknown encoding method to porthole \n") + \
+                                                 _("Please report this to bugs.gentoo.org and pothole's bugtracker"))
                 else:
                     self.ebuild.set_text(_("Ebuild not found") + package.full_name + "/" + ebuild_name)
             except:
@@ -773,25 +798,21 @@ class MainWindow:
             self.installed_files.set_text(_("No data currently available.\n\
                                            The package may not be installed"))
 
-    SHOW_ALL = 0
-    SHOW_INSTALLED = 1
-    SHOW_SEARCH = 2
-    SHOW_UPGRADE = 3
     def view_filter_changed(self, widget):
         """Update the treeviews for the selected filter"""
         dprint("MAINWINDOW: view_filter_changed()")
         index = widget.get_history()
         self.update_statusbar(index)
         cat_scroll = self.wtree.get_widget("category_scrolled_window")
-        if index in (self.SHOW_INSTALLED, self.SHOW_ALL):
+        if index in (SHOW_INSTALLED, SHOW_ALL):
             cat_scroll.show();
             self.category_view.populate(
-                index == self.SHOW_ALL
+                index == SHOW_ALL
                 and self.db.categories.keys()
                 or self.db.installed.keys())
             self.package_view.set_view(self.package_view.PACKAGES)
             self.package_view.clear()
-        elif index == self.SHOW_SEARCH:
+        elif index == SHOW_SEARCH:
             if not self.search_loaded:
                 self.set_package_actions_sensitive(False, None)
                 self.category_view.populate(self.db.categories.keys())
@@ -801,24 +822,25 @@ class MainWindow:
             cat_scroll.hide();
             dprint("MAIN: Showing search results")
             self.package_view.set_view(self.package_view.SEARCH_RESULTS)
-        elif index == self.SHOW_UPGRADE:
-	    dprint("MAINWINDOW: view_filter_changed(); upgrade selected")
+        elif index == SHOW_UPGRADE:
+            dprint("MAINWINDOW: view_filter_changed(); upgrade selected")
             if not self.upgrades_loaded:
                 self.load_upgrades_list()
-		dprint("MAINWINDOW: view_filter_changed(); back from load_upgrades_list()")
+                dprint("MAINWINDOW: view_filter_changed(); back from load_upgrades_list()")
             else:
                 # already loaded, just show them!
-		dprint("MAINWINDOW: view_filter_changed(); showing loaded upgrades")
+                dprint("MAINWINDOW: view_filter_changed(); showing loaded upgrades")
                 cat_scroll.hide();
                 self.package_view.set_view(self.package_view.UPGRADABLE)
                 self.summary.update_package_info(None)
         # clear the notebook tabs
         self.clear_notebook()
-        if self.last_view_setting != index:
-            dprint("MAINWINDOW: view_filter_changed(); last_view_setting changed")
-            self.last_view_setting = index
-            self.current_category = None
-            self.current_package_cursor = None
+        #if self.last_view_setting != index:
+        dprint("MAINWINDOW: view_filter_changed(); last_view_setting changed")
+        self.last_view_setting = index
+        self.current_category = None
+        self.category_view.last_category = None
+        self.current_package_cursor = None
             
 
     def load_upgrades_list(self):
@@ -829,12 +851,12 @@ class MainWindow:
                 #~ self.wait_dialog_response, "_Cancel", True)
         self.set_statusbar2(_("Loading upgradable"))
         # create upgrade thread for loading the upgrades
-        self.ut = UpgradableReader(self.package_view.upgrade_model,
-                                   self.db.installed.items(), self.prefs.emerge.upgradeonly)
+        self.ut = UpgradableReader(self.package_view, self.db.installed.items(),
+                                   self.prefs.emerge.upgradeonly, self.prefs.views )
         self.ut.start()
         # add a timeout to check if thread is done
         gtk.timeout_add(200, self.update_upgrade_thread)
-	self.wtree.get_widget("btn_cancel").set_sensitive(True)
+        self.wtree.get_widget("btn_cancel").set_sensitive(True)
 
     def wait_dialog_response(self, widget, response):
         """ Get a response from the wait dialog """
@@ -853,13 +875,13 @@ class MainWindow:
                 return gtk.FALSE
             self.ut.join()
             #~self.wait_dialog.destroy()
-	    self.progress_done()
+            self.progress_done()
             self.upgrades_loaded = True
             if self.upgrades_loaded_callback:
                 self.upgrades_loaded_callback(None)
                 self.upgrades_loaded_callback = None
             else:
-		if self.last_view_setting == self.SHOW_UPGRADE:
+                if self.last_view_setting == SHOW_UPGRADE:
                     self.package_view.set_view(self.package_view.UPGRADABLE)
                     self.summary.update_package_info(None)
                     self.wtree.get_widget("category_scrolled_window").hide()
@@ -876,29 +898,29 @@ class MainWindow:
         return gtk.TRUE
 
     def progress_done(self):
-	"""clears the progress bar"""
-	self.wtree.get_widget("btn_cancel").set_sensitive(False)
-	self.progressbar.set_text("")
-	self.progressbar.set_fraction(0)
-	self.set_statusbar2(_("Done"))
+        """clears the progress bar"""
+        self.wtree.get_widget("btn_cancel").set_sensitive(False)
+        self.progressbar.set_text("")
+        self.progressbar.set_fraction(0)
+        self.set_statusbar2(_("Done"))
 
 
     def update_statusbar(self, mode):
         """Update the statusbar for the selected filter"""
         text = ""
-        if mode == self.SHOW_ALL:
+        if mode == SHOW_ALL:
             if not self.db:
                 dprint("MAINWINDOW: attempt to update status bar with no db assigned")
             else:
                 text = _("%d packages in %d categories" % (len(self.db.list),
                                                          len(self.db.categories)))
-        elif mode == self.SHOW_INSTALLED:
+        elif mode == SHOW_INSTALLED:
             if not self.db:
                 dprint("MAINWINDOW: attempt to update status bar with no db assigned")
             else:
                 text = _("%d packages in %d categories" % (self.db.installed_count,
                                                          len(self.db.installed)))
-        elif mode == self.SHOW_SEARCH:
+        elif mode == SHOW_SEARCH:
             text = _("%d matches found" % self.package_view.search_model.size)
         self.set_statusbar(text)
 
@@ -949,7 +971,7 @@ class MainWindow:
         self.deps_view.clear()
         self.changelog.set_text('')
         self.installed_files.set_text('')
-	self.ebuild.set_text('')
+        self.ebuild.set_text('')
 
     def open_log(self, widget):
         """ Open a log of a previous emerge in a new terminal window """
@@ -963,50 +985,50 @@ class MainWindow:
         get_command = RunDialog(self.prefs, self.setup_command)
 
     def re_init_portage(self, *widget):
-	"""re-initializes the imported portage modules in order to see changines in any config files
-	e.g. /etc/make.conf USE flags changed"""
-	portagelib.reload_portage()
-	portagelib.reset_use_flags()
-	if  self.current_package_cursor != None and self.current_package_cursor[0]: # should fix a type error in set_cursor; from pycrash report
-	    # reset _last_selected so it thinks this package is new again
-	    self.package_view._last_selected = None
-	    # re-select the package
-	    self.package_view.set_cursor(self.current_package_cursor[0],
-	    self.current_package_cursor[1])
+        """re-initializes the imported portage modules in order to see changines in any config files
+        e.g. /etc/make.conf USE flags changed"""
+        portagelib.reload_portage()
+        portagelib.reset_use_flags()
+        if  self.current_package_cursor != None and self.current_package_cursor[0]: # should fix a type error in set_cursor; from pycrash report
+            # reset _last_selected so it thinks this package is new again
+            self.package_view._last_selected = None
+            # re-select the package
+            self.package_view.set_cursor(self.current_package_cursor[0],
+            self.current_package_cursor[1])
 
     def quit(self, widget):
-	if not self.confirm_delete():
-		self.goodbye(None)
-	return
+        if not self.confirm_delete():
+            self.goodbye(None)
+        return
 
     def goodbye(self, widget):
-	"""Main window quit function"""
-	dprint("MAINWINDOW: goodbye(); quiting now")
-	try: # for >=pygtk-2.3.94
-	    dprint("MAINWINDOW: gtk.main_quit()")
-	    gtk.main_quit()
-	except: # use the depricated function
-	    dprint("MAINWINDOW: gtk.mainquit()")
-	    gtk.mainquit
+        """Main window quit function"""
+        dprint("MAINWINDOW: goodbye(); quiting now")
+        try: # for >=pygtk-2.3.94
+            dprint("MAINWINDOW: gtk.main_quit()")
+            gtk.main_quit()
+        except: # use the depricated function
+            dprint("MAINWINDOW: gtk.mainquit()")
+            gtk.mainquit
 
     def confirm_delete(self, widget = None, *event):
-	"""Check that there are no running processes & confirm the kill before doing it"""
-	if self.process_manager.task_completed:
-	    return False
-	err = _("Confirm: Kill the Running Process in the Terminal")
+        """Check that there are no running processes & confirm the kill before doing it"""
+        if self.process_manager.task_completed:
+            return False
+        err = _("Confirm: Kill the Running Process in the Terminal")
         dialog = gtk.MessageDialog(self.mainwindow, gtk.DIALOG_MODAL,
                                 gtk.MESSAGE_QUESTION,
                                 gtk.BUTTONS_YES_NO, err);
         result = dialog.run()
         dialog.destroy()
         if result != gtk.RESPONSE_YES:
-	    dprint("TERMINAL: kill(); not killing")
+            dprint("TERMINAL: kill(); not killing")
             return True
-	#self.process_manager.confirm = False
-	if self.process_manager.kill_process(None, False):
-	    dprint("MAINWINDOW: process killed, destroying window")
-	    self.process_manager.window.hide()
-	return False
+        #self.process_manager.confirm = False
+        if self.process_manager.kill_process(None, False):
+            dprint("MAINWINDOW: process killed, destroying window")
+            self.process_manager.window.hide()
+        return False
 
 class CommonReader(threading.Thread):
     """ Common data reading class that works in a seperate thread """
@@ -1028,18 +1050,24 @@ class CommonReader(threading.Thread):
 
 class UpgradableReader(CommonReader):
     """ Read available upgrades and store them in a treemodel """
-    def __init__(self, upgrade_model, installed, upgrade_only):
+    def __init__(self, upgrade_view, installed, upgrade_only, view_prefs):
         """ Initialize """
         CommonReader.__init__(self)
-        self.upgrade_results = upgrade_model
+        self.upgrade_view = upgrade_view
+        # dummy view to get dependancy's from existing depends.py code
+        self.dep_view = DependsView()
+        self.upgrade_results = upgrade_view.upgrade_model
         self.installed_items = installed
-	self.upgrade_only = upgrade_only
-	self.world = []
-    
+        self.upgrade_only = upgrade_only
+        self.world = []
+        self.view_prefs = view_prefs
+
     def run(self):
         """fill upgrade tree"""
         self.upgrade_results.clear()    # clear the treemodel
         installed = []
+        installed_world = []
+        installed_dep = []
         # find upgradable packages
         for cat, packages in self.installed_items:
             for name, package in packages.items():
@@ -1051,27 +1079,74 @@ class UpgradableReader(CommonReader):
         # read system world file
         # using this file, only packages explicitly installed by
         # the user are upgraded by default
-	try:
-	    self.world = open("/var/lib/portage/world", "r").read().split()
-	except:
-	    dprint("MAINWINDOW: UpgradableReader(); Failure to locate file: '/var/lib/portage/world'")
-	    dprint("MAINWINDOW: UpgradableReader(); Trying '/var/cache/edb/world'")
-	    try:
-	        self.world = open("/var/cache/edb/world", "r").read().split()
-		dprint("OK")
-	    except:
-		dprint("MAINWINDOW: UpgradableReader(); Failed to locate the world file")
+        self.world = get_world()
         # add the packages to the treemodel
         for full_name, package in installed:
-            iter = self.upgrade_results.insert_before(None, None)
-            self.upgrade_results.set_value(iter, 0, full_name)
-            self.upgrade_results.set_value(iter, 2, package)
-            self.upgrade_results.set_value(iter, 1,
-                                           full_name in self.world
-                                           and gtk.TRUE or gtk.FALSE)
+            if full_name in self.world:
+                installed_world += [(package.full_name, package, True)]
+            else:
+                installed_dep += [(package.full_name, package, False)]
+        installed = installed_world + installed_dep
+        #self.add_package(_("---- World upgradeable ----"), None, True)
+        for full_name, package, in_world in installed_world:
+            self.dep_view.fill_depends_tree(self.dep_view, package)
+            self.dep_view.clear()
+            self.model = self.dep_view.get_model()
+            dep_list = self.get_upgrade_deps()
+            self.add_package(full_name, package, in_world)
+            if len(dep_list):
+                for full_name, package, in_world in depends_list:
+                    self.add_deps(full_name, package, in_world)
+        if len(installed_dep):
+            self.add_package(_("Dependency upgradeable"), None, False, False)
+            for full_name, package, in_world in installed_dep:
+                self.add_deps(full_name, package, in_world)
         # set the thread as finished
         self.done = True
 
+    def add_package(self, full_name, package, in_world, header_icon = False):
+        """Add a package to the upgrade TreeStore"""
+        self.parent = self.upgrade_results.insert_before(None, None)
+        self.upgrade_results.set_value(self.parent, 1, in_world)
+        self.upgrade_results.set_value(self.parent, 4, in_world)
+        self.upgrade_results.set_value(self.parent, 0, full_name)
+        self.upgrade_results.set_value(self.parent, 2, package)
+        # get an icon for the package
+        icon, color = get_icon_for_upgrade_package(package, self.view_prefs)
+        if header_icon:
+            icon = gtk.STOCK_SORT_ASCENDING
+        self.upgrade_results.set_value(self.parent, 5 , color)
+        self.upgrade_results.set_value(self.parent, 3, self.upgrade_view.render_icon(icon,
+                             size = gtk.ICON_SIZE_MENU,
+                             detail = None))
+                                           
+    def get_upgrade_deps(self):
+        """traverses the depenancy tree to get deps that need to be upgraded""" 
+        list = []
+        iter = self.model.get_iter_first()
+        while iter:
+                if not self.model.get_value(iter, 3):
+                        package = self.model.get_value(iter, 2)
+                        full_name = package.full_name
+                        in_world = (full_name in self.world)
+                        list += [full_name, package, in_world]
+                iter = self.model.iter_next(iter)
+        dprint(list)
+        return list
+
+    def add_deps(self, full_name, package, in_world):
+        """Add all dependencies to the tree"""
+        child_iter = self.upgrade_results.insert_before(self.parent, None)
+        self.upgrade_results.set_value(child_iter, 1, in_world)
+        self.upgrade_results.set_value(child_iter, 4, in_world)
+        self.upgrade_results.set_value(child_iter, 0, full_name)
+        self.upgrade_results.set_value(child_iter, 2, package)
+        icon, color = get_icon_for_upgrade_package(package, self.view_prefs) #gtk.STOCK_GO_UP
+        self.upgrade_results.set_value(child_iter, 5, color)
+        self.upgrade_results.set_value(child_iter, 3, self.upgrade_view.render_icon(icon,
+                                       size = gtk.ICON_SIZE_MENU, detail = None))
+
+	
 class DescriptionReader(CommonReader):
     """ Read and store package descriptions for searching """
     def __init__(self, packages):

@@ -31,7 +31,8 @@ class DependsTree(gtk.TreeStore):
         """Initialize the TreeStore object"""
         gtk.TreeStore.__init__(self, gobject.TYPE_STRING,
                                 gtk.gdk.Pixbuf,
-                                gobject.TYPE_PYOBJECT)
+                                gobject.TYPE_PYOBJECT,
+                                gobject.TYPE_BOOLEAN)
         self.use_flags = portagelib.get_portage_environ("USE").split()
         
     def parse_depends_list(self, depends_list, parent = None):
@@ -103,14 +104,17 @@ class DependsTree(gtk.TreeStore):
                 icon = gtk.STOCK_YES
             else:
                 icon = '' # used to be gtk.STOCK_NO
+            self.set_value(depend_iter, 3, satisfied)
             self.set_value(depend_iter, 1, 
                                     depends_view.render_icon(icon,
                                                              size = gtk.ICON_SIZE_MENU,
                                                              detail = None))
+            pack = portagelib.Package(depend)
+            self.set_value(depend_iter, 2, pack)
             if icon != gtk.STOCK_YES:
                 if depend not in self.depends_list:
                     self.depends_list.append(depend)
-                    pack = portagelib.Package(depend)
+                    #pack = portagelib.Package(depend)
                     ebuild = pack.get_latest_ebuild()
                     depends = portagelib.get_property(ebuild, "DEPEND").split()
                     if depends:

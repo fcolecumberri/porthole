@@ -22,7 +22,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 """
 
-from utils import dprint, dsave
+from utils import dprint, dsave, get_world
 from sys import exit
 import string
 from string import digits, zfill
@@ -298,12 +298,11 @@ class Package:
         versions = self.get_versions(False);
         if not versions:
             return False
-	if upgrade_only:
-	    best = portage.best(installed + versions)  # upgrade only
-	else:
-	    best = portage.best(versions) # upgrade or downgrade
+        if upgrade_only:
+            best = portage.best(installed + versions)  # upgrade only
+        else:
+            best = portage.best(versions) # upgrade or downgrade
         return best not in installed
-
 
 def sort(list):
     """sort in alphabetic instead of ASCIIbetic order"""
@@ -351,7 +350,8 @@ class DatabaseReader(threading.Thread):
         self.error = ""       # may contain error message after completion
         self.new_installed_Semaphore = threading.Semaphore()
         self.installed_list = None
-	self.allnodes_length = 0  # used for calculating the progress bar
+        self.allnodes_length = 0  # used for calculating the progress bar
+        self.world = get_world()
 
     def get_db(self):
         """Returns the database that was read."""
@@ -364,13 +364,13 @@ class DatabaseReader(threading.Thread):
         try:
             dprint("PORTAGELIB: read_db(); getting allnodes package list")
             allnodes = tree.getallnodes()
-	    dprint("PORTAGELIB: read_db(); Done getting allnodes package list")
+            dprint("PORTAGELIB: read_db(); Done getting allnodes package list")
         except OSError, e:
             # I once forgot to give read permissions
             # to an ebuild I created in the portage overlay.
             self.error = str(e)
             return
-	self.allnodes_length = len(allnodes)
+        self.allnodes_length = len(allnodes)
         dprint("PORTAGELIB: read_db() create internal porthole list; length=%d" %len(allnodes))
         #dsave("db_allnodes_cache", allnodes)
         for entry in allnodes:

@@ -22,11 +22,11 @@
 '''
 
 import pygtk; pygtk.require("2.0") # make sure we have the right version
-import gtk, gobject
+import gtk, gobject, pango
 import portagelib
 
 from depends import DependsTree
-from utils import get_treeview_selection, get_icon_for_package, dprint
+from utils import get_treeview_selection, get_icon_for_package, dprint, get_world
 from gettext import gettext as _
 
 class CommonTreeView(gtk.TreeView):
@@ -48,6 +48,15 @@ class CommonTreeView(gtk.TreeView):
             # clear it
             model.clear()
 
+def PackageModel():
+	"""Common model for a package Treestore"""
+	return gtk.TreeStore(gobject.TYPE_STRING,
+				gobject.TYPE_BOOLEAN,
+				gobject.TYPE_PYOBJECT,
+				gtk.gdk.Pixbuf,
+				gobject.TYPE_BOOLEAN,
+				gobject.TYPE_STRING)
+	
 class PackageView(CommonTreeView):
     """ Self contained treeview of packages """
     def __init__(self):
@@ -58,20 +67,17 @@ class PackageView(CommonTreeView):
         self.PACKAGES = 0
         self.SEARCH_RESULTS = 1
         self.UPGRADABLE = 2
+        self.world = get_world()
+        #dprint("VIEWS: PackageView.__init__(); self.world =")
+        #dprint(self.world)
         # setup the treecolumn
         self._column = gtk.TreeViewColumn(_("Packages"))
         self.append_column(self._column)
         # setup the treemodels
-        self.package_model = gtk.TreeStore(gobject.TYPE_STRING,
-                                           gtk.gdk.Pixbuf,
-                                           gobject.TYPE_PYOBJECT)
-        self.search_model = gtk.TreeStore(gobject.TYPE_STRING,
-                                          gtk.gdk.Pixbuf,
-                                          gobject.TYPE_PYOBJECT)
+        self.upgrade_model = PackageModel()
+        self.package_model = PackageModel()
+        self.search_model =  PackageModel()
         self.search_model.size = 0
-        self.upgrade_model = gtk.TreeStore(gobject.TYPE_STRING,
-                                           gobject.TYPE_BOOLEAN,
-                                           gobject.TYPE_PYOBJECT)
         # set the view
         self.set_view(self.PACKAGES) # default view
         # connect to clicked event
@@ -95,17 +101,42 @@ class PackageView(CommonTreeView):
             check = gtk.CellRendererToggle()
             self._column.pack_start(check, expand = False)
             self._column.add_attribute(check, "active", 1)
+            # add the pixbuf renderer
+            pixbuf = gtk.CellRendererPixbuf()
+            self._column.pack_start(pixbuf, expand = False)
+            self._column.add_attribute(pixbuf, "pixbuf", 3)
+
         else:
             # add the pixbuf renderer
             pixbuf = gtk.CellRendererPixbuf()
             self._column.pack_start(pixbuf, expand = False)
-            self._column.add_attribute(pixbuf, "pixbuf", 1)
+            self._column.add_attribute(pixbuf, "pixbuf", 3)
         # add the text renderer
         text = gtk.CellRendererText()
         self._column.pack_start(text, expand = True)
-        self._column.add_attribute(text, "text", 0)
+        #self._column.add_attribute(text, "text", 0)
+        self._column.set_cell_data_func(text, self.render_name, None)
         # set the last selected to nothing
         self._last_selected = None
+
+    def render_name(self, column, renderer, model, iter, data):
+            """function to render the package name according
+               to whether it is in the world file or not"""
+            full_name = model.get_value(iter, 0)
+            color = model.get_value(iter, 5)
+            if model.get_value(iter, 4):
+                renderer.set_property("weight", pango.WEIGHT_BOLD)
+            else:
+                renderer.set_property("weight", pango.WEIGHT_NORMAL)
+            if color:
+                #if color == 'blue':
+                renderer.set_property("foreground", color)
+                #else:
+                #    renderer.set_property("background", color)
+            else:
+                renderer.set_property("foreground-set", gtk.FALSE)
+                #renderer.set_property("background-set", gtk.FALSE)
+            renderer.set_property("text", full_name)
 
     def _set_model(self):
         """ Set the correct treemodel for the current view """
@@ -129,6 +160,10 @@ class PackageView(CommonTreeView):
         package = get_treeview_selection(treeview, 2)
         #dprint("VIEWS: package = ")
         #dprint(package)
+        if not package:
+            if self._package_changed:
+                self._package_changed(None)
+            return
         if self.current_view == self.UPGRADABLE:
             if package.full_name == self._last_selected:
                 model, iter = self.get_selection().get_selected()
@@ -160,11 +195,13 @@ class PackageView(CommonTreeView):
         for name in names:
             # go through each package
             iter = model.insert_before(None, None)
-            model.set_value(iter, 0, name)
             model.set_value(iter, 2, packages[name])
+            model.set_value(iter, 4, (packages[name].full_name in self.world))
+            model.set_value(iter, 0, name)
+            model.set_value(iter, 5, '') # foreground text color
             # get an icon for the package
             icon = get_icon_for_package(packages[name])
-            model.set_value(iter, 1,
+            model.set_value(iter, 3,
                 self.render_icon(icon,
                                  size = gtk.ICON_SIZE_MENU,
                                  detail = None))
@@ -172,9 +209,7 @@ class PackageView(CommonTreeView):
                 if name == locate_name:
                     path = model.get_path(iter)
                     if path:
-                        #dprint("VIEWS: populate() path=")
-                        #dprint(path)
-                        # registered callback function to store the path
+                         # registered callback function to store the path
                         self._return_path(path)
                         #self.set_cursor(path) # does not select it at the
                         # correct place in the code to display properly
@@ -202,6 +237,7 @@ class CategoryView(CommonTreeView):
                                    gobject.TYPE_STRING)
         self.set_model(self.model)
         # connect to clicked event
+        self.last_category = None
         self.connect("cursor-changed", self._clicked)
         # register default callback
         self.register_callback()
@@ -215,12 +251,13 @@ class CategoryView(CommonTreeView):
         """ Handle treeview clicks """
         category = get_treeview_selection(treeview, 1)
         # has the selection really changed?
-        if category != self._last_selected:
+        if category != self.last_category:
+            dprint("VIEWS: category change detected")
+            # then call the callback if it exists!
             if self._category_changed:
-                # then call the callback if it exists!
                 self._category_changed(category)
         # save current selection as last selected
-        self._last_selected = category
+        self.last_category = category
         
     def populate(self, categories):
         """Fill the category tree."""
@@ -259,6 +296,7 @@ class DependsView(CommonTreeView):
         # setup the model
         self.model = DependsTree()
         dprint("VIEWS: Depends view initialized")
+        return self
 
     def fill_depends_tree(self, treeview, package):
         """ Fill the dependency tree with dependencies """

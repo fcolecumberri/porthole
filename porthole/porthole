@@ -36,6 +36,11 @@ try:
 except ValueError:
     path.append(PORTAGE_MOD_PATH)
 
+import os
+# check if directory exists, if not create it
+if not os.access("/var/log/porthole", os.F_OK):
+    print "/var/log/porthole does not exist, creating..."
+    os.mkdir("/var/log/porthole")
 
 pycrash_found = False
 try:
