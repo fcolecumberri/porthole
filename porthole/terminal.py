@@ -385,6 +385,8 @@ class ProcessManager:
         """ Run a given command string """
         # we can't be killed anymore
         self.killed = 0
+        # reset back to terminal mode in case it is not
+        self.log_mode = False
         self.warning_count = 0
         self.caution_count = 0
         self.Failed = False
@@ -914,6 +916,8 @@ class ProcessManager:
     def open_ok_func(self, filename):
         """callback function from file selector"""
         dprint("LOG: Entering callback open_ok_func")
+        # set terminal to log mode if not already
+        self.log_mode = True
         if not self.window_visible: self.show_window()
         if not self.fill_buffer(filename):
             self.set_statusbar("*** Unknown File Loading error")
