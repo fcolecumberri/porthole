@@ -325,7 +325,7 @@ class MainWindow:
         notebook = self.wtree.get_widget("notebook")
         if notebook.get_current_page() == 1:
             self.deps_view.fill_depends_tree(self.deps_view, package)
-        self.set_package_actions_sensitive(gtk.TRUE)
+        self.set_package_actions_sensitive(gtk.TRUE, package)
 
     def notebook_changed(self, widget, pointer, index):
         """Catch when the user changes the notebook"""
@@ -421,12 +421,15 @@ class MainWindow:
             text = "%d matches found" % self.package_view.search_model.size
         self.set_statusbar(text)
 
-    def set_package_actions_sensitive(self, enabled):
+    def set_package_actions_sensitive(self, enabled, package = None):
         """Sets package action buttons/menu items to sensitive or not"""
         self.wtree.get_widget("emerge_package1").set_sensitive(enabled)
         self.wtree.get_widget("unmerge_package1").set_sensitive(enabled)
         self.wtree.get_widget("btn_emerge").set_sensitive(enabled)
-        self.wtree.get_widget("btn_unmerge").set_sensitive(enabled)
+        if not enabled or enabled and package.is_installed:
+            self.wtree.get_widget("btn_unmerge").set_sensitive(enabled)
+        else:
+            self.wtree.get_widget("btn_unmerge").set_sensitive(not enabled)
         self.notebook.set_sensitive(enabled)
 
     def size_update(self, widget, gbox):
