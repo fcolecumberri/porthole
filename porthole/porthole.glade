@@ -1914,7 +1914,6 @@ Copyright (C) 2003 - 2004</property>
 
       <child>
 	<widget class="GtkStatusbar" id="statusbar">
-	  <property name="height_request">20</property>
 	  <property name="visible">True</property>
 	  <property name="has_resize_grip">True</property>
 	</widget>
