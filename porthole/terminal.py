@@ -201,12 +201,9 @@ class ProcessManager:
         self.move_down = self.wtree.get_widget("move_down1")
         self.queue_remove = self.wtree.get_widget("remove1")
         # Catch clicks on info, caution & warning tabs
-        self.info_text = self.wtree.get_widget("info_text")
-        self.info_conn = self.info_text.connect("button_press_event", self.line_dbl_clicked)
-        self.info_text = self.wtree.get_widget("cautions_text")
-        self.info_conn = self.info_text.connect("button_press_event", self.line_dbl_clicked)
-        self.info_text = self.wtree.get_widget("warnings_text")
-        self.info_conn = self.info_text.connect("button_press_event", self.line_dbl_clicked)
+        self.term.view[TAB_INFO].connect("button_press_event", self.line_dbl_clicked)
+        self.term.view[TAB_CAUTION].connect("button_press_event", self.line_dbl_clicked)
+        self.term.view[TAB_WARNING].connect("button_press_event", self.line_dbl_clicked)
         # catch clicks to the queue tree
         self.queue_tree.connect("cursor_changed", self.queue_clicked)
         # process output buffer
@@ -276,7 +273,7 @@ class ProcessManager:
 
     def line_dbl_clicked(self, widget, event):
         """ Double clicking on line will bring that line in the process
-            window into focus
+            window into focus near center screen
         """
         if event.type == 5:
             # Convert x,y window coords to buffer coords and get line text
@@ -290,12 +287,12 @@ class ProcessManager:
             try:
                 # get line number from textbuffer (0 based)
                 line = int(iStart.get_text(iEnd)[0:6]) - 1 
-                # Get the process window textview                        
-                textview = self.wtree.get_widget("process_text")
                 # Get the iter based on the line number index
-                iter = textview.get_buffer().get_iter_at_line_index(line,0)
+                iter = self.term.buffer[TAB_PROCESS].get_iter_at_line_index(line,0)
                 # Scroll to the line, try to position mid-screen
-                textview.scroll_to_iter(iter, 0.0, True, 0, 0.5)
+                self.term.view[TAB_PROCESS].scroll_to_iter(iter, 0.0, True, 0, 0.5)
+                # Turn off auto scroll
+                self.term.auto_scroll[TAB_PROCESS] = False
                 # Display the tab
                 self.notebook.set_current_page(TAB_PROCESS)
             except: pass
