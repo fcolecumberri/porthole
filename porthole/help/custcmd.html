@@ -15,7 +15,36 @@
 <h1>Custom Command</h1>
 <h2>How to</h2>
 <p>
-
+This dialog interaction is for running emerge with options that are not yet
+integrated into Porthole.  Some combinations of commands may never be fully
+integrated into porthole's GUI interface, if at all.
+</p>
+<div class='warnleft'>
+<b>Caution!</b> This dialog is capable of sending <b>any</b> command to porthole's terminal.
+Porthole's terminal is a non-interactive terminal and as such will be incapable
+of properly running some commands.
+</div>
+<p>
+The dialog opens with a blank command entry box and a drop down history selector.
+The first 6 entries in the history list are "persistent" ones that save you some typing.
+All you need to do is select one, fill in any missing info to complete the command.
+The remaining entries (if any) are the most recent history of commands actually run from the dialog.
+Porthole will remember up to 10 unigue entries in total unless you edit your ~.porthole/prefs.xml file
+<p>
+<div class='figinline'>
+<img src='custcmd.png'>
+<br>
+Figure 1. Run Custom Command Dialog
+</div>
+</div>
+<h2>Buttons</h2>
+<ul>
+<li>Entry box down arrow - displays the entry box history selector
+<li>Help - brings up this window
+<li>Cancel - closes window without executing an emerge
+<li>Execute - Uses the command string entered
+and submits it to the terminal window for execution.
+</ul>
 
 <hr>
 <a name='notes'>Notes:</a>

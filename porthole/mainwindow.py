@@ -121,12 +121,15 @@ class MainWindow:
                                                     self.prefs.main.height)
         # setup a convienience tuple
 	self.tool_widgets = ["emerge_package1","adv_emerge_package1","unmerge_package1","btn_emerge",
-			     "btn_adv_emerge","btn_unmerge"]
+			     "btn_adv_emerge","btn_unmerge", "btn_sync"]
 	self.widget = {}
 	for x in self.tool_widgets:
 		self.widget[x] = self.wtree.get_widget(x)
 		if not self.widget[x]:
 			dprint("MAINWINDOW: __init__(); Failure to obtain widget '%s'" %x)
+	# get an empty tooltip
+	self.synctooltip = gtk.Tooltips()
+	self.sync_tip = _(" Syncronise Package Database \n The last sync was done:\n")
 	# move horizontal and vertical panes
         #dprint("MAINWINDOW: __init__() before hpane; %d, vpane; %d" %(self.prefs.main.hpane, self.prefs.main.vpane))
         self.wtree.get_widget("hpane").set_position(self.prefs.main.hpane)
@@ -180,6 +183,8 @@ class MainWindow:
         self.db_thread.start()
         self.reload = False
         self.db_timeout = gtk.timeout_add(100, self.update_db_read)
+	self.get_sync_time()
+	self.synctooltip.set_tip(self.widget["btn_sync"], self.sync_tip + self.last_sync)
         # set status
         self.set_statusbar(_("Obtaining package list "))
 	self.set_statusbar2(_("Loading database"))
@@ -204,10 +209,34 @@ class MainWindow:
         #test = 87/0  # used to test pycrash is functioning
         self.reload = True
         self.db_timeout = gtk.timeout_add(100, self.update_db_read)
+	self.get_sync_time()
+	self.synctooltip.set_tip(self.widget["btn_sync"], self.sync_tip + self.last_sync)
         # set status
         self.set_statusbar(_("Obtaining package list "))
         self.set_statusbar2(_("Reloading database"))
 
+    def get_sync_time(self):
+	"""gets and returns the timestamp info saved during
+	   the last portage tree sync"""
+	self.last_sync = _("Unknown")
+	try:
+	    f = open(portagelib.portdir + "/metadata/timestamp")
+	    data = f.read(); f.close()
+	    if data:
+		try:
+		    dprint("MAINWINDOW: get_sync_time(); trying utf_8 encoding")
+		    self.last_sync = (str(data).decode('utf_8').encode("utf_8",'replace'))
+		except:
+		    try:
+		        dprint("MAINWINDOW: get_sync_time(); trying iso-8859-1 encoding")
+			self.last_sync = (str(data).decode('iso-8859-1').encode('utf_8', 'replace'))
+		    except:
+			dprint("MAINWINDOW: get_sync_time(); Failure = unknown encoding")
+	    else:
+		dprint("MAINWINDOW: get_sync_time(); No data read")
+	except:
+	    dprint("MAINWINDOW: get_sync_time(); file open or read error")
+	
     def pkg_path_callback(self, path):
         """callback function to save the path to the package that
         matched the name passed to the populate() in PackageView"""

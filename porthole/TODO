@@ -9,6 +9,11 @@ Release 0.4.?
 - USE flags & features editor(s) (being worked on)
 - Look into caching the allnodes package list as portage-2.0.51 and newer no longer cache virtuals
 - Remove the view selector and integrate them with the categories. 
+- Code the clipboard functions
+- begin adding right click menus for many areas
+- Make the package versions and use flags mouse & right click sensitive to bring up context sensitive
+  menus for changing use flag status or displaying properties for different ebuilds, etc.
+- Change the masked pversion display to indicate keyword masked/hard masked or /etc/portage.* listed
 
 Release 0.5
 - integrate portages new API into porthole replacing portaglib (when ready)
@@ -19,6 +24,8 @@ Release 0.5
 ==================================
 Features for future consideration
 ==================================
+
+- show dependacy use flags for a package as well as it's own 
 
 - Make the package file list a filesystem tree, or a list of files.
   Double-clicking should open the file or folder in Nautilus.  It would be neat 

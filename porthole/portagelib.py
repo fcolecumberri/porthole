@@ -223,7 +223,6 @@ class Properties:
 
 def get_properties(ebuild):
     """Get all ebuild variables in one chunk."""
-    dprint("PORTAGELIB: global get_properties()")
     return Properties(dict(zip(keys,
                                portage.portdb.aux_get(ebuild,
                                                       portage.auxdbkeys))))

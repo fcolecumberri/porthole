@@ -1,37 +1,54 @@
 
 0.4.0:
+     * Added the date & time of the last sync to the "Sync" button tooltip
 
-    * Added confirmation that you want to kill a running process when the quit/close
-      button is selected in either window.
-      
-    * Starting a upgrades load then switching to a different view is not interupted
-      with the upgrades list when complete.  The upgrades view needs to be selected
-      again to see it.  That way it does not disrupt what you are doing/looking at.
-      
-    * some code changes to work with both newer & depricated gtk functions.  It should
-      work without printing deprication warnings or function call errors/failures.
+     * changed the chagelog loading to to check the portage overlay directory if a changelog
+       is not found. Then try decoding it using utf_8 first (soon to be the official
+       encoding method).  If that fails then try decoding using iso-8859-1 which many
+       new changelogs are saved with that encoding.  Finally failing both those it
+       displays "an unknown encoding method" error instead.
 
-    * updated to use the new & pre portage-2.0.51 as the world file is relocated
-      as of 2.0.51
+     * Changed the summary view to use the better of the (best unmasked or installed masked
+       ebuid version) of the best masked version if no unmasked version is available.
+       It also diplays which ebuild version was used for the properties display.
 
-    * Added an internal progress bar in a second statusbar on the main window.
-      I will probably merge the 2 statusbars in the future, depending on feedback.
-      The new progress bar does not tie up the gui from any other interation like
-      the dialog box did until it was closed.
+     * eliminated unnesseary DB reloads if running custom commands with the -p flag.
+     
+     * The view can be changed from the upgrades view while it is loading to another
+       one with out disruption when the loading is complete.  Switching back to the
+       upgrades view when the user is ready.
+
+     * Added confirmation that you want to kill a running process when the quit/close
+       button is selected in either window.
       
-    * Advanced emerge toolbar option & dialog giving fairly easy access to most
-      advanced emerge features & options.  TOC worked hard on this one and I think
-      he did a great job on it.
+     * Starting a upgrades load then switching to a different view is not interupted
+       with the upgrades list when complete.  The upgrades view needs to be selected
+       again to see it.  That way it does not disrupt what you are doing/looking at.
       
-    * Help is now working (not complete) with a good start on the basics and help on the advanced
-      emerge options.
+     * some code changes to work with both newer & depricated gtk functions.  It should
+       work without printing deprication warnings or function call errors/failures.
+
+     * updated to use the new & pre portage-2.0.51 as the world file is relocated
+       as of 2.0.51
+
+     * Added an internal progress bar in a second statusbar on the main window.
+       I will probably merge the 2 statusbars in the future, depending on feedback.
+       The new progress bar does not tie up the gui from any other interation like
+       the dialog box did until it was closed.
       
-    * The web browser is now opened from a threaded function call so that it does not
-      tie up the gui untill it is closed.  It also is used to open a browser to the
-      help files that are now in porthole.
+     * Advanced emerge toolbar option & dialog giving fairly easy access to most
+       advanced emerge features & options.  TOC worked hard on this one and I think
+       he did a great job on it.
       
-    * Database reloads can be manually activated by menu option.  Good for when an
-      emerge has taken place independantly from an open porthole session.
+     * Help is now working (not complete) with a good start on the basics and help on the advanced
+       emerge options.
+      
+     * The web browser is now opened from a threaded function call so that it does not
+       tie up the gui untill it is closed.  It also is used to open a browser to the
+       help files that are now in porthole.
+      
+     * Database reloads can be manually activated by menu option.  Good for when an
+       emerge has taken place independantly from an open porthole session.
       
      * Portage modules imported into porthole can be manually reloaded in order for
        porthole to see changes in /etc/make.conf, etc.  Also usefull if portage was
@@ -60,41 +77,39 @@
 
      * Added  a -h, --help option to portholes command line interface
 
-0.3.2:  Did not make it to an actual release due to complications.
+     * Combination bugfix & feature improvement release
 
-    * Combination bugfix & feature improvement release
+     * The version sorting routine has been re-written again, portage is/has just
+       changed it's version comparison code.  Also the code I released in -0.3.1
+       also failed badly for a few odd version strings.
 
-    * The version sorting routine has been re-written again, portage is/has just
-      changed it's version comparison code.  Also the code I released in -0.3.1
-      also failed badly for a few odd version strings.
+     * The hyperlinks for home pages has been patched to fix  multiple homepage listings
+       in the summary view.  Thanks to jonathanl for this patch.
 
-    * The hyperlinks for home pages has been patched to fix  multiple homepage listings
-      in the summary view.  Thanks to jonathanl for this patch.
+     * the terminal process view will show the download progress almost like it would in
+       a normal terminal.
 
-    * the terminal process view will show the download progress almost like it would in
-      a normal terminal.
+     * The browser opens from a threaded function now so that the rest of porthole
+       will no longer be frozen until the browser is closed.  It also now allows multiple
+       pages to be opened.
 
-    * The browser opens from a threaded function now so that the rest of porthole
-      will no longer be frozen until the browser is closed.  It also now allows multiple
-      pages to be opened.
+     * The gtk horizontal pane bug is now caught and corrected as porthole opens.
+ 
+     * On completion of a terminal task the main porthole db is now reloaded without
+       disrupting the current view.  The package being viewed is reloaded automatically.
+       The upgrades view is the only one that requires a disruptive rebuild.  Sorry, I
+       could not get it to work non-disruptively.  I believe it is due to the checkboxes.
 
-    * The gtk horizontal pane bug is now caught and corrected as porthole opens.
+     * The settings menu now has the "ALLOW DOWNGRADES" (--upgradeonly) setting (opposite
+       to the flag setting) to help fix some package upgrade issues.  Be careful with it's
+       setting as it can sometimes change expected emerge behavior when not upgrading packages.
 
-    * On completion of a terminal task the main porthole db is now reloaded without
-      disrupting the current view.  The package being viewed is reloaded automatically.
-      The upgrades view is the only one that requires a disruptive rebuild.  Sorry, I
-      could not get it to work non-disruptively.  I believe it is due to the checkboxes.
+     * USE flags are now displayed with a +/- as well as being colored to show their current
+       setting.   Original feature patch submitted by jonathanl.
 
-    * The settings menu now has the "ALLOW DOWNGRADES" (--upgradeonly) setting (opposite
-      to the flag setting) to help fix some package upgrade issues.  Be careful with it's
-      setting as it can sometimes change expected emerge behavior when not upgrading packages.
-
-    * USE flags are now displayed with a +/- as well as being colored to show their current
-      setting.   Original feature patch submitted by jonathanl.
-
-    * One annoying bug remains in the autoscroll code that causes quirky behavior.
-      I have been thru my code, testing, and have concluded that it is a gtk bug in
-      the scrollbar code.
+     * One annoying bug remains in the autoscroll code that causes quirky behavior.
+       I have been thru my code, testing, and have concluded that it is a gtk bug in
+       the scrollbar code.
 
 0.3.1:
 

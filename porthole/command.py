@@ -23,7 +23,7 @@
 '''
 
 import gtk, gtk.glade
-from utils import dprint
+from utils import dprint, load_web_page
 from version import version
 from gettext import gettext as _
 
@@ -35,7 +35,8 @@ class RunDialog:
         self.gladefile = prefs.DATA_PATH + "porthole.glade"
         self.wtree = gtk.glade.XML(self.gladefile, "run_dialog")
         # register callbacks
-        callbacks = {"on_execute" : self.execute,
+        callbacks = {"on_help" : self.help,
+		     "on_execute" : self.execute,
                      "on_cancel" : self.cancel}
         self.wtree.signal_autoconnect(callbacks)
         self.command = None
@@ -90,6 +91,10 @@ class RunDialog:
         """cancels run dialog"""
         self.window.destroy()
         
+    def help(self, widget):
+        """ Display help file with web browser """
+        load_web_page('file://' + self.prefs.DATA_PATH + 'help/custcmd.html')
+
 
     def on_size_request(self, window, gbox):
         """ Store new size in prefs """
