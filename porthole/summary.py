@@ -30,6 +30,7 @@ class Summary(gtk.TextView):
         gtk.TextView.__init__(self)
         self.set_wrap_mode(gtk.WRAP_WORD)
         self.set_editable(gtk.FALSE)
+        self.set_cursor_visible(gtk.FALSE)
         margin = 10
         self.set_left_margin(margin); self.set_right_margin(margin)
         tagtable = self.create_tag_table()
