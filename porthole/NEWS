@@ -1,3 +1,30 @@
+0.3:
+
+     * Emerge sync is fully functional again.
+
+     * Totally new terminal window, with tabs for information, warnings, a 
+       package queue, etc... 
+
+     * Process output is now also color coded to help make certain parts 
+       stand out.
+
+     * An emerge queue so that multiple packages can be queued up to be 
+       emerged. The queue is fully editable via the new terminal window.
+
+     * Emerges can be resumed after being killed.
+
+     * Preferences are now stored in an XML file.
+
+     * Logs of emerges can be saved and viewed.
+
+     * Custom commands can be run, for example "emerge --no-deps package".
+
+     * A ChangeLog tab has been added in the main window.
+
+     * An Installed Files tab has been added in the main window.
+
+     * Descriptions can be included in searches.
+
 0.2:
 
      * Emerge sync has been temporarily disabled due to technical problems.
