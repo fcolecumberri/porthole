@@ -78,6 +78,8 @@ class ProcessManager:
         self.config = config
         self.killed = 0
         self.pid = None
+        self.Failed = False
+        self.isPretend = False
         # text mark to mark the start of the current command
         self.command_start = None
         # process list to store pending processes
@@ -300,6 +302,8 @@ class ProcessManager:
         # we can't be killed anymore
         self.killed = 0
         self.warning_count = 0
+        self.Failed = False
+        self.isPretend = command_string.find('--pretend') > -1
         start_iter = self.process_text.get_end_iter()
         if self.command_start:
             # move the start mark
@@ -436,6 +440,9 @@ class ProcessManager:
                                 self.info_tab.showing = True
                             # insert the line into the info text buffer
                             tag = 'info'
+                            # Check for fatal error
+                            if self.config.isError(self.process_buffer):
+                                self.Failed = True
                             self.append(self.info_text, self.process_buffer)
 
                         elif self.config.isWarning(self.process_buffer):
@@ -474,7 +481,7 @@ class ProcessManager:
             
         # If the user did an emerge --pretend, we print out
         # estimated build times on the output window
-        if sre.compile(".* --pretend *.").match(self.process_list[0][1]):
+        if self.isPretend:
             self.estimate_build_time()
         if self.warning_count != 0:
             self.append(self.info_text, "*** Total warnings count for merge = %d \n"\
@@ -486,7 +493,11 @@ class ProcessManager:
         callback = self.process_list[0][3]
         # set queue icon to done
         iter = self.process_list[0][2]
-        self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_APPLY))
+        # set icon according to success or failure
+        if self.Failed:
+            self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_CANCEL))
+        else:
+            self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_APPLY))
         # remove process from list
         self.process_list = self.process_list[1:]
         # check for pending processes, and run them
@@ -639,9 +650,8 @@ class ProcessManager:
                                  self.process_text.get_end_iter(), gtk.FALSE)
         package_list = []
         total = datetime.timedelta()        
-        pattern = sre.compile("^\d+\s+\[ebuild.*") #("^\[ebuild *.")
         for line in output.split("\n"):
-            if pattern.match(line):
+            if self.config.ebuild_re.match(line):
                 tokens = line.split(']')
                 tokens = tokens[1].split()
                 tmp_name = portagelib.get_name(tokens[0])

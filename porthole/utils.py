@@ -5,6 +5,7 @@
     Holds common functions for Porthole
 
     Copyright (C) 2003 - 2004 Fredrik Arnerup and Daniel G. Taylor
+                              Brian Dolbec and Wm. F. Wheeler
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -325,67 +326,101 @@ class PortholePreferences:
 
 
 class PortholeConfiguration:
-   """ Holds all of Porthole's developer configurable settings """
-   def __init__(self):
-       dom = XMLManager('configuration.xml')
+    """ Holds all of Porthole's developer configurable settings """
+    def __init__(self):
+        dom = XMLManager('configuration.xml')
 
-       # Handle all the regular expressions.  They will be compiled
-       # within this object for the sake of efficiency.
+        # Handle all the regular expressions.  They will be compiled
+        # within this object for the sake of efficiency.
 
-       patternlist = dom.getitem('re_filters/info')
-       self.info_re_list = []
-       for regexp in patternlist:
-          self.info_re_list.append(sre.compile(regexp))
+        patternlist = dom.getitem('re_filters/info')
+        self.info_re_list = []
+        for regexp in patternlist:
+            self.info_re_list.append(sre.compile(regexp))
 
-       patternlist = dom.getitem('re_filters/warning')
-       self.warning_re_list = []
-       for regexp in patternlist:
-          self.warning_re_list.append(sre.compile(regexp))
+        patternlist = dom.getitem('re_filters/notinfo')
+        self.info_re_notlist = []
+        for regexp in patternlist:
+            self.info_re_notlist.append(sre.compile(regexp))
 
-       patternlist = dom.getitem('re_filters/error')
-       self.error_re_list = []
-       for regexp in patternlist:
-          self.error_re_list.append(sre.compile(regexp))
+        patternlist = dom.getitem('re_filters/warning')
+        self.warning_re_list = []
+        for regexp in patternlist:
+            self.warning_re_list.append(sre.compile(regexp))
 
-       patternlist = dom.getitem('re_filters/caution')
-       self.caution_re_list = []
-       for regexp in patternlist:
-          self.caution_re_list.append(sre.compile(regexp))
+        patternlist = dom.getitem('re_filters/notwarning')
+        self.warning_re_notlist = []
+        for regexp in patternlist:
+            self.warning_re_notlist.append(sre.compile(regexp))
 
-       self.emerge_re = sre.compile(dom.getitem('re_filters/emerge'))
-       del dom
+        patternlist = dom.getitem('re_filters/error')
+        self.error_re_list = []
+        for regexp in patternlist:
+            self.error_re_list.append(sre.compile(regexp))
 
-   def isInfo(self, teststring):
-      ''' Parse string, return true if it matches info reg exp '''
-      for regexp in self.info_re_list:
-         if regexp.match(teststring):
-            return True
-      return False
+        patternlist = dom.getitem('re_filters/noterror')
+        self.error_re_notlist = []
+        for regexp in patternlist:
+            self.error_re_notlist.append(sre.compile(regexp))
 
-   def isWarning(self, teststring):
-      ''' Parse string, return true if it matches warning reg exp '''
-      for regexp in self.warning_re_list:
-         if regexp.match(teststring):
-            return True
-      return False
+        patternlist = dom.getitem('re_filters/caution')
+        self.caution_re_list = []
+        for regexp in patternlist:
+            self.caution_re_list.append(sre.compile(regexp))
 
-   def isCaution(self, teststring):
-      ''' Parse string, return true if belongs in info tab '''
-      for regexp in self.caution_re_list:
-         if regexp.match(teststring):
-            return True
-      return False
+        patternlist = dom.getitem('re_filters/notcaution')
+        self.caution_re_notlist = []
+        for regexp in patternlist:
+            self.caution_re_notlist.append(sre.compile(regexp))
 
-   def isError(self, teststring):
-      ''' Parse string, return true if belongs in error tab '''
-      for regexp in self.error_re_list:
-         if regexp.match(teststring):
-            return True
-      return False
+        self.emerge_re = sre.compile(dom.getitem('re_filters/emerge'))
+        self.ebuild_re = sre.compile(dom.getitem('re_filters/ebuild'))
+        del dom
 
-   def isEmerge(self, teststring):
-      ''' Parse string, return true if it is the initial emerge line '''
-      return self.emerge_re.match(teststring)
+    def isInfo(self, teststring):
+        ''' Parse string, return true if it matches info
+            reg exp and its not in the reg exp notlist'''
+        for regexp in self.info_re_list:
+            if regexp.match(teststring):
+                for regexp in self.info_re_notlist:
+                    if regexp.match(teststring):
+                        return False    # excluded, no match
+                return True
+        return False
+
+    def isWarning(self, teststring):
+        ''' Parse string, return true if it matches warning reg exp '''
+        for regexp in self.warning_re_list:
+            if regexp.match(teststring):
+                for regexp in self.warning_re_notlist:
+                    if regexp.match(teststring):
+                        return False    # excluded, no match
+                return True
+            return False
+
+    def isCaution(self, teststring):
+        ''' Parse string, return true if belongs in info tab '''
+        for regexp in self.caution_re_list:
+            if regexp.match(teststring):
+                for regexp in self.caution_re_notlist:
+                    if regexp.match(teststring):
+                        return False    # excluded, no match
+                return True
+        return False
+
+    def isError(self, teststring):
+        ''' Parse string, return true if belongs in error tab '''
+        for regexp in self.error_re_list:
+            if regexp.match(teststring):
+                for regexp in self.error_re_notlist:
+                    if regexp.match(teststring):
+                        return False    # excluded, no match
+                return True
+        return False
+
+    def isEmerge(self, teststring):
+        ''' Parse string, return true if it is the initial emerge line '''
+        return self.emerge_re.match(teststring)
 
 
 class BadLogFile(Exception):

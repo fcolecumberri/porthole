@@ -415,9 +415,9 @@ class MainWindow:
                         + "/ChangeLog")
                 data = f.read(); f.close()
                 if data:
-                    self.changelog.set_text(str(data).encode("utf8"))
+                    self.changelog.set_text(str(data).encode("utf8",'replace'))
                 else:
-                    self.changelog.set_text("Change log is empty!")
+                    self.changelog.set_text("Change log is Empty")
             except:
                 dprint("MAIN: Error opening changelog for " + package.full_name)
                 self.changelog.set_text("No Change Log Available")
