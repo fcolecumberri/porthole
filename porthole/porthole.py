@@ -182,15 +182,36 @@ class MainWindow:
         packages = self.db.categories[category]
         names =  portagelib.sort(packages.keys())
         for name in names:
+            #go through each package
             iter = self.package_model.insert_before(None, None)
             self.package_model.set_value(iter, 0, name)
+            #get an icon for the package
+            icon = self.get_icon_for_package(packages[name])
             self.package_model.set_value(
                 iter, 1,
-                view.render_icon((packages[name].get_installed()
-                                  and gtk.STOCK_YES or gtk.STOCK_NO),
+                view.render_icon(icon,
                                  size = gtk.ICON_SIZE_MENU,
                                  detail = None))
         view.set_model(self.package_model)
+
+    def get_icon_for_package(self, package):
+        """Return an icon for a package"""
+        installed = package.get_installed()
+        #if it's installed, find out if it can be upgraded
+        if installed:
+            installed.sort()
+            latest_installed = installed[len(installed) -1]
+            latest_available = package.get_latest_ebuild()
+            if latest_installed == latest_available:
+                #they are the same version, so you are up to date
+                icon = gtk.STOCK_YES
+            else:
+                #let the user know there is an upgrade available
+                icon = gtk.STOCK_GO_FORWARD
+        else:
+            #just put the STOCK_NO icon
+            icon = gtk.STOCK_NO
+        return icon
 
     def emerge_package(self, widget):
         """Emerge the currently selected package."""
@@ -227,10 +248,11 @@ class MainWindow:
                     data = portagelib.Package(category + "/" + name)
                     iter = self.search_results.insert_before(None, None)
                     self.search_results.set_value(iter, 0, name)
+                    #set the icon depending on the status of the package
+                    icon = self.get_icon_for_package(data)
                     self.search_results.set_value(iter, 1, self.wtree.
-                                get_widget("package_view").render_icon(
-                                (data.get_installed()
-                                and gtk.STOCK_YES or gtk.STOCK_NO),
+                                get_widget("package_view").
+                                render_icon( icon,
                                 size = gtk.ICON_SIZE_MENU,
                                 detail = None))
                     self.search_results.set_value(iter, 2, category)
