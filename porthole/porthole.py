@@ -42,6 +42,10 @@ try:
     import process
 except ImportError:
     sys.exit("Error loading libraries!\nCan't find process!")
+try:
+    import webbrowser
+except ImportError:
+    print "Web browser module not found, you will not be able to load links"
 
 class MainWindow:
     """Main Window class to setup and manage main window interface."""
@@ -295,7 +299,10 @@ class MainWindow:
 
     def on_url_event(self, tag, widget, event, iter):
         if event.type == gtk.gdk.BUTTON_RELEASE:
-            print self.homepage
+            try:
+                webbrowser.open(self.homepage)
+            except:
+                pass
 
     def update_package_info(self, package):
         """Update the notebook of information about a selected package"""
