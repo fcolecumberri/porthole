@@ -1,4 +1,4 @@
-Porthole 0.1 (Dec 15, 2003)
+Porthole 0.2 (Jan 30, 2004)
 ===========================
 
 Porthole is a GTK-based frontend for Portage (the Gentoo package
@@ -13,8 +13,8 @@ Porthole is partially based on an earlier program, called gportage
 (http://www.stacken.kth.se/~foo/gentoo/), which has been discontinued
 in favour of Porthole.
 
-This is the initial release of Porthole. There is much room for
-improvement, but we wanted to make a release before Christmas :-)
+To see a history of changes, please see NEWS
+
 We absolutely _love_ bug reports! Please use the bugtracker at
 SourceForge: http://sourceforge.net/projects/porthole/
 
@@ -29,45 +29,12 @@ put ebuilds in the portage overlay. If not, please consult the
 documentation and forums on the Gentoo web site (http://www.gentoo.org).
 
 If you don't want to use the ebuild, you can download the tarball
-(porthole-0.1.tar.bz2) and install it yourself. Porthole requires
+(porthole-0.2.tar.bz2) and install it yourself. Porthole requires
 PyGTK 2 and libglade 2 (and, of course, Portage).
 
-> tar xvjf porthole-0.1.tar.bz2
-> cd porthole-0.1
+> tar xvjf porthole-0.2.tar.bz2
+> cd porthole-0.2
 > python setup.py install
-
-
-==============
-= Using sudo =
-==============
-
-Porthole has the ability to let a normal (non-root) user emerge
-packages using the sudo command. When using Porthole as a normal user,
-Porthole will ask if you wish to use sudo. If you hit 'yes' Porthole
-will use sudo to execute the emerge program.
-
-The problem with this is that sudo must be set up to allow the user to
-run the emerge program as root without entering a password. A simple
-solution to this is to allow everyone in a specific group (in our
-example I will use the portage group) access to run 'emerge' and such
-without entering a password.
-
-In order to set this up, here is what needs to be done:
-
-- emerge sudo (if you haven't already)
-
-- as root, run visudo
-
-- add 'Cmnd_Alias PORTAGE=/usr/bin/emerge, /usr/sbin/ebuild,
-  /usr/sbin/etc-update' to the file under the command alias
-  specification
-
-- add '%portage ALL = NOPASSWD: PORTAGE" to the bottom of the
-  file. This will tell sudo that all users in the portage group are
-  allowed to run the commands specified in PORTAGE without a password.
-
-- save the file. Sudo should now be setup for all users in the portage
-  group to emerge programs
 
 
 ====================
