@@ -71,6 +71,7 @@ class MainWindow:
             "on_open_log" : self.open_log,
             "on_run_custom" : self.custom_run,
             "on_reload_db" : self.reload_db,
+	    "on_cancel_btn" : self.on_cancel_btn,
             "on_main_window_size_request" : self.size_update
             }
         self.wtree.signal_autoconnect(callbacks)
@@ -164,6 +165,10 @@ class MainWindow:
         # set status
         self.set_statusbar("Reading package database: %i packages read"
                            % 0)
+	self.set_statusbar2("Progress========>>>>>>>>>>>>>>>")
+	self.progressbar = self.wtree.get_widget("progressbar1")
+	self.wtree.get_widget("btn_cancel").set_sensitive(False)
+
     def reload_db(self, *widget):
         dprint("TERMINAL: reload_db() callback")
         # upgrades loaded?
@@ -182,6 +187,7 @@ class MainWindow:
         # set status
         self.set_statusbar("Reading package database: %i packages read"
                            % 0)
+        self.set_statusbar2("Progress========>")
 
     def pkg_path_callback(self, path):
         """callback function to save the path to the package that
@@ -209,6 +215,13 @@ class MainWindow:
         statusbar = self.wtree.get_widget("statusbar1")
         statusbar.pop(0)
         statusbar.push(0, string)
+
+    def set_statusbar2(self, string):
+        """Update the statusbar without having to use push and pop."""
+	dprint("MAINWINDOW: set_statusbar2(); " + string)
+        statusbar2 = self.wtree.get_widget("statusbar2")
+        statusbar2.pop(0)
+        statusbar2.push(0, string)
 
     def update_db_read(self):
         """Update the statusbar according to the number of packages read."""
@@ -347,6 +360,14 @@ class MainWindow:
         if self.prefs.emerge.nospinner:
             sync += " --nospinner "
         self.setup_command("Emerge Sync", sync)
+
+    def on_cancel_btn(self, widget):
+	"""cancel button callback function"""
+	dprint("MAINWINDOW: on_cancel_btn() callback")
+	# terminate the thread
+	self.ut.please_die()
+	self.ut.join()
+	self.progress_done()
 
     def upgrade_packages(self, widget):
         """Upgrade selected packages that have newer versions available."""
@@ -637,16 +658,18 @@ class MainWindow:
 
     def load_upgrades_list(self):
         # upgrades are not loaded, create dialog and load them
-        self.wait_dialog = SingleButtonDialog("Please Wait!",
-                self.wtree.get_widget("main_window"),
-                "Loading upgradable packages list...",
-                self.wait_dialog_response, "_Cancel", True)
+        #~ self.wait_dialog = SingleButtonDialog("Please Wait!",
+                #~ self.wtree.get_widget("main_window"),
+                #~ "Loading upgradable packages list...",
+                #~ self.wait_dialog_response, "_Cancel", True)
+        self.set_statusbar2("Loading upgradable")
         # create upgrade thread for loading the upgrades
         self.ut = UpgradableReader(self.package_view.upgrade_model,
                                    self.db.installed.items())
         self.ut.start()
         # add a timeout to check if thread is done
-        gtk.timeout_add(100, self.update_upgrade_thread)
+        gtk.timeout_add(200, self.update_upgrade_thread)
+	self.wtree.get_widget("btn_cancel").set_sensitive(True)
 
     def wait_dialog_response(self, widget, response):
         """ Get a response from the wait dialog """
@@ -664,7 +687,8 @@ class MainWindow:
             if self.ut.cancelled:
                 return gtk.FALSE
             self.ut.join()
-            self.wait_dialog.destroy()
+            #~self.wait_dialog.destroy()
+	    self.progress_done()
             self.upgrades_loaded = True
             if self.upgrades_loaded_callback:
                 self.upgrades_loaded_callback(None)
@@ -677,11 +701,21 @@ class MainWindow:
         else: 
             try:
                 fraction = self.ut.count / float(self.db.installed_count)
-                self.wait_dialog.progbar.set_text(str(int(fraction * 100)) + "%")
-                self.wait_dialog.progbar.set_fraction(fraction)
+                #~ self.wait_dialog.progbar.set_text(str(int(fraction * 100)) + "%")
+                #~ self.wait_dialog.progbar.set_fraction(fraction)
+                self.progressbar.set_text(str(int(fraction * 100)) + "%")
+                self.progressbar.set_fraction(fraction)
             except:
                 pass
         return gtk.TRUE
+
+    def progress_done(self):
+	"""clears the progress bar"""
+	self.wtree.get_widget("btn_cancel").set_sensitive(False)
+	self.progressbar.set_text("")
+	self.progressbar.set_fraction(0)
+	self.set_statusbar2("Done")
+
 
     def update_statusbar(self, mode):
         """Update the statusbar for the selected filter"""

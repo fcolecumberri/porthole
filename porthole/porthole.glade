@@ -419,7 +419,7 @@
 		</widget>
 	      </child>
 
-          <child>
+              <child>
 		<widget class="button" id="btn_adv_emerge">
 		  <property name="visible">True</property>
 		  <property name="tooltip" translatable="yes">Advanced Emerge Package</property>
@@ -861,6 +861,117 @@
 	  <property name="padding">0</property>
 	  <property name="expand">True</property>
 	  <property name="fill">True</property>
+	</packing>
+      </child>
+
+      <child>
+	<widget class="GtkHBox" id="hbox19">
+	  <property name="visible">True</property>
+	  <property name="homogeneous">False</property>
+	  <property name="spacing">0</property>
+
+	  <child>
+	    <widget class="GtkStatusbar" id="statusbar2">
+	      <property name="visible">True</property>
+	      <property name="has_resize_grip">False</property>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">True</property>
+	      <property name="fill">True</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkVSeparator" id="vseparator2">
+	      <property name="visible">True</property>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">False</property>
+	      <property name="fill">False</property>
+	    </packing>
+	  </child>
+	  
+	  <child>
+	    <widget class="GtkProgressBar" id="progressbar1">
+	      <property name="visible">True</property>
+	      <property name="orientation">GTK_PROGRESS_LEFT_TO_RIGHT</property>
+	      <property name="fraction">0</property>
+	      <property name="pulse_step">0.1</property>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">True</property>
+	      <property name="fill">True</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkVSeparator" id="vseparator3">
+	      <property name="visible">True</property>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">False</property>
+	      <property name="fill">False</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkButton" id="btn_cancel">
+	      <property name="visible">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="relief">GTK_RELIEF_NORMAL</property>
+                         <signal name="clicked" handler="on_cancel_btn" last_modification_time="Wed, 01 Sep 2004 16:45:27 GMT"/>
+
+	      <child>
+		<widget class="GtkAlignment" id="alignment7">
+		  <property name="visible">True</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xscale">0</property>
+		  <property name="yscale">0</property>
+
+		  <child>
+		    <widget class="GtkHBox" id="hbox20">
+		      <property name="visible">True</property>
+		      <property name="homogeneous">False</property>
+		      <property name="spacing">2</property>
+
+		      <child>
+			<widget class="GtkImage" id="image310">
+			  <property name="visible">True</property>
+			  <property name="stock">gtk-cancel</property>
+			  <property name="icon_size">4</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+			<packing>
+			  <property name="padding">0</property>
+			  <property name="expand">False</property>
+			  <property name="fill">False</property>
+			</packing>
+		      </child>
+
+		    </widget>
+		  </child>
+		</widget>
+	      </child>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">False</property>
+	      <property name="fill">False</property>
+	    </packing>
+	  </child>
+	</widget>
+	<packing>
+	  <property name="padding">0</property>
+	  <property name="expand">False</property>
+	  <property name="fill">False</property>
 	</packing>
       </child>
 
