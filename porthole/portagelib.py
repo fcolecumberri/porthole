@@ -329,6 +329,7 @@ class DatabaseReader(threading.Thread):
         self.error = ""       # may contain error message after completion
         self.new_installed_Semaphore = threading.Semaphore()
         self.installed_list = None
+	self.allnodes_length = 0
 
     def get_db(self):
         """Returns the database that was read."""
@@ -346,7 +347,8 @@ class DatabaseReader(threading.Thread):
             # to an ebuild I created in the portage overlay.
             self.error = str(e)
             return
-        dprint("PORTAGELIB: read_db() begin {for entry in allnodes length=%d" %len(allnodes))
+	self.allnodes_length = len(allnodes)
+        #dprint("PORTAGELIB: read_db() begin {for entry in allnodes length=%d" %len(allnodes))
         #dsave("read_db_allnodes", allnodes)
         for entry in allnodes:
                 category, name = entry.split('/')

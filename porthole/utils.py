@@ -512,6 +512,10 @@ class PortholePreferences:
            self.emerge.nospinner = dom.getitem('/emerge/options/nospinner')
         except XMLManagerError:
            pass
+        try:
+           self.database_size = dom.getitem('/database/size')
+        except XMLManagerError:
+           self.database_size = 100
         
         # All prefs now loaded or defaulted
         del dom   # no longer needed, release memory
@@ -552,6 +556,7 @@ class PortholePreferences:
         dom.additem('/emerge/options/verbose', self.emerge.verbose)
         dom.additem('/emerge/options/upgradeonly', self.emerge.upgradeonly)
         dom.additem('/emerge/options/nospinner', self.emerge.nospinner)
+	dom.additem('/database/size', self.database_size)
         dom.save(self.__PFILE)
         del dom   # no longer needed, release memory
 

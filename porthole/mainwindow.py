@@ -106,6 +106,8 @@ class MainWindow:
             self.wtree.get_widget("pretend1").set_active(gtk.TRUE)
         if self.prefs.emerge.fetch:
             self.wtree.get_widget("fetch").set_active(gtk.TRUE)
+        if not self.prefs.emerge.upgradeonly :
+            self.wtree.get_widget("downgrade").set_active(gtk.TRUE)
         if self.prefs.emerge.verbose:
             self.wtree.get_widget("verbose4").set_active(gtk.TRUE)
         if self.prefs.main.search_desc:
@@ -165,7 +167,7 @@ class MainWindow:
         # set status
         self.set_statusbar("Reading package database: %i packages read"
                            % 0)
-	self.set_statusbar2("Progress========>>>>>>>>>>>>>>>")
+	self.set_statusbar2("Loading database")
 	self.progressbar = self.wtree.get_widget("progressbar1")
 	self.wtree.get_widget("btn_cancel").set_sensitive(False)
 
@@ -183,11 +185,11 @@ class MainWindow:
         self.db_thread.start()
         #test = 87/0  # used to test pycrash is functioning
         self.reload = True
-        self.db_timeout = gtk.timeout_add(200, self.update_db_read)
+        self.db_timeout = gtk.timeout_add(100, self.update_db_read)
         # set status
         self.set_statusbar("Reading package database: %i packages read"
                            % 0)
-        self.set_statusbar2("Progress========>")
+        self.set_statusbar2("Reloading database")
 
     def pkg_path_callback(self, path):
         """callback function to save the path to the package that
@@ -230,12 +232,18 @@ class MainWindow:
             self.set_statusbar("Reading package database: %i packages read"
                                % self.db_thread.count)
             count = self.db_thread.count
+	    fraction = count / float(self.prefs.database_size)
+            self.progressbar.set_text(str(int(fraction * 100)) + "%")
+	    self.progressbar.set_fraction(fraction)
+
         elif self.db_thread.error:
             # todo: display error dialog instead
             self.db_thread.join()
             self.set_statusbar(self.db_thread.error.decode('ascii', 'replace'))
             return gtk.FALSE  # disconnect from timeout
         else: # db_thread is done
+	    self.prefs.database_size = self.db_thread.allnodes_length
+	    self.progress_done()
             dprint("MAINWINDOW: db_thread is done...")
             dprint("MAINWINDOW: db_thread.join...")
             self.db_thread.join()
