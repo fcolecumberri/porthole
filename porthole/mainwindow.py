@@ -313,9 +313,10 @@ class MainWindow:
             return gtk.FALSE
         else:
             # print self.desc_thread.count
-            fraction = self.desc_thread.count / float(len(self.db.list))
-            self.desc_dialog.progbar.set_text(str(int(fraction * 100)) + "%")
-            self.desc_dialog.progbar.set_fraction(fraction)
+            if self.db:
+                fraction = self.desc_thread.count / float(len(self.db.list))
+                self.desc_dialog.progbar.set_text(str(int(fraction * 100)) + "%")
+                self.desc_dialog.progbar.set_fraction(fraction)
         return gtk.TRUE
 
     def package_search(self, widget):
