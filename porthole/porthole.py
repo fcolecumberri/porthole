@@ -334,8 +334,9 @@ class MainWindow:
         self.update_package_info(package)
 
     def on_url_event(self, tag, widget, event, iter):
+        """Catch when the user clicks the url"""
         if event.type == gtk.gdk.BUTTON_RELEASE:
-            try: webbrowser.open(self.homepage)
+            try: webbrowser.open(self.homepages[0])
             except: pass
 
     def update_package_info(self, package):
