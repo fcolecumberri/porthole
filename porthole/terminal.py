@@ -95,7 +95,7 @@ class ProcessManager:
         self.filename = None
         self.untitled_serial = -1
         # create the process reader
-        self.reader = ProcessOutputReader(self.update, self.process_done)
+        self.reader = ProcessOutputReader(self.process_done)
         # start the reader
         self.reader.start()
         gtk.timeout_add(100, self.update)
@@ -1076,11 +1076,10 @@ class FileSel(gtk.FileSelection):
 
 class ProcessOutputReader(threading.Thread):
     """ Reads output from processes """
-    def __init__(self, update_callback, finished_callback):
+    def __init__(self, finished_callback):
         """ Initialize """
         threading.Thread.__init__(self)
         # set callbacks
-        self.update_callback = update_callback
         self.finished_callback = finished_callback
         self.setDaemon(1)  # quit even if this thread is still running
         self.process_running = False
