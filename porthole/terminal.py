@@ -59,10 +59,10 @@ TAB_PROCESS = 0
 TAB_WARNING = 1
 TAB_CAUTION = 2
 TAB_INFO = 3
-TAB_QEUE = 4
+TAB_queue = 4
 
 class ProcessManager:
-    """ Manages qeued and running processes """
+    """ Manages queued and running processes """
     def __init__(self, env = {}, prefs = None):
         """ Initialize """
         # copy the environment and preferences
@@ -91,9 +91,9 @@ class ProcessManager:
                      "on_save_log" : self.save_log,
                      "on_copy" : self.copy_selected,
                      "on_clear" : self.clear_buffer,
-                     "on_move_up" : self.move_qeue_item_up,
-                     "on_move_down" : self.move_qeue_item_down,
-                     "on_remove" : self.remove_qeue_item,
+                     "on_move_up" : self.move_queue_item_up,
+                     "on_move_down" : self.move_queue_item_down,
+                     "on_remove" : self.remove_queue_item,
                      "on_quit" : gtk.mainquit}
         self.wtree.signal_autoconnect(callbacks)
         # setup some aliases for easier access
@@ -109,9 +109,9 @@ class ProcessManager:
         self.resume_menu = self.wtree.get_widget("resume")
         # process output buffer
         self.process_buffer = ''
-        # disable the qeue tab until we need it
+        # disable the queue tab until we need it
         self.queue_menu.set_sensitive(gtk.FALSE)
-        # setup the qeue treeview
+        # setup the queue treeview
         column = gtk.TreeViewColumn("Packages to be merged")
         pixbuf = gtk.CellRendererPixbuf()
         column.pack_start(pixbuf, expand = False)
@@ -128,7 +128,7 @@ class ProcessManager:
         self.warning_tab = self.notebook.get_nth_page(1)
         self.caution_tab = self.notebook.get_nth_page(2)
         self.info_tab = self.notebook.get_nth_page(3)
-        self.qeue_tab = self.notebook.get_nth_page(4)
+        self.queue_tab = self.notebook.get_nth_page(4)
         self.notebook.remove_page(4)
         self.notebook.remove_page(3)
         self.notebook.remove_page(2)
@@ -168,21 +168,21 @@ class ProcessManager:
         elif tab == TAB_CAUTION:
             icon.set_from_stock(gtk.STOCK_DIALOG_WARNING, gtk.ICON_SIZE_MENU)
             label, tab = "Cautions", self.caution_tab
-            # quick hack to make it always show before info & qeue tabs
+            # quick hack to make it always show before info & queue tabs
             pos = self.notebook.page_num(self.info_tab)
             if pos == -1:
-                pos = self.notebook.page_num(self.qeue_tab)
+                pos = self.notebook.page_num(self.queue_tab)
                 if pos == -1:
                     pos = 2
         elif tab == TAB_INFO:
             icon.set_from_stock(gtk.STOCK_DIALOG_INFO, gtk.ICON_SIZE_MENU)
             label, tab = "Information", self.info_tab
-            pos = self.notebook.page_num(self.qeue_tab)
-            # set to show before qeue tab
+            pos = self.notebook.page_num(self.queue_tab)
+            # set to show before queue tab
             if pos == -1: pos = 3
-        elif tab == TAB_QEUE:
+        elif tab == TAB_queue:
             icon.set_from_stock(gtk.STOCK_EXECUTE, gtk.ICON_SIZE_MENU)
-            label, tab, pos = "Emerge Qeue", self.qeue_tab, 4
+            label, tab, pos = "Emerge queue", self.queue_tab, 4
         # pack the icon and label onto the hbox
         hbox.pack_start(icon)
         hbox.pack_start(gtk.Label(label))
@@ -191,11 +191,11 @@ class ProcessManager:
         self.notebook.insert_page(tab, hbox, pos)
         
     def add_process(self, package_name, command_string):
-        """ Add a process to the qeue """
+        """ Add a process to the queue """
         # show the window if it isn't yet
         if not self.window_visible:
             self.show_window()
-        # add to the qeue
+        # add to the queue
         iter = self.queue_model.insert_before(None, None)
         self.queue_model.set_value(iter, 0, None)
         self.queue_model.set_value(iter, 1, str(package_name))
@@ -205,8 +205,8 @@ class ProcessManager:
 
         if len(self.process_list) == 2:
             # if this is the 2nd process in the list
-            # show the qeue tab!
-            self.show_tab(TAB_QEUE)
+            # show the queue tab!
+            self.show_tab(TAB_queue)
             self.queue_menu.set_sensitive(gtk.TRUE)
         # if no process is running, let's start this one!
         if not self.reader.process_running:
@@ -285,7 +285,7 @@ class ProcessManager:
                 pass
 
     def process_done(self):
-        """ Remove the finished process from the qeue, and
+        """ Remove the finished process from the queue, and
         start the next one if there are any more to be run"""
         # if the last process was killed, stop until the user does something
         if self.killed:
@@ -369,16 +369,16 @@ class ProcessManager:
         """ Clear the text buffer """
         pass
 
-    def move_qeue_item_up(self, widget):
-        """ Move selected qeue item up in the qeue """
+    def move_queue_item_up(self, widget):
+        """ Move selected queue item up in the queue """
         pass
 
-    def move_qeue_item_down(self, widget):
-        """ Move selected qeue item down in the qeue """
+    def move_queue_item_down(self, widget):
+        """ Move selected queue item down in the queue """
         pass
 
-    def remove_qeue_item(self, widget):
-        """ Remove the selected item from the qeue """
+    def remove_queue_item(self, widget):
+        """ Remove the selected item from the queue """
         # get the selected iter
         iter = get_treeview_selection(self.queue_tree)
         # find if this item is still in our process list
@@ -464,7 +464,7 @@ if __name__ == "__main__":
     # to test the above classes when run standalone
     test = ProcessManager(env, prefs)
     test.add_process("kde (-vp)", "emerge -vp kde")
-    # un-comment the next line to get the qeue to show up
+    # un-comment the next line to get the queue to show up
     test.add_process("gnome (-vp)", "emerge -vp gnome")
     test.add_process("gtk+ (-vp)", "emerge -vp gtk+")
     test.add_process("porthole (-vp)", "emerge -vp porthole")
