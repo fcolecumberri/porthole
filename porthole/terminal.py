@@ -273,7 +273,7 @@ class ProcessManager:
 
     def button_event(self, widget, event):
         """ Catch button events.  When a dbl-click occurs save the widget
-            as the source.  When a correspong button release from the same
+            as the source.  When a corresponding button release from the same
             widget occurs, move to the process window and jump to the line
             number clicked on.
         """
@@ -283,7 +283,9 @@ class ProcessManager:
             self.event_src = widget
 
         elif event.type == gtk.gdk.BUTTON_RELEASE and \
-             self.event_src == widget:
+            self.event_src == widget:
+            # clear the event source to prevent false restarts
+            self.event_src = None
             # The button release event following the dbl-click
             # from the same widget, go ahead and process now
             # Convert x,y window coords to buffer coords and get line text
@@ -309,8 +311,7 @@ class ProcessManager:
                 # Display the tab
                 self.notebook.set_current_page(TAB_PROCESS)
             except: pass
-            # clear the event source 
-            self.dblclick_src = None
+        return gtk.FALSE  # Always return false for proper handling
 
     def switch_page(self, notebook, page, page_num):
         """callback function changes the current_page setting in the term structure"""
