@@ -34,8 +34,7 @@ def dprint(message):
     if debug:
         print >>stderr, message
 
-import pygtk
-pygtk.require("2.0") #make sure we have the right version
+import pygtk; pygtk.require("2.0") #make sure we have the right version
 import gtk, portagelib
 import os, grp
 
@@ -56,20 +55,7 @@ def get_icon_for_package(package):
     """Return an icon for a package"""
     #if it's installed, find out if it can be upgraded
     if package.is_installed:
-        installed = package.get_installed()
-        installed.sort()
-        latest_installed = portagelib.get_version(installed[-1])
-        latest_available = portagelib.get_version(package.get_latest_ebuild(0))
-        if latest_installed == latest_available:
-            #they are the same version, so you are up to date
-            icon = gtk.STOCK_YES
-        else:
-            if latest_installed > latest_available:
-                #it's a downgrade!
-                icon = gtk.STOCK_GO_BACK
-            else:
-                #let the user know there is an upgrade available
-                icon = gtk.STOCK_GO_FORWARD
+        icon = gtk.STOCK_YES
     else:
         #just put the STOCK_NO icon
         icon = gtk.STOCK_NO
