@@ -327,8 +327,8 @@ class PortholePreferences:
 
 class PortholeConfiguration:
     """ Holds all of Porthole's developer configurable settings """
-    def __init__(self):
-        dom = XMLManager('configuration.xml')
+    def __init__(self, DATA_PATH):
+        dom = XMLManager(DATA_PATH + 'configuration.xml')
 
         # Handle all the regular expressions.  They will be compiled
         # within this object for the sake of efficiency.

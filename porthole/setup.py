@@ -16,8 +16,8 @@ setup(name = "porthole",
       # py_modules is a list of all our python modules
       py_modules = ["about", "depends", "metadata",
                     "portagelib", "process",
-                    "mainwindow", "summary", "utils",
-                    "version", "views"],
+                    "mainwindow", "summary", "terminal",
+                    "utils", "version", "views", "xmlmgr"],
       scripts = ["porthole"],
       # data_files is a list of non-python files we need
       # and where to install them
@@ -25,7 +25,8 @@ setup(name = "porthole",
                      ["pixmaps/porthole-about.png",
                       "pixmaps/porthole-icon.png"]),
                     (datadir,
-                     ["porthole.glade"]),
+                     ["porthole.glade",
+                      "configuration.xml"]),
                     ("doc/porthole-" + version,
                      ["COPYING", "README", "NEWS", "AUTHORS"]),
                     ("applications", ["porthole.desktop"])

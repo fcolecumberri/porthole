@@ -62,7 +62,7 @@ if __name__ == "__main__":
     prefs = utils.PortholePreferences()
     prefs.DATA_PATH = DATA_PATH
     # load config info
-    config = utils.PortholeConfiguration()
+    config = utils.PortholeConfiguration(DATA_PATH)
     # create the main window
     myapp = MainWindow(prefs, config)
     # start the program loop

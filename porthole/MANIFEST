@@ -7,9 +7,11 @@ process.py
 mainwindow.py
 setup.py
 summary.py
+terminal.py
 utils.py
 version.py
 views.py
+xmlmgr.py
 pixmaps/porthole-about.png
 pixmaps/porthole-icon.png
 porthole.glade
@@ -20,3 +22,4 @@ MANIFEST
 NEWS
 README
 setup.cfg
+configuration.xml

@@ -364,7 +364,7 @@ class MainWindow:
 
     def about(self, widget):
         """Show about dialog."""
-        dialog = AboutDialog()
+        dialog = AboutDialog(self.prefs)
 
     def category_changed(self, category):
         """Catch when the user changes categories."""

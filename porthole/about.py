@@ -28,9 +28,9 @@ from version import version
 class AboutDialog:
     """Class to hold about dialog and functionality."""
 
-    def __init__(self):
+    def __init__(self, prefs):
         # setup glade
-        self.gladefile = "porthole.glade"
+        self.gladefile = prefs.DATA_PATH + "porthole.glade"
         self.wtree = gtk.glade.XML(self.gladefile, "about_dialog")
         # register callbacks
         callbacks = {"on_ok_clicked" : self.ok_clicked,

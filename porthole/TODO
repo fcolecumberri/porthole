@@ -1,18 +1,12 @@
 Porthole Release Feature Schedule
 
-Release 0.3
-- Description Searching
-- Allow logging emerge output to files
+Release 0.4
 - Allow the user to select different ebuilds from a package
 - Show ebuild source code
-- Display list of installed files for installed packages
-
-Release 0.4
-- Allow selecting more than one package at a time.
-- USE flags editor
 - Updating the info for a selected package in a separate thread may make the gui more responsive
 - Faster dependency calculations by only partially loading the tree
-- A way to hide the details of an emerge and replace it with a pretty pulsing progressbar
 
 Release 0.5
+- USE flags editor
+- A way to hide the details of an emerge and replace it with a pretty pulsing progressbar
 - A porthole panel applet similar to redhat's up2date applet [maybe...]
