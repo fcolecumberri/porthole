@@ -336,14 +336,18 @@ class MainWindow:
         """ Get a response from the wait dialog """
         if response == 0:
             # terminate the thread
-            # how to do this?
+            self.ut.please_die()
+            self.ut.join()
             # get rid of the dialog
             self.wait_dialog.destroy()
+            
 
     def update_upgrade_thread(self):
         """ Find out if thread is finished """
         # needs error checking perhaps...
         if self.ut.done:
+            if self.ut.cancelled:
+                return gtk.FALSE
             self.package_view.set_view(self.package_view.UPGRADABLE)
             self.summary.update_package_info(None)
             self.wtree.get_widget("category_scrolled_window").hide()
@@ -384,6 +388,7 @@ class UpgradableReader(threading.Thread):
         self.upgrade_results = upgrade_model
         self.installed_items = installed
         self.done = False
+        self.cancelled = False
     
     def run(self):
         """fill upgrade tree"""
@@ -392,6 +397,7 @@ class UpgradableReader(threading.Thread):
         # find upgradable packages
         for cat, packages in self.installed_items:
             for name, package in packages.items():
+                if self.cancelled: self.done = True; return
                 if package.upgradable():
                     installed += [(package.full_name, package)]
         installed = portagelib.sort(installed)
@@ -405,7 +411,10 @@ class UpgradableReader(threading.Thread):
             self.upgrade_results.set_value(iter, 0, full_name)
             self.upgrade_results.set_value(iter, 2, package)
             self.upgrade_results.set_value(iter, 1,
-                                      full_name in world
-                                      and gtk.TRUE or gtk.FALSE)
+                                           full_name in world
+                                           and gtk.TRUE or gtk.FALSE)
         # set the thread as finished
         self.done = True
+
+    def please_die(self):
+        self.cancelled = True
