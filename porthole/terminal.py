@@ -544,6 +544,7 @@ class ProcessManager:
     def queue_items_switch(self, direction):
         """ Switch two adjacent queue items;
             direction is either 1 [down] or -1 [up] """
+        dprint("TERMINAL: Switching queue items.")
         # get the selected iter
         iter = get_treeview_selection(self.queue_tree)
         # get its path
@@ -565,8 +566,7 @@ class ProcessManager:
             # switch the process list entries
             # basically similar to above, except that the iters are _not_ switched
             for pos in range(len(self.process_list)):
-                if self.process_list[pos][0] == selected[1] and pos > 0:
-                    pos += 1
+                if self.process_list[pos][0] == temp[1] and pos > 0:
                     sel = self.process_list[pos][0], self.process_list[pos][1],\
                           self.process_list[pos + direction][2], \
                           self.process_list[pos][3]
@@ -579,6 +579,7 @@ class ProcessManager:
                     break
         else:
             dprint("TERMINAL: cannot move first or last item")
+        self.queue_clicked(self.queue_tree)
 
     def move_queue_item_up(self, widget):
         """ Move selected queue item up in the queue """
@@ -661,7 +662,11 @@ class ProcessManager:
         # get the selected iter
         iter = get_treeview_selection(self.queue_tree)
         # get its path
-        path = self.queue_model.get_path(iter)[0]
+        try:
+            path = self.queue_model.get_path(iter)[0]
+        except:
+            dprint("TERMINAL: Couldn't get treeiter path")
+            return
         # if the item is not in the process list
         # don't make the controls sensitive and return
         name = get_treeview_selection(self.queue_tree, 1)
