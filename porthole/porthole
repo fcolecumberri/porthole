@@ -24,13 +24,11 @@
 #set data path for our glade and pixmap files
 DATA_PATH = "/usr/share/porthole/"
 
-#store our version here
-version = "0.1"
-
 #setup our path so we can load our custom modules
 from sys import path
 path.append("/usr/lib/porthole")
 
+from utils import version
 from sys import argv, exit
 from mainwindow import MainWindow
 import gtk

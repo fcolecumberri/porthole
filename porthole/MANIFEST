@@ -2,7 +2,7 @@ about.py
 depends.py
 metadata.py
 portagelib.py
-porthole.py
+porthole
 process.py
 mainwindow.py
 setup.py

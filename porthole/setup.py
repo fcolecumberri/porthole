@@ -2,11 +2,11 @@
 
 from distutils.core import setup
 #pull the version directly from porthole
-from porthole import version
+from utils import version
 
 datadir = "porthole/"
 
-setup(name = "Porthole",
+setup(name = "porthole",
       version = version,
       description = "GTK+ frontend to Portage",
       author = "Fredrik Arnerup and Daniel G. Taylor",
@@ -18,7 +18,7 @@ setup(name = "Porthole",
       py_modules = ["about", "depends", "metadata",
                     "portagelib", "process",
                     "mainwindow", "summary", "utils"],
-      scripts = ["porthole.py"],
+      scripts = ["porthole"],
       # data_files is a list of non-python files we need
       # and where to install them
       data_files = [(datadir + "pixmaps",
