@@ -55,7 +55,7 @@ if __name__ == "__main__":
 
 # import custom modules
 from utils import dprint, get_user_home_dir, SingleButtonDialog, \
-                  get_treeview_selection, estimate
+                  get_treeview_selection, estimate, YesNoDialog
 from version import version
 
 # some constants for the tabs
@@ -278,11 +278,30 @@ class ProcessManager:
         # insert the tab
         self.notebook.insert_page(tab, hbox, pos)
         
+    def resume_dialog_response(self, widget, response):
+        """ Handle response when user tries to re-add killed process to queue """
+        if response == 0:   # yes
+            self.resume_normal(None)
+        # remove the dialog
+        self.resume_dialog.destroy()
+
     def add_process(self, package_name, command_string, callback):
         """ Add a process to the queue """
         # if it's already in the queue, don't add it!
         for data in self.process_list:
-            if package_name == data[0]: return
+            if package_name == data[0]:
+                # Let the user know it's already in the list
+                if data == self.process_list[0] and self.killed:
+                    # The process has been killed, so help the user out a bit
+                    message = "The package you selected is already in the emerge queue,\n" \
+                              "but it has been killed. Would you like to resume the emerge?"
+                    self.resume_dialog = YesNoDialog("Error Adding Package To Queue!",
+                                            None, message, self.resume_dialog_response)
+                else:
+                    message = "The package you selected is already in the emerge queue!"
+                    SingleButtonDialog("Error Adding Package To Queue!", None,
+                                   message, None, "Ok")
+                return
         # show the window if it isn't yet
         if not self.window_visible:
             self.show_window()
