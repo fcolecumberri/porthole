@@ -1,1 +1,1 @@
-version = "0.3.99"
+version = "CVS-20040919"

@@ -72,6 +72,7 @@ class MainWindow:
             "on_open_log" : self.open_log,
             "on_run_custom" : self.custom_run,
             "on_reload_db" : self.reload_db,
+	    "on_re_init_portage" : self.re_init_portage,
 	    "on_cancel_btn" : self.on_cancel_btn,
             "on_main_window_size_request" : self.size_update
             }
@@ -254,7 +255,7 @@ class MainWindow:
             self.db = self.db_thread.get_db()
             self.set_statusbar(_("Populating tree ..."))
             self.update_statusbar(self.SHOW_ALL)
-	    portagelib.reset_use_flags()
+	    #~portagelib.reset_use_flags()
             #~dprint("MAINWINDOW: setting menubar,toolbar,etc to sensitive...")
             self.wtree.get_widget("menubar").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("toolbar").set_sensitive(gtk.TRUE)
@@ -816,6 +817,17 @@ class MainWindow:
         #dprint(self.prefs.run_dialog.history)
         get_command = RunDialog(self.prefs, self.setup_command)
 
+    def re_init_portage(self, *widget):
+	"""re-initializes the imported portage modules in order to see changines in any config files
+	e.g. /etc/make.conf USE flags changed"""
+	portagelib.reload_portage()
+	portagelib.reset_use_flags()
+	if  self.current_package_cursor != None and self.current_package_cursor[0]: # should fix a type error in set_cursor; from pycrash report
+	    # reset _last_selected so it thinks this package is new again
+	    self.package_view._last_selected = None
+	    # re-select the package
+	    self.package_view.set_cursor(self.current_package_cursor[0],
+	    self.current_package_cursor[1])
 
 class CommonReader(threading.Thread):
     """ Common data reading class that works in a seperate thread """

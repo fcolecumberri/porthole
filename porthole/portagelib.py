@@ -120,6 +120,7 @@ portdir_overlay = get_portage_environ('PORTDIR_OVERLAY')
 # Run it once for sake of efficiency
 SystemUseFlags = get_portage_environ("USE").split()
 
+# did not work.  need to reload portage
 def reset_use_flags():
     dprint("PORTAGELIB: reset_use_flags();")
     global SystemUseFlags
