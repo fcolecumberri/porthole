@@ -335,8 +335,6 @@ class MainWindow:
                 index == self.SHOW_ALL
                 and self.db.categories.keys()
                 or self.db.installed.keys())
-            #if self.package_model:
-            #    self.package_model.clear()
             self.package_view.set_view(self.package_view.PACKAGES)
             self.package_view.clear()
             self.summary.update_package_info(None)
@@ -345,12 +343,15 @@ class MainWindow:
             self.package_view.set_view(self.package_view.SEARCH_RESULTS)
         elif index == self.SHOW_UPGRADE:
             cat_scroll.hide();
+            self.fill_upgrade_results()
             self.package_view.set_view(self.package_view.UPGRADABLE)
         self.set_package_actions_sensitive(gtk.FALSE)
         self.depends.clear()
 
     def fill_upgrade_results(self):
         """fill upgrade tree"""
+        upgrade_results = self.package_view.upgrade_model
+        upgrade_results.clear()
         keys = self.db.categories.keys()
         keys.sort()
         for key in keys:
@@ -361,10 +362,10 @@ class MainWindow:
                     installed.sort()
                     latest = pac.get_latest_ebuild()
                     if latest > installed[-1]:
-                        iter = self.upgrade_results.insert_before(None, None)
-                        self.upgrade_results.set_value(iter, 0, name)
-                        self.upgrade_results.set_value(iter, 2, pac)
-                        self.upgrade_results.set_value(iter, 3, gtk.TRUE)
+                        iter = upgrade_results.insert_before(None, None)
+                        upgrade_results.set_value(iter, 0, name)
+                        upgrade_results.set_value(iter, 2, pac)
+                        upgrade_results.set_value(iter, 1, gtk.TRUE)
 
     def update_statusbar(self, mode):
         """Update the statusbar for the selected filter"""
