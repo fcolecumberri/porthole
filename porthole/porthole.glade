@@ -896,7 +896,7 @@ Special thanks to Brian Dolbec</property>
 		    <widget class="GtkMenu" id="menuitem4_menu">
 
 		      <child>
-			<widget class="GtkImageMenuItem" id="resume1">
+			<widget class="GtkImageMenuItem" id="resume">
 			  <property name="visible">True</property>
 			  <property name="sensitive">False</property>
 			  <property name="label" translatable="yes">_Resume</property>
@@ -1286,7 +1286,7 @@ Special thanks to Brian Dolbec</property>
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="relief">GTK_RELIEF_NORMAL</property>
-			  <signal name="clicked" handler="on_kill_clicked" last_modification_time="Sat, 21 Feb 2004 13:39:58 GMT"/>
+			  <signal name="clicked" handler="on_kill" last_modification_time="Sat, 21 Feb 2004 13:39:58 GMT"/>
 
 			  <child>
 			    <widget class="GtkAlignment" id="alignment6">
