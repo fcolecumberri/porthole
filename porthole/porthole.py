@@ -76,6 +76,8 @@ class MainWindow:
         self.search_results = gtk.TreeStore(gobject.TYPE_STRING,
                                             gtk.gdk.Pixbuf,
                                             gobject.TYPE_STRING)
+        # don't know how to read size from TreeStore
+        self.search_results.size = 0
         #setup some textbuffers
         tagtable = self.create_tag_table()
         self.summary_buffer = gtk.TextBuffer(tagtable)
@@ -147,7 +149,7 @@ class MainWindow:
             self.set_statusbar("Populating tree ...")
             self.db_thread.join()
             self.populate_category_tree()
-            self.set_statusbar("Idle")
+            self.update_statusbar(self.SHOW_ALL)
             self.wtree.get_widget("menubar").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("toolbar").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("view_filter").set_sensitive(gtk.TRUE)
@@ -259,6 +261,7 @@ class MainWindow:
                                          size = gtk.ICON_SIZE_MENU,
                                          detail = None))
                     self.search_results.set_value(iter, 2, category)
+            self.search_results.size = count
             self.wtree.get_widget("view_filter").set_history(2)
                 
 
@@ -398,6 +401,7 @@ class MainWindow:
     SHOW_SEARCH = 2
     def view_filter_changed(self, widget):
         index = widget.get_history()
+        self.update_statusbar(index)
         if index == self.SHOW_ALL:
             self.wtree.get_widget("category_scrolled_window").show()
             self.package_view.set_model(self.package_model)
@@ -406,8 +410,18 @@ class MainWindow:
             pass
         elif index == self.SHOW_SEARCH:
             self.wtree.get_widget("category_scrolled_window").hide()
-            self.package_view.set_model(self.search_results)
+            self.package_view.set_model(self.search_results)            
 
+    def update_statusbar(self, mode):
+        text = "(undefined)"
+        if mode == self.SHOW_ALL:
+            text = "%d packages in %d categories" % (len(self.db.list),
+                                                     len(self.db.categories))
+        elif mode == self.SHOW_INSTALLED:
+            pass
+        elif mode == self.SHOW_SEARCH:
+            text = "%d matches found" % self.search_results.size
+        self.set_statusbar(text)
 
 class AboutDialog:
     """Class to hold about dialog and functionality."""
