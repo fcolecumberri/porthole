@@ -82,6 +82,7 @@ class MainWindow:
         #setup some textbuffers
         tagtable = self.create_tag_table()
         self.summary_buffer = gtk.TextBuffer(tagtable)
+        self.wtree.get_widget("summary_text").set_buffer(self.summary_buffer)
         self.depend_buffer = gtk.TextBuffer(tagtable)
         #declare the database
         self.db = None
@@ -261,66 +262,65 @@ class MainWindow:
 
         self.summary_buffer.set_text("", 0)
         notebook = self.wtree.get_widget("notebook")
-        if package_name == None:
+        notebook.set_sensitive(package_name and gtk.TRUE or gtk.FALSE)
+        if not package_name:
             #it's really a category selected!
-            notebook.set_sensitive(gtk.FALSE)
+            return
+        #put the info into the textview!
+        notebook.set_sensitive(gtk.TRUE)
+        #set the package
+        package = portagelib.Package(package_name)
+        package.read_description()
+        package.read_versions()
+        #read it's info
+        description = package.description
+        ebuild = package.get_latest_ebuild()
+        installed = package.get_installed()
+        versions = package.versions
+        homepage = package.get_homepage()
+        use_flags = package.get_use_flags()
+        license = package.get_license()
+        slot = package.get_slot()
+        #build the information together into a buffer
+        ''' TODO:
+            get dependencies and show them in the dependency tab/textview
+            figure out what to put into the extras tab...?
+        '''
+        append(package_name, "name"); nl()
+        if description:
+            append(description, "description"); nl()
+        if homepage:
+            append(homepage, "url"); nl()
+        #put a space between this info and the rest
+        nl()
+        if installed:
+            append("Installed versions: ", "property")
+            append(", ".join([portagelib.get_version(ebuild)
+                              for ebuild in installed]),
+                   "value")
         else:
-            #put the info into the textview!
-            notebook.set_sensitive(gtk.TRUE)
-            #set the package
-            package = portagelib.Package(package_name)
-            package.read_description()
-            package.read_versions()
-            #read it's info
-            description = package.description
-            ebuild = package.get_latest_ebuild()
-            installed = package.get_installed()
-            versions = package.versions
-            homepage = package.get_homepage()
-            use_flags = package.get_use_flags()
-            license = package.get_license()
-            slot = package.get_slot()
-            #build the information together into a buffer
-            ''' TODO:
-                get dependencies and show them in the dependency tab/textview
-                figure out what to put into the extras tab...?
-            '''
-            append(package_name, "name"); nl()
-            if description:
-                append(description, "description"); nl()
-            if homepage:
-                append(homepage, "url"); nl()
-            #put a space between this info and the rest
+            append("Not installed", "property")
+        nl()
+        if versions:
+            append("Available versions: ", "property")
+            append(", ".join([portagelib.get_version(ebuild)
+                              for ebuild in versions]),
+                   "value")
+        nl()
+        #put a space between this info and the rest, again
+        nl()
+        if use_flags:
+            append("Use Flags: ", "property")
+            append(", ".join(use_flags), "value")
             nl()
-            if installed:
-                append("Installed versions: ", "property")
-                append(", ".join([portagelib.get_version(ebuild)
-                                  for ebuild in installed]),
-                       "value")
-            else:
-                append("Not installed", "property")
+        if license:
+            append("License: ", "property");
+            append(license, "value");
             nl()
-            if versions:
-                append("Available versions: ", "property")
-                append(", ".join([portagelib.get_version(ebuild)
-                                  for ebuild in versions]),
-                       "value")
+        if slot:
+            append("Slot: ", "property");
+            append(slot, "value");
             nl()
-            #put a space between this info and the rest, again
-            nl()
-            if use_flags:
-                append("Use Flags: ", "property")
-                append(", ".join(use_flags), "value")
-                nl()
-            if license:
-                append("License: ", "property");
-                append(license, "value");
-                nl()
-            if slot:
-                append("Slot: ", "property");
-                append(slot, "value");
-                nl()
-            self.wtree.get_widget("summary_text").set_buffer(self.summary_buffer)
             
 
 
