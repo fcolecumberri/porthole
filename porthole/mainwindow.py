@@ -575,11 +575,9 @@ class MainWindow:
         self.installed_files.set_text('')
 
     def open_log(self, widget):
-        """ Open a log of a previous emerge in the terminal window """
-        # show the terminal if it isn't already visible
-        if not self.process_manager.window_visible:
-            self.process_manager.show_window()
-        self.process_manager.do_open(widget)
+        """ Open a log of a previous emerge in a new terminal window """
+        newterm = ProcessManager(environment(), self.prefs, self.config)
+        newterm.do_open(widget)
 
     def custom_run(self, widget):
         """ Run a custom command in the terminal window """

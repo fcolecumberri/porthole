@@ -381,6 +381,7 @@ class ProcessManager:
         self.process_list = []
         # the window is no longer showing
         self.window_visible = False
+        self.wtree = None
         if __name__ == "__main__":
             # if running standalone, quit
             gtk.main_quit()
@@ -436,7 +437,7 @@ class ProcessManager:
         # stores line of text in buffer
         # if the string is locked, we'll get it on the next round
         cr_flag = False   # Carriage Return flag
-        if self.reader.string_locked:
+        if self.reader.string_locked or not self.window_visible:
             return gtk.TRUE
         # lock the string
         self.reader.string_locked = True
@@ -820,6 +821,7 @@ class ProcessManager:
     def open_ok_func(self, filename):
         """callback function from file selector"""
         dprint("entering callback open_ok_func")
+        if not self.window_visible: self.show_window()
         if not self.fill_buffer(filename):
             self.set_statusbar("*** Unknown File Loading error")
             return gtk.FALSE
@@ -833,7 +835,12 @@ class ProcessManager:
         dprint("entering do_open")
         if not self.directory:
             self.set_directory()
-        FileSel("Porthole-Terminal: Open log File").run(self.window,
+        try:
+            FileSel("Porthole-Terminal: Open log File").run(self.window,
+                                                        None,
+                                                        self.open_ok_func)
+        except:
+            FileSel("Porthole-Terminal: Open log File").run(None,
                                                         None,
                                                         self.open_ok_func)
 
