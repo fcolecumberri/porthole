@@ -158,6 +158,7 @@ class PortholePreferences:
         self.main.hpane = 280
         self.main.vpane = 250
         self.main.search_desc = False
+        self.main.show_nag_dialog = True
         self.process = WindowPreferences(400, 600)
         self.process.width_verbose = 900
         self.emerge = EmergeOptions()

@@ -103,8 +103,9 @@ class MainWindow:
                                                     self.prefs.main.height)
         # initialize our data
         self.init_data()
-        # let the user know if he can emerge or not
-        self.check_for_root()
+        if self.prefs.main.show_nag_dialog:
+            # let the user know if he can emerge or not
+            self.check_for_root()
 
     def init_data(self):
         # set things we can't do unless a package is selected to not sensitive
@@ -136,8 +137,14 @@ class MainWindow:
             self.no_root_dialog = SingleButtonDialog("You are not root!",
                             self.wtree.get_widget("main_window"),
                             "You will not be able to emerge, unmerge,"
-                            " upgrade or sync!", None,
+                            " upgrade or sync!",
+                            self.remove_nag_dialog,
                             "_Ok")
+
+    def remove_nag_dialog(self, widget, response):
+        """ Remove the nag dialog and set it to not display next time """
+        self.no_root_dialog.destroy()
+        self.prefs.main.show_nag_dialog = False
 
     def set_statusbar(self, string):
         """Update the statusbar without having to use push and pop."""
@@ -292,6 +299,7 @@ class MainWindow:
             self.desc_loaded = True
             # search with descriptions
             self.package_search(None)
+            self.desc_dialog.destroy()
             return gtk.FALSE
         else:
             # print self.desc_thread.count
