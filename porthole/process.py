@@ -48,13 +48,13 @@ class ProcessWindow(threading.Thread):
         tag = gtk.TextTag('tt')
         table.add(tag)
         tag.set_property('family', 'Monospace')
-        textview = gtk.TextView(self.textbuffer)
-        textview.set_editable(gtk.FALSE)
-        textview.set_cursor_visible(gtk.FALSE)
+        self.textview = gtk.TextView(self.textbuffer)
+        self.textview.set_editable(gtk.FALSE)
+        self.textview.set_cursor_visible(gtk.FALSE)
         self.scroller = gtk.ScrolledWindow()
         self.scroller.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         self.scroller.set_shadow_type(gtk.SHADOW_IN)
-        self.scroller.add(textview)
+        self.scroller.add(self.textview)
         self.window.vbox.pack_start(self.scroller,
                                     gtk.TRUE, gtk.TRUE)
 
@@ -98,8 +98,15 @@ class ProcessWindow(threading.Thread):
             iter,
             text.decode('ascii', 'replace'),
             'tt')
-        adj = self.scroller.get_vadjustment()
-        adj.set_value(adj.upper - adj.page_size)
+        self.textview.scroll_mark_onscreen(self.textbuffer.get_insert())
+        # don't scroll sideways
+        adj = self.scroller.get_hadjustment(); adj.set_value(adj.lower)
+
+    def backspace(self):
+        """Delete last character in buffer."""
+        end = self.textbuffer.get_end_iter()
+        start = end.copy(); start.backward_char()
+        self.textbuffer.delete(start, end)
 
     def run(self):
         """The thread."""
@@ -113,7 +120,8 @@ class ProcessWindow(threading.Thread):
                 text = self.pipe.fromchild.read(1)
                 if not text:
                     break
-                append(text)
+                if text == "\b": self.backspace()
+                else: append(text)
         except ValueError:
             pass  # if the process is killed
         self.pipe.wait()  # or poll() will return -1 in the main thread
