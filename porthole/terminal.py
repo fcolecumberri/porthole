@@ -155,17 +155,14 @@ class ProcessManager:
         # Create formatting tags for each textbuffers' tag table
         self.info_text.create_tag('command',\
                 weight=700,\
-                scale=pango.SCALE_LARGE,\
                 background='navy',\
                 foreground='white')
         self.warning_text.create_tag('command',\
                 weight=700,\
-                scale=pango.SCALE_LARGE,\
                 background='navy',\
                 foreground='white')
         self.process_text.create_tag('command',
                 weight=700,\
-                scale=pango.SCALE_LARGE,\
                 background='navy',\
                 foreground='white')
         # All emerge lines will be bolded with light green background
@@ -178,12 +175,12 @@ class ProcessManager:
         self.process_text.create_tag('emerge',\
                 weight=700,\
                 background='lightgreen')
-        # In process window, warnings will have light yellow background
+        # In process window, warnings will have medium yellow background
         self.process_text.create_tag('warning',\
-                background='lightyellow2')
-        # In process window info will have light cyan background
+                background='#ffffb0')
+        # In process window info will have medium cyan background
         self.process_text.create_tag('info',\
-                background='lightcyan2')
+                background='#b0ffff')
         # all line numbers will be blue & bold
         self.process_text.create_tag('linenumber',\
                 foreground='blue',\
@@ -351,11 +348,12 @@ class ProcessManager:
         """
         line_number = self.process_text.get_line_count() 
         iter = buffer.get_end_iter()
-        buffer.insert_with_tags_by_name(iter, str(line_number), 'linenumber')
+        lntext = '000000' + str(line_number) + ' '
+        buffer.insert_with_tags_by_name(iter, lntext[-7:] , 'linenumber')
         if tagname == None:
-           buffer.insert(iter, '\t'+text)
+           buffer.insert(iter, text)
         else:
-           buffer.insert_with_tags_by_name(iter, '\t'+text, tagname)
+           buffer.insert_with_tags_by_name(iter, text, tagname)
 
     def append_all(self, text, all = False, tag = None):
         """ Append text to all buffers """
