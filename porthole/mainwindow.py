@@ -52,8 +52,6 @@ class MainWindow:
             "on_search_entry_activate": self.package_search,
             "on_help_contents" : self.help_contents,
             "on_about" : self.about,
-            "on_category_view_cursor_changed" : self.category_changed,
-            "on_package_view_cursor_changed" : self.package_changed,
             "view_filter_changed" : self.view_filter_changed,
             "on_pretend1_activate" : self.pretend_set,
             "on_notebook_switch_page" : self.notebook_changed
@@ -266,6 +264,7 @@ class MainWindow:
         self.package_view.populate(packages)
         self.summary.update_package_info(None)
         self.set_package_actions_sensitive(gtk.FALSE)
+        self.deps_view.clear()
 
     def package_changed(self, package):
         """Catch when the user changes packages."""
