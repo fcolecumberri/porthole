@@ -665,7 +665,8 @@ class ProcessManager:
         try:
             path = self.queue_model.get_path(iter)[0]
         except:
-            dprint("TERMINAL: Couldn't get treeiter path")
+            dprint("TERMINAL: Couldn't get queue view treeiter path,\
+                    there is probably nothing selected.")
             return
         # if the item is not in the process list
         # don't make the controls sensitive and return
