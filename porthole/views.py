@@ -102,6 +102,8 @@ class PackageView(CommonTreeView):
         text = gtk.CellRendererText()
         self._column.pack_start(text, expand = True)
         self._column.add_attribute(text, "text", 0)
+        # set the last selected to nothing
+        self._last_selected = None
 
     def _set_model(self):
         """ Set the correct treemodel for the current view """
