@@ -112,14 +112,24 @@ class Summary(gtk.TextView):
         slot = unicode(props.get_slot())
         #build info into buffer
 
-        def vnums(ebuilds):
+        def show_vnums(ebuilds):
             spam = []
+            oldslot = -1
             for ebuild in ebuilds:
                 version = portagelib.get_version(ebuild)
+                slot = portagelib.get_property(ebuild, "SLOT")
+                if not slot == oldslot:
+                   if spam:
+                      append(", ".join(spam), "value")
+                      nl()
+                      spam = []
+                   append("\tSlot %s: " % slot, "property")
+                   oldslot = slot
                 if ebuild not in nonmasked:
                     version = "(" + version + ")"
                 spam += [version]
-            return ", ".join(spam)
+            append(", ".join(spam), "value")
+            return
         
         append(package.full_name, "name"); nl()
         if description:
@@ -129,14 +139,14 @@ class Summary(gtk.TextView):
         for homepage in homepages: append(homepage, "url"); nl()
         nl()         #put a space between this info and the rest
         if installed:
-            append("Installed versions: ", "property")
-            append(vnums(installed), "value")
+            append("Installed versions:\n", "property")
+            show_vnums(installed)
         else:
             append("Not installed", "property")
         nl()
         if versions:
-            append("Available versions: ", "property")
-            append(vnums(versions), "value")
+            append("Available versions:\n", "property")
+            show_vnums(versions)
             nl()
         nl()         #put a space between this info and the rest, again
         if use_flags:
@@ -145,5 +155,5 @@ class Summary(gtk.TextView):
             nl()
         if license:
             append("License: ", "property"); append(license, "value"); nl()
-        if slot:
-            append("Slot: ", "property"); append(slot, "value"); nl()
+        #if slot:
+        #    append("Slot: ", "property"); append(slot, "value"); nl()
