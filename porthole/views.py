@@ -74,7 +74,7 @@ class PackageView(gtk.TreeView):
             #add the toggle renderer
             check = gtk.CellRendererToggle()
             self._column.pack_start(check, expand = False)
-            self._column.add_attribute(check, "active", 3)
+            self._column.add_attribute(check, "active", 1)
         else:
             #add the pixbuf renderer
             pixbuf = gtk.CellRendererPixbuf()
@@ -103,18 +103,19 @@ class PackageView(gtk.TreeView):
         #get the selection
         package = get_treeview_selection(treeview, 2)
         if self.current_view == self.UPGRADABLE:
-            if package == self._last_selected:
+            if package.full_name == self._last_selected:
+                model, iter = self.get_selection().get_selected()
+                check = self.upgrade_model.get_value(iter, 1)
+                self.upgrade_model.set_value(iter, 1, not check)
                 if self._upgrade_selected:
-                    check = get_treeview_selection(treeview, 1)
-                    print check
                     self._upgrade_selected(package)
             elif self._package_changed:
-                self.package_changed(package)
+                self._package_changed(package)
         else:
-            if package != self._last_selected:
+            if package.full_name != self._last_selected:
                 if self._package_changed:
                     self._package_changed(package)
-        self._last_selected = package
+        self._last_selected = package.full_name
 
     def populate(self, packages):
         """ Populate the current view with packages """
