@@ -216,14 +216,10 @@ class MainWindow:
 
     def sync_tree(self, widget):
         """Sync the portage tree and reload it when done."""
-        '''sync = "emerge sync"
+        sync = "emerge sync"
         if self.prefs.emerge.verbose:
             sync += " --verbose"
-        self.setup_command(sync)'''
-        self.sync_dialog = SingleButtonDialog("Sorry!",
-                       self.wtree.get_widget("main_window"),
-                       "Emerge sync functionality is disabled in this release",
-                       None, "_Ok")
+        self.setup_command(sync)
 
     def upgrade_packages(self, widget):
         """Upgrade selected packages that have newer versions available."""

@@ -87,7 +87,21 @@ class ProcessWindow(threading.Thread):
         self.prefs.process.height = height
 
     def on_realize(self, window):
-        """Run the thread!"""
+        """Start the process and run the thread!"""
+        # pty.fork() creates a new process group
+        self.pid, self.fd = pty.fork() 
+        if not self.pid:  # child
+            try:
+                # print os.getpgid(0), os.getpid()
+                shell = '/bin/sh'
+                os.execve(shell, [shell, '-c', self.command],
+                          self.environment)
+            except Exception, e:
+                print "Error in child:"
+                print e
+                os._exit(1)
+
+        # only the parent should reach this
         self.start()
 
     def on_destroy(self, widget, data = None):
@@ -140,20 +154,6 @@ class ProcessWindow(threading.Thread):
             self.append(text)
             gtk.threads_leave()
 
-        # pty.fork() creates a new process group
-        self.pid, self.fd = pty.fork() 
-        if not self.pid:  # child
-            try:
-                # print os.getpgid(0), os.getpid()
-                shell = '/bin/sh'
-                os.execve(shell, [shell, '-c', self.command],
-                          self.environment)
-            except Exception, e:
-                print "hej ",
-                print e
-                os._exit(1)
-
-        # only the parent should reach this
         try:
             while True:
                 text = os.read(self.fd, 1)
@@ -168,7 +168,6 @@ class ProcessWindow(threading.Thread):
             pass  # if the process is killed
         except Exception, e:
             append(str(e))
-        os.waitpid(self.pid, 0)
         append('\n')
         append('*** process terminated ***\n')
 
