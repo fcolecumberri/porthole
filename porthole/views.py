@@ -98,10 +98,6 @@ class PackageView(CommonTreeView):
 	
 	# setup the Description column
 	self._desc_column = gtk.TreeViewColumn(_("Description"))
-	self._size_column.clear()
-	self._latest_column.clear()
-	self._installed_column.clear()
-	self._desc_column.clear()
 	self.append_column( self._desc_column )
 	self._desc_column.set_resizable( True )
 	self._desc_column.set_expand( False )
@@ -122,24 +118,6 @@ class PackageView(CommonTreeView):
     def set_view(self, view):
         """ Set the current view """
         self.current_view = view
-        text_size = gtk.CellRendererText()
-        text_installed = gtk.CellRendererText()
-        text_latest = gtk.CellRendererText()
-        self._size_column.pack_start(text_size, expand = False)
-        self._size_column.add_attribute(text_size, "text", 6)
-        self._installed_column.pack_start(text_installed, expand = False)
-        self._latest_column.pack_start(text_latest, expand = False)
-        self._installed_column.add_attribute(text_installed, "text", 7)
-        self._latest_column.add_attribute(text_latest, "text", 8)
-        self._latest_column.set_sizing( gtk.TREE_VIEW_COLUMN_AUTOSIZE )
-        self._installed_column.set_sizing( gtk.TREE_VIEW_COLUMN_AUTOSIZE )
-        self._size_column.set_sizing( gtk.TREE_VIEW_COLUMN_AUTOSIZE )
-
-        text_desc = gtk.CellRendererText()
-        self._desc_column.pack_start( text_desc, expand=False )
-        self._desc_column.add_attribute( text_desc, 'text', 9 )
-        self._desc_column.set_sizing( gtk.TREE_VIEW_COLUMN_AUTOSIZE )
-
         self._init_view()
         self._set_model()
 
@@ -183,7 +161,6 @@ class PackageView(CommonTreeView):
         self._latest_column.set_sizing( gtk.TREE_VIEW_COLUMN_GROW_ONLY )
         self._installed_column.set_sizing( gtk.TREE_VIEW_COLUMN_GROW_ONLY )
         self._size_column.set_sizing( gtk.TREE_VIEW_COLUMN_GROW_ONLY )
-
         text_desc = gtk.CellRendererText()
         self._desc_column.pack_start( text_desc, expand=False )
         self._desc_column.add_attribute( text_desc, 'text', 9 )
@@ -256,13 +233,13 @@ class PackageView(CommonTreeView):
 
     def populate(self, packages, locate_name = None):
         """ Populate the current view with packages """
+        if not packages:
+            return
+        dprint("VIEWS: Populating package view")
         dprint("VIEWS: PackageView.populate(); Threading info: %s" %str(threading.enumerate()) )
         if self.new_thread:
             if self.new_thread.isAlive():
                 self.new_thread.join()
-        if not packages:
-            return
-        dprint("VIEWS: Populating package view")
         if locate_name:
             dprint("VIEWS: Selecting " + str(locate_name))
         # get the right model
@@ -286,17 +263,17 @@ class PackageView(CommonTreeView):
                 if name == locate_name:
                     path = model.get_path(iter)
                     if path:
-                         # registered callback function to store the path
+                        # registered callback function to store the path
                         self._return_path(path)
                         #self.set_cursor(path) # does not select it at the
                         # correct place in the code to display properly
                         # get the position in the tree and save it instead
-        if self.new_thread:
-            if self.new_thread.isAlive():
-                self.new_thread.join()
-                del self.new_thread
-        self.new_thread = threading.Thread( target=self.populate_info )
-        self.new_thread.start()
+        #~ if self.new_thread:
+            #~ if self.new_thread.isAlive():
+                #~ self.new_thread.join()
+            #~ del self.new_thread
+        #~ self.new_thread = threading.Thread( target=self.populate_info )
+        #~ self.new_thread.start()
 
     def populate_info(self):
         """ Populate the current view with packages """
@@ -362,16 +339,16 @@ class CategoryView(CommonTreeView):
         self.connect("cursor-changed", self._clicked)
         # register default callback
         self.register_callback()
-	self.search_cat = False
+        self.search_cat = False
         dprint("VIEWS: Category view initialized")
 
     def set_search( self, option ):
-	self.search_cat = option
-	if option == True:
-	    self.cat_column.set_title("Search History")
-	elif option == False:
-	    self.cat_column.set_title("Categories")
-	    
+        self.search_cat = option
+        if option == True:
+            self.cat_column.set_title("Search History")
+        elif option == False:
+            self.cat_column.set_title("Categories")
+
 
     def register_callback(self, category_changed = None):
         """ Register callbacks for events """
@@ -392,8 +369,8 @@ class CategoryView(CommonTreeView):
     def populate(self, categories):
         """Fill the category tree."""
         self.clear()
-	if self.search_cat == True:
-	    self.populate_search( categories )
+        if self.search_cat == True:
+            self.populate_search( categories )
         dprint("VIEWS: Populating category view")
         last_catmaj = None
         categories.sort()
@@ -415,11 +392,11 @@ class CategoryView(CommonTreeView):
             self.model.set_value(sub_cat_iter, 1, cat)
 
     def populate_search( self, categories ):
-	dprint("VIEWS: populating category view with search history")
-	for string in categories:
-	    iter = self.model.insert_before(None, None)
-	    self.model.set_value( iter, 0, string )
-	    self.model.set_value( iter, 1, string )
+        dprint("VIEWS: populating category view with search history")
+        for string in categories:
+            iter = self.model.insert_before(None, None)
+            self.model.set_value( iter, 0, string )
+            self.model.set_value( iter, 1, string )
 
 
 

@@ -199,7 +199,7 @@ class MainWindow:
         self.plugin_root_menu.set_submenu(self.plugin_menu)
         self.wtree.get_widget("menubar").append(self.plugin_root_menu)
         self.plugin_manager = PluginManager( self.prefs.plugins.path_list, self )
-	self.plugin_package_tabs = {}	
+        self.plugin_package_tabs = {}	
 
 
     def init_data(self):
@@ -691,7 +691,7 @@ class MainWindow:
                     search_results.set_value(iter, 0, name)
                     search_results.set_value(iter, 2, data)
                     search_results.set_value(iter, 5, '')
-                    #dprint(data.full_name + " %d" %(data.in_world))
+                    dprint("MAINWINDOW: package_search; found: %s, in_world=%d" %(data.full_name,data.in_world))
                     search_results.set_value(iter, 4, data.in_world)
                     search_results.set_value(iter, 6, data.get_size())
                     installed = data.get_latest_installed()
