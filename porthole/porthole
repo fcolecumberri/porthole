@@ -33,6 +33,7 @@ from sys import argv, exit, stderr
 from mainwindow import MainWindow
 import gtk
 from getopt import getopt, GetoptError
+from version import version
 
 if __name__ == "__main__":
     try:
@@ -46,7 +47,7 @@ if __name__ == "__main__":
             DATA_PATH = ""
         elif opt in ("-v", "--version"):
             # print version info
-            print "Porthole " + utils.version
+            print "Porthole " + version
             exit(0)
         elif opt in ("-d", "--debug"):
             utils.debug = True
