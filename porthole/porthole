@@ -21,12 +21,10 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-# set data path for our glade and pixmap files
-DATA_PATH = "/usr/share/porthole/"
 
 # setup our path so we can load our custom modules
 from sys import path
-path.append('/usr/lib/porthole')
+#path.append('/usr/lib/porthole')
 
 # Add path to portage module if 
 # missing from path (ref bug # 924100)
@@ -45,7 +43,7 @@ try:
     class MyCrash(HTMLPyCrash):
         #def onExit(self):
 	def onExceptionRaised(self, time):
-	    save_file = utils.get_user_home_dir() + "/.porthole/crash.html"
+	    save_file = "/var/log/porthole/crash.html"
 	    # saveToFile does not yet return a result: feature request submitted
 	    self.saveToFile(save_file)
 	    print "PORTHOLE: Crash detected.  Please submit a bug report &"
@@ -54,13 +52,10 @@ except ImportError:
     print "pycrash module not found.  For best debug info Please emerge >= dev-python/pycrash-0.4pre2"
     
 from thread import *
-
-import utils
 from sys import argv, exit, stderr
-from mainwindow import MainWindow
+import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, time
 from getopt import getopt, GetoptError
-from version import version
 
 def usage():
     tabs = "\t\t"
@@ -70,7 +65,7 @@ def usage():
           "Run a local version (use modules in current directory)"
     print "  -v, --version" + tabs + "Output version information and exit"
     print "  -d, --debug" + tabs + "Output debugging information to stderr (terminal)"
-    print "             " + tabs + "Also if PyCrash-0.4pre2 or newer is found it will use it"
+    print "             " + tabs + "Also if PyCrash-0.4pre3 or newer is found it will use it"
     print "             " + tabs + "to try to save additional crash info to send in for debugging"
 
 
@@ -82,24 +77,43 @@ if __name__ == "__main__":
     except GetoptError, e:
         print >>stderr, e.msg
         exit(1)
+    # run thru the options and set the DATA_PATH & imported modules properly
+    # bug ==> any porthole script can be used to load both --local and installed modules
+    path_set = False
     for opt, arg in opts:
         if opt in ("-l", "--local"):
             # running a local version (i.e. not installed in /usr/*)
             from os import getcwd
             DATA_PATH = getcwd() + "/"
-        elif opt in ("-v", "--version"):
+	    from version import version
+	    import utils as _utils
+	    from mainwindow import MainWindow
+	    path_set = True
+
+    if not path_set: # then run the installed modules
+	try:
+	    from porthole.version import version
+	    # set data path for our glade and pixmap files
+	    DATA_PATH = "/usr/share/porthole/"
+	    from porthole import utils as _utils
+	    from porthole.mainwindow import MainWindow
+	except:
+	    print "NO installed porthole modules found!   Please run with the --local flag"
+
+    for opt, arg in opts:
+        if opt in ("-v", "--version"):
             # print version info
             print "Porthole " + version
             exit(0)
         elif opt in ("-d", "--debug"):
-            utils.debug = True
-            utils.dprint("Debug printing is enabled")
+            _utils.debug = True
+            _utils.dprint("Debug printing is enabled")
         elif opt in ("-h", "--help"):
             usage()
             exit()
     if pycrash_found == True:
-        utils.dprint("pycrash module initializing")
-        utils.dprint("If a crash occurs check the ~/.porthole/crash.html file and post it to porthole bugs")
+        _utils.dprint("pycrash module initializing")
+        _utils.dprint("If a crash occurs check the /var/log/porthole/crash.html file and post it to porthole bugs")
         p = MyCrash({'AppName': 'Porthole', 'Version': version, 'SendTo': 'porthole bugs'})
         p.enable() #New in PyCrash-0.4pre2
     # make sure gtk lets threads run
@@ -108,10 +122,10 @@ if __name__ == "__main__":
     myicon = gtk.gdk.pixbuf_new_from_file(DATA_PATH + "pixmaps/porthole-icon.png")
     gtk.window_set_default_icon_list(myicon)
     # load prefs
-    prefs = utils.PortholePreferences()
+    prefs = _utils.PortholePreferences()
     prefs.DATA_PATH = DATA_PATH
     # load config info
-    config = utils.PortholeConfiguration(DATA_PATH)
+    config = _utils.PortholeConfiguration(DATA_PATH)
     # create the main window
     myapp = MainWindow(prefs, config)
     # start the program loop

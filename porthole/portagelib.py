@@ -44,15 +44,17 @@ from metadata import parse_metadata
 
 def reload_portage():
 	reload(portage)
-	
-def get_keywords():
-    """ Get the official keywords as a list """
-    return portage.grabfile('/usr/portage/profiles/keywords.desc')
 
-# Get just once for sake of efficiency
-KeywordList = get_keywords()
-# debug code follows WFW
-# print 'Keyword list:', KeywordList
+#~ depricated function: file no longer exists & info not used anywhere
+#~ def get_keywords():
+    #~ """ Get the official keywords as a list """
+    #~ dpritn("PORTAGELIB: get_keywords()!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    #~ return portage.grabfile('/usr/portage/profiles/keywords.desc')
+
+#~ # Get just once for sake of efficiency
+#~ KeywordList = get_keywords()
+#~ # debug code follows WFW
+#~ # print 'Keyword list:', KeywordList
 
 def get_use_flag_dict():
     """ Get all the use flags and return them as a dictionary 

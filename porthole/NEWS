@@ -9,7 +9,7 @@
        displays "an unknown encoding method" error instead.
 
      * Changed the summary view to use the better of the (best unmasked or installed masked
-       ebuid version) of the best masked version if no unmasked version is available.
+       ebuild version) or the best masked version if no unmasked version is available.
        It also diplays which ebuild version was used for the properties display.
 
      * eliminated unnesseary DB reloads if running custom commands with the -p flag.
@@ -77,8 +77,6 @@
 
      * Added  a -h, --help option to portholes command line interface
 
-     * Combination bugfix & feature improvement release
-
      * The version sorting routine has been re-written again, portage is/has just
        changed it's version comparison code.  Also the code I released in -0.3.1
        also failed badly for a few odd version strings.
@@ -106,10 +104,6 @@
 
      * USE flags are now displayed with a +/- as well as being colored to show their current
        setting.   Original feature patch submitted by jonathanl.
-
-     * One annoying bug remains in the autoscroll code that causes quirky behavior.
-       I have been thru my code, testing, and have concluded that it is a gtk bug in
-       the scrollbar code.
 
 0.3.1:
 

@@ -58,10 +58,12 @@
 #
 ###############################################################################
 
-
-from xml.dom.minidom import parse, getDOMImplementation
-from xml.dom.ext import PrettyPrint
-
+try:
+    from xml.dom.minidom import parse, getDOMImplementation
+    from xml.dom.ext import PrettyPrint
+except:
+    print >>stderr,  "Error importing modules from /dev-python/pyxml!"
+    print >>stderr, "check that the package is installed or re-emerge package to correct the error"
 
 class XMLManagerError(Exception):
    """XML Manager Error exception class"""

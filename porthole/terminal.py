@@ -469,6 +469,9 @@ class ProcessManager:
             if not self.term.tab_showing[TAB_QUEUE]:
                 self.show_tab(TAB_QUEUE)
                 self.queue_menu.set_sensitive(gtk.TRUE)
+        # Clear semaphore, we're done
+        self.Semaphore.release()
+        dprint("TERMINAL: add_process; Semaphore released")
         # if no process is running, let's start one!
         if not self.reader.process_running:
             if self.resume_available:
@@ -478,9 +481,6 @@ class ProcessManager:
                 # pending processes, run the next one in the list
                 self.start_queue(False)
 
-        # Clear semaphore, we're done
-        self.Semaphore.release()
-        dprint("TERMINAL: add_process; Semaphore released")
 
     def _run(self, command_string, iter = None):
         """ Run a given command string """
@@ -895,6 +895,9 @@ class ProcessManager:
         # remove process from list
         self.process_list = self.process_list[1:]
 	self.task_completed = True
+        # We're finished, release semaphore
+        self.Semaphore.release()
+        dprint("TERMINAL: process_done; Semaphore released")
         # check for pending processes, and run them
         self.start_queue(False)
         # if there is a callback set, call it
@@ -902,11 +905,8 @@ class ProcessManager:
             callback()
         if self.term.tab_showing[TAB_QUEUE]:
             # update the queue tree
-            self.queue_clicked(self.queue_tree)
+            result = self.queue_clicked(self.queue_tree)
 
-        # We're finished, release semaphore
-        self.Semaphore.release()
-        dprint("TERMINAL: process_done; Semaphore released")
 
     def render_icon(self, icon):
         """ Render an icon for the queue tree """
@@ -964,6 +964,8 @@ class ProcessManager:
     def start_queue(self, skip_first = True):
         """skips the first item in the process_list"""
         dprint("TERMINAL: start_queue()")
+        # Prevent conflicts while changing process queue
+        self.Semaphore.acquire()
         if skip_first:
             dprint("         ==> skipping killed process")
             self.resume_available = False
@@ -973,8 +975,8 @@ class ProcessManager:
             if callback:
                 callback()
             if self.term.tab_showing[TAB_QUEUE]:
-                # update the queue tree
-                self.queue_clicked(self.queue_tree)
+                # update the queue tree wait for it to return, it might prevent crashes
+                result = self.queue_clicked(self.queue_tree)
                 # remove process from list
                 self.process_list = self.process_list[1:]
         # check for pending processes, and run them
@@ -988,6 +990,12 @@ class ProcessManager:
             self.save_menu.set_sensitive(gtk.TRUE)
             self.save_as_menu.set_sensitive(gtk.TRUE)
             self.open_menu.set_sensitive(gtk.TRUE)
+	# We're finished, release semaphore
+	self.Semaphore.release()
+        dprint("TERMINAL: start_queue(); finnished... returning")
+	return
+
+
 
 
     def copy_selected(self, widget):
@@ -1048,7 +1056,7 @@ class ProcessManager:
                     break
         else:
             dprint("TERMINAL: cannot move first or last item")
-        self.queue_clicked(self.queue_tree)
+        result = self.queue_clicked(self.queue_tree)
 
         # We're done, release semaphore
         self.Semaphore.release()
@@ -1140,6 +1148,7 @@ class ProcessManager:
 
     def queue_clicked(self, widget):
         """Handle clicks to the queue treeview"""
+	dprint("TERMINAL: queue_clicked()")
         # get the selected iter
         iter = get_treeview_selection(self.queue_tree)
         # get its path
@@ -1148,7 +1157,7 @@ class ProcessManager:
         except:
             dprint("TERMINAL: Couldn't get queue view treeiter path, " \
                    "there is probably nothing selected.")
-            return
+            return False
         # if the item is not in the process list
         # don't make the controls sensitive and return
         name = get_treeview_selection(self.queue_tree, 1)
@@ -1164,7 +1173,7 @@ class ProcessManager:
                 self.queue_remove.set_sensitive(gtk.FALSE)
             else:
                 self.queue_remove.set_sensitive(gtk.TRUE)
-            return
+            return True
         # if we reach here it's still in the process list
         # activate the delete item
         self.queue_remove.set_sensitive(gtk.TRUE)
@@ -1183,6 +1192,7 @@ class ProcessManager:
             # enable moving the item
             self.move_up.set_sensitive(gtk.TRUE)
             self.move_down.set_sensitive(gtk.TRUE)
+	return True
 
     def set_save_buffer(self):
         """Sets the save info for the notebook tab's visible buffer"""
@@ -1481,7 +1491,7 @@ class terminal_notebook:
         self.buffer_types = {TAB_PROCESS:"log",
                              TAB_WARNING:"warning",
                              TAB_CAUTION:"caution",
-                             TAB_INFO:"info",
+                             TAB_INFO:"summary",
                              TAB_QUEUE:None}
         self.tab = [] #[None, None, None, None]
         self.visible_tablist = []
