@@ -96,6 +96,8 @@ class MainWindow:
             self.wtree.get_widget("fetch").set_active(gtk.TRUE)
         if self.prefs.emerge.verbose:
             self.wtree.get_widget("verbose4").set_active(gtk.TRUE)
+        if self.prefs.main.search_desc:
+            self.wtree.get_widget("search_descriptions1").set_active(gtk.TRUE)
         # restore last window width/height
         self.wtree.get_widget("main_window").resize(self.prefs.main.width,
                                                     self.prefs.main.height)

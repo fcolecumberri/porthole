@@ -25,6 +25,7 @@
 debug = False
 
 from sys import stderr
+from version import version
 
 def dprint(message):
     """Print debug message if debug is true."""
@@ -160,6 +161,7 @@ class PortholePreferences:
         self.process = WindowPreferences(400, 600)
         self.process.width_verbose = 900
         self.emerge = EmergeOptions()
+        self.version = version
 
     def load(self):
         """ Load saved preferences """
@@ -170,9 +172,15 @@ class PortholePreferences:
                 # unpickle our preferences
                 dprint("Loading pickled user preferences...")
                 saved = cPickle.load(open(home + "/.porthole/prefs"))
-                self.main = saved.main
-                self.process = saved.process
-                self.emerge = saved.emerge
+                try:
+                    if saved.version == self.version:
+                        self.main = saved.main
+                        self.process = saved.process
+                        self.emerge = saved.emerge
+                    else:
+                        dprint("Not using old config, version " + str(saved.version))
+                except:
+                    dprint("Version information not found, assuming version 0.2")
         else:
             # create the dir
             dprint("~/.porthole does not exist, creating...")
