@@ -248,7 +248,8 @@ class ProcessManager:
         # set process_running so the reader thread reads it's output
         self.reader.process_running = True
         # show a message that the process is starting
-        self.append_all("*** " + command_string + " ***\n")
+        self.append(self.process_text, "*** " + command_string + " ***\n")
+        self.append(self.info_text, "*** " + command_string + " ***\n")
         self.set_statusbar("*** " + command_string + " ***")
         # pty.fork() creates a new process group
         self.pid, self.reader.fd = pty.fork()
@@ -293,15 +294,26 @@ class ProcessManager:
         iter = buffer.get_end_iter()
         buffer.insert(iter, text)
 
-    def append_all(self, text):
-        """ Append text to all visible buffers """
-        self.append(self.process_text, text)
-        if self.warning_tab.showing:
-            self.append(self.warning_text, text)
-        if self.caution_tab.showing:
-            self.append(self.caution_text, text)
-        if self.info_tab.showing:
-            self.append(self.info_text, text)
+
+##    def append_all(self, text):
+##        """ Append text to all visible buffers """
+##        self.append(self.process_text, text)
+##        if self.warning_tab.showing:
+##            self.append(self.warning_text, text)
+##        if self.caution_tab.showing:
+##            self.append(self.caution_text, text)
+##        if self.info_tab.showing:
+##            self.append(self.info_text, text)
+
+    # we need the emerge pkg info in all tabs to know where
+    # tab messages came from
+    def append_all(self, text, all = False):
+        """ Append text to all buffers """
+        if all: # otherwise skip the process_text buffer
+            self.append(self.process_text, text)
+        self.append(self.warning_text, text)
+        self.append(self.caution_text, text)
+        self.append(self.info_text, text)
 
     def update(self, char):
         """ Add text to the buffer """
@@ -324,7 +336,10 @@ class ProcessManager:
                 if char == '\n': # newline
                     if self.re_object_emerge.search(self.process_buffer):
                         self.set_statusbar(self.process_buffer[:-1])
-                    if self.re_object_info.search(self.process_buffer):
+                        # add the pkg info to all other tabs to identify fom what
+                        # pkg messages came from but no need to show it if it isn't
+                        self.append_all(self.process_buffer,False)
+                    elif self.re_object_info.search(self.process_buffer):
                         # info string has been found, show info tab if needed
                         if not self.info_tab.showing:
                             self.show_tab(TAB_INFO)
@@ -349,11 +364,11 @@ class ProcessManager:
         # if the last process was killed, stop until the user does something
         if self.killed:
             # display message that process has been killed
-            self.append_all(KILLED_STRING)
+            self.append_all(KILLED_STRING,True)
             self.set_statusbar(KILLED_STRING[:-1])
             return
         # display message that process finished
-        self.append_all(TERMINATED_STRING)
+        self.append_all(TERMINATED_STRING,True)
         self.set_statusbar(TERMINATED_STRING[:-1])
         # set queue icon to done
         iter = self.process_list[0][2]
