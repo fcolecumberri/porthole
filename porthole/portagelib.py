@@ -4,7 +4,8 @@
     PortageLib
     An interface library to Gentoo's Portage
 
-    Copyright (C) 2003 - 2004 Fredrik Arnerup and Daniel G. Taylor
+    Copyright (C) 2003 - 2004 Fredrik Arnerup and Daniel G. Taylor and
+    Wm. F. Wheeler
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,6 +35,42 @@ except ImportError:
 import threading
 from metadata import parse_metadata
 
+def get_keywords():
+    """ Get the official keywords as a list """
+    return portage.grabfile('/usr/portage/profiles/keywords.desc')
+
+# Get just once for sake of efficiency
+KeywordList = get_keywords()
+# debug code follows WFW
+# print 'Keyword list:', KeywordList
+
+def get_use_flag_dict():
+    """ Get all the use flags and return them as a dictionary 
+        key = use flag forced to lowercase
+        data = list[0] = 'local' or 'global'
+               list[1] = 'package-name'
+               list[2] = description of flag   
+    """
+    List = portage.grabfile('/usr/portage/profiles/use.desc')
+    dict = {}
+    for item in List:
+        data = item.split(' - ')
+        dict[data[0].strip().lower()] = ['global', '', data[1]]
+    List = portage.grabfile('/usr/portage/profiles/use.local.desc')
+    for item in List:
+        data = item.split(' - ')
+        data2 = data[0].split(':')
+        dict[data2[1].strip()] = ['local', data2[0], data[1]]
+    return dict
+
+# Run it once for sake of efficiency
+UseFlagDict = get_use_flag_dict()
+# debug code follows WFW
+#polibkeys = UseFlagDict.keys()
+#polibkeys.sort()
+#for polibkey in polibkeys:
+#    print polibkey, ':', UseFlagDict[polibkey]
+    
 def get_portage_environ(var):
     """Returns environment variable from portage if possible, else None"""
     try: temp = portage.config(clone=portage.settings).environ()[var]
@@ -43,6 +80,9 @@ def get_portage_environ(var):
 portdir = portage.config(clone=portage.settings).environ()['PORTDIR']
 # is PORTDIR_OVERLAY always defined?
 portdir_overlay = get_portage_environ('PORTDIR_OVERLAY')
+
+# Run it once for sake of efficiency
+SystemUseFlags = get_portage_environ("USE").split()
     
 # lower case is nicer
 keys = [key.lower() for key in portage.auxdbkeys]
@@ -169,13 +209,17 @@ class Package:
         """Get a package's metadata, if there is any"""
         return get_metadata(self.full_name)
 
-    def get_properties(self):
-        """Returns properties of latest ebuild."""
+    def get_properties(self, specific_ebuild = None):
+        """ Returns properties of specific ebuild.
+           If no ebuild specified, get latest ebuild. """
         try:
-            latest = self.get_latest_ebuild()
-            if not latest:
+            if specific_ebuild == None:
+                ebuild = self.get_latest_ebuild()
+            else:
+                ebuild = specific_ebuild
+            if not ebuild:
                 raise Exception('No ebuild found.')
-            return get_properties(latest)
+            return get_properties(ebuild)
         except Exception, e:
             dprint("PORTAGELIB: %s" % e)  # fixed bug # 924730
             return Properties()
