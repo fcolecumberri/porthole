@@ -463,7 +463,6 @@ class MainWindow:
                 or self.db.installed.keys())
             self.package_view.set_view(self.package_view.PACKAGES)
             self.package_view.clear()
-            self.summary.update_package_info(None)
         elif index == self.SHOW_SEARCH:
             cat_scroll.hide();
             dprint("Showing search results")
@@ -476,7 +475,11 @@ class MainWindow:
                 cat_scroll.hide();
                 self.package_view.set_view(self.package_view.UPGRADABLE)
                 self.summary.update_package_info(None)
+        # clear the summary
+        self.summary.update_package_info(None)
+        # update sensibility of buttons
         self.set_package_actions_sensitive(gtk.FALSE)
+        # clear the dependency view
         self.deps_view.clear()
         # clear the changelog and installed files text
         self.changelog.set_text('')
