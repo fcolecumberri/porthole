@@ -74,13 +74,14 @@ def read_access():
     except: pass
     return write_access() or (portage in (os.getgroups() + [os.getegid()]))
 
-def get_treeview_selection( treeview, num):
+def get_treeview_selection( treeview, num = None):
         """Get the value of whatever is selected in a treeview,
-        num is the column"""
+        num is the column, if num is nothing, the iter is returned"""
         model, iter = treeview.get_selection().get_selected()
-        selection = None
+        selection = iter
         if iter:
-            selection = model.get_value(iter, num)
+            if num:
+                selection = model.get_value(iter, num)
         return selection
 
 def get_user_home_dir():
