@@ -690,23 +690,26 @@ class ProcessManager:
                             "*** Unfortunately, you don't have enough " +
                             "logged information about the listed packages, " +
                             "so I can't calculate estimated build times " +
-                            "accuratelly.\n\n", 'emerge')
+                            "accuratelly.\n", 'emerge')
+                    self.append(self.process_text, "\n")
                     return None
             self.append(self.process_text,
                         "*** Based on the build history of these packages " +
                         "on your system, I can estimate that emerging them " +
                         "usually takes, on average, " + 
-                        "%d days, %d hrs, %d mins, and %d secs.\n\n" %
+                        "%d days, %d hrs, %d mins, and %d secs.\n" %
                         (total.seconds // (24 * 3600),\
                          (total.seconds % (24 * 3600)) // 3600,\
                          ((total.seconds % (24 * 3600))  % 3600) //  60,\
                          ((total.seconds % (24 * 3600))  % 3600) %  60), 'emerge')
+            self.append(self.process_text, "\n")
             self.append(self.process_text,
                         "*** Note: If you have a lot of programs running on " +
                         "your system while porthole is emerging packages, " +
                         "or if you have changed your hardware since the " +
                         "last time you built some of these packages, the " +
-                        "estimates I calculate may be inaccurate.\n\n", 'warning')
+                        "estimates I calculate may be inaccurate.\n", 'warning')
+            self.append(self.process_text, "\n")
 
     def queue_clicked(self, widget):
         """Handle clicks to the queue treeview"""
@@ -868,20 +871,18 @@ class ProcessManager:
                 return gtk.FALSE
 
         have_backup = gtk.TRUE
-        lines = self.buffer_to_save.get_line_count()
-        line = 0
         self.set_statusbar("*** saving file: %s" % self.filename)
         try:
             file = open(self.filename, "w")
             # if buffer is "Process" strip line numbers
             if self.buffer_name == TAB_LABELS[TAB_PROCESS]:
-                while line < lines:
-                    start = self.buffer_to_save.get_iter_at_line(line)
-                    end = start.copy(); end.forward_to_line_end()
+                start = self.buffer_to_save.get_start_iter()
+                while not start.is_end():
+                    end = start.copy(); end.forward_line()
                     chars = self.buffer_to_save.get_text(start, end, gtk.FALSE)
-                    file.write(chars[7:]+ "\n")
-                    line += 1
+                    file.write(chars[7:])
                     chars = ""
+                    start.forward_line()
                     
             else: # save the entire buffer
                 start, end = self.buffer_to_save.get_bounds()
