@@ -838,7 +838,7 @@ class ProcessManager:
             self.set_directory()
         try:
             FileSel("Porthole-Terminal: Open log File").run(self.window,
-                                                        None,
+                                                        self.directory,
                                                         self.open_ok_func)
         except:
             FileSel("Porthole-Terminal: Open log File").run(None,
@@ -910,7 +910,7 @@ class ProcessManager:
                            "/.porthole/logs")
                     os.mkdir(self.directory + "/.porthole/logs")
                 self.directory += "/.porthole/logs/"
-                os.chdir(self.directory)
+                #os.chdir(self.directory)
  
     def pretty_name(self):
         """pre-assigns generic filename & serial #"""
