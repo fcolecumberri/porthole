@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 from distutils.core import setup
-#pull the version directly from porthole
-from utils import version
+
+version = "0.2"
 
 datadir = "porthole/"
 

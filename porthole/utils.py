@@ -22,7 +22,7 @@
 '''
 
 #store our version here
-version = "0.1"
+version = "0.2"
 
 #initially set debug to false
 debug = False
