@@ -13,4 +13,5 @@ pixmaps/porthole-icon.png
 porthole.glade
 COPYING
 MANIFEST
+README
 setup.cfg

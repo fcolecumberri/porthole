@@ -26,6 +26,6 @@ setup(name = "porthole",
                       "pixmaps/porthole-icon.png"]),
                     (datadir,
                      ["porthole.glade"]),
-                    ("doc/porthole-" + version, ["COPYING"])
+                    ("doc/porthole-" + version, ["COPYING", "README"])
                     ]
      )
