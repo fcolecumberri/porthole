@@ -51,16 +51,22 @@ def get_use_flag_dict():
                list[1] = 'package-name'
                list[2] = description of flag   
     """
-    List = portage.grabfile('/usr/portage/profiles/use.desc')
     dict = {}
+
+    # process standard use flags
+
+    List = portage.grabfile('/usr/portage/profiles/use.desc')
     for item in List:
-        data = item.split(' - ')
-        dict[data[0].strip().lower()] = ['global', '', data[1]]
+        index = item.find(' - ')
+        dict[item[:index].strip().lower()] = ['global', '', item[index+3:]]
+
+    # process local (package specific) use flags
+
     List = portage.grabfile('/usr/portage/profiles/use.local.desc')
     for item in List:
-        data = item.split(' - ')
-        data2 = data[0].split(':')
-        dict[data2[1].strip()] = ['local', data2[0], data[1]]
+        index = item.find(' - ')
+        data = item[:index].lower().split(':')
+        dict[data[1].strip()] = ['local', data[0].strip(), item[index+3:]]
     return dict
 
 # Run it once for sake of efficiency

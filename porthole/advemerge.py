@@ -66,6 +66,8 @@ class AdvancedEmergeDialog:
         # Populate version combo list
         self.combo = self.wtree.get_widget("cmbVersion")
         self.get_versions()
+
+        # Build a formatted combo list from the versioninfo list 
         comboList = []
         for ver in self.verList:
             info = ver[0]
@@ -75,6 +77,8 @@ class AdvancedEmergeDialog:
             if ver[3]:
                 info += '   [installed]'
             comboList.append(info)
+
+        # Set the combo list
         self.combo.set_popdown_strings(comboList)
 
         # Set any emerge options the user wants defaulted
@@ -105,13 +109,13 @@ class AdvancedEmergeDialog:
             use_flags = "USE='" + use_flags + "' "
         
         # Build accept keyword string
-        accept_keywords = self.get_keywords()
-        if len(accept_keywords) > 0:
-            accept_keywords = "ACCEPT_KEYWORDS='" + accept_keywords + "' "
+        accept_keyword = self.get_keyword()
+        if len(accept_keyword) > 0:
+            accept_keyword = "ACCEPT_KEYWORDS='" + accept_keyword + "' "
 
         # Send command to be processed
         command = use_flags + \
-            accept_keywords + \
+            accept_keyword + \
             "emerge " + \
             self.get_options() + \
             '=' + verInfo[1]
@@ -210,9 +214,10 @@ class AdvancedEmergeDialog:
         self.verList = []
         # Get all versions sorted in chronological order
         ebuilds = ver_sort(self.package.get_versions())
-#        nonmasked = self.package.get_versions(include_masked = False)
+ 
         # Get all installed versions
         installed = self.package.get_installed()
+
         # iterate through ebuild list and create data structure
         for ebuild in ebuilds:
             props = self.package.get_properties(ebuild)
@@ -236,15 +241,14 @@ class AdvancedEmergeDialog:
         return verInfo
 
 
-    def get_keywords(self):
-        """ Get keywords selected by user """
-        keywords = ''
+    def get_keyword(self):
+        """ Get keyword selected by user """
+        keyword = ''
         for item in self.kwList:
             keyword = item[1]
             if item[0].get_active():
-                # Add keyword minus tilde
-                keywords += keyword + ' '
-        return keywords.strip()
+                return keyword.strip()
+        return ''
 
 
     def get_use_flags(self):
@@ -351,13 +355,14 @@ class AdvancedEmergeDialog:
             keywords
         """
         KeywordsFrame = self.wtree.get_widget("frameKeywords")
+
         # If frame has any children, remove them
         child = KeywordsFrame.child
         if child != None:
             KeywordsFrame.remove(child)
 
-        # Build table to hold checkboxes
-        size = len(keywords)
+        # Build table to hold radiobuttons
+        size = len(keywords) + 1  # Add one for None button
         maxcol = 5
         maxrow = size / maxcol - 1
         if maxrow < 0:
@@ -370,13 +375,22 @@ class AdvancedEmergeDialog:
         # checkboxes and attach to table
         col = 0
         row = 0
+        button = gtk.RadioButton(None, 'None')
+        rbGroup = button
+        table.attach(button, col, col+1, row, row+1)
+        button.show()
+        col += 1
         for keyword in keywords:
-            button = gtk.CheckButton(keyword)
-            if not keyword[0] == '~':
-                button.set_inconsistent(gtk.TRUE)
-            self.kwList.append([button, keyword])
-            table.attach(button, col, col+1, row, row+1)
-            button.show()
+            if keyword[0] == '~':
+                button = gtk.RadioButton(rbGroup, keyword)
+                self.kwList.append([button, keyword])
+                table.attach(button, col, col+1, row, row+1)
+                button.show()
+            else:
+                label = gtk.Label(keyword)
+                label.set_alignment(.05, .5)
+                table.attach(label, col, col+1, row, row+1)
+                label.show()
             # Increment col & row counters
             col += 1
             if col > maxcol:
