@@ -111,7 +111,7 @@ class MainWindow:
                 for property, value in properties.items():
                     tag.set_property(property, value)
             return table
-        return create(
+        table = create(
             {'name': ({'weight': pango.WEIGHT_BOLD,
                        'scale': pango.SCALE_X_LARGE}),
              'description': ({"style": pango.STYLE_ITALIC}),
@@ -119,6 +119,11 @@ class MainWindow:
              'property': ({'weight': pango.WEIGHT_BOLD}),
              'value': ({})
              })
+        # React when user clicks on the homepage url
+        tag = table.lookup('url')
+        tag.connect("event", self.on_url_event)
+        return table
+    
 
     def set_statusbar(self, string):
         """Update the statusbar without having to use push and pop."""
@@ -235,6 +240,10 @@ class MainWindow:
         package = self.get_treeview_selection(treeview, 0)
         self.update_package_info(category + "/" + package)
 
+    def on_url_event(self, tag, widget, event, iter):
+        if event.type == gtk.gdk.BUTTON_RELEASE:
+            print self.homepage
+
     def update_package_info(self, package_name):
         """Update the notebook of information about a selected package"""
 
@@ -269,6 +278,7 @@ class MainWindow:
         installed = package.get_installed()
         versions = package.versions
         homepage = package.get_homepage()
+        self.homepage = homepage  # store url for on_url_event
         use_flags = package.get_use_flags()
         license = package.get_license()
         slot = str(package.get_slot())
