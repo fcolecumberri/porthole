@@ -40,6 +40,7 @@ from views import CategoryView, PackageView, DependsView, CommonTreeView
 from depends import DependsTree
 from command import RunDialog
 from advemerge import AdvancedEmergeDialog
+from plugin import PluginGUI, PluginManager
 
 EXCEPTION_LIST = ['.','^','$','*','+','?','(',')','\\','[',']','|','{','}']
 SHOW_ALL = 0
@@ -83,10 +84,11 @@ class MainWindow:
             "on_reload_db" : self.reload_db,
             "on_re_init_portage" : self.re_init_portage,
             "on_cancel_btn" : self.on_cancel_btn,
-            "on_main_window_size_request" : self.size_update
+            "on_main_window_size_request" : self.size_update,
+            "on_plugin_settings_activate" : self.plugin_settings_activate
         }
         self.wtree.signal_autoconnect(callbacks)
-        self.set_statusbar("Starting")
+        self.set_statusbar2("Starting")
         # aliases for convenience
         self.mainwindow = self.wtree.get_widget("main_window")
         self.notebook = self.wtree.get_widget("notebook")
@@ -157,6 +159,15 @@ class MainWindow:
             self.check_for_root()
         # create and start our process manager
         self.process_manager = ProcessManager(environment(), self.prefs, self.config, False)
+        #Plugin-related statements
+        self.needs_plugin_menu = False
+        dprint( "MAIN: Path List for plugins:" ) 
+        dprint( self.prefs.plugins.path_list )
+        self.plugin_root_menu = gtk.MenuItem("Active Plugins")
+        self.plugin_menu = gtk.Menu()
+        self.plugin_root_menu.set_submenu(self.plugin_menu)
+        self.wtree.get_widget("menubar").append(self.plugin_root_menu)
+        self.plugin_manager = PluginManager( self.prefs.plugins.path_list, self )
         dprint("MAIN: Showing main window")
 
 
@@ -181,6 +192,7 @@ class MainWindow:
         # declare the database
         self.db = None
         self.ut_running = False
+        self.ut = None
         # load the db
         self.dbtime = 0
         self.db_thread = portagelib.DatabaseReader()
@@ -191,8 +203,9 @@ class MainWindow:
         self.get_sync_time()
         self.synctooltip.set_tip(self.widget["btn_sync"], self.sync_tip + self.last_sync)
         # set status
-        self.set_statusbar(_("Obtaining package list "))
-        self.set_statusbar2(_("Loading database"))
+        #self.set_statusbar(_("Obtaining package list "))
+        self.status_root = _("Loading database")
+        self.set_statusbar2(self.status_root)
         self.progressbar = self.wtree.get_widget("progressbar1")
         self.set_cancel_btn(OFF)
 
@@ -233,8 +246,9 @@ class MainWindow:
         self.get_sync_time()
         self.synctooltip.set_tip(self.widget["btn_sync"], self.sync_tip + self.last_sync)
         # set status
-        self.set_statusbar(_("Obtaining package list "))
-        self.set_statusbar2(_("Reloading database"))
+        #self.set_statusbar(_("Obtaining package list "))
+        self.status_root = _("Reloading database")
+        self.set_statusbar2(self.status_root)
         return gtk.FALSE
 
     def get_sync_time(self):
@@ -299,19 +313,22 @@ class MainWindow:
         if not self.db_thread.done:
             self.dbtime += 1
             if self.db_thread.count > 0:
-                self.set_statusbar(_("Reading package database: %i packages read"
+                self.set_statusbar2(self.status_root + _(": %i packages read"
                                      % self.db_thread.count))
             #count = self.db_thread.count
             #dprint("self.prefs.dbtime = ")
             #dprint(self.prefs.dbtime)
-            fraction = min(1.0, max(0,(self.dbtime / float(self.prefs.dbtime))))
-            self.progressbar.set_text(str(int(fraction * 100)) + "%")
-            self.progressbar.set_fraction(fraction)
+            try:
+                fraction = min(1.0, max(0,(self.dbtime / float(self.prefs.dbtime))))
+                self.progressbar.set_text(str(int(fraction * 100)) + "%")
+                self.progressbar.set_fraction(fraction)
+            except:
+                pass
 
         elif self.db_thread.error:
             # todo: display error dialog instead
             self.db_thread.join()
-            self.set_statusbar(self.db_thread.error.decode('ascii', 'replace'))
+            self.set_statusbar2(self.db_thread.error.decode('ascii', 'replace'))
             return gtk.FALSE  # disconnect from timeout
         else: # db_thread is done
             self.db_thread_running = False
@@ -324,7 +341,7 @@ class MainWindow:
             self.db_thread_running = False
             dprint("MAINWINDOW: db_thread.join is done...")
             self.db = self.db_thread.get_db()
-            self.set_statusbar(_("Populating tree ..."))
+            self.set_statusbar2(self.status_root + _(": Populating tree"))
             self.update_statusbar(SHOW_ALL)
             #~dprint("MAINWINDOW: setting menubar,toolbar,etc to sensitive...")
             self.wtree.get_widget("menubar").set_sensitive(gtk.TRUE)
@@ -373,6 +390,7 @@ class MainWindow:
             dprint("MAINWINDOW: Made it thru a reload, returning...")
             self.reload = False
             self.progress_done(False)
+            self.view_filter_changed(view_filter)
             return gtk.FALSE  # disconnect from timeout
         #dprint("MAINWINDOW: returning from update_db_read() count=%d dbtime=%d"  %(count, self.dbtime))
         return gtk.TRUE
@@ -458,6 +476,29 @@ class MainWindow:
         package = get_treeview_selection(self.package_view, 2)
         # Activate the advanced emerge dialog window
         dialog = AdvancedEmergeDialog(self.prefs, package, self.setup_command)
+
+    def plugin_settings_activate( self, widget ):
+        """Shows the plugin settings window"""
+        plugin_dialog = PluginGUI( self.prefs, self.plugin_manager )
+ 
+    def new_plugin_menuitem( self, label ):
+        dprint("Adding new Menu Entry")
+        if self.needs_plugin_menu == False:
+            #Creates plugin Menu
+            dprint("Enabling Plugin Menu")
+            self.plugin_root_menu.show()
+            self.needs_plugin_menu = True
+        new_item = gtk.MenuItem( label )
+        new_item.show()
+        self.plugin_menu.append( new_item )
+        return new_item
+
+    def del_plugin_menuitem( self, menuitem ):
+        self.plugin_menu.remove( menuitem )
+        if len(self.plugin_menu.get_children()) == 0:
+            self.plugin_root_menu.hide()
+            self.needs_plugin_menu = False
+        del menuitem
 
     def unmerge_package(self, widget):
         """Unmerge the currently selected package."""
@@ -897,8 +938,10 @@ class MainWindow:
                 return gtk.FALSE
             self.ut.join()
             self.ut_running = False
-            self.progress_done(True)
             self.upgrades_loaded = True
+            self.progress_done(True)
+            view_filter = self.wtree.get_widget("view_filter")
+            self.view_filter_changed(view_filter)
             if self.upgrades_loaded_callback:
                 self.upgrades_loaded_callback(None)
                 self.upgrades_loaded_callback = None
@@ -912,7 +955,7 @@ class MainWindow:
             if self.ut_running:
                 try:
                     if self.build_deps:
-                        fraction = self.ut.world_count / float(self.ut.world_total)
+                        fraction = (self.ut.world_count + self.ut.dep_count) / float(self.ut.upgrade_total)
                         self.progressbar.set_text(str(int(fraction * 100)) + "%")
                         self.progressbar.set_fraction(fraction)
                     else:
@@ -932,7 +975,8 @@ class MainWindow:
             self.set_cancel_btn(OFF)
         self.progressbar.set_text("")
         self.progressbar.set_fraction(0)
-        self.set_statusbar2(_("Done"))
+        self.status_root = _("Done: ")
+        self.set_statusbar2(self.status_root)
 
     def set_cancel_btn(self, state):
             self.wtree.get_widget("btn_cancel").set_sensitive(state)
@@ -954,7 +998,15 @@ class MainWindow:
                                                          len(self.db.installed)))
         elif mode == SHOW_SEARCH:
             text = _("%d matches found" % self.package_view.search_model.size)
-        self.set_statusbar(text)
+
+        elif mode == SHOW_UPGRADE:
+            if not self.ut:
+                dprint("MAINWINDOW: attempt to update status bar with no upgrade thread assigned")
+            else:
+                text = _("%d world, %d dependency's" % (self.ut.world_count,
+                                                         self.ut.dep_count))
+
+        self.set_statusbar2(self.status_root + text)
 
     def set_package_actions_sensitive(self, enabled, package = None):
         """Sets package action buttons/menu items to sensitive or not"""
@@ -1094,6 +1146,7 @@ class UpgradableReader(CommonReader):
         #self.world = []
         self.view_prefs = view_prefs
         self.upgradeables = {}
+        self.dep_count = 0
  
     def run(self):
         """fill upgrade tree"""
@@ -1114,8 +1167,9 @@ class UpgradableReader(CommonReader):
         installed_world = portagelib.sort(installed_world)
         installed_dep = portagelib.sort(installed_dep)
         #installed = installed_world + installed_dep
-        self.world_total = len(installed_world) + 1 + len(installed_dep) +1
+        self.upgrade_total = len(installed_world) + len(installed_dep)
         self.world_count = 0
+        self.dep_count = 0
         #self.add_package(_("---- World upgradeable ----"), None, True)
         for full_name, package in installed_world:
             self.world_count += 1
@@ -1138,10 +1192,10 @@ class UpgradableReader(CommonReader):
         if installed_dep != []:
             self.add_package(_("Dependency upgradeable"), None, False, False)
             for full_name, package in installed_dep:
-                self.world_count += 1
+                self.dep_count += 1
                 if self.cancelled: self.done = True; return
                 self.add_deps(full_name, package, package.in_world, False)
-        self.world_count += 1
+        #self.world_count += 1
         # set the thread as finished
         self.done = True
 

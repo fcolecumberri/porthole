@@ -241,6 +241,11 @@ class EmergeOptions:
         if self.nospinner: opt_string += '--nospinner '
         return opt_string
 
+class PluginOptions:
+    """ Holds preferences for plugins """
+    def __init__( self, ):
+        self.path_list = [os.getcwd()]
+
 class WindowPreferences:
     """ Holds preferences for a window """
     def __init__(self, width = 0, height = 0):
@@ -560,14 +565,14 @@ class PortholePreferences:
 
 	# Misc. variables
 
-	try:
+        try:
            self.database_size = dom.getitem('/database/size')
         except XMLManagerError:
            self.database_size = 7000
         try:
            self.dbtime = dom.getitem('/database/dbtime')
-	   #dprint("UTILS: __init__(); self.dbtime =")
-	   #dprint(self.dbtime)
+           #dprint("UTILS: __init__(); self.dbtime =")
+           #dprint(self.dbtime)
         except XMLManagerError:
            self.dbtime = 50
         try:
@@ -575,6 +580,17 @@ class PortholePreferences:
         except XMLManagerError:
            self.dbtotals = []
         
+        self.plugins = PluginOptions()
+        # Load Plugin Preferences
+        try:
+            new_paths = dom.getitem('/plugins/path_list')
+            if new_paths.count(self.plugins.path_list[0]) >= 1:
+                self.plugins.path_list = new_paths
+            else:
+                self.plugins.path_list += new_paths
+        except XMLManagerError:
+            pass
+
         # All prefs now loaded or defaulted
         del dom   # no longer needed, release memory
 
@@ -620,6 +636,7 @@ class PortholePreferences:
         #dprint("UTILS: save(); self.dbtime = %d" %self.dbtime)
         dom.additem('/database/dbtime', self.dbtime)
         dom.additem('/database/dbtotals', self.dbtotals)
+        dom.additem('/plugins/path_list', self.plugins.path_list)
         dom.save(self.__PFILE)
         del dom   # no longer needed, release memory
 
