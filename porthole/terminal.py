@@ -415,7 +415,18 @@ class ProcessManager:
         self.warning_count = 0
         self.caution_count = 0
         self.Failed = False
-        self.isPretend = command_string.find('--pretend') > -1
+        self.isPretend = (sre.search("--pretend", command_string) != None)
+        if not self.isPretend:
+            tmpcmdline = command_string.split()
+            #dprint(tmpcmdline)
+            for x in tmpcmdline:
+                if x[0:1]=="-"and x[1:2]!="-":
+                    for y in x[1:]:
+                        #dprint(y)    
+                        if y == "p":
+                            #dprint("found it")
+                            self.isPretend = True
+
         start_iter = self.process_text.get_end_iter()
         if self.command_start:
             # move the start mark

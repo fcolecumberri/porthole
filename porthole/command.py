@@ -72,7 +72,7 @@ class RunDialog:
         self.command = self.entry.get_text()
         if self.command:
             #dprint("COMMAND: activated: %s" %self.command)
-            self.call_back(("command line entry: %s" %self.command), self.command)
+            self.call_back("command line entry", self.command)
             self.history_add()
         self.cancel(None)
         
