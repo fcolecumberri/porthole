@@ -70,19 +70,18 @@ class MainWindow:
         #declare the database
         self.db = None
         #set category treeview header
-        category_column = gtk.TreeViewColumn()
-        category_column.set_title("Categories")
-        category_renderer = gtk.CellRendererText()
-        category_column.pack_start(category_renderer, expand = True)
-        category_column.add_attribute(category_renderer, "text", 0)
+        category_column = gtk.TreeViewColumn("Categories",
+                                             gtk.CellRendererText(),
+                                             markup = 0)
         self.wtree.get_widget("category_view").append_column(category_column)
         #set package treeview header
-        package_column = gtk.TreeViewColumn()
-        package_column.set_title("Packages")
+        package_column = gtk.TreeViewColumn("Packages")
         package_pixbuf = gtk.CellRendererPixbuf()
-        package_text = gtk.CellRendererText()
         package_column.pack_start(package_pixbuf, expand = False)
+        package_column.add_attribute(package_pixbuf, "pixbuf", 1)
+        package_text = gtk.CellRendererText()
         package_column.pack_start(package_text, expand = True)
+        package_column.add_attribute(package_text, "text", 0)
         self.wtree.get_widget("package_view").append_column(package_column)
         #move horizontal and vertical panes
         self.wtree.get_widget("hpane").set_position(200)
@@ -121,19 +120,43 @@ class MainWindow:
         return gtk.TRUE
 
     def populate_category_tree(self):
-        last_cat = "None"
+        last_catmaj = None
         categories = self.db.categories.keys()
         categories.sort()
-        self.category_model = gtk.TreeStore(gobject.TYPE_STRING)
+        self.category_model = gtk.TreeStore(gobject.TYPE_STRING,
+                                            gobject.TYPE_STRING)
         for cat in categories:
-            sub_categories = string.split(cat, "-")
-            if sub_categories[0] != last_cat:
+            catmaj, catmin = cat.split("-")
+            if catmaj != last_catmaj:
                 cat_iter = self.category_model.insert_before(None, None)
-                self.category_model.set_value(cat_iter, 0, sub_categories[0])
-                last_cat = sub_categories[0]
+                self.category_model.set_value(cat_iter, 0, catmaj)
+                self.category_model.set_value(cat_iter, 1, None) # needed?
+                last_catmaj = catmaj
             sub_cat_iter = self.category_model.insert_before(cat_iter, None)
-            self.category_model.set_value(sub_cat_iter, 0, sub_categories[1])
+            self.category_model.set_value(sub_cat_iter, 0, catmin)
+            # store full category name in hidden field
+            self.category_model.set_value(sub_cat_iter, 1, cat)
         self.wtree.get_widget("category_view").set_model(self.category_model)
+
+    def populate_package_tree(self, category):
+        view = self.wtree.get_widget("package_view")
+        self.package_model = gtk.TreeStore(gobject.TYPE_STRING,
+                                           gtk.gdk.Pixbuf)
+        if not category:
+            view.set_model(self.package_model)
+            return
+        packages = self.db.categories[category]
+        names =  portagelib.sort(packages.keys())
+        for name in names:
+            iter = self.package_model.insert_before(None, None)
+            self.package_model.set_value(iter, 0, name)
+            self.package_model.set_value(
+                iter, 1,
+                view.render_icon((packages[name].get_installed()
+                                  and gtk.STOCK_YES or gtk.STOCK_NO),
+                                 size = gtk.ICON_SIZE_MENU,
+                                 detail = None))
+        view.set_model(self.package_model)
 
     def emerge_package(self, widget):
         """Emerge the currently selected package."""
@@ -163,11 +186,15 @@ class MainWindow:
         """Show about dialog."""
         dialog = AboutDialog()
 
-    def category_changed(self, widget):
+    def category_changed(self, treeview):
         """Catch when the user changes categories."""
-        print "boing!"
+        model, iter = treeview.get_selection().get_selected()
+        category = None
+        if iter:
+            category = model.get_value(iter, 1)
+        self.populate_package_tree(category)
 
-    def package_changed(self, widget):
+    def package_changed(self, treewiew):
         """Catch when the user changes packages."""
         pass
 
