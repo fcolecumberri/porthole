@@ -382,8 +382,8 @@ class PortholeConfiguration:
             reg exp and its not in the reg exp notlist'''
         for regexp in self.info_re_list:
             if regexp.match(teststring):
-                for regexp in self.info_re_notlist:
-                    if regexp.match(teststring):
+                for regexpi in self.info_re_notlist:
+                    if regexpi.match(teststring):
                         return False    # excluded, no match
                 return True
         return False
@@ -392,18 +392,18 @@ class PortholeConfiguration:
         ''' Parse string, return true if it matches warning reg exp '''
         for regexp in self.warning_re_list:
             if regexp.match(teststring):
-                for regexp in self.warning_re_notlist:
-                    if regexp.match(teststring):
+                for regexpi in self.warning_re_notlist:
+                    if regexpi.match(teststring):
                         return False    # excluded, no match
                 return True
-            return False
+        return False
 
     def isCaution(self, teststring):
         ''' Parse string, return true if belongs in info tab '''
         for regexp in self.caution_re_list:
             if regexp.match(teststring):
-                for regexp in self.caution_re_notlist:
-                    if regexp.match(teststring):
+                for regexpi in self.caution_re_notlist:
+                    if regexpi.match(teststring):
                         return False    # excluded, no match
                 return True
         return False
@@ -412,15 +412,15 @@ class PortholeConfiguration:
         ''' Parse string, return true if belongs in error tab '''
         for regexp in self.error_re_list:
             if regexp.match(teststring):
-                for regexp in self.error_re_notlist:
-                    if regexp.match(teststring):
+                for regexpi in self.error_re_notlist:
+                    if regexpi.match(teststring):
                         return False    # excluded, no match
                 return True
         return False
 
     def isEmerge(self, teststring):
         ''' Parse string, return true if it is the initial emerge line '''
-        return self.emerge_re.match(teststring)
+        return self.emerge_re.match(teststring) != None
 
 
 class BadLogFile(Exception):
