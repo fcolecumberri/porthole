@@ -36,11 +36,16 @@ try:
 except ValueError:
     path.append(PORTAGE_MOD_PATH)
 
+LOG_FILE_DIR = "/var/log/porthole"
+
 import os
 # check if directory exists, if not create it
-if not os.access("/var/log/porthole", os.F_OK):
-    print "/var/log/porthole does not exist, creating..."
-    os.mkdir("/var/log/porthole")
+if not os.access(LOG_FILE_DIR, os.F_OK):
+    print LOG_FILE_DIR + " does not exist, creating..."
+    try:
+        os.mkdir(LOG_FILE_DIR)
+    except OSError, (errnum, errmsg):
+        print "Failed to create %s:" % LOG_FILE_DIR, errmsg
 
 pycrash_found = False
 try:
@@ -49,7 +54,7 @@ try:
     class MyCrash(HTMLPyCrash):
         #def onExit(self):
 	def onExceptionRaised(self, time):
-	    save_file = "/var/log/porthole/crash.html"
+	    save_file = LOG_FILE_DIR + "/crash.html"
 	    # saveToFile does not yet return a result: feature request submitted
 	    self.saveToFile(save_file)
 	    print "PORTHOLE: Crash detected.  Please submit a bug report &"
@@ -132,7 +137,7 @@ if __name__ == "__main__":
 
     if pycrash_found == True:
         _utils.dprint("pycrash module initializing")
-        _utils.dprint("If a crash occurs check the /var/log/porthole/crash.html file and post it to porthole bugs")
+        _utils.dprint("If a crash occurs check the " + LOG_FILE_DIR + "/crash.html file and post it to porthole bugs")
         p = MyCrash({'AppName': 'Porthole', 'Version': version, 'SendTo': 'porthole bugs'})
         p.enable() #New in PyCrash-0.4pre2
     # make sure gtk lets threads run
