@@ -274,6 +274,7 @@ class MainWindow:
         package.read_versions()
         #read it's info
         description = package.description
+        metadata = package.get_metadata()
         ebuild = package.get_latest_ebuild()
         installed = package.get_installed()
         versions = package.versions
@@ -290,6 +291,13 @@ class MainWindow:
         append(package_name, "name"); nl()
         if description:
             append(description, "description"); nl()
+        if metadata and metadata.longdescription:
+            nl();
+            # longdescription is unicode
+            # Todo: don't mix 8-bit and unicode like this
+            append(metadata.longdescription.encode("ascii", "replace"),
+                   "description")
+            nl()
         if homepage:
             append(homepage, "url"); nl()
         #put a space between this info and the rest

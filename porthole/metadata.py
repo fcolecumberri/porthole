@@ -3,6 +3,7 @@
 from xml.sax import saxutils, make_parser
 from xml.sax.handler import feature_namespaces
 from re import sub
+from os.path import exists
 
 def normalize_whitespace(text):
     """Remove space at beginning and end
@@ -44,11 +45,13 @@ class MetadataHandler(saxutils.DefaultHandler):
         
 def parse_metadata(filename):
     """Read a portage metadata file and return a Metadata object."""
+    if not exists(filename):
+        raise Exception('Metadata file "' + filename + '" does not exist.')
     parser = make_parser()
     parser.setFeature(feature_namespaces, 0)
     handler = MetadataHandler()
     parser.setContentHandler(handler)
-    parser.parse(argv[1])
+    parser.parse(filename)
     return handler.result
 
 

@@ -29,10 +29,18 @@ except ImportError:
          'Are you sure this is a Gentoo system?')
 
 import threading
+from metadata import parse_metadata
 
 version = 0.1
 debug = 0
 
+portdir = portage.config().environ()['PORTDIR']
+# is PORTDIR_OVERLAY always defined?
+try:
+    portdir_overlay = portage.config().environ()['PORTDIR_OVERLAY']
+except:
+    portdir_overlay = None
+    
 def dprint(message):
     #print debug messages
     if debug:
@@ -90,6 +98,14 @@ def get_description(ebuild):
     """Returns utf-8 encoded string."""
     return get_property(ebuild, 'DESCRIPTION').encode('UTF-8')
 
+def get_metadata(package):
+    # we could check the overlay as well,
+    # but we are unlikely to find any metadata files there
+    try:
+        return parse_metadata(portdir + "/" + package + "/metadata.xml")
+    except:
+        return None
+
 # Todo: dependencies need to be parsed somehow
 
 def get_depend(ebuild):
@@ -136,6 +152,9 @@ class Package:
     def get_installed(self):
         """Returns a list of all installed ebuilds."""
         return self.installed
+
+    def get_metadata(self):
+        return get_metadata(self.full_name)
 
     def read_description(self):
         """Read description and store in object."""
