@@ -254,22 +254,22 @@ class PortholePreferences:
         try:
            width = dom.getitem('/window/main/width')
         except XMLManagerError:
-           width = 500   # Default value
+           width = 200   # Default value
         try:
            height = dom.getitem('/window/main/height')
         except XMLManagerError:
-           height = 650   # Default value
+           height = 350   # Default value
         self.main = WindowPreferences(width, height)
         try:
            hpane = dom.getitem('/window/main/hpane')
         except XMLManagerError:
-           hpane = 280   # Default value
+           hpane = 180   # Default value
         self.main.hpane = hpane
         dprint("UTILS: __init__() hpane: %d" %self.main.hpane)
         try:
            vpane = dom.getitem('/window/main/vpane')
         except XMLManagerError:
-           vpane = 250   # Default value
+           vpane = 125   # Default value
         self.main.vpane = vpane
         try:
            search_desc = dom.getitem('/window/main/search_desc')
@@ -287,16 +287,16 @@ class PortholePreferences:
         try:
            width = dom.getitem('/window/process/width')
         except XMLManagerError:
-           width = 400   # Default value
+           width = 300   # Default value
         try:
            height = dom.getitem('/window/process/height')
         except XMLManagerError:
-           height = 600   # Default value
+           height = 350   # Default value
         self.process = WindowPreferences(width, height)
         try:
            width_verbose = dom.getitem('/window/process/width_verbose')
         except XMLManagerError:
-           width_verbose = 900   # Default value
+           width_verbose = 500   # Default value
         self.process.width_verbose = width_verbose
 
         # Terminal window settings
@@ -304,16 +304,16 @@ class PortholePreferences:
         try:
            width = dom.getitem('/window/terminal/width')
         except XMLManagerError:
-           width = 500   # Default value
+           width = 300   # Default value
         try:
            height = dom.getitem('/window/terminal/height')
         except XMLManagerError:
-           height = 400   # Default value
+           height = 350   # Default value
         self.terminal = WindowPreferences(width, height)
         try:
            width_verbose = dom.getitem('/window/terminal/width_verbose')
         except XMLManagerError:
-           width_verbose = 900   # Default value
+           width_verbose = 500   # Default value
         self.terminal.width_verbose = width_verbose
         
         # Formatting tags for the terminal window tabs.  
@@ -519,13 +519,14 @@ class PortholePreferences:
 
     def save(self):
         """ Save preferences """
+        dprint("UTILS: preferences save()")
         dom = XMLManager(None)
         dom.name = 'portholeprefs'
         dom.version = version
         dom.additem('/window/main/width', self.main.width)
         dom.additem('/window/main/height', self.main.height)
         dom.additem('/window/main/hpane', self.main.hpane)
-        dprint("UTILS: save() hpane: %d" %self.main.hpane)
+        #dprint("UTILS: save() hpane: %d" %self.main.hpane)
         dom.additem('/window/main/vpane', self.main.vpane)
         dom.additem('/window/main/search_desc', self.main.search_desc)
         dom.additem('/window/main/show_nag_dialog', self.main.show_nag_dialog)

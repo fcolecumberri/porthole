@@ -33,7 +33,13 @@ except ImportError:
          'Are you sure this is a Gentoo system?')
 
 import threading
+
+# not sure if segfaults are gtk.threads_enter() / _leave() related
+# so...
+import gtk
+
 from metadata import parse_metadata
+
 
 def get_keywords():
     """ Get the official keywords as a list """
@@ -113,7 +119,7 @@ SystemUseFlags = get_portage_environ("USE").split()
 # lower case is nicer
 keys = [key.lower() for key in portage.auxdbkeys]
 
-# establish a semaphore for the DatabaseReader thread
+# establish a semaphore for the Database
 Installed_Semaphore = threading.Semaphore()
 
 # a list of all installed packages
@@ -279,7 +285,7 @@ class Package:
 
 def sort(list):
     """sort in alphabetic instead of ASCIIbetic order"""
-    dprint("POTAGELIB: sort()")
+    dprint("PORTAGELIB: sort()")
     
     spam = [(x[0].upper(), x) for x in list]
     spam.sort()
@@ -333,7 +339,7 @@ class DatabaseReader(threading.Thread):
         tree = portage.db['/']['porttree']
         self.get_installed()
         try:
-            dprint("PORTAGELIB: read_db(); allnodes=")
+            dprint("PORTAGELIB: read_db(); allnodes")
             allnodes = tree.getallnodes()
         except OSError, e:
             # I once forgot to give read permissions
@@ -348,7 +354,9 @@ class DatabaseReader(threading.Thread):
                 if name == 'timestamp.x' or name[-4:] == "tbz2":  
                     continue
                 self.count += 1
+                gtk.threads_enter()
                 data = Package(entry)
+                gtk.threads_leave()
                 self.db.categories.setdefault(category, {})[name] = data;
                 if entry in self.installed_list:
                     self.db.installed.setdefault(category, {})[name] = data;
@@ -365,11 +373,13 @@ class DatabaseReader(threading.Thread):
         #installed_list # a better way to do this?
         dprint("PORTAGELIB: get_installed();")
         self.installed_list = portage.db['/']['vartree'].getallnodes()
+        gtk.threads_enter()
         global Installed_Semaphore
         global installed
         Installed_Semaphore.acquire()
         installed = self.installed_list
         Installed_Semaphore.release()
+        gtk.threads_leave()
         self.new_installed_Semaphore.release()
         
     def run(self):

@@ -79,7 +79,7 @@ TAB_QUEUE = 4
 # you won't be able to make it stick when text is added rapidly
 SLIDER_CLOSE_ENOUGH = 0.5 # of the page size
 
-# some contant strings that may be internationalized later
+# some contant strings that can be internationalized
 KILLED_STRING = _("*** process killed ***\n")
 TERMINATED_STRING = _("*** process completed ***\n")
 TABS = [TAB_PROCESS, TAB_WARNING, TAB_CAUTION, TAB_INFO, TAB_QUEUE]
@@ -260,6 +260,9 @@ class ProcessManager:
             id = self.term.vadjustment[x].connect("value_changed", self.set_scroll)
             self.term.vhandler_id += [id]
             #self.term.auto_scroll[x] = False  # already initialized to True
+	    # create autoscroll end marks to seek to &
+	    end_mark = self.term.buffer[x].create_mark(("end_mark"+str(x)), self.term.buffer[x].get_end_iter(), False)
+	    self.term.end_mark += [end_mark]
         #dprint("TERMINAL: show_window() -- self.term.vadjustment[]," +
         #       "self.term.vhandler_id[], self.term.autoscroll")
         #dprint(self.term.vadjustment)
@@ -323,15 +326,8 @@ class ProcessManager:
         dprint("TERMINAL: switch_page; page_num = %d" %page_num)
         self.term.current_tab = self.term.visible_tablist[page_num]
         if self.term.auto_scroll[self.term.current_tab]:
-            #dprint("TERMINAL: append() -- self.term.vadjustment[], self.term.vhandler_id[]")
-            #dprint(self.term.vadjustment)
-            #dprint(self.term.vhandler_id)
-            num = self.term.current_tab
-            self.term.vadjustment[num].handler_block(self.term.vhandler_id[num])
-            #result = self.term.view[num].scroll_to_iter(self.term.buffer[num].get_end_iter(),0.0, True, 0, 0.9)
-            self.term.view[num].scroll_mark_onscreen(self.term.buffer[num].get_insert())
-            self.term.vadjustment[num].handler_unblock(self.term.vhandler_id[num])
-        return
+		self.scroll_current_view()
+	return
 
     def set_scroll(self,  vadjustment):
         """Sets autoscrolling on when moved to bottom of scrollbar"""
@@ -613,6 +609,11 @@ class ProcessManager:
         else:
            self.term.buffer[num].insert_with_tags_by_name(iter, text, tagname)
 
+    def scroll_current_view(self):
+        """scrolls the current_tab"""
+        if self.term.current_tab != TAB_QUEUE:
+	    self.term.view[self.term.current_tab].scroll_mark_onscreen(self.term.end_mark[self.term.current_tab])
+
     def append(self, num, text, tagname = None):
         """ Append text to a text buffer.  Line numbering based on
             the process window line count is automatically added.
@@ -632,13 +633,7 @@ class ProcessManager:
         else:
            self.term.buffer[num].insert_with_tags_by_name(iter, text, tagname)
         if self.term.auto_scroll[num] and num == self.term.current_tab:
-            #dprint("TERMINAL: append() -- self.term.vadjustment[], self.term.vhandler_id[]")
-            #dprint(self.term.vadjustment)
-            #dprint(self.term.vhandler_id)
-            #self.term.vadjustment[num].handler_block(self.term.vhandler_id[num])
-            #result = self.term.view[num].scroll_to_iter(self.term.buffer[num].get_end_iter(),0.0, True, 0, 0.9)
-            self.term.view[num].scroll_mark_onscreen(self.term.buffer[num].get_insert())
-            #self.term.vadjustment[num].handler_unblock(self.term.vhandler_id[num])
+	    self.scroll_current_view()
 
     def append_all(self, text, all = False, tag = None):
         """ Append text to all buffers """
@@ -1467,15 +1462,9 @@ class terminal_notebook:
         self.vadjustment = [] #[None, None, None, None, None]
         self.vhandler_id = [] #[None, None, None, None, None]
         self.auto_scroll = [True, False, False, False, False]
+	self.end_mark = [] # hold the end of buffer text marks for autoscrolling
         self.get_tab_list() # initialize to default state
 
-
-    def scroll_current_view(self):
-        """scrolls the current_tab"""
-        if self.current_tab != TAB_QUEUE:
-            self.vadjustment[self.current_tab].handler_block(self.vhandler_id[self.current_tab])
-            self.view[self.current_tab].scroll_mark_onscreen(self.buffer[self.current_tab].get_insert())
-            self.vadjustment[self.current_tab].handler_unblock(self.vhandler_id[self.current_tab])
 
     def get_tab_list(self):
         """creates the current notebook tab list"""
@@ -1553,7 +1542,7 @@ class ProcessOutputReader(threading.Thread):
                     # clean up, process is terminated
                     self.process_running = False
                     while self.string != "":
-                        dprint("TERMINAL ProcessOutputReader: waiting for update to finish")
+                        #dprint("TERMINAL ProcessOutputReader: waiting for update to finish")
                         # wait for update_callback to finish
                         time.sleep(.5)
                     if self.file_input:

@@ -48,10 +48,10 @@ class MainWindow:
         # setup glade
         self.gladefile = self.prefs.DATA_PATH + "porthole.glade"
         self.wtree = gtk.glade.XML(self.gladefile, "main_window")
-        # register callbacks
+        # register callbacks  note: gtk.mainquit deprecated
         callbacks = {
-            "on_main_window_destroy" : gtk.mainquit,
-            "on_quit1_activate" : gtk.mainquit,
+            "on_main_window_destroy" : gtk.main_quit,
+            "on_quit1_activate" : gtk.main_quit,
             "on_emerge_package" : self.emerge_package,
             "on_adv_emerge_package" : self.adv_emerge_package,
             "on_unmerge_package" : self.unmerge_package,
@@ -176,6 +176,7 @@ class MainWindow:
         # load the db
         self.db_thread = portagelib.DatabaseReader()
         self.db_thread.start()
+        #test = 87/0  # used to test pycrash is functioning
         self.reload = True
         self.db_timeout = gtk.timeout_add(100, self.update_db_read)
         # set status
@@ -221,7 +222,7 @@ class MainWindow:
             self.db_thread.join()
             self.set_statusbar(self.db_thread.error.decode('ascii', 'replace'))
             return gtk.FALSE  # disconnect from timeout
-        else:
+        else: # db_thread is done
             dprint("MAINWINDOW: db_thread is done...")
             dprint("MAINWINDOW: db_thread.join...")
             self.db_thread.join()
@@ -722,6 +723,7 @@ class MainWindow:
                 # reset it back to where it should be
                 self.wtree.get_widget("hpane").set_position(self.prefs.main.hpane)
                 self.hpane_bug = False
+                del self.hpane_bug_count
             else:
                 self.hpane_bug_count += 1
         pos = widget.get_size()

@@ -205,10 +205,10 @@
 		  <child>
 		    <widget class="GtkImageMenuItem" id="reload_db">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Reload _Data</property>
+		      <property name="label" translatable="yes">R_eload Data</property>
 		      <property name="use_underline">True</property>
 		      <signal name="activate" handler="on_reload_db" last_modification_time="Sat, 22 Aug 2004 02:15:00 GMT"/>
-		      <accelerator key="D" modifiers="GDK_CONTROL_MASK" signal="activate"/>
+		      <accelerator key="E" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
 			<widget class="GtkImage" id="image-reload_db">

@@ -38,7 +38,7 @@ except ValueError:
     path.append(PORTAGE_MOD_PATH)
 
 try:
-    from pycrash import *
+    from pycrash.utils import *
     pycrash_found = True
 except ImportError:
     pycrash_found = False
@@ -48,7 +48,7 @@ from thread import *
 import utils
 from sys import argv, exit, stderr
 from mainwindow import MainWindow
-import gtk
+import gtk, time
 from getopt import getopt, GetoptError
 from version import version
 
@@ -63,10 +63,14 @@ def usage():
     print "             " + tabs + "Also if PyCrash-0.4pre2 or newer is found it will use it"
     print "             " + tabs + "to try to save additional crash info to send in for debugging"
 
-class MyCrash(PyCrash):
-	def onExit(self):
-            home_dir = utils.get_user_home_dir()
-	    self.saveToFile(home_dir + "/.porthole/porthole.pycrash")
+class MyCrash(HTMLPyCrash):
+	#def onExit(self):
+         def onExceptionRaised(self, time):
+            save_file = utils.get_user_home_dir() + "/.porthole/porthole-pycrash.html"
+            # saveToFile does not yet return a result: feature request submitted
+	    self.saveToFile(save_file)
+            print "PORTHOLE: Crash detected.  Please submit a bug report &"
+            print "         include the " + save_file
 
 
 if __name__ == "__main__":
@@ -88,16 +92,16 @@ if __name__ == "__main__":
         elif opt in ("-d", "--debug"):
             utils.debug = True
             utils.dprint("Debug printing is enabled")
-            if pycrash_found:
-                utils.dprint("pycrash module initializing")
-                utils.dprint("If a crash occurs check the ~/.porthole/porthole.pycrash file and post it to porthole bugs")
-                p = MyCrash({'AppName': 'Porthole', 'Version':'0.4_dev', 'SendTo': 'porthole bugs'})
-                p.enable() #New in PyCrash-0.4pre2
-            else:
-                utils.dprint("pycrash module not found.  For best debug info Please emerge >= dev-python/pycrash-0.4pre2")
         elif opt in ("-h", "--help"):
             usage()
             exit()
+    if pycrash_found:
+        utils.dprint("pycrash module initializing")
+        utils.dprint("If a crash occurs check the ~/.porthole/porthole-pycrash.html file and post it to porthole bugs")
+        p = MyCrash({'AppName': 'Porthole', 'Version': version, 'SendTo': 'porthole bugs'})
+        p.enable() #New in PyCrash-0.4pre2
+    else:
+        utils.dprint("pycrash module not found.  For best debug info Please emerge >= dev-python/pycrash-0.4pre2")
     # make sure gtk lets threads run
     gtk.threads_init()
     # setup our app icon
@@ -111,9 +115,7 @@ if __name__ == "__main__":
     # create the main window
     myapp = MainWindow(prefs, config)
     # start the program loop
-    if pycrash_found and utils.debug:
-        start_new_thread(gtk.mainloop(), ())
-    else:
-        gtk.mainloop()
+    gtk.main() # gtk.mainloop() depricated
+    print "PORTHOLE: normal quit"
     # save the prefs to disk for next time
     prefs.save()
