@@ -286,6 +286,16 @@ class PortholePreferences:
         except XMLManagerError:
            height = 120   # Default value
         self.run_dialog = WindowPreferences(width, height)
+        try:
+           history = dom.getitem('/window/run_dialog/history')
+        except XMLManagerError:
+           # Default value
+           history = ["emerge ",
+                      "ACCEPT_KEYWORDS='~x86' emerge ",
+                      "USE=' ' emerge ",
+                      "ACCEPT_KEYWORDS='~x86' USE=' ' emerge ",
+                      "emerge --help"]
+        self.run_dialog.history = history
 
         # Emerge options
  
@@ -329,6 +339,9 @@ class PortholePreferences:
         dom.additem('/window/terminal/width', self.terminal.width)
         dom.additem('/window/terminal/height', self.terminal.height)
         dom.additem('/window/terminal/width_verbose', self.terminal.width_verbose)
+        dom.additem('/window/run_dialog/width', self.run_dialog.width)
+        dom.additem('/window/run_dialog/height', self.run_dialog.height)
+        dom.additem('/window/run_dialog/history', self.run_dialog.history)
         dom.additem('/emerge/options/pretend', self.emerge.pretend)
         dom.additem('/emerge/options/fetch', self.emerge.fetch)
         dom.additem('/emerge/options/verbose', self.emerge.verbose)

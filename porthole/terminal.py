@@ -220,6 +220,9 @@ class ProcessManager:
         self.warning_text.create_tag('linenumber',\
                 foreground='blue',\
                 weight=700)
+        self.caution_text.create_tag('linenumber',\
+                foreground='blue',\
+                weight=700)
         # text mark to mark the start of the current command
         self.command_start = None
         # flag that the window is now visible
@@ -331,6 +334,7 @@ class ProcessManager:
         # we can't be killed anymore
         self.killed = 0
         self.warning_count = 0
+        self.caution_count = 0
         self.Failed = False
         self.isPretend = command_string.find('--pretend') > -1
         start_iter = self.process_text.get_end_iter()
@@ -508,7 +512,7 @@ class ProcessManager:
                                 self.caution_tab.showing = True
                                 self.caution_text.set_modified(gtk.TRUE)
                             # insert the line into the info text buffer
-                            tag = None # yet
+                            tag = 'warning' #None # yet
                             self.append(self.caution_text, self.process_buffer)
                             self.caution_count += 1
 
@@ -559,6 +563,17 @@ class ProcessManager:
         if self.warning_count != 0:
             self.append(self.info_text, "*** Total warnings count for merge = %d \n"\
                         %self.warning_count, 'warning')
+            if not self.info_tab.showing:
+                self.show_tab(TAB_INFO)
+                self.info_tab.showing = True
+                self.info_text.set_modified(gtk.TRUE)
+        if self.caution_count != 0:
+            self.append(self.info_text, "*** Total cautions count for merge = %d \n"\
+                        %self.caution_count, 'warning')
+            if not self.info_tab.showing:
+                self.show_tab(TAB_INFO)
+                self.info_tab.showing = True
+                self.info_text.set_modified(gtk.TRUE)
         # display message that process finished
         self.append_all(TERMINATED_STRING,True)
         self.set_statusbar(TERMINATED_STRING[:-1])

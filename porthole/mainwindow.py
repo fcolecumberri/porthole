@@ -213,8 +213,6 @@ class MainWindow:
                     self.wtree.get_widget("main_window"),
                     "Please run Porthole as root to emerge packages!",
                     None, "_Ok")
-            return 0
-        return 1
 
     def pretend_set(self, widget):
         """Set whether or not we are going to use the --pretend flag"""
@@ -268,9 +266,8 @@ class MainWindow:
                 iter = model.iter_next(iter)
             dprint("MAIN: Updating packages...")
             for package in packages_list.split():
-                if not self.setup_command(package.split('/')[1], "emerge -u" +
-                            self.prefs.emerge.get_string() + package):
-                    return
+                self.setup_command(package.split('/')[1], "emerge -u" +
+                        self.prefs.emerge.get_string() + package)
         else:
             dprint("MAIN: Upgrades not loaded; upgrade world?")
             self.upgrades_loaded_dialog = YesNoDialog("Upgrade requested",
@@ -559,10 +556,8 @@ class MainWindow:
         self.wtree.get_widget("btn_emerge").set_sensitive(enabled)
         if not enabled or enabled and package.is_installed:
             self.wtree.get_widget("btn_unmerge").set_sensitive(enabled)
-            self.wtree.get_widget("unmerge_package1").set_sensitive(enabled)
         else:
             self.wtree.get_widget("btn_unmerge").set_sensitive(not enabled)
-            self.wtree.get_widget("unmerge_package1").set_sensitive(not enabled)
         self.notebook.set_sensitive(enabled)
 
     def size_update(self, widget, gbox):
@@ -589,7 +584,8 @@ class MainWindow:
     def custom_run(self, widget):
         """ Run a custom command in the terminal window """
         dprint("MAINWINDOW: entering custom_run")
-        get_command = RunDialog(self.prefs, self.setup_command, None)
+        dprint(self.prefs.run_dialog.history)
+        get_command = RunDialog(self.prefs, self.setup_command)
 
 
 class CommonReader(threading.Thread):

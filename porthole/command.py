@@ -29,7 +29,7 @@ from version import version
 class RunDialog:
     """Class to hold about dialog and functionality."""
 
-    def __init__(self, prefs, call_back, history = None):
+    def __init__(self, prefs, call_back):
         # setup glade
         self.gladefile = "porthole.glade"
         self.wtree = gtk.glade.XML(self.gladefile, "run_dialog")
@@ -39,17 +39,25 @@ class RunDialog:
         self.wtree.signal_autoconnect(callbacks)
         self.command = None
         self.call_back = call_back
-        self.history = ["", "emerge ",
-                        "ACCEPT_KEYWORDS='~x86' emerge ",
-                        "USE=' ' emerge ",
-                        "ACCEPT_KEYWORDS='~x86' USE=' ' emerge"]
         self.prefs = prefs
+        if self.prefs:
+            dprint("COMMAND: self.prefs == True")
+            self.history = self.prefs.run_dialog.history
+        else:
+            dprint("COMMAND: self.prefs == False")
+            self.history = ["", "emerge ",
+                            "ACCEPT_KEYWORDS='~x86' emerge ",
+                            "USE=' ' emerge ",
+                            "ACCEPT_KEYWORDS='~x86' USE=' ' emerge"]
+        dprint("COMMAND: self.history:")
+        dprint(self.history)
         self.window = self.wtree.get_widget("run_dialog")
         self.combo = self.wtree.get_widget("combo")
         self.entry = self.wtree.get_widget("combo-entry")
         self.list = self.wtree.get_widget("combo-list")
         #self.window.set_title("Porthole")
-        self.combo.set_popdown_strings(self.history)
+        if len(self.history):
+            self.combo.set_popdown_strings(self.history)
         self.entry.connect("activate", self.activate, self.command)
         if self.prefs:
             self.window.resize(self.prefs.run_dialog.width, 
@@ -60,18 +68,21 @@ class RunDialog:
             self.window.connect("size_request", self.on_size_request)
 
     def activate(self, widget, command):
+        """Adds the command line entry to the queue"""
         self.command = self.entry.get_text()
         if self.command:
-            dprint("COMMAND: activated :%s" %self.command)
+            dprint("COMMAND: activated: %s" %self.command)
             self.call_back(("command line entry: %s" %self.command), self.command)
+            self.history_add()
         self.cancel(None)
         
     def execute(self, widget):
         """Adds the command line entry to the queue"""
         self.command = self.entry.get_text()
         if self.command:
-            dprint("COMMAND: run_dialog : %s" %self.command)
+            dprint("COMMAND: execute: %s" %self.command)
             self.call_back("command line entry", self.command)
+            self.history_add()
         self.cancel(None)
 
     def cancel(self, widget):
@@ -87,4 +98,20 @@ class RunDialog:
         self.prefs.run_dialog.width = width
         self.prefs.run_dialog.height = height
 
-
+    def history_add(self):
+        """adds the command to the history if not already in"""
+        if self.command not in self.history:
+            length = len(self.history)
+            if length > 5:
+                length = min(length, 9)
+                old_history = self.history[5:length]
+                self.history = self.history[:5]
+                self.history.append(self.command)
+                self.history += old_history
+            else:
+                self.history.append(self.command)
+        dprint("COMMAND.history_add(): new self.history:")
+        dprint(self.history)
+        self.prefs.run_dialog.history = self.history
+        return
+        
