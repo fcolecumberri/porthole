@@ -87,7 +87,9 @@ class MainWindow:
         #setup some textbuffers
         tagtable = self.create_tag_table()
         self.summary_buffer = gtk.TextBuffer(tagtable)
-        self.wtree.get_widget("summary_text").set_buffer(self.summary_buffer)
+        self.summary_text = self.wtree.get_widget("summary_text")
+        self.summary_text.set_buffer(self.summary_buffer)
+        self.summary_text.connect("motion_notify_event", self.on_mouse_motion)
         self.depend_buffer = gtk.TextBuffer(tagtable)
         #declare the database
         self.db = None
@@ -130,9 +132,14 @@ class MainWindow:
         #figure out if the user can emerge or not...
         uid = os.getuid()
         if uid != 0:
-            self.sudo_dialog = gtk.Dialog("You are not root!", self.wtree.get_widget("main_window"), gtk.DIALOG_MODAL or gtk.DIALOG_DESTROY_WITH_PARENT, ("_Yes", 0))
+            self.sudo_dialog = gtk.Dialog(
+                "You are not root!",
+                self.wtree.get_widget("main_window"),
+                gtk.DIALOG_MODAL or gtk.DIALOG_DESTROY_WITH_PARENT,
+                ("_Yes", 0))
             self.sudo_dialog.add_button("_No", 1)
-            sudo_text = gtk.Label("Do you want use the sudo command to install programs?")
+            sudo_text = gtk.Label("Do you want use the sudo command "
+                                  "to install programs?")
             sudo_text.set_padding(5, 5)
             self.sudo_dialog.vbox.pack_start(sudo_text)
             sudo_text.show()
@@ -164,8 +171,8 @@ class MainWindow:
              'value': ({})
              })
         # React when user clicks on the homepage url
-        tag = table.lookup('url')
-        tag.connect("event", self.on_url_event)
+        self.url_tag = table.lookup('url')
+        self.url_tag.connect("event", self.on_url_event)
         return table
     
 
@@ -350,6 +357,22 @@ class MainWindow:
         if event.type == gtk.gdk.BUTTON_RELEASE:
             try: webbrowser.open(self.homepages[0])
             except: pass
+
+    def on_mouse_motion(self, widget, event, data = None):
+        # we need to call get_pointer, or we won't get any more events
+        pointer = widget.window.get_pointer()
+        x, y, spam = pointer
+        view = self.summary_text
+        x, y = view.window_to_buffer_coords(gtk.TEXT_WINDOW_TEXT, x, y)
+        i = view.get_iter_at_location(x, y)
+        is_url = i.has_tag(self.url_tag)
+        self.url_tag.set_property(
+            "underline", 
+            is_url and pango.UNDERLINE_SINGLE or pango.UNDERLINE_NONE)
+        # why does this not work?
+        widget.window.set_cursor(
+            is_url and gtk.gdk.Cursor(gtk.gdk.HAND2) or None)
+        return gtk.FALSE
 
     def update_package_info(self, package):
         """Update the notebook of information about a selected package"""
