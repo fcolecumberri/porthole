@@ -99,6 +99,8 @@ class MainWindow:
         #set status
         self.set_statusbar("Reading package database: %i packages read"
                            % 0)
+        # upgrade loading callback
+        self.upgrades_loaded_callback = None
 
     def check_for_root(self, callback = None):
         """figure out if the user can emerge or not..."""
@@ -225,6 +227,9 @@ class MainWindow:
             self.setup_command("emerge -u " + packages_list, self.upgrade_packages)
         else:
             dprint("Upgrades not loaded; we should display a dialog here!")
+            dprint("Upgrading all packages in world file...")
+            self.load_upgrades_list()
+            self.upgrades_loaded_callback = self.upgrade_packages
 
     def package_search(self, widget):
         """Search package db with a string and display results."""
@@ -322,23 +327,7 @@ class MainWindow:
             self.package_view.set_view(self.package_view.SEARCH_RESULTS)
         elif index == self.SHOW_UPGRADE:
             if not self.upgrades_loaded:
-                # upgrades are not loaded, create dialog and load them
-                self.wait_dialog = gtk.Dialog(
-                    "Please Wait!",
-                    self.wtree.get_widget("main_window"),
-                    gtk.DIALOG_MODAL or gtk.DIALOG_DESTROY_WITH_PARENT,
-                    ("_Cancel", 0))
-                text = gtk.Label("Loading upgradable package list...")
-                text.set_padding(5, 5)
-                self.wait_dialog.vbox.pack_start(text)
-                text.show()
-                self.wait_dialog.connect("response", self.wait_dialog_response)
-                self.wait_dialog.show_all()
-                # create upgrade thread for loading the upgrades
-                self.ut = UpgradableReader(self.package_view.upgrade_model, self.db.installed.items())
-                self.ut.start()
-                # add a timeout to check if thread is done
-                gtk.timeout_add(100, self.update_upgrade_thread)
+                self.load_upgrades_list()
             else:
                 # already loaded, just show them!
                 cat_scroll.hide();
@@ -346,6 +335,25 @@ class MainWindow:
                 self.summary.update_package_info(None)
         self.set_package_actions_sensitive(gtk.FALSE)
         self.deps_view.clear()
+
+    def load_upgrades_list(self):
+        # upgrades are not loaded, create dialog and load them
+        self.wait_dialog = gtk.Dialog(
+            "Please Wait!",
+            self.wtree.get_widget("main_window"),
+            gtk.DIALOG_MODAL or gtk.DIALOG_DESTROY_WITH_PARENT,
+            ("_Cancel", 0))
+        text = gtk.Label("Loading upgradable package list...")
+        text.set_padding(5, 5)
+        self.wait_dialog.vbox.pack_start(text)
+        text.show()
+        self.wait_dialog.connect("response", self.wait_dialog_response)
+        self.wait_dialog.show_all()
+        # create upgrade thread for loading the upgrades
+        self.ut = UpgradableReader(self.package_view.upgrade_model, self.db.installed.items())
+        self.ut.start()
+        # add a timeout to check if thread is done
+        gtk.timeout_add(100, self.update_upgrade_thread)
 
     def wait_dialog_response(self, widget, response):
         """ Get a response from the wait dialog """
@@ -363,12 +371,16 @@ class MainWindow:
         if self.ut.done:
             if self.ut.cancelled:
                 return gtk.FALSE
-            self.package_view.set_view(self.package_view.UPGRADABLE)
-            self.summary.update_package_info(None)
-            self.wtree.get_widget("category_scrolled_window").hide()
             self.ut.join()
             self.wait_dialog.destroy()
             self.upgrades_loaded = True
+            if self.upgrades_loaded_callback:
+                self.upgrades_loaded_callback(None)
+                self.upgrades_loaded_callback = None
+            else:
+                self.package_view.set_view(self.package_view.UPGRADABLE)
+                self.summary.update_package_info(None)
+                self.wtree.get_widget("category_scrolled_window").hide()
             return gtk.FALSE
         return gtk.TRUE
 
