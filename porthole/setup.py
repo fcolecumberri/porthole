@@ -15,9 +15,10 @@ setup(name = "porthole",
       url = "http://porthole.sourceforge.net",
       # py_modules is a list of all our python modules
       py_modules = ["about", "command", "depends",
-                    "metadata", "portagelib", "process",
+                    "metadata", "portagelib",
                     "mainwindow", "summary", "terminal",
-                    "utils", "version", "views", "xmlmgr"],
+                    "utils", "version", "version_sort",
+                    "views", "xmlmgr"],
       scripts = ["porthole"],
       # data_files is a list of non-python files we need
       # and where to install them

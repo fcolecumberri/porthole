@@ -30,7 +30,7 @@ import portagelib, os, string
 from about import AboutDialog
 from utils import load_web_page, get_icon_for_package, is_root, dprint, \
      get_treeview_selection, YesNoDialog, SingleButtonDialog, environment
-from process import ProcessWindow
+#from process import ProcessWindow
 from summary import Summary
 from terminal import ProcessManager
 from views import CategoryView, PackageView, DependsView
