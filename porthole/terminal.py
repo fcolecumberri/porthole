@@ -78,6 +78,8 @@ class ProcessManager:
         self.config = config
         self.killed = 0
         self.pid = None
+        # text mark to mark the start of the current command
+        self.command_start = None
         # process list to store pending processes
         self.process_list = []
         # the window is not visible until a process is added
@@ -280,6 +282,14 @@ class ProcessManager:
         """ Run a given command string """
         # we can't be killed anymore
         self.killed = 0
+        start_iter = self.process_text.get_end_iter()
+        if self.command_start:
+            # move the start mark
+            self.process_text.move_mark_by_name("command_start",start_iter)
+        else:
+            # create the mark
+            self.command_start = self.process_text.create_mark( \
+                "command_start",start_iter, gtk.TRUE)
         # set the resume buttons to not be sensitive
         self.resume_menu.set_sensitive(gtk.FALSE)
         if iter:
@@ -603,11 +613,12 @@ class ProcessManager:
 
     def estimate_build_time(self):
         """Estimates build times based on emerge --pretend output"""
-        output = self.process_text.get_text(self.process_text.get_start_iter(),
+        start_iter = self.process_text.get_iter_at_mark(self.command_start)
+        output = self.process_text.get_text(start_iter,
                                  self.process_text.get_end_iter(), gtk.FALSE)
         package_list = []
         total = datetime.timedelta()        
-        pattern = sre.compile("^\[ebuild *.")
+        pattern = sre.compile("^\d+\s+\[ebuild.*") #("^\[ebuild *.")
         for line in output.split("\n"):
             if pattern.match(line):
                 tokens = line.split(']')
