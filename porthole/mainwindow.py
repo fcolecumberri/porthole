@@ -35,6 +35,7 @@ from summary import Summary
 from terminal import ProcessManager
 from views import CategoryView, PackageView, DependsView
 from command import RunDialog
+from advemerge import AdvancedEmergeDialog
 
 EXEPTION_LIST = ['.','^','$','*','+','?','(',')','\\','[',']','|','{','}']
 
@@ -52,6 +53,7 @@ class MainWindow:
             "on_main_window_destroy" : gtk.mainquit,
             "on_quit1_activate" : gtk.mainquit,
             "on_emerge_package" : self.emerge_package,
+            "on_adv_emerge_package" : self.adv_emerge_package,
             "on_unmerge_package" : self.unmerge_package,
             "on_sync_tree" : self.sync_tree,
             "on_upgrade_packages" : self.upgrade_packages,
@@ -281,6 +283,12 @@ class MainWindow:
         package = get_treeview_selection(self.package_view, 2)
         self.setup_command(package.get_name(), "emerge" +
             self.prefs.emerge.get_string() + package.full_name)
+
+    def adv_emerge_package(self, widget):
+        """Advanced emerge of the currently selected package."""
+        package = get_treeview_selection(self.package_view, 2)
+        # Activate the advanced emerge dialog window
+        dialog = AdvancedEmergeDialog(self.prefs, package)
 
     def unmerge_package(self, widget):
         """Unmerge the currently selected package."""
@@ -632,8 +640,10 @@ class MainWindow:
         """Sets package action buttons/menu items to sensitive or not"""
         dprint("MAINWINDOW: set_package_actions_sensitive(%d)" %enabled)
         self.wtree.get_widget("emerge_package1").set_sensitive(enabled)
+        self.wtree.get_widget("adv_emerge_package1").set_sensitive(enabled)
         self.wtree.get_widget("unmerge_package1").set_sensitive(enabled)
         self.wtree.get_widget("btn_emerge").set_sensitive(enabled)
+        self.wtree.get_widget("btn_adv_emerge").set_sensitive(enabled)
         if not enabled or enabled and package.is_installed:
             dprint("MAINWINDOW: set_package_actions_sensitive() setting unmerge to %d" %enabled)
             self.wtree.get_widget("btn_unmerge").set_sensitive(enabled)
@@ -641,6 +651,7 @@ class MainWindow:
         else:
             dprint("MAINWINDOW: set_package_actions_sensitive() setting unmerge to %d" %(not enabled))
             self.wtree.get_widget("btn_unmerge").set_sensitive(not enabled)
+            
             self.wtree.get_widget("unmerge_package1").set_sensitive(not enabled)
         self.notebook.set_sensitive(enabled)
 
