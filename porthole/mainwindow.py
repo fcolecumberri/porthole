@@ -107,8 +107,8 @@ class MainWindow:
             self.wtree.get_widget("pretend1").set_active(gtk.TRUE)
         if self.prefs.emerge.fetch:
             self.wtree.get_widget("fetch").set_active(gtk.TRUE)
-        if not self.prefs.emerge.upgradeonly :
-            self.wtree.get_widget("downgrade").set_active(gtk.TRUE)
+        if self.prefs.emerge.upgradeonly :
+            self.wtree.get_widget("upgradeonly").set_active(gtk.TRUE)
         if self.prefs.emerge.verbose:
             self.wtree.get_widget("verbose4").set_active(gtk.TRUE)
         if self.prefs.main.search_desc:

@@ -92,7 +92,7 @@ class AdvancedEmergeDialog:
             self.wtree.get_widget("cbPretend").set_active(gtk.TRUE)
         if self.prefs.emerge.verbose:
             self.wtree.get_widget("cbVerbose").set_active(gtk.TRUE)
-        if not self.prefs.emerge.upgradeonly:
+        if self.prefs.emerge.upgradeonly:
             self.wtree.get_widget("cbUpgradeOnly").set_active(gtk.TRUE)
         if self.prefs.emerge.fetch:
             self.wtree.get_widget("cbFetchOnly").set_active(gtk.TRUE)
