@@ -179,7 +179,7 @@ class ProcessManager:
                      "on_move_up" : self.move_queue_item_up,
                      "on_move_down" : self.move_queue_item_down,
                      "on_remove" : self.remove_queue_item,
-                     "on_quit" : self.destroy_window}
+                     "on_quit" : self.menu_quit}
         self.wtree.signal_autoconnect(callbacks)
         # get a mostly blank structure to hold a number of widgets & settings
         self.term = terminal_notebook()
@@ -540,9 +540,9 @@ class ProcessManager:
                 #print e
                 os._exit(1)
 
-    def destroy_window(self, widget):
+    def menu_quit(self, widget):
         """ hide the window when the close button is pressed """
-	dprint("TERMINAL: destroy_window()")
+	dprint("TERMINAL: menu_quit()")
 	if self.confirm_delete():
 	    return
         dprint("TERMINAL: menu==>quit clicked... starting destruction")

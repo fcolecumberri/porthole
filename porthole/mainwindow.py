@@ -700,10 +700,13 @@ class MainWindow:
             dprint("MAIN: Showing search results")
             self.package_view.set_view(self.package_view.SEARCH_RESULTS)
         elif index == self.SHOW_UPGRADE:
+	    dprint("MAINWINDOW: view_filter_changed(); upgrade selected")
             if not self.upgrades_loaded:
                 self.load_upgrades_list()
+		dprint("MAINWINDOW: view_filter_changed(); back from load_upgrades_list()")
             else:
                 # already loaded, just show them!
+		dprint("MAINWINDOW: view_filter_changed(); showing loaded upgrades")
                 cat_scroll.hide();
                 self.package_view.set_view(self.package_view.UPGRADABLE)
                 self.summary.update_package_info(None)
@@ -754,9 +757,10 @@ class MainWindow:
                 self.upgrades_loaded_callback(None)
                 self.upgrades_loaded_callback = None
             else:
-                self.package_view.set_view(self.package_view.UPGRADABLE)
-                self.summary.update_package_info(None)
-                self.wtree.get_widget("category_scrolled_window").hide()
+		if self.last_view_setting == self.SHOW_UPGRADE:
+                    self.package_view.set_view(self.package_view.UPGRADABLE)
+                    self.summary.update_package_info(None)
+                    self.wtree.get_widget("category_scrolled_window").hide()
             return gtk.FALSE
         else: 
             try:
