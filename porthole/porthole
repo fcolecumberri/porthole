@@ -52,6 +52,16 @@ import gtk
 from getopt import getopt, GetoptError
 from version import version
 
+def usage():
+    tabs = "\t\t"
+    print "Usage: porthole [OPTION...]\n"
+    print "  -h, --help" + tabs + "Show this help message"
+    print "  -l, --local" + tabs + \
+          "Run a local version (use modules in current directory)"
+    print "  -v, --version" + tabs + "Output version information and exit"
+    print "  -d, --debug" + tabs + "Output debugging information to stderr (terminal)"
+    print "             " + tabs + "Also if PyCrash-0.4pre2 or newer is found it will use it"
+    print "             " + tabs + "to try to save additional crash info to send in for debugging"
 
 class MyCrash(PyCrash):
 	def onExit(self):
@@ -61,7 +71,8 @@ class MyCrash(PyCrash):
 
 if __name__ == "__main__":
     try:
-        opts, args = getopt(argv[1:], 'lvd', ["local", "version", "debug"])
+        opts, args = getopt(argv[1:], 'lvdh', ["local", "version", "debug",
+                                              "help"])
     except GetoptError, e:
         print >>stderr, e.msg
         exit(1)
@@ -84,6 +95,9 @@ if __name__ == "__main__":
                 p.enable() #New in PyCrash-0.4pre2
             else:
                 utils.dprint("pycrash module not found.  For best debug info Please emerge >= dev-python/pycrash-0.4pre2")
+        elif opt in ("-h", "--help"):
+            usage()
+            exit()
     # make sure gtk lets threads run
     gtk.threads_init()
     # setup our app icon
