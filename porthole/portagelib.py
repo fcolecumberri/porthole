@@ -23,6 +23,8 @@
 
 from sys import exit
 from utils import dprint
+import string
+from string import digits, zfill
 try:
     import portage
 except ImportError:
@@ -196,9 +198,118 @@ class Package:
         best = portage.best(installed + versions)
         return best not in installed
 
+def split_digits(a_string):
+    """splits the string at letter/digit boundaries"""
+    #dprint("PORTAGELIB: split_digits()")
+    # short circuit for  length of 1
+    if len(a_string)==1:
+        return [a_string]
+    #dprint(a_string)
+    result = []
+    s = ''
+    is_digit = (a_string[0] in digits)
+    #dprint(is_digit)
+    for x in a_string:
+        if (x in digits) == is_digit:
+            s += x
+        else:
+            result += [s]
+            s = x
+            is_digit = (x in digits)
+    result += [s]
+    #dprint("PORTAGELIB: split_digits()  result[]")
+    #dprint(result)
+    return result
+        
+
+def pad_ver(vlist):
+    """pads the version string so all number sequences are the same
+       length for acurate sorting, borrowed & modified code from portage"""
+    #dprint("PORTAGELIB: pad_ver()  vlist[]")
+    #dprint(vlist)
+    # short circuit for  list of 1
+    if len(vlist) == 1:
+        return vlist
+
+    max_length = 0
+    val_cache = []
+    prepart_cache = []
+
+    for val1 in vlist:
+        # consider 1_p2 vc 1.1
+        # after expansion will become (1_p2,0) vc (1,1)
+        # then 1_p2 is compared with 1 before 0 is compared with 1
+        # to solve the bug we need to convert it to (1,0_p2)
+        # by splitting _prepart part and adding it back _after_expansion
+        val1_prepart = ''
+        if val1.count('_'):
+                val1, val1_prepart = val1.split('_', 1)
+
+        # replace '-' by '.'
+        # FIXME: Is it needed? can val1/2 contain '-'?
+        val1=string.split(val1,'-')
+        if len(val1)==2:
+                val1[0]=val1[0]+"."+val1[1]
+
+        val1=string.split(val1[0],'.')
+
+        # track the maximum length we need to pad to
+        max_length = max(len(val1), max_length)
+                         
+        #temp store the data until the end of the list
+        val_cache += [val1]
+        prepart_cache += [val1_prepart]
+
+    result = []
+    for x in range(0,len(val_cache)):
+        # extend version numbers
+        if len(val_cache[x])< max_length:
+                val_cache[x].extend(["0"]*(max_length-len(val_cache[x])))
+        # fill numbers with leading zero's
+        #dprint("zfill")
+        new_val = []
+        for y in val_cache[x]:
+            #dprint(val_cache[x])
+            #dprint(y)
+            y = split_digits(y)
+            tmp = []
+            for z in y:
+                if z[0] in digits:
+                    tmp += [zfill(z, 3)]
+                else:
+                    tmp += [z]
+            new_val += [string.join(tmp, "")]
+            #dprint("zfill = ")
+            #dprint(new_val)
+            
+        # add back _prepart tails
+        if prepart_cache[x]:
+            new_pre = ''
+            y = split_digits(prepart_cache[x])
+            tmp = []
+            for z in y:
+                if z[0] in digits:
+                    tmp += [zfill(z, 3)]
+                else:
+                    tmp += [z]
+            new_pre += string.join(tmp, "")
+            new_val[-1] = '_' + new_pre
+            #dprint("new_pre[]")
+            #dprint(new_pre)
+        #The above code will extend version numbers out so they
+        #have the same number of digits
+        new_val = string.join(new_val, ".")
+           
+        result += [new_val]
+
+    #dprint("PORTAGELIB: pad_ver() result[]")
+    #dprint(result)
+    return result
 
 def sort(list):
     """sort in alphabetic instead of ASCIIbetic order"""
+    dprint("POTAGELIB: sort()")
+    
     spam = [(x[0].upper(), x) for x in list]
     spam.sort()
     return [x[1] for x in spam]

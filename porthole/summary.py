@@ -23,7 +23,8 @@
 
 import gtk, pango
 import portagelib
-from utils import load_web_page
+import string, re
+from utils import load_web_page, dprint
 
 class Summary(gtk.TextView):
     def __init__(self):
@@ -101,7 +102,34 @@ class Summary(gtk.TextView):
         metadata = package.get_metadata()
         ebuild = package.get_latest_ebuild()
         installed = package.get_installed()
-        versions = package.get_versions(); versions.sort()
+        versions = package.get_versions()
+        dprint("SUMMARY: update_package_info(); versions")
+        #dprint(versions)
+        # convert versions into the padded version only list
+        vlist = []
+        for v in versions:
+            #dprint(v)
+            vlist += [portagelib.get_version(v)]
+            #dprint(vlist)
+        padded_vlist = portagelib.pad_ver(vlist)
+        #dprint("versions= %d, vlist= %d" %(len(versions),len(padded_vlist)))
+        dbl_list = {}
+        for x in range(0,len(versions)):
+            dbl_list[padded_vlist[x]] =  versions[x]
+        #dprint("dbl_list{}")
+        #dprint(dbl_list)
+
+        # Sort the versions using the new padded_vlist
+        padded_vlist.sort()
+        #dprint(padded_vlist)
+
+        #rebuild versions in sorted order
+        versions = []
+        for key in padded_vlist: #range(0, len(dbl_list:
+            #dprint(key)
+            versions += [dbl_list[key]]
+        #dprint(versions)
+
         nonmasked = package.get_versions(include_masked = False)
         props = package.get_properties()
         description = props.description
