@@ -149,6 +149,8 @@ class MainWindow:
         self.desc_loaded = False
         self.search_loaded = False
         self.current_package_path = None
+        # view filter setting
+        self.last_view_setting = None
         # set notebook tabs to load new package info
         self.deps_filled = self.changelog_loaded = self.installed_loaded = False
         # declare the database
@@ -208,6 +210,7 @@ class MainWindow:
 
     def update_db_read(self):
         """Update the statusbar according to the number of packages read."""
+        count = 0
         if not self.db_thread.done:
             self.set_statusbar("Reading package database: %i packages read"
                                % self.db_thread.count)
@@ -240,9 +243,10 @@ class MainWindow:
                 if self.reload:
                     # reset _last_selected so it thinks this package is new again
                     self.package_view._last_selected = None
-                    # re-select the package
-                    self.package_view.set_cursor(self.current_package_cursor[0],
-                                                  self.current_package_cursor[1])
+                    if self.current_package_cursor[0]: # should fix a type error in set_cursor; from pycrash report
+                        # re-select the package
+                        self.package_view.set_cursor(self.current_package_cursor[0],
+                                                     self.current_package_cursor[1])
             elif self.reload and (view_filter.get_history() == self.SHOW_ALL or \
                                   view_filter.get_history() == self.SHOW_INSTALLED) and \
                                   self.current_category_cursor != None:
@@ -475,6 +479,8 @@ class MainWindow:
         # log the new category for reloads
         self.current_category = category
         self.current_category_cursor = self.category_view.get_cursor()
+        if not self.reload:
+            self.current_package_cursor = None
         #dprint("Category cursor = ")
         #dprint(self.current_category_cursor)
         mode = self.wtree.get_widget("view_filter").get_history()
@@ -613,6 +619,12 @@ class MainWindow:
                 self.summary.update_package_info(None)
         # clear the notebook tabs
         self.clear_notebook()
+        if self.last_view_setting != index:
+            dprint("MAINWINDOW: view_filter_changed(); last_view_setting changed")
+            self.last_view_setting = index
+            self.current_category = None
+            self.current_package_cursor = None
+            
 
     def load_upgrades_list(self):
         # upgrades are not loaded, create dialog and load them

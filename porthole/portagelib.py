@@ -66,7 +66,27 @@ def get_use_flag_dict():
     for item in List:
         index = item.find(' - ')
         data = item[:index].lower().split(':')
-        dict[data[1].strip()] = ['local', data[0].strip(), item[index+3:]]
+        try: # got this error starting porthole==> added code to catch it, but it works again???
+##            big_squirt porthole # ./porthole -l -d
+##
+##            ** (porthole:23062): WARNING **: `GtkTextSearchFlags' is not an enum type
+##            Traceback (most recent call last):
+##              File "./porthole", line 45, in ?
+##                from mainwindow import MainWindow
+##              File "/home/brian/porthole/mainwindow.py", line 28, in ?
+##                import portagelib, os, string
+##              File "/home/brian/porthole/portagelib.py", line 73, in ?
+##                UseFlagDict = get_use_flag_dict()
+##              File "/home/brian/porthole/portagelib.py", line 69, in get_use_flag_dict
+##                dict[data[1].strip()] = ['local', data[0].strip(), item[index+3:]]
+##            IndexError: list index out of range
+##            big_squirt porthole # ./porthole -l -d
+##
+            dict[data[1].strip()] = ['local', data[0].strip(), item[index+3:]]
+        except:
+            dprint("PORTAGELIB: get_use_flag_dict(); error in index??? daata[0].strip, item[index:]")
+            dprint(data[0].strip())
+            dprint(item[index:])
     return dict
 
 # Run it once for sake of efficiency
@@ -293,7 +313,6 @@ class DatabaseReader(threading.Thread):
         self.done = False     # false if the thread is still working
         self.count = 0        # number of packages read so far
         self.error = ""       # may contain error message after completion
-        self.count_lock = False  # lock to try preventing segfaults
 
     def get_db(self):
         """Returns the database that was read."""

@@ -44,6 +44,7 @@ import pwd, cPickle
 # if using gnome, see if we can import it
 try:
     import gnome
+    import gnome.vfs
 except ImportError:
     # no gnome module, use the standard webbrowser module
     try:
@@ -69,18 +70,23 @@ def dsave(name, item = None):
 
 def load_web_page(name):
     """Try to load a web page in the default browser"""
+    dprint("UTILS: load_web_page()")
     browser = web_page(name)
     browser.start()
-
+    return
 
 class web_page(threading.Thread):
     """Try to load a web page in the default browser"""
     def __init__(self, name):
+        dprint("UTILS: web_page.__init__()")
         threading.Thread.__init__(self)
         self.name = name
         self.setDaemon(1)  # quit even if this thread is still running
         
     def run(self):
+        dprint("UTILS: web_page.run()")
+        if self.name == '' or self.name == None:
+            return
         try:
             gnome.url_show(self.name)
         except:
