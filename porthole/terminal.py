@@ -64,9 +64,16 @@ TAB_WARNING = 1
 TAB_CAUTION = 2
 TAB_INFO = 3
 TAB_QUEUE = 4
+
+# A constant that represents the maximum distance from the
+# bottom of the slider for the slider to stick.  Too small and
+# you won't be able to make it stick when text is added rapidly
+SLIDER_CLOSE_ENOUGH = 50
+
 # some contant strings that may be internationalized later
 KILLED_STRING = "*** process killed ***\n"
 TERMINATED_STRING = "*** process terminated ***\n"
+TABS = [TAB_PROCESS, TAB_WARNING, TAB_CAUTION, TAB_INFO, TAB_QUEUE]
 TAB_LABELS = ["Process", "Warnings", "Cautions", "Information", "Emerge queue"]
 
 
@@ -125,21 +132,37 @@ class ProcessManager:
         # setup some aliases for easier access
         self.window = self.wtree.get_widget("process_window")
         self.notebook = self.wtree.get_widget("notebook1")
-        self.process_text = self.wtree.get_widget("process_text").get_buffer()
-        self.warning_text = self.wtree.get_widget("warnings_text").get_buffer()
-        self.caution_text = self.wtree.get_widget("cautions_text").get_buffer()
-        self.info_text = self.wtree.get_widget("info_text").get_buffer()
+        # get a mostly blank structure to hold a number of widgets & settings
+        self.term = terminal_notebook()
+        # get the buffer & view widgets and assign them to their arrays
+        widget_labels = ["process_text", "warnings_text", "cautions_text", "info_text"]
+        #dprint(len(widget_labels))
+        #y = 0  # only needed for dprint
+        for x in widget_labels:
+            #dprint(x)
+            buffer = self.wtree.get_widget(x).get_buffer()
+            self.term.buffer += [buffer]
+            #dprint(buffer)
+            #dprint(self.term.buffer)
+            view = self.wtree.get_widget(x)
+            self.term.view += [view]
+            #dprint(self.term.view[y])
+            #dprint(self.term.view)
+            #y =+ 1
+        #dprint("TERMINAL: show_window() -- self.term.buffer[], self.term.view[]")
+        #dprint(self.term.buffer)
+        #dprint(self.term.view)
+        widget_labels = ["scrolledwindow2", "scrolledwindow8", "scrolledwindow7",
+                         "scrolledwindow5", "scrolledwindow4"]
+        #y = 0   # only needed for dprint
+        for x in widget_labels:
+            window = self.wtree.get_widget(x)
+            self.term.scrolled_window += [window]
+            #dprint(self.term.scrolled_window[y])
+            #y += 1
+        #dprint("TERMINAL: show_window() -- self.term.scrolled_window[]")
+        #dprint(self.term.scrolled_window)
         self.queue_tree = self.wtree.get_widget("queue_treeview")
-        self.buffers = {TAB_LABELS[TAB_PROCESS]:self.process_text,
-                        TAB_LABELS[TAB_WARNING]:self.warning_text,
-                        TAB_LABELS[TAB_CAUTION]:self.caution_text,
-                        TAB_LABELS[TAB_INFO]:self.info_text,
-                        TAB_LABELS[TAB_QUEUE]:None}
-        self.buffer_types = {TAB_LABELS[TAB_PROCESS]:"log",
-                        TAB_LABELS[TAB_WARNING]:"warning",
-                        TAB_LABELS[TAB_CAUTION]:"caution",
-                        TAB_LABELS[TAB_INFO]:"info",
-                        TAB_LABELS[TAB_QUEUE]:None}
         self.queue_menu = self.wtree.get_widget("queue1")
         self.statusbar = self.wtree.get_widget("statusbar")
         self.resume_menu = self.wtree.get_widget("resume")
@@ -183,99 +206,95 @@ class ProcessManager:
         self.notebook.remove_page(TAB_INFO)
         self.notebook.remove_page(TAB_CAUTION)
         self.notebook.remove_page(TAB_WARNING)
-        self.warning_tab.showing = False
-        self.caution_tab.showing = False
-        self.info_tab.showing = False
-        self.queue_tab.showing = False
-        self.tablist = [TAB_LABELS[TAB_PROCESS]]
 
         # Create formatting tags for each textbuffers' tag table
         # for all emerge process commands bold, white text on navy
 
-        self.info_text.create_tag('command',\
+        self.term.buffer[TAB_INFO].create_tag('command',\
                 weight=700,\
                 background='navy',\
                 foreground='white')
-        self.warning_text.create_tag('command',\
+        self.term.buffer[TAB_WARNING].create_tag('command',\
                 weight=700,\
                 background='navy',\
                 foreground='white')
-        self.caution_text.create_tag('command',\
+        self.term.buffer[TAB_CAUTION].create_tag('command',\
                 weight=700,\
                 background='navy',\
                 foreground='white')
-        self.process_text.create_tag('command',
+        self.term.buffer[TAB_PROCESS].create_tag('command',
                 weight=700,\
                 background='navy',\
                 foreground='white')
 
         # All emerge lines will be bolded with light green background
 
-        self.info_text.create_tag('emerge',\
+        self.term.buffer[TAB_INFO].create_tag('emerge',\
                 weight=700,\
                 background='lightgreen')
-        self.warning_text.create_tag('emerge',\
+        self.term.buffer[TAB_WARNING].create_tag('emerge',\
                 weight=700,\
                 background='lightgreen')
-        self.caution_text.create_tag('emerge',\
+        self.term.buffer[TAB_CAUTION].create_tag('emerge',\
                 weight=700,\
                 background='lightgreen')
-        self.process_text.create_tag('emerge',\
+        self.term.buffer[TAB_PROCESS].create_tag('emerge',\
                 weight=700,\
                 background='lightgreen')
 
         # Warning lines will have medium yellow background
         # in the process & info tabs
 
-        self.process_text.create_tag('warning',\
+        self.term.buffer[TAB_PROCESS].create_tag('warning',\
                 background='#ffffb0')
-        self.info_text.create_tag('warning',\
+        self.term.buffer[TAB_INFO].create_tag('warning',\
                 background='#ffffb0')
 
         # Info lines will have medium cyan background
         # in the process tab only
 
-        self.process_text.create_tag('info',\
+        self.term.buffer[TAB_PROCESS].create_tag('info',\
                 background='#b0ffff')
 
         # Caution lines will have light red background
         # in the process & info tabs
 
-        self.process_text.create_tag('caution',\
+        self.term.buffer[TAB_PROCESS].create_tag('caution',\
                 background='pink')
-        self.info_text.create_tag('caution',\
+        self.term.buffer[TAB_INFO].create_tag('caution',\
+ 
                 background='pink')
 
         # Error lines will have bold light text on red background
         # in process & info tabs
 
-        self.process_text.create_tag('error',\
+        self.term.buffer[TAB_PROCESS].create_tag('error',\
                 weight=700,\
                 background='red',\
                 foreground='linen')
-        self.info_text.create_tag('error',\
+        self.term.buffer[TAB_INFO].create_tag('error',\
                 weight=700,\
                 background='red',\
                 foreground='linen')
 
         # All line numbers will be blue & bold
 
-        self.process_text.create_tag('linenumber',\
+        self.term.buffer[TAB_PROCESS].create_tag('linenumber',\
                 foreground='blue',\
                 weight=700)
-        self.info_text.create_tag('linenumber',\
+        self.term.buffer[TAB_INFO].create_tag('linenumber',\
                 foreground='blue',\
                 weight=700)
-        self.warning_text.create_tag('linenumber',\
+        self.term.buffer[TAB_WARNING].create_tag('linenumber',\
                 foreground='blue',\
                 weight=700)
-        self.caution_text.create_tag('linenumber',\
+        self.term.buffer[TAB_CAUTION].create_tag('linenumber',\
                 foreground='blue',\
                 weight=700)
 
         # Note lines will have magenta text in process
 
-        self.process_text.create_tag('note',\
+        self.term.buffer[TAB_PROCESS].create_tag('note',\
                 foreground='magenta4')
 
         # text mark to mark the start of the current command
@@ -284,6 +303,21 @@ class ProcessManager:
         self.window.set_title(self.title)
         # flag that the window is now visible
         self.window_visible = True
+        dprint("TERMINAL: get & connect to vadjustments")
+        #dprint(TABS[:-1])
+        for x in TABS[:-1]:
+            #dprint(x)
+            adj = self.term.scrolled_window[x].get_vadjustment()
+            self.term.vadjustment +=  [adj]
+            id = self.term.vadjustment[x].connect("value_changed", self.set_scroll)
+            self.term.vhandler_id += [id]
+            #self.term.auto_scroll[x] = False  # already initialized to True
+        #dprint("TERMINAL: show_window() -- self.term.vadjustment[]," +
+        #       "self.term.vhandler_id[], self.term.autoscroll")
+        #dprint(self.term.vadjustment)
+        #dprint(self.term.vhandler_id)
+        #dprint(self.term.auto_scroll)
+        self.notebook.connect("switch-page", self.switch_page)
         if self.prefs:
             self.window.resize((self.prefs.emerge.verbose and
                                 self.prefs.terminal.width_verbose or
@@ -293,6 +327,36 @@ class ProcessManager:
             # after it until emerge is finished.
             # Also causes runaway recursion.
             self.window.connect("size_request", self.on_size_request)
+
+    def switch_page(self, notebook, page, page_num):
+        """callback function changes the current_page setting in the term structure"""
+        dprint("TERMINAL: switch_page; page_num = %d" %page_num)
+        #dprint(page)  # gtk.notebook page ID
+        #dprint(page_num)
+        self.term.current_tab = self.term.visible_tablist[page_num]
+        if self.term.auto_scroll[self.term.current_tab]:
+            #dprint("TERMINAL: append() -- self.term.vadjustment[], self.term.vhandler_id[]")
+            #dprint(self.term.vadjustment)
+            #dprint(self.term.vhandler_id)
+            num = self.term.current_tab
+            self.term.vadjustment[num].handler_block(self.term.vhandler_id[num])
+            self.term.view[num].scroll_mark_onscreen(self.term.buffer[num].get_insert())
+            self.term.vadjustment[num].handler_unblock(self.term.vhandler_id[num])
+        return
+
+    def set_scroll(self,  vadjustment):
+        """Sets autoscrolling on when moved to bottom of scrollbar"""
+        #dprint("TERMINAL: set_scroll -- vadjustment")
+        #dprint(vadjustment)
+        #dprint(vadjustment.get_value())
+        #dprint(vadjustment.upper)
+        #dprint(vadjustment.page_size)
+        #dprint(self.term.buffer[self.term.current_tab].get_line_count())
+        self.term.auto_scroll[self.term.current_tab] = (vadjustment.upper - \
+                                                        vadjustment.get_value() - \
+                                                        vadjustment.page_size < SLIDER_CLOSE_ENOUGH)
+        #dprint(self.term.auto_scroll[self.term.current_tab])
+        return
 
     def on_size_request(self, window, gbox):
         """ Store new size in prefs """
@@ -314,6 +378,7 @@ class ProcessManager:
         if tab == TAB_WARNING:
             icon.set_from_stock(gtk.STOCK_DIALOG_WARNING, gtk.ICON_SIZE_MENU)
             label, tab, pos = TAB_LABELS[TAB_WARNING], self.warning_tab, 1
+            self.term.tab_showing[TAB_WARNING] = True
         elif tab == TAB_CAUTION:
             icon.set_from_stock(gtk.STOCK_DIALOG_WARNING, gtk.ICON_SIZE_MENU)
             label, tab = TAB_LABELS[TAB_CAUTION], self.caution_tab
@@ -323,21 +388,28 @@ class ProcessManager:
                 pos = self.notebook.page_num(self.queue_tab)
                 if pos == -1:
                     pos = 2
+            self.term.tab_showing[TAB_CAUTION] = True
         elif tab == TAB_INFO:
             icon.set_from_stock(gtk.STOCK_DIALOG_INFO, gtk.ICON_SIZE_MENU)
             label, tab = TAB_LABELS[TAB_INFO], self.info_tab
             pos = self.notebook.page_num(self.queue_tab)
             # set to show before queue tab
             if pos == -1: pos = 3
+            self.term.tab_showing[TAB_INFO] = True
         elif tab == TAB_QUEUE:
             icon.set_from_stock(gtk.STOCK_INDEX, gtk.ICON_SIZE_MENU)
             label, tab, pos = TAB_LABELS[TAB_QUEUE], self.queue_tab, 4
+            self.term.tab_showing[TAB_QUEUE] = True
         # pack the icon and label onto the hbox
         hbox.pack_start(icon)
         hbox.pack_start(gtk.Label(label))
         hbox.show_all()
         # insert the tab
         self.notebook.insert_page(tab, hbox, pos)
+        # reset the visible_tablist
+        self.term.get_tab_list()
+        dprint("TERMINAL: self.term.visible_tablist")
+        dprint(self.term.visible_tablist)
         
 
     def resume_dialog(self, message):
@@ -395,10 +467,9 @@ class ProcessManager:
         if len(self.process_list) == 2:
             # if this is the 2nd process in the list
             # show the queue tab!
-            if not self.queue_tab.showing:
+            if not self.term.tab_showing[TAB_QUEUE]:
                 self.show_tab(TAB_QUEUE)
                 self.queue_menu.set_sensitive(gtk.TRUE)
-                self.queue_tab.showing = True
         # if no process is running, let's start one!
         if not self.reader.process_running:
             # pending processes, run the next one in the list
@@ -427,13 +498,13 @@ class ProcessManager:
                             #dprint("found it")
                             self.isPretend = True
 
-        start_iter = self.process_text.get_end_iter()
+        start_iter = self.term.buffer[TAB_PROCESS].get_end_iter()
         if self.command_start:
             # move the start mark
-            self.process_text.move_mark_by_name("command_start",start_iter)
+            self.term.buffer[TAB_PROCESS].move_mark_by_name("command_start",start_iter)
         else:
             # create the mark
-            self.command_start = self.process_text.create_mark( \
+            self.command_start = self.term.buffer[TAB_PROCESS].create_mark( \
                 "command_start",start_iter, gtk.TRUE)
         # set the resume buttons to not be sensitive
         self.resume_menu.set_sensitive(gtk.FALSE)
@@ -504,13 +575,13 @@ class ProcessManager:
             except OSError:
                 pass
             self.killed = 1
-            if self.queue_tab.showing:
+            if self.term.tab_showing[TAB_QUEUE]:
                 # update the queue tree
                 self.queue_clicked(self.queue_tree)
         dprint("TERMINAL: leaving kill()")
         return
 
-    def append(self, buffer, text, tagname = None):
+    def append(self, num, text, tagname = None):
         """ Append text to a text buffer.  Line numbering based on
             the process window line count is automatically added.
             BUT -- if multiple text buffers are going to be updated,
@@ -518,26 +589,36 @@ class ProcessManager:
             line numbering is correct.
             Optionally, text formatting can be applied as well
         """
-        line_number = self.process_text.get_line_count() 
-        iter = buffer.get_end_iter()
+        #dprint("TERMINAL: append() -- num= %d:" %num)
+        #dprint(self.term.current_tab)
+        line_number = self.term.buffer[TAB_PROCESS].get_line_count() 
+        iter = self.term.buffer[num].get_end_iter()
         lntext = '000000' + str(line_number) + ' '
-        buffer.insert_with_tags_by_name(iter, lntext[-7:] , 'linenumber')
+        self.term.buffer[num].insert_with_tags_by_name(iter, lntext[-7:] , 'linenumber')
         if tagname == None:
-           buffer.insert(iter, text)
+           self.term.buffer[num].insert(iter, text)
         else:
-           buffer.insert_with_tags_by_name(iter, text, tagname)
+           self.term.buffer[num].insert_with_tags_by_name(iter, text, tagname)
+        if self.term.auto_scroll[num] and num == self.term.current_tab:
+            #dprint("TERMINAL: append() -- self.term.vadjustment[], self.term.vhandler_id[]")
+            #dprint(self.term.vadjustment)
+            #dprint(self.term.vhandler_id)
+            self.term.vadjustment[num].handler_block(self.term.vhandler_id[num])
+            self.term.view[num].scroll_mark_onscreen(self.term.buffer[num].get_insert())
+            self.term.vadjustment[num].handler_unblock(self.term.vhandler_id[num])
+            
 
     def append_all(self, text, all = False, tag = None):
         """ Append text to all buffers """
         # we need certain info in all tabs to know where
         # tab messages came from
-        self.append(self.warning_text, text, tag)
-        self.append(self.caution_text, text, tag)
-        self.append(self.info_text, text, tag)
+        self.append(TAB_WARNING, text, tag)
+        self.append(TAB_CAUTION, text, tag)
+        self.append(TAB_INFO, text, tag)
         # NOTE: always write to the process_text buffer LAST to keep the
         # line numbers correct - see self.append above
         if all: # otherwise skip the process_text buffer
-            self.append(self.process_text, text, tag)
+            self.append(TAB_PROCESS, text, tag)
 
 
     def update(self):
@@ -578,51 +659,48 @@ class ProcessManager:
                             # add the pkg info to all other tabs to identify fom what
                             # pkg messages came from but no need to show it if it isn't
                             tag = 'emerge'
-                            self.append(self.info_text, self.process_buffer, tag)
-                            self.append(self.warning_text, self.process_buffer, tag)
+                            self.append(TAB_INFO, self.process_buffer, tag)
+                            self.append(TAB_WARNING, self.process_buffer, tag)
                             if not self.file_input:
                                 self.set_file_name(self.process_buffer)
                                 self.set_statusbar(self.process_buffer[:-1])
 
                         elif self.config.isInfo(self.process_buffer):
                             # Info string has been found, show info tab if needed
-                            if not self.info_tab.showing:
+                            if not self.term.tab_showing[TAB_INFO]:
                                 self.show_tab(TAB_INFO)
-                                self.info_tab.showing = True
-                                self.info_text.set_modified(gtk.TRUE)
+                                self.term.buffer[TAB_INFO].set_modified(gtk.TRUE)
 
                             # Check for fatal error
                             if self.config.isError(self.process_buffer):
                                 self.Failed = True
                                 tag = 'error'
-                                self.append(self.info_text, self.process_buffer,'error')
+                                self.append(TAB_INFO, self.process_buffer,'error')
                             else:
                                 tag = 'info'
-                                self.append(self.info_text, self.process_buffer)
+                                self.append(TAB_INFO, self.process_buffer)
 
                         elif self.config.isWarning(self.process_buffer):
                             # warning string has been found, show info tab if needed
-                            if not self.warning_tab.showing:
+                            if not self.term.tab_showing[TAB_WARNING]:
                                 self.show_tab(TAB_WARNING)
-                                self.warning_tab.showing = True
-                                self.warning_text.set_modified(gtk.TRUE)
+                                self.term.buffer[TAB_WARNING].set_modified(gtk.TRUE)
                             # insert the line into the info text buffer
                             tag = 'warning'
-                            self.append(self.warning_text, self.process_buffer)
+                            self.append(TAB_WARNING, self.process_buffer)
                             self.warning_count += 1
 
                         elif self.config.isCaution(self.process_buffer):
                             # warning string has been found, show info tab if needed
-                            if not self.caution_tab.showing:
+                            if not self.term.tab_showing[TAB_CAUTION]:
                                 self.show_tab(TAB_CAUTION)
-                                self.caution_tab.showing = True
-                                self.caution_text.set_modified(gtk.TRUE)
+                                self.term.buffer[TAB_CAUTION].set_modified(gtk.TRUE)
                             # insert the line into the info text buffer
                             tag = 'caution'
-                            self.append(self.caution_text, self.process_buffer)
+                            self.append(TAB_CAUTION, self.process_buffer)
                             self.caution_count += 1
 
-                        self.append(self.process_text, self.process_buffer, tag)
+                        self.append(TAB_PROCESS, self.process_buffer, tag)
                         self.process_buffer = ''  # reset buffer
                 elif ord(char) == 13: # carriage return?
                     pass
@@ -630,7 +708,7 @@ class ProcessManager:
         #dprint("TERMINAL: update() checking file input/reader finished")
         if self.file_input and not self.reader.file_input: # reading file finished
             dprint("LOG: update()... end of file input... cleaning up")
-            self.process_text.set_modified(gtk.FALSE)
+            self.term.buffer[TAB_PROCESS].set_modified(gtk.FALSE)
             self.finish_update()
             self.set_statusbar("*** Log loading complete : %s" % self.filename)
             self.reader.f.close()
@@ -644,7 +722,7 @@ class ProcessManager:
         x = line.split("/")
         y = x[1].split(" ")
         name = y[0]
-        self.filename = name + "." + self.buffer_types[TAB_LABELS[TAB_PROCESS]]
+        self.filename = name + "." + self.term.buffer_types[TAB_PROCESS]
         dprint("TERMINAL: New ebuild detected, new filename: " + self.filename)
         return
 
@@ -655,19 +733,17 @@ class ProcessManager:
 
     def finish_update(self):
         if self.warning_count != 0:
-            self.append(self.info_text, "*** Total warnings count for merge = %d \n"\
+            self.append(TAB_INFO, "*** Total warnings count for merge = %d \n"\
                         %self.warning_count, 'warning')
-            if not self.info_tab.showing:
+            if not self.term.tab_showing[TAB_INFO]:
                 self.show_tab(TAB_INFO)
-                self.info_tab.showing = True
-                self.info_text.set_modified(gtk.TRUE)
+                self.term.buffer[TAB_INFO].set_modified(gtk.TRUE)
         if self.caution_count != 0:
-            self.append(self.info_text, "*** Total cautions count for merge = %d \n"\
+            self.append(TAB_INFO, "*** Total cautions count for merge = %d \n"\
                         %self.caution_count, 'caution')
-            if not self.info_tab.showing:
+            if not self.term.tab_showing[TAB_INFO]:
                 self.show_tab(TAB_INFO)
-                self.info_tab.showing = True
-                self.info_text.set_modified(gtk.TRUE)
+                self.term.buffer[TAB_INFO].set_modified(gtk.TRUE)
         return
 
     def process_done(self):
@@ -712,7 +788,7 @@ class ProcessManager:
         # if there is a callback set, call it
         if callback:
             callback()
-        if self.queue_tab.showing:
+        if self.term.tab_showing[TAB_QUEUE]:
             # update the queue tree
             self.queue_clicked(self.queue_tree)
 
@@ -757,14 +833,14 @@ class ProcessManager:
 
     def clear_buffer(self, widget):
         """ Clear the text buffer """
-        self.process_text.set_text('')
-        self.warning_text.set_text('')
-        self.caution_text.set_text('')
-        self.info_text.set_text('')
-        self.process_text.set_modified(gtk.FALSE)
-        self.warning_text.set_modified(gtk.FALSE)
-        self.caution_text.set_modified(gtk.FALSE)
-        self.info_text.set_modified(gtk.FALSE)
+        self.term.buffer[TAB_PROCESS].set_text('')
+        self.term.buffer[TAB_WARNING].set_text('')
+        self.term.buffer[TAB_CAUTION].set_text('')
+        self.term.buffer[TAB_INFO].set_text('')
+        self.term.buffer[TAB_PROCESS].set_modified(gtk.FALSE)
+        self.term.buffer[TAB_WARNING].set_modified(gtk.FALSE)
+        self.term.buffer[TAB_CAUTION].set_modified(gtk.FALSE)
+        self.term.buffer[TAB_INFO].set_modified(gtk.FALSE)
         self.filename = None
 
     def queue_items_switch(self, direction):
@@ -831,9 +907,9 @@ class ProcessManager:
 
     def estimate_build_time(self):
         """Estimates build times based on emerge --pretend output"""
-        start_iter = self.process_text.get_iter_at_mark(self.command_start)
-        output = self.process_text.get_text(start_iter,
-                                 self.process_text.get_end_iter(), gtk.FALSE)
+        start_iter = self.term.buffer[TAB_PROCESS].get_iter_at_mark(self.command_start)
+        output = self.term.buffer[TAB_PROCESS].get_text(start_iter,
+                                 self.term.buffer[TAB_PROCESS].get_end_iter(), gtk.FALSE)
         package_list = []
         total = datetime.timedelta()        
         for line in output.split("\n"):
@@ -861,13 +937,13 @@ class ProcessManager:
                 if curr_estimate != None:
                     total += curr_estimate
                 else:
-                    self.append(self.process_text,
+                    self.append(TAB_PROCESS,
                             "*** Unfortunately, you don't have enough " +
                             "logged information about the listed packages, " +
                             "so I can't calculate estimated build times " +
                             "accurately.\n", 'note')
                     return None
-            self.append(self.process_text,
+            self.append(TAB_PROCESS,
                         "*** Based on the build history of these packages " +
                         "on your system, I can estimate that emerging them " +
                         "usually takes, on average, " + 
@@ -876,7 +952,7 @@ class ProcessManager:
                          (total.seconds % (24 * 3600)) // 3600,\
                          ((total.seconds % (24 * 3600))  % 3600) //  60,\
                          ((total.seconds % (24 * 3600))  % 3600) %  60), 'note')
-            self.append(self.process_text,
+            self.append(TAB_PROCESS,
                         "*** Note: If you have a lot of programs running on " +
                         "your system while porthole is emerging packages, " +
                         "or if you have changed your hardware since the " +
@@ -930,24 +1006,13 @@ class ProcessManager:
             self.move_down.set_sensitive(gtk.TRUE)
 
     def set_save_buffer(self):
-        """determines the notebook tab open and returns the visible buffer"""
+        """Sets the save info for the notebook tab's visible buffer"""
         dprint("TERMINAL: Entering set_save_buffer")
-        self.tabs_showing = 0
-        tabs = 0
-        self.tablist = [TAB_LABELS[TAB_PROCESS]]
-        for tab in [self.warning_tab.showing, self.caution_tab.showing,
-                    self.info_tab.showing, self.queue_tab.showing]:
-            tabs += 1
-            if tab:
-                self.tabs_showing += 1
-                self.tablist += [TAB_LABELS[tabs]]
-        #dprint(self.tablist)
-        page = self.notebook.get_current_page()
-        self.buffer_name = self.tablist[page]
-        self.buffer_to_save = self.buffers[self.buffer_name]
-        self.buffer_type = self.buffer_types[self.buffer_name]
-        dprint("TERMINAL: set_save_buffer: " + self.buffer_name + " type: " + self.buffer_type)
-        return (self.buffer_name != None)
+        self.buffer_num = self.term.current_tab
+        self.buffer_to_save = self.term.buffer[self.buffer_num]
+        self.buffer_type = self.term.buffer_types[self.buffer_num]
+        dprint("TERMINAL: set_save_buffer: " + str(self.buffer_num) + " type: " + self.buffer_type)
+        return (self.buffer_num != None)
 
     def open_ok_func(self, filename):
         """callback function from file selector"""
@@ -1121,7 +1186,7 @@ class ProcessManager:
         try:
             file = open(self.filename, "w")
             # if buffer is "Process" strip line numbers
-            if self.buffer_name == TAB_LABELS[TAB_PROCESS]:
+            if self.buffer_num == TAB_PROCESS:
                 start = self.buffer_to_save.get_start_iter()
                 while not start.is_end():
                     end = start.copy(); end.forward_line()
@@ -1226,6 +1291,57 @@ class FileSel(gtk.FileSelection):
         gtk.main()
         return self.result
 
+class terminal_notebook:
+    """generates a terminal notebook structure containing all needed views,
+    buffers,handler id's, etc."""
+
+    def __init__(self): # all arays follow the same TABS order
+        self.view = [] #[None, None, None, None]
+        self.scrolled_window = [] #[None, None, None, None, None]
+        self.buffer = [] #[None, None, None, None]
+        self.buffer_types = {TAB_PROCESS:"log",
+                             TAB_WARNING:"warning",
+                             TAB_CAUTION:"caution",
+                             TAB_INFO:"info",
+                             TAB_QUEUE:None}
+        self.tab = [] #[None, None, None, None]
+        self.visible_tablist = []
+        self.tab_showing = [True, False, False, False, False] # initialize to default state
+        self.current_tab = 0
+        self.vadjustment = [] #[None, None, None, None, None]
+        self.vhandler_id = [] #[None, None, None, None, None]
+        self.auto_scroll = [True, False, False, False, False]
+        self.get_tab_list() # initialize to default state
+
+
+    def scroll_current_view(self):
+        """scrolls the current_tab"""
+        if self.current_tab != TAB_QUEUE:
+            self.vadjustment[self.current_tab].handler_block(self.vhandler_id[self.current_tab])
+            self.view[self.current_tab].scroll_mark_onscreen(self.buffer[self.current_tab].get_insert())
+            self.vadjustment[self.current_tab].handler_unblock(self.vhandler_id[self.current_tab])
+
+    def get_tab_list(self):
+        """creates the current notebook tab list"""
+        #tabs_showing = 0
+        self.visible_tablist = []
+        tab_num = 0
+        #dprint("TERMINAL: get_tab_list -- self.tab_showing")
+        #dprint(self.tab_showing)
+        for tab in self.tab_showing:
+            #dprint(tab_num)
+            #dprint(tab)
+            if tab:
+                self.visible_tablist += [tab_num]
+            tab_num += 1
+        dprint("TERMINAL: terminal_notebook() new self.visible_tablist:")
+        dprint(self.visible_tablist)
+        return
+
+    def get_current_vadjustment_value(self):
+        """gets the value for the currently showing tab"""
+        return self.vadjustment[self.current_tab].get_value()
+
 
 class ProcessOutputReader(threading.Thread):
     """ Reads output from processes """
@@ -1259,9 +1375,9 @@ class ProcessOutputReader(threading.Thread):
                         char = None
                 elif self.file_input:
                     try:
-                        # keep read(number) small so as to not cripple
-                        # system reading large files
-                        char = self.f.read(5)
+                        # keep read(number) small so as to not cripple the 
+                        # system reading large files.  even 2 can hinder gui response
+                        char = self.f.read(1)
                     except OSError:
                         # maybe the process died?
                         char = None
