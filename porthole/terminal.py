@@ -806,14 +806,19 @@ class ProcessManager:
         self.append_all(TERMINATED_STRING,True)
         self.set_statusbar(TERMINATED_STRING[:-1])
         # try to get a callback
-        callback = self.process_list[0][3]
+        try:
+            callback = self.process_list[0][3]
+        except:
+            callback = None
         # set queue icon to done
-        iter = self.process_list[0][2]
-        # set icon according to success or failure
-        if self.Failed:
-            self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_STOP))
-        else:
-            self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_APPLY))
+        try:
+            iter = self.process_list[0][2]
+        	# set icon according to success or failure
+            if self.Failed:
+                self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_STOP))
+            else:
+                self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_APPLY))
+        except: pass
         # remove process from list
         self.process_list = self.process_list[1:]
         # check for pending processes, and run them
