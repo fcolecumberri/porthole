@@ -317,6 +317,8 @@ class ProcessManager:
         """Window was closed"""
         # kill any running processes
         self.kill()
+        # make sure to reset the process list
+        self.process_list = []
         # the window is no longer showing
         self.window_visible = False
         if __name__ == "__main__":
