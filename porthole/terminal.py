@@ -84,8 +84,6 @@ class ProcessManager:
         self.Failed = False
         self.isPretend = False
         self.file_input = False
-        # text mark to mark the start of the current command
-        self.command_start = None
         # process list to store pending processes
         self.process_list = []
         # the window is not visible until a process is added
@@ -95,7 +93,7 @@ class ProcessManager:
         self.filename = None
         self.untitled_serial = -1
         # create the process reader
-        self.reader = ProcessOutputReader(self.process_done)
+        self.reader = ProcessOutputReader(self.update, self.process_done)
         # start the reader
         self.reader.start()
         gtk.timeout_add(100, self.update)
@@ -221,6 +219,8 @@ class ProcessManager:
         self.warning_text.create_tag('linenumber',\
                 foreground='blue',\
                 weight=700)
+        # text mark to mark the start of the current command
+        self.command_start = None
         # flag that the window is now visible
         self.window_visible = True
         if self.prefs:
@@ -1076,10 +1076,11 @@ class FileSel(gtk.FileSelection):
 
 class ProcessOutputReader(threading.Thread):
     """ Reads output from processes """
-    def __init__(self, finished_callback):
+    def __init__(self, update_callback, finished_callback):
         """ Initialize """
         threading.Thread.__init__(self)
         # set callbacks
+        self.update_callback = update_callback
         self.finished_callback = finished_callback
         self.setDaemon(1)  # quit even if this thread is still running
         self.process_running = False
