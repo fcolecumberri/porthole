@@ -395,9 +395,14 @@ class MainWindow:
             self.wtree.get_widget("category_scrolled_window").show()
             self.wtree.get_widget("package_view").set_model(self.package_model)
             self.update_package_info(None)
+        elif index == 1:
+            pass
         elif index == 2:
-            self.wtree.get_widget("category_scrolled_window").hide()
-            self.wtree.get_widget("package_view").set_model(self.search_results)
+            if self.search_results:
+                self.wtree.get_widget("category_scrolled_window").hide()
+                self.wtree.get_widget("package_view").set_model(self.search_results)
+            else:
+                widget.set_history(0)
 
 
 class AboutDialog:
