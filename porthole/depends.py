@@ -44,7 +44,7 @@ class DependsTree(gtk.TreeStore):
                 if depend[0] != "!":
                     parent = "Using " + depend[:len(depend) - 1]
                 else:
-                    parent = "Blocks " + depend[1:len(depend) - 1]
+                    parent = "Not Using " + depend[1:len(depend) - 1]
             else:
                 if depend != "(" and depend != ")":
                     depend, ops = self.get_ops(depend)
@@ -78,7 +78,7 @@ class DependsTree(gtk.TreeStore):
                 if use_flag[0] == "U":
                     flag = use_flag[6:]
                 else:
-                    flag = use_flag[7:] 
+                    flag = use_flag[9:] 
                 icon = flag in self.use_flags and gtk.STOCK_YES or gtk.STOCK_NO
                 self.set_value(parent_iter, 1, depends_view.render_icon(icon,
                                     size = gtk.ICON_SIZE_MENU, detail = None))
