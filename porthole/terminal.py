@@ -65,6 +65,8 @@ from utils import dprint, get_user_home_dir, SingleButtonDialog, \
                   get_treeview_selection, estimate, YesNoDialog
 from version import version
 
+from gettext import gettext as _
+
 # some constants for the tabs
 TAB_PROCESS = 0
 TAB_WARNING = 1
@@ -78,19 +80,19 @@ TAB_QUEUE = 4
 SLIDER_CLOSE_ENOUGH = 0.5 # of the page size
 
 # some contant strings that may be internationalized later
-KILLED_STRING = "*** process killed ***\n"
-TERMINATED_STRING = "*** process completed ***\n"
+KILLED_STRING = _("*** process killed ***\n")
+TERMINATED_STRING = _("*** process completed ***\n")
 TABS = [TAB_PROCESS, TAB_WARNING, TAB_CAUTION, TAB_INFO, TAB_QUEUE]
-TAB_LABELS = ["Process", "Warnings", "Cautions", "Summary", "Emerge queue"]
+TAB_LABELS = [_("Process"), _("Warnings"), _("Cautions"), _("Summary"), _("Emerge queue")]
 
 class ProcessManager:
     """ Manages queued and running processes """
     def __init__(self, env = {}, prefs = None, config = None, log_mode = False):
         """ Initialize """
         if log_mode:
-            self.title = "Porthole Log Viewer"
+            self.title = _("Porthole Log Viewer")
         else:
-            self.title = "Porthole-Terminal"
+            self.title = _("Porthole-Terminal")
         self.log_mode = log_mode
         self.Semaphore = threading.Semaphore()
         # copy the environment and preferences
@@ -211,7 +213,7 @@ class ProcessManager:
         self.overwrite_till_nl = False  # overwrite until after a '\n' detected for this line
         self.resume_line = None
         # setup the queue treeview
-        column = gtk.TreeViewColumn("Packages to be merged      ")
+        column = gtk.TreeViewColumn(_("Packages to be merged      "))
         pixbuf = gtk.CellRendererPixbuf()
         column.pack_start(pixbuf, expand = False)
         column.add_attribute(pixbuf, "pixbuf", 0)
@@ -425,8 +427,8 @@ class ProcessManager:
                     if data == self.process_list[0]:
                         if self.killed:
                             # The process has been killed, so help the user out a bit
-                            message = "The package you selected is already in the emerge queue,\n" \
-                                      "but it has been killed. Would you like to resume the emerge?"
+                            message = _("The package you selected is already in the emerge queue,\n" \
+                                      "but it has been killed. Would you like to resume the emerge?")
                             result = self.resume_dialog(message)
                             if result == gtk.RESPONSE_ACCEPT: # Execute
                                 break
@@ -438,8 +440,8 @@ class ProcessManager:
                                 dprint("TERMINAL: add_process; Semaphore released")
                                 return gtk.FALSE
                         else:
-                            message = "The package you selected is already in the emerge queue!"
-                            SingleButtonDialog("Error Adding Package To Queue!", None,
+                            message = _("The package you selected is already in the emerge queue!")
+                            SingleButtonDialog(_("Error Adding Package To Queue!"), None,
                                            message, None, "Ok")
                             # Clear semaphore, we're done
                             self.Semaphore.release()
@@ -764,7 +766,7 @@ class ProcessManager:
             dprint("LOG: update()... end of file input... cleaning up")
             self.term.buffer[TAB_PROCESS].set_modified(gtk.FALSE)
             self.finish_update()
-            self.set_statusbar("*** Log loading complete : %s" % self.filename)
+            self.set_statusbar(_("*** Log loading complete : %s") % self.filename)
             self.reader.f.close()
             self.file_input = False
         # unlock the string
@@ -787,13 +789,13 @@ class ProcessManager:
 
     def finish_update(self):
         if self.warning_count != 0:
-            self.append(TAB_INFO, "*** Total warnings count for merge = %d \n"\
+            self.append(TAB_INFO, _("*** Total warnings count for merge = %d \n")\
                         %self.warning_count, 'note')
             if not self.term.tab_showing[TAB_INFO]:
                 self.show_tab(TAB_INFO)
                 self.term.buffer[TAB_INFO].set_modified(gtk.TRUE)
         if self.caution_count != 0:
-            self.append(TAB_INFO, "*** Total cautions count for merge = %d \n"\
+            self.append(TAB_INFO, _("*** Total cautions count for merge = %d \n")\
                         %self.caution_count, 'note')
             if not self.term.tab_showing[TAB_INFO]:
                 self.show_tab(TAB_INFO)
@@ -876,7 +878,7 @@ class ProcessManager:
         self.kill()
         if self.log_mode:
             dprint("LOG: set statusbar -- log killed")
-            self.set_statusbar("***Log Process Killed!")
+            self.set_statusbar(_("***Log Process Killed!"))
         else:
             # set the queue icon to killed
             iter = self.process_list[0][2]
@@ -1175,11 +1177,11 @@ class ProcessManager:
         self.log_mode = True
         if not self.window_visible: self.show_window()
         if not self.fill_buffer(filename):
-            self.set_statusbar("*** Unknown File Loading error")
+            self.set_statusbar(_("*** Unknown File Loading error"))
             return gtk.FALSE
         else:
             self.filename = filename
-            self.set_statusbar("*** File Loading... Processing...") 
+            self.set_statusbar(_("*** File Loading... Processing...")) 
             return gtk.TRUE;
 
     def do_open(self, widget):
@@ -1188,11 +1190,11 @@ class ProcessManager:
         if not self.directory:
             self.set_directory()
         try:
-            FileSel(self.title + ": Open log File").run(self.window,
+            FileSel(self.title + _(": Open log File")).run(self.window,
                                                         self.directory+"*.log",
                                                         self.open_ok_func)
         except:
-            FileSel(self.title + ": Open log File").run(None,
+            FileSel(self.title + _(": Open log File")).run(None,
                                                         self.directory+"*.log",
                                                         self.open_ok_func)
         dprint("LOG: leaving do_open")
@@ -1233,7 +1235,7 @@ class ProcessManager:
 
         if (not self.filename or filename != self.filename):
             if os.path.exists(filename):
-                err = "Ovewrite existing file '%s'?"  % filename
+                err = _("Ovewrite existing file '%s'?")  % filename
                 dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
                                            gtk.MESSAGE_QUESTION,
                                            gtk.BUTTONS_YES_NO, err);
@@ -1296,11 +1298,11 @@ class ProcessManager:
         self.clear_buffer(None)
         self.warning_count = 0
         self.caution_count = 0
-        self.set_statusbar("*** Loading File : %s" % self.filename)
+        self.set_statusbar(_("*** Loading File : %s") % self.filename)
         try:
             self.reader.f = open(filename, "r")
         except IOError, (errnum, errmsg):
-            err = "Cannot open file '%s': %s" % (filename, errmsg)
+            err = _("Cannot open file '%s': %s") % (filename, errmsg)
             dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
                                        gtk.MESSAGE_INFO,
                                        gtk.BUTTONS_OK, err);
@@ -1313,7 +1315,7 @@ class ProcessManager:
         return gtk.TRUE
 
     def save_buffer(self):
-        """save the contens of the buffer"""
+        """save the contents of the buffer"""
         dprint("LOG: Entering save_buffer")
         result = gtk.FALSE
         have_backup = gtk.FALSE
@@ -1325,7 +1327,7 @@ class ProcessManager:
             os.rename(self.filename, bak_filename)
         except (OSError, IOError), (errnum, errmsg):
             if errnum != errno.ENOENT:
-                err = "Cannot back up '%s' to '%s': %s" % (self.filename,
+                err = _("Cannot back up '%s' to '%s': %s") % (self.filename,
                                                            bak_filename,
                                                            errmsg)
                 dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
@@ -1336,7 +1338,7 @@ class ProcessManager:
                 return gtk.FALSE
 
         have_backup = gtk.TRUE
-        self.set_statusbar("*** saving file: %s" % self.filename)
+        self.set_statusbar(_("*** saving file: %s") % self.filename)
         try:
             file = open(self.filename, "w")
             # if buffer is "Process" strip line numbers
@@ -1358,7 +1360,7 @@ class ProcessManager:
             self.buffer_to_save.set_modified(gtk.FALSE)
             result = gtk.TRUE
         except IOError, (errnum, errmsg):
-            err = "Error writing to '%s': %s" % (self.filename, errmsg)
+            err = ("Error writing to '%s': %s") % (self.filename, errmsg)
             dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
                                        gtk.MESSAGE_INFO,
                                        gtk.BUTTONS_OK, err);
@@ -1369,7 +1371,7 @@ class ProcessManager:
             try:
                 os.rename(bak_filename, self.filename)
             except OSError, (errnum, errmsg):
-                err = "Can't restore backup file '%s' to '%s': %s\nBackup left as '%s'" % (
+                err = _("Can't restore backup file '%s' to '%s': %s\nBackup left as '%s'") % (
                     self.filename, bak_filename, errmsg, bak_filename)
                 dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
                                            gtk.MESSAGE_INFO,
@@ -1377,7 +1379,7 @@ class ProcessManager:
                 dialog.run()
                 dialog.destroy()
 
-        self.set_statusbar("*** File saved : %s" % self.filename)
+        self.set_statusbar(_("*** File saved : %s") % self.filename)
         dprint("LOG: Buffer saved, exiting")
         return result
 
@@ -1387,7 +1389,7 @@ class ProcessManager:
         self.filename = self.pretty_name()
         if buffer.get_modified():
             if save:
-                msg = "Save log to '%s'?" % self.filename
+                msg = _("Save log to '%s'?") % self.filename
                 dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
                                            gtk.MESSAGE_QUESTION,
                                            gtk.BUTTONS_YES_NO, msg);
