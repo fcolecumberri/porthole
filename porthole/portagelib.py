@@ -28,7 +28,7 @@ except ImportError:
     exit('Could not find portage module.\n'
          'Are you sure this is a Gentoo system?')
 
-import threading, os
+import threading, os, grp
 from metadata import parse_metadata
 
 version = 0.1
@@ -51,6 +51,10 @@ def read_access():
     # Note: you don't have to be a member of portage to read the database,
     # but portage caching will not work
     portage = 250  # is portage guaranteed to be 250?
+    try:
+        portage = grp.getgrnam("portage")[2]
+    except:
+        pass
     return write_access() or (portage in (os.getgroups() + [os.getegid()]))
 
 def dprint(message):
