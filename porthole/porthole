@@ -29,26 +29,28 @@ from sys import path
 path.append("/usr/lib/porthole")
 
 import utils
-from sys import argv, exit
+from sys import argv, exit, stderr
 from mainwindow import MainWindow
 import gtk
+from getopt import getopt, GetoptError
 
 if __name__ == "__main__":
-    if len(argv) > 1:
-        for arg in argv[1:]:
-            if(arg == "--local" or arg == "-l"):
-                #running a local version (i.e. not installed in /usr/*)
-                DATA_PATH = ""
-            elif(arg == "--version" or arg == "-v"):
-                #print version info
-                print "Porthole " + utils.version
-                exit()
-            elif(arg == "--debug" or arg == "-d"):
-                utils.debug = True
-                utils.dprint("Debug printing is enabled")
-            else:
-                print "Invalid argument passed: " + arg
-                exit()
+    try:
+        opts, args = getopt(argv[1:], 'lvd', ["local", "version", "debug"])
+    except GetoptError, e:
+        print >>stderr, e.msg
+        exit(1)
+    for opt, arg in opts:
+        if opt in ("-l", "--local"):
+            #running a local version (i.e. not installed in /usr/*)
+            DATA_PATH = ""
+        elif opt in ("-v", "--version"):
+            #print version info
+            print "Porthole " + utils.version
+            exit(0)
+        elif opt in ("-d", "--debug"):
+            utils.debug = True
+            utils.dprint("Debug printing is enabled")
     #change dir to your data path
     if DATA_PATH:
         from os import chdir
