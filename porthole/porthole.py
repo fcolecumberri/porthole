@@ -24,24 +24,24 @@
 #store our version here
 version = 0.1
 
-import threading #if this fails... lol
+import threading, re, sys #if this fails... lol
 try:
     import pygtk
     pygtk.require("2.0") #make sure we have the right version
 except ImportError:
-    print "Error loading libraries!\nIs pygtk installed?"
+    sys.exit("Error loading libraries!\nIs pygtk installed?")
 try:
     import gtk, gtk.glade, gobject, pango
 except ImportError:
-    print "Error loading libraries!\nIs GTK+ installed?"
+    sys.exit("Error loading libraries!\nIs GTK+ installed?")
 try:
     import portagelib
 except ImportError:
-    print "Error loading libraries!\nCan't find portagelib!"
+    sys.exit("Error loading libraries!\nCan't find portagelib!")
 try:
     import process
 except ImportError:
-    print "Error loading libraries!\nCan't find process!"
+    sys.exit("Error loading libraries!\nCan't find process!")
 
 class MainWindow:
     """Main Window class to setup and manage main window interface."""
@@ -63,7 +63,8 @@ class MainWindow:
             "on_help_contents" : self.help_contents,
             "on_about" : self.about,
             "on_category_view_cursor_changed" : self.category_changed,
-            "on_package_view_cursor_changed" : self.package_changed
+            "on_package_view_cursor_changed" : self.package_changed,
+            "view_filter_changed" : self.view_filter_changed
             }
         self.wtree.signal_autoconnect(callbacks)
         #setup our treemodels
@@ -209,7 +210,37 @@ class MainWindow:
 
     def package_search(self, widget):
         """Search package db with a string and display results."""
-        pass
+        search_term = self.wtree.get_widget("search_entry").get_text()
+        if search_term:
+            if self.search_results:
+                self.search_results.clear()
+            self.search_results = gtk.TreeStore(gobject.TYPE_STRING, gtk.gdk.Pixbuf, gobject.TYPE_STRING)
+            re_object = re.compile(search_term, re.I)
+            count = 0
+            for entry in self.flat_sort(self.db.list):
+                name = entry[1].get_name()
+                category = entry[1].get_category()
+                match = re_object.search(entry[0]) != None
+                if match:
+                    count += 1
+                    data = portagelib.Package(category + "/" + name)
+                    iter = self.search_results.insert_before(None, None)
+                    self.search_results.set_value(iter, 0, name)
+                    self.search_results.set_value(iter, 1, self.wtree.
+                                get_widget("package_view").render_icon(
+                                (data.get_installed()
+                                and gtk.STOCK_YES or gtk.STOCK_NO),
+                                size = gtk.ICON_SIZE_MENU,
+                                detail = None))
+                    self.search_results.set_value(iter, 2, category)
+                    self.wtree.get_widget("view_filter").set_history(2)
+                
+
+    def flat_sort(self, list):
+        """sort in alphabetic instead of ASCIIbetic order"""
+        spam = [(x[0].upper(), x) for x in list]
+        spam.sort()
+        return [x[1] for x in spam]
 
     def help_contents(self, widget):
         """Show the help file contents."""
@@ -235,8 +266,12 @@ class MainWindow:
 
     def package_changed(self, treeview):
         """Catch when the user changes packages."""
-        category = self.get_treeview_selection(
-            self.wtree.get_widget("category_view"), 1)
+        if self.wtree.get_widget("view_filter").get_history() == 0:
+            category = self.get_treeview_selection(
+                self.wtree.get_widget("category_view"), 1)
+        else:
+            #there's no category! did the user search? :)
+            category = self.get_treeview_selection(treeview, 2)
         package = self.get_treeview_selection(treeview, 0)
         self.update_package_info(category + "/" + package)
 
@@ -330,7 +365,16 @@ class MainWindow:
             append("Slot: ", "property");
             append(slot, "value");
             nl()
-            
+
+    def view_filter_changed(self, widget):
+        index = widget.get_history()
+        if index == 0:
+            self.wtree.get_widget("category_scrolled_window").show()
+            self.wtree.get_widget("package_view").set_model(self.package_model)
+            self.update_package_info(None)
+        elif index == 2:
+            self.wtree.get_widget("category_scrolled_window").hide()
+            self.wtree.get_widget("package_view").set_model(self.search_results)
 
 
 class AboutDialog:
