@@ -31,8 +31,6 @@ except ImportError:
 import threading
 from metadata import parse_metadata
 
-debug = False
-
 def get_portage_environ(var):
     """Returns environment variable from portage if possible, else None"""
     try: temp = portage.config().environ()[var]
@@ -48,11 +46,6 @@ keys = [key.lower() for key in portage.auxdbkeys]
 
 # a list of all installed packages
 installed = portage.db['/']['vartree'].getallnodes()
-
-def dprint(message):
-    """Print debug message if debug is true."""
-    if debug:
-        print >>stderr, message
 
 def get_name(full_name):
     """Extract name from full name."""

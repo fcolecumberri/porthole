@@ -24,6 +24,9 @@
 #store our version here
 version = "0.1"
 
+#initially set debug to false
+debug = False
+
 import pygtk
 pygtk.require("2.0") #make sure we have the right version
 import gtk, portagelib
@@ -81,3 +84,7 @@ def read_access():
     except: pass
     return write_access() or (portage in (os.getgroups() + [os.getegid()]))
 
+def dprint(message):
+    """Print debug message if debug is true."""
+    if debug:
+        print >>stderr, message
