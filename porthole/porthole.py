@@ -63,6 +63,7 @@ class MainWindow:
         self.package_view = self.wtree.get_widget("package_view")
         self.category_view = self.wtree.get_widget("category_view")
         self.notebook = self.wtree.get_widget("notebook")
+        self.deps_view = self.wtree.get_widget("depend_view")
         #set unfinished items to not be sensitive
         self.wtree.get_widget("view_statistics1").set_sensitive(gtk.FALSE)
         self.wtree.get_widget("contents2").set_sensitive(gtk.FALSE)
@@ -112,7 +113,7 @@ class MainWindow:
         depend_text = gtk.CellRendererText()
         depend_column.pack_start(depend_text, expand = True)
         depend_column.add_attribute(depend_text, "text", 0)
-        self.wtree.get_widget("depend_view").append_column(depend_column)
+        self.deps_view.append_column(depend_column)
         self.depend_model = gtk.TreeStore(gobject.TYPE_STRING,
                                            gtk.gdk.Pixbuf,
                                            gobject.TYPE_PYOBJECT) # Package
@@ -334,16 +335,13 @@ class MainWindow:
             raise Exception("The programmer is stupid.");
         self.populate_package_tree(packages)
         self.summary.update_package_info(None)
-        self.notebook.set_sensitive(gtk.FALSE)
         self.set_package_actions_sensitive(gtk.FALSE)
 
     def package_changed(self, treeview):
         """Catch when the user changes packages."""
         package = self.get_treeview_selection(treeview, 2)
         self.summary.update_package_info(package)
-        self.depends.fill_depends_tree(self.wtree.get_widget("depend_view"),
-                                  package)
-        self.notebook.set_sensitive(gtk.TRUE)
+        self.depends.fill_depends_tree(self.deps_view, package)
         self.set_package_actions_sensitive(gtk.TRUE)
 
     SHOW_ALL = 0
@@ -368,6 +366,7 @@ class MainWindow:
             cat_scroll.hide()
             self.package_view.set_model(self.search_results)
         self.set_package_actions_sensitive(gtk.FALSE)
+        self.depends.clear()
 
     def update_statusbar(self, mode):
         """Update the statusbar for the selected filter"""
@@ -388,6 +387,7 @@ class MainWindow:
         self.wtree.get_widget("unmerge_package1").set_sensitive(enabled)
         self.wtree.get_widget("btn_emerge").set_sensitive(enabled)
         self.wtree.get_widget("btn_unmerge").set_sensitive(enabled)
+        self.notebook.set_sensitive(enabled)
 
 
 if __name__ == "__main__":
