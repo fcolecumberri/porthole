@@ -189,10 +189,11 @@ class Summary(gtk.TextView):
                     append(", ", "value")
                 else:
                     first_flag = False
+                # Added +/- for color impaired folks
                 if flag in system_use_flags:
-                    append(flag,"useset")
+                    append('+' + flag,"useset")
                 else:
-                    append(flag,"useunset")
+                    append('-' + flag,"useunset")
             nl()
         if license:
             append("License: ", "property"); append(license, "value"); nl()
