@@ -37,7 +37,7 @@ from views import CategoryView, PackageView, DependsView
 from command import RunDialog
 from advemerge import AdvancedEmergeDialog
 
-EXEPTION_LIST = ['.','^','$','*','+','?','(',')','\\','[',']','|','{','}']
+EXCEPTION_LIST = ['.','^','$','*','+','?','(',')','\\','[',']','|','{','}']
 
 class MainWindow:
     """Main Window class to setup and manage main window interface."""
@@ -429,7 +429,7 @@ class MainWindow:
             Plus_exeption_count = 0
             for char in tmp_search_term:
                 #dprint(char)
-                if char in EXEPTION_LIST:# =="+":
+                if char in EXCEPTION_LIST:# =="+":
                     dprint("MAINWINDOW: package_search()  '%s' exception found" %char)
                     char = "\\" + char
                 search_term += char 
