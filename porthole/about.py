@@ -21,18 +21,10 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-try:
-    import pygtk
-    pygtk.require("2.0") #make sure we have the right version
-except ImportError:
-    sys.exit("Error loading libraries!\nIs pygtk installed?")
-try:
-    import gtk, gtk.glade
-except ImportError:
-    sys.exit("Error loading libraries!\nIs GTK+ installed?")
-try:
-    import webbrowser
-except: pass
+import pygtk
+pygtk.require("2.0") #make sure we have the right version
+import gtk, gtk.glade
+from utils import load_web_page
 
 class AboutDialog:
     """Class to hold about dialog and functionality."""
@@ -52,6 +44,4 @@ class AboutDialog:
 
     def homepage_clicked(self, widget):
         """Open Porthole's Homepage!"""
-        try:
-            webbrowser.open("http://porthole.sourceforge.net")
-        except: pass
+        load_web_page("http://porthole.sourceforge.net")
