@@ -393,6 +393,9 @@ class MainWindow:
 if __name__ == "__main__":
     #make sure gtk lets threads run
     gtk.threads_init()
+    #setup our app icon
+    myicon = gtk.gdk.pixbuf_new_from_file("pixmaps/porthole-icon.png")
+    gtk.window_set_default_icon_list(myicon)
     #create the main window
     myapp = MainWindow()
     #start the program loop
