@@ -243,15 +243,14 @@ class MainWindow:
             self.search_results.clear()
             re_object = re.compile(search_term, re.I)
             count = 0
-            for entry in self.flat_sort(self.db.list):
-                name = entry[1].get_name()
-                category = entry[1].get_category()
-                match = re_object.search(entry[0]) != None
-                if match:
+            # no need to sort self.db.list; it is already sorted
+            for name, data in self.db.list:
+                if re_object.search(name):
                     count += 1
-                    data = portagelib.Package(category + "/" + name)
                     iter = self.search_results.insert_before(None, None)
                     self.search_results.set_value(iter, 0, name)
+                    self.search_results.set_value(iter, 2,
+                                                  data.get_category())
                     #set the icon depending on the status of the package
                     icon = self.get_icon_for_package(data)
                     view = self.package_view
@@ -260,17 +259,11 @@ class MainWindow:
                         view.render_icon(icon,
                                          size = gtk.ICON_SIZE_MENU,
                                          detail = None))
-                    self.search_results.set_value(iter, 2, category)
-            self.search_results.size = count
-            self.wtree.get_widget("view_filter").set_history(2)
+            self.search_results.size = count  # store number of matches
+            self.wtree.get_widget("view_filter").set_history(self.SHOW_SEARCH)
+            # in case the search view was already active
+            self.update_statusbar(self.SHOW_SEARCH)
                 
-
-    def flat_sort(self, list):
-        """sort in alphabetic instead of ASCIIbetic order"""
-        spam = [(x[0].upper(), x) for x in list]
-        spam.sort()
-        return [x[1] for x in spam]
-
     def help_contents(self, widget):
         """Show the help file contents."""
         pass
