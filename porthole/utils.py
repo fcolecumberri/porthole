@@ -93,9 +93,14 @@ class CommonDialog(gtk.Dialog):
         text.show()
         self.vbox.pack_start(text)
         # register callback
-        if callback:
-            self.connect("response", callback)
+        if not callback:
+            callback = self.__callback
+        self.connect("response", callback)
         self.show_all()
+    
+    def __callback(self, widget, response):
+        # If no callback is given, just remove the dialog when clicked
+        self.destroy()
 
 class YesNoDialog(CommonDialog):
     """ A simple yes/no dialog class """

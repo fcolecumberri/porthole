@@ -132,13 +132,8 @@ class MainWindow:
             self.no_root_dialog = SingleButtonDialog("You are not root!",
                             self.wtree.get_widget("main_window"),
                             "You will not be able to emerge, unmerge,"
-                            " upgrade or sync!", self.no_root_response,
+                            " upgrade or sync!", None,
                             "_Ok")
-
-    def no_root_response(self, widget, response):
-        """ Remove the dialog when Ok is pressed """
-        dprint("Accepted no_root, removing dialog")
-        self.no_root_dialog.destroy()
 
     def set_statusbar(self, string):
         """Update the statusbar without having to use push and pop."""
@@ -193,11 +188,7 @@ class MainWindow:
             self.sorry_dialog = SingleButtonDialog("You are not root!",
                     self.wtree.get_widget("main_window"),
                     "Please run Porthole as root to emerge packages!",
-                    self.sorry_dialog_response, "_Ok")
-
-    def sorry_dialog_response(self, widget, response):
-        """ Removes sorry dialog when Ok is pressed """
-        self.sorry_dialog.destroy()
+                    None, "_Ok")
 
     def pretend_set(self, widget):
         """Set whether or not we are going to use the --pretend flag"""
@@ -232,10 +223,7 @@ class MainWindow:
         self.sync_dialog = SingleButtonDialog("Sorry!",
                        self.wtree.get_widget("main_window"),
                        "Emerge sync functionality is disabled in this release",
-                       self.sync_response, "_Ok")
-
-    def sync_response(self, widget, response):
-        self.sync_dialog.destroy()
+                       None, "_Ok")
 
     def upgrade_packages(self, widget):
         """Upgrade selected packages that have newer versions available."""
