@@ -27,10 +27,12 @@ debug = False
 import os
 import errno
 import string
-import re
+import sre
 import datetime
+
 from sys import stderr
 from version import version
+from xmlmgr import XMLManager, XMLManagerError
 
 def dprint(message):
     """Print debug message if debug is true."""
@@ -176,64 +178,215 @@ class WindowPreferences:
         self.width = width      # width
         self.height = height    # height
 
-def load_user_prefs():
-    """ Load saved preferences """
-    # does ~/.porthole exist?
-    prefs = PortholePreferences()
-    home = get_user_home_dir()
-    if os.access(home + "/.porthole", os.F_OK):
-        if os.access(home + "/.porthole/prefs", os.F_OK):
-            # unpickle our preferences
-            dprint("Loading pickled user preferences...")
-            prefs = cPickle.load(open(home + "/.porthole/prefs"))
-            try: dprint("Found preferences, version " + str(prefs.version))
-            except: dprint("Found preferences, version not given")
-            # make sure the version is up to date for when it is saved again
-            try:
-                if prefs.version == "0.3":
-                    # add things from after 0.3
-                    pass
-                # set version to latest
-                #prefs.version = version
-            except:
-                # This is from version 0.2, so we need to add some values
-                prefs.main.search_desc = False
-                prefs.main.show_nag_dialog = True
-                prefs.process.width_verbose = 900
-                prefs.terminal = WindowPreferences(500, 400)
-                prefs.terminal.width_verbose = 900
-                prefs.version = version
-                prefs.emerge.nospinner = True
-    else:
-        # create the dir
-        dprint("~/.porthole does not exist, creating...")
-        os.mkdir(home + "/.porthole")
-    print prefs.main.vpane
-    return prefs
 
 class PortholePreferences:
-    """ Holds all of Porthole's configurable preferences """
+    """ Holds all of Porthole's user configurable preferences """
     def __init__(self):
-        # setup some defaults
-        self.main = WindowPreferences(500, 650)
-        self.main.hpane = 280
-        self.main.vpane = 250
-        self.main.search_desc = False
-        self.main.show_nag_dialog = True
-        self.process = WindowPreferences(400, 600)
-        self.process.width_verbose = 900
-        self.terminal = WindowPreferences(500, 400)
-        self.terminal.width_verbose = 900
+
+        # establish path & name of user prefs file
+
+        home = get_user_home_dir()
+        self.__PFILE = home + "/.porthole/prefs.xml"
+
+        # check if directory exists, if not create it
+        if not os.access(home + "/.porthole", os.F_OK):
+           dprint("~/.porthole does not exist, creating...")
+           os.mkdir(home + "/.porthole")
+
+        # open prefs file if we have access to the file  
+        # or simply create an empty XML doc
+
+        if os.access(self.__PFILE, os.F_OK):
+           dom = XMLManager(self.__PFILE)
+        else:
+           dom = XMLManager(None)
+           dom.name = 'portholeprefs'
+           dom.version = version
+
+        # Load user preferences from XML file.  If the node doesn't exist,
+        # set pref to default value.  The beauty of this is: older versions
+        # of the prefs files are still compatible and even if the user has
+        # no prefs file, it still works!
+
+        # Main window settings
+
+        try:
+           width = dom.getitem('/window/main/width')
+        except XMLManagerError:
+           width = 500   # Default value
+        try:
+           height = dom.getitem('/window/main/height')
+        except XMLManagerError:
+           height = 650   # Default value
+        self.main = WindowPreferences(width, height)
+        try:
+           hpane = dom.getitem('/window/main/hpane')
+        except XMLManagerError:
+           hpane = 280   # Default value
+        self.main.hpane = hpane
+        try:
+           vpane = dom.getitem('/window/main/vpane')
+        except XMLManagerError:
+           vpane = 250   # Default value
+        self.main.vpane = vpane
+        try:
+           search_desc = dom.getitem('/window/main/search_desc')
+        except XMLManagerError:
+           search_desc = False   # Default value
+        self.main.search_desc = search_desc
+        try:
+           show_nag_dialog = dom.getitem('/window/main/show_nag_dialog')
+        except XMLManagerError:
+           show_nag_dialog = True   # Default value
+        self.main.show_nag_dialog = show_nag_dialog
+
+        # Process window settings
+
+        try:
+           width = dom.getitem('/window/process/width')
+        except XMLManagerError:
+           width = 400   # Default value
+        try:
+           height = dom.getitem('/window/process/height')
+        except XMLManagerError:
+           height = 600   # Default value
+        self.process = WindowPreferences(width, height)
+        try:
+           width_verbose = dom.getitem('/window/process/width_verbose')
+        except XMLManagerError:
+           width_verbose = 900   # Default value
+        self.process.width_verbose = width_verbose
+
+        # Terminal window settings
+
+        try:
+           width = dom.getitem('/window/terminal/width')
+        except XMLManagerError:
+           width = 500   # Default value
+        try:
+           height = dom.getitem('/window/terminal/height')
+        except XMLManagerError:
+           height = 400   # Default value
+        self.terminal = WindowPreferences(width, height)
+        try:
+           width_verbose = dom.getitem('/window/terminal/width_verbose')
+        except XMLManagerError:
+           width_verbose = 900   # Default value
+        self.terminal.width_verbose = width_verbose
+
+        # Emerge options
+ 
         self.emerge = EmergeOptions()
-        self.version = version
+        try:
+           self.emerge.pretend = dom.getitem('/emerge/options/pretend')
+        except XMLManagerError:
+           pass
+        try:
+           self.emerge.fetch = dom.getitem('/emerge/options/fetch')
+        except XMLManagerError:
+           pass
+        try:
+           self.emerge.verbose = dom.getitem('/emerge/options/verbose')
+        except XMLManagerError:
+           pass
+        try:
+           self.emerge.nospinner = dom.getitem('/emerge/options/nospinner')
+        except XMLManagerError:
+           pass
+        
+        # All prefs now loaded or defaulted
+
+        del dom   # no longer needed, release memory
+
 
     def save(self):
         """ Save preferences """
-        # get home directory
-        home = pwd.getpwuid(os.getuid())[5]
-        # pickle it baby, yeah!
-        dprint("Pickling user preferences...")
-        cPickle.dump(self, open(home + "/.porthole/prefs", "w"))
+        dom = XMLManager(None)
+        dom.name = 'portholeprefs'
+        dom.version = version
+        dom.additem('/window/main/width', self.main.width)
+        dom.additem('/window/main/height', self.main.height)
+        dom.additem('/window/main/hpane', self.main.hpane)
+        dom.additem('/window/main/vpane', self.main.vpane)
+        dom.additem('/window/main/search_desc', self.main.search_desc)
+        dom.additem('/window/main/show_nag_dialog', self.main.show_nag_dialog)
+        dom.additem('/window/process/width', self.process.width)
+        dom.additem('/window/process/height', self.process.height)
+        dom.additem('/window/process/width_verbose', self.process.width_verbose)
+        dom.additem('/window/terminal/width', self.terminal.width)
+        dom.additem('/window/terminal/height', self.terminal.height)
+        dom.additem('/window/terminal/width_verbose', self.terminal.width_verbose)
+        dom.additem('/emerge/options/pretend', self.emerge.pretend)
+        dom.additem('/emerge/options/fetch', self.emerge.fetch)
+        dom.additem('/emerge/options/verbose', self.emerge.verbose)
+        dom.additem('/emerge/options/nospinner', self.emerge.nospinner)
+        dom.save(self.__PFILE)
+        del dom   # no longer needed, release memory
+
+
+class PortholeConfiguration:
+   """ Holds all of Porthole's developer configurable settings """
+   def __init__(self):
+       dom = XMLManager('configuration.xml')
+
+       # Handle all the regular expressions.  They will be compiled
+       # within this object for the sake of efficiency.
+
+       patternlist = dom.getitem('re_filters/info')
+       self.info_re_list = []
+       for regexp in patternlist:
+          self.info_re_list.append(sre.compile(regexp))
+
+       patternlist = dom.getitem('re_filters/warning')
+       self.warning_re_list = []
+       for regexp in patternlist:
+          self.warning_re_list.append(sre.compile(regexp))
+
+       patternlist = dom.getitem('re_filters/error')
+       self.error_re_list = []
+       for regexp in patternlist:
+          self.error_re_list.append(sre.compile(regexp))
+
+       patternlist = dom.getitem('re_filters/caution')
+       self.caution_re_list = []
+       for regexp in patternlist:
+          self.caution_re_list.append(sre.compile(regexp))
+
+       self.emerge_re = sre.compile(dom.getitem('re_filters/emerge'))
+       del dom
+
+   def isInfo(self, teststring):
+      ''' Parse string, return true if it matches info reg exp '''
+      for regexp in self.info_re_list:
+         if regexp.match(teststring):
+            return True
+      return False
+
+   def isWarning(self, teststring):
+      ''' Parse string, return true if it matches warning reg exp '''
+      for regexp in self.warning_re_list:
+         if regexp.match(teststring):
+            return True
+      return False
+
+   def isCaution(self, teststring):
+      ''' Parse string, return true if belongs in info tab '''
+      for regexp in self.caution_re_list:
+         if regexp.match(teststring):
+            return True
+      return False
+
+   def isError(self, teststring):
+      ''' Parse string, return true if belongs in error tab '''
+      for regexp in self.error_re_list:
+         if regexp.match(teststring):
+            return True
+      return False
+
+   def isEmerge(self, teststring):
+      ''' Parse string, return true if it is the initial emerge line '''
+      return self.emerge_re.match(teststring)
+
 
 class BadLogFile(Exception):
     """ Raised when we encounter errors parsing the log file."""
@@ -261,9 +414,9 @@ def estimate(package_name, log_file_name="/var/log/emerge.log"):
             package_name_escaped += package_name[i]
         # Now that we already escaped the "special characters", we
         # can start searching the logs
-        start_pattern = re.compile("^[0-9]+:  >>> emerge.*%s*." %
+        start_pattern = sre.compile("^[0-9]+:  >>> emerge.*%s*." %
                                                            package_name_escaped)
-        end_pattern = re.compile("^[0-9]+:  ::: completed emerge.*%s*." %
+        end_pattern = sre.compile("^[0-9]+:  ::: completed emerge.*%s*." %
                                                            package_name_escaped)      
         lines = log_file.readlines()
         for i in range(1, len(lines)):

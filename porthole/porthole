@@ -62,7 +62,7 @@ if __name__ == "__main__":
     myicon = gtk.gdk.pixbuf_new_from_file("pixmaps/porthole-icon.png")
     gtk.window_set_default_icon_list(myicon)
     # load prefs
-    prefs = utils.load_user_prefs()
+    prefs = utils.PortholePreferences()
     # create the main window
     myapp = MainWindow(prefs)
     # start the program loop

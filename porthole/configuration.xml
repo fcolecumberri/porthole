@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<portholeconfig ver='0.3'>
+  <re_filters>
+    <info py_type='list' item_count='2'>
+      <info-1>^>>>[\s][^/]</info-1>
+      <info-2>^\s\*\s</info-2>
+    </info>
+    <warning py_type='list' item_count='2'>
+      <warning-1>.*[^\-_.][Ww][Aa][Rr][Nn][Ii][Nn][Gg][:!,\s]</warning-1>
+      <warning-2>.*[Ff]ile.*.not found</warning-2>
+    </warning>
+    <error py_type='list' item_count='3'>
+      <error-1>.*[Ss]yntax.*[Ee]rror</error-1>
+      <error-2>.*[\s][Ee][Rr][Rr][Oo][Rr][:!,\s]</error-2>
+      <error-3>^!!![\s]</error-3>
+    </error>
+    <caution py_type='list' item_count='1'>
+      <caution-1>.*[Cc][Aa][Uu][Tt][Ii][Oo][Nn][:!,\s]</caution-1>
+    </caution>
+    <emerge>^>>> emerge [^/]</emerge>
+  </re_filters>
+</portholeconfig>
