@@ -16,8 +16,9 @@
      * Killed processes now send the callback signal to the main window so that
        any succefully emerged/unmerged packages will show in the change.
 
-     * You can now click on a line in any of the filtered views tabs and it
-       will bring you to that line in the process view tab.
+     * You can now double click on a line in any of the filtered views tabs and it
+       will bring you to that line in the process view tab.  It will attempt to
+       place the line in the center of the process view tab.
 
      * A new portage compliant sort routine for all the available ebuilds.
        It now will sort correctly every time (I Hope).  It will lengthen
