@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-from xml.sax import saxutils, make_parser
+from xml.sax import make_parser
+from xml.sax.saxutils import DefaultHandler
 from xml.sax.handler import feature_namespaces
 from re import sub
 from os.path import exists
@@ -17,7 +18,7 @@ class Metadata:
         self.herds = []
         self.maintainers = []
 
-class MetadataHandler(saxutils.DefaultHandler):
+class MetadataHandler(DefaultHandler):
     def __init__(self):
         self.path = [];  self.texts = []
         self.result = Metadata()
