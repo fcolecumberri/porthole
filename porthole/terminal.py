@@ -767,8 +767,10 @@ class ProcessManager:
             self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_STOP))
         else:
             self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_APPLY))
+        # remove process from list
+        self.process_list = self.process_list[1:]
         # check for pending processes, and run them
-        self.start_queue(True)
+        self.start_queue(False)
         # if there is a callback set, call it
         if callback:
             callback()

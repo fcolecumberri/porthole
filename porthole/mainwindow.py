@@ -573,11 +573,17 @@ class MainWindow:
         """Update the statusbar for the selected filter"""
         text = "(undefined)"
         if mode == self.SHOW_ALL:
-            text = "%d packages in %d categories" % (len(self.db.list),
-                                                     len(self.db.categories))
+            if not self.db:
+                dprint("MAINWINDOW: attempt to update status bar with no db assigned")
+            else:
+                text = "%d packages in %d categories" % (len(self.db.list),
+                                                         len(self.db.categories))
         elif mode == self.SHOW_INSTALLED:
-            text = "%d packages in %d categories" % (self.db.installed_count,
-                                                     len(self.db.installed))
+            if not self.db:
+                dprint("MAINWINDOW: attempt to update status bar with no db assigned")
+            else:
+                text = "%d packages in %d categories" % (self.db.installed_count,
+                                                         len(self.db.installed))
         elif mode == self.SHOW_SEARCH:
             text = "%d matches found" % self.package_view.search_model.size
         self.set_statusbar(text)
