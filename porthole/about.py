@@ -22,7 +22,8 @@
 '''
 
 import gtk, gtk.glade
-from utils import load_web_page, dprint
+from utils import dprint
+from loaders import load_web_page
 from version import version
 
 class AboutDialog:

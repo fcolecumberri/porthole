@@ -24,7 +24,8 @@
 import gtk, pango
 import portagelib
 import string, re
-from utils import load_web_page, dprint
+from utils import dprint
+from loaders import load_web_page
 from version_sort import ver_sort
 from gettext import gettext as _
 

@@ -42,18 +42,6 @@ import os
 import grp
 import pwd, cPickle
 
-# if using gnome, see if we can import it
-try:
-    import gnome
-    import gnome.vfs
-except ImportError:
-    # no gnome module, use the standard webbrowser module
-    try:
-        import webbrowser
-    except ImportError:
-        print >>stderr, ('Module "webbrowser" not found. '
-                     'You will not be able to open web pages.')
-
 def dprint(message):
     """Print debug message if debug is true."""
     if debug:
@@ -68,36 +56,6 @@ def dsave(name, item = None):
         # pickle it baby, yeah!
         cPickle.dump(item, open(home + "/.porthole/" + name, "w"))
         
-
-def load_web_page(name):
-    """Try to load a web page in the default browser"""
-    dprint("UTILS: load_web_page()")
-    browser = web_page(name)
-    browser.start()
-    return
-
-class web_page(threading.Thread):
-    """Try to load a web page in the default browser"""
-    def __init__(self, name):
-        dprint("UTILS: web_page.__init__()")
-        threading.Thread.__init__(self)
-        self.name = name
-        self.setDaemon(1)  # quit even if this thread is still running
-        
-    def run(self):
-        dprint("UTILS: web_page.run()")
-        if self.name == '' or self.name == None:
-            return
-        try:
-            gnome.url_show(self.name)
-        except:
-            dprint("Gnome failed trying to open: %s" %self.name)
-            try:
-                webbrowser.open(self.name)
-            except:
-                dprint("webbrowser failed trying to open: %s  -- giving up" %self.name)
-                pass
-        dprint("Browser call_completed for: %s" %self.name)
 
 def get_icon_for_package(package):
     """Return an icon for a package"""

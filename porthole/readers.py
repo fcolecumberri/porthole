@@ -22,7 +22,9 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import threading, re
+import threading, re, gtk
+import portagelib
+from views import DependsView, CommonTreeView
 from utils import get_icon_for_package, get_icon_for_upgrade_package, dprint
 
 
@@ -130,14 +132,14 @@ class UpgradableReader(CommonReader):
     def get_upgrade_deps(self, iter, parent_name):
         list = []
         while iter:
-                dprint("MAINWINDOW: get_upgrade_deps();processing iter: model.get_value(iter, 0) %s" %self.model.get_value(iter, 0))
+                dprint("READERS: get_upgrade_deps();processing iter: model.get_value(iter, 0) %s" %self.model.get_value(iter, 0))
                 blocker = False
                 ignore = False
                 version = None
                 package = self.model.get_value(iter, 2)
                 if package:
                     full_name = package.full_name
-                    dprint("MAINWINDOW: get_upgrade_deps(); processing package: %s" %full_name)
+                    dprint("READERS: get_upgrade_deps(); processing package: %s" %full_name)
                     if full_name[0] == '!':
                         blocker = True
                     if full_name[0] == '=':
@@ -146,15 +148,15 @@ class UpgradableReader(CommonReader):
                         full_name = full_name[1:]
                     if full_name[-1] == '*':
                         full_name = full_name[:-1]
-                    dprint("OPS cleaned; new full_name = %s" %full_name)
+                    dprint("READERS: get_upgrade_deps(); OPS cleaned; new full_name = %s" %full_name)
                     name = full_name.split('/')
                     if len(name) > 2:
-                        dprint("MAINWINDOW: get_upgrade_deps(); dependancy name error for %s" %full_name)
+                        dprint("READERS: get_upgrade_deps(); dependancy name error for %s" %full_name)
                         return
                     if name[0] == 'virtual': # get a proper package name
                         old_name = name[0]
                         full_name = portagelib.virtuals[full_name][0]
-                        dprint("MAINWINDOW: get_upgrade_deps(); %s evaluated to %s" %(old_name+"/"+name[1], full_name))
+                        dprint("READERS: get_upgrade_deps(); %s evaluated to %s" %(old_name+"/"+name[1], full_name))
                         if blocker and full_name == parent_name:
                             blocker = False
                             ignore = True # Ignore the self blocking package
@@ -165,7 +167,7 @@ class UpgradableReader(CommonReader):
                     if full_name and not full_name in self.deps_checked:
                         #if full_name:
                         self.deps_checked.append(full_name)
-                        dprint("MAINWINDOW: get_upgrade_deps(); extracted dep name = %s" %full_name)
+                        dprint("READERS: get_upgrade_deps(); extracted dep name = %s" %full_name)
                         if blocker:
                             pkg = portagelib.Package(full_name)
                             if pkg.is_installed:
@@ -181,7 +183,7 @@ class UpgradableReader(CommonReader):
                                 self.get_upgrade_deps(child_iter, full_name)
                             self.dep_list += [(full_name, pkg, blocker)]
                     else: # Failed to extract the package name
-                            dprint("MAINWINDOW: get_upgrade_deps(); failed to get extracted package ==> dep name = %s" %full_name)
+                            dprint("READERS: get_upgrade_deps(); failed to get extracted package ==> dep name = %s" %full_name)
                 else:
                     #dprint(self.model.iter_has_child(iter))
                     if self.model.iter_has_child(iter):
@@ -189,7 +191,7 @@ class UpgradableReader(CommonReader):
                         child_iter = self.model.iter_children(iter)
                         self.get_upgrade_deps(child_iter, parent_name)
                     else:
-                        dprint("MAINWINDOW: get_upgrade_deps(); !!!!!!!!!!!!!!!!!!!!!!!!!! package = None")
+                        dprint("READERS: get_upgrade_deps(); !!!!!!!!!!!!!!!!!!!!!!!!!! package = None")
                 iter = self.model.iter_next(iter)
         return
 
@@ -201,13 +203,13 @@ class UpgradableReader(CommonReader):
                 package = self.model.get_value(iter, 2)
                 if package:
                     full_name = package.full_name
-                    dprint("processesing package: %s" %full_name)
+                    dprint("READERS: tree_node_to_list(); processesing package: %s" %full_name)
                     while full_name[0] in ['<','>','=']:
                         full_name = full_name[1:]
                     #~ if full_name.split('/')[1].count('.'):
                     full_name = portagelib.extract_package(full_name)
                     if full_name:
-                        dprint("extracted dep name = %s" %full_name)
+                        dprint("READERS: tree_node_to_list();extracted dep name = %s" %full_name)
                         pkg = portagelib.Package(full_name)
                         if (pkg.upgradable()):# or not self.model.get_value(iter, 3):
                             self.dep_list += [(full_name, pkg)]
@@ -216,7 +218,7 @@ class UpgradableReader(CommonReader):
 
     def add_deps(self, full_name, package, in_world, blocker):
         """Add all dependencies to the tree"""
-        dprint("MAINWINDOW: UpgradableReader.add_deps() name = %s" %full_name)
+        dprint("READERS: add_deps() name = %s" %full_name)
         child_iter = self.upgrade_results.insert_before(self.parent, None)
         self.upgrade_results.set_value(child_iter, 1, in_world)
         self.upgrade_results.set_value(child_iter, 4, in_world)
@@ -245,6 +247,6 @@ class DescriptionReader(CommonReader):
             if self.cancelled: self.done = True; return
             self.descriptions[name] = package.get_properties().description
             if not self.descriptions[name]:
-                dprint("MAIN: No description for " + name)
+                dprint("READERS: DescriptionReader(); No description for " + name)
             self.count += 1
         self.done = True

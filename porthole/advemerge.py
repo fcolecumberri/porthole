@@ -28,6 +28,7 @@ import gtk.glade
 import portagelib
 import utils
 from version_sort import ver_sort
+from loaders import load_web_page
 from gettext import gettext as _
 
 class AdvancedEmergeDialog:
@@ -140,7 +141,7 @@ class AdvancedEmergeDialog:
 
     def help_clicked(self, widget):
         """ Display help file with web browser """
-        utils.load_web_page('file://' + self.prefs.DATA_PATH + 'help/advemerge.html')
+        load_web_page('file://' + self.prefs.DATA_PATH + 'help/advemerge.html')
 
 
 

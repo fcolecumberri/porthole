@@ -30,7 +30,7 @@ from portagelib import World
 
 from gettext import gettext as _
 from about import AboutDialog
-from utils import load_web_page, get_icon_for_package, get_icon_for_upgrade_package, is_root, dprint, \
+from utils import get_icon_for_package, get_icon_for_upgrade_package, is_root, dprint, \
      get_treeview_selection, YesNoDialog, SingleButtonDialog, environment, \
      pretend_check, help_check #,  get_world
 #from process import ProcessWindow  # no longer used in favour of terminal and would need updating to be used
@@ -41,6 +41,9 @@ from depends import DependsTree
 from command import RunDialog
 from advemerge import AdvancedEmergeDialog
 from plugin import PluginGUI, PluginManager
+from readers import UpgradableReader, DescriptionReader
+from loaders import *
+
 
 EXCEPTION_LIST = ['.','^','$','*','+','?','(',')','\\','[',']','|','{','}']
 SHOW_ALL = 0
@@ -92,6 +95,7 @@ class MainWindow:
         # aliases for convenience
         self.mainwindow = self.wtree.get_widget("main_window")
         self.notebook = self.wtree.get_widget("notebook")
+        self.installed_window = self.wtree.get_widget("installed_files_scrolled_window")
         self.changelog = self.wtree.get_widget("changelog").get_buffer()
         self.installed_files = self.wtree.get_widget("installed_files").get_buffer()
         self.ebuild = self.wtree.get_widget("ebuild").get_buffer()
@@ -294,15 +298,9 @@ class MainWindow:
         self.no_root_dialog.destroy()
         self.prefs.main.show_nag_dialog = False
 
-    def set_statusbar(self, string):
-        """Update the statusbar without having to use push and pop."""
-        statusbar = self.wtree.get_widget("statusbar1")
-        statusbar.pop(0)
-        statusbar.push(0, string)
-
     def set_statusbar2(self, string):
         """Update the statusbar without having to use push and pop."""
-        dprint("MAINWINDOW: set_statusbar2(); " + string)
+        #dprint("MAINWINDOW: set_statusbar2(); " + string)
         statusbar2 = self.wtree.get_widget("statusbar2")
         statusbar2.pop(0)
         statusbar2.push(0, string)
@@ -428,7 +426,7 @@ class MainWindow:
             #ProcessWindow(command, env, self.prefs, callback)
             self.process_manager.add_process(package_name, command, callback)
         else:
-            dprint("MAIN: Sorry, you aren't root! -> " + command)
+            dprint("MAINWINDOW: Sorry, you aren't root! -> " + command)
             self.sorry_dialog = SingleButtonDialog(_("You are not root!"),
                     self.mainwindow,
                     _("Please run Porthole as root to emerge packages!"),
@@ -482,10 +480,10 @@ class MainWindow:
         plugin_dialog = PluginGUI( self.prefs, self.plugin_manager )
  
     def new_plugin_menuitem( self, label ):
-        dprint("Adding new Menu Entry")
+        dprint("MAINWINDOW: Adding new Menu Entry")
         if self.needs_plugin_menu == False:
             #Creates plugin Menu
-            dprint("Enabling Plugin Menu")
+            dprint("MAINWINDOW: Enabling Plugin Menu")
             self.plugin_root_menu.show()
             self.needs_plugin_menu = True
         new_item = gtk.MenuItem( label )
@@ -725,13 +723,13 @@ class MainWindow:
             self.deps_view.fill_depends_tree(self.deps_view, package)
             self.deps_filled = True
         elif cur_page == 2:
-            self.load_changelog(package)
+            load_textfile(self.changelog, package, "changelog")
             self.changelog_loaded = True
         elif cur_page == 3:
-            self.load_installed_files(package)
+            load_installed_files(self.installed_window, self.installed_files, package)
             self.installed_loaded = True
         elif cur_page == 4:
-            self.load_ebuild(package)
+            load_textfile(self.ebuild, package, "best_ebuild")
             self.ebuild_loaded = True
 
     def notebook_changed(self, widget, pointer, index):
@@ -745,120 +743,18 @@ class MainWindow:
         elif index == 2:
             if not self.changelog_loaded:
                 # fill in the change log
-                self.load_changelog(package)
+                load_textfile(self.changelog, package, "changelog")
                 self.changelog_loaded = True
         elif index == 3:
             if not self.installed_loaded:
                 # load list of installed files
-                self.load_installed_files(package)
+                load_installed_files(self.installed_window, self.installed_files, package)
                 self.installed_loaded = True
         elif index == 4:
             if not self.ebuild_loaded:
                 # load list of installed files
-                self.load_ebuild(package)
+                load_textfile(self.ebuild, package, "best_ebuild")
                 self.ebuild_loaded = True
-
-    def load_changelog(self, package):
-        """ Load and display the changelog for a package """
-        if package:
-            try:
-                try:
-                    f = open(portagelib.portdir + '/' + package.full_name
-                            + "/ChangeLog")
-                    data = f.read(); f.close()
-                except:
-                    f = open(portagelib.portdir_overlay + '/' + package.full_name
-                            + "/ChangeLog")
-                    data = f.read(); f.close()
-
-                if data:
-                    try:
-                        dprint("MAINWINDOW: load_changelog(); trying utf_8 encoding")
-                        self.changelog.set_text(str(data).decode('utf_8').encode("utf_8",'replace'))
-                    except:
-                        try:
-                            dprint("MAINWINDOW: load_changelog(); trying iso-8859-1 encoding")
-                            self.changelog.set_text(str(data).decode('iso-8859-1').encode('utf_8', 'replace'))
-                        except:
-                            dprint("MAINWINDOW: load_changelog(); Failure = unknown encoding")
-                            self.changelog.set_text(_("This Change log has an unknown encoding method to porthole \n") + \
-                                                    _("Please report this to bugs.gentoo.org and pothole's bugtracker"))
-                else:
-                    self.changelog.set_text(_("Change log is Empty"))
-            except:
-                dprint("MAIN: Error opening changelog for " + package.full_name)
-                self.changelog.set_text(_("No Change Log Available"))
-        else:
-            dprint("MAIN: No package sent to load_changelog!")
-            self.changelog.set_text(_("No Change Log Available"))
-
-    def load_ebuild(self, package):
-        """ Load and display the ebuild for a package """
-        if package:
-            installed = package.get_installed()
-            versions = package.get_versions()
-            nonmasked = package.get_versions(include_masked = False)
-            best = portagelib.best(installed + nonmasked)
-            if best == "": # all versions are masked and the package is not installed
-                ebuild = package.get_latest_ebuild(True) # get latest masked version
-            else:
-                ebuild = best
-            dprint(package.full_name)
-            dprint(ebuild)
-            ebuild_name = (ebuild.split('/')[1]) + ".ebuild"
-            dprint(ebuild_name)
-
-            try:
-                try:
-                    f = open(portagelib.portdir + '/' + package.full_name
-                            + "/" + ebuild_name)
-                    data = f.read(); f.close()
-                except:
-                    f = open(portagelib.portdir_overlay + '/' + package.full_name
-                            + "/" + ebuild_name)
-                    data = f.read(); f.close()
-
-                if data:
-                    try:
-                        dprint("MAINWINDOW: load_ebuild(); trying utf_8 encoding")
-                        self.ebuild.set_text(str(data).decode('utf_8').encode("utf_8",'replace'))
-                    except:
-                        try:
-                            dprint("MAINWINDOW: load_ebuild(); trying iso-8859-1 encoding")
-                            self.ebuild.set_text(str(data).decode('iso-8859-1').encode('utf_8', 'replace'))
-                        except:
-                            dprint("MAINWINDOW: load_ebuild(); Failure = unknown encoding")
-                            self.ebuild.set_text(_("This ebuild has an unknown encoding method to porthole \n") + \
-                                                 _("Please report this to bugs.gentoo.org and pothole's bugtracker"))
-                else:
-                    self.ebuild.set_text(_("Ebuild not found") + package.full_name + "/" + ebuild_name)
-            except:
-                dprint("MAIN: Error opening ebuild for " + package.full_name + "/" + ebuild_name)
-                self.ebuild.set_text(_("Ebuild not found or Available"))
-        else:
-            dprint("MAIN: No package sent to load_ebuild()!")
-            self.ebuild.set_text(_("Ebuild not Available"))
-
-    def load_installed_files(self, package):
-        """Obtain and display list of installed files for a package,
-        if installed."""
-        if package:
-            installed = package.get_installed()
-            is_installed = installed and gtk.TRUE or gtk.FALSE
-            self.wtree.get_widget(
-                "installed_files_scrolled_window").set_sensitive(is_installed)
-            if is_installed:
-                installed.sort()
-                installed_files = portagelib.get_installed_files(installed[-1])
-                self.installed_files.set_text(
-                    str(len(installed_files)) + _(" installed files:\n\n")
-                    + "\n".join(installed_files))
-            else:
-                self.installed_files.set_text(_("Not installed"))
-        else:
-            dprint("MAIN: No package sent to load_installed_files!")
-            self.installed_files.set_text(_("No data currently available.\n\
-                                           The package may not be installed"))
 
     def view_filter_changed(self, widget):
         """Update the treeviews for the selected filter"""
@@ -1114,225 +1010,3 @@ class MainWindow:
             self.process_manager.window.hide()
         return False
 
-class CommonReader(threading.Thread):
-    """ Common data reading class that works in a seperate thread """
-    def __init__(self):
-        """ Initialize """
-        threading.Thread.__init__(self)
-        # for keeping status
-        self.count = 0
-        # we aren't done yet
-        self.done = False
-        # cancelled will be set when the thread should stop
-        self.cancelled = False
-        # quit even if thread is still running
-        self.setDaemon(1)
-
-    def please_die(self):
-        """ Tell the thread to die """
-        self.cancelled = True
-
-class UpgradableReader(CommonReader):
-    """ Read available upgrades and store them in a treemodel """
-    def __init__(self, upgrade_view, installed, upgrade_only, view_prefs):
-        """ Initialize """
-        CommonReader.__init__(self)
-        self.upgrade_view = upgrade_view
-        # dummy view to get dependancy's from existing depends.py code
-        self.dep_view = DependsView()
-        self.upgrade_results = upgrade_view.upgrade_model
-        self.installed_items = installed
-        self.upgrade_only = upgrade_only
-        #self.world = []
-        self.view_prefs = view_prefs
-        self.upgradeables = {}
-        self.dep_count = 0
- 
-    def run(self):
-        """fill upgrade tree"""
-        self.upgrade_results.clear()    # clear the treemodel
-        installed_world = []
-        installed_dep = []
-        # find upgradable packages
-        for cat, packages in self.installed_items:
-            for name, package in packages.items():
-                self.count += 1
-                if self.cancelled: self.done = True; return
-                if package.upgradable(self.upgrade_only):
-                    if package.in_world:
-                        installed_world += [(package.full_name, package)]
-                    else:
-                        installed_dep += [(package.full_name, package)]
-                    self.upgradeables[package.full_name] = package
-        installed_world = portagelib.sort(installed_world)
-        installed_dep = portagelib.sort(installed_dep)
-        #installed = installed_world + installed_dep
-        self.upgrade_total = len(installed_world) + len(installed_dep)
-        self.world_count = 0
-        self.dep_count = 0
-        #self.add_package(_("---- World upgradeable ----"), None, True)
-        for full_name, package in installed_world:
-            self.world_count += 1
-            self.add_package(full_name, package, package.in_world)
-            self.dep_view.clear()
-            self.dep_view.fill_depends_tree(self.dep_view, package)
-            self.model = self.dep_view.get_model()
-            iter = self.model.get_iter_first()
-            self.dep_list = []
-            self.deps_checked = []
-            self.get_upgrade_deps(iter, full_name)
-            #
-            # read the upgrade tree into a list of packages to upgrade
-            #self.model.foreach(self.tree_node_to_list)
-            if self.cancelled: self.done = True; return
-            if self.dep_list != []:
-                for f_name, pkg, blocker in self.dep_list:
-                    if self.cancelled: self.done = True; return
-                    self.add_deps(pkg.full_name, pkg, pkg.in_world, blocker)
-        if installed_dep != []:
-            self.add_package(_("Dependency upgradeable"), None, False, False)
-            for full_name, package in installed_dep:
-                self.dep_count += 1
-                if self.cancelled: self.done = True; return
-                self.add_deps(full_name, package, package.in_world, False)
-        #self.world_count += 1
-        # set the thread as finished
-        self.done = True
-
-    def add_package(self, full_name, package, in_world, header_icon = False):
-        """Add a package to the upgrade TreeStore"""
-        self.parent = self.upgrade_results.insert_before(None, None)
-        self.upgrade_results.set_value(self.parent, 1, in_world)
-        self.upgrade_results.set_value(self.parent, 4, in_world)
-        self.upgrade_results.set_value(self.parent, 0, full_name)
-        self.upgrade_results.set_value(self.parent, 2, package)
-        # get an icon for the package
-        icon, color = get_icon_for_upgrade_package(package, self.view_prefs)
-        if header_icon:
-            icon = gtk.STOCK_SORT_ASCENDING
-        self.upgrade_results.set_value(self.parent, 5 , color)
-        self.upgrade_results.set_value(self.parent, 3, self.upgrade_view.render_icon(icon,
-                             size = gtk.ICON_SIZE_MENU,
-                             detail = None))
-
-    def get_upgrade_deps(self, iter, parent_name):
-        list = []
-        while iter:
-                dprint("MAINWINDOW: get_upgrade_deps();processing iter: model.get_value(iter, 0) %s" %self.model.get_value(iter, 0))
-                blocker = False
-                ignore = False
-                version = None
-                package = self.model.get_value(iter, 2)
-                if package:
-                    full_name = package.full_name
-                    dprint("MAINWINDOW: get_upgrade_deps(); processing package: %s" %full_name)
-                    if full_name[0] == '!':
-                        blocker = True
-                    if full_name[0] == '=':
-                        require_version = True
-                    while full_name[0] in ['<','>','=','!']:
-                        full_name = full_name[1:]
-                    if full_name[-1] == '*':
-                        full_name = full_name[:-1]
-                    dprint("OPS cleaned; new full_name = %s" %full_name)
-                    name = full_name.split('/')
-                    if len(name) > 2:
-                        dprint("MAINWINDOW: get_upgrade_deps(); dependancy name error for %s" %full_name)
-                        return
-                    if name[0] == 'virtual': # get a proper package name
-                        old_name = name[0]
-                        full_name = portagelib.virtuals[full_name][0]
-                        dprint("MAINWINDOW: get_upgrade_deps(); %s evaluated to %s" %(old_name+"/"+name[1], full_name))
-                        if blocker and full_name == parent_name:
-                            blocker = False
-                            ignore = True # Ignore the self blocking package
-                    elif name[1].count('-') or name[1].count('.'):
-                        full_name = portagelib.extract_package(full_name)
-                        if blocker and full_name <> None:
-                            version = portagelib.get_version(full_name)
-                    if full_name and not full_name in self.deps_checked:
-                        #if full_name:
-                        self.deps_checked.append(full_name)
-                        dprint("MAINWINDOW: get_upgrade_deps(); extracted dep name = %s" %full_name)
-                        if blocker:
-                            pkg = portagelib.Package(full_name)
-                            if pkg.is_installed:
-                                if version and version in pkg.get_installed():
-                                    self.dep_list += [(full_name, pkg, blocker)]
-                                else:
-                                    self.dep_list += [(full_name, pkg, blocker)]
-                        elif not ignore and self.upgradeables.has_key(full_name): # or not self.model.get_value(iter, 3):
-                            pkg = portagelib.Package(full_name)
-                            if self.model.iter_has_child(iter):
-                                # check for dependency upgrades
-                                child_iter = self.model.iter_children(iter)
-                                self.get_upgrade_deps(child_iter, full_name)
-                            self.dep_list += [(full_name, pkg, blocker)]
-                    else: # Failed to extract the package name
-                            dprint("MAINWINDOW: get_upgrade_deps(); failed to get extracted package ==> dep name = %s" %full_name)
-                else:
-                    #dprint(self.model.iter_has_child(iter))
-                    if self.model.iter_has_child(iter):
-                        # check for dependency upgrades
-                        child_iter = self.model.iter_children(iter)
-                        self.get_upgrade_deps(child_iter, parent_name)
-                    else:
-                        dprint("MAINWINDOW: get_upgrade_deps(); !!!!!!!!!!!!!!!!!!!!!!!!!! package = None")
-                iter = self.model.iter_next(iter)
-        return
-
-    def tree_node_to_list(self, model, path, iter):
-        """callback function from gtk.TreeModel.foreach(),
-           used to add packages to an upgrades list"""
-        if model.get_value(iter, 2):
-                #dprint("processing iter: model.get_value(iter, 0) %s" %self.model.get_value(iter, 0))
-                package = self.model.get_value(iter, 2)
-                if package:
-                    full_name = package.full_name
-                    dprint("processesing package: %s" %full_name)
-                    while full_name[0] in ['<','>','=']:
-                        full_name = full_name[1:]
-                    #~ if full_name.split('/')[1].count('.'):
-                    full_name = portagelib.extract_package(full_name)
-                    if full_name:
-                        dprint("extracted dep name = %s" %full_name)
-                        pkg = portagelib.Package(full_name)
-                        if (pkg.upgradable()):# or not self.model.get_value(iter, 3):
-                            self.dep_list += [(full_name, pkg)]
-        return False
-
-
-    def add_deps(self, full_name, package, in_world, blocker):
-        """Add all dependencies to the tree"""
-        dprint("MAINWINDOW: UpgradableReader.add_deps() name = %s" %full_name)
-        child_iter = self.upgrade_results.insert_before(self.parent, None)
-        self.upgrade_results.set_value(child_iter, 1, in_world)
-        self.upgrade_results.set_value(child_iter, 4, in_world)
-        self.upgrade_results.set_value(child_iter, 0, full_name)
-        self.upgrade_results.set_value(child_iter, 2, package)
-        if blocker:
-            icon, color = gtk.STOCK_STOP, 'red'
-        else:
-            icon, color = get_icon_for_upgrade_package(package, self.view_prefs) #gtk.STOCK_GO_UP
-        self.upgrade_results.set_value(child_iter, 5, color)
-        self.upgrade_results.set_value(child_iter, 3, self.upgrade_view.render_icon(icon,
-                                       size = gtk.ICON_SIZE_MENU, detail = None))
-
-	
-class DescriptionReader(CommonReader):
-    """ Read and store package descriptions for searching """
-    def __init__(self, packages):
-        """ Initialize """
-        CommonReader.__init__(self)
-        self.packages = packages
-
-    def run(self):
-        """ Load all descriptions """
-        self.descriptions = {}
-        for name, package in self.packages:
-            if self.cancelled: self.done = True; return
-            self.descriptions[name] = package.get_properties().description
-            if not self.descriptions[name]:
-                dprint("MAIN: No description for " + name)
-            self.count += 1
-        self.done = True
