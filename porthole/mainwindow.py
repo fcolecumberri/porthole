@@ -24,7 +24,7 @@
 import threading, re
 import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, gtk.glade, gobject, pango
-import portagelib
+import portagelib, os
 
 from about import AboutDialog
 from depends import DependsTree
@@ -174,8 +174,11 @@ class MainWindow:
 
     def setup_command(self, command):
         """Setup the command to run or not"""
+        HOME = os.getenv("HOME")
+        dprint("HOME = " + str(HOME))
         env = {"FEATURES": "notitles",  # Don't try to set the titlebar
-               "NOCOLOR": "true"}       # and no colours, please
+               "NOCOLOR": "true",       # and no colours, please
+                "HOME":HOME}
         if self.is_root or (self.prefs.emerge.pretend and
                             command[:11] != "emerge sync"):
             if self.prefs.emerge.pretend:
