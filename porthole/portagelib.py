@@ -34,11 +34,11 @@ from metadata import parse_metadata
 
 def get_portage_environ(var):
     """Returns environment variable from portage if possible, else None"""
-    try: temp = portage.config().environ()[var]
+    try: temp = portage.config(clone=portage.settings).environ()[var]
     except: temp = None
     return temp
 
-portdir = portage.config().environ()['PORTDIR']
+portdir = portage.config(clone=portage.settings).environ()['PORTDIR']
 # is PORTDIR_OVERLAY always defined?
 portdir_overlay = get_portage_environ('PORTDIR_OVERLAY')
     
