@@ -504,10 +504,13 @@ class MainWindow:
                 self.summary.update_package_info(None)
                 self.wtree.get_widget("category_scrolled_window").hide()
             return gtk.FALSE
-        else:
-            fraction = self.ut.count / float(self.db.installed_count)
-            self.wait_dialog.progbar.set_text(str(int(fraction * 100)) + "%")
-            self.wait_dialog.progbar.set_fraction(fraction)
+        else: 
+            try:
+                fraction = self.ut.count / float(self.db.installed_count)
+                self.wait_dialog.progbar.set_text(str(int(fraction * 100)) + "%")
+                self.wait_dialog.progbar.set_fraction(fraction)
+            except:
+                pass
         return gtk.TRUE
 
     def update_statusbar(self, mode):
