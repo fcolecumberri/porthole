@@ -21,7 +21,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 """
 
-from sys import exit
+from sys import exit, stderr
 try:    
     import portage
 except ImportError:
@@ -31,16 +31,16 @@ except ImportError:
 import threading, os, grp
 from metadata import parse_metadata
 
-version = 0.1
-debug = 0
+version = '0.1'
+debug = False
 
 portdir = portage.config().environ()['PORTDIR']
 # is PORTDIR_OVERLAY always defined?
-try:
-    portdir_overlay = portage.config().environ()['PORTDIR_OVERLAY']
-except:
-    portdir_overlay = None
+try: portdir_overlay = portage.config().environ()['PORTDIR_OVERLAY']
+except: portdir_overlay = None
     
+# lower case is nicer
+keys = [key.lower() for key in portage.auxdbkeys]
 
 def write_access():
     """Returns true if process runs as root."""
@@ -51,16 +51,14 @@ def read_access():
     # Note: you don't have to be a member of portage to read the database,
     # but portage caching will not work
     portage = 250  # is portage guaranteed to be 250?
-    try:
-        portage = grp.getgrnam("portage")[2]
-    except:
-        pass
+    try: portage = grp.getgrnam("portage")[2]
+    except: pass
     return write_access() or (portage in (os.getgroups() + [os.getegid()]))
 
 def dprint(message):
     """Print debug message if debug is true."""
     if debug:
-        print message
+        print >>stderr, message
 
 def get_name(full_name):
     """Extract name from full name."""
@@ -83,55 +81,50 @@ def get_version(ebuild):
             result += '-' + parts[3]
     return result
 
+# this is obsolete
 def get_property(ebuild, property):
     """Read a property of an ebuild. Returns a string."""
     # portage.auxdbkeys contains a list of properties
-    try:
-        return portage.portdb.aux_get(ebuild,
-                                      [property])[0]
-    except:
-        return ''
+    try: return portage.portdb.aux_get(ebuild, [property])[0]
+    except: return ''
 
-def get_homepage(ebuild):
-    return get_property(ebuild, 'HOMEPAGE')
-
-def get_license(ebuild):
-    return get_property(ebuild, 'LICENSE')
-
-def get_slot(ebuild):
-    """Return slot number as an integer."""
-    try:
-        return int(get_property(ebuild, 'SLOT'))
-    except ValueError:
-        return 0   # ?
+class Properties:
+    """Contains all variables in an ebuild."""
+    def __init__(self, dict = None):
+        self.__dict = dict
         
-def get_keywords(ebuild):
-    """Returns a list of strings."""
-    return get_property(ebuild, 'KEYWORDS').split()
+    def __getattr__(self, name):
+        try: return self.__dict[name].decode('ascii')  # return unicode
+        except: return u""  # always return something
+        
+    def get_slot(self):
+        """Return slot number as an integer."""
+        try: return int(self.slot)
+        except ValueError: return 0   # ?
 
-def get_use_flags(ebuild):
-    """Returns a list of strings."""
-    return get_property(ebuild, 'IUSE').split()
+    def get_keywords(self):
+        """Returns a list of strings."""
+        return self.keywords.split()
 
-def get_description(ebuild):
-    """Returns utf-8 encoded string."""
-    return get_property(ebuild, 'DESCRIPTION').encode('UTF-8')
+    def get_use_flags(self):
+        """Returns a list of strings."""
+        return self.use_flags.split()
 
+    def get_homepages(self):
+        """Returns a list of strings."""
+        return self.homepage.split()
+
+def get_properties(ebuild):
+    """Get all ebuild variables in one chunk."""
+    return Properties(dict(zip(keys,
+                               portage.portdb.aux_get(ebuild,
+                                                      portage.auxdbkeys))))
+    
 def get_metadata(package):
     # we could check the overlay as well,
     # but we are unlikely to find any metadata files there
-    try:
-        return parse_metadata(portdir + "/" + package + "/metadata.xml")
-    except:
-        return None
-
-# Todo: dependencies need to be parsed somehow
-
-def get_depend(ebuild):
-    return get_property(ebuild, 'DEPEND')
-
-def get_rdepend(ebuild):
-    return get_property(ebuild, 'RDEPEND')
+    try: return parse_metadata(portdir + "/" + package + "/metadata.xml")
+    except: return None
 
 class Package:
     """An entry in the package database"""
@@ -154,34 +147,19 @@ class Package:
         criterion = include_masked and 'match-all' or 'match-visible'
         return portage.best(portage.portdb.xmatch(criterion, self.full_name))
 
-    def get_homepage(self):
-        return get_homepage(self.get_latest_ebuild())
-
-    def get_license(self):
-        return get_license(self.get_latest_ebuild())
-
-    def get_slot(self):
-        return get_slot(self.get_latest_ebuild())
-
-    def get_keywords(self):
-        return get_keywords(self.get_latest_ebuild())
-
-    def get_use_flags(self):
-        return get_use_flags(self.get_latest_ebuild())
-
     def get_metadata(self):
         return get_metadata(self.full_name)
 
-    def get_description(self):
+    def get_properties(self):
+        """Returns properties of latest ebuild."""
         try:
             latest = self.get_latest_ebuild()
             if not latest:
                 raise Exception('No ebuild found.')
-            description = get_description(latest) 
+            return get_properties(latest)
         except Exception, e:
-            description = ("An error occured when reading the description:\n"
-                           + str(e))
-        return description
+            dprint(e)
+            return Properties()
 
     def get_versions(self):
         """Returns all versions of the available ebuild"""
@@ -211,7 +189,6 @@ class Database:
             else:
                 return None
         except:
-            print "foo"
             return None
 
 
@@ -244,10 +221,8 @@ class DatabaseReader(threading.Thread):
             if name == 'timestamp.x':  # why does getallnodes()
                 continue               # return timestamps?
             self.count += 1
-            if not category in self.db.categories:
-                self.db.categories[category] = {}
             data = Package(entry)
-            self.db.categories[category][name] = data;
+            self.db.categories.setdefault(category, {})[name] = data;
             self.db.list.append((name, data))
         self.db.list = sort(self.db.list)
 
@@ -261,12 +236,13 @@ class DatabaseReader(threading.Thread):
 
 if __name__ == "__main__":
     # test program
+    debug = True
     print (read_access() and "Read access" or "No read access")
     print (write_access() and "Write access" or "No write access")
     import time, sys
     db_thread = DatabaseReader(); db_thread.start()
     while not db_thread.done:
-        print db_thread.count
+        print >>sys.stderr, db_thread.count,
         time.sleep(0.1)
     print
     db = db_thread.get_db()
@@ -279,12 +255,13 @@ if __name__ == "__main__":
             if not package:
                 print "--- unknown ---"
                 continue
-            print "Homepage:", package.get_homepage()
-            print "Description:", package.get_description()
-            print "License:", package.get_license()
-            print "Slot:", package.get_slot()
-            print "Keywords:", package.get_keywords()
-            print "USE flags:", package.get_use_flags()
+            props = package.get_properties()
+            print "Homepages:", props.get_homepages()
+            print "Description:", props.description
+            print "License:", props.license
+            print "Slot:", props.get_slot()
+            print "Keywords:", props.get_keywords()
+            print "USE flags:", props.get_use_flags()
             print "Installed:", package.get_installed()
             print "Latest:", get_version(package.get_latest_ebuild())
             print "Latest unmasked:", get_version(package.get_latest_ebuild(0))

@@ -335,27 +335,21 @@ class MainWindow:
 
     def on_url_event(self, tag, widget, event, iter):
         if event.type == gtk.gdk.BUTTON_RELEASE:
-            try:
-                webbrowser.open(self.homepage)
-            except:
-                pass
+            try: webbrowser.open(self.homepage)
+            except: pass
 
     def update_package_info(self, package):
         """Update the notebook of information about a selected package"""
 
         def append(text, tag = None):
-            """Append text to summary buffer."""
+            """Append (unicode) text to summary buffer."""
             iter = self.summary_buffer.get_end_iter()
-            text_u = text.decode('ascii', 'replace')
             buffer = self.summary_buffer
-            if tag:
-                buffer.insert_with_tags_by_name(iter, text_u, tag)
-            else:
-                buffer.insert(iter, text_u)
+            if tag: buffer.insert_with_tags_by_name(iter, text, tag)
+            else: buffer.insert(iter, text)
 
-        def nl():
-            append("\n");
-
+        def nl(): append("\n")
+        
         self.summary_buffer.set_text("", 0)
         notebook = self.wtree.get_widget("notebook")
         notebook.set_sensitive(package and gtk.TRUE or gtk.FALSE)
@@ -365,16 +359,17 @@ class MainWindow:
         #put the info into the textview!
         notebook.set_sensitive(gtk.TRUE)
         #read it's info
-        description = package.get_description()
         metadata = package.get_metadata()
         ebuild = package.get_latest_ebuild()
         installed = package.get_installed()
         versions = package.get_versions(); versions.sort()
-        homepages = package.get_homepage().split() # may be more than one
+        props = package.get_properties()
+        description = props.description
+        homepages = props.get_homepages() # may be more than one
         self.homepages = homepages  # store url for on_url_event
-        use_flags = package.get_use_flags()
-        license = package.get_license()
-        slot = str(package.get_slot())
+        use_flags = props.get_use_flags()
+        license = props.license
+        slot = unicode(props.get_slot())
         #build the information together into a buffer
         ''' TODO:
             get dependencies and show them in the dependency tab/textview
@@ -384,15 +379,9 @@ class MainWindow:
         if description:
             append(description, "description"); nl()
         if metadata and metadata.longdescription:
-            nl();
-            # longdescription is unicode
-            # Todo: don't mix 8-bit and unicode like this
-            append(metadata.longdescription.encode("ascii", "replace"),
-                   "description")
-            nl()
+            nl(); append(metadata.longdescription, "description"); nl()
         for homepage in homepages: append(homepage, "url"); nl()
-        #put a space between this info and the rest
-        nl()
+        nl()         #put a space between this info and the rest
         if installed:
             append("Installed versions: ", "property")
             append(", ".join([portagelib.get_version(ebuild)
@@ -407,20 +396,15 @@ class MainWindow:
                               for ebuild in versions]),
                    "value")
             nl()
-        #put a space between this info and the rest, again
-        nl()
+        nl()         #put a space between this info and the rest, again
         if use_flags:
             append("Use Flags: ", "property")
             append(", ".join(use_flags), "value")
             nl()
         if license:
-            append("License: ", "property");
-            append(license, "value");
-            nl()
+            append("License: ", "property"); append(license, "value"); nl()
         if slot:
-            append("Slot: ", "property");
-            append(slot, "value");
-            nl()
+            append("Slot: ", "property"); append(slot, "value"); nl()
 
     SHOW_ALL = 0
     SHOW_INSTALLED = 1
