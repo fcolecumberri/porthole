@@ -28,10 +28,9 @@ except ImportError:
     exit('Could not find portage module.\n'
          'Are you sure this is a Gentoo system?')
 
-import threading, os, grp
+import threading
 from metadata import parse_metadata
 
-version = '0.1'
 debug = False
 
 portdir = portage.config().environ()['PORTDIR']
@@ -41,19 +40,6 @@ except: portdir_overlay = None
     
 # lower case is nicer
 keys = [key.lower() for key in portage.auxdbkeys]
-
-def write_access():
-    """Returns true if process runs as root."""
-    return os.geteuid() == 0
-
-def read_access():
-    """Return true if user is root or a member of the portage group."""
-    # Note: you don't have to be a member of portage to read the database,
-    # but portage caching will not work
-    portage = 250  # is portage guaranteed to be 250?
-    try: portage = grp.getgrnam("portage")[2]
-    except: pass
-    return write_access() or (portage in (os.getgroups() + [os.getegid()]))
 
 def dprint(message):
     """Print debug message if debug is true."""

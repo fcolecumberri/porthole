@@ -24,17 +24,20 @@
 import pygtk
 pygtk.require("2.0") #make sure we have the right version
 import gtk, portagelib
+import os, grp
+from sys import stderr
 
 try:
     import webbrowser
-    web = True
 except ImportError:
-    print "Web browser module not found, you will not be able to load links"
-    web = False
+    print >>stderr, ('Module "webbrowser" not found. '
+                     'You will not be able to open web pages.')
 
 def load_web_page(name):
-    if web:
+    try:
         webbrowser.open(name)
+    except:
+        pass
 
 def get_icon_for_package(package):
     """Return an icon for a package"""
@@ -54,3 +57,19 @@ def get_icon_for_package(package):
         #just put the STOCK_NO icon
         icon = gtk.STOCK_NO
     return icon
+
+def is_root():
+    """Returns true if process runs as root."""
+    return os.geteuid() == 0
+    
+write_access = is_root
+
+def read_access():
+    """Return true if user is root or a member of the portage group."""
+    # Note: you don't have to be a member of portage to read the database,
+    # but portage caching will not work
+    portage = 250  # is portage guaranteed to be 250?
+    try: portage = grp.getgrnam("portage")[2]
+    except: pass
+    return write_access() or (portage in (os.getgroups() + [os.getegid()]))
+

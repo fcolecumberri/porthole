@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-import gtk, webbrowser, portagelib, pango
+import gtk, pango
+import portagelib
+from utils import load_web_page
 
 class Summary(gtk.TextView):
     def __init__(self):
@@ -35,8 +37,7 @@ class Summary(gtk.TextView):
     def on_url_event(self, tag, widget, event, iter):
         """Catch when the user clicks the url"""
         if event.type == gtk.gdk.BUTTON_RELEASE:
-            try: webbrowser.open(self.homepages[0])
-            except: pass
+            load_web_page(self.homepages[0])
 
     def on_mouse_motion(self, widget, event, data = None):
         # we need to call get_pointer, or we won't get any more events

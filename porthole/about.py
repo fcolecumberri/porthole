@@ -21,8 +21,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import pygtk
-pygtk.require("2.0") #make sure we have the right version
 import gtk, gtk.glade
 from utils import load_web_page
 

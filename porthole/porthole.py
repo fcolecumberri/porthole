@@ -22,29 +22,16 @@
 '''
 
 #store our version here
-version = 0.1
+version = "0.1"
 
-import string, threading, os, re, sys #if this fails... lol
-try:
-    import pygtk
-    pygtk.require("2.0") #make sure we have the right version
-except ImportError:
-    sys.exit("Error loading libraries!\nIs pygtk installed?")
-try:
-    import gtk, gtk.glade, gobject, pango
-except ImportError:
-    sys.exit("Error loading libraries!\nIs GTK+ installed?")
-try:
-    import portagelib
-    from about import AboutDialog
-    from depends import DependsTree
-    from utils import load_web_page, get_icon_for_package
-except ImportError:
-    sys.exit("Error loading libraries!\nCan't find portagelib!")
-try:
-    import process
-except ImportError:
-    sys.exit("Error loading libraries!\nCan't find process!")
+import threading, re
+import pygtk; pygtk.require("2.0") #make sure we have the right version
+import gtk, gtk.glade, gobject, pango
+import portagelib
+from about import AboutDialog
+from depends import DependsTree
+from utils import load_web_page, get_icon_for_package, is_root
+from process import ProcessWindow
 from summary import Summary
 
 class MainWindow:
@@ -133,8 +120,7 @@ class MainWindow:
 
     def check_for_root(self, callback = None):
         """figure out if the user can emerge or not..."""
-        uid = os.getuid()
-        if uid != 0:
+        if not is_root():
             self.sudo_dialog = gtk.Dialog(
                 "You are not root!",
                 self.wtree.get_widget("main_window"),
@@ -240,11 +226,11 @@ class MainWindow:
         else:
             if self.use_sudo:
                 if self.use_sudo == 1:
-                    process.ProcessWindow("sudo " + command)
+                    ProcessWindow("sudo " + command)
                 else:
                     print "Sorry, can't do that!"
             else:
-                process.ProcessWindow(command)
+                ProcessWindow(command)
 
     def emerge_package(self, widget):
         """Emerge the currently selected package."""
