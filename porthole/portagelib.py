@@ -234,6 +234,7 @@ def pad_ver(vlist):
     max_length = 0
     val_cache = []
     prepart_cache = []
+    rev_cache = []
 
     for val1 in vlist:
         # consider 1_p2 vc 1.1
@@ -245,6 +246,11 @@ def pad_ver(vlist):
         if val1.count('_'):
                 val1, val1_prepart = val1.split('_', 1)
 
+        val1_rev = ''
+        if val1.count('-r'):
+            val1, val1_rev = val1.split('-r')
+            #dprint('val1: %s ... val1_rev: %s' %(val1,val1_rev))
+
         # replace '-' by '.'
         # FIXME: Is it needed? can val1/2 contain '-'?
         val1=string.split(val1,'-')
@@ -252,19 +258,26 @@ def pad_ver(vlist):
                 val1[0]=val1[0]+"."+val1[1]
 
         val1=string.split(val1[0],'.')
+        #dprint("val1 split: ")
+        #dprint(val1)
 
         # track the maximum length we need to pad to
         max_length = max(len(val1), max_length)
+        #dprint("maxlength = %d" %max_length)
                          
         #temp store the data until the end of the list
         val_cache += [val1]
         prepart_cache += [val1_prepart]
+        rev_cache += [val1_rev]
 
     result = []
     for x in range(0,len(val_cache)):
         # extend version numbers
         if len(val_cache[x])< max_length:
                 val_cache[x].extend(["0"]*(max_length-len(val_cache[x])))
+                #dprint("extending")
+        #dprint("PORTAGELIB: new extended val_cache[x]: ")
+        #dprint(val_cache[x])
         # fill numbers with leading zero's
         #dprint("zfill")
         new_val = []
@@ -296,14 +309,34 @@ def pad_ver(vlist):
             new_val[-1] = '_' + new_pre
             #dprint("new_pre[]")
             #dprint(new_pre)
+
+        # add back _revision tails
+        if rev_cache[x]:
+            new_rev = ''
+            y = split_digits(rev_cache[x])
+            tmp = []
+            for z in y:
+                if z[0] in digits:
+                    tmp += [zfill(z, 3)]
+                else:
+                    tmp += [z]
+                #dprint(z)
+            #dprint("new rev temp: %s" %tmp)
+            new_rev += string.join(tmp, "")
+            new_val[-1] += '-r' + new_rev
+            #dprint("new_rev[]")
+            #dprint(new_rev)
+
+
+
         #The above code will extend version numbers out so they
         #have the same number of digits
         new_val = string.join(new_val, ".")
            
         result += [new_val]
 
-    #dprint("PORTAGELIB: pad_ver() result[]")
-    #dprint(result)
+    dprint("PORTAGELIB: pad_ver() result[]")
+    dprint(result)
     return result
 
 def sort(list):
