@@ -414,7 +414,8 @@ class ProcessManager:
     def add_process(self, package_name, command_string, callback):
         """ Add a process to the queue """
         # Prevent conflicts while changing process queue
-        self.Semaphore.acquire()  
+        self.Semaphore.acquire()
+        dprint("TERMINAL: add_process; Semaphore acquired")
 
         # if it's already in the queue, don't add it!
         for data in self.process_list:
@@ -432,11 +433,17 @@ class ProcessManager:
                             elif result == gtk.RESPONSE_YES: # Resume
                                 self.resume_normal(None)
                             else: # Cancel
+                                # Clear semaphore, we're done
+                                self.Semaphore.release()
+                                dprint("TERMINAL: add_process; Semaphore released")
                                 return gtk.FALSE
                         else:
                             message = "The package you selected is already in the emerge queue!"
                             SingleButtonDialog("Error Adding Package To Queue!", None,
                                            message, None, "Ok")
+                            # Clear semaphore, we're done
+                            self.Semaphore.release()
+                            dprint("TERMINAL: add_process; Semaphore released")
                             return
                 # remove process from list
                 dprint(self.process_list)
@@ -471,6 +478,7 @@ class ProcessManager:
 
         # Clear semaphore, we're done
         self.Semaphore.release()
+        dprint("TERMINAL: add_process; Semaphore released")
 
     def _run(self, command_string, iter = None):
         """ Run a given command string """
@@ -797,6 +805,7 @@ class ProcessManager:
         start the next one if there are any more to be run"""
         # Prevent conflicts while changing process queue
         self.Semaphore.acquire()
+        dprint("TERMINAL: process_done; Semaphore acquired")
         
         # reset to None, so next one starts properly
         self.reader.fd = None
@@ -805,6 +814,9 @@ class ProcessManager:
             # display message that process has been killed
             self.append_all(KILLED_STRING,True)
             self.set_statusbar(KILLED_STRING[:-1])
+            # Clear semaphore, we're done
+            self.Semaphore.release()
+            dprint("TERMINAL: process_done; Semaphore released")
             return
             
         # If the user did an emerge --pretend, we print out
@@ -842,6 +854,7 @@ class ProcessManager:
 
         # We're finished, release semaphore
         self.Semaphore.release()
+        dprint("TERMINAL: process_done; Semaphore released")
 
     def render_icon(self, icon):
         """ Render an icon for the queue tree """
@@ -852,9 +865,13 @@ class ProcessManager:
         """ Kill currently running process """
         # Prevent conflicts while changing process queue
         self.Semaphore.acquire()
+        dprint("TERMINAL: kill_process; Semaphore acquired")
 
         if not self.reader.process_running and not self.file_input:
             dprint("TERMINAL: No running process to kill!")
+            # We're finished, release semaphore
+            self.Semaphore.release()
+            dprint("TERMINAL: kill_process; Semaphore released")
             return
         self.kill()
         if self.log_mode:
@@ -870,6 +887,7 @@ class ProcessManager:
 
         # We're finished, release semaphore
         self.Semaphore.release()
+        dprint("TERMINAL: kill_process; Semaphore released")
         return
 
     def extract_num(self, line):
@@ -969,6 +987,7 @@ class ProcessManager:
         dprint("TERMINAL: Switching queue items.")
         # Prevent conflicts while changing process queue
         self.Semaphore.acquire()
+        dprint("TERMINAL: queue_items_switch; Semaphore acquired")
 
         # get the selected iter
         iter = get_treeview_selection(self.queue_tree)
@@ -1008,6 +1027,7 @@ class ProcessManager:
 
         # We're done, release semaphore
         self.Semaphore.release()
+        dprint("TERMINAL: queue_items_switch; Semaphore released")
 
     def move_queue_item_up(self, widget):
         """ Move selected queue item up in the queue """
@@ -1021,6 +1041,7 @@ class ProcessManager:
         """ Remove the selected item from the queue """
         # Prevent conflicts while changing process queue
         self.Semaphore.acquire()
+        dprint("TERMINAL: remove_queue_item; Semaphore acquired")
 
         # get the selected iter
         iter = get_treeview_selection(self.queue_tree)
@@ -1036,6 +1057,7 @@ class ProcessManager:
 
         # We're done, release semaphore
         self.Semaphore.release()
+        dprint("TERMINAL: remove_queue_item; Semaphore released")
 
     def estimate_build_time(self):
         """Estimates build times based on emerge --pretend output"""
