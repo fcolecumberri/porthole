@@ -56,6 +56,8 @@ class Summary(gtk.TextView):
              'url': ({'foreground': 'blue'}),
              'property': ({'weight': pango.WEIGHT_BOLD}),
              'value': ({}),
+             'useset': ({'foreground':'darkgreen'}),
+             'useunset':({'foreground':'red'}),
              'masked': ({"style": pango.STYLE_ITALIC}),
              })
         # React when user clicks on the homepage url
@@ -136,6 +138,7 @@ class Summary(gtk.TextView):
         homepages = props.get_homepages() # may be more than one
         self.homepages = homepages  # store url for on_url_event
         use_flags = props.get_use_flags()
+        system_use_flags = portagelib.get_portage_environ("USE").split()
         license = props.license
         slot = unicode(props.get_slot())
         # build info into buffer
@@ -179,7 +182,17 @@ class Summary(gtk.TextView):
         nl()         # put a space between this info and the rest, again
         if use_flags:
             append("Use flags: ", "property")
-            append(", ".join(use_flags), "value")
+            #append(", ".join(use_flags), "value")
+            first_flag = True
+            for flag in use_flags:
+                if not first_flag:
+                    append(", ", "value")
+                else:
+                    first_flag = False
+                if flag in system_use_flags:
+                    append(flag,"useset")
+                else:
+                    append(flag,"useunset")
             nl()
         if license:
             append("License: ", "property"); append(license, "value"); nl()
