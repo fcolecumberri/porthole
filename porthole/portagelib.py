@@ -28,7 +28,7 @@ except ImportError:
     exit('Could not find portage module.\n'
          'Are you sure this is a Gentoo system?')
 
-import threading
+import threading, os
 from metadata import parse_metadata
 
 version = 0.1
@@ -41,8 +41,20 @@ try:
 except:
     portdir_overlay = None
     
+
+def write_access():
+    """Returns true if process runs as root."""
+    return os.geteuid() == 0
+
+def read_access():
+    """Return true if user is root or a member of the portage group."""
+    # Note: you don't have to be a member of portage to read the database,
+    # but portage caching will not work
+    portage = 250  # is portage guaranteed to be 250?
+    return write_access() or (portage in (os.getgroups() + [os.getegid()]))
+
 def dprint(message):
-    #print debug messages
+    """Print debug message if debug is true."""
     if debug:
         print message
 
@@ -245,6 +257,8 @@ class DatabaseReader(threading.Thread):
 
 if __name__ == "__main__":
     # test program
+    print (read_access() and "Read access" or "No read access")
+    print (write_access() and "Write access" or "No write access")
     import time, sys
     db_thread = DatabaseReader(); db_thread.start()
     while not db_thread.done:
@@ -262,8 +276,7 @@ if __name__ == "__main__":
                 print "--- unknown ---"
                 continue
             print "Homepage:", package.get_homepage()
-            package.read_description()
-            print "Description:", package.description
+            print "Description:", package.get_description()
             print "License:", package.get_license()
             print "Slot:", package.get_slot()
             print "Keywords:", package.get_keywords()
