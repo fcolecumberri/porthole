@@ -119,7 +119,9 @@ class Summary(gtk.TextView):
         homepages = props.get_homepages() # may be more than one
         self.homepages = homepages  # store url for on_url_event
         use_flags = props.get_use_flags()
-        system_use_flags = portagelib.get_portage_environ("USE").split()
+        system_use_flags = portagelib.get_portage_environ("USE")
+        if system_use_flags:
+            system_use_flags = system_use_flags.split()
         license = props.license
         slot = unicode(props.get_slot())
         # build info into buffer
