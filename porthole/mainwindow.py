@@ -428,18 +428,23 @@ class MainWindow:
     def load_installed_files(self, package):
         """Obtain and display list of installed files for a package,
         if installed."""
-        installed = package.get_installed()
-        is_installed = installed and gtk.TRUE or gtk.FALSE
-        self.wtree.get_widget(
-            "installed_files_scrolled_window").set_sensitive(is_installed)
-        if is_installed:
-            installed.sort()
-            installed_files = portagelib.get_installed_files(installed[-1])
-            self.installed_files.set_text(
-                str(len(installed_files)) + " installed files:\n\n"
-                + "\n".join(installed_files))
+        if package:
+            installed = package.get_installed()
+            is_installed = installed and gtk.TRUE or gtk.FALSE
+            self.wtree.get_widget(
+                "installed_files_scrolled_window").set_sensitive(is_installed)
+            if is_installed:
+                installed.sort()
+                installed_files = portagelib.get_installed_files(installed[-1])
+                self.installed_files.set_text(
+                    str(len(installed_files)) + " installed files:\n\n"
+                    + "\n".join(installed_files))
+            else:
+                self.installed_files.set_text("Not installed")
         else:
-            self.installed_files.set_text("Not installed")
+            dprint("MAIN: No package sent to load_installed_files!")
+            self.installed_files.set_text("No data currently available available.\n\
+                                           The package may not be installed")
 
     SHOW_ALL = 0
     SHOW_INSTALLED = 1
