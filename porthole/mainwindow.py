@@ -118,10 +118,8 @@ class MainWindow:
         # recheck the size
         h= self.wtree.get_widget("hpane").get_position()
         v = self.wtree.get_widget("vpane").get_position()
-        dprint("MAINWINDOW: __init__() after hpane; %d, vpane; %d" %(h, v))
-        # connect to the resize signal
-        #self.wtree.signal_autoconnect({"on_main_window_size_request" :
-        #                                                self.size_update})
+        self.hpane_bug_count = 0
+        self.hpane_bug = True
         # initialize our data
         self.init_data()
         self.current_category = None
@@ -263,6 +261,7 @@ class MainWindow:
                 #self.category_view.populate(self.db.categories.keys(), self.current_category)
                 # update the views by calling view_filter_changed
                 self.view_filter_changed(view_filter)
+            self.reload = False
             return gtk.FALSE  # disconnect from timeout
         return gtk.TRUE
 
@@ -694,6 +693,13 @@ class MainWindow:
 
     def size_update(self, widget, gbox):
         """ Store the window and pane positions """
+        # bugfix for hpane jump bug
+        if self.hpane_bug_count == 2 and self.hpane_bug:
+            dprint("hpane bugfix activated")
+            self.wtree.get_widget("hpane").set_position(self.prefs.main.hpane)
+            self.hpane_bug = False
+        else:
+            self.hpane_bug_count += 1
         pos = widget.get_size()
         self.prefs.main.width = pos[0]
         self.prefs.main.height = pos[1]
