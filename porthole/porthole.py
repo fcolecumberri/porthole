@@ -36,6 +36,7 @@ except ImportError:
     sys.exit("Error loading libraries!\nIs GTK+ installed?")
 try:
     import portagelib
+    from about import AboutDialog
 except ImportError:
     sys.exit("Error loading libraries!\nCan't find portagelib!")
 try:
@@ -534,21 +535,6 @@ class MainWindow:
         elif mode == self.SHOW_SEARCH:
             text = "%d matches found" % self.search_results.size
         self.set_statusbar(text)
-
-class AboutDialog:
-    """Class to hold about dialog and functionality."""
-
-    def __init__(self):
-        #setup glade
-        self.gladefile = "porthole.glade"
-        self.wtree = gtk.glade.XML(self.gladefile, "about_dialog")
-        #register callbacks
-        callbacks = {"on_ok_clicked" : self.ok_clicked}
-        self.wtree.signal_autoconnect(callbacks)
-
-    def ok_clicked(self, widget):
-        """Get rid of the about dialog!"""
-        self.wtree.get_widget("about_dialog").destroy()
 
 
 
