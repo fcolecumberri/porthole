@@ -83,6 +83,10 @@ def get_treeview_selection( treeview, num):
             selection = model.get_value(iter, num)
         return selection
 
+def get_user_home_dir():
+    """Return the path to the current user's home dir"""
+    return pwd.getpwuid(os.getuid())[5]
+
 class CommonDialog(gtk.Dialog):
     """ A common gtk Dialog class """
     def __init__(self, title, parent, message, callback, button):
@@ -167,7 +171,7 @@ class PortholePreferences:
     def load(self):
         """ Load saved preferences """
         # does ~/.porthole exist?
-        home = pwd.getpwuid(os.getuid())[5]
+        home = get_user_home_dir()
         if os.access(home + "/.porthole", os.F_OK):
             if os.access(home + "/.porthole/prefs", os.F_OK):
                 # unpickle our preferences

@@ -24,7 +24,7 @@
 import pygtk; pygtk.require('2.0')
 import gtk, threading
 import signal, os, pty
-from utils import dprint
+from utils import dprint, get_user_home_dir
 
 class ProcessWindow(threading.Thread):
     RESPONSE_CLOSE = 0
@@ -154,7 +154,23 @@ class ProcessWindow(threading.Thread):
         end = self.textbuffer.get_end_iter()
         self.textbuffer.delete(start,end)
 
-
+    def log(self, filename = None):
+        """Log emerge output to a file"""
+        output = self.textbuffer.get_text(self.textbuffer.get_start_iter(),
+                                 self.textbuffer.get_end_iter(), gtk.FALSE)
+        if not filename:
+            dprint("LOG: Filename not specified, saving to ~/.porthole/logs")
+            filename = get_user_home_dir()
+            if os.access(filename + "/.porthole", os.F_OK):
+                if not os.access(filename + "/.porthole/logs", os.F_OK):
+                    dprint("LOG: Creating logs directory in " + filename +
+                           "/.porthole/logs")
+                    os.mkdir(filename + "/.porthole/logs")
+                filename += "/.porthole/logs/" + "test"
+        file = open(filename, "w")
+        file.write(output)
+        file.close()
+        dprint("LOG: Log file written to " + filename)
 
     def run(self):
         """The thread."""
@@ -203,6 +219,7 @@ class ProcessWindow(threading.Thread):
         dprint('end of process capture')
         append('\n')
         append('*** process terminated ***\n')
+        self.log()
 
 # Test program,
 # run as ./process <any command with parameters>
