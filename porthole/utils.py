@@ -48,7 +48,6 @@ def get_icon_for_package(package):
         installed.sort()
         latest_installed = portagelib.get_version(installed[-1])
         latest_available = portagelib.get_version(package.get_latest_ebuild(0))
-        print latest_installed, latest_available
         if latest_installed == latest_available:
             #they are the same version, so you are up to date
             icon = gtk.STOCK_YES

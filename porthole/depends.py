@@ -59,6 +59,14 @@ class DependsTree(gtk.TreeStore):
                 parent_iter = self.insert_before(parent, None)
                 self.set_value(parent_iter, 0, use_flag)
                 last_flag = use_flag
+            op = depend[0]
+            if op == ">" or op == "<" or op == "=":
+                op2 = depend[1]
+                if op2 == "=":
+                    op = op + op2
+                    depend = depend[2:]
+                else:
+                    depend = depend[1:]
             depend_iter = self.insert_before(parent_iter, None)
             self.set_value(depend_iter, 0, depend)
             icon = get_icon_for_package(portagelib.Package(depend))
