@@ -240,6 +240,8 @@ class ProcessManager:
         self.set_tags()
         # text mark to mark the start of the current command
         self.command_start = None
+        # used to skip a killed queue item if killed
+        self.resume_available = False
         # set the window title
         self.window.set_title(self.title)
         # flag that the window is now visible
@@ -454,8 +456,11 @@ class ProcessManager:
                 self.queue_menu.set_sensitive(gtk.TRUE)
         # if no process is running, let's start one!
         if not self.reader.process_running:
-            # pending processes, run the next one in the list
-            self.start_queue(False)
+            if self.resume_available:
+                self.start_queue(True)
+            else:
+                # pending processes, run the next one in the list
+                self.start_queue(False)
 
     def _run(self, command_string, iter = None):
         """ Run a given command string """
@@ -551,6 +556,7 @@ class ProcessManager:
                 if self.reader.fd:
                     os.write(self.reader.fd, "\003")
                     dprint("TERMINAL: cntrl-C sent to process")
+                    self.resume_available = True
                     # make sure the thread notices
                     #os.close(self.reader.fd)
                 else: # just in case there is anything left
@@ -843,10 +849,20 @@ class ProcessManager:
         """skips the first item in the process_list"""
         dprint("TERMINAL: start_queue()")
         if skip_first:
-            # remove process from list
-            self.process_list = self.process_list[1:]
+            dprint("         ==> skipping killed process")
+            self.resume_available = False
+            # try to get a callback
+            callback = self.process_list[0][3]
+            # if there is a callback set, call it
+            if callback:
+                callback()
+            if self.term.tab_showing[TAB_QUEUE]:
+                # update the queue tree
+                self.queue_clicked(self.queue_tree)
+                # remove process from list
+                self.process_list = self.process_list[1:]
         # check for pending processes, and run them
-        dprint(self.process_list)
+        #dprint(self.process_list)
         if len(self.process_list):
             dprint("TERMINAL: There are pending processes, running now... [" + \
                     self.process_list[0][0] + "]")
