@@ -27,3 +27,16 @@ Features for future consideration
 
 - Adding chroot ability to the terminal and mainwindow database.  This would allow porthole to
   be used for some install purposes.  Or help in using porthole to do remote work.
+
+- Advanced filter/search capabilities
+  -- specific architecture
+  -- stable/unstable
+  -- use flag
+
+- Architecture Support Matrix.  List the versions down the side, architectures across
+  the top, little icons for stable, unstable.  Possiblysticking with the format used
+  by packages.gentoo.org
+
+- Stable-unstable stuff for the "current" architecture was included in the summary 
+  page.  Perhaps by color coding the version numbers.
+ 

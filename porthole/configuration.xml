@@ -17,7 +17,7 @@
       <notinfo-6>.*libtool.*has not been installed in</notinfo-6>
     </notinfo>
     <warning py_type="list" item_count="4">
-      <warning-1>.*[^\-_.][Ww][Aa][Rr][Nn][Ii][Nn][Gg][:\!,\s]</warning-1>
+      <warning-1>.*[Ww][Aa][Rr][Nn][Ii][Nn][Gg][:\!,\s]</warning-1>
       <warning-2>.*[Ff]ile.*not found</warning-2>
       <warning-3>.*\s[Ee][Rr][Rr][Oo][Rr][:\-\!,]\s</warning-3>
       <warning-4>.*([Ss]yntax[Ee]rror|[Ss]yntax [Ee]rror[:\-\!,])</warning-4>
