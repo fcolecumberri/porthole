@@ -65,6 +65,8 @@ class MainWindow:
         # aliases for convenience
         self.notebook = self.wtree.get_widget("notebook")
         self.changelog = self.wtree.get_widget("changelog").get_buffer()
+        self.installed_files = self.wtree.get_widget(
+            "installed_files").get_buffer()
         # set unfinished items to not be sensitive
         self.wtree.get_widget("contents2").set_sensitive(gtk.FALSE)
         # self.wtree.get_widget("btn_help").set_sensitive(gtk.FALSE)
@@ -375,6 +377,7 @@ class MainWindow:
         self.set_package_actions_sensitive(gtk.FALSE)
         self.deps_view.clear()
         self.changelog.set_text('')
+        self.installed_files.set_text('')
 
     def package_changed(self, package):
         """Catch when the user changes packages."""
@@ -386,6 +389,8 @@ class MainWindow:
             self.deps_view.fill_depends_tree(self.deps_view, package)
         elif cur_page == 2:
             self.load_changelog(package)
+        elif cur_page == 3:
+            self.load_installed_files(package)
         self.set_package_actions_sensitive(gtk.TRUE, package)
 
     def notebook_changed(self, widget, pointer, index):
@@ -397,15 +402,35 @@ class MainWindow:
         elif index == 2:
             # fill in the change log
             self.load_changelog(package)
+        elif index == 3:
+            # load list of installed files
+            self.load_installed_files(package)
 
     def load_changelog(self, package):
         """ Load and display the changelog for a package """
         try:
-            f = open(portagelib.portdir + "/" + package.full_name + "/ChangeLog")
+            f = open(portagelib.portdir + "/" + package.full_name
+                     + "/ChangeLog")
             data = f.read(); f.close()
             self.changelog.set_text(data)
         except:
             dprint("MAIN: Error opening changelog for " + package.full_name)
+
+    def load_installed_files(self, package):
+        """Obtain and display list of installed files for a package,
+        if installed."""
+        installed = package.get_installed()
+        is_installed = installed and gtk.TRUE or gtk.FALSE
+        self.wtree.get_widget(
+            "installed_files_scrolled_window").set_sensitive(is_installed)
+        if is_installed:
+            installed.sort()
+            installed_files = portagelib.get_installed_files(installed[-1])
+            self.installed_files.set_text(
+                str(len(installed_files)) + " installed files:\n\n"
+                + "\n".join(installed_files))
+        else:
+            self.installed_files.set_text("Not installed")
 
     SHOW_ALL = 0
     SHOW_INSTALLED = 1
