@@ -1,0 +1,148 @@
+<html>
+<head>
+<title>Porthole Help</title>
+<link rel="stylesheet" type="text/css" media="screen" href="porthole.css" />
+</head>
+<body>
+<img style='float:left;' src='../pixmaps/porthole-about.png'>
+<h1>Main Window</h1>
+<br>
+<div class='toc'>
+<iframe src='toc.html' height=500 width=250 frameborder=0></iframe>
+</div>
+<h2>General Features</h2>
+<p>
+A word about GUI interfaces:  depending on the windowing system
+and theme you have installed, the icons used by Porthole may differ radically.
+from this help manual.
+So if the illustrations in this manual don't look EXACTLY like yours,
+try to be open minded about it.
+</p>
+
+<p>
+Some of the built-in features include:   
+</p>
+<ul>
+<li>The tool bar can be moved out of the window using drag & drop.  
+<li>The size of the panes are adjustable.
+Just float your mouse over the dividing bar until the mouse pointer 
+changes into the resize icon, then right click and drag the bar to resize it.
+<li>Porthole will remember the size of your main window and 
+the pane sizes between sessions.
+<li>Tool tips.  Hover the mouse over a button or icon for a brief description.
+</ul>
+<p>
+The main window is divided into a menu bar, a tool bar, package tree view,
+ package list view and a tabbed package info. 
+</p>
+<h2>Menu Bar</h2>
+<p>
+The menu bar has three main options: Action, Settings and Help.
+</p>
+<h3>Action Menu</h3>
+<ul>
+<li><b>Emerge Package</b> - Install/reinstall the selected package.
+<li><b>Advanced Emerge Package</b> - Install/reinstall the selected package,
+ but gives you fine-grained control of emerge options, use flags and keywords.
+<li><b>Unmerge Package</b> - Uninstall the selected package.
+<li><b>Sync Tree</b> - Sync the portage tree.
+<li><b>Upgrade Packages</b> - Display a list of all packages that can be
+ upgraded.
+<li><b>Open Emerge Log</b> - Open an existing emerge log.
+<li><b>Run Custom Command</b> - Run custom command.
+<li><b>Quit</b> - Exit the program.
+</ul>
+<h3>Settings Menu</h3>
+<ul>
+<li><b>Pretend</b> - Prevents emerges and updates from installing
+ and displays WHAT 
+would have been installed only.
+<li><b>Allow Downgrades</b> - Allows emerge and upgrade to install 
+older versions,
+ <i>if</i> the ebuild directs.
+<li><b>Only Fetch</b> - Just downloads the files needed to install, but
+does not actually install the package.
+<li><b>Verbose</b> - Produce maximum output while emerging/unmerging.
+<li><b>Search Descriptions</b> - Look through descriptions as well as names
+ when searching for a package. 
+</ul>
+<h3>Help Menu</h3>
+<ul>
+<li><b>About</b> - Displays version, authors and links to home page
+ and help system.
+</ul>
+<div class='figright'>
+<img src='mainwindow.png'>
+<br>
+Figure 1. Porthole Main Window
+</div>
+<h2>Tool Bar</h2>
+<p>
+The tool bar provides an alternative to the menu bar
+ and can save you a click or two.
+</p>
+<div class='tipright'>
+TIP! The toolbar has its keyboard short cuts are underlined--hold 
+down the ALT key then press the short-cut key to activate.
+</div> 
+<div>
+<b>Emerge</b> - Install/reinstall the selected package.
+</div>
+<div>
+<b>Adv Emerge</b> - Install/reinstall the selected package,
+ but gives you fine-grained control of emerge options, use flags and keywords.
+</div>
+<div><b>Unmerge</b> - Uninstall the selected package.
+</div>
+<div><b>Sync</b> - Sync the portage tree.
+</div>
+<div><b>Upgrade</b> - Display a list of all packages that can be upgraded.
+</div>
+
+<h2>View Selector</h2>
+<p>
+The view selector let's you choose between the following views:
+</p>
+<ul>
+<li><b>All Packages</b> - Display all available packages in the tree view.
+<li><b>Installed Packages</b> - Display only the packages installed on 
+your system.
+<li><b>Search Results</b> - Display the packages meeting your search criteria.
+  In this view there is no treeview pane.
+<li><b>Upgradeable Packages</b> - Display only the packages that can be upgraded.
+  In this view there is no treeview pane.
+</ul>
+
+<h2>Find</h2>
+<div class='tipright'>
+TIP! Selecting &quot;Search descriptions&quot; or pressing Ctrl-D will 
+let you search the package descriptions too! 
+</div> 
+<p>
+Enter a fragment of text in the input box next to the find button.
+  Clicking the find button or pressing enter will start the search.
+
+The system will automatically switch to the Search results view 
+when the search is complete.
+
+The search engine will find any occurrence of the selected text even if it is
+in the middle or end of a word.
+</p>
+<h2>Package Category Treeview</h2>
+<p>
+</p>
+<h2>Package List</h2>
+<p>
+In the all and installed packages view, the short name of the
+ packages in the selected category are displayed.
+In the search and upgrageable views, the full package name is displayed.
+If the package is installed
+</p>
+<h2>Package Information</h2>
+
+<h3>Summary Tab</h3>
+<h3>Dependencies Tab</h3>
+<h3>Change Log</h3>
+<h3>Installed Files</h3>
+</body>
+</html>

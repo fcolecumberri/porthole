@@ -1,0 +1,108 @@
+html
+  {margin: 0;
+  }
+body
+  {padding: .3cm;
+   margin: 0;
+   background-color: linen;
+   color: black;
+  }
+a:active, a:visited, a:link
+  {color: black; 
+  }
+a:hover
+  {background-color: yellow;
+   color: blue; 
+  }
+p
+  {text-indent:2em;
+  }
+pre
+  {margin-left:2em;
+   margin-right:2em;
+   padding:.1cm;
+   background-color:navajowhite;
+  }
+div.toc 
+  {float: right;
+   margin: 2pt 2pt 2pt 2pt;
+  }
+div.figright
+  {float: right;
+   font-size: 10pt;
+   text-align: center;
+   margin-left: 0.3cm;
+   color: blue;
+  }
+div.figleft
+  {float: left;
+   font-size: 10pt;
+   text-align: center;
+   margin-right: 0.3cm;
+   color:blue;
+  }
+div.noteright
+  {float: right;
+   font-size: 10pt;
+   padding: 0.1cm;
+   margin-left: 0.3cm;
+   color:navy;
+   background-color:yellow;
+   width:15em;
+   border: thin solid black;
+  }
+div.noteleft
+  {float: left;
+   font-size: 10pt;
+   padding: 0.1cm;
+   color:navy;
+   margin-right: 0.3cm;
+   background-color:yellow;
+   width:15em;
+   border: thin solid black;
+   margin: 0.2cm;
+  }
+div.tipright
+  {float: right;
+   font-size: 10pt;
+   margin-left: 0.3cm;
+   padding: 0.1cm;
+   color:navy;
+   background-color:papayawhip;
+   width:15em;
+   border: thin solid green;
+  }
+div.tipleft
+  {float: left;
+   font-size: 10pt;
+   padding: 0.1cm;
+   margin-right: 0.3cm;
+   color:navy;
+   background-color:papayawhip;
+   width:15em;
+   border: thin solid green;
+  }
+img.left
+  {float:left;
+   margin-right: 1em;
+  }
+img.right
+  {float:right;
+   margin-left: 1em;
+  }
+iframe
+  {margin-right: 1em;
+   margin-botom: 1em;
+   float:left;
+   border-top: thick solid brown;
+   border-bottom: thick solid brown;
+  }
+h1
+  {text-indent:3em;
+   color:blue;
+   font-variant:small-caps;
+   font-size:18pt;
+  }
+h2
+  {font-size:14pt;
+  }

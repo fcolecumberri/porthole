@@ -1,0 +1,82 @@
+<html>
+<head>
+<title>Porthole Help</title>
+<link rel="stylesheet" type="text/css" media="screen" href="porthole.css" />
+</head>
+<body>
+<img style='float:left;' src='../pixmaps/porthole-about.png'>
+<h1>About Porthole</h1>
+<br>
+<div class='toc'>
+<iframe src='toc.html' height=500 width=240 frameborder=0></iframe>
+</div>
+<h2>What is Porthole</h2>
+<p>
+Porthole is a GTK-based frontend for Portage (the Gentoo package
+management system, <a href='http://www.gentoo.org/'>http://www.gentoo.org/</a>).
+ &nbsp;It features a hierarchical view of packages and supports
+ fast searches and dependency calculations.
+ &nbsp;Porthole also supports basic emerge features such as emerge,
+unmerge, sync, upgrade world.
+</p>
+<h2>License</h2>
+<p>
+Porthole is released under the GNU General Public License
+(GPL) version 2, see <a target='_blank' href='../COPYING'>
+COPYING</a> for details.
+</p>
+<h2>History</h2>
+<p>
+Porthole is partially based on an earlier program, called gportage
+(http://www.stacken.kth.se/~foo/gentoo/), which has been discontinued
+in favour of Porthole.
+</p>
+<p>
+To see a history of changes, please see <a target='_blank' href='../NEWS'>
+NEWS</a>.
+</p>
+<h2>Problem Reporting</h2>
+<p>
+We absolutely love bug reports!  Please use the bugtracker at
+SourceForge: <a href='http://sourceforge.net/projects/porthole/'>
+http://sourceforge.net/projects/porthole/</a>.
+</p>
+
+<h2>How to Install Porthole</h2>
+<p>
+The easiest and recommended way of installing Porthole is by using the
+ebuild that is available from the webpage. We assume you know how to
+put ebuilds in the portage overlay. If not, please consult the
+documentation and forums on the Gentoo web site (http://www.gentoo.org).
+</p>
+<p>
+If you don't want to use the ebuild, you can download the tarball
+(porthole-0.3.1.tar.bz2) and install it yourself.
+<p>
+Porthole requires:
+<ul>
+<li>>=python-2.3
+<li>>=PyGTK-2 and libglade-2
+<li>>=pyxml-0.8.2
+<li>and, of course, Portage
+</ul>
+
+<p>
+To install:
+<pre>
+> tar xvjf porthole-0.3.1.tar.bz2
+> cd porthole-0.3.1
+> python setup.py install
+</pre>
+
+<h2>Contact</h2>
+
+Webpage: http://porthole.sourceforge.net/
+
+<pre>
+Daniel G. Taylor	dgt84@users.sourceforge.net
+Fredrik Arnerup		farnerup@users.sourceforge.net
+</pre>
+
+</body>
+</html>
