@@ -290,7 +290,8 @@ class PortholePreferences:
            history = dom.getitem('/window/run_dialog/history')
         except XMLManagerError:
            # Default value
-           history = ["emerge ",
+           history = ["",
+                      "emerge ",
                       "ACCEPT_KEYWORDS='~x86' emerge ",
                       "USE=' ' emerge ",
                       "ACCEPT_KEYWORDS='~x86' USE=' ' emerge ",

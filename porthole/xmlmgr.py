@@ -152,15 +152,19 @@ class XMLManager:
          newnode.setAttribute('py_type', 'none')
 
       # String types
+      # Note: check for empty strings, they wreak havoc if you try
+      # to use the .createTextNode() & appendChild() methods
 
       elif type(value) == str:
-         text = self.__dom.createTextNode(value)
-         node.appendChild(text)
+         if len(value) > 0:
+            text = self.__dom.createTextNode(value)
+            node.appendChild(text)
 
       elif type(value) == unicode:
          newnode.setAttribute('py_type', 'unicode')
-         text = self.__dom.createTextNode(str(value))
-         node.appendChild(text)
+         if len(value) > 0:
+            text = self.__dom.createTextNode(str(value))
+            node.appendChild(text)
 
       # Number types
 
