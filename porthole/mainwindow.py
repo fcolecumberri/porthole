@@ -478,6 +478,9 @@ class MainWindow:
                 self.summary.update_package_info(None)
         self.set_package_actions_sensitive(gtk.FALSE)
         self.deps_view.clear()
+        # clear the changelog and installed files text
+        self.changelog.set_text('')
+        self.installed_files.set_text('')
 
     def load_upgrades_list(self):
         # upgrades are not loaded, create dialog and load them
