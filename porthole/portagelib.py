@@ -47,7 +47,7 @@ keys = [key.lower() for key in portage.auxdbkeys]
 
 # a list of all installed packages
 installed = portage.db['/']['vartree'].getallnodes()
-
+        
 def get_name(full_name):
     """Extract name from full name."""
     return full_name.split('/')[1]
@@ -146,6 +146,7 @@ class Package:
 
     def get_latest_ebuild(self, include_masked = True):
         """Return latest ebuild of a package"""
+        # Note: this is slow, see get_versions()
         criterion = include_masked and 'match-all' or 'match-visible'
         return portage.best(self.get_versions(include_masked))
 
@@ -166,8 +167,22 @@ class Package:
 
     def get_versions(self, include_masked = True):
         """Returns all versions of the available ebuild"""
+        # Note: this slow, especially when include_masked is false
         criterion = include_masked and 'match-all' or 'match-visible'
         return portage.portdb.xmatch(criterion, self.full_name)
+
+    def upgradable(self):
+        "Returns true if an unmasked upgrade is available"
+         # Note: this is slow, see get_versions()
+        installed = self.get_installed()
+        if not installed:
+            return False
+        versions = self.get_versions(False);
+        if not versions:
+            return False
+        best = portage.best(installed + versions)
+        return best not in installed
+
 
 def sort(list):
     """sort in alphabetic instead of ASCIIbetic order"""
@@ -184,7 +199,7 @@ class Database:
         self.list = []
         # category dictionary with sorted lists of installed packages
         self.installed = {}
-        #keep track of the number of installed packages
+        # keep track of the number of installed packages
         self.installed_count = 0
         
     def get_package(self, full_name):
@@ -208,7 +223,7 @@ class DatabaseReader(threading.Thread):
         threading.Thread.__init__(self)
         self.setDaemon(1)     # quit even if this thread is still running
         self.db = Database()  # the database
-        self.done = 0         # false if the thread is still working
+        self.done = False     # false if the thread is still working
         self.count = 0        # number of packages read so far
         self.error = ""       # may contain error message after completion
 
@@ -236,45 +251,62 @@ class DatabaseReader(threading.Thread):
             if entry in installed:
                 self.db.installed.setdefault(category, {})[name] = data;
                 self.db.installed_count += 1
+##                 if data.upgradable():
+##                     self.db.upgradable.append((name, data))
             self.db.list.append((name, data))
         self.db.list = sort(self.db.list)
+##        self.db.upgradable = sort(self.db.upgradable)
         
     def run(self):
         """The thread function."""
         self.read_db()
-        self.done = 1   # tell main thread that this thread has finished
+        self.done = True   # tell main thread that this thread has finished
 
 
 
 
 if __name__ == "__main__":
-    # test program
-    debug = True
-    print (read_access() and "Read access" or "No read access")
-    print (write_access() and "Write access" or "No write access")
-    import time, sys
-    db_thread = DatabaseReader(); db_thread.start()
-    while not db_thread.done:
-        print >>sys.stderr, db_thread.count,
-        time.sleep(0.1)
-    print
-    db = db_thread.get_db()
-    while 1:
-        print; print "Enter full package name:"
-        queries = sys.stdin.readline().split()
-        for query in queries:
-            print; print query
-            package = db.get_package(query)
-            if not package:
-                print "--- unknown ---"
-                continue
-            props = package.get_properties()
-            print "Homepages:", props.get_homepages()
-            print "Description:", props.description
-            print "License:", props.license
-            print "Slot:", props.get_slot()
-            print "Keywords:", props.get_keywords()
-            print "USE flags:", props.get_use_flags()
-            print "Installed:", package.get_installed()
-            print "Latest:", get_version(package.get_latest_ebuild())
-            print "Latest unmasked:", get_version(package.get_latest_ebuild(0))
+    def main():
+        # test program
+        debug = True
+##         print (read_access() and "Read access" or "No read access")
+##         print (write_access() and "Write access" or "No write access")
+        import time, sys
+        db_thread = DatabaseReader(); db_thread.run(); db_thread.done = True
+        while not db_thread.done:
+            print >>sys.stderr, db_thread.count,
+            time.sleep(0.1)
+        print
+        db = db_thread.get_db()
+        return
+        while 1:
+            print; print "Enter full package name:"
+            queries = sys.stdin.readline().split()
+            for query in queries:
+                print; print query
+                package = db.get_package(query)
+                if not package:
+                    print "--- unknown ---"
+                    continue
+                props = package.get_properties()
+                print "Homepages:", props.get_homepages()
+                print "Description:", props.description
+                print "License:", props.license
+                print "Slot:", props.get_slot()
+                print "Keywords:", props.get_keywords()
+                print "USE flags:", props.get_use_flags()
+                print "Installed:", package.get_installed()
+                print "Latest:", get_version(package.get_latest_ebuild())
+                print ("Latest unmasked:",
+                       get_version(package.get_latest_ebuild(0)))
+
+##    main()
+    import profile, pstats
+    profile.run("main()", "stats.txt")
+
+    stats = pstats.Stats("stats.txt")
+    stats.strip_dirs()
+    stats.sort_stats('cumulative')
+    #stats.sort_stats('time')
+    #stats.sort_stats('calls')
+    stats.print_stats(0.2)

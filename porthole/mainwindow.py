@@ -352,20 +352,18 @@ class MainWindow:
         """fill upgrade tree"""
         upgrade_results = self.package_view.upgrade_model
         upgrade_results.clear()
-        keys = self.db.categories.keys()
-        keys.sort()
-        for key in keys:
-            for name in self.db.categories[key]:
-                pac = portagelib.Package(key + "/" + name)
-                if pac.is_installed:
-                    installed = pac.get_installed()
-                    installed.sort()
-                    latest = pac.get_latest_ebuild()
-                    if latest > installed[-1]:
-                        iter = upgrade_results.insert_before(None, None)
-                        upgrade_results.set_value(iter, 0, name)
-                        upgrade_results.set_value(iter, 2, pac)
-                        upgrade_results.set_value(iter, 1, gtk.TRUE)
+        installed = []
+        for cat, packages in self.db.installed.items():
+            for name, package in packages.items():
+                if package.upgradable():
+                    installed += [(package.full_name, package)]
+        installed = portagelib.sort(installed)
+        for full_name, package in installed:
+            iter = upgrade_results.insert_before(None, None)
+            upgrade_results.set_value(iter, 0, full_name)
+            upgrade_results.set_value(iter, 2, package)
+            upgrade_results.set_value(iter, 1, gtk.TRUE)
+        return
 
     def update_statusbar(self, mode):
         """Update the statusbar for the selected filter"""
