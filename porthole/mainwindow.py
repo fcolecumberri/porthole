@@ -884,7 +884,7 @@ class MainWindow:
 
     def update_statusbar(self, mode):
         """Update the statusbar for the selected filter"""
-        text = _("")
+        text = ""
         if mode == self.SHOW_ALL:
             if not self.db:
                 dprint("MAINWINDOW: attempt to update status bar with no db assigned")
