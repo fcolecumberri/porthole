@@ -75,7 +75,7 @@ TAB_QUEUE = 4
 # A constant that represents the maximum distance from the
 # bottom of the slider for the slider to stick.  Too small and
 # you won't be able to make it stick when text is added rapidly
-SLIDER_CLOSE_ENOUGH = 50
+SLIDER_CLOSE_ENOUGH = 0.5 # of the page size
 
 # some contant strings that may be internationalized later
 KILLED_STRING = "*** process killed ***\n"
@@ -323,7 +323,8 @@ class ProcessManager:
         #dprint(self.term.buffer[self.term.current_tab].get_line_count())
         self.term.auto_scroll[self.term.current_tab] = (vadjustment.upper - \
                                                         vadjustment.get_value() - \
-                                                        vadjustment.page_size < SLIDER_CLOSE_ENOUGH)
+                                                        vadjustment.page_size < \
+                                                         SLIDER_CLOSE_ENOUGH * vadjustment.page_size)
         #dprint(self.term.auto_scroll[self.term.current_tab])
         return
 
