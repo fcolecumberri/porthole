@@ -301,17 +301,6 @@ class ProcessManager:
         iter = buffer.get_end_iter()
         buffer.insert(iter, text)
 
-
-##    def append_all(self, text):
-##        """ Append text to all visible buffers """
-##        self.append(self.process_text, text)
-##        if self.warning_tab.showing:
-##            self.append(self.warning_text, text)
-##        if self.caution_tab.showing:
-##            self.append(self.caution_text, text)
-##        if self.info_tab.showing:
-##            self.append(self.info_text, text)
-
     # we need the emerge pkg info in all tabs to know where
     # tab messages came from
     def append_all(self, text, all = False):
@@ -472,7 +461,10 @@ class ProcessManager:
 
     def clear_buffer(self, widget):
         """ Clear the text buffer """
-        pass
+        self.process_text.set_text('')
+        self.warning_text.set_text('')
+        self.caution_text.set_text('')
+        self.info_text.set_text('')
 
     def queue_items_switch(self, direction):
         """ Switch two adjacent queue items;
