@@ -4,7 +4,8 @@
     Porthole Main Window
     The main interface the user will interact with
 
-    Copyright (C) 2003 - 2004 Fredrik Arnerup and Daniel G. Taylor
+    Copyright (C) 2003 - 2004 Fredrik Arnerup, Brian Dolbec, 
+    Daniel G. Taylor and Wm. F. Wheeler
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
