@@ -157,7 +157,7 @@ class ProcessManager:
         self.catch_seq = False
         self.escape_seq = "" # to catch the escape sequence in
         # setup the queue treeview
-        column = gtk.TreeViewColumn("Packages to be merged")
+        column = gtk.TreeViewColumn("Packages to be merged      ")
         pixbuf = gtk.CellRendererPixbuf()
         column.pack_start(pixbuf, expand = False)
         column.add_attribute(pixbuf, "pixbuf", 0)
