@@ -59,7 +59,7 @@ TAB_PROCESS = 0
 TAB_WARNING = 1
 TAB_CAUTION = 2
 TAB_INFO = 3
-TAB_queue = 4
+TAB_QUEUE = 4
 
 class ProcessManager:
     """ Manages queued and running processes """
@@ -180,7 +180,7 @@ class ProcessManager:
             pos = self.notebook.page_num(self.queue_tab)
             # set to show before queue tab
             if pos == -1: pos = 3
-        elif tab == TAB_queue:
+        elif tab == TAB_QUEUE:
             icon.set_from_stock(gtk.STOCK_EXECUTE, gtk.ICON_SIZE_MENU)
             label, tab, pos = "Emerge queue", self.queue_tab, 4
         # pack the icon and label onto the hbox
@@ -206,7 +206,7 @@ class ProcessManager:
         if len(self.process_list) == 2:
             # if this is the 2nd process in the list
             # show the queue tab!
-            self.show_tab(TAB_queue)
+            self.show_tab(TAB_QUEUE)
             self.queue_menu.set_sensitive(gtk.TRUE)
         # if no process is running, let's start this one!
         if not self.reader.process_running:
