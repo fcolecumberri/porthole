@@ -43,8 +43,9 @@ class CommonTreeView(gtk.TreeView):
         """ Clear current view """
         # get the treemodel
         model = self.get_model()
-        # clear it
-        model.clear()
+        if model:
+            # clear it
+            model.clear()
 
 class PackageView(CommonTreeView):
     """ Self contained treeview of packages """
