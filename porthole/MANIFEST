@@ -1,4 +1,5 @@
 about.py
+command.py
 depends.py
 metadata.py
 portagelib.py
