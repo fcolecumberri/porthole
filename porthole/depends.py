@@ -85,10 +85,10 @@ class DependsTree(gtk.TreeStore):
                 self.set_value(parent_iter, 0, use_flag)
                 if use_flag[0] == "U":
                     flag = use_flag[6:]
-                    icon = flag in self.use_flags and gtk.STOCK_YES or gtk.STOCK_NO
+                    icon = flag in self.use_flags and gtk.STOCK_YES or ''
                 else:
                     flag = use_flag[9:] 
-                    icon = flag in self.use_flags and gtk.STOCK_NO or gtk.STOCK_YES
+                    icon = flag in self.use_flags and '' or gtk.STOCK_YES
                 self.set_value(parent_iter, 1, depends_view.render_icon(icon,
                                     size = gtk.ICON_SIZE_MENU, detail = None))
                 last_flag = use_flag
@@ -101,7 +101,7 @@ class DependsTree(gtk.TreeStore):
             if satisfied:
                 icon = gtk.STOCK_YES
             else:
-                icon = gtk.STOCK_NO
+                icon = '' # used to be gtk.STOCK_NO
             self.set_value(depend_iter, 1, 
                                     depends_view.render_icon(icon,
                                                              size = gtk.ICON_SIZE_MENU,
