@@ -42,19 +42,14 @@ import gtk
 
 from metadata import parse_metadata
 
+World = get_world()
+def reload_world():
+    dprint("PORTAGELIB: reset_world();")
+    global World
+    World = get_world()
+    
 def reload_portage():
 	reload(portage)
-
-#~ depricated function: file no longer exists & info not used anywhere
-#~ def get_keywords():
-    #~ """ Get the official keywords as a list """
-    #~ dpritn("PORTAGELIB: get_keywords()!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    #~ return portage.grabfile('/usr/portage/profiles/keywords.desc')
-
-#~ # Get just once for sake of efficiency
-#~ KeywordList = get_keywords()
-#~ # debug code follows WFW
-#~ # print 'Keyword list:', KeywordList
 
 def get_use_flag_dict():
     """ Get all the use flags and return them as a dictionary 
@@ -127,7 +122,6 @@ def reset_use_flags():
     dprint("PORTAGELIB: reset_use_flags();")
     global SystemUseFlags
     SystemUseFlags = get_portage_environ("USE").split()
-
 
 
 # lower case is nicer
@@ -244,6 +238,7 @@ class Package:
         Installed_Semaphore.acquire()
         self.is_installed = full_name in installed  # true if installed
         Installed_Semaphore.release()
+        self.in_world = full_name in World
 
     def get_installed(self):
         """Returns a list of all installed ebuilds."""

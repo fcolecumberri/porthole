@@ -26,12 +26,13 @@ import threading, re
 import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, gtk.glade, gobject, pango
 import portagelib, os, string
+from portagelib import World
 
 from gettext import gettext as _
 from about import AboutDialog
 from utils import load_web_page, get_icon_for_package, get_icon_for_upgrade_package, is_root, dprint, \
      get_treeview_selection, YesNoDialog, SingleButtonDialog, environment, \
-     pretend_check, help_check, get_world
+     pretend_check, help_check #,  get_world
 #from process import ProcessWindow  # no longer used in favour of terminal and would need updating to be used
 from summary import Summary
 from terminal import ProcessManager
@@ -45,6 +46,8 @@ SHOW_ALL = 0
 SHOW_INSTALLED = 1
 SHOW_SEARCH = 2
 SHOW_UPGRADE = 3
+ON = True
+OFF = False
 
 class MainWindow:
     """Main Window class to setup and manage main window interface."""
@@ -177,26 +180,41 @@ class MainWindow:
         self.deps_filled = self.changelog_loaded = self.installed_loaded = self.ebuild_loaded = False
         # declare the database
         self.db = None
+        self.ut_running = False
         # load the db
         self.dbtime = 0
         self.db_thread = portagelib.DatabaseReader()
         self.db_thread.start()
+        self.db_thread_running = True
         self.reload = False
         self.db_timeout = gtk.timeout_add(100, self.update_db_read)
-        self.world = get_world()
         self.get_sync_time()
         self.synctooltip.set_tip(self.widget["btn_sync"], self.sync_tip + self.last_sync)
         # set status
         self.set_statusbar(_("Obtaining package list "))
         self.set_statusbar2(_("Loading database"))
         self.progressbar = self.wtree.get_widget("progressbar1")
-        self.wtree.get_widget("btn_cancel").set_sensitive(False)
+        self.set_cancel_btn(OFF)
 
     def reload_db(self, *widget):
         dprint("TERMINAL: reload_db() callback")
+        if self.db_thread_running or self.ut_running:
+            if self.db_thread_running:
+                dprint("MAINWINDOW: reload_db(); killing db thread")
+                self.db_thread.please_die()
+                self.db_thread_running = False
+            else: # self.ut_running
+                dprint("MAINWINDOW: reload_db(); killing upgrades thread")
+                self.ut.please_die()
+                self.ut_running = False
+            self.progress_done(True)
+            # set this function to re-run after some time for the thread to stop
+            self.reload_db_timeout = gtk.timeout_add(50, self.reload_db)
+            return gtk.TRUE
         # upgrades loaded?
         # reset so that it reloads the upgrade list
         self.upgrades_loaded = False
+        self.ut_cancelled = False
         # upgrade loading callback
         self.upgrades_loaded_callback = None
         self.search_loaded = False
@@ -207,15 +225,17 @@ class MainWindow:
         self.dbtime = 0
         self.db_thread = portagelib.DatabaseReader()
         self.db_thread.start()
+        self.db_thread_running = True
         #test = 87/0  # used to test pycrash is functioning
         self.reload = True
         self.db_timeout = gtk.timeout_add(100, self.update_db_read)
-        self.world = get_world()
+        portagelib.reload_world()
         self.get_sync_time()
         self.synctooltip.set_tip(self.widget["btn_sync"], self.sync_tip + self.last_sync)
         # set status
         self.set_statusbar(_("Obtaining package list "))
         self.set_statusbar2(_("Reloading database"))
+        return gtk.FALSE
 
     def get_sync_time(self):
         """gets and returns the timestamp info saved during
@@ -294,17 +314,18 @@ class MainWindow:
             self.set_statusbar(self.db_thread.error.decode('ascii', 'replace'))
             return gtk.FALSE  # disconnect from timeout
         else: # db_thread is done
+            self.db_thread_running = False
             self.db_save_variables()
             self.progressbar.set_text("100%")
             self.progressbar.set_fraction(1.0)
             dprint("MAINWINDOW: db_thread is done...")
             dprint("MAINWINDOW: db_thread.join...")
             self.db_thread.join()
+            self.db_thread_running = False
             dprint("MAINWINDOW: db_thread.join is done...")
             self.db = self.db_thread.get_db()
             self.set_statusbar(_("Populating tree ..."))
             self.update_statusbar(SHOW_ALL)
-            #~portagelib.reset_use_flags()
             #~dprint("MAINWINDOW: setting menubar,toolbar,etc to sensitive...")
             self.wtree.get_widget("menubar").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("toolbar").set_sensitive(gtk.TRUE)
@@ -351,7 +372,7 @@ class MainWindow:
                 self.view_filter_changed(view_filter)
             dprint("MAINWINDOW: Made it thru a reload, returning...")
             self.reload = False
-            self.progress_done()
+            self.progress_done(False)
             return gtk.FALSE  # disconnect from timeout
         #dprint("MAINWINDOW: returning from update_db_read() count=%d dbtime=%d"  %(count, self.dbtime))
         return gtk.TRUE
@@ -459,7 +480,7 @@ class MainWindow:
         # terminate the thread
         self.ut.please_die()
         self.ut.join()
-        self.progress_done()
+        self.progress_done(True)
 
     def upgrade_packages(self, widget):
         """Upgrade selected packages that have newer versions available."""
@@ -584,8 +605,8 @@ class MainWindow:
                     search_results.set_value(iter, 0, name)
                     search_results.set_value(iter, 2, data)
                     search_results.set_value(iter, 5, '')
-                    #dprint(data.full_name + " %d" %(data.full_name in self.world))
-                    search_results.set_value(iter, 4, data.full_name in self.world)
+                    #dprint(data.full_name + " %d" %(data.in_world))
+                    search_results.set_value(iter, 4, data.in_world)
                     # set the icon depending on the status of the package
                     icon = get_icon_for_package(data)
                     view = self.package_view
@@ -845,18 +866,16 @@ class MainWindow:
 
     def load_upgrades_list(self):
         # upgrades are not loaded, create dialog and load them
-        #~ self.wait_dialog = SingleButtonDialog("Please Wait!",
-                #~ self.mainwindow,
-                #~ "Loading upgradable packages list...",
-                #~ self.wait_dialog_response, "_Cancel", True)
         self.set_statusbar2(_("Loading upgradable"))
         # create upgrade thread for loading the upgrades
         self.ut = UpgradableReader(self.package_view, self.db.installed.items(),
                                    self.prefs.emerge.upgradeonly, self.prefs.views )
         self.ut.start()
+        self.ut_running = True
+        dprint("MAINWINDOW: load_upgrades_list(); starting upgrades thread")
         # add a timeout to check if thread is done
         gtk.timeout_add(200, self.update_upgrade_thread)
-        self.wtree.get_widget("btn_cancel").set_sensitive(True)
+        self.set_cancel_btn(ON)
 
     def wait_dialog_response(self, widget, response):
         """ Get a response from the wait dialog """
@@ -874,8 +893,8 @@ class MainWindow:
             if self.ut.cancelled:
                 return gtk.FALSE
             self.ut.join()
-            #~self.wait_dialog.destroy()
-            self.progress_done()
+            self.ut_running = False
+            self.progress_done(True)
             self.upgrades_loaded = True
             if self.upgrades_loaded_callback:
                 self.upgrades_loaded_callback(None)
@@ -886,24 +905,26 @@ class MainWindow:
                     self.summary.update_package_info(None)
                     self.wtree.get_widget("category_scrolled_window").hide()
             return gtk.FALSE
-        else: 
-            try:
-                fraction = self.ut.count / float(self.db.installed_count)
-                #~ self.wait_dialog.progbar.set_text(str(int(fraction * 100)) + "%")
-                #~ self.wait_dialog.progbar.set_fraction(fraction)
-                self.progressbar.set_text(str(int(fraction * 100)) + "%")
-                self.progressbar.set_fraction(fraction)
-            except:
-                pass
+        else:
+            if self.ut_running:
+                try:
+                    fraction = self.ut.count / float(self.db.installed_count)
+                    self.progressbar.set_text(str(int(fraction * 100)) + "%")
+                    self.progressbar.set_fraction(fraction)
+                except:
+                    pass
         return gtk.TRUE
 
-    def progress_done(self):
+    def progress_done(self, button_off=False):
         """clears the progress bar"""
-        self.wtree.get_widget("btn_cancel").set_sensitive(False)
+        if button_off:
+            self.set_cancel_btn(OFF)
         self.progressbar.set_text("")
         self.progressbar.set_fraction(0)
         self.set_statusbar2(_("Done"))
 
+    def set_cancel_btn(self, state):
+            self.wtree.get_widget("btn_cancel").set_sensitive(state)
 
     def update_statusbar(self, mode):
         """Update the statusbar for the selected filter"""
@@ -1059,9 +1080,9 @@ class UpgradableReader(CommonReader):
         self.upgrade_results = upgrade_view.upgrade_model
         self.installed_items = installed
         self.upgrade_only = upgrade_only
-        self.world = []
+        #self.world = []
         self.view_prefs = view_prefs
-
+ 
     def run(self):
         """fill upgrade tree"""
         self.upgrade_results.clear()    # clear the treemodel
@@ -1074,18 +1095,12 @@ class UpgradableReader(CommonReader):
                 self.count += 1
                 if self.cancelled: self.done = True; return
                 if package.upgradable(self.upgrade_only):
-                    installed += [(package.full_name, package)]
-        installed = portagelib.sort(installed)
-        # read system world file
-        # using this file, only packages explicitly installed by
-        # the user are upgraded by default
-        self.world = get_world()
-        # add the packages to the treemodel
-        for full_name, package in installed:
-            if full_name in self.world:
-                installed_world += [(package.full_name, package, True)]
-            else:
-                installed_dep += [(package.full_name, package, False)]
+                    if package.in_world: #if full_name in self.world:
+                        installed_world += [(package.full_name, package, True)]
+                    else:
+                        installed_dep += [(package.full_name, package, False)]
+        installed_world = portagelib.sort(installed_world)
+        installed_dep = portagelib.sort(installed_dep)
         installed = installed_world + installed_dep
         #self.add_package(_("---- World upgradeable ----"), None, True)
         for full_name, package, in_world in installed_world:
@@ -1093,13 +1108,16 @@ class UpgradableReader(CommonReader):
             self.dep_view.clear()
             self.model = self.dep_view.get_model()
             dep_list = self.get_upgrade_deps()
+            if self.cancelled: self.done = True; return
             self.add_package(full_name, package, in_world)
             if len(dep_list):
                 for full_name, package, in_world in depends_list:
+                    if self.cancelled: self.done = True; return
                     self.add_deps(full_name, package, in_world)
         if len(installed_dep):
             self.add_package(_("Dependency upgradeable"), None, False, False)
             for full_name, package, in_world in installed_dep:
+                if self.cancelled: self.done = True; return
                 self.add_deps(full_name, package, in_world)
         # set the thread as finished
         self.done = True
@@ -1125,11 +1143,11 @@ class UpgradableReader(CommonReader):
         list = []
         iter = self.model.get_iter_first()
         while iter:
-                if not self.model.get_value(iter, 3):
-                        package = self.model.get_value(iter, 2)
-                        full_name = package.full_name
-                        in_world = (full_name in self.world)
-                        list += [full_name, package, in_world]
+                package = self.model.get_value(iter, 2)
+                full_name = package.full_name
+                if (package.in_world and package.upgradable(self.upgrade_only)) or \
+                   not self.model.get_value(iter, 3):
+                        list += [full_name, package, package.in_world]
                 iter = self.model.iter_next(iter)
         dprint(list)
         return list

@@ -26,7 +26,8 @@ import gtk, gobject, pango
 import portagelib
 
 from depends import DependsTree
-from utils import get_treeview_selection, get_icon_for_package, dprint, get_world
+from utils import get_treeview_selection, get_icon_for_package, dprint
+from portagelib import World
 from gettext import gettext as _
 
 class CommonTreeView(gtk.TreeView):
@@ -67,9 +68,6 @@ class PackageView(CommonTreeView):
         self.PACKAGES = 0
         self.SEARCH_RESULTS = 1
         self.UPGRADABLE = 2
-        self.world = get_world()
-        #dprint("VIEWS: PackageView.__init__(); self.world =")
-        #dprint(self.world)
         # setup the treecolumn
         self._column = gtk.TreeViewColumn(_("Packages"))
         self.append_column(self._column)
@@ -196,7 +194,7 @@ class PackageView(CommonTreeView):
             # go through each package
             iter = model.insert_before(None, None)
             model.set_value(iter, 2, packages[name])
-            model.set_value(iter, 4, (packages[name].full_name in self.world))
+            model.set_value(iter, 4, (packages[name].in_world))
             model.set_value(iter, 0, name)
             model.set_value(iter, 5, '') # foreground text color
             # get an icon for the package
