@@ -207,9 +207,22 @@ class MainWindow:
         command = self.setup_command("emerge sync", self.sync_tree)
 
     def upgrade_packages(self, widget):
-        """Upgrade all packages that have newer versions available."""
-        command = self.setup_command("emerge -uD " + self.pretend +
-                                     "world", self.upgrade_packages)
+        """Upgrade selected packages that have newer versions available."""
+        if self.upgrades_loaded:
+            # create a list of packages to be upgraded
+            packages_list = ""
+            model = self.package_view.upgrade_model
+            iter = model.get_iter_first()
+            while(iter):
+                # upgrade only if it's checked!
+                if model.get_value(iter, 1):
+                    packages_list += model.get_value(iter, 0) + " "
+                # step to next iter
+                iter = model.iter_next(iter)
+            dprint("Trying emerge -u " + packages_list)
+            self.setup_command("emerge -u " + packages_list, self.upgrade_packages)
+        else:
+            dprint("Upgrades not loaded; we should display a dialog here!")
 
     def package_search(self, widget):
         """Search package db with a string and display results."""
