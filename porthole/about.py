@@ -27,7 +27,7 @@ from utils import load_web_page
 class AboutDialog:
     """Class to hold about dialog and functionality."""
 
-    def __init__(self):
+    def __init__(self, version):
         #setup glade
         self.gladefile = "porthole.glade"
         self.wtree = gtk.glade.XML(self.gladefile, "about_dialog")
@@ -35,6 +35,8 @@ class AboutDialog:
         callbacks = {"on_ok_clicked" : self.ok_clicked,
                      "on_homepage_clicked" : self.homepage_clicked}
         self.wtree.signal_autoconnect(callbacks)
+        window = self.wtree.get_widget("about_dialog")
+        window.set_title("About Porthole " + version)
 
     def ok_clicked(self, widget):
         """Get rid of the about dialog!"""

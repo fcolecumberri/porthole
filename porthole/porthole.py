@@ -309,7 +309,7 @@ class MainWindow:
 
     def about(self, widget):
         """Show about dialog."""
-        dialog = AboutDialog()
+        dialog = AboutDialog(version)
 
     def get_treeview_selection(self, treeview, num):
         """Get the value of whatever is selected in a treeview,
