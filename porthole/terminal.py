@@ -101,7 +101,8 @@ class ProcessManager:
     def show_window(self):
         """ Show the process window """
         # load the glade file
-        self.wtree = gtk.glade.XML("porthole.glade", "process_window")
+        self.wtree = gtk.glade.XML(self.prefs.DATA_PATH + "porthole.glade",
+                                   "process_window")
         # setup the callbacks
         callbacks = {"on_process_window_destroy" : self.on_process_window_destroy,
                      "on_kill" : self.kill_process,

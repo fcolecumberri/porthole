@@ -42,7 +42,7 @@ class MainWindow:
         self.prefs = preferences
         self.config = config
         # setup glade
-        self.gladefile = "porthole.glade"
+        self.gladefile = self.prefs.DATA_PATH + "porthole.glade"
         self.wtree = gtk.glade.XML(self.gladefile, "main_window")
         # register callbacks
         callbacks = {
