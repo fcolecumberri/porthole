@@ -214,7 +214,8 @@ class MainWindow:
         if search_term:
             if self.search_results:
                 self.search_results.clear()
-            self.search_results = gtk.TreeStore(gobject.TYPE_STRING, gtk.gdk.Pixbuf, gobject.TYPE_STRING)
+            else:
+                self.search_results = gtk.TreeStore(gobject.TYPE_STRING, gtk.gdk.Pixbuf, gobject.TYPE_STRING)
             re_object = re.compile(search_term, re.I)
             count = 0
             for entry in self.flat_sort(self.db.list):
@@ -233,7 +234,7 @@ class MainWindow:
                                 size = gtk.ICON_SIZE_MENU,
                                 detail = None))
                     self.search_results.set_value(iter, 2, category)
-                    self.wtree.get_widget("view_filter").set_history(2)
+            self.wtree.get_widget("view_filter").set_history(2)
                 
 
     def flat_sort(self, list):
