@@ -67,6 +67,7 @@ class MainWindow:
             "on_fetch_activate" : self.fetch_set,
             "on_verbose_activate" : self.verbose_set,
             "on_search_descriptions1_activate" : self.search_set,
+            "on_downgrade_activate" : self.upgradeonly_set,
             "on_open_log" : self.open_log,
             "on_run_custom" : self.custom_run,
             "on_main_window_size_request" : self.size_update
@@ -147,6 +148,7 @@ class MainWindow:
         self.current_package = None
         # descriptions loaded?
         self.desc_loaded = False
+        self.search_loaded = False
         # set notebook tabs to load new package info
         self.deps_filled = self.changelog_loaded = self.installed_loaded = False
         # declare the database
@@ -161,6 +163,12 @@ class MainWindow:
                            % 0)
     def reload_db(self):
         dprint("TERMINAL: reload_db() callback")
+        # upgrades loaded?
+        # reset so that it reloads the upgrade list
+        self.upgrades_loaded = False
+        # upgrade loading callback
+        self.upgrades_loaded_callback = None
+        self.search_loaded = False
         # load the db
         self.db_thread = portagelib.DatabaseReader()
         self.db_thread.start()
@@ -212,19 +220,21 @@ class MainWindow:
             self.wtree.get_widget("view_filter").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("search_entry").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("btn_search").set_sensitive(gtk.TRUE)
-            if not self.reload:
-                dprint("MAINWINDOW: update_db_read()... self.reload = False")
-                self.set_package_actions_sensitive(False, None)
-                self.category_view.populate(self.db.categories.keys())
             # make sure we search again if we reloaded!
             view_filter = self.wtree.get_widget("view_filter")
             if view_filter.get_history() == self.SHOW_SEARCH:
-                self.package_view.size = 0
-                self.package_search(None)
+                dprint("MAINWINDOW: update_db_read()... Search view")
                 # update the views by calling view_filter_changed
                 self.view_filter_changed(view_filter)
-            elif self.reload:
-                dprint("MAINWINDOW: update_db_read()... self.reload = True")
+                if self.reload:
+                    # reset _last_selected so it thinks this package is new again
+                    self.package_view._last_selected = None
+                    # re-select the package
+                    self.package_view.set_cursor(self.current_package_cursor[0],
+                                                  self.current_package_cursor[1])
+            elif self.reload and (view_filter.get_history() == self.SHOW_ALL or
+                                  view_filter.get_history() == self.SHOW_INSTALLED):
+                dprint("MAINWINDOW: update_db_read()... self.reload=True ALL or INSTALLED view")
                 # reset _last_selected so it thinks this category is new again
                 self.category_view._last_selected = None
                 # re-select the category
@@ -233,9 +243,20 @@ class MainWindow:
                 # reset _last_selected so it thinks this package is new again
                 self.package_view._last_selected = None
                 # re-select the package
+
+                # insert package search function call here
+                #
+                dprint("current_package_cursor")
+                dprint(self.current_package_cursor[0])  
+                dprint(self.current_package_cursor[1])
+                # change to the returned search position to re-select
                 self.package_view.set_cursor(self.current_package_cursor[0],
                                               self.current_package_cursor[1])
             else:
+                dprint("MAINWINDOW: update_db_read()... must be an upgradeable view")
+                self.package_view.clear()
+                self.set_package_actions_sensitive(False, None)
+                #self.category_view.populate(self.db.categories.keys())
                 # update the views by calling view_filter_changed
                 self.view_filter_changed(view_filter)
             return gtk.FALSE  # disconnect from timeout
@@ -273,6 +294,10 @@ class MainWindow:
     def verbose_set(self, widget):
         """Set whether or not we are going to use the --verbose flag"""
         self.prefs.emerge.verbose = widget.get_active()
+
+    def upgradeonly_set(self, widget):
+        """Set whether or not we are going to use the --upgradeonly flag"""
+        self.prefs.emerge.upgradeonly = (not widget.get_active())
 
     def search_set(self, widget):
         """Set whether or not to search descriptions"""
@@ -555,6 +580,12 @@ class MainWindow:
             self.package_view.set_view(self.package_view.PACKAGES)
             self.package_view.clear()
         elif index == self.SHOW_SEARCH:
+            if not self.search_loaded:
+                self.set_package_actions_sensitive(False, None)
+                self.category_view.populate(self.db.categories.keys())
+                self.package_view.size = 0
+                self.package_search(None)
+                self.search_loaded = True
             cat_scroll.hide();
             dprint("MAIN: Showing search results")
             self.package_view.set_view(self.package_view.SEARCH_RESULTS)

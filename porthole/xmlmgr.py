@@ -290,6 +290,7 @@ class XMLManager:
       # attribute, if attrib does not exist, type as 'str'
 
       temp_list = []  # initialize list
+      attrib = None
       for node in nodelist:
          attrib = node.getAttribute('py_type')
 

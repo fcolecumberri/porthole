@@ -256,6 +256,7 @@
 
 		  <child>
 		    <widget class="GtkCheckMenuItem" id="downgrade">
+		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Allow _Downgrades</property>
 		      <property name="use_underline">True</property>
 		      <property name="active">False</property>

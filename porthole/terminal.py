@@ -1413,6 +1413,7 @@ class ProcessOutputReader(threading.Thread):
 
     def run(self):
         """ Watch for process output """
+        char = None
         while True:
             if self.process_running or self.file_input:
                 # get the output and pass it to self.callback()

@@ -169,6 +169,7 @@ class EmergeOptions:
         self.pretend = False
         self.fetch = False
         self.verbose = False
+        self.upgradeonly = False
         self.nospinner = True # currently hidden
 
     def get_string(self):
@@ -177,6 +178,7 @@ class EmergeOptions:
         if self.pretend:   opt_string += '--pretend '
         if self.fetch:     opt_string += '--fetchonly '
         if self.verbose:   opt_string += '--verbose '
+        if self.upgradeonly: opt_string += '--upgradeonly ' 
         if self.nospinner: opt_string += '--nospinner '
         return opt_string
 
@@ -472,6 +474,10 @@ class PortholePreferences:
         except XMLManagerError:
            pass
         try:
+           self.emerge.upgradeonly = dom.getitem('/emerge/options/upgradeonly')
+        except XMLManagerError:
+           pass
+        try:
            self.emerge.nospinner = dom.getitem('/emerge/options/nospinner')
         except XMLManagerError:
            pass
@@ -512,6 +518,7 @@ class PortholePreferences:
         dom.additem('/emerge/options/pretend', self.emerge.pretend)
         dom.additem('/emerge/options/fetch', self.emerge.fetch)
         dom.additem('/emerge/options/verbose', self.emerge.verbose)
+        dom.additem('/emerge/options/upgradeonly', self.emerge.upgradeonly)
         dom.additem('/emerge/options/nospinner', self.emerge.nospinner)
         dom.save(self.__PFILE)
         del dom   # no longer needed, release memory
