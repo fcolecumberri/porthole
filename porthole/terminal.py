@@ -580,13 +580,13 @@ class ProcessManager:
     def resume_normal(self, widget):
         """ Resume killed process """
         # pass the normal command along with --resume
-        name, command, iter = self.process_list[0]
+        name, command, iter, callback = self.process_list[0]
         self._run(command + " --resume", iter)
 
     def resume_skip_first(self, widget):
         """ Resume killed process, skipping first package """
         # pass the normal command along with --resume --skipfirst
-        name, command, iter = self.process_list[0]
+        name, command, iter, callback = self.process_list[0]
         self._run(command + " --resume --skipfirst", iter)
 
     def copy_selected(self, widget):
