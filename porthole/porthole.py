@@ -83,7 +83,7 @@ class MainWindow:
         # don't know how to read size from TreeStore
         self.search_results.size = 0
         #setup sudo use
-        self.use_sudo = 0
+        self.use_sudo = -1
         #setup some textbuffers
         tagtable = self.create_tag_table()
         self.summary_buffer = gtk.TextBuffer(tagtable)
@@ -129,7 +129,9 @@ class MainWindow:
         #set status
         self.set_statusbar("Reading package database: %i packages read"
                            % 0)
-        #figure out if the user can emerge or not...
+
+    def check_for_root(self, callback = None):
+        """figure out if the user can emerge or not..."""
         uid = os.getuid()
         if uid != 0:
             self.sudo_dialog = gtk.Dialog(
@@ -145,13 +147,20 @@ class MainWindow:
             sudo_text.show()
             self.sudo_dialog.connect("response", self.sudo_response)
             self.sudo_dialog.show_all()
+        else:
+            self.use_sudo = 0
+        if callback:
+            self.sudo_dialog.callback = callback
 
     def sudo_response(self, widget, response):
         if response == 0:
             self.use_sudo = 1
         else:
             self.use_sudo = 2
+        callback = self.sudo_dialog.callback
         self.sudo_dialog.destroy()
+        if callback:
+            callback(None)
 
     def create_tag_table(self):
         """Define all markup tags."""
@@ -265,37 +274,41 @@ class MainWindow:
             icon = gtk.STOCK_NO
         return icon
 
-    def setup_command(self, command):
+    def setup_command(self, command, callback = None):
         """Setup the command to run with sudo or not at all"""
-        if self.use_sudo:
-            if self.use_sudo == 1:
-                process.ProcessWindow("sudo " + command)
-            else:
-                print "Sorry, can't do that!"
+        if self.use_sudo == -1:
+            self.check_for_root(callback)
         else:
-            process.ProcessWindow(command)
+            if self.use_sudo:
+                if self.use_sudo == 1:
+                    process.ProcessWindow("sudo " + command)
+                else:
+                    print "Sorry, can't do that!"
+            else:
+                process.ProcessWindow(command)
 
     def emerge_package(self, widget):
         """Emerge the currently selected package."""
         package = self.get_treeview_selection(
             self.wtree.get_widget("package_view"), 2)
         command = self.setup_command("emerge " + package.get_category() +
-            "/" + package.get_name())
+            "/" + package.get_name(), self.emerge_package)
 
     def unmerge_package(self, widget):
         """Unmerge the currently selected package."""
         package = self.get_treeview_selection(
             self.wtree.get_widget("package_view"), 2)
         command = self.setup_command("emerge unmerge " +
-            package.get_category() + "/" + package.get_name())
+            package.get_category() + "/" + package.get_name(),
+            self.unmerge_package)
 
     def sync_tree(self, widget):
         """Sync the portage tree and reload it when done."""
-        command = self.setup_command("emerge sync")
+        command = self.setup_command("emerge sync", self.sync_tree)
 
     def upgrade_packages(self, widget):
         """Upgrade all packages that have newer versions available."""
-        command = self.setup_command("emerge -u world")
+        command = self.setup_command("emerge -uD world", self.upgrade_packages)
 
     def package_search(self, widget):
         """Search package db with a string and display results."""
