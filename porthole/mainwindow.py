@@ -637,19 +637,27 @@ class MainWindow:
         """ Load and display the changelog for a package """
         if package:
             try:
-                f = open(portagelib.portdir + '/' + package.full_name
-                        + "/ChangeLog")
-                data = f.read(); f.close()
-                if data:
+		try:
+                    f = open(portagelib.portdir + '/' + package.full_name
+                            + "/ChangeLog")
+                    data = f.read(); f.close()
+		except:
+                    f = open(portagelib.portdir_overlay + '/' + package.full_name
+                            + "/ChangeLog")
+                    data = f.read(); f.close()
+
+		if data:
 		    try:
-			dprint("MAINWINDOW: load_changelog(); trying ascii encoding")
-                        self.changelog.set_text(str(data).encode("utf8",'replace'))
+			dprint("MAINWINDOW: load_changelog(); trying utf_8 encoding")
+			self.changelog.set_text(str(data).decode('utf_8').encode("utf_8",'replace'))
 		    except:
-			try:
-			    dprint("MAINWINDOW: load_changelog(); trying iso-8859-1 encoding")
-			    self.changelog.set_text(str(data).decode('iso-8859-1').encode('utf-8', 'replace'))
-			except:
-			    dprint("MAINWINDOW: load_changelog(); Failure = unknown encoding")
+			    try:
+			        dprint("MAINWINDOW: load_changelog(); trying iso-8859-1 encoding")
+			        self.changelog.set_text(str(data).decode('iso-8859-1').encode('utf_8', 'replace'))
+			    except:
+				dprint("MAINWINDOW: load_changelog(); Failure = unknown encoding")
+				self.changelog.set_text(_("This Change log has an unknown encoding method to porthole \n") + \
+							_("Please report this to bugs.gentoo.org and pothole's bugtracker"))
                 else:
                     self.changelog.set_text(_("Change log is Empty"))
             except:
