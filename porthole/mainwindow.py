@@ -374,6 +374,7 @@ class MainWindow:
         self.summary.update_package_info(None)
         self.set_package_actions_sensitive(gtk.FALSE)
         self.deps_view.clear()
+        self.changelog.set_text('')
 
     def package_changed(self, package):
         """Catch when the user changes packages."""
@@ -399,7 +400,12 @@ class MainWindow:
 
     def load_changelog(self, package):
         """ Load and display the changelog for a package """
-        dprint("MAIN: load changelog")
+        try:
+            f = open(portagelib.portdir + "/" + package.full_name + "/ChangeLog")
+            data = f.read(); f.close()
+            self.changelog.set_text(data)
+        except:
+            dprint("MAIN: Error opening changelog for " + package.full_name)
 
     SHOW_ALL = 0
     SHOW_INSTALLED = 1
