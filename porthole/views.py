@@ -194,6 +194,7 @@ class CategoryView(CommonTreeView):
         
     def populate(self, categories):
         """Fill the category tree."""
+        self.clear()
         last_catmaj = None
         categories.sort()
         for cat in categories:
