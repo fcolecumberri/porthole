@@ -54,6 +54,9 @@ def get_category(full_name):
     """Extract category from full name."""
     return full_name.split('/')[0]
 
+def get_installed(full_name):
+    return portage.db['/']['vartree'].dep_match(full_name)
+
 def get_version(ebuild):
     """Extract version number from ebuild name"""
     result = ''
@@ -119,11 +122,12 @@ class Package:
 
     def __init__(self, full_name):
         self.full_name = full_name
-        self.description = ''
-        self.installed = portage.db['/']['vartree'].dep_match(full_name)
-        self.versions = ''
-        #self.read_description()  # too slow, no dough
-        
+        self.is_installed = bool(self.get_installed())  # true if installed
+
+    def get_installed(self):
+        """Returns a list of all installed ebuilds."""
+        return get_installed(self.full_name)
+    
     def get_name(self):
         return get_name(self.full_name)
 
@@ -149,28 +153,23 @@ class Package:
     def get_use_flags(self):
         return get_use_flags(self.get_latest_ebuild())
 
-    def get_installed(self):
-        """Returns a list of all installed ebuilds."""
-        return self.installed
-
     def get_metadata(self):
         return get_metadata(self.full_name)
 
-    def read_description(self):
-        """Read description and store in object."""
+    def get_description(self):
         try:
             latest = self.get_latest_ebuild()
             if not latest:
                 raise Exception('No ebuild found.')
-            self.description = get_description(latest) 
+            description = get_description(latest) 
         except Exception, e:
-            self.description = (
-                "An error occured when reading the description:\n"
-                + str(e))
+            description = ("An error occured when reading the description:\n"
+                           + str(e))
+        return description
 
-    def read_versions(self):
-        """Read all versions of the available ebuild"""
-        self.versions = portage.db['/']['porttree'].dep_match(self.full_name)
+    def get_versions(self):
+        """Returns all versions of the available ebuild"""
+        return portage.db['/']['porttree'].dep_match(self.full_name)
 
 def sort(list):
     """sort in alphabetic instead of ASCIIbetic order"""

@@ -205,9 +205,9 @@ class MainWindow:
 
     def get_icon_for_package(self, package):
         """Return an icon for a package"""
-        installed = package.get_installed()
         #if it's installed, find out if it can be upgraded
-        if installed:
+        if package.is_installed:
+            installed = package.get_installed()
             installed.sort()
             latest_installed = installed[len(installed) -1]
             latest_available = package.get_latest_ebuild()
@@ -321,15 +321,12 @@ class MainWindow:
             return
         #put the info into the textview!
         notebook.set_sensitive(gtk.TRUE)
-        #set the package
-        package.read_description()
-        package.read_versions()
         #read it's info
-        description = package.description
+        description = package.get_description()
         metadata = package.get_metadata()
         ebuild = package.get_latest_ebuild()
         installed = package.get_installed()
-        versions = package.versions; versions.sort()
+        versions = package.get_versions(); versions.sort()
         homepage = package.get_homepage()
         self.homepage = homepage  # store url for on_url_event
         use_flags = package.get_use_flags()
