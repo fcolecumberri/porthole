@@ -31,7 +31,7 @@ try:
 except ImportError:
     print "Error loading libraries!\nIs pygtk installed?"
 try:
-    import gtk, gtk.glade, gobject
+    import gtk, gtk.glade, gobject, pango
 except ImportError:
     print "Error loading libraries!\nIs GTK+ installed?"
 try:
@@ -80,8 +80,9 @@ class MainWindow:
         self.package_model = None
         self.search_results = None
         #setup some textbuffers
-        self.summary_buffer = gtk.TextBuffer()
-        self.depend_buffer = gtk.TextBuffer()
+        tagtable = self.create_tag_table()
+        self.summary_buffer = gtk.TextBuffer(tagtable)
+        self.depend_buffer = gtk.TextBuffer(tagtable)
         #declare the database
         self.db = None
         #set category treeview header
@@ -108,6 +109,24 @@ class MainWindow:
         #set status
         self.set_statusbar("Reading package database: %i packages read"
                            % 0)
+
+    def create_tag_table(self):
+        """Define all markup tags."""
+        def create(descs):
+            table = gtk.TextTagTable()
+            for name, properties in descs.items():
+                tag = gtk.TextTag(name); table.add(tag)
+                for property, value in properties.items():
+                    tag.set_property(property, value)
+            return table
+        return create(
+            {'name': ({'weight': pango.WEIGHT_BOLD,
+                       'scale': pango.SCALE_X_LARGE}),
+             'description': ({"style": pango.STYLE_ITALIC}),
+             'url': ({'foreground': 'blue'}),
+             'property': ({'weight': pango.WEIGHT_BOLD}),
+             'value': ({})
+             })
 
     def set_statusbar(self, string):
         """Update the statusbar without having to use push and pop."""
@@ -219,19 +238,35 @@ class MainWindow:
 
     def package_changed(self, treeview):
         """Catch when the user changes packages."""
-        category = self.get_treeview_selection(self.wtree.get_widget("category_view"), 1)
+        category = self.get_treeview_selection(
+            self.wtree.get_widget("category_view"), 1)
         package = self.get_treeview_selection(treeview, 0)
         self.update_package_info(category + "/" + package)
 
     def update_package_info(self, package_name):
         """Update the notebook of information about a selected package"""
+
+        def append(text, tag = None):
+            """Append text to summary buffer."""
+            iter = self.summary_buffer.get_end_iter()
+            text_u = text.decode('ascii', 'replace')
+            buffer = self.summary_buffer
+            if tag:
+                buffer.insert_with_tags_by_name(iter, text_u, tag)
+            else:
+                buffer.insert(iter, text_u)
+
+        def nl():
+            append("\n");
+
         self.summary_buffer.set_text("", 0)
+        notebook = self.wtree.get_widget("notebook")
         if package_name == None:
             #it's really a category selected!
-            self.wtree.get_widget("notebook").set_sensitive(gtk.FALSE)
+            notebook.set_sensitive(gtk.FALSE)
         else:
             #put the info into the textview!
-            self.wtree.get_widget("notebook").set_sensitive(gtk.TRUE)
+            notebook.set_sensitive(gtk.TRUE)
             #set the package
             package = portagelib.Package(package_name)
             package.read_description()
@@ -247,37 +282,44 @@ class MainWindow:
             slot = package.get_slot()
             #build the information together into a buffer
             ''' TODO:
-                setup tags to make the text pretty
                 get dependencies and show them in the dependency tab/textview
                 figure out what to put into the extras tab...?
             '''
-            #fill data that must be available:
-            sbuffer = package_name + "\n"
-            #fill in optional data
+            append(package_name, "name"); nl()
             if description:
-                sbuffer += description + "\n"
+                append(description, "description"); nl()
             if homepage:
-                sbuffer += homepage + "\n"
+                append(homepage, "url"); nl()
             #put a space between this info and the rest
-            sbuffer += "\n"
+            nl()
             if installed:
-                for i in range(len(installed)):
-                    installed[i] = portagelib.get_version(installed[i])
-                sbuffer += "Installed Versions: " + string.join(installed, ", ") + "\n"
+                append("Installed versions: ", "property")
+                append(", ".join([portagelib.get_version(ebuild)
+                                  for ebuild in installed]),
+                       "value")
+            else:
+                append("Not installed", "property")
+            nl()
             if versions:
-                for i in range(len(versions)):
-                    versions[i] = portagelib.get_version(versions[i])
-                sbuffer += "Available Versions: " + string.join(versions, ", ") + "\n"
+                append("Available versions: ", "property")
+                append(", ".join([portagelib.get_version(ebuild)
+                                  for ebuild in versions]),
+                       "value")
+            nl()
             #put a space between this info and the rest, again
-            sbuffer += "\n"
+            nl()
             if use_flags:
-                sbuffer += "Use Flags: " + string.join(use_flags, ", ") + "\n"
+                append("Use Flags: ", "property")
+                append(", ".join(use_flags), "value")
+                nl()
             if license:
-                #why is the license returned character for character???
-                sbuffer += "License: " + string.join(license, "") + "\n"
+                append("License: ", "property");
+                append(license, "value");
+                nl()
             if slot:
-                sbuffer += "Slot: " + slot + "\n"
-            self.summary_buffer.insert_at_cursor(sbuffer, len(sbuffer))
+                append("Slot: ", "property");
+                append(slot, "value");
+                nl()
             self.wtree.get_widget("summary_text").set_buffer(self.summary_buffer)
             
 
