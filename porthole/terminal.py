@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 '''
-    Process
-    A graphical process output viewer
+    Terminal
+    A graphical process output viewer/filterer and emerge queue
 
     Copyright (C) 2003 - 2004 Fredrik Arnerup, Brian Dolbec, and
     Daniel G. Taylor
@@ -158,7 +158,6 @@ class ProcessManager:
         
     def add_process(self, package_name, command_string):
         ''' Add a process to the qeue '''
-        self.process_list.append((package_name, command_string))
         # show the window if it isn't yet
         if not self.window_visible:
             self.show_window()
@@ -167,6 +166,9 @@ class ProcessManager:
         self.queue_model.set_value(iter, 0, None)
         self.queue_model.set_value(iter, 1, str(package_name))
         self.queue_model.set_value(iter, 2, str(command_string))
+        # add to our process list
+        self.process_list.append((package_name, command_string, iter))
+
         if len(self.process_list) == 2:
             # if this is the 2nd process in the list
             # show the qeue tab!
@@ -174,10 +176,12 @@ class ProcessManager:
             self.queue_menu.set_sensitive(gtk.TRUE)
         # if no process is running, let's start this one!
         if not self.reader.process_running:
-            self._run(command_string)
+            self._run(command_string, iter)
 
-    def _run(self, command_string):
+    def _run(self, command_string, iter = None):
         ''' Run a given command string '''
+        if iter:
+            self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_EXECUTE))
         # set process_running so the reader thread reads it's output
         self.reader.process_running = True
         # pty.fork() creates a new process group
@@ -221,11 +225,18 @@ class ProcessManager:
     def process_done(self):
         ''' Remove the finished process from the qeue, and
         start the next one if there are any more to be run'''
+        iter = self.process_list[0][2]
+        self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_APPLY))
         self.process_list = self.process_list[1:]
         if len(self.process_list):
             dprint("TERMINAL: There are pending processes, running now...")
             print self.process_list[0]
-            self._run(self.process_list[0][1])
+            self._run(self.process_list[0][1], self.process_list[0][2])
+
+    def render_icon(self, icon):
+        ''' Render an icon for the queue tree '''
+        return self.queue_tree.render_icon(icon,
+                    size = gtk.ICON_SIZE_MENU, detail = None)
 
     def kill_process(self, widget):
         ''' Kill currently running process '''
