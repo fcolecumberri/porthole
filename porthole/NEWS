@@ -1,1 +1,30 @@
-placeholder
+0.2:
+
+     * Emerge sync has been temporarily disabled due to technical problems.
+
+     * Fixed bug 883881 - Icons will now refresh after an emerge.
+
+     * Doesn't show Unmerge button unless the selected package is installed.
+
+     * Removed sudo stuff; users will have to run porthole as root for
+       emerge functionality.
+
+     * Added porthole.desktop menu entry.
+
+     * Allow installing without an X server running.
+
+     * Added options --fetchonly and --verbose.
+
+     * There is an Upgradable Packages view. You can select packages
+       to upgrade. Packages in the world file should be selected by
+       default.
+
+     * Icons for upgradable packages are no longer shown because it
+       was too slow.
+
+     * Settings and window positions are saved to $HOME/.porthole/prefs.
+
+
+0.1:
+
+     * Initial release.
