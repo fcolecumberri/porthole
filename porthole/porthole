@@ -26,7 +26,16 @@ DATA_PATH = "/usr/share/porthole/"
 
 # setup our path so we can load our custom modules
 from sys import path
-path.append("/usr/lib/porthole")
+path.append('/usr/lib/porthole')
+
+# Add path to portage module if 
+# missing from path (ref bug # 924100)
+
+PORTAGE_MOD_PATH = '/usr/lib/portage/pym'
+try:
+    path.index(PORTAGE_MOD_PATH) 
+except ValueError:
+    path.append(PORTAGE_MOD_PATH)
 
 import utils
 from sys import argv, exit, stderr
