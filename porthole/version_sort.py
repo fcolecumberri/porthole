@@ -61,7 +61,7 @@ def pad_ver(vlist):
     suffix_count = 0
     # suffix length may have dates for version number (8) so make it 2 extra just in case
     suffix_length = 10
-    # the lack of a suffix would imply the largest value possible for it
+    # the lack of a suffix would imply the smallest value possible for it
     suffix_pad = "0"
 
     val_cache = []

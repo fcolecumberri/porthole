@@ -206,6 +206,8 @@ class ProcessManager:
         # set some persistent variables for text capture
         self.catch_seq = False
         self.escape_seq = "" # to catch the escape sequence in
+        self.first_cr = True  # first time cr is detected for a line
+        self.overwrite_till_nl = False  # overwrite until after a '\n' detected for this line
         self.resume_line = None
         # setup the queue treeview
         column = gtk.TreeViewColumn("Packages to be merged      ")
@@ -573,6 +575,27 @@ class ProcessManager:
         dprint("TERMINAL: leaving kill()")
         return
 
+    def overwrite(self, num, text, tagname = None):
+        """ Overwrite text to a text buffer.  Line numbering based on
+            the process window line count is automatically added.
+            BUT -- if multiple text buffers are going to be updated,
+            always update the process buffer LAST to guarantee the
+            line numbering is correct.
+            Optionally, text formatting can be applied as well
+        """
+        #dprint("TERMINAL: overwrite() -- num= %d:" %num)
+        #dprint(self.term.current_tab)
+        line_number = self.term.buffer[TAB_PROCESS].get_line_count() 
+        iter = self.term.buffer[num].get_iter_at_line(line_number)
+        iter.set_line_offset(7)
+        end = iter.copy()
+        end.forward_line()
+        self.term.buffer[num].delete(iter, end)
+        if tagname == None:
+           self.term.buffer[num].insert(iter, text)
+        else:
+           self.term.buffer[num].insert_with_tags_by_name(iter, text, tagname)
+
     def append(self, num, text, tagname = None):
         """ Append text to a text buffer.  Line numbering based on
             the process window line count is automatically added.
@@ -624,11 +647,25 @@ class ProcessManager:
         self.reader.string_locked = True
         for char in self.reader.string:
             if char:
-                # if we find a CR without a LF, clear the buffer
+                # if we find a CR without a LF, switch to overwrite mode
                 if cr_flag:
-                   if char != '\n':
-                      self.process_buffer = ''
-                   cr_flag = False
+                    if char != '\n':
+                        tag = None
+                        if self.first_cr:
+                            #dprint("TERMINAL: self.first_cr = True")
+                            self.append(TAB_PROCESS, self.process_buffer, tag)
+                            self.first_cr = False
+                            self.overwrite_till_nl = True
+                            self.process_buffer = ''
+                        # overwrite until after a '\n' detected for this line
+                        else:
+                            #dprint("TERMINAL: self.first_cr = False")
+                            self.overwrite(TAB_PROCESS, self.process_buffer, tag)
+                            self.process_buffer = ''
+                    else:
+                        # reset for next time
+                        self.first_cr = True
+                    cr_flag = False
                 # catch portage escape sequence NOCOLOR bugs
                 if ord(char) == 27 or self.catch_seq:
                         self.catch_seq = True
@@ -693,10 +730,19 @@ class ProcessManager:
                             self.append(TAB_CAUTION, self.process_buffer)
                             self.caution_count += 1
 
-                        self.append(TAB_PROCESS, self.process_buffer, tag)
+                        if self.overwrite_till_nl:
+                            dprint("TERMINAL: '\\n' detected in overwrite mode")
+                            self.overwrite(TAB_PROCESS, self.process_buffer, tag)
+                            self.overwrite_till_nl = False
+                        else:
+                            self.append(TAB_PROCESS, self.process_buffer, tag)
                         self.process_buffer = ''  # reset buffer
                 elif ord(char) == 13: # carriage return?
                     pass
+            elif self.process_buffer == ">>> Updating Portage cache...":
+                # print it to screen so the user knows what is happening
+                self.append(TAB_PROCESS, self.process_buffer, tag)
+                self.process_buffer = ''  # reset buffer
         self.reader.string = ""
         #dprint("TERMINAL: update() checking file input/reader finished")
         if self.file_input and not self.reader.file_input: # reading file finished

@@ -25,7 +25,7 @@
 # initially set debug to false
 debug = False
 
-import os
+import os, threading
 import errno
 import string
 import sre
@@ -59,13 +59,26 @@ except ImportError:
 
 def load_web_page(name):
     """Try to load a web page in the default browser"""
-    try:
-        gnome.url_show(name)
-    except:
+    browser = web_page(name)
+    browser.start()
+
+
+class web_page(threading.Thread):
+    """Try to load a web page in the default browser"""
+    def __init__(self, name):
+        threading.Thread.__init__(self)
+        self.name = name
+        self.setDaemon(1)  # quit even if this thread is still running
+        
+    def run(self):
         try:
-            webbrowser.open(name)
+            gnome.url_show(self.name)
         except:
-            pass
+            try:
+                webbrowser.open(self.name)
+            except:
+                pass
+        dprint("Browser call_completed for: %s" %self.name)
 
 def get_icon_for_package(package):
     """Return an icon for a package"""
