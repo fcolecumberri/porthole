@@ -24,6 +24,11 @@
 # initially set debug to false
 debug = False
 
+import os
+import errno
+import string
+import re
+import datetime
 from sys import stderr
 from version import version
 
@@ -229,4 +234,62 @@ class PortholePreferences:
         # pickle it baby, yeah!
         dprint("Pickling user preferences...")
         cPickle.dump(self, open(home + "/.porthole/prefs", "w"))
-    
+
+class BadLogFile(Exception):
+    """ Raised when we encounter errors parsing the log file."""
+
+def estimate(package_name, log_file_name="/var/log/emerge.log"):
+    """ Estimates, based on previous emerge operations, how long it would
+        take to compile a particular package on the system. 
+        
+        This function returns a 4-tuple with floating point values representing
+        the average duration of the compilation of a package.
+
+        When unable to determine an average, the function returns None. """
+    try:
+        start_time = 0.0
+        end_time = 0.0
+        total_time = datetime.timedelta()
+        emerge_count = 0
+        log_file = open(log_file_name)       
+        package_name_escaped = ""      
+        # Let's excape characters like + before we try to compile the regular
+        #expression
+        for i in range(0, len(package_name)):
+            if package_name[i] == "+" or package_name[i] == "-":
+                package_name_escaped += "\\"
+            package_name_escaped += package_name[i]
+        # Now that we already escaped the "special characters", we
+        # can start searching the logs
+        start_pattern = re.compile("^[0-9]+:  >>> emerge.*%s*." %
+                                                           package_name_escaped)
+        end_pattern = re.compile("^[0-9]+:  ::: completed emerge.*%s*." %
+                                                           package_name_escaped)      
+        lines = log_file.readlines()
+        for i in range(1, len(lines)):
+            if start_pattern.match(lines[i]):
+                tokens = lines[i].split()
+                start_time = string.atof((tokens[0])[0:-1])               
+                for j in range(i+1, len(lines)):
+                    if start_pattern.match(lines[j]):
+                        # We found another start pattern before finding an 
+                        # end pattern.  That probably means emerge died before
+                        # finishing what it was doing.
+                        # We'll ignore it and continue searching. 
+                        break
+                    if end_pattern.match(lines[j]):                 
+                        # Looks like we found a matching end statement.
+                        tokens = lines[j].split()
+                        end_time = string.atof((tokens[0])[0:-1])
+                        emerge_count += 1
+                        total_time = total_time +\
+								(datetime.datetime.fromtimestamp(end_time) -
+                                 datetime.datetime.fromtimestamp(start_time))
+                        break
+        if emerge_count > 0:
+            return total_time / emerge_count
+        else:
+            return None          
+    except:
+        raise BadLogFile, "Error reading emerge log file.  Check file " +\
+                          "permissions, or check for corrupt log file."   

@@ -45,7 +45,8 @@
 # import external [system] modules
 import pygtk; pygtk.require('2.0')
 import gtk, gtk.glade, gobject
-import signal, os, pty, threading, time, re
+import signal, os, pty, threading, time, re, portagelib
+import datetime
 
 if __name__ == "__main__":
     # setup our path so we can load our custom modules
@@ -54,7 +55,7 @@ if __name__ == "__main__":
 
 # import custom modules
 from utils import dprint, get_user_home_dir, SingleButtonDialog, \
-                  get_treeview_selection
+                  get_treeview_selection, estimate
 from version import version
 
 # some constants for the tabs
@@ -259,6 +260,7 @@ class ProcessManager:
                 shell = "/bin/sh"
                 os.execve(shell, [shell, '-c', command_string],
                           self.env)
+                
             except Exception, e:
                 # print out the exception
                 dprint("Error in child" + e)
@@ -371,6 +373,12 @@ class ProcessManager:
             self.append_all(KILLED_STRING,True)
             self.set_statusbar(KILLED_STRING[:-1])
             return
+            
+        # If the user did an emerge --pretend, we print out
+        # estimated build times on the output window
+        if re.compile(".* --pretend *.").match(self.process_list[0][1]):
+            self.estimate_build_time()
+
         # display message that process finished
         self.append_all(TERMINATED_STRING,True)
         self.set_statusbar(TERMINATED_STRING[:-1])
@@ -516,6 +524,60 @@ class ProcessManager:
                                     self.process_list[pos + 1:]
                 break
         self.queue_model.remove(iter)
+
+    def estimate_build_time(self):
+        """Estimates build times based on emerge --pretend output"""
+        output = self.process_text.get_text(self.process_text.get_start_iter(),
+                                 self.process_text.get_end_iter(), gtk.FALSE)
+        package_list = []
+        total = datetime.timedelta()        
+        pattern = re.compile("^\[ebuild *.")
+        for line in output.split("\n"):
+            if pattern.match(line):
+                tokens = line.split(']')
+                tokens = tokens[1].split()
+                tmp_name = portagelib.get_name(tokens[0])
+                name = ""
+                # We want to get rid of the version number in the package name
+                # because if a user is upgrading from, for instance, mozilla 1.4 to
+                # 1.5, there's a good chance the build times will be pretty close.
+                # So, we want to match only on the name
+                for j in range(0, len(tmp_name)):
+                    if tmp_name[j] == "-" and tmp_name[j+1].isdigit():
+                        break
+                    else:
+                        name += tmp_name[j]        
+                package_list.append(name)
+        if len(package_list) > 0:  
+            for package in package_list:
+                try:
+                    curr_estimate = estimate(package)
+                except:
+                    return None
+                if curr_estimate != None:
+                    total += curr_estimate
+                else:
+                    self.append(self.process_text,
+                            "*** Unfortunately, you don't have enough " +
+                            "logged information about the listed packages, " +
+                            "so I can't calculate estimated build times " +
+                            "accuratelly.\n\n")
+                    return None
+            self.append(self.process_text,
+                        "*** Based on the build history of these packages " +
+                        "on your system, I can estimate that emerging them " +
+                        "usually takes, on average, " + 
+                        "%d days, %d hrs, %d mins, and %d secs.\n\n" %
+                        (total.seconds // (24 * 3600),\
+                         (total.seconds % (24 * 3600)) // 3600,\
+                         ((total.seconds % (24 * 3600))  % 3600) //  60,\
+                         ((total.seconds % (24 * 3600))  % 3600) %  60))
+            self.append(self.process_text,
+                        "*** Note: If you have a lot of programs running on " +
+                        "your system while porthole is emerging packages, " +
+                        "or if you have changed your hardware since the " +
+                        "last time you built some of these packages, the " +
+                        "estimates I calculate may be inaccurate.\n\n")
 
 class ProcessOutputReader(threading.Thread):
     """ Reads output from processes """
