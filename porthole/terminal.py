@@ -334,30 +334,47 @@ class ProcessManager:
         # insert the tab
         self.notebook.insert_page(tab, hbox, pos)
         
-    def resume_dialog_response(self, widget, response):
+
+    def resume_dialog(self, message):
         """ Handle response when user tries to re-add killed process to queue """
-        if response == 0:   # yes
-            self.resume_normal(None)
-        # remove the dialog
-        self.resume_dialog.destroy()
+        dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
+                                    gtk.MESSAGE_QUESTION,
+                                    gtk.BUTTONS_CANCEL, message);
+        dialog.add_button(gtk.STOCK_EXECUTE, gtk.RESPONSE_ACCEPT)
+        dialog.add_button("Resume", gtk.RESPONSE_YES)
+        result = dialog.run()
+        dialog.destroy()
+        return result
 
     def add_process(self, package_name, command_string, callback):
         """ Add a process to the queue """
         # if it's already in the queue, don't add it!
         for data in self.process_list:
             if package_name == data[0]:
-                # Let the user know it's already in the list
-                if data == self.process_list[0] and self.killed:
-                    # The process has been killed, so help the user out a bit
-                    message = "The package you selected is already in the emerge queue,\n" \
-                              "but it has been killed. Would you like to resume the emerge?"
-                    self.resume_dialog = YesNoDialog("Error Adding Package To Queue!",
-                                            None, message, self.resume_dialog_response)
-                else:
-                    message = "The package you selected is already in the emerge queue!"
-                    SingleButtonDialog("Error Adding Package To Queue!", None,
-                                   message, None, "Ok")
-                return
+                if command_string == data[1]:
+                    # Let the user know it's already in the list
+                    if data == self.process_list[0]:
+                        if self.killed:
+                            # The process has been killed, so help the user out a bit
+                            message = "The package you selected is already in the emerge queue,\n" \
+                                      "but it has been killed. Would you like to resume the emerge?"
+                            result = self.resume_dialog(message)
+                            if result == gtk.RESPONSE_ACCEPT: # Execute
+                                break
+                            elif result == gtk.RESPONSE_YES: # Resume
+                                self.resume_normal(None)
+                            else: # Cancel
+                                return gtk.FALSE
+                        else:
+                            message = "The package you selected is already in the emerge queue!"
+                            SingleButtonDialog("Error Adding Package To Queue!", None,
+                                           message, None, "Ok")
+                            return
+                # remove process from list
+                dprint(self.process_list)
+                dprint(data)
+                self.process_list = self.process_list[1:]
+
         # show the window if it isn't yet
         if not self.window_visible:
             self.show_window()
@@ -377,9 +394,12 @@ class ProcessManager:
                 self.show_tab(TAB_QUEUE)
                 self.queue_menu.set_sensitive(gtk.TRUE)
                 self.queue_tab.showing = True
-        # if no process is running, let's start this one!
+        # if no process is running, let's start one!
         if not self.reader.process_running:
-            self._run(command_string, iter)
+            # pending processes, run the next one in the list
+            dprint("TERMINAL: (add_process) Starting pending processes, running now... [" + \
+                    self.process_list[0][0] + "]")
+            self._run(self.process_list[0][1], self.process_list[0][2])
 
     def _run(self, command_string, iter = None):
         """ Run a given command string """
