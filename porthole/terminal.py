@@ -593,12 +593,12 @@ if __name__ == "__main__":
     prefs = utils.load_user_prefs()
     env = utils.environment()
     # to test the above classes when run standalone
-    test = ProcessManager(env, prefs, callback)
-    test.add_process("kde (-vp)", "emerge -vp kde")
+    test = ProcessManager(env, prefs)
+    test.add_process("kde (-vp)", "emerge -vp kde", callback)
     # un-comment the next line to get the queue to show up
-    test.add_process("gnome (-vp)", "emerge -vp gnome")
-    test.add_process("gtk+ (-vp)", "emerge -vp gtk+")
-    test.add_process("bzip2 (-v)", "emerge -v bzip2")
+    test.add_process("gnome (-vp)", "emerge -vp gnome", callback)
+    test.add_process("gtk+ (-vp)", "emerge -vp gtk+", callback)
+    test.add_process("bzip2 (-v)", "emerge -v bzip2", callback)
     # start the program loop
     gtk.mainloop()
     # save the prefs to disk for next time
