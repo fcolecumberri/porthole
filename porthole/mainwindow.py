@@ -35,6 +35,8 @@ from terminal import ProcessManager
 from views import CategoryView, PackageView, DependsView
 from command import RunDialog
 
+EXEPTION_LIST = ['.','^','$','*','+','?','(',')','\\','[',']','|','{','}']
+
 class MainWindow:
     """Main Window class to setup and manage main window interface."""
     def __init__(self, preferences = None, config = None):
@@ -347,17 +349,11 @@ class MainWindow:
             Plus_exeption_count = 0
             for char in tmp_search_term:
                 #dprint(char)
-                if char == "+":
-                    dprint("MAINWINDOW: package_search()  '+' exception found")
-                    if Plus_exeption_count < 2:
-                        char = "\\" + char
-                    Plus_exeption_count += 1
-                if char == "+" and Plus_exeption_count > 3:
-                    dprint("MAINWINDOW: package_search() TOO many '+' in search string")
-                    # try to prevent the error & correct the string
-                    char = ''
+                if char in EXEPTION_LIST:# =="+":
+                    dprint("MAINWINDOW: package_search()  '%s' exception found" %char)
+                    char = "\\" + char
                 search_term += char 
-            dprint("           ===> new search_term = :%s" %search_term)
+            dprint("MAINWINDOW: package_search() ===> escaped search_term = :%s" %search_term)
             search_results = self.package_view.search_model
             search_results.clear()
             re_object = re.compile(search_term, re.I)
@@ -571,7 +567,7 @@ class MainWindow:
 
     def update_statusbar(self, mode):
         """Update the statusbar for the selected filter"""
-        text = "(undefined)"
+        text = "(undefined) Statusbar not yet available for this view"
         if mode == self.SHOW_ALL:
             if not self.db:
                 dprint("MAINWINDOW: attempt to update status bar with no db assigned")
