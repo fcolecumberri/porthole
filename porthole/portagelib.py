@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-'''
+"""
     PortageLib
     An interface library to Gentoo's Portage
 
@@ -19,7 +19,7 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-'''
+"""
 
 from sys import exit
 try:    
@@ -29,7 +29,6 @@ except ImportError:
          'Are you sure this is a Gentoo system?')
 
 import threading
-# gtk.threads_init()  # make sure gtk lets other threads run too
 
 version = 0.1
 debug = 0
@@ -183,6 +182,7 @@ class DatabaseReader(threading.Thread):
 
     def __init__(self):
         threading.Thread.__init__(self)
+        self.setDaemon(1)     # quit even if this thread is still running
         self.db = Database()  # the database
         self.done = 0         # false if the thread is still working
         self.count = 0        # number of packages read so far
