@@ -716,22 +716,22 @@ class MainWindow:
                         view.render_icon(icon,
                                          size = gtk.ICON_SIZE_MENU,
                                          detail = None))
-            package_list[name] = data
+                    package_list[name] = data
             search_results.size = count  # store number of matches
             self.wtree.get_widget("view_filter").set_history(SHOW_SEARCH)
             # in case the search view was already active
             self.update_statusbar(SHOW_SEARCH)
-        self.search_history[search_term] = package_list
-        #Add the current search_results to the top of the category view
-        self.category_view.populate(self.search_history.keys())
-        iter = self.category_view.model.get_iter_first()
-        while iter != None:
-            if self.category_view.model.get_value( iter, 1 ) == search_term:
-                selection = self.category_view.get_selection()
-                selection.select_iter( iter )
-                break
-            iter = self.category_view.model.iter_next( iter )
-        self.category_changed( search_term )
+            self.search_history[search_term] = package_list
+            #Add the current search_results to the top of the category view
+            self.category_view.populate(self.search_history.keys())
+            iter = self.category_view.model.get_iter_first()
+            while iter != None:
+                if self.category_view.model.get_value( iter, 1 ) == search_term:
+                    selection = self.category_view.get_selection()
+                    selection.select_iter( iter )
+                    break
+                iter = self.category_view.model.iter_next( iter )
+            self.category_changed( search_term )
 
                 
     def help_contents(self, widget):
