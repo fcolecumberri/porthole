@@ -1,4 +1,4 @@
-Porthole 0.2 (Jan 30, 2004)
+Porthole 0.3 (March 31, 2004)
 ===========================
 
 Porthole is a GTK-based frontend for Portage (the Gentoo package
@@ -29,23 +29,12 @@ put ebuilds in the portage overlay. If not, please consult the
 documentation and forums on the Gentoo web site (http://www.gentoo.org).
 
 If you don't want to use the ebuild, you can download the tarball
-(porthole-0.2.tar.bz2) and install it yourself. Porthole requires
+(porthole-0.3.tar.bz2) and install it yourself. Porthole requires
 PyGTK 2 and libglade 2 (and, of course, Portage).
 
-> tar xvjf porthole-0.2.tar.bz2
-> cd porthole-0.2
+> tar xvjf porthole-0.3.tar.bz2
+> cd porthole-0.3
 > python setup.py install
-
-
-====================
-= Words of caution =
-====================
-
-It is currently possible to start more than one emerge
-(emerge/unmerge/sync/upgrade) process simultaneously using
-Porthole. DO NOT DO THIS! It may corrupt your installation! The same
-rules apply when using Porthole as when using emerge as a command-line
-tool. In future versions, we will not permit the user to do this.
 
 
 ===========
