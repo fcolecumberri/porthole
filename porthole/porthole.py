@@ -45,6 +45,7 @@ try:
     import process
 except ImportError:
     sys.exit("Error loading libraries!\nCan't find process!")
+from summary import Summary
 
 class MainWindow:
     """Main Window class to setup and manage main window interface."""
@@ -73,6 +74,7 @@ class MainWindow:
         # aliases for convenience
         self.package_view = self.wtree.get_widget("package_view")
         self.category_view = self.wtree.get_widget("category_view")
+        self.notebook = self.wtree.get_widget("notebook")
         #setup our treemodels
         self.category_model = None
         self.package_model = None
@@ -83,13 +85,13 @@ class MainWindow:
         self.search_results.size = 0
         #setup sudo use
         self.use_sudo = -1
-        #setup some textbuffers
-        tagtable = self.create_tag_table()
-        self.summary_buffer = gtk.TextBuffer(tagtable)
-        self.summary_text = self.wtree.get_widget("summary_text")
-        self.summary_text.set_buffer(self.summary_buffer)
-        self.summary_text.connect("motion_notify_event", self.on_mouse_motion)
-        self.depend_buffer = gtk.TextBuffer(tagtable)
+        # summary view
+        scroller = self.wtree.get_widget("summary_text_scrolled_window");
+        # Todo: change in glade instead
+        scroller.remove(scroller.get_children()[0]) 
+        self.summary = Summary()
+        scroller.add(self.summary)
+        self.summary.show()
         #declare the database
         self.db = None
         #set category treeview header
@@ -160,29 +162,6 @@ class MainWindow:
         self.sudo_dialog.destroy()
         if callback:
             callback(None)
-
-    def create_tag_table(self):
-        """Define all markup tags."""
-        def create(descs):
-            table = gtk.TextTagTable()
-            for name, properties in descs.items():
-                tag = gtk.TextTag(name); table.add(tag)
-                for property, value in properties.items():
-                    tag.set_property(property, value)
-            return table
-        table = create(
-            {'name': ({'weight': pango.WEIGHT_BOLD,
-                       'scale': pango.SCALE_X_LARGE}),
-             'description': ({"style": pango.STYLE_ITALIC}),
-             'url': ({'foreground': 'blue'}),
-             'property': ({'weight': pango.WEIGHT_BOLD}),
-             'value': ({})
-             })
-        # React when user clicks on the homepage url
-        self.url_tag = table.lookup('url')
-        self.url_tag.connect("event", self.on_url_event)
-        return table
-    
 
     def set_statusbar(self, string):
         """Update the statusbar without having to use push and pop."""
@@ -357,103 +336,17 @@ class MainWindow:
         """Catch when the user changes categories."""
         category = self.get_treeview_selection(treeview, 1)
         self.populate_package_tree(category)
-        self.update_package_info(None)
+        self.summary.update_package_info(None)
+        self.notebook.set_sensitive(gtk.FALSE)
 
     def package_changed(self, treeview):
         """Catch when the user changes packages."""
         package = self.get_treeview_selection(treeview, 2)
-        self.update_package_info(package)
-
-    def on_url_event(self, tag, widget, event, iter):
-        """Catch when the user clicks the url"""
-        if event.type == gtk.gdk.BUTTON_RELEASE:
-            load_web_page(self.homepages[0])
-
-    def on_mouse_motion(self, widget, event, data = None):
-        # we need to call get_pointer, or we won't get any more events
-        pointer = widget.window.get_pointer()
-        x, y, spam = pointer
-        view = self.summary_text
-        x, y = view.window_to_buffer_coords(gtk.TEXT_WINDOW_TEXT, x, y)
-        i = view.get_iter_at_location(x, y)
-        is_url = i.has_tag(self.url_tag)
-        self.url_tag.set_property(
-            "underline", 
-            is_url and pango.UNDERLINE_SINGLE or pango.UNDERLINE_NONE)
-        widget.get_window(gtk.TEXT_WINDOW_TEXT).set_cursor(
-            is_url and gtk.gdk.Cursor(gtk.gdk.HAND2) or None)
-        return gtk.FALSE
-
-    def update_package_info(self, package):
-        """Update the notebook of information about a selected package"""
-
-        def append(text, tag = None):
-            """Append (unicode) text to summary buffer."""
-            iter = self.summary_buffer.get_end_iter()
-            buffer = self.summary_buffer
-            if tag: buffer.insert_with_tags_by_name(iter, text, tag)
-            else: buffer.insert(iter, text)
-
-        def nl(): append("\n")
-        
-        self.summary_buffer.set_text("", 0)
-        notebook = self.wtree.get_widget("notebook")
-        notebook.set_sensitive(package and gtk.TRUE or gtk.FALSE)
-        if not package:
-            #it's really a category selected!
-            return
-        #put the info into the textview!
-        notebook.set_sensitive(gtk.TRUE)
-        #read it's info
-        metadata = package.get_metadata()
-        ebuild = package.get_latest_ebuild()
-        installed = package.get_installed()
-        versions = package.get_versions(); versions.sort()
-        props = package.get_properties()
-        description = props.description
-        homepages = props.get_homepages() # may be more than one
-        self.homepages = homepages  # store url for on_url_event
-        use_flags = props.get_use_flags()
-        license = props.license
-        slot = unicode(props.get_slot())
-        #get everything ready
-        ''' TODO:
-            figure out what to put into the extras tab...?
-        '''
-        #handle dependencies
+        self.summary.update_package_info(package)
         depends = DependsTree()
-        depends.fill_depends_tree(self.wtree.get_widget("depend_view"), package)
-        #build info into buffer
-        append(package.full_name, "name"); nl()
-        if description:
-            append(description, "description"); nl()
-        if metadata and metadata.longdescription:
-            nl(); append(metadata.longdescription, "description"); nl()
-        for homepage in homepages: append(homepage, "url"); nl()
-        nl()         #put a space between this info and the rest
-        if installed:
-            append("Installed versions: ", "property")
-            append(", ".join([portagelib.get_version(ebuild)
-                              for ebuild in installed]),
-                   "value")
-        else:
-            append("Not installed", "property")
-        nl()
-        if versions:
-            append("Available versions: ", "property")
-            append(", ".join([portagelib.get_version(ebuild)
-                              for ebuild in versions]),
-                   "value")
-            nl()
-        nl()         #put a space between this info and the rest, again
-        if use_flags:
-            append("Use Flags: ", "property")
-            append(", ".join(use_flags), "value")
-            nl()
-        if license:
-            append("License: ", "property"); append(license, "value"); nl()
-        if slot:
-            append("Slot: ", "property"); append(slot, "value"); nl()
+        depends.fill_depends_tree(self.wtree.get_widget("depend_view"),
+                                  package)
+        self.notebook.set_sensitive(gtk.TRUE)
 
     SHOW_ALL = 0
     SHOW_INSTALLED = 1
@@ -469,7 +362,7 @@ class MainWindow:
             pass
         elif index == self.SHOW_SEARCH:
             self.wtree.get_widget("category_scrolled_window").hide()
-            self.package_view.set_model(self.search_results)            
+            self.package_view.set_model(self.search_results)
 
     def update_statusbar(self, mode):
         text = "(undefined)"
@@ -483,7 +376,6 @@ class MainWindow:
         self.set_statusbar(text)
 
 
-
 if __name__ == "__main__":
     #make sure gtk lets threads run
     gtk.threads_init()
@@ -491,5 +383,3 @@ if __name__ == "__main__":
     myapp = MainWindow()
     #start the program loop
     gtk.mainloop()
-
-
