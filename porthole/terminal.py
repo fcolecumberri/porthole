@@ -416,12 +416,18 @@ class ProcessManager:
         """ Add text to the buffer """
         # stores line of text in buffer
         # if the string is locked, we'll get it on the next round
+        cr_flag = False   # Carriage Return flag
         if self.reader.string_locked:
             return gtk.TRUE
         # lock the string
         self.reader.string_locked = True
         for char in self.reader.string:
             if char:
+                # if we find a CR without a LF, clear the buffer
+                if cr_flag:
+                   if char != '\n':
+                      self.process_buffer = ''
+                   cr_flag = False
                 # catch portage escape sequence NOCOLOR bugs
                 if ord(char) == 27 or self.catch_seq:
                         self.catch_seq = True
@@ -431,8 +437,10 @@ class ProcessManager:
                             self.catch_seq = False
                             #dprint('escape_seq='+escape_seq)
                             self.escape_seq = ""
-                elif char == '\b': # backspace
+                elif char == '\b' : # backspace
                     self.process_buffer = self.process_buffer[:-1]
+                elif ord(char) == 13:  # carriage return
+                    cr_flag = True
                 elif 32 <= ord(char) <= 127 or char == '\n': # no unprintable
                     self.process_buffer += char
                     if char == '\n': # newline
