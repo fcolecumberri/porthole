@@ -64,6 +64,7 @@ class MainWindow:
         self.wtree.signal_autoconnect(callbacks)
         # aliases for convenience
         self.notebook = self.wtree.get_widget("notebook")
+        self.changelog = self.wtree.get_widget("changelog").get_buffer()
         # set unfinished items to not be sensitive
         self.wtree.get_widget("contents2").set_sensitive(gtk.FALSE)
         # self.wtree.get_widget("btn_help").set_sensitive(gtk.FALSE)
@@ -379,16 +380,26 @@ class MainWindow:
         self.summary.update_package_info(package)
         # if the user is looking at the deps we need to update them
         notebook = self.wtree.get_widget("notebook")
-        if notebook.get_current_page() == 1:
+        cur_page = notebook.get_current_page()
+        if cur_page == 1:
             self.deps_view.fill_depends_tree(self.deps_view, package)
+        elif cur_page == 2:
+            self.load_changelog(package)
         self.set_package_actions_sensitive(gtk.TRUE, package)
 
     def notebook_changed(self, widget, pointer, index):
         """Catch when the user changes the notebook"""
+        package = get_treeview_selection(self.package_view, 2)
         if index == 1:
             # fill the deps view!
-            package = get_treeview_selection(self.package_view, 2)
             self.deps_view.fill_depends_tree(self.deps_view, package)
+        elif index == 2:
+            # fill in the change log
+            self.load_changelog(package)
+
+    def load_changelog(self, package):
+        """ Load and display the changelog for a package """
+        dprint("MAIN: load changelog")
 
     SHOW_ALL = 0
     SHOW_INSTALLED = 1
