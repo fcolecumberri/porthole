@@ -328,6 +328,7 @@ class MainWindow:
                 # already loaded, just show them!
                 cat_scroll.hide();
                 self.package_view.set_view(self.package_view.UPGRADABLE)
+                self.summary.update_package_info(None)
         self.set_package_actions_sensitive(gtk.FALSE)
         self.deps_view.clear()
 
@@ -344,6 +345,7 @@ class MainWindow:
         # needs error checking perhaps...
         if self.ut.done:
             self.package_view.set_view(self.package_view.UPGRADABLE)
+            self.summary.update_package_info(None)
             self.wtree.get_widget("category_scrolled_window").hide()
             self.ut.join()
             self.wait_dialog.destroy()
