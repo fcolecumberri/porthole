@@ -208,7 +208,7 @@ class MainWindow:
             if self.use_sudo:
                 if self.use_sudo == 1:
                     ProcessWindow("sudo " + command, env)
-                elif self.pretend:
+                elif self.pretend and command != "emerge sync":
                     ProcessWindow(command, env)
                 else:
                     print "Sorry, can't do that!"
@@ -224,16 +224,16 @@ class MainWindow:
 
     def emerge_package(self, widget):
         """Emerge the currently selected package."""
-        package = self.get_treeview_selection(
-            self.wtree.get_widget("package_view"), 2)
+        package = get_treeview_selection(
+            self.package_view, 2)
         command = self.setup_command("emerge " + self.pretend
             + package.get_category() + "/" +
             package.get_name(), self.emerge_package)
 
     def unmerge_package(self, widget):
         """Unmerge the currently selected package."""
-        package = self.get_treeview_selection(
-            self.wtree.get_widget("package_view"), 2)
+        package = get_treeview_selection(
+            self.package_view, 2)
         command = self.setup_command("emerge unmerge " +
             self.pretend + package.get_category() + "/" +
             package.get_name(), self.unmerge_package)
