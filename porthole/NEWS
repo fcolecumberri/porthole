@@ -1,6 +1,16 @@
 
 0.4.0:
 
+    * Added confirmation that you want to kill a running process when the quit/close
+      button is selected in either window.
+      
+    * Starting a upgrades load then switching to a different view is not interupted
+      with the upgrades list when complete.  The upgrades view needs to be selected
+      again to see it.  That way it does not disrupt what you are doing/looking at.
+      
+    * some code changes to work with both newer & depricated gtk functions.  It should
+      work without printing deprication warnings or function call errors/failures.
+
     * updated to use the new & pre portage-2.0.51 as the world file is relocated
       as of 2.0.51
 
@@ -10,10 +20,10 @@
       the dialog box did until it was closed.
       
     * Advanced emerge toolbar option & dialog giving fairly easy access to most
-      advanced emrge features & options.  TOC worked hard on this one and I think
+      advanced emerge features & options.  TOC worked hard on this one and I think
       he did a great job on it.
       
-    * Help is now working with a good start on the basics and help on the advanced
+    * Help is now working (not complete) with a good start on the basics and help on the advanced
       emerge options.
       
     * The web browser is now opened from a threaded function call so that it does not
@@ -27,8 +37,8 @@
        porthole to see changes in /etc/make.conf, etc.  Also usefull if portage was
        updated to a new version .  It will reload the new version just emerged.
        
-     * Added pycrash detection and inclusion into porthole.  Can be very usefull for
-       debugging.
+     * Added pycrash detection and inclusion into porthole.  The crash log file saved
+       can be very usefull for debugging.
        
      * Selectable upgrades only or standard upgrade/downgrade upgrades list selection
 
@@ -50,7 +60,7 @@
 
      * Added  a -h, --help option to portholes command line interface
 
-0.3.2:  Did not make it to an actual release
+0.3.2:  Did not make it to an actual release due to complications.
 
     * Combination bugfix & feature improvement release
 

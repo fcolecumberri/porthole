@@ -734,3 +734,20 @@ def estimate(package_name, log_file_name="/var/log/emerge.log"):
     except:
         raise BadLogFile, _("Error reading emerge log file.  Check file " +\
                           "permissions, or check for corrupt log file.")   
+
+def pretend_check(command_string):
+    isPretend = (sre.search("--pretend", command_string) != None)
+    if not isPretend:
+        tmpcmdline = command_string.split()
+        #dprint(tmpcmdline)
+        for x in tmpcmdline:
+            if x[0:1]=="-"and x[1:2]!="-":
+                for y in x[1:]:
+                    #dprint(y)    
+                    if y == "p":
+                        #dprint("found it")
+                        isPretend = True
+    return isPretend
+
+def help_check(command_string):
+    return (sre.search("--help", command_string) != None)

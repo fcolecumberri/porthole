@@ -30,7 +30,8 @@ import portagelib, os, string
 from gettext import gettext as _
 from about import AboutDialog
 from utils import load_web_page, get_icon_for_package, is_root, dprint, \
-     get_treeview_selection, YesNoDialog, SingleButtonDialog, environment
+     get_treeview_selection, YesNoDialog, SingleButtonDialog, environment, \
+     pretend_check, help_check
 #from process import ProcessWindow  # no longer used in favour of terminal and would need updating to be used
 from summary import Summary
 from terminal import ProcessManager
@@ -348,7 +349,7 @@ class MainWindow:
         """Setup the command to run or not"""
         if self.is_root or (self.prefs.emerge.pretend and
                             command[:11] != "emerge sync"):
-            if self.prefs.emerge.pretend:
+            if self.prefs.emerge.pretend or pretend_check(command) or help_check(command):
                 callback = lambda: None  # a function that does nothing
             elif package_name == "Sync":
                 callback = self.init_data
@@ -362,9 +363,9 @@ class MainWindow:
                     self.mainwindow,
                     _("Please run Porthole as root to emerge packages!"),
                     None, "_Ok")
-            return 0
-        return 1
-    
+            return False
+        return True
+   
     def pretend_set(self, widget):
         """Set whether or not we are going to use the --pretend flag"""
         self.prefs.emerge.pretend = widget.get_active()
