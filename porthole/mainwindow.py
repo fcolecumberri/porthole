@@ -27,7 +27,6 @@ import gtk, gtk.glade, gobject, pango
 import portagelib, os
 
 from about import AboutDialog
-from depends import DependsTree
 from utils import load_web_page, get_icon_for_package, is_root, dprint, \
      get_treeview_selection, YesNoDialog, SingleButtonDialog, environment
 from process import ProcessWindow
