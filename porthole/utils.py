@@ -159,14 +159,10 @@ class EmergeOptions:
     def get_string(self):
         """ Return currently set options in a string """
         opt_string = ' '
-        if self.pretend:
-            opt_string += '--pretend '
-        if self.fetch:
-            opt_string += '--fetchonly '
-        if self.verbose:
-            opt_string += '--verbose '
-        if self.nospinner:
-            opt_string += '--nospinner '
+        if self.pretend:   opt_string += '--pretend '
+        if self.fetch:     opt_string += '--fetchonly '
+        if self.verbose:   opt_string += '--verbose '
+        if self.nospinner: opt_string += '--nospinner '
         return opt_string
 
 class WindowPreferences:
@@ -185,7 +181,8 @@ def load_user_prefs():
             # unpickle our preferences
             dprint("Loading pickled user preferences...")
             prefs = cPickle.load(open(home + "/.porthole/prefs"))
-            dprint("Found preferences, version " + str(prefs.version))
+            try: dprint("Found preferences, version " + str(prefs.version))
+            except: dprint("Found preferences, version not given")
             # make sure the version is up to date for when it is saved again
             try:
                 if prefs.version == "0.3":
@@ -201,6 +198,7 @@ def load_user_prefs():
                 prefs.terminal = WindowPreferences(500, 400)
                 prefs.terminal.width_verbose = 900
                 prefs.version = version
+                prefs.emerge.nospinner = True
     else:
         # create the dir
         dprint("~/.porthole does not exist, creating...")
