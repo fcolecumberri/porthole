@@ -41,6 +41,9 @@ except: portdir_overlay = None
 # lower case is nicer
 keys = [key.lower() for key in portage.auxdbkeys]
 
+# a list of all installed packages
+installed = portage.db['/']['vartree'].getallnodes()
+
 def dprint(message):
     """Print debug message if debug is true."""
     if debug:
@@ -117,7 +120,7 @@ class Package:
 
     def __init__(self, full_name):
         self.full_name = full_name
-        self.is_installed = bool(self.get_installed())  # true if installed
+        self.is_installed = full_name in installed  # true if installed
 
     def get_installed(self):
         """Returns a list of all installed ebuilds."""
@@ -129,9 +132,9 @@ class Package:
     def get_category(self):
         return get_category(self.full_name)
 
-    def get_latest_ebuild(self, include_masked = 1):
+    def get_latest_ebuild(self, include_masked = True):
         criterion = include_masked and 'match-all' or 'match-visible'
-        return portage.best(portage.portdb.xmatch(criterion, self.full_name))
+        return portage.best(self.get_versions(include_masked))
 
     def get_metadata(self):
         return get_metadata(self.full_name)
@@ -147,9 +150,10 @@ class Package:
             dprint(e)
             return Properties()
 
-    def get_versions(self):
+    def get_versions(self, include_masked = True):
         """Returns all versions of the available ebuild"""
-        return portage.db['/']['porttree'].dep_match(self.full_name)
+        criterion = include_masked and 'match-all' or 'match-visible'
+        return portage.portdb.xmatch(criterion, self.full_name)
 
 def sort(list):
     """sort in alphabetic instead of ASCIIbetic order"""
@@ -162,7 +166,10 @@ class Database:
     def __init__(self):
         # category dictionary with sorted lists of packages
         self.categories = {}
-        self.list = []  # all packages in a list sorted by package name
+        # all packages in a list sorted by package name
+        self.list = []
+        # category dictionary with sorted lists of installed packages
+        self.installed = {}
         
     def get_package(self, full_name):
         """Get a Package object based on full name."""
@@ -209,9 +216,11 @@ class DatabaseReader(threading.Thread):
             self.count += 1
             data = Package(entry)
             self.db.categories.setdefault(category, {})[name] = data;
+            if entry in installed:
+                self.db.installed.setdefault(category, {})[name] = data;
             self.db.list.append((name, data))
         self.db.list = sort(self.db.list)
-
+        
     def run(self):
         """The thread function."""
         self.read_db()

@@ -164,7 +164,7 @@ class MainWindow:
             self.db = self.db_thread.get_db()
             self.set_statusbar("Populating tree ...")
             self.db_thread.join()
-            self.populate_category_tree()
+            self.populate_category_tree(self.db.categories.keys())
             self.update_statusbar(self.SHOW_ALL)
             self.wtree.get_widget("menubar").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("toolbar").set_sensitive(gtk.TRUE)
@@ -174,10 +174,9 @@ class MainWindow:
             return gtk.FALSE  # disconnect from timeout
         return gtk.TRUE
 
-    def populate_category_tree(self):
-        '''fill the category tree'''
+    def populate_category_tree(self, categories):
+        '''Fill the category tree.'''
         last_catmaj = None
-        categories = self.db.categories.keys()
         categories.sort()
         self.category_model = gtk.TreeStore(gobject.TYPE_STRING,
                                             gobject.TYPE_STRING)
@@ -194,17 +193,16 @@ class MainWindow:
             self.category_model.set_value(sub_cat_iter, 1, cat)
         self.category_view.set_model(self.category_model)
 
-    def populate_package_tree(self, category):
-        '''fill the package tree'''
+    def populate_package_tree(self, packages):
+        '''Fill the package tree.'''
         view = self.package_view
         self.package_model = gtk.TreeStore(gobject.TYPE_STRING,
                                            gtk.gdk.Pixbuf,
                                            gobject.TYPE_PYOBJECT) # Package
-        if not category:
-            view.set_model(self.package_model)
+        view.set_model(self.package_model)
+        if not packages:
             return
-        packages = self.db.categories[category]
-        names =  portagelib.sort(packages.keys())
+        names = portagelib.sort(packages.keys())
         for name in names:
             #go through each package
             iter = self.package_model.insert_before(None, None)
@@ -217,7 +215,6 @@ class MainWindow:
                 view.render_icon(icon,
                                  size = gtk.ICON_SIZE_MENU,
                                  detail = None))
-        view.set_model(self.package_model)
 
     def setup_command(self, command, callback = None):
         """Setup the command to run with sudo or not at all"""
@@ -302,7 +299,16 @@ class MainWindow:
     def category_changed(self, treeview):
         """Catch when the user changes categories."""
         category = self.get_treeview_selection(treeview, 1)
-        self.populate_package_tree(category)
+        mode = self.wtree.get_widget("view_filter").get_history()
+        if not category:
+            packages = None
+        elif mode == self.SHOW_ALL:
+            packages = self.db.categories[category]
+        elif mode == self.SHOW_INSTALLED:
+            packages = self.db.installed[category]
+        else:
+            raise Exception("The programmer is stupid.");
+        self.populate_package_tree(packages)
         self.summary.update_package_info(None)
         self.notebook.set_sensitive(gtk.FALSE)
 
@@ -320,14 +326,17 @@ class MainWindow:
     def view_filter_changed(self, widget):
         index = widget.get_history()
         self.update_statusbar(index)
-        if index == self.SHOW_ALL:
-            self.wtree.get_widget("category_scrolled_window").show()
+        cat_scroll = self.wtree.get_widget("category_scrolled_window")
+        if index in (self.SHOW_INSTALLED, self.SHOW_ALL):
+            cat_scroll.show()
+            self.populate_category_tree(
+                index == self.SHOW_ALL
+                and self.db.categories.keys()
+                or self.db.installed.keys())
             self.package_view.set_model(self.package_model)
-            self.update_package_info(None)
-        elif index == self.SHOW_INSTALLED:
-            pass
+            self.summary.update_package_info(None)
         elif index == self.SHOW_SEARCH:
-            self.wtree.get_widget("category_scrolled_window").hide()
+            cat_scroll.hide()
             self.package_view.set_model(self.search_results)
 
     def update_statusbar(self, mode):
