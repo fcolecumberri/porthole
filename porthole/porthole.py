@@ -87,11 +87,11 @@ class MainWindow:
         self.use_sudo = -1
         # summary view
         scroller = self.wtree.get_widget("summary_text_scrolled_window");
-        # Todo: change in glade instead
-        scroller.remove(scroller.get_children()[0]) 
         self.summary = Summary()
         scroller.add(self.summary)
         self.summary.show()
+        # dependency treeview
+        self.depends = DependsTree() 
         #declare the database
         self.db = None
         #set category treeview header
@@ -343,8 +343,7 @@ class MainWindow:
         """Catch when the user changes packages."""
         package = self.get_treeview_selection(treeview, 2)
         self.summary.update_package_info(package)
-        depends = DependsTree()
-        depends.fill_depends_tree(self.wtree.get_widget("depend_view"),
+        self.depends.fill_depends_tree(self.wtree.get_widget("depend_view"),
                                   package)
         self.notebook.set_sensitive(gtk.TRUE)
 
