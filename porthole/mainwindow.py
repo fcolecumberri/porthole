@@ -117,7 +117,7 @@ class MainWindow:
                                            gtk.gdk.Pixbuf,
                                            gobject.TYPE_PYOBJECT) # Package
         #move horizontal and vertical panes
-        self.wtree.get_widget("hpane").set_position(200)
+        self.wtree.get_widget("hpane").set_position(280)
         self.wtree.get_widget("vpane").set_position(250)
         #load the db
         self.db_thread = portagelib.DatabaseReader()
