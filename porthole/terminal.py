@@ -118,7 +118,7 @@ class ProcessManager:
         self.reader = ProcessOutputReader(self.process_done)
         # start the reader
         self.reader.start()
-        gtk.timeout_add(100, self.update)
+        gobject.timeout_add(100, self.update)
 
     def set_tags(self):
         """ set the text formatting tags from prefs object """
@@ -251,6 +251,8 @@ class ProcessManager:
         self.resume_available = False
         # set the window title
         self.window.set_title(self.title)
+        self.window.connect("window_state_event", self.new_window_state)
+        self.minimized = False
         # flag that the window is now visible
         self.window_visible = True
         dprint("TERMINAL: get & connect to vadjustments")
@@ -357,6 +359,21 @@ class ProcessManager:
         else:
             self.prefs.terminal.width = width
         self.prefs.terminal.height = height
+
+    def new_window_state(self, widget, event):
+        """set the minimized variable to change the title to the same as the statusbar text"""
+        dprint(event.new_window_state) # debug print statements
+        dprint(event.changed_mask)
+        if event.new_window_state & gtk.gdk.WINDOW_STATE_ICONIFIED:
+            #if not self.minimized:
+            dprint("TERMINAL: new_window_state; event = minimized")
+            self.minimized = True
+            self.window.set_title(self.status_text)
+        elif self.minimized:
+            dprint("TERMINAL: new_window_state; event = unminimized")
+            self.minimized = False
+            self.window.set_title(self.title)
+        return False
 
     def show_tab(self, tab):
         """ Create the label for the tab and show it """
@@ -837,6 +854,9 @@ class ProcessManager:
         """Update the statusbar without having to use push and pop."""
         self.statusbar.pop(0)
         self.statusbar.push(0, string)
+        self.status_text = string
+        if self.minimized:
+            self.window.set_title(string)
 
     def finish_update(self):
         if self.warning_count != 0:

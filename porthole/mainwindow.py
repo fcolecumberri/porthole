@@ -56,23 +56,24 @@ ON = True
 OFF = False
 
 def check_glade():
-	"""determine the libglade version installed
-	and return the correct glade file to use"""
-	porthole_gladefile = "porthole.glade"
-	# determine glade version
-	versions = portagelib.get_installed("gnome-base/libglade")
-	if versions:
-		dprint(versions)
-		old, new = ver_match(versions, ["2.0.1","2.4.0-r99"], ["2.4.1","2.99.99"])
-		if old:
-			porthole_gladefile = "porthole.glade"
-		elif new:
-			porthole_gladefile = "porthole-new.glade"
-	else:
-		dprint("MAINWINDOW: No version list returned for libglade")
-		return None
-	dprint("MAINWINDOW: __init__(); glade file = %s" %porthole_gladefile)
-	return porthole_gladefile
+        """determine the libglade version installed
+        and return the correct glade file to use"""
+        porthole_gladefile = "porthole.glade"
+        #return porthole_gladefile
+        # determine glade version
+        versions = portagelib.get_installed("gnome-base/libglade")
+        if versions:
+            dprint(versions)
+            old, new = ver_match(versions, ["2.0.1","2.5.0-r99"], ["2.5.1","2.99.99"])
+            if old:
+                porthole_gladefile = "porthole.glade"
+            elif new:
+                porthole_gladefile = "porthole-new2.glade"
+        else:
+            dprint("MAINWINDOW: No version list returned for libglade")
+            return None
+        dprint("MAINWINDOW: __init__(); glade file = %s" %porthole_gladefile)
+        return porthole_gladefile
 
 class MainWindow:
     """Main Window class to setup and manage main window interface."""
@@ -231,10 +232,15 @@ class MainWindow:
         self.db_thread.start()
         self.db_thread_running = True
         self.reload = False
-        self.db_timeout = gtk.timeout_add(100, self.update_db_read)
+        self.db_timeout = gobject.timeout_add(100, self.update_db_read)
         self.get_sync_time()
+        dprint("MAINWINDOW: init(); sync tooltip = (before)")
+        dprint(gtk.tooltips_data_get(self.widget["btn_sync"]))
+        dprint("MAINWINDOW: init(); Setting sync tooltip")
         self.synctooltip.set_tip(self.widget["btn_sync"], self.sync_tip + self.last_sync)
         self.synctooltip.enable()
+        dprint("MAINWINDOW: init(); sync tooltip = ")
+        dprint(gtk.tooltips_data_get(self.widget["btn_sync"]))
         # set status
         #self.set_statusbar(_("Obtaining package list "))
         self.status_root = _("Loading database")
@@ -258,7 +264,7 @@ class MainWindow:
                 self.ut_running = False
             self.progress_done(True)
             # set this function to re-run after some time for the thread to stop
-            self.reload_db_timeout = gtk.timeout_add(50, self.reload_db)
+            self.reload_db_timeout = gobject.timeout_add(50, self.reload_db)
             return True
         # upgrades loaded?
         # reset so that it reloads the upgrade list
@@ -278,7 +284,7 @@ class MainWindow:
         self.db_thread_running = True
         #test = 87/0  # used to test pycrash is functioning
         self.reload = True
-        self.db_timeout = gtk.timeout_add(100, self.update_db_read)
+        self.db_timeout = gobject.timeout_add(100, self.update_db_read)
         self.get_sync_time()
         self.synctooltip.set_tip(self.widget["btn_sync"], self.sync_tip + self.last_sync)
         self.synctooltip.enable()
@@ -626,7 +632,7 @@ class MainWindow:
                 self.desc_dialog_response, "_Cancel", True)
         self.desc_thread = DescriptionReader(self.db.list)
         self.desc_thread.start()
-        gtk.timeout_add(100, self.desc_thread_update)
+        gobject.timeout_add(100, self.desc_thread_update)
 
     def desc_dialog_response(self, widget, response):
         """ Get response from description loading dialog """
@@ -907,7 +913,7 @@ class MainWindow:
         dprint("MAINWINDOW: load_upgrades_list(); starting upgrades thread")
         self.build_deps = False
         # add a timeout to check if thread is done
-        gtk.timeout_add(200, self.update_upgrade_thread)
+        gobject.timeout_add(200, self.update_upgrade_thread)
         self.set_cancel_btn(ON)
 
     def wait_dialog_response(self, widget, response):
