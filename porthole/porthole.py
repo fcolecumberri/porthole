@@ -144,6 +144,7 @@ class MainWindow:
             self.sudo_dialog.callback = callback
 
     def sudo_response(self, widget, response):
+        """Parse response from the user about sudo usage"""
         if response == 0:
             self.use_sudo = 1
         else:
@@ -179,7 +180,7 @@ class MainWindow:
         return gtk.TRUE
 
     def populate_category_tree(self, categories):
-        '''Fill the category tree.'''
+        """Fill the category tree."""
         last_catmaj = None
         categories.sort()
         self.category_model = gtk.TreeStore(gobject.TYPE_STRING,
@@ -198,7 +199,7 @@ class MainWindow:
         self.category_view.set_model(self.category_model)
 
     def populate_package_tree(self, packages):
-        '''Fill the package tree.'''
+        """Fill the package tree."""
         view = self.package_view
         self.package_model = gtk.TreeStore(gobject.TYPE_STRING,
                                            gtk.gdk.Pixbuf,
@@ -328,6 +329,7 @@ class MainWindow:
     SHOW_INSTALLED = 1
     SHOW_SEARCH = 2
     def view_filter_changed(self, widget):
+        """Update the treeviews for the selected filter"""
         index = widget.get_history()
         self.update_statusbar(index)
         cat_scroll = self.wtree.get_widget("category_scrolled_window")
@@ -346,6 +348,7 @@ class MainWindow:
             self.package_view.set_model(self.search_results)
 
     def update_statusbar(self, mode):
+        """Update the statusbar for the selected filter"""
         text = "(undefined)"
         if mode == self.SHOW_ALL:
             text = "%d packages in %d categories" % (len(self.db.list),

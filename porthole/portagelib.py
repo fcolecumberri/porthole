@@ -34,7 +34,7 @@ from metadata import parse_metadata
 debug = False
 
 def get_portage_environ(var):
-    """Returns environment variable var from portage if possible, else None"""
+    """Returns environment variable from portage if possible, else None"""
     try: temp = portage.config().environ()[var]
     except: temp = None
     return temp
@@ -63,6 +63,7 @@ def get_category(full_name):
     return full_name.split('/')[0]
 
 def get_installed(full_name):
+    """Extract installed versions from full name."""
     return portage.db['/']['vartree'].dep_match(full_name)
 
 def get_version(ebuild):
@@ -124,6 +125,7 @@ def get_properties(ebuild):
                                                       portage.auxdbkeys))))
     
 def get_metadata(package):
+    """Get the metadata for a package"""
     # we could check the overlay as well,
     # but we are unlikely to find any metadata files there
     try: return parse_metadata(portdir + "/" + package + "/metadata.xml")
@@ -141,16 +143,20 @@ class Package:
         return get_installed(self.full_name)
     
     def get_name(self):
+        """Return name portion of a package"""
         return get_name(self.full_name)
 
     def get_category(self):
+        """Return category portion of a package"""
         return get_category(self.full_name)
 
     def get_latest_ebuild(self, include_masked = True):
+        """Return latest ebuild of a package"""
         criterion = include_masked and 'match-all' or 'match-visible'
         return portage.best(self.get_versions(include_masked))
 
     def get_metadata(self):
+        """Get a package's metadata, if there is any"""
         return get_metadata(self.full_name)
 
     def get_properties(self):
@@ -217,6 +223,7 @@ class DatabaseReader(threading.Thread):
         return self.db
 
     def read_db(self):
+        """Read portage's database and store it nicely"""
         tree = portage.db['/']['porttree']
         try:
             allnodes = tree.getallnodes()

@@ -65,9 +65,11 @@ class ProcessWindow(threading.Thread):
         self.window.show_all()
 
     def on_realize(self, window):
-        self.start()  # run thread
+        """Run the thread!"""
+        self.start()
 
     def on_destroy(self, widget, data = None):
+        """Window was closed"""
         self.kill()
         #gtk.main_quit()
 
@@ -81,6 +83,7 @@ class ProcessWindow(threading.Thread):
             self.killed = 1
 
     def on_response(self, widget, response_id):
+        """Parse response given from user"""
         if response_id == self.RESPONSE_CLOSE:
             self.kill()
             #gtk.main_quit()
