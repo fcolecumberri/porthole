@@ -6,8 +6,8 @@
     -----------------------------------------------------------
     A graphical process output viewer/filterer and emerge queue
     -----------------------------------------------------------
-    Copyright (C) 2003 - 2004 Fredrik Arnerup, Brian Dolbec, and
-    Daniel G. Taylor
+    Copyright (C) 2003 - 2004 Fredrik Arnerup, Brian Dolbec, 
+    Daniel G. Taylor and Wm. F. Wheeler
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -152,15 +152,48 @@ class ProcessManager:
         self.caution_tab.showing = False
         self.info_tab.showing = False
         self.queue_tab.showing = False
-        # Create formatting tags for textbuffer
-        self.emerge_tag_info = self.info_text.create_tag(name=None, pixels_above_lines=25, pixels_below_lines=10, weight=700, scale=pango.SCALE_X_LARGE, background='navy', foreground='white')
-        self.emerge_tag_warn = self.warning_text.create_tag(name=None, pixels_above_lines=25, pixels_below_lines=10, weight=700, scale=pango.SCALE_X_LARGE, background='navy', foreground='white')
-        self.emerge_tag = self.process_text.create_tag(name=None, pixels_above_lines=25, pixels_below_lines=10, weight=700, scale=pango.SCALE_X_LARGE, background='navy', foreground='white')
-        self.warning_tag = self.process_text.create_tag(name=None, background='yellow')
-        self.info_tag = self.process_text.create_tag(name=None, background='cyan')
-        self.line_tag = self.process_text.create_tag(name=None, foreground='blue', weight=700)
-        self.line_tag_info = self.info_text.create_tag(name=None, foreground='blue', weight=700)
-        self.line_tag_warn = self.warning_text.create_tag(name=None, foreground='blue', weight=700)
+        # Create formatting tags for each textbuffers' tag table
+        self.info_text.create_tag('command',\
+                weight=700,\
+                scale=pango.SCALE_LARGE,\
+                background='navy',\
+                foreground='white')
+        self.warning_text.create_tag('command',\
+                weight=700,\
+                scale=pango.SCALE_LARGE,\
+                background='navy',\
+                foreground='white')
+        self.process_text.create_tag('command',
+                weight=700,\
+                scale=pango.SCALE_LARGE,\
+                background='navy',\
+                foreground='white')
+        # All emerge lines will be bolded with light green background
+        self.info_text.create_tag('emerge',\
+                weight=700,\
+                background='lightgreen')
+        self.warning_text.create_tag('emerge',\
+                weight=700,\
+                background='lightgreen')
+        self.process_text.create_tag('emerge',\
+                weight=700,\
+                background='lightgreen')
+        # In process window, warnings will have light yellow background
+        self.process_text.create_tag('warning',\
+                background='lightyellow2')
+        # In process window info will have light cyan background
+        self.process_text.create_tag('info',\
+                background='lightcyan2')
+        # all line numbers will be blue & bold
+        self.process_text.create_tag('linenumber',\
+                foreground='blue',\
+                weight=700)
+        self.info_text.create_tag('linenumber',\
+                foreground='blue',\
+                weight=700)
+        self.warning_text.create_tag('linenumber',\
+                foreground='blue',\
+                weight=700)
         # flag that the window is now visible
         self.window_visible = True
         if self.prefs:
@@ -258,14 +291,13 @@ class ProcessManager:
         # set process_running so the reader thread reads it's output
         self.reader.process_running = True
         # show a message that the process is starting
-        self.append(self.process_text, "*** " + command_string + " ***\n")
-        self.append(self.info_text, "*** " + command_string + " ***\n")
+        self.append_all("*** " + command_string + " ***\n", True, 'command')
         self.set_statusbar("*** " + command_string + " ***")
         # pty.fork() creates a new process group
         self.pid, self.reader.fd = pty.fork()
         if self.pid == pty.CHILD:  # child
             try:
-                # run the command
+                # run the commandbuffer.tag_table.lookup(tagname)
                 shell = "/bin/sh"
                 os.execve(shell, [shell, '-c', command_string],
                           self.env)
@@ -307,23 +339,34 @@ class ProcessManager:
                 # update the queue tree
                 self.queue_clicked(self.queue_tree)
 
-    def append(self, buffer, text, tag = None):
-        """ Append text to a text buffer """
+    def append(self, buffer, text, tagname = None):
+        """ Append text to a text buffer.  Line numbering based on
+            the process window line count is automatically added.
+            BUT -- if multiple text buffers are going to be updated,
+            always update the process buffer LAST to guarantee the
+            line numbering is correct.
+            Optionally, text formatting can be applied as well
+        """
+        line_number = self.process_text.get_line_count() 
         iter = buffer.get_end_iter()
-        if tag == None:
-           buffer.insert(iter, text)
+        buffer.insert_with_tags_by_name(iter, str(line_number), 'linenumber')
+        if tagname == None:
+           buffer.insert(iter, '\t'+text)
         else:
-           buffer.insert_with_tags(iter, text, tag)
+           buffer.insert_with_tags_by_name(iter, '\t'+text, tagname)
 
-    # we need the emerge pkg info in all tabs to know where
-    # tab messages came from
     def append_all(self, text, all = False, tag = None):
         """ Append text to all buffers """
+        # we need certain info in all tabs to know where
+        # tab messages came from
+        self.append(self.warning_text, text, tag)
+        #self.append(self.caution_text, text, tag)
+        self.append(self.info_text, text, tag)
+        # NOTE: always write to the process_text buffer LAST to keep the
+        # line numbers correct - see self.append above
         if all: # otherwise skip the process_text buffer
             self.append(self.process_text, text, tag)
-        self.append(self.warning_text, text, tag)
-        self.append(self.caution_text, text, tag)
-        self.append(self.info_text, text, tag)
+
 
     def update(self):
         """ Add text to the buffer """
@@ -350,25 +393,22 @@ class ProcessManager:
                     self.process_buffer += char
                     if char == '\n': # newline
                         tag = None
-                        line_number = self.process_text.get_line_count() + 1
+                        
                         if self.config.isEmerge(self.process_buffer):
                             self.set_statusbar(self.process_buffer[:-1])
                             # add the pkg info to all other tabs to identify fom what
                             # pkg messages came from but no need to show it if it isn't
-                            tag = self.emerge_tag
-                            self.append(self.info_text, str(line_number), self.line_tag_info)
-                            self.append(self.info_text, '\t' + self.process_buffer, self.emerge_tag_info)
-                            self.append(self.warning_text, str(line_number), self.line_tag_warn)
-                            self.append(self.warning_text, '\t' + self.process_buffer, self.emerge_tag_warn)
+                            tag = 'emerge'
+                            self.append(self.info_text, self.process_buffer, 'emerge')
+                            self.append(self.warning_text, self.process_buffer, 'emerge')
                         elif self.config.isInfo(self.process_buffer):
                             # info string has been found, show info tab if needed
                             if not self.info_tab.showing:
                                 self.show_tab(TAB_INFO)
                                 self.info_tab.showing = True
                             # insert the line into the info text buffer
-                            tag = self.info_tag
-                            self.append(self.info_text, str(line_number), self.line_tag_info)
-                            self.append(self.info_text, '\t' + self.process_buffer)
+                            tag = 'info'
+                            self.append(self.info_text, self.process_buffer)
 
                         elif self.config.isWarning(self.process_buffer):
                             # warning string has been found, show info tab if needed
@@ -376,12 +416,10 @@ class ProcessManager:
                                 self.show_tab(TAB_WARNING)
                                 self.warning_tab.showing = True
                             # insert the line into the info text buffer
-                            tag = self.warning_tag
-                            self.append(self.warning_text, str(line_number), self.line_tag_warn)
-                            self.append(self.warning_text, '\t' + self.process_buffer) 
+                            tag = 'warning'
+                            self.append(self.warning_text, self.process_buffer) 
 
-                        self.append(self.process_text, str(line_number), self.line_tag)
-                        self.append(self.process_text, '\t' + self.process_buffer, tag)
+                        self.append(self.process_text, self.process_buffer, tag)
                         self.process_buffer = ''  # reset buffer
                 elif ord(char) == 13: # carriage return?
                     pass
