@@ -296,7 +296,22 @@ class PortholePreferences:
                       "USE=' ' emerge ",
                       "ACCEPT_KEYWORDS='~x86' USE=' ' emerge ",
                       "emerge --help"]
+           default_history = len(history)
         self.run_dialog.history = history
+        try:
+           default_history = dom.getitem('/window/run_dialog/default_history')
+        except XMLManagerError:
+           # Default value
+           # default_history = length of the history items to always remain
+           # at the start of the popdown history list & set above when history is set
+           default_history = len(history)
+        self.run_dialog.default_history = default_history
+        try:
+           history_length = dom.getitem('/window/run_dialog/history_length')
+        except XMLManagerError:
+           # Default value for maximum nuber of retained history items
+           history_length = 10
+        self.run_dialog.history_length = history_length
 
         # Emerge options
  
@@ -343,6 +358,8 @@ class PortholePreferences:
         dom.additem('/window/run_dialog/width', self.run_dialog.width)
         dom.additem('/window/run_dialog/height', self.run_dialog.height)
         dom.additem('/window/run_dialog/history', self.run_dialog.history)
+        dom.additem('/window/run_dialog/default_history', self.run_dialog.default_history)
+        dom.additem('/window/run_dialog/history_length', self.run_dialog.history_length)
         dom.additem('/emerge/options/pretend', self.emerge.pretend)
         dom.additem('/emerge/options/fetch', self.emerge.fetch)
         dom.additem('/emerge/options/verbose', self.emerge.verbose)

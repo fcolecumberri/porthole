@@ -588,8 +588,8 @@ class MainWindow:
 
     def custom_run(self, widget):
         """ Run a custom command in the terminal window """
-        dprint("MAINWINDOW: entering custom_run")
-        dprint(self.prefs.run_dialog.history)
+        #dprint("MAINWINDOW: entering custom_run")
+        #dprint(self.prefs.run_dialog.history)
         get_command = RunDialog(self.prefs, self.setup_command)
 
 

@@ -41,7 +41,7 @@ class RunDialog:
         self.call_back = call_back
         self.prefs = prefs
         if self.prefs:
-            dprint("COMMAND: self.prefs == True")
+            #dprint("COMMAND: self.prefs == True")
             self.history = self.prefs.run_dialog.history
         else:
             dprint("COMMAND: self.prefs == False")
@@ -71,7 +71,7 @@ class RunDialog:
         """Adds the command line entry to the queue"""
         self.command = self.entry.get_text()
         if self.command:
-            dprint("COMMAND: activated: %s" %self.command)
+            #dprint("COMMAND: activated: %s" %self.command)
             self.call_back(("command line entry: %s" %self.command), self.command)
             self.history_add()
         self.cancel(None)
@@ -80,14 +80,14 @@ class RunDialog:
         """Adds the command line entry to the queue"""
         self.command = self.entry.get_text()
         if self.command:
-            dprint("COMMAND: execute: %s" %self.command)
+            #dprint("COMMAND: execute: %s" %self.command)
             self.call_back("command line entry", self.command)
             self.history_add()
         self.cancel(None)
 
     def cancel(self, widget):
         """cancels run dialog"""
-        self.wtree.get_widget("run_dialog").destroy()
+        self.window.destroy()
         
 
     def on_size_request(self, window, gbox):
@@ -102,16 +102,16 @@ class RunDialog:
         """adds the command to the history if not already in"""
         if self.command not in self.history:
             length = len(self.history)
-            if length > 5:
-                length = min(length, 9)
-                old_history = self.history[5:length]
-                self.history = self.history[:5]
+            if length > self.prefs.run_dialog.default_history:
+                length = min(length, self.prefs.run_dialog.history_length)
+                old_history = self.history[self.prefs.run_dialog.default_history:length]
+                self.history = self.history[:self.prefs.run_dialog.default_history]
                 self.history.append(self.command)
                 self.history += old_history
             else:
                 self.history.append(self.command)
-        dprint("COMMAND.history_add(): new self.history:")
-        dprint(self.history)
+            dprint("COMMAND.history_add(): new self.history:")
+            dprint(self.history)
         self.prefs.run_dialog.history = self.history
         return
         
