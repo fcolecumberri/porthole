@@ -24,7 +24,7 @@
 #store our version here
 version = 0.1
 
-import threading, os, re, sys #if this fails... lol
+import string, threading, os, re, sys #if this fails... lol
 try:
     import pygtk
     pygtk.require("2.0") #make sure we have the right version
@@ -115,14 +115,15 @@ class MainWindow:
         #set status
         self.set_statusbar("Reading package database: %i packages read"
                            % 0)
-        self.uid = os.getuid()
-        if self.uid != 0:
+        #figure out if the user can emerge or not...
+        uid = os.getuid()
+        if uid != 0:
             self.sudo_dialog = gtk.Dialog("You are not root!", self.wtree.get_widget("main_window"), gtk.DIALOG_MODAL or gtk.DIALOG_DESTROY_WITH_PARENT, ("_Yes", 0))
             self.sudo_dialog.add_button("_No", 1)
-            self.sudo_text = gtk.Label("Do you want to use the sudo command to install programs?")
-            self.sudo_text.set_padding(5, 5)
-            self.sudo_dialog.vbox.pack_start(self.sudo_text)
-            self.sudo_text.show()
+            sudo_text = gtk.Label("Do you want use the sudo command to install programs?")
+            sudo_text.set_padding(5, 5)
+            self.sudo_dialog.vbox.pack_start(sudo_text)
+            sudo_text.show()
             self.sudo_dialog.connect("response", self.sudo_response)
             self.sudo_dialog.show_all()
 
@@ -246,37 +247,36 @@ class MainWindow:
         return icon
 
     def setup_command(self, command):
-        """Setup the command to run with xsu or not at all"""
+        """Setup the command to run with sudo or not at all"""
         if self.use_sudo:
             if self.use_sudo == 1:
-                return "sudo " + command
+                process.ProcessWindow("sudo " + command)
             else:
-                return None
+                print "Sorry, can't do that!"
         else:
-            return command
+            process.ProcessWindow(command)
 
     def emerge_package(self, widget):
         """Emerge the currently selected package."""
         package = self.get_treeview_selection(
             self.wtree.get_widget("package_view"), 2)
-        command = self.setup_command("/usr/bin/emerge " + package.get_category() +
+        command = self.setup_command("emerge " + package.get_category() +
             "/" + package.get_name())
-        if command:
-            emerge_process = process.ProcessWindow(command)
-        else:
-            print "Sorry, can't do that!"
 
     def unmerge_package(self, widget):
         """Unmerge the currently selected package."""
-        pass
+        package = self.get_treeview_selection(
+            self.wtree.get_widget("package_view"), 2)
+        command = self.setup_command("emerge unmerge " +
+            package.get_category() + "/" + package.get_name())
 
     def sync_tree(self, widget):
         """Sync the portage tree and reload it when done."""
-        sync_process = process.ProcessWindow("emerge sync")
+        command = self.setup_command("emerge sync")
 
     def upgrade_packages(self, widget):
         """Upgrade all packages that have newer versions available."""
-        pass
+        command = self.setup_command("emerge -u world")
 
     def package_search(self, widget):
         """Search package db with a string and display results."""
