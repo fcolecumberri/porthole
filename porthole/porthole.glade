@@ -1153,6 +1153,7 @@ Special thanks to Brian Dolbec</property>
 		  <property name="visible">True</property>
 		  <property name="label" translatable="yes">_Queue</property>
 		  <property name="use_underline">True</property>
+		  <property name="sensitive">False</property>
 
 		  <child>
 		    <widget class="GtkMenu" id="queue1_menu">
@@ -1162,6 +1163,7 @@ Special thanks to Brian Dolbec</property>
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Move _Up</property>
 			  <property name="use_underline">True</property>
+			  <property name="sensitive">False</property>
 			  <signal name="activate" handler="on_move_up" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
@@ -1183,6 +1185,7 @@ Special thanks to Brian Dolbec</property>
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Move _Down</property>
 			  <property name="use_underline">True</property>
+			  <property name="sensitive">False</property>
 			  <signal name="activate" handler="on_move_down" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
@@ -1210,6 +1213,7 @@ Special thanks to Brian Dolbec</property>
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">_Remove</property>
 			  <property name="use_underline">True</property>
+			  <property name="sensitive">False</property>
 			  <signal name="activate" handler="on_remove" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">

@@ -126,8 +126,6 @@ class ProcessManager:
         # set some persistent variables for text capture
         self.catch_seq = False
         self.escape_seq = "" # to catch the escape sequence in
-        # disable the queue tab until we need it
-        self.queue_menu.set_sensitive(gtk.FALSE)
         # setup the queue treeview
         column = gtk.TreeViewColumn("Packages to be merged")
         pixbuf = gtk.CellRendererPixbuf()
@@ -305,6 +303,9 @@ class ProcessManager:
             except OSError:
                 pass
             self.killed = 1
+            if self.queue_tab.showing:
+                # update the queue tree
+                self.queue_clicked(self.queue_tree)
 
     def append(self, buffer, text, tag = None):
         """ Append text to a text buffer """
@@ -427,6 +428,9 @@ class ProcessManager:
         # if there is a callback set, call it
         if callback:
             callback()
+        if self.queue_tab.showing:
+            # update the queue tree
+            self.queue_clicked(self.queue_tree)
 
     def render_icon(self, icon):
         """ Render an icon for the queue tree """
@@ -618,14 +622,37 @@ class ProcessManager:
         iter = get_treeview_selection(self.queue_tree)
         # get its path
         path = self.queue_model.get_path(iter)[0]
-        if (path > 0) and (path < len(self.queue_model) - 1):
+        # if the item is not in the process list
+        # don't make the controls sensitive and return
+        name = get_treeview_selection(self.queue_tree, 1)
+        in_list = 0
+        for pos in range(len(self.process_list)):
+            if self.process_list[pos][0] == name:
+                # set the position in the list (+1 so it's not 0)
+                in_list = pos + 1
+        if not in_list or in_list == 1:
+            self.move_up.set_sensitive(gtk.FALSE)
+            self.move_down.set_sensitive(gtk.FALSE)
+            if not self.killed and in_list == 1:
+                self.queue_remove.set_sensitive(gtk.FALSE)
+            else:
+                self.queue_remove.set_sensitive(gtk.TRUE)
+            return
+        # if we reach here it's still in the process list
+        # activate the delete item
+        self.queue_remove.set_sensitive(gtk.TRUE)
+        # set the correct directions sensitive
+        # shouldn't be able to move the top item up, etc...
+        if in_list == 2 or path == 0:
+            self.move_up.set_sensitive(gtk.FALSE)
+            self.move_down.set_sensitive(gtk.TRUE)
+        elif path == len(self.queue_model) - 1:
+            self.move_up.set_sensitive(gtk.TRUE)
+            self.move_down.set_sensitive(gtk.FALSE)
+        else:
             # enable moving the item
             self.move_up.set_sensitive(gtk.TRUE)
             self.move_down.set_sensitive(gtk.TRUE)
-        else:
-            # disable moving the item
-            self.move_up.set_sensitive(gtk.FALSE)
-            self.move_down.set_sensitive(gtk.FALSE)
 
 class ProcessOutputReader(threading.Thread):
     """ Reads output from processes """
