@@ -309,19 +309,10 @@ class ProcessManager:
             #dprint(self.term.vhandler_id)
             num = self.term.current_tab
             self.term.vadjustment[num].handler_block(self.term.vhandler_id[num])
-            self.term.view[num].scroll_mark_onscreen(self.term.buffer[num].get_insert())
+            result = self.term.view[num].scroll_to_iter(self.term.buffer[num].get_end_iter(),0.0, True, 0, 0.9)
+            #self.term.view[num].scroll_mark_onscreen(self.term.buffer[num].get_insert())
             self.term.vadjustment[num].handler_unblock(self.term.vhandler_id[num])
         return
-
-    def scroll_button_press(self, something):
-        """prototype scroll callback"""
-        dprint("TERMINAL: scroll_button_press() callback")
-
-    def scroll_button_release(self, something):
-        """prototype scroll callback"""
-        dprint("TERMINAL: scroll_button_release() callback")
-
-
 
     def set_scroll(self,  vadjustment):
         """Sets autoscrolling on when moved to bottom of scrollbar"""
@@ -584,7 +575,7 @@ class ProcessManager:
             #dprint(self.term.vadjustment)
             #dprint(self.term.vhandler_id)
             self.term.vadjustment[num].handler_block(self.term.vhandler_id[num])
-            result = self.term.view[num].scroll_to_iter(self.term.buffer[num].get_end_iter(),0.0,False,False)
+            result = self.term.view[num].scroll_to_iter(self.term.buffer[num].get_end_iter(),0.0, True, 0, 0.9)
             self.term.vadjustment[num].handler_unblock(self.term.vhandler_id[num])
 
     def append_all(self, text, all = False, tag = None):
