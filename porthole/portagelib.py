@@ -23,7 +23,7 @@
 """
 
 from sys import exit
-from utils import dprint
+from utils import dprint, dsave
 import string
 from string import digits, zfill
 try:
@@ -313,33 +313,22 @@ class DatabaseReader(threading.Thread):
             # to an ebuild I created in the portage overlay.
             self.error = str(e)
             return
-        dprint("PORTAGELIB: DatabaseReader.read_db() begin {for entry in allnodes}")
+        dprint("PORTAGELIB: read_db() begin {for entry in allnodes length=%d" %len(allnodes))
+        dsave("read_db_allnodes", allnodes)
         for entry in allnodes:
-            if entry == None:
-                dprint("PORTAGELIB: DatabaseReader.read_db() entry = Null")
-            else:
                 category, name = entry.split('/')
                 # why does getallnodes() return timestamps?
                 if name == 'timestamp.x' or name[-4:] == "tbz2":  
                     continue
-                while (self.count_lock):
-                    dprint("PORTAGELIB: read_db(); count_lock caught, waiting...")
-                    # wait 50 ms and check again
-                    time.sleep(0.05)
-                self.count_lock = True
                 self.count += 1
-                self.count_lock = False
                 data = Package(entry)
                 self.db.categories.setdefault(category, {})[name] = data;
                 if entry in installed:
                     self.db.installed.setdefault(category, {})[name] = data;
                     self.db.installed_count += 1
-##                   if data.upgradable():
-##                         self.db.upgradable.append((name, data))
                 self.db.list.append((name, data))
         dprint("PORTAGELIB: read_db(); end of {for entry in allnodes loop}, sort is next")
         self.db.list = sort(self.db.list)
-##        self.db.upgradable = sort(self.db.upgradable)
         
     def run(self):
         """The thread function."""

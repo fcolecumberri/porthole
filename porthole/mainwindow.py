@@ -37,7 +37,7 @@ from views import CategoryView, PackageView, DependsView
 from command import RunDialog
 from advemerge import AdvancedEmergeDialog
 
-EXCEPTION_LIST = ['.','^','$','*','+','?','(',')','\\','[',']','|','{','}']
+EXEPTION_LIST = ['.','^','$','*','+','?','(',')','\\','[',']','|','{','}']
 
 class MainWindow:
     """Main Window class to setup and manage main window interface."""
@@ -209,12 +209,9 @@ class MainWindow:
     def update_db_read(self):
         """Update the statusbar according to the number of packages read."""
         if not self.db_thread.done:
-            #dprint("MAINWINDOW: locking count")
-            self.db_thread.count_lock = True
             self.set_statusbar("Reading package database: %i packages read"
                                % self.db_thread.count)
-            dprint("MAINWINDOW: count = %s ; unlocking count" %self.db_thread.count)
-            self.db_thread.count_lock = False
+            count = self.db_thread.count
         elif self.db_thread.error:
             # todo: display error dialog instead
             self.db_thread.join()
@@ -274,7 +271,7 @@ class MainWindow:
             dprint("MAINWINDOW: Made it thru a reload, returning...")
             self.reload = False
             return gtk.FALSE  # disconnect from timeout
-        dprint("MAINWINDOW: returning from update_db_read()")
+        dprint("MAINWINDOW: returning from update_db_read() count=%d" %count)
         return gtk.TRUE
 
     def setup_command(self, package_name, command):
@@ -431,7 +428,7 @@ class MainWindow:
             Plus_exeption_count = 0
             for char in tmp_search_term:
                 #dprint(char)
-                if char in EXCEPTION_LIST:# =="+":
+                if char in EXEPTION_LIST:# =="+":
                     dprint("MAINWINDOW: package_search()  '%s' exception found" %char)
                     char = "\\" + char
                 search_term += char 

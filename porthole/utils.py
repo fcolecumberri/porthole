@@ -35,16 +35,11 @@ from sys import stderr
 from version import version
 from xmlmgr import XMLManager, XMLManagerError
 
-def dprint(message):
-    """Print debug message if debug is true."""
-    if debug:
-        print >>stderr, message
-
 import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk
 import os
 import grp
-import pwd
+import pwd, cPickle
 
 # if using gnome, see if we can import it
 try:
@@ -56,6 +51,21 @@ except ImportError:
     except ImportError:
         print >>stderr, ('Module "webbrowser" not found. '
                      'You will not be able to open web pages.')
+
+def dprint(message):
+    """Print debug message if debug is true."""
+    if debug:
+        print >>stderr, message
+
+def dsave(name, item = None):
+    """saves 'item' to file 'name' if debug is true"""
+    if debug:
+        dprint("UTILS: dsave() Pickling 'item' to file: %s" %name)
+        # get home directory
+        home = pwd.getpwuid(os.getuid())[5]
+        # pickle it baby, yeah!
+        cPickle.dump(item, open(home + "/.porthole/" + name, "w"))
+        
 
 def load_web_page(name):
     """Try to load a web page in the default browser"""
