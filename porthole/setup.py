@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 from distutils.core import setup
-
-version = "0.2"
+from version import version
 
 datadir = "porthole/"
 
@@ -18,7 +17,7 @@ setup(name = "porthole",
       py_modules = ["about", "depends", "metadata",
                     "portagelib", "process",
                     "mainwindow", "summary", "utils",
-                    "views"],
+                    "version", "views"],
       scripts = ["porthole"],
       # data_files is a list of non-python files we need
       # and where to install them
@@ -27,7 +26,8 @@ setup(name = "porthole",
                       "pixmaps/porthole-icon.png"]),
                     (datadir,
                      ["porthole.glade"]),
-                    ("doc/porthole-" + version, ["COPYING", "README"]),
-                    ("applications", [porthole.desktop])
+                    ("doc/porthole-" + version,
+                     ["COPYING", "README", "NEWS", "AUTHORS"]),
+                    ("applications", ["porthole.desktop"])
                     ]
-     )
+      )

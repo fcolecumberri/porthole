@@ -8,12 +8,15 @@ mainwindow.py
 setup.py
 summary.py
 utils.py
+version.py
 views.py
 pixmaps/porthole-about.png
 pixmaps/porthole-icon.png
 porthole.glade
 porthole.desktop
+AUTHORS
 COPYING
 MANIFEST
+NEWS
 README
 setup.cfg

@@ -21,9 +21,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-# store our version here
-version = "0.2"
-
 # initially set debug to false
 debug = False
 

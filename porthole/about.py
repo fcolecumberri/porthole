@@ -22,7 +22,8 @@
 '''
 
 import gtk, gtk.glade
-from utils import load_web_page, version
+from utils import load_web_page
+from version import version
 
 class AboutDialog:
     """Class to hold about dialog and functionality."""
