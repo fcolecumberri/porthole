@@ -322,11 +322,12 @@ class MainWindow:
             count = 0
             # no need to sort self.db.list; it is already sorted
             for name, data in self.db.list:
-                searchstring = name
+                searchstrings = [name]
                 if self.prefs.main.search_desc:
                     desc = self.desc_db[name]
-                    searchstring += desc
-                if re_object.search(searchstring):
+                    searchstrings.append(desc)
+                if True in map(lambda s: bool(re_object.search(s)),
+                               searchstrings):
                     count += 1
                     iter = search_results.insert_before(None, None)
                     search_results.set_value(iter, 0, name)
