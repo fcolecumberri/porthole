@@ -108,7 +108,7 @@ class Properties:
 
     def get_use_flags(self):
         """Returns a list of strings."""
-        return self.use_flags.split()
+        return self.iuse.split()
 
     def get_homepages(self):
         """Returns a list of strings."""
