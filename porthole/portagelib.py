@@ -71,9 +71,9 @@ def get_version(ebuild):
     return result
 
 def extract_package(ebuild):
-    """Returns cat/package from input, which can be either
-       cat/package-ebuild or just cat/package"""
-    result = ebuild
+    """Returns cat/package from cat/package-ebuild,
+       or None if input is not in that format.  """
+    result = None
     parts = portage.catpkgsplit(ebuild)
     if parts:
         result = "/".join(parts[0:2])

@@ -35,17 +35,33 @@ class DependsTree(gtk.TreeStore):
                                 gobject.TYPE_PYOBJECT)
         
     def parse_depends_list(self, depends_list, parent = None):
-        """read through the depends list and order it nicely"""
+        """Read through the depends list and order it nicely
+           Returns a list of (parent, dep, satisfied) for each dep"""
         new_list = []
         for depend in depends_list:
             if depend[len(depend) - 1] == "?":
                 if depend[0] != "!":
                     parent = "Using " + depend[:len(depend) - 1]
                 else:
-                    parent = "Not Using " + depend[1:len(depend) - 1]
+                    parent = "Blocks " + depend[1:len(depend) - 1]
             else:
                 if depend != "(" and depend != ")":
-                    new_list.append((parent, depend))
+                    depend, ops = self.get_ops(depend)
+                    depend2 = None
+                    if ops: #should only be specific if there are operators
+                        depend2 = portagelib.extract_package(depend)
+                    if not depend2:
+                        depend2 = depend
+                    latest_installed = portagelib.Package(depend2).get_installed()
+                    if latest_installed:
+                        if ops:
+                            satisfied = self.is_dep_satisfied(latest_installed[0], depend, ops)
+                        else:
+                            satisfied = True
+                    else:
+                        satisfied = False
+                    #print parent, depend, ops, satisfied
+                    new_list.append((parent, depend, satisfied))
         return new_list
                     
 
@@ -54,22 +70,18 @@ class DependsTree(gtk.TreeStore):
         depends_list = self.parse_depends_list(depends_list)
         parent_iter = parent
         last_flag = None
-        for use_flag, depend in depends_list:
+        for use_flag, depend, satisfied in depends_list:
             if last_flag != use_flag:
                 parent_iter = self.insert_before(parent, None)
                 self.set_value(parent_iter, 0, use_flag)
                 last_flag = use_flag
-            op = depend[0]
-            if op == ">" or op == "<" or op == "=":
-                op2 = depend[1]
-                if op2 == "=":
-                    op = op + op2
-                    depend = depend[2:]
-                else:
-                    depend = depend[1:]
             depend_iter = self.insert_before(parent_iter, None)
             self.set_value(depend_iter, 0, depend)
-            icon = get_icon_for_package(portagelib.Package(depend))
+            #icon = get_icon_for_package(portagelib.Package(depend))
+            if satisfied:
+                icon = gtk.STOCK_YES
+            else:
+                icon = gtk.STOCK_NO
             self.set_value(depend_iter, 1, 
                                     depends_view.render_icon( icon,
                                     size = gtk.ICON_SIZE_MENU,
@@ -82,6 +94,41 @@ class DependsTree(gtk.TreeStore):
                     depends = string.split(portagelib.get_property(ebuild, "DEPEND"))
                     if depends:
                         self.add_depends_to_tree(depends, depends_view, depend_iter)
+
+    def get_ops(self, depend):
+        """No, this isn't IRC...
+           Returns depend with the operators cut out, and the operators"""
+        op = depend[0]
+        if op == ">" or op == "<" or op == "=" or op == "!":
+            op2 = depend[1]
+            if op2 == "=":
+                depend = depend[2:]
+                return depend, op + op2
+            else:
+                depend = depend[1:]
+                return depend, op
+        else:
+            return depend, None
+
+    def is_dep_satisfied(self, installed_ebuild, dep_ebuild, operator = "="):
+        """Returns True if (installed_ebuild <operator> dep_ebuild) is True, else False
+           Valid operators are "=", ">", "<", ">=", and "<=" """
+        retval = False
+        ins_ver = portagelib.get_version(installed_ebuild)
+        dep_ver = portagelib.get_version(dep_ebuild)
+        if operator == "=":
+            retval = (ins_ver == dep_ver)
+        elif operator == ">":
+            retval = (ins_ver > dep_ver)
+        elif operator == "<":
+            retval = (ins_ver < dep_ver)
+        elif operator == ">=":
+            retval = (ins_ver >= dep_ver)
+        elif operator == "<=":
+            retval = (ins_ver <= dep_ver)
+        else:
+            portagelib.dprint("Invalid operator passed to is_dep_satisfied()!")
+        return retval
 
     def fill_depends_tree(self, treeview, package):
         """Fill the dependencies tree for a given ebuild"""
