@@ -589,29 +589,6 @@ class ProcessManager:
         name, command, iter = self.process_list[0]
         self._run(command + " --resume --skipfirst", iter)
 
-
-    def log(self, filename = None):
-        """ Log emerge output to a file """
-        # get all the process output
-        output = self.process_text.get_text(self.textbuffer.get_start_iter(),
-                                 self.textbuffer.get_end_iter(), gtk.FALSE)
-        if not filename:
-            # no filename was specified, so we are making one up
-            dprint("LOG: Filename not specified, saving to ~/.porthole/logs")
-            filename = get_user_home_dir()
-            if os.access(filename + "/.porthole", os.F_OK):
-                if not os.access(filename + "/.porthole/logs", os.F_OK):
-                    dprint("LOG: Creating logs directory in " + filename +
-                           "/.porthole/logs")
-                    os.mkdir(filename + "/.porthole/logs")
-                filename += "/.porthole/logs/" + "test"
-        # open the file, and write our log
-        file = open(filename, 'w')
-        file.write(output)
-        file.close()
-        dprint("LOG: Log file written to " + filename)
-            
-
     def copy_selected(self, widget):
         """ Copy selected text to clipboard """
         pass
@@ -626,6 +603,7 @@ class ProcessManager:
         self.warning_text.set_modified(gtk.FALSE)
         self.caution_text.set_modified(gtk.FALSE)
         self.info_text.set_modified(gtk.FALSE)
+        self.filename = None
 
     def queue_items_switch(self, direction):
         """ Switch two adjacent queue items;
@@ -804,7 +782,6 @@ class ProcessManager:
         dprint(self.tablist)
         page = self.notebook.get_current_page()
         self.buffer_name = self.tablist[page]
-        dprint(self.buffer_name)
         self.buffer_to_save = self.buffers[self.buffer_name]
         self.buffer_type = self.buffer_types[self.buffer_name]
         dprint("set_save_buffer: " + self.buffer_name + " type: " + self.buffer_type)
@@ -812,12 +789,13 @@ class ProcessManager:
 
     def open_ok_func(self, filename):
         """callback function from file selector"""
-        dprint("entering open_ok_func")
+        dprint("entering callback open_ok_func")
         if not self.fill_buffer(filename):
+            self.set_statusbar("*** Unknown File Loading error")
             return gtk.FALSE
         else:
             self.filename = filename
-            self.set_statusbar("*** Log file :%s " %self.filename)
+            self.set_statusbar("*** File Loaded... Processing..") 
             return gtk.TRUE;
 
     def do_open(self, widget):
@@ -825,7 +803,9 @@ class ProcessManager:
         dprint("entering do_open")
         if not self.directory:
             self.set_directory()
-        FileSel().run(self.window, "Open log File", None, self.open_ok_func)
+        FileSel("Porthole-Terminal: Open log File").run(self.window,
+                                                        None,
+                                                        self.open_ok_func)
 
     def do_save_as(self, widget):
         """determine buffer to save as and saves it"""
@@ -833,7 +813,6 @@ class ProcessManager:
         if not self.directory:
             self.set_directory()
         if self.set_save_buffer():
-            #self.filename = self.pretty_name()
             result = self.check_buffer_saved(self.buffer_to_save, False)
         else:
             dprint("Error: buffer is already saved")
@@ -850,6 +829,36 @@ class ProcessManager:
                 result = self.check_buffer_saved(self.buffer_to_save, True)
             else:
                 dprint("set_save_buffer error")
+
+    def save_as_buffer(self):
+        dprint("entering save_as_buffer")
+        return FileSel("Porthole-Terminal: Save File").run(self.window,
+                                                           self.filename,
+                                                           self.save_as_ok_func)
+
+    def save_as_ok_func(self, filename):
+        """file selector callback function"""
+        dprint("entering save_as_ok_func")
+        old_filename = self.filename
+
+        if (not self.filename or filename != self.filename):
+            if os.path.exists(filename):
+                err = "Ovewrite existing file '%s'?"  % filename
+                dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
+                                           gtk.MESSAGE_QUESTION,
+                                           gtk.BUTTONS_YES_NO, err);
+                result = dialog.run()
+                dialog.destroy()
+                if result != gtk.RESPONSE_YES:
+                    return gtk.FALSE
+
+        self.filename = filename
+
+        if self.save_buffer():
+            return gtk.TRUE
+        else:
+            self.filename = old_filename
+            return gtk.FALSE
 
     def set_directory(self):
         """sets the starting directory for file selection"""
@@ -868,7 +877,8 @@ class ProcessManager:
     def pretty_name(self):
         """pre-assigns generic filename & serial #"""
         dprint("entering pretty_name")
-        if self.filename:
+        # check if filename set and set the extension to the correct buffer type 
+        if self.filename and self.filename[:7] != "Untitled":
             filename = os.path.basename(self.filename)
             filename = filename.split(".")
             newname = ""
@@ -877,16 +887,18 @@ class ProcessManager:
             self.filename = newname + "." + self.buffer_type
             dprint(self.filename)
             return self.filename
-        else:
-            if not self.directory:
+        else: # Untitlted filename
+            if not self.directory: # just in case it is not set
                 self.set_directory()
             if self.untitled_serial == -1:
-                self.untitled_serial += 1
-
-            if self.untitled_serial == 1:
-                return ("Untitled.%s" % self.type)
+                self.untitled_serial = 1
             else:
-                return ("Untitled-%d.%s" % (self.untitled_serial, self.buffer_type))
+                self.untitled_serial += 1
+            filename = ("Untitled-%d.%s" % (self.untitled_serial, self.buffer_type))
+            while os.path.exists(filename): # find the next available filename
+                self.untitled_serial += 1
+                filename = ("Untitled-%d.%s" % (self.untitled_serial, self.buffer_type))
+            return filename
 
     def fill_buffer(self, filename):
         """loads a file into the reader.string"""
@@ -989,36 +1001,9 @@ class ProcessManager:
                 dialog.run()
                 dialog.destroy()
 
-        self.set_statusbar("*** File saved")
+        self.set_statusbar("*** File saved : %s" % self.filename)
         dprint("buffer saved, exiting")
         return result
-
-    def save_as_buffer(self):
-        dprint("entering save_as_buffer")
-        return FileSel().run(self.window, "Save File", self.filename, self.save_as_ok_func)
-
-    def save_as_ok_func(self, filename):
-        dprint("entering save_as_ok_func")
-        old_filename = self.filename
-
-        if (not self.filename or filename != self.filename):
-            if os.path.exists(filename):
-                err = "Ovewrite existing file '%s'?"  % filename
-                dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
-                                           gtk.MESSAGE_QUESTION,
-                                           gtk.BUTTONS_YES_NO, err);
-                result = dialog.run()
-                dialog.destroy()
-                if result != gtk.RESPONSE_YES:
-                    return gtk.FALSE
-
-        self.filename = filename
-
-        if self.save_buffer():
-            return gtk.TRUE
-        else:
-            self.filename = old_filename
-            return gtk.FALSE
 
     def check_buffer_saved(self, buffer, save = False):
         """checks if buffer has been modified before saving again"""
@@ -1042,14 +1027,25 @@ class ProcessManager:
                 else:
                     return gtk.FALSE
             else: # save_as
-                return self.save_as_buffer()
+                    return self.save_as_buffer()
         else:
-            dprint("buffer already saved/not modified")
-            return gtk.TRUE
+            msg = "Buffer already saved &/or has not been modified: Proceed?"
+            dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
+                                       gtk.MESSAGE_QUESTION,
+                                       gtk.BUTTONS_YES_NO, msg);
+            dialog.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+            result = dialog.run()
+            dialog.destroy()
+            if result == gtk.RESPONSE_YES:
+                return self.save_as_buffer()
+            elif result == gtk.RESPONSE_NO:
+                return gtk.FALSE
+            else:
+                return gtk.FALSE
 
 class FileSel(gtk.FileSelection):
-    def __init__(self):
-        gtk.FileSelection.__init__(self)
+    def __init__(self, title):
+        gtk.FileSelection.__init__(self, title)
         self.result = gtk.FALSE
 
     def ok_cb(self, button):
@@ -1060,7 +1056,7 @@ class FileSel(gtk.FileSelection):
         else:
             self.show()
 
-    def run(self, parent, title, start_file, func):
+    def run(self, parent, start_file, func):
         if start_file:
             self.set_filename(start_file)
 
@@ -1083,6 +1079,7 @@ class ProcessOutputReader(threading.Thread):
         self.finished_callback = finished_callback
         self.setDaemon(1)  # quit even if this thread is still running
         self.process_running = False
+        # initialize only, self.fd set by in ProcessManager._run()
         self.fd = None
         # string to store input from process
         self.string = ""
