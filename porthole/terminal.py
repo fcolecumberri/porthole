@@ -162,8 +162,13 @@ class ProcessManager:
         column.pack_start(pixbuf, expand = False)
         column.add_attribute(pixbuf, "pixbuf", 0)
         text = gtk.CellRendererText()
-        column.pack_start(text, expand = True)
+        column.pack_start(text, expand = False)
         column.add_attribute(text, "text", 1)
+        self.queue_tree.append_column(column)
+        column = gtk.TreeViewColumn("Command")
+        text = gtk.CellRendererText()
+        column.pack_start(text, expand = True)
+        column.add_attribute(text, "text", 2)
         self.queue_tree.append_column(column)
         self.queue_model = gtk.TreeStore(gtk.gdk.Pixbuf,
                                         gobject.TYPE_STRING,
