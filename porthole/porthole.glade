@@ -197,7 +197,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Search _Descriptions</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">True</property>
+		      <property name="active">False</property>
 		      <signal name="activate" handler="on_search_descriptions1_activate" last_modification_time="Mon, 01 Dec 2003 16:32:36 GMT"/>
 		      <accelerator key="D" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 		    </widget>
@@ -208,7 +208,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">_Pretend</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">True</property>
+		      <property name="active">False</property>
 		      <signal name="activate" handler="on_pretend1_activate" last_modification_time="Fri, 05 Dec 2003 21:59:05 GMT"/>
 		      <accelerator key="P" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 		    </widget>
