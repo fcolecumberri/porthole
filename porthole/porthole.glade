@@ -1125,7 +1125,7 @@ Copyright (C) 2003 - 2004</property>
 		      <child>
 			<widget class="GtkImageMenuItem" id="save_as">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Save _As Log</property>
+			  <property name="label" translatable="yes">Save Log _As</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_save_log_as" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 

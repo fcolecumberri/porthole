@@ -63,7 +63,8 @@ class MainWindow:
             "on_verbose_activate" : self.verbose_set,
             "on_search_descriptions1_activate" : self.search_set,
             "on_open_log" : self.open_log,
-            "on_run_custom" : self.custom_run
+            "on_run_custom" : self.custom_run,
+            "on_main_window_size_request" : self.size_update
             }
         self.wtree.signal_autoconnect(callbacks)
         # aliases for convenience
@@ -113,8 +114,8 @@ class MainWindow:
         v = self.wtree.get_widget("vpane").get_position()
         dprint("MAINWINDOW: __init__() after hpane; %d, vpane; %d" %(h, v))
         # connect to the resize signal
-        self.wtree.signal_autoconnect({"on_main_window_size_request" :
-                                                        self.size_update})
+        #self.wtree.signal_autoconnect({"on_main_window_size_request" :
+        #                                                self.size_update})
         # initialize our data
         self.init_data()
         # set if we are root or not
@@ -191,6 +192,7 @@ class MainWindow:
             self.wtree.get_widget("view_filter").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("search_entry").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("btn_search").set_sensitive(gtk.TRUE)
+            self.set_package_actions_sensitive(False, None)
             # make sure we search again if we reloaded!
             view_filter = self.wtree.get_widget("view_filter")
             if view_filter.get_history() == self.SHOW_SEARCH:
@@ -391,17 +393,19 @@ class MainWindow:
 
     def package_changed(self, package):
         """Catch when the user changes packages."""
+        dprint("MAINWINDOW: package_changed()")
+        # notebook must sensitive before anything is displayed
+        # in the tabs, especially the deps_view
+        self.set_package_actions_sensitive(gtk.TRUE, package)
         self.summary.update_package_info(package)
         # if the user is looking at the deps we need to update them
-        notebook = self.wtree.get_widget("notebook")
-        cur_page = notebook.get_current_page()
+        cur_page = self.notebook.get_current_page()
         if cur_page == 1:
             self.deps_view.fill_depends_tree(self.deps_view, package)
         elif cur_page == 2:
             self.load_changelog(package)
         elif cur_page == 3:
             self.load_installed_files(package)
-        self.set_package_actions_sensitive(gtk.TRUE, package)
 
     def notebook_changed(self, widget, pointer, index):
         """Catch when the user changes the notebook"""
@@ -461,6 +465,7 @@ class MainWindow:
     SHOW_UPGRADE = 3
     def view_filter_changed(self, widget):
         """Update the treeviews for the selected filter"""
+        dprint("MAINWINDOW: view_filter_changed()")
         index = widget.get_history()
         self.update_statusbar(index)
         cat_scroll = self.wtree.get_widget("category_scrolled_window")
@@ -486,14 +491,6 @@ class MainWindow:
                 self.summary.update_package_info(None)
         # clear the notebook tabs
         self.clear_notebook()
-#        self.summary.update_package_info(None)
-        # update sensibility of buttons
-#        self.set_package_actions_sensitive(gtk.FALSE)
-        # clear the dependency view
-#        self.deps_view.clear()
-        # clear the changelog and installed files text
-#        self.changelog.set_text('')
-#        self.installed_files.set_text('')
 
     def load_upgrades_list(self):
         # upgrades are not loaded, create dialog and load them
@@ -558,6 +555,7 @@ class MainWindow:
 
     def set_package_actions_sensitive(self, enabled, package = None):
         """Sets package action buttons/menu items to sensitive or not"""
+        dprint("MAINWINDOW: set_package_actions_sensitive(%d)" %enabled)
         self.wtree.get_widget("emerge_package1").set_sensitive(enabled)
         self.wtree.get_widget("unmerge_package1").set_sensitive(enabled)
         self.wtree.get_widget("btn_emerge").set_sensitive(enabled)
@@ -580,6 +578,7 @@ class MainWindow:
 
     def clear_notebook(self):
         """ Clear all notebook tabs & disble them """
+        dprint("MAINWINDOW: clear_notebook()")
         self.summary.update_package_info(None)
         self.set_package_actions_sensitive(gtk.FALSE)
         self.deps_view.clear()
