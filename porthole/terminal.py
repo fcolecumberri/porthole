@@ -881,9 +881,9 @@ class ProcessManager:
         if self.filename and self.filename[:7] != "Untitled":
             filename = os.path.basename(self.filename)
             filename = filename.split(".")
-            newname = ""
-            for x in filename[:-1]:
-                newname += x
+            newname = filename[0]
+            for x in filename[1:-1]:
+                newname += ("." + x)
             self.filename = newname + "." + self.buffer_type
             dprint(self.filename)
             return self.filename
@@ -1008,8 +1008,8 @@ class ProcessManager:
     def check_buffer_saved(self, buffer, save = False):
         """checks if buffer has been modified before saving again"""
         dprint("entering check_buffer_saved")
+        self.filename = self.pretty_name()
         if buffer.get_modified():
-            self.filename = self.pretty_name()
             if save:
                 msg = "Save log to '%s'?" % self.filename
                 dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
