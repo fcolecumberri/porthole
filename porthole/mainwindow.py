@@ -106,8 +106,13 @@ class MainWindow:
         self.wtree.get_widget("main_window").resize(self.prefs.main.width,
                                                     self.prefs.main.height)
         # move horizontal and vertical panes
+        dprint("MAINWINDOW: __init__() before hpane; %d, vpane; %d" %(self.prefs.main.hpane, self.prefs.main.vpane))
         self.wtree.get_widget("hpane").set_position(self.prefs.main.hpane)
         self.wtree.get_widget("vpane").set_position(self.prefs.main.vpane)
+        # recheck the size
+        h= self.wtree.get_widget("hpane").get_position()
+        v = self.wtree.get_widget("vpane").get_position()
+        dprint("MAINWINDOW: __init__() after hpane; %d, vpane; %d" %(h, v))
         # connect to the resize signal
         self.wtree.signal_autoconnect({"on_main_window_size_request" :
                                                         self.size_update})
@@ -572,6 +577,7 @@ class MainWindow:
         self.prefs.main.height = pos[1]
         self.prefs.main.hpane = self.wtree.get_widget("hpane").get_position()
         self.prefs.main.vpane = self.wtree.get_widget("vpane").get_position()
+        dprint("MAINWINDOW: size_update() hpane; %d, vpane; %d" %(self.prefs.main.hpane, self.prefs.main.vpane))
 
     def clear_notebook(self):
         """ Clear all notebook tabs & disble them """

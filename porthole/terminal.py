@@ -584,10 +584,10 @@ class ProcessManager:
             #dprint("TERMINAL: append() -- self.term.vadjustment[], self.term.vhandler_id[]")
             #dprint(self.term.vadjustment)
             #dprint(self.term.vhandler_id)
-            self.term.vadjustment[num].handler_block(self.term.vhandler_id[num])
+            #self.term.vadjustment[num].handler_block(self.term.vhandler_id[num])
             #result = self.term.view[num].scroll_to_iter(self.term.buffer[num].get_end_iter(),0.0, True, 0, 0.9)
             self.term.view[num].scroll_mark_onscreen(self.term.buffer[num].get_insert())
-            self.term.vadjustment[num].handler_unblock(self.term.vhandler_id[num])
+            #self.term.vadjustment[num].handler_unblock(self.term.vhandler_id[num])
 
     def append_all(self, text, all = False, tag = None):
         """ Append text to all buffers """
@@ -731,6 +731,8 @@ class ProcessManager:
     def process_done(self):
         """ Remove the finished process from the queue, and
         start the next one if there are any more to be run"""
+        # reset to None, so next one starts properly
+        self.reader.fd = None
         # if the last process was killed, stop until the user does something
         if self.killed:
             # display message that process has been killed
@@ -1376,7 +1378,7 @@ class ProcessOutputReader(threading.Thread):
         self.finished_callback = finished_callback
         self.setDaemon(1)  # quit even if this thread is still running
         self.process_running = False
-        # initialize only, self.fd set by in ProcessManager._run()
+        # initialize only, self.fd set by ProcessManager._run()
         self.fd = None
         # initialize only, both set by Processmanager.fill_buffer()
         self.file_input = False
@@ -1391,7 +1393,7 @@ class ProcessOutputReader(threading.Thread):
         while True:
             if self.process_running or self.file_input:
                 # get the output and pass it to self.callback()
-                if self.process_running:
+                if self.process_running and (self.fd != None):
                     try:
                         char = os.read(self.fd, 1)
                     except OSError:

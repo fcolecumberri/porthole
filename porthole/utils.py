@@ -232,6 +232,7 @@ class PortholePreferences:
         except XMLManagerError:
            hpane = 280   # Default value
         self.main.hpane = hpane
+        dprint("UTILS: __init__() hpane: %d" %self.main.hpane)
         try:
            vpane = dom.getitem('/window/main/vpane')
         except XMLManagerError:
@@ -487,6 +488,7 @@ class PortholePreferences:
         dom.additem('/window/main/width', self.main.width)
         dom.additem('/window/main/height', self.main.height)
         dom.additem('/window/main/hpane', self.main.hpane)
+        dprint("UTILS: save() hpane: %d" %self.main.hpane)
         dom.additem('/window/main/vpane', self.main.vpane)
         dom.additem('/window/main/search_desc', self.main.search_desc)
         dom.additem('/window/main/show_nag_dialog', self.main.show_nag_dialog)
