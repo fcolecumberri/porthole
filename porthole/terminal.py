@@ -325,8 +325,11 @@ class ProcessManager:
     def update(self):
         """ Add text to the buffer """
         # stores line of text in buffer
-        # prints line when '\n' is reached
-        #if not self.reader.string: return gtk.TRUE
+        # if the string is locked, we'll get it on the next round
+        if self.reader.string_locked:
+            return gtk.TRUE
+        # lock the string
+        self.reader.string_locked = True
         for char in self.reader.string:
             if char:
                 # catch portage escape sequence NOCOLOR bugs
@@ -362,6 +365,8 @@ class ProcessManager:
                 elif ord(char) == 13: # carriage return?
                     pass
         self.reader.string = ""
+        # unlock the string
+        self.reader.string_locked = False
         return gtk.TRUE
 
     def set_statusbar(self, string):
@@ -595,7 +600,10 @@ class ProcessOutputReader(threading.Thread):
         self.setDaemon(1)  # quit even if this thread is still running
         self.process_running = False
         self.fd = None
+        # string to store input from process
         self.string = ""
+        # lock to prevent loosing characters from simultaneous accesses
+        self.string_locked = False
 
     def run(self):
         """ Watch for process output """
@@ -608,9 +616,16 @@ class ProcessOutputReader(threading.Thread):
                     # maybe the process died?
                     char = None
                 if char:
-                    # send the char to the update callback
-                    #self.update_callback(char)
+                    # if the string is currently being accessed
+                    while(self.string_locked):
+                        # wait 50 ms and check again
+                        time.sleep(0.05)
+                    # lock the string
+                    self.string_locked = True
+                    # add the character to the string
                     self.string += char
+                    # unlock the string
+                    self.string_locked = False
                 else:
                     # clean up, process is terminated
                     self.process_running = False
