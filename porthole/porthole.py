@@ -105,6 +105,18 @@ class MainWindow:
         package_column.pack_start(package_text, expand = True)
         package_column.add_attribute(package_text, "text", 0)
         self.package_view.append_column(package_column)
+        #set dependency treeview header
+        depend_column = gtk.TreeViewColumn("Dependencies")
+        depend_pixbuf = gtk.CellRendererPixbuf()
+        depend_column.pack_start(depend_pixbuf, expand = False)
+        depend_column.add_attribute(depend_pixbuf, "pixbuf", 1)
+        depend_text = gtk.CellRendererText()
+        depend_column.pack_start(depend_text, expand = True)
+        depend_column.add_attribute(depend_text, "text", 0)
+        self.wtree.get_widget("depend_view").append_column(depend_column)
+        self.depend_model = gtk.TreeStore(gobject.TYPE_STRING,
+                                           gtk.gdk.Pixbuf,
+                                           gobject.TYPE_PYOBJECT) # Package
         #move horizontal and vertical panes
         self.wtree.get_widget("hpane").set_position(200)
         self.wtree.get_widget("vpane").set_position(250)
@@ -376,6 +388,36 @@ class MainWindow:
             get dependencies and show them in the dependency tab/textview
             figure out what to put into the extras tab...?
         '''
+        depends = string.split(portagelib.get_property(ebuild, "DEPEND"))
+        #print depends
+        #rdepends = string.split(portagelib.get_property(ebuild, "RDEPEND"))
+        self.depend_model.clear()
+        depend_view = self.wtree.get_widget("depend_view")
+        parent_iter = self.depend_model.insert_before(None, None)
+        if depends:
+            self.depend_model.set_value(parent_iter, 0, "Default")
+            self.depend_model.set_value(parent_iter, 1, depend_view.render_icon(
+                gtk.STOCK_YES, size = gtk.ICON_SIZE_MENU, detail = None))
+        else:
+            self.depend_model.set_value(parent_iter, 0, "None")
+        for depend in depends:
+            if depend[len(depend) - 1] != "?":
+                if depend == ")" or depend =="(":
+                    continue
+                dpackage = portagelib.Package(depend)
+                depend_iter = self.depend_model.insert_before(parent_iter, None)
+                self.depend_model.set_value(depend_iter, 0, depend)
+                icon = self.get_icon_for_package(dpackage)
+                self.depend_model.set_value(depend_iter, 1, depend_view.render_icon(
+                                 icon,
+                                 size = gtk.ICON_SIZE_MENU,
+                                 detail = None))
+                self.depend_model.set_value(depend_iter, 2, depend)
+            else:
+                parent_iter = self.depend_model.insert_before(None, None)
+                self.depend_model.set_value(parent_iter, 0, depend)
+                
+        depend_view.set_model(self.depend_model)
         append(package.full_name, "name"); nl()
         if description:
             append(description, "description"); nl()
