@@ -113,9 +113,15 @@ SystemUseFlags = get_portage_environ("USE").split()
 # lower case is nicer
 keys = [key.lower() for key in portage.auxdbkeys]
 
+# establish a semaphore for the DatabaseReader thread
+Installed_Semaphore = threading.Semaphore()
+
 # a list of all installed packages
+Installed_Semaphore.acquire()
 installed = None
-        
+Installed_Semaphore.release()
+
+
 def get_name(full_name):
     """Extract name from full name."""
     return full_name.split('/')[1]
@@ -211,7 +217,9 @@ class Package:
 
     def __init__(self, full_name):
         self.full_name = full_name
+        Installed_Semaphore.acquire()
         self.is_installed = full_name in installed  # true if installed
+        Installed_Semaphore.release()
 
     def get_installed(self):
         """Returns a list of all installed ebuilds."""
@@ -258,7 +266,7 @@ class Package:
 
     def upgradable(self):
         "Returns true if an unmasked upgrade is available"
-         # Note: this is slow, see get_versions()
+        # Note: this is slow, see get_versions()
         installed = self.get_installed()
         if not installed:
             return False
@@ -313,6 +321,8 @@ class DatabaseReader(threading.Thread):
         self.done = False     # false if the thread is still working
         self.count = 0        # number of packages read so far
         self.error = ""       # may contain error message after completion
+        self.new_installed_Semaphore = threading.Semaphore()
+        self.installed_list = None
 
     def get_db(self):
         """Returns the database that was read."""
@@ -321,9 +331,7 @@ class DatabaseReader(threading.Thread):
     def read_db(self):
         """Read portage's database and store it nicely"""
         tree = portage.db['/']['porttree']
-        global installed # what's a better way to do this?
-        dprint("PORTAGELIB: read_db(); installed=")
-        installed = portage.db['/']['vartree'].getallnodes()
+        self.get_installed()
         try:
             dprint("PORTAGELIB: read_db(); allnodes=")
             allnodes = tree.getallnodes()
@@ -333,7 +341,7 @@ class DatabaseReader(threading.Thread):
             self.error = str(e)
             return
         dprint("PORTAGELIB: read_db() begin {for entry in allnodes length=%d" %len(allnodes))
-        dsave("read_db_allnodes", allnodes)
+        #dsave("read_db_allnodes", allnodes)
         for entry in allnodes:
                 category, name = entry.split('/')
                 # why does getallnodes() return timestamps?
@@ -342,12 +350,27 @@ class DatabaseReader(threading.Thread):
                 self.count += 1
                 data = Package(entry)
                 self.db.categories.setdefault(category, {})[name] = data;
-                if entry in installed:
+                if entry in self.installed_list:
                     self.db.installed.setdefault(category, {})[name] = data;
                     self.db.installed_count += 1
                 self.db.list.append((name, data))
         dprint("PORTAGELIB: read_db(); end of {for entry in allnodes loop}, sort is next")
         self.db.list = sort(self.db.list)
+
+    def get_installed(self):
+        """get a new installed list"""
+        # I believe this next variable may be the cause of our segfaults
+        # so I' am semaphoring it.  Brian 2004/08/19
+        self.new_installed_Semaphore.acquire()
+        #installed_list # a better way to do this?
+        dprint("PORTAGELIB: get_installed();")
+        self.installed_list = portage.db['/']['vartree'].getallnodes()
+        global Installed_Semaphore
+        global installed
+        Installed_Semaphore.acquire()
+        installed = self.installed_list
+        Installed_Semaphore.release()
+        self.new_installed_Semaphore.release()
         
     def run(self):
         """The thread function."""
