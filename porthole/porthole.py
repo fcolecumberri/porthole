@@ -358,6 +358,44 @@ class MainWindow:
             try: webbrowser.open(self.homepages[0])
             except: pass
 
+    def parse_depends_list(self, depends_list, parent = "Default"):
+        """read through the depends list and order it nicely"""
+        new_list = []
+        for depend in depends_list:
+            if depend[len(depend) - 1] == "?":
+                if depend[0] != "!":
+                    parent = "Using " + depend[:len(depend) - 1]
+                else:
+                    parent = "Not Using " + depend[1:len(depend) - 1]
+            else:
+                if depend != "(" and depend != ")":
+                    new_list.append((parent, depend))
+        return new_list
+                    
+
+    def add_depends_to_tree(self, depends_list, parent = None, last_flag = None):
+        """Add all dependencies to the tree"""
+        depend_view = self.wtree.get_widget("depend_view")
+        for use_flag, depend in depends_list:
+            if last_flag != use_flag:
+                parent_iter = self.depend_model.insert_before(parent, None)
+                self.depend_model.set_value(parent_iter, 0, use_flag)
+                last_flag = use_flag
+            depend_iter = self.depend_model.insert_before(parent_iter, None)
+            self.depend_model.set_value(depend_iter, 0, depend)
+            icon = self.get_icon_for_package(portagelib.Package(depend))
+            self.depend_model.set_value(depend_iter, 1, 
+                                    depend_view.render_icon( icon,
+                                    size = gtk.ICON_SIZE_MENU,
+                                    detail = None))
+            if icon != gtk.STOCK_YES:
+                pack = portagelib.Package(depend)
+                ebuild = pack.get_latest_ebuild()
+                depends = string.split(portagelib.get_property(ebuild, "DEPEND"))
+                if depends:
+                    depends = self.parse_depends_list(depends)
+                    self.add_depends_to_tree(depends, depend_iter)
+
     def on_mouse_motion(self, widget, event, data = None):
         # we need to call get_pointer, or we won't get any more events
         pointer = widget.window.get_pointer()
@@ -405,41 +443,22 @@ class MainWindow:
         use_flags = props.get_use_flags()
         license = props.license
         slot = unicode(props.get_slot())
-        #build the information together into a buffer
+        #get everything ready
         ''' TODO:
-            get dependencies and show them in the dependency tab/textview
             figure out what to put into the extras tab...?
         '''
+        #get dependencies and put em in a treeview
         depends = string.split(portagelib.get_property(ebuild, "DEPEND"))
-        #print depends
-        #rdepends = string.split(portagelib.get_property(ebuild, "RDEPEND"))
         self.depend_model.clear()
         depend_view = self.wtree.get_widget("depend_view")
-        parent_iter = self.depend_model.insert_before(None, None)
         if depends:
-            self.depend_model.set_value(parent_iter, 0, "Default")
-            self.depend_model.set_value(parent_iter, 1, depend_view.render_icon(
-                gtk.STOCK_YES, size = gtk.ICON_SIZE_MENU, detail = None))
+            depends = self.parse_depends_list(depends)
+            self.add_depends_to_tree(depends)
         else:
+            parent_iter = self.depend_model.insert_before(None, None)
             self.depend_model.set_value(parent_iter, 0, "None")
-        for depend in depends:
-            if depend[len(depend) - 1] != "?":
-                if depend == ")" or depend =="(":
-                    continue
-                dpackage = portagelib.Package(depend)
-                depend_iter = self.depend_model.insert_before(parent_iter, None)
-                self.depend_model.set_value(depend_iter, 0, depend)
-                icon = self.get_icon_for_package(dpackage)
-                self.depend_model.set_value(depend_iter, 1, depend_view.render_icon(
-                                 icon,
-                                 size = gtk.ICON_SIZE_MENU,
-                                 detail = None))
-                self.depend_model.set_value(depend_iter, 2, depend)
-            else:
-                parent_iter = self.depend_model.insert_before(None, None)
-                self.depend_model.set_value(parent_iter, 0, depend)
-                
         depend_view.set_model(self.depend_model)
+        #build info into buffer
         append(package.full_name, "name"); nl()
         if description:
             append(description, "description"); nl()
