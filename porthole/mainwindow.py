@@ -295,11 +295,12 @@ class MainWindow:
         if self.desc_thread.done:
             # grab the db
             self.desc_db = self.desc_thread.descriptions
-            # kill off the thread
+            if not self.desc_thread.cancelled:
+                self.desc_loaded = True
+                # search with descriptions
+                self.package_search(None)
+			# kill off the thread
             self.desc_thread.join()
-            self.desc_loaded = True
-            # search with descriptions
-            self.package_search(None)
             self.desc_dialog.destroy()
             return gtk.FALSE
         else:
@@ -562,5 +563,7 @@ class DescriptionReader(CommonReader):
         for name, package in self.packages:
             if self.cancelled: self.done = True; return
             self.descriptions[name] = package.get_properties().description
+            if not self.descriptions[name]:
+                dprint(name)
             self.count += 1
         self.done = True
