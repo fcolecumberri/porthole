@@ -155,11 +155,17 @@ class Summary(gtk.TextView):
         # Get the package info
 	#dprint("SUMMARY: get package info")
         metadata = package.get_metadata()
-        ebuild = package.get_latest_ebuild()
         installed = package.get_installed()
         versions = package.get_versions()
         nonmasked = package.get_versions(include_masked = False)
-        props = package.get_properties()
+	best = portagelib.best(installed + nonmasked)
+	#dprint("SUMMARY: best = %s" %best)
+	if best == "": # all versions are masked and the package is not installed
+	    ebuild = package.get_latest_ebuild(True) # get latest masked version
+	else:
+	    ebuild = best
+	#dprint("SUMMARY: getting properties for ebuild version %s" %ebuild)
+        props = package.get_properties(ebuild)
         description = props.description
         homepages = props.get_homepages() # may be more than one
 	#dprint("SUMMARY: Summary; getting use flags")
@@ -225,6 +231,10 @@ class Summary(gtk.TextView):
             append(_("Available versions:\n"), "property")
             show_vnums(versions)
             nl(2)        
+
+	append("Properties for version: ", "property")
+	append(portagelib.get_version(ebuild))
+	nl()
 
         # Use flags
         if use_flags:

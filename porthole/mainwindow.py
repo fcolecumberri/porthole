@@ -641,7 +641,15 @@ class MainWindow:
                         + "/ChangeLog")
                 data = f.read(); f.close()
                 if data:
-                    self.changelog.set_text(str(data).encode("utf8",'replace'))
+		    try:
+			dprint("MAINWINDOW: load_changelog(); trying ascii encoding")
+                        self.changelog.set_text(str(data).encode("utf8",'replace'))
+		    except:
+			try:
+			    dprint("MAINWINDOW: load_changelog(); trying iso-8859-1 encoding")
+			    self.changelog.set_text(str(data).decode('iso-8859-1').encode('utf-8', 'replace'))
+			except:
+			    dprint("MAINWINDOW: load_changelog(); Failure = unknown encoding")
                 else:
                     self.changelog.set_text(_("Change log is Empty"))
             except:

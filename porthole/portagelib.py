@@ -191,6 +191,10 @@ def get_property(ebuild, property):
     try: return portage.portdb.aux_get(ebuild, [property])[0]
     except: return ''
 
+def best(versions):
+    """returns the best version in the list"""
+    return portage.best(versions)
+
 class Properties:
     """Contains all variables in an ebuild."""
     def __init__(self, dict = None):
