@@ -39,8 +39,10 @@ try:
 except ImportError:
     print "Error loading libraries!\nCan't find portagelib!"
 
-#mainwindow class to setup and manage main window interface
+
 class MainWindow:
+    """Main Window class to setup and manage main window interface."""
+    
     def __init__(self):
         #setup glade
         self.gladefile = "porthole.glade"
@@ -94,12 +96,13 @@ class MainWindow:
                            % 0)
 
     def set_statusbar(self, string):
+        """Update the statusbar without having to use push and pop."""
         statusbar = self.wtree.get_widget("statusbar1")
         statusbar.pop(0)
         statusbar.push(0, string)
 
-    #update the statusbar according to the number of packages read
     def update_db_read(self):
+        """Update the statusbar according to the number of packages read."""
         if not self.db_thread.done:
             self.set_statusbar("Reading package database: %i packages read"
                                % self.db_thread.count)
@@ -117,7 +120,6 @@ class MainWindow:
             return gtk.FALSE  # disconnect from timeout
         return gtk.TRUE
 
-    #populate the category tree
     def populate_category_tree(self):
         last_cat = "None"
         categories = self.db.categories.keys()
@@ -133,44 +135,46 @@ class MainWindow:
             self.category_model.set_value(sub_cat_iter, 0, sub_categories[1])
         self.wtree.get_widget("category_view").set_model(self.category_model)
 
-    #emerge the currently selected package
     def emerge_package(self, widget):
+        """Emerge the currently selected package."""
         pass
 
-    #unmerge the currently selected package
     def unmerge_package(self, widget):
+        """Unmerge the currently selected package."""
         pass
 
-    #sync the portage tree and reload it when done
     def sync_tree(self, widget):
+        """Sync the portage tree and reload it when done."""
         pass
 
-    #upgrade all packages that have newer versions available
     def upgrade_packages(self, widget):
+        """Upgrade all packages that have newer versions available."""
         pass
 
-    #search package db with a string and display results
     def package_search(self, widget):
+        """Search package db with a string and display results."""
         pass
 
-    #show the help file contents
     def help_contents(self, widget):
+        """Show the help file contents."""
         pass
 
-    #show about dialog
     def about(self, widget):
+        """Show about dialog."""
         dialog = AboutDialog()
 
-    #catch when the user changes categories
     def category_changed(self, widget):
+        """Catch when the user changes categories."""
         print "boing!"
 
-    #catch when the user changes packages
     def package_changed(self, widget):
+        """Catch when the user changes packages."""
         pass
 
-#class to hold about dialog and functionality
+
 class AboutDialog:
+    """Class to hold about dialog and functionality."""
+
     def __init__(self):
         #setup glade
         self.gladefile = "porthole.glade"
@@ -179,9 +183,11 @@ class AboutDialog:
         callbacks = {"on_ok_clicked" : self.ok_clicked}
         self.wtree.signal_autoconnect(callbacks)
 
-    #get rid of the about dialog!
     def ok_clicked(self, widget):
+        """Get rid of the about dialog!"""
         self.wtree.get_widget("about_dialog").destroy()
+
+
 
 if __name__ == "__main__":
     #make sure gtk lets threads run
