@@ -472,7 +472,6 @@ class ProcessManager:
                         tag = None
                         
                         if self.config.isEmerge(self.process_buffer):
-                            self.set_statusbar(self.process_buffer[:-1])
                             # add the pkg info to all other tabs to identify fom what
                             # pkg messages came from but no need to show it if it isn't
                             tag = 'emerge'
@@ -480,6 +479,7 @@ class ProcessManager:
                             self.append(self.warning_text, self.process_buffer, tag)
                             if not self.file_input:
                                 self.set_file_name(self.process_buffer)
+                                self.set_statusbar(self.process_buffer[:-1])
 
                         elif self.config.isInfo(self.process_buffer):
                             # info string has been found, show info tab if needed
@@ -521,7 +521,7 @@ class ProcessManager:
                 elif ord(char) == 13: # carriage return?
                     pass
         self.reader.string = ""
-        if self.file_input:
+        if self.file_input and not self.reader.file_input:
             self.process_text.set_modified(gtk.FALSE)
             if self.warning_count != 0:
                 self.append(self.info_text, "*** Total warnings count for merge = %d \n"\
@@ -843,7 +843,7 @@ class ProcessManager:
             return gtk.FALSE
         else:
             self.filename = filename
-            self.set_statusbar("*** File Loaded... Processing..") 
+            self.set_statusbar("*** File Loading... Processing...") 
             return gtk.TRUE;
 
     def do_open(self, widget):
@@ -958,9 +958,10 @@ class ProcessManager:
         dprint("LOG: Entering fill_buffer")
         self.clear_buffer(None)
         self.warning_count = 0
+        self.caution_count = 0
         self.set_statusbar("*** Loading File : %s" % self.filename)
         try:
-            f = open(filename, "r")
+            self.reader.f = open(filename, "r")
         except IOError, (errnum, errmsg):
             err = "Cannot open file '%s': %s" % (filename, errmsg)
             dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
@@ -970,23 +971,27 @@ class ProcessManager:
             dialog.destroy()
             return gtk.FALSE
 
-        if not self.reader.string_locked:
-            self.file_input = True
-            self.reader.string_locked = True
-            self.reader.string = f.read()
-            f.close()
-            self.reader.string_locked = False
-            #self.set_statusbar("*** Log loading complete : %s" % self.filename)
-            dprint("LOG: Leaving fill_buffer")
-            return gtk.TRUE
-        else:
-            err = "Error: 'reader.string' currently locked, ensure no process is running"
-            dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
-                                       gtk.MESSAGE_INFO,
-                                       gtk.BUTTONS_OK, err);
-            result = dialog.run()
-            dialog.destroy()
-            return gtk.FALSE
+        self.file_input = True
+        self.reader.file_input = True
+        return gtk.TRUE
+##
+##        if not self.reader.string_locked:
+##            self.file_input = True
+##            self.reader.string_locked = True
+##            self.reader.string = f.read()
+##            f.close()
+##            self.reader.string_locked = False
+##            #self.set_statusbar("*** Log loading complete : %s" % self.filename)
+##            dprint("LOG: Leaving fill_buffer")
+##            return gtk.TRUE
+##        else:
+##            err = "Error: 'reader.string' currently locked, ensure no process is running"
+##            dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
+##                                       gtk.MESSAGE_INFO,
+##                                       gtk.BUTTONS_OK, err);
+##            result = dialog.run()
+##            dialog.destroy()
+##            return gtk.FALSE
             
 
     def save_buffer(self):
@@ -1134,6 +1139,9 @@ class ProcessOutputReader(threading.Thread):
         self.process_running = False
         # initialize only, self.fd set by in ProcessManager._run()
         self.fd = None
+        # initialize only, both set by Processmanager.fill_buffer()
+        self.file_input = False
+        self.f = None
         # string to store input from process
         self.string = ""
         # lock to prevent loosing characters from simultaneous accesses
@@ -1142,13 +1150,22 @@ class ProcessOutputReader(threading.Thread):
     def run(self):
         """ Watch for process output """
         while True:
-            if self.process_running:
+            if self.process_running or self.file_input:
                 # get the output and pass it to self.callback()
-                try:
-                    char = os.read(self.fd, 1)
-                except OSError:
-                    # maybe the process died?
-                    char = None
+                if self.process_running:
+                    try:
+                        char = os.read(self.fd, 1)
+                    except OSError:
+                        # maybe the process died?
+                        char = None
+                elif self.file_input:
+                    try:
+                        # keep read(number) small so as to not cripple
+                        # system reading large files
+                        char = self.f.read(5)
+                    except OSError:
+                        # maybe the process died?
+                        char = None
                 if char:
                     # if the string is currently being accessed
                     while(self.string_locked):
@@ -1166,9 +1183,12 @@ class ProcessOutputReader(threading.Thread):
                     while self.string != "":
                         # wait for update_callback to finish
                         time.sleep(.5)
-                    gtk.threads_enter()
-                    self.finished_callback()
-                    gtk.threads_leave()
+                    if self.file_input:
+                        self.file_input = False
+                    else:
+                        gtk.threads_enter()
+                        self.finished_callback()
+                        gtk.threads_leave()
             else:
                 # sleep for .5 seconds before we check again
                 time.sleep(.5)
