@@ -110,10 +110,12 @@ def get_user_home_dir():
 def environment():
     """sets up the environment to run sub processes"""
     HOME = os.getenv("HOME")
+    PATH = os.getenv("PATH")
     dprint("UTILS: HOME = " + str(HOME))
     env = {"FEATURES": "notitles",  # Don't try to set the titlebar
-            "NOCOLOR": "true",       # and no colours, please
-            "HOME":HOME}
+           "NOCOLOR": "true",       # and no colours, please
+           "HOME":HOME,             #Set the home directory
+           "PATH": PATH}            #Use user's PATH variable
     return env
 
 class CommonDialog(gtk.Dialog):
