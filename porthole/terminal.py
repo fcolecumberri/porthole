@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
-'''
-    Terminal
+"""
+    ============
+    | Terminal |
+    -----------------------------------------------------------
     A graphical process output viewer/filterer and emerge queue
-
+    -----------------------------------------------------------
     Copyright (C) 2003 - 2004 Fredrik Arnerup, Brian Dolbec, and
     Daniel G. Taylor
 
@@ -20,13 +22,36 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-'''
 
+    -------------------------------------------------------------------------
+    This program recognizes these run-time parameters:
+        -d, --debug     Send debug messages to the screen
+        -l, --local     Use the local path for data files (for cvs version)
+        -v, --version   Print out the program version
+
+    -------------------------------------------------------------------------
+    To use this program as a module:
+    
+        from terminal import ProcessManager
+        manager = ProcessManager(environment, preferences)
+        manager.add_process(package_name, command_to_run)
+        ...
+"""
+
+# import external [system] modules
 import pygtk; pygtk.require('2.0')
 import gtk, gtk.glade, gobject
 import signal, os, pty, threading, time
 import utils
-from utils import dprint, get_user_home_dir, SingleButtonDialog
+
+if __name__ == "__main__":
+    # setup our path so we can load our custom modules
+    from sys import path
+    path.append("/usr/lib/porthole")
+
+# import custom modules
+from utils import dprint, get_user_home_dir, SingleButtonDialog, \
+                  get_treeview_selection
 from version import version
 
 # some constants for the tabs
@@ -37,21 +62,25 @@ TAB_INFO = 3
 TAB_QEUE = 4
 
 class ProcessManager:
-    ''' Manages qeued and running processes '''
+    """ Manages qeued and running processes """
     def __init__(self, env = {}, prefs = None):
-        ''' Initialize '''
+        """ Initialize """
+        # copy the environment and preferences
         self.env = env
         self.prefs = prefs
         self.killed = 0
         self.pid = None
+        # process list to store pending processes
         self.process_list = []
+        # the window is not visible until a process is added
         self.window_visible = False
+        # create the process reader
         self.reader = ProcessOutputReader(self.update, self.process_done)
         # start the reader
         self.reader.start()
 
     def show_window(self):
-        ''' Show the process window '''
+        """ Show the process window """
         # load the glade file
         self.wtree = gtk.glade.XML("porthole.glade", "process_window")
         # setup the callbacks
@@ -77,6 +106,9 @@ class ProcessManager:
         self.queue_tree = self.wtree.get_widget("queue_treeview")
         self.queue_menu = self.wtree.get_widget("queue1")
         self.statusbar = self.wtree.get_widget("statusbar")
+        self.resume_menu = self.wtree.get_widget("resume")
+        # process output buffer
+        self.process_buffer = ''
         # disable the qeue tab until we need it
         self.queue_menu.set_sensitive(gtk.FALSE)
         # setup the qeue treeview
@@ -114,8 +146,10 @@ class ProcessManager:
             self.window.connect("size_request", self.on_size_request)
 
     def on_size_request(self, window, gbox):
-        """Store new size in prefs"""
+        """ Store new size in prefs """
+        # get the width and height of the window
         width, height = window.get_size()
+        # set the preferences
         if self.prefs.emerge.verbose:
             self.prefs.terminal.width_verbose = width
         else:
@@ -123,7 +157,7 @@ class ProcessManager:
         self.prefs.terminal.height = height
 
     def show_tab(self, tab):
-        ''' Create the label for the tab and show it '''
+        """ Create the label for the tab and show it """
         # this hbox will hold the icon and label
         hbox = gtk.HBox()
         icon = gtk.Image()
@@ -157,7 +191,7 @@ class ProcessManager:
         self.notebook.insert_page(tab, hbox, pos)
         
     def add_process(self, package_name, command_string):
-        ''' Add a process to the qeue '''
+        """ Add a process to the qeue """
         # show the window if it isn't yet
         if not self.window_visible:
             self.show_window()
@@ -179,30 +213,39 @@ class ProcessManager:
             self._run(command_string, iter)
 
     def _run(self, command_string, iter = None):
-        ''' Run a given command string '''
+        """ Run a given command string """
+        # we can't be killed anymore
+        self.killed = 0
+        # set the resume buttons to not be sensitive
+        self.resume_menu.set_sensitive(gtk.FALSE)
         if iter:
-            self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_EXECUTE))
+            self.queue_model.set_value(iter, 0, 
+                             self.render_icon(gtk.STOCK_EXECUTE))
         # set process_running so the reader thread reads it's output
         self.reader.process_running = True
+        # show a message that the process is starting
+        self.append(self.process_text, "*** " + command_string + " ***\n")
         # pty.fork() creates a new process group
         self.pid, self.reader.fd = pty.fork()
         if self.pid == pty.CHILD:  # child
             try:
                 # run the command
-                shell = '/bin/sh'
+                shell = "/bin/sh"
                 os.execve(shell, [shell, '-c', command_string],
                           self.env)
             except Exception, e:
-                dprint('Error in child' + e)
+                # print out the exception
+                dprint("Error in child" + e)
                 print "Error in child:"
                 print e
                 os._exit(1)
 
     def on_process_window_destroy(self, widget, data = None):
         """Window was closed"""
+        # kill any running processes
         self.kill()
-        #self.callback()
         if __name__ == "__main__":
+            # if running standalone, quit
             gtk.main_quit()
 
     def kill(self):
@@ -210,58 +253,99 @@ class ProcessManager:
         # If started and still running
         if self.pid and not self.killed:
             try:
-                os.close(self.reader.fd)  # make sure the thread notices
+                # make sure the thread notices
+                os.close(self.reader.fd)
                 # negative pid kills process group
                 os.kill(-self.pid, signal.SIGKILL)
             except OSError:
                 pass
             self.killed = 1
 
+    def append(self, buffer, text):
+        """ Append text to a text buffer """
+        iter = buffer.get_end_iter()
+        buffer.insert(iter, text)
+
     def update(self, char):
-        ''' Add text to the buffer '''
-        iter = self.process_text.get_end_iter()
-        self.process_text.insert(iter, char)
+        """ Add text to the buffer """
+        # stores line of text in buffer
+        # prints line when '\n' is reached
+        if char:
+            # catch portage escape sequence NOCOLOR bugs
+            if ord(char) == 27 or False:
+                pass
+            elif char == '\b': # backspace
+                self.process_buffer = self.process_buffer[:-1]
+            elif 32 <= ord(char) <= 127 or char == '\n': # no unprintable
+                self.process_buffer += char
+                if char == '\n': # newline
+                    self.process_text.insert(self.process_text.get_end_iter(), self.process_buffer)
+                    self.process_buffer = ''
+            elif ord(char) == 13: # carriage return?
+                pass
 
     def process_done(self):
-        ''' Remove the finished process from the qeue, and
-        start the next one if there are any more to be run'''
+        """ Remove the finished process from the qeue, and
+        start the next one if there are any more to be run"""
+        # if the last process was killed, stop until the user does something
+        if self.killed:
+            return
+        # display message that process finished
+        self.append(self.process_text, "*** process terminated ***\n")
+        # set queue icon to done
         iter = self.process_list[0][2]
         self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_APPLY))
+        # remove process from list
         self.process_list = self.process_list[1:]
+        # check for pending processes, and run them
         if len(self.process_list):
-            dprint("TERMINAL: There are pending processes, running now...")
-            print self.process_list[0]
+            dprint("TERMINAL: There are pending processes, running now... [" + \
+                    self.process_list[0][0] + "]")
             self._run(self.process_list[0][1], self.process_list[0][2])
 
     def render_icon(self, icon):
-        ''' Render an icon for the queue tree '''
+        """ Render an icon for the queue tree """
         return self.queue_tree.render_icon(icon,
                     size = gtk.ICON_SIZE_MENU, detail = None)
 
     def kill_process(self, widget):
-        ''' Kill currently running process '''
-        pass
+        """ Kill currently running process """
+        if not self.reader.process_running:
+            dprint("TERMINAL: No running process to kill!")
+            return
+        self.kill()
+        # set the queue icon to killed
+        iter = self.process_list[0][2]
+        self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_CANCEL))
+        # set the resume buttons to sensitive
+        self.resume_menu.set_sensitive(gtk.TRUE)
 
     def resume_normal(self, widget):
-        ''' Resume killed process '''
-        pass
+        """ Resume killed process """
+        # pass the normal command along with --resume
+        name, command, iter = self.process_list[0]
+        self._run(command + " --resume", iter)
 
     def resume_skip_first(self, widget):
-        ''' Resume killed process, skipping first package '''
-        pass
+        """ Resume killed process, skipping first package """
+        # pass the normal command along with --resume --skipfirst
+        name, command, iter = self.process_list[0]
+        self._run(command + " --resume --skipfirst", iter)
 
     def save_log(self, widget):
-        ''' Save text buffer to a log '''
+        """ Save text buffer to a log """
         # get filename from user
         #filename = ?
         #self.log(filename)
         pass
 
     def log(self, filename = None):
-        ''' Log emerge output to a file '''
+        """ Log emerge output to a file """
+        # get all the process output
         output = self.process_text.get_text(self.textbuffer.get_start_iter(),
                                  self.textbuffer.get_end_iter(), gtk.FALSE)
         if not filename:
+            # no filename was specified, so we are making one up
             dprint("LOG: Filename not specified, saving to ~/.porthole/logs")
             filename = get_user_home_dir()
             if os.access(filename + "/.porthole", os.F_OK):
@@ -270,37 +354,49 @@ class ProcessManager:
                            "/.porthole/logs")
                     os.mkdir(filename + "/.porthole/logs")
                 filename += "/.porthole/logs/" + "test"
-        file = open(filename, "w")
+        # open the file, and write our log
+        file = open(filename, 'w')
         file.write(output)
         file.close()
         dprint("LOG: Log file written to " + filename)
+            
 
     def copy_selected(self, widget):
-        ''' Copy selected text to clipboard '''
+        """ Copy selected text to clipboard """
         pass
 
     def clear_buffer(self, widget):
-        ''' Clear the text buffer '''
+        """ Clear the text buffer """
         pass
 
     def move_qeue_item_up(self, widget):
-        ''' Move selected qeue item up in the qeue '''
+        """ Move selected qeue item up in the qeue """
         pass
 
     def move_qeue_item_down(self, widget):
-        ''' Move selected qeue item down in the qeue '''
+        """ Move selected qeue item down in the qeue """
         pass
 
     def remove_qeue_item(self, widget):
-        ''' Remove the selected item from the qeue '''
-        pass
+        """ Remove the selected item from the qeue """
+        # get the selected iter
+        iter = get_treeview_selection(self.queue_tree)
+        # find if this item is still in our process list
+        name = get_treeview_selection(self.queue_tree, 1)
+        for pos in range(len(self.process_list)):
+            if name == self.process_list[pos][0]:
+                # remove the item from the list
+                self.process_list = self.process_list[:pos] + \
+                                    self.process_list[pos + 1:]
+                break
+        self.queue_model.remove(iter)
 
 class ProcessOutputReader(threading.Thread):
-    ''' Reads output from processes '''
+    """ Reads output from processes """
     def __init__(self, update_callback, finished_callback):
-        ''' Initialize '''
+        """ Initialize """
         threading.Thread.__init__(self)
-        # set a callbacks
+        # set callbacks
         self.update_callback = update_callback
         self.finished_callback = finished_callback
         self.setDaemon(1)  # quit even if this thread is still running
@@ -308,17 +404,20 @@ class ProcessOutputReader(threading.Thread):
         self.fd = None
 
     def run(self):
-        ''' Watch for process output '''
+        """ Watch for process output """
         while True:
             if self.process_running:
                 # get the output and pass it to self.callback()
                 try:
                     char = os.read(self.fd, 1)
                 except OSError:
+                    # maybe the process died?
                     char = None
                 if char:
+                    # send the char to the update callback
                     self.update_callback(char)
                 else:
+                    # clean up, process is terminated
                     self.process_running = False
                     self.finished_callback()
             else:
@@ -330,10 +429,6 @@ if __name__ == "__main__":
     
     DATA_PATH = "/usr/share/porthole/"
 
-    # setup our path so we can load our custom modules
-    from sys import path
-    path.append("/usr/lib/porthole")
-
     from sys import argv, exit, stderr
     from getopt import getopt, GetoptError
 
@@ -342,6 +437,7 @@ if __name__ == "__main__":
     except GetoptError, e:
         print >>stderr, e.msg
         exit(1)
+
     for opt, arg in opts:
         if opt in ("-l", "--local"):
             # running a local version (i.e. not installed in /usr/*)
@@ -370,6 +466,8 @@ if __name__ == "__main__":
     test.add_process("kde (-vp)", "emerge -vp kde")
     # un-comment the next line to get the qeue to show up
     test.add_process("gnome (-vp)", "emerge -vp gnome")
+    test.add_process("gtk+ (-vp)", "emerge -vp gtk+")
+    test.add_process("porthole (-vp)", "emerge -vp porthole")
     # start the program loop
     gtk.mainloop()
     # save the prefs to disk for next time
