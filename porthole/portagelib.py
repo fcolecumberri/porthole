@@ -33,10 +33,15 @@ from metadata import parse_metadata
 
 debug = False
 
+def get_portage_environ(var):
+    """Returns environment variable var from portage if possible, else None"""
+    try: temp = portage.config().environ()[var]
+    except: temp = None
+    return temp
+
 portdir = portage.config().environ()['PORTDIR']
 # is PORTDIR_OVERLAY always defined?
-try: portdir_overlay = portage.config().environ()['PORTDIR_OVERLAY']
-except: portdir_overlay = None
+portdir_overlay = get_portage_environ('PORTDIR_OVERLAY')
     
 # lower case is nicer
 keys = [key.lower() for key in portage.auxdbkeys]

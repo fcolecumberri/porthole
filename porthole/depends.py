@@ -24,7 +24,7 @@
 import pygtk
 pygtk.require("2.0") #make sure we have the right version
 import gtk, gobject, portagelib, string
-from utils import get_icon_for_package
+#from utils import get_icon_for_package
 
 class DependsTree(gtk.TreeStore):
     """Calculate and display dependencies in a treeview"""
@@ -33,6 +33,7 @@ class DependsTree(gtk.TreeStore):
         gtk.TreeStore.__init__(self, gobject.TYPE_STRING,
                                 gtk.gdk.Pixbuf,
                                 gobject.TYPE_PYOBJECT)
+        self.use_flags = string.split(portagelib.get_portage_environ("USE"))
         
     def parse_depends_list(self, depends_list, parent = None):
         """Read through the depends list and order it nicely
@@ -74,6 +75,13 @@ class DependsTree(gtk.TreeStore):
             if last_flag != use_flag:
                 parent_iter = self.insert_before(parent, None)
                 self.set_value(parent_iter, 0, use_flag)
+                if use_flag[0] == "U":
+                    flag = use_flag[6:]
+                else:
+                    flag = use_flag[7:] 
+                icon = flag in self.use_flags and gtk.STOCK_YES or gtk.STOCK_NO
+                self.set_value(parent_iter, 1, depends_view.render_icon(icon,
+                                    size = gtk.ICON_SIZE_MENU, detail = None))
                 last_flag = use_flag
             depend_iter = self.insert_before(parent_iter, None)
             self.set_value(depend_iter, 0, depend)
