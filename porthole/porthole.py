@@ -335,7 +335,7 @@ class MainWindow:
         metadata = package.get_metadata()
         ebuild = package.get_latest_ebuild()
         installed = package.get_installed()
-        versions = package.versions
+        versions = package.versions; versions.sort()
         homepage = package.get_homepage()
         self.homepage = homepage  # store url for on_url_event
         use_flags = package.get_use_flags()
