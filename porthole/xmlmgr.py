@@ -110,7 +110,8 @@ class XMLManager:
 
    def __del__(self):
       """ Default destructor """
-      self.__dom.unlink()
+      if self.__dom:
+        self.__dom.unlink()
 
 
    def __initDOM(self):
