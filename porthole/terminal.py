@@ -133,6 +133,10 @@ class ProcessManager:
         self.notebook.remove_page(3)
         self.notebook.remove_page(2)
         self.notebook.remove_page(1)
+        self.warning_tab.showing = False
+        self.caution_tab.showing = False
+        self.info_tab.showing = False
+        self.queue_tab.showing = False
         # flag that the window is now visible
         self.window_visible = True
         if self.prefs:
@@ -181,7 +185,7 @@ class ProcessManager:
             # set to show before queue tab
             if pos == -1: pos = 3
         elif tab == TAB_QUEUE:
-            icon.set_from_stock(gtk.STOCK_EXECUTE, gtk.ICON_SIZE_MENU)
+            icon.set_from_stock(gtk.STOCK_INDEX, gtk.ICON_SIZE_MENU)
             label, tab, pos = "Emerge queue", self.queue_tab, 4
         # pack the icon and label onto the hbox
         hbox.pack_start(icon)
@@ -206,8 +210,10 @@ class ProcessManager:
         if len(self.process_list) == 2:
             # if this is the 2nd process in the list
             # show the queue tab!
-            self.show_tab(TAB_QUEUE)
-            self.queue_menu.set_sensitive(gtk.TRUE)
+            if not self.queue_tab.showing:
+                self.show_tab(TAB_QUEUE)
+                self.queue_menu.set_sensitive(gtk.TRUE)
+                self.queue_tab.showing = True
         # if no process is running, let's start this one!
         if not self.reader.process_running:
             self._run(command_string, iter)
@@ -378,7 +384,10 @@ class ProcessManager:
         iter = get_treeview_selection(self.queue_tree)
         # get its path
         path = self.queue_model.get_path(iter)[0]
-        if path > 0:
+        # only move up if it's not the first entry,
+        # only move down if it's not the last entry
+        if (not direction and path > 0) or \
+           (direction and path < len(self.queue_model)):
             # get the selected value
             selected = self.queue_model[path]
             # get the adjacent value
@@ -403,7 +412,7 @@ class ProcessManager:
                     self.process_list[pos + direction] = sel
                     break
         else:
-            dprint("TERMINAL: tree path = 0")
+            dprint("TERMINAL: cannot move first or last item")
 
     def move_queue_item_up(self, widget):
         """ Move selected queue item up in the queue """
