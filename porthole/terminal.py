@@ -1079,8 +1079,7 @@ class ProcessOutputReader(threading.Thread):
     def __init__(self, finished_callback):
         """ Initialize """
         threading.Thread.__init__(self)
-        # set callbacks
-        self.update_callback = update_callback
+        # set callback
         self.finished_callback = finished_callback
         self.setDaemon(1)  # quit even if this thread is still running
         self.process_running = False
