@@ -80,6 +80,8 @@ class MainWindow:
         self.use_sudo = -1
         #want to use -p option for pretend?
         self.pretend = ""
+        # upgrades loaded?
+        self.upgrades_loaded = False
         # summary view
         scroller = self.wtree.get_widget("summary_text_scrolled_window");
         self.summary = Summary()
@@ -293,7 +295,7 @@ class MainWindow:
         cat_scroll = self.wtree.get_widget("category_scrolled_window")
         if index in (self.SHOW_INSTALLED, self.SHOW_ALL):
             cat_scroll.show();
-            self.populate_category_tree(
+            self.category_view.populate(
                 index == self.SHOW_ALL
                 and self.db.categories.keys()
                 or self.db.installed.keys())
@@ -304,31 +306,50 @@ class MainWindow:
             cat_scroll.hide();
             self.package_view.set_view(self.package_view.SEARCH_RESULTS)
         elif index == self.SHOW_UPGRADE:
-            cat_scroll.hide();
-            self.fill_upgrade_results()
-            self.package_view.set_view(self.package_view.UPGRADABLE)
+            if not self.upgrades_loaded:
+                # upgrades are not loaded, create dialog and load them
+                self.wait_dialog = gtk.Dialog(
+                    "Please Wait!",
+                    self.wtree.get_widget("main_window"),
+                    gtk.DIALOG_MODAL or gtk.DIALOG_DESTROY_WITH_PARENT,
+                    ("_Cancel", 0))
+                text = gtk.Label("Loading upgradable package list...")
+                text.set_padding(5, 5)
+                self.wait_dialog.vbox.pack_start(text)
+                text.show()
+                self.wait_dialog.connect("response", self.wait_dialog_response)
+                self.wait_dialog.show_all()
+                # create upgrade thread for loading the upgrades
+                self.ut = UpgradableReader(self.package_view.upgrade_model, self.db.installed.items())
+                self.ut.start()
+                # add a timeout to check if thread is done
+                gtk.timeout_add(100, self.update_upgrade_thread)
+            else:
+                # already loaded, just show them!
+                cat_scroll.hide();
+                self.package_view.set_view(self.package_view.UPGRADABLE)
         self.set_package_actions_sensitive(gtk.FALSE)
         self.deps_view.clear()
 
-    def fill_upgrade_results(self):
-        """fill upgrade tree"""
-        upgrade_results = self.package_view.upgrade_model
-        upgrade_results.clear()
-        installed = []
-        for cat, packages in self.db.installed.items():
-            for name, package in packages.items():
-                if package.upgradable():
-                    installed += [(package.full_name, package)]
-        installed = portagelib.sort(installed)
-        world = open("/var/cache/edb/world", "r").read().split()
-        for full_name, package in installed:
-            iter = upgrade_results.insert_before(None, None)
-            upgrade_results.set_value(iter, 0, full_name)
-            upgrade_results.set_value(iter, 2, package)
-            upgrade_results.set_value(iter, 1,
-                                      full_name in world
-                                      and gtk.TRUE or gtk.FALSE)
-        return
+    def wait_dialog_response(self, widget, response):
+        """ Get a response from the wait dialog """
+        if response == 0:
+            # terminate the thread
+            # how to do this?
+            # get rid of the dialog
+            self.wait_dialog.destroy()
+
+    def update_upgrade_thread(self):
+        """ Find out if thread is finished """
+        # needs error checking perhaps...
+        if self.ut.done:
+            self.package_view.set_view(self.package_view.UPGRADABLE)
+            self.wtree.get_widget("category_scrolled_window").hide()
+            self.ut.join()
+            self.wait_dialog.destroy()
+            self.upgrades_loaded = True
+            return gtk.FALSE
+        return gtk.TRUE
 
     def update_statusbar(self, mode):
         """Update the statusbar for the selected filter"""
@@ -350,3 +371,39 @@ class MainWindow:
         self.wtree.get_widget("btn_emerge").set_sensitive(enabled)
         self.wtree.get_widget("btn_unmerge").set_sensitive(enabled)
         self.notebook.set_sensitive(enabled)
+
+
+
+class UpgradableReader(threading.Thread):
+    """ Read available upgrades and store them in a treemodel """
+    def __init__(self, upgrade_model, installed):
+        """ Initialize """
+        threading.Thread.__init__(self)
+        self.upgrade_results = upgrade_model
+        self.installed_items = installed
+        self.done = False
+    
+    def run(self):
+        """fill upgrade tree"""
+        self.upgrade_results.clear()    # clear the treemodel
+        installed = []
+        # find upgradable packages
+        for cat, packages in self.installed_items:
+            for name, package in packages.items():
+                if package.upgradable():
+                    installed += [(package.full_name, package)]
+        installed = portagelib.sort(installed)
+        # read system world file
+        # using this file, only packages explicitly installed by
+        # the user are upgraded by default
+        world = open("/var/cache/edb/world", "r").read().split()
+        # add the packages to the treemodel
+        for full_name, package in installed:
+            iter = self.upgrade_results.insert_before(None, None)
+            self.upgrade_results.set_value(iter, 0, full_name)
+            self.upgrade_results.set_value(iter, 2, package)
+            self.upgrade_results.set_value(iter, 1,
+                                      full_name in world
+                                      and gtk.TRUE or gtk.FALSE)
+        # set the thread as finished
+        self.done = True
