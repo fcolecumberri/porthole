@@ -27,11 +27,30 @@ import portagelib
 
 from utils import get_treeview_selection, get_icon_for_package
 
-class PackageView(gtk.TreeView):
-    """ Self contained treeview of packages """
+class CommonTreeView(gtk.TreeView):
+    """ Common functions used by all views """
     def __init__(self):
+        """ Initialize """
         # initialize the treeview
         gtk.TreeView.__init__(self)
+        # set last selected
+        self._last_selected = None
+        # show yourself
+        self.show_all()
+
+    def clear(self):
+        """ Clear current view """
+        # get the treemodel
+        model = self.get_model()
+        # clear it
+        model.clear()
+
+class PackageView(CommonTreeView):
+    """ Self contained treeview of packages """
+    def __init__(self):
+        """ Initialize """
+        # initialize the treeview
+        CommonTreeView.__init__(self)
         # setup some variables for the different views
         self.PACKAGES = 0
         self.SEARCH_RESULTS = 1
@@ -54,12 +73,8 @@ class PackageView(gtk.TreeView):
         self.set_view(self.PACKAGES) # default view
         # connect to clicked event
         self.connect("cursor_changed", self._clicked)
-        # store last selected value
-        self._last_selected = None
         # set default callbacks to nothing
         self.register_callbacks()
-        # show
-        self.show_all()
 
     def set_view(self, view):
         """ Set the current view """
@@ -68,6 +83,7 @@ class PackageView(gtk.TreeView):
         self._set_model()
 
     def _init_view(self):
+        """ Set the treeview column """
         # clear the column
         self._column.clear()
         if self.current_view == self.UPGRADABLE:
@@ -86,7 +102,7 @@ class PackageView(gtk.TreeView):
         self._column.add_attribute(text, "text", 0)
 
     def _set_model(self):
-        # Set the correct treemodel for the current view
+        """ Set the correct treemodel for the current view """
         if self.current_view == self.PACKAGES:
             self.set_model(self.package_model)
         elif self.current_view == self.SEARCH_RESULTS:
@@ -100,6 +116,7 @@ class PackageView(gtk.TreeView):
         self._upgrade_selected = upgrade_selected
 
     def _clicked(self, treeview):
+        """ Handles treeview clicks """
         #get the selection
         package = get_treeview_selection(treeview, 2)
         if self.current_view == self.UPGRADABLE:
@@ -137,8 +154,57 @@ class PackageView(gtk.TreeView):
                                  size = gtk.ICON_SIZE_MENU,
                                  detail = None))
 
-    def clear(self):
-        """ Clear current view """
-        model = self.get_model()
-        model.clear()
         
+class CategoryView(CommonTreeView):
+    """ Self contained treeview to hold categories """
+    def __init__(self):
+        """ Initialize """
+        # initialize the treeview
+        CommonTreeView.__init__(self)
+        # setup the column
+        column = gtk.TreeViewColumn("Categories",
+                                    gtk.CellRendererText(),
+                                    markup = 0)
+        self.append_column(column)
+        # setup the model
+        self.model = gtk.TreeStore(gobject.TYPE_STRING,
+                                   gobject.TYPE_STRING)
+        self.set_model(self.model)
+        # connect to clicked event
+        self.connect("cursor-changed", self._clicked)
+        # register default callback
+        self.register_callback()
+
+    def register_callback(self, category_changed = None):
+        """ Register callbacks for events """
+        self._category_changed = category_changed
+
+    def _clicked(self, treeview):
+        """ Handle treeview clicks """
+        category = get_treeview_selection(treeview, 1)
+        # has the selection really changed?
+        if category != self._last_selected:
+            if self._category_changed:
+                # then call the callback if it exists!
+                self._category_changed(category)
+        # save current selection as last selected
+        self._last_selected = category
+        
+    def populate(self, categories):
+        """Fill the category tree."""
+        last_catmaj = None
+        categories.sort()
+        for cat in categories:
+            try: catmaj, catmin = cat.split("-")
+            except: continue #quick fix to bug posted on forums
+            if catmaj != last_catmaj:
+                cat_iter = self.model.insert_before(None, None)
+                self.model.set_value(cat_iter, 0, catmaj)
+                self.model.set_value(cat_iter, 1, None) # needed?
+                last_catmaj = catmaj
+            sub_cat_iter = self.model.insert_before(cat_iter, None)
+            self.model.set_value(sub_cat_iter, 0, catmin)
+            # store full category name in hidden field
+            self.model.set_value(sub_cat_iter, 1, cat)
+
+

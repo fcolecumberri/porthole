@@ -31,7 +31,7 @@ from depends import DependsTree
 from utils import load_web_page, get_icon_for_package, is_root, dprint, get_treeview_selection
 from process import ProcessWindow
 from summary import Summary
-from views import PackageView
+from views import CategoryView, PackageView
 
 class MainWindow:
     """Main Window class to setup and manage main window interface."""
@@ -60,7 +60,6 @@ class MainWindow:
             }
         self.wtree.signal_autoconnect(callbacks)
         # aliases for convenience
-        self.category_view = self.wtree.get_widget("category_view")
         self.notebook = self.wtree.get_widget("notebook")
         self.deps_view = self.wtree.get_widget("depend_view")
         #set unfinished items to not be sensitive
@@ -69,8 +68,10 @@ class MainWindow:
         # self.wtree.get_widget("btn_help").set_sensitive(gtk.FALSE)
         #set things we can't do unless a package is selected to not sensitive
         self.set_package_actions_sensitive(gtk.FALSE)
-        #setup our treemodels
-        self.category_model = None
+        # setup the category view
+        self.category_view = CategoryView()
+        self.category_view.register_callback(self.category_changed)
+        self.wtree.get_widget("category_scrolled_window").add(self.category_view)
         #setup the package treeview
         self.package_view = PackageView()
         self.package_view.register_callbacks(self.package_changed)
@@ -88,11 +89,6 @@ class MainWindow:
         self.depends = DependsTree() 
         #declare the database
         self.db = None
-        #set category treeview header
-        category_column = gtk.TreeViewColumn("Categories",
-                                             gtk.CellRendererText(),
-                                             markup = 0)
-        self.category_view.append_column(category_column)
         #set dependency treeview header
         depend_column = gtk.TreeViewColumn("Dependencies")
         depend_pixbuf = gtk.CellRendererPixbuf()
@@ -169,7 +165,7 @@ class MainWindow:
             self.db = self.db_thread.get_db()
             self.set_statusbar("Populating tree ...")
             self.db_thread.join()
-            self.populate_category_tree(self.db.categories.keys())
+            self.category_view.populate(self.db.categories.keys())
             self.update_statusbar(self.SHOW_ALL)
             self.wtree.get_widget("menubar").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("toolbar").set_sensitive(gtk.TRUE)
@@ -178,26 +174,6 @@ class MainWindow:
             self.wtree.get_widget("btn_search").set_sensitive(gtk.TRUE)
             return gtk.FALSE  # disconnect from timeout
         return gtk.TRUE
-
-    def populate_category_tree(self, categories):
-        """Fill the category tree."""
-        last_catmaj = None
-        categories.sort()
-        self.category_model = gtk.TreeStore(gobject.TYPE_STRING,
-                                            gobject.TYPE_STRING)
-        for cat in categories:
-            try: catmaj, catmin = cat.split("-")
-            except: continue #quick fix to bug posted on forums
-            if catmaj != last_catmaj:
-                cat_iter = self.category_model.insert_before(None, None)
-                self.category_model.set_value(cat_iter, 0, catmaj)
-                self.category_model.set_value(cat_iter, 1, None) # needed?
-                last_catmaj = catmaj
-            sub_cat_iter = self.category_model.insert_before(cat_iter, None)
-            self.category_model.set_value(sub_cat_iter, 0, catmin)
-            # store full category name in hidden field
-            self.category_model.set_value(sub_cat_iter, 1, cat)
-        self.category_view.set_model(self.category_model)
 
     def setup_command(self, command, callback = None):
         """Setup the command to run with sudo or not at all"""
@@ -288,9 +264,8 @@ class MainWindow:
         """Show about dialog."""
         dialog = AboutDialog()
 
-    def category_changed(self, treeview):
+    def category_changed(self, category):
         """Catch when the user changes categories."""
-        category = get_treeview_selection(treeview, 1)
         mode = self.wtree.get_widget("view_filter").get_history()
         if not category:
             packages = None

@@ -496,18 +496,6 @@
 		  <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
 		  <property name="shadow_type">GTK_SHADOW_IN</property>
 		  <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
-
-		  <child>
-		    <widget class="GtkTreeView" id="category_view">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="headers_visible">True</property>
-		      <property name="rules_hint">False</property>
-		      <property name="reorderable">False</property>
-		      <property name="enable_search">True</property>
-		      <signal name="cursor_changed" handler="on_category_view_cursor_changed" last_modification_time="Wed, 03 Dec 2003 00:52:47 GMT"/>
-		    </widget>
-		  </child>
 		</widget>
 		<packing>
 		  <property name="shrink">True</property>
