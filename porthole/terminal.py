@@ -543,7 +543,9 @@ class ProcessManager:
         # kill any running processes
 	self.kill_process()
         # make sure to reset the process list
+	self.Semaphore.acquire()
         self.process_list = []
+	self.Semaphore.release()
         # the window is no longer showing
         self.window_visible = False
         self.wtree = None
@@ -938,25 +940,30 @@ class ProcessManager:
                 self.skip_first_menu.set_sensitive(gtk.FALSE)
             self.resume_menu.set_sensitive(gtk.TRUE)
             # check if there are more queue entries to process
+	    self.Semaphore.acquire()
             if len(self.process_list)> 1:
                 self.skip_queue_menu.set_sensitive(gtk.TRUE)
             else:
                 self.skip_queue_menu.set_sensitive(gtk.FALSE)
+	    self.Semaphore.release()
         else:
             self.resume_menu.set_sensitive(gtk.FALSE)
     
     def resume_normal(self, widget):
         """ Resume killed process """
+	Self.Semaphore.acquire()
         # pass the normal command along with --resume
         name, command, iter, callback = self.process_list[0]
-        command += " --resume"
+	self.Semaphore.release()
+	command += " --resume"
         self._run(command, iter)
 
     def resume_skip_first(self, widget):
         """ Resume killed process, skipping first package """
-
+	Self.Semaphore.acquire()
         # pass the normal command along with --resume --skipfirst
         name, command, iter, callback = self.process_list[0]
+	self.Semaphore.release()
         command += " --resume --skipfirst"
         self._run(command, iter)
 
@@ -975,9 +982,11 @@ class ProcessManager:
             if callback:
                 callback()
             if self.term.tab_showing[TAB_QUEUE]:
+		self.Semaphore.release()
                 # update the queue tree wait for it to return, it might prevent crashes
                 result = self.queue_clicked(self.queue_tree)
-                # remove process from list
+		self.Semaphore.acquire()
+		# remove process from list
                 self.process_list = self.process_list[1:]
         # check for pending processes, and run them
         #dprint(self.process_list)
@@ -1149,6 +1158,8 @@ class ProcessManager:
     def queue_clicked(self, widget):
         """Handle clicks to the queue treeview"""
 	dprint("TERMINAL: queue_clicked()")
+        # Prevent conflicts while changing process queue
+        self.Semaphore.acquire()
         # get the selected iter
         iter = get_treeview_selection(self.queue_tree)
         # get its path
@@ -1157,6 +1168,9 @@ class ProcessManager:
         except:
             dprint("TERMINAL: Couldn't get queue view treeiter path, " \
                    "there is probably nothing selected.")
+	    # We're finished, release semaphore
+	    self.Semaphore.release()
+	    dprint("TERMINAL: queue_clicked(); finnished... returning")
             return False
         # if the item is not in the process list
         # don't make the controls sensitive and return
@@ -1173,7 +1187,10 @@ class ProcessManager:
                 self.queue_remove.set_sensitive(gtk.FALSE)
             else:
                 self.queue_remove.set_sensitive(gtk.TRUE)
-            return True
+	    # We're finished, release semaphore
+	    self.Semaphore.release()
+	    dprint("TERMINAL: queue_clicked(); finnished... returning")
+	    return True
         # if we reach here it's still in the process list
         # activate the delete item
         self.queue_remove.set_sensitive(gtk.TRUE)
@@ -1192,6 +1209,9 @@ class ProcessManager:
             # enable moving the item
             self.move_up.set_sensitive(gtk.TRUE)
             self.move_down.set_sensitive(gtk.TRUE)
+	# We're finished, release semaphore
+	self.Semaphore.release()
+        dprint("TERMINAL: queue_clicked(); finnished... returning")
 	return True
 
     def set_save_buffer(self):

@@ -3,7 +3,7 @@ Porthole Release Feature Schedule
 
 
 Release 0.4.?
-- Show ebuild source code
+
 - Updating the info for a selected package in a separate thread may make the gui more responsive
 - Faster dependency calculations by only partially loading the tree
 - USE flags & features editor(s) (being worked on)
