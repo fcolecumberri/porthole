@@ -27,6 +27,7 @@ from sys import exit
 import string
 from string import digits, zfill
 from gettext import gettext as _
+import version_sort
 
 try:
     import portage
@@ -218,6 +219,46 @@ class Properties:
         """Returns a list of strings."""
         return self.homepage.split()
 
+def get_size( ebuild ):
+    """ Returns size of package to fetch. """
+    #This code to calculate size of downloaded files was taken from /usr/bin/emerge - BB
+    mydigest = portage.db['/']['porttree'].dbapi.finddigest(ebuild)
+    mysum = 0
+    try:
+        myfile = open(mydigest,"r")
+        for line in myfile.readlines():
+            mysum += int(line.split(" ")[3])
+        myfile.close()
+        mystr = str(mysum/1024)
+        mycount=len(mystr)
+        while (mycount > 3):
+            mycount-=3
+            mystr=mystr[:mycount]+","+mystr[mycount:]
+        mysum=mystr+" kB"
+    except SystemExit, e:
+        raise # Needed else can't exit
+    except Exception, e:
+        dprint( "PORTAGELIB: get_size Exception:"  )
+	dprint( e )
+        mysum="[bad / blank digest]"
+    return mysum
+
+def get_digest( ebuild ):
+    """Returns digest of an ebuild"""
+    mydigest = portage.db['/']['porttree'].dbapi.finddigest(ebuild)
+    digest_file = []
+    try:
+        myfile = open(mydigest,"r")
+        for line in myfile.readlines():
+            digest_file.append(line.split(" "))
+        myfile.close()
+    except SystemExit, e:
+        raise # Needed else can't exit
+    except Exception, e:
+        dprint( "PORTAGELIB: get_size Exception:"  )
+	dprint( e )
+    return digest_file
+
 def get_properties(ebuild):
     """Get all ebuild variables in one chunk."""
     return Properties(dict(zip(keys,
@@ -239,6 +280,10 @@ class Package:
         Installed_Semaphore.acquire()
         self.is_installed = full_name in installed  # true if installed
         Installed_Semaphore.release()
+	self.latest_ebuild = None
+	self.latest_installed = None
+	self.size = None
+	self.digest_file = None
         self.in_world = full_name in World
 
     def get_installed(self):
@@ -256,8 +301,31 @@ class Package:
     def get_latest_ebuild(self, include_masked = True):
         """Return latest ebuild of a package"""
         # Note: this is slow, see get_versions()
-        criterion = include_masked and 'match-all' or 'match-visible'
-        return portage.best(self.get_versions(include_masked))
+	if self.latest_ebuild == None:
+	    criterion = include_masked and 'match-all' or 'match-visible'
+            self.latest_ebuild = self.latest_ebuild = portage.best(self.get_versions(include_masked))
+	return self.latest_ebuild
+
+    def get_size( self ):
+ 	if self.size == None:
+ 	    self.size = get_size( self.get_latest_ebuild() )
+ 	return self.size
+
+    def get_digest( self ):
+	if self.digest_file == None:
+	    self.digest_file = get_digest( self.get_latest_ebuild() )
+	return self.digest_file
+
+    def get_latest_installed( self ):
+ 	if self.latest_installed == None:
+ 	    installed_ebuilds = self.get_installed( )
+ 	    if len(installed_ebuilds) == 1:
+ 		return installed_ebuilds[0]
+ 	    elif len(installed_ebuilds) == 0:
+ 		return ""
+ 	    installed_ebuilds = version_sort.ver_sort( installed_ebuilds )
+ 	    self.latest_installed = installed_ebuilds[-1]
+ 	return self.latest_installed
 
     def get_metadata(self):
         """Get a package's metadata, if there is any"""

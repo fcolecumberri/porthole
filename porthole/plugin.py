@@ -14,6 +14,8 @@ class PluginManager:
 	self.porthole_instance = porthole_instance
 	self.plugins = []
 	for directory in path_list:
+	    if directory == "cwd":
+		directory = os.getcwd()
 	    os.chdir(directory)
 	    possible_plugins = glob("*_pplug.py")
 	    for i in possible_plugins:
@@ -39,6 +41,13 @@ class PluginManager:
 
     def del_menuitem( self, menuitem ):
 	self.porthole_instance.del_plugin_menuitem( menuitem )
+
+    def new_package_tab( self, *args):
+	#I separate the main window from the plugins in case if we ever want to execute the plugins in a separate thread
+	return self.porthole_instance.new_plugin_package_tab( *args )
+
+    def del_package_tab( self, *args):
+	return self.porthole_instance.del_plugin_package_tab( *args )
 
     def destroy( self ):
 	for i in self.plugins:

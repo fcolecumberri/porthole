@@ -128,6 +128,21 @@ class UpgradableReader(CommonReader):
         self.upgrade_results.set_value(self.parent, 3, self.upgrade_view.render_icon(icon,
                              size = gtk.ICON_SIZE_MENU,
                              detail = None))
+	if package:
+	    self.upgrade_results.set_value(self.parent, 6, package.get_size())
+	    installed = package.get_latest_installed()
+	    latest = package.get_latest_ebuild()
+	    try:
+		installed = installed = portagelib.get_version( installed )
+	    except IndexError:
+		installed = ""
+	    try:
+		latest = portagelib.get_version( latest )
+	    except IndexError:
+		latest = "Error"
+	    self.upgrade_results.set_value(self.parent, 7, installed)
+	    self.upgrade_results.set_value(self.parent, 8, latest)
+	    self.upgrade_results.set_value(self.parent, 9, package.get_properties().description )
 
     def get_upgrade_deps(self, iter, parent_name):
         list = []
@@ -224,6 +239,23 @@ class UpgradableReader(CommonReader):
         self.upgrade_results.set_value(child_iter, 4, in_world)
         self.upgrade_results.set_value(child_iter, 0, full_name)
         self.upgrade_results.set_value(child_iter, 2, package)
+	installed = package.get_latest_installed()
+	latest = package.get_latest_ebuild()
+	try:
+	    installed = portagelib.get_version( installed )
+	except IndexError:
+	    installed = ""
+	try:
+	    latest = portagelib.get_version( latest )
+	except IndexError:
+	    latest = "Error"
+	self.upgrade_results.set_value(child_iter, 7, installed)
+	self.upgrade_results.set_value(child_iter, 8, latest)
+	self.upgrade_results.set_value(child_iter, 6, package.get_size())
+	self.upgrade_results.set_value(child_iter, 8, latest)
+	self.upgrade_results.set_value(child_iter, 9, package.get_properties().description )
+
+
         if blocker:
             icon, color = gtk.STOCK_STOP, 'red'
         else:
