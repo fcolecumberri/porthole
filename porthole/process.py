@@ -24,6 +24,7 @@
 import pygtk; pygtk.require('2.0')
 import gtk, threading
 import signal, os, pty
+from utils import dprint
 
 class ProcessWindow(threading.Thread):
     RESPONSE_CLOSE = 0
@@ -60,7 +61,6 @@ class ProcessWindow(threading.Thread):
         self.scroller.add(self.textview)
         self.window.vbox.pack_start(self.scroller,
                                     gtk.TRUE, gtk.TRUE)
-
         self.window.connect("realize", self.on_realize)
         self.window.connect("destroy", self.on_destroy)
         self.window.connect("response", self.on_response)
@@ -88,6 +88,7 @@ class ProcessWindow(threading.Thread):
 
     def on_realize(self, window):
         """Start the process and run the thread!"""
+        dprint('Process window realizing')
         # pty.fork() creates a new process group
         self.pid, self.fd = pty.fork() 
         if not self.pid:  # child
@@ -147,6 +148,14 @@ class ProcessWindow(threading.Thread):
         start = end.copy(); start.backward_char()
         self.textbuffer.delete(start, end)
 
+    def del_last_line(self,line_num):
+        """Delete the line of text in the buffer"""
+        start = self.textbuffer.get_iter_at_line(line_num)
+        end = self.textbuffer.get_end_iter()
+        self.textbuffer.delete(start,end)
+
+
+
     def run(self):
         """The thread."""
         def append(text):
@@ -155,19 +164,43 @@ class ProcessWindow(threading.Thread):
             gtk.threads_leave()
 
         try:
+            dprint('begining run of os.read() loop')
+            line_num = 0
+            dline = ""  # for debug mode
+            start_of_line = False
+            sol = self.textbuffer.get_start_iter()
             while True:
                 text = os.read(self.fd, 1)
                 if not text:
+                    dprint('unexpected break -- no text')
                     break
 ##                 elif text == '\033':  # escape
                 elif text == "\b":
                     self.backspace()
                 elif 32 <= ord(text) <= 127 or text == '\n': # no unprintable
+                    if start_of_line and text != '\n':
+                        # capture resets to print from start of line without a \n
+                        self.del_last_line(line_num)
+                        start_of_line = False
                     append(text)
+                    if text == '\n':
+                        line_num += 1
+                        dline += '|eol|'
+                        dprint(dline)
+                        dline = ""
+                    else:
+                        dline += text
+                elif ord(text) == 13:
+                    start_of_line = True
+                    dline = dline + '|' + str(ord(text)) + "|"
+                    dprint("unprintable char :"+ str(ord(text)))
+                else:
+                    dline = dline + '|' + str(ord(text)) + "|"
         except OSError:
             pass  # if the process is killed
         except Exception, e:
             append(str(e))
+        dprint('end of process capture')
         append('\n')
         append('*** process terminated ***\n')
 
