@@ -4,7 +4,7 @@
     Porthole Main Window
     The main interface the user will interact with
 
-    Copyright (C) 2003 Fredrik Arnerup and Daniel G. Taylor
+    Copyright (C) 2003 - 2004 Fredrik Arnerup and Daniel G. Taylor
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,46 +22,30 @@
 '''
 
 import threading, re
-import pygtk; pygtk.require("2.0") #make sure we have the right version
+import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, gtk.glade, gobject, pango
 import portagelib
 
 from about import AboutDialog
 from depends import DependsTree
 from utils import load_web_page, get_icon_for_package, is_root, dprint, \
-     get_treeview_selection
+     get_treeview_selection, YesNoDialog, SingleButtonDialog
 from process import ProcessWindow
 from summary import Summary
 from views import CategoryView, PackageView, DependsView
 
 class MainWindow:
     """Main Window class to setup and manage main window interface."""
-    
-    class EmergeOptions:
-        """ Holds common emerge options """
-        def __init__(self):
-            self.pretend = False
-            self.fetch = False
-            self.verbose = False
-
-        def get_opts(self):
-            """ Return currently set options in a string """
-            opt_string = ' '
-            if self.pretend:
-                opt_string += '--pretend '
-            if self.fetch:
-                opt_string += '--fetchonly '
-            if self.verbose:
-                opt_string += '--verbose '
-            return opt_string
-
-    def __init__(self):
-        #setup glade
+    def __init__(self, preferences = None):
+        # setup prefs
+        self.prefs = preferences
+        # setup glade
         self.gladefile = "porthole.glade"
         self.wtree = gtk.glade.XML(self.gladefile, "main_window")
-        #register callbacks
+        # register callbacks
         callbacks = {
             "on_main_window_destroy" : gtk.mainquit,
+            "on_main_window_size_request" : self.size_update,
             "on_quit1_activate" : gtk.mainquit,
             "on_emerge_package" : self.emerge_package,
             "on_unmerge_package" : self.unmerge_package,
@@ -80,12 +64,10 @@ class MainWindow:
         self.wtree.signal_autoconnect(callbacks)
         # aliases for convenience
         self.notebook = self.wtree.get_widget("notebook")
-        #set unfinished items to not be sensitive
+        # set unfinished items to not be sensitive
         self.wtree.get_widget("view_statistics1").set_sensitive(gtk.FALSE)
         self.wtree.get_widget("contents2").set_sensitive(gtk.FALSE)
         # self.wtree.get_widget("btn_help").set_sensitive(gtk.FALSE)
-        #set things we can't do unless a package is selected to not sensitive
-        self.set_package_actions_sensitive(gtk.FALSE)
         # setup the category view
         self.category_view = CategoryView()
         self.category_view.register_callback(self.category_changed)
@@ -99,47 +81,64 @@ class MainWindow:
         self.deps_view = DependsView()
         self.wtree.get_widget(
             "dependencies_scrolled_window").add(self.deps_view)
-        # let's store some emerge options
-        self.options = self.EmergeOptions()
-        # upgrades loaded?
-        self.upgrades_loaded = False
         # summary view
         scroller = self.wtree.get_widget("summary_text_scrolled_window");
         self.summary = Summary()
         scroller.add(self.summary)
         self.summary.show()
-        #declare the database
+        # move horizontal and vertical panes
+        self.wtree.get_widget("hpane").set_position(self.prefs.main.hpane)
+        self.wtree.get_widget("vpane").set_position(self.prefs.main.vpane)
+        # how should we setup our saved menus?
+        if self.prefs.emerge.pretend:
+            self.wtree.get_widget("pretend1").set_active(gtk.TRUE)
+        if self.prefs.emerge.fetch:
+            self.wtree.get_widget("fetch").set_active(gtk.TRUE)
+        if self.prefs.emerge.verbose:
+            self.wtree.get_widget("verbose4").set_active(gtk.TRUE)
+        # restore last window width/height
+        self.wtree.get_widget("main_window").resize(self.prefs.main.width,
+                                                    self.prefs.main.height)
+        # initialize our data
+        self.init_data()
+        # let the user know if he can emerge or not
+        self.check_for_root()
+
+    def init_data(self):
+        # set things we can't do unless a package is selected to not sensitive
+        self.set_package_actions_sensitive(gtk.FALSE)
+        self.category_view.clear()  # clear just in case it's populated
+        # clear search results
+        if self.wtree.get_widget("view_filter").get_history() != self.SHOW_SEARCH:
+            self.package_view.clear()
+        # upgrades loaded?
+        self.upgrades_loaded = False
+        # upgrade loading callback
+        self.upgrades_loaded_callback = None
+        # declare the database
         self.db = None
-        #move horizontal and vertical panes
-        self.wtree.get_widget("hpane").set_position(280)
-        self.wtree.get_widget("vpane").set_position(250)
-        #load the db
+        # load the db
         self.db_thread = portagelib.DatabaseReader()
         self.db_thread.start()
         gtk.timeout_add(100, self.update_db_read)
-        #set status
+        # set status
         self.set_statusbar("Reading package database: %i packages read"
                            % 0)
-        # upgrade loading callback
-        self.upgrades_loaded_callback = None
-        # let the user know if he can emerge or not
-        self.check_for_root()
 
     def check_for_root(self):
         """figure out if the user can emerge or not..."""
         self.is_root = is_root()
         if not self.is_root:
-            dialog = gtk.Dialog(
-                "You are not root!",
-                self.wtree.get_widget("main_window"),
-                gtk.DIALOG_MODAL or gtk.DIALOG_DESTROY_WITH_PARENT,
-                ("_Ok", 0))
-            text = gtk.Label("You will not be able to emerge, "
-                                  "unmerge, upgrade or sync packages!")
-            text.set_padding(5, 5)
-            dialog.vbox.pack_start(text)
-            text.show()
-            dialog.show_all()
+            self.no_root_dialog = SingleButtonDialog("You are not root!",
+                            self.wtree.get_widget("main_window"),
+                            "You will not be able to emerge, unmerge,"
+                            " upgrade or sync!", self.no_root_response,
+                            "_Ok")
+
+    def no_root_response(self, widget, response):
+        """ Remove the dialog when Ok is pressed """
+        dprint("Accepted no_root, removing dialog")
+        self.no_root_dialog.destroy()
 
     def set_statusbar(self, string):
         """Update the statusbar without having to use push and pop."""
@@ -168,46 +167,57 @@ class MainWindow:
             self.wtree.get_widget("view_filter").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("search_entry").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("btn_search").set_sensitive(gtk.TRUE)
+            # update the views by calling view_filter_changed
+            self.view_filter_changed(self.wtree.get_widget("view_filter"))
             return gtk.FALSE  # disconnect from timeout
         return gtk.TRUE
 
     def setup_command(self, command):
         """Setup the command to run or not"""
         env = {"FEATURES": "notitles"}  # Don't try to set the titlebar
-        if self.is_root or (self.options.pretend and
+        if self.is_root or (self.prefs.emerge.pretend and
                             command[:11] != "emerge sync"):
-            ProcessWindow(command, env)   
+            ProcessWindow(command, env, self.prefs, self.prefs.emerge.pretend \
+                          and None or self.init_data)
         else:
-            dprint("Sorry, can't do that!")
+            dprint("Sorry, you aren't root! -> " + command)
+            self.sorry_dialog = SingleButtonDialog("You are not root!",
+                    self.wtree.get_widget("main_window"),
+                    "Please run Porthole as root to emerge packages!",
+                    self.sorry_dialog_response, "_Ok")
+
+    def sorry_dialog_response(self, widget, response):
+        """ Removes sorry dialog when Ok is pressed """
+        self.sorry_dialog.destroy()
 
     def pretend_set(self, widget):
         """Set whether or not we are going to use the --pretend flag"""
-        self.options.pretend = widget.get_active()
+        self.prefs.emerge.pretend = widget.get_active()
 
     def fetch_set(self, widget):
         """Set whether or not we are going to use the --fetchonly flag"""
-        self.options.fetch = widget.get_active()
+        self.prefs.emerge.fetch = widget.get_active()
 
     def verbose_set(self, widget):
         """Set whether or not we are going to use the --verbose flag"""
-        self.options.verbose = widget.get_active()
+        self.prefs.emerge.verbose = widget.get_active()
 
     def emerge_package(self, widget):
         """Emerge the currently selected package."""
         package = get_treeview_selection(self.package_view, 2)
-        self.setup_command("emerge" + self.options.get_opts()
+        self.setup_command("emerge" + self.prefs.emerge.get_string()
                            + package.full_name)
 
     def unmerge_package(self, widget):
         """Unmerge the currently selected package."""
         package = get_treeview_selection(self.package_view, 2)
         self.setup_command("emerge unmerge" +
-                           self.options.get_opts() + package.full_name)
+                self.prefs.emerge.get_string() + package.full_name)
 
     def sync_tree(self, widget):
         """Sync the portage tree and reload it when done."""
         sync = "emerge sync"
-        if self.options.verbose:
+        if self.prefs.emerge.verbose:
             sync += " --verbose"
         self.setup_command(sync)
 
@@ -225,13 +235,22 @@ class MainWindow:
                 # step to next iter
                 iter = model.iter_next(iter)
             dprint("Updating packages...")
-            self.setup_command("emerge -u" + self.options.get_opts() +
+            self.setup_command("emerge -u" + self.prefs.emerge.get_string() +
                                packages_list)
         else:
-            dprint("Upgrades not loaded; we should display a dialog here!")
-            dprint("Upgrading all packages in world file...")
+            dprint("Upgrades not loaded; upgrade world?")
+            self.upgrades_loaded_dialog = YesNoDialog("Upgrade requested",
+                    self.wtree.get_widget("main_window"),
+                    "Do you want to upgrade all packages in your world file?",
+                     self.upgrades_loaded_dialog_response)
+
+    def upgrades_loaded_dialog_response(self, widget, response):
+        """ Get and parse user's response """
+        if response == 0: # Yes was selected
             self.load_upgrades_list()
             self.upgrades_loaded_callback = self.upgrade_packages
+        # get rid of the dialog
+        self.upgrades_loaded_dialog.destroy()
 
     def package_search(self, widget):
         """Search package db with a string and display results."""
@@ -254,7 +273,7 @@ class MainWindow:
                     iter = search_results.insert_before(None, None)
                     search_results.set_value(iter, 0, name)
                     search_results.set_value(iter, 2, data)
-                    #set the icon depending on the status of the package
+                    # set the icon depending on the status of the package
                     icon = get_icon_for_package(data)
                     view = self.package_view
                     search_results.set_value(
@@ -294,7 +313,7 @@ class MainWindow:
     def package_changed(self, package):
         """Catch when the user changes packages."""
         self.summary.update_package_info(package)
-        #if the user is looking at the deps we need to update them
+        # if the user is looking at the deps we need to update them
         notebook = self.wtree.get_widget("notebook")
         if notebook.get_current_page() == 1:
             self.deps_view.fill_depends_tree(self.deps_view, package)
@@ -303,7 +322,7 @@ class MainWindow:
     def notebook_changed(self, widget, pointer, index):
         """Catch when the user changes the notebook"""
         if index == 1:
-            #fill the deps view!
+            # fill the deps view!
             package = get_treeview_selection(self.package_view, 2)
             self.deps_view.fill_depends_tree(self.deps_view, package)
 
@@ -327,6 +346,7 @@ class MainWindow:
             self.summary.update_package_info(None)
         elif index == self.SHOW_SEARCH:
             cat_scroll.hide();
+            dprint("Showing search results")
             self.package_view.set_view(self.package_view.SEARCH_RESULTS)
         elif index == self.SHOW_UPGRADE:
             if not self.upgrades_loaded:
@@ -341,17 +361,10 @@ class MainWindow:
 
     def load_upgrades_list(self):
         # upgrades are not loaded, create dialog and load them
-        self.wait_dialog = gtk.Dialog(
-            "Please Wait!",
-            self.wtree.get_widget("main_window"),
-            gtk.DIALOG_MODAL or gtk.DIALOG_DESTROY_WITH_PARENT,
-            ("_Cancel", 0))
-        text = gtk.Label("Loading upgradable package list...")
-        text.set_padding(5, 5)
-        self.wait_dialog.vbox.pack_start(text)
-        text.show()
-        self.wait_dialog.connect("response", self.wait_dialog_response)
-        self.wait_dialog.show_all()
+        self.wait_dialog = SingleButtonDialog("Please Wait!",
+                self.wtree.get_widget("main_window"),
+                "Loading upgradable packages list...",
+                self.wait_dialog_response, "_Cancel")
         # create upgrade thread for loading the upgrades
         self.ut = UpgradableReader(self.package_view.upgrade_model,
                                    self.db.installed.items())
@@ -367,7 +380,6 @@ class MainWindow:
             self.ut.join()
             # get rid of the dialog
             self.wait_dialog.destroy()
-            
 
     def update_upgrade_thread(self):
         """ Find out if thread is finished """
@@ -408,6 +420,14 @@ class MainWindow:
         self.wtree.get_widget("btn_emerge").set_sensitive(enabled)
         self.wtree.get_widget("btn_unmerge").set_sensitive(enabled)
         self.notebook.set_sensitive(enabled)
+
+    def size_update(self, widget, gbox):
+        """ Store the window and pane positions """
+        pos = widget.get_size()
+        self.prefs.main.x = pos[0]
+        self.prefs.main.y = pos[1]
+        self.prefs.main.hpane = self.wtree.get_widget("hpane").get_position()
+        self.prefs.main.vpane = self.wtree.get_widget("vpane").get_position()
 
 
 

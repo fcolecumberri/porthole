@@ -4,7 +4,7 @@
     Process
     A graphical process output viewer
 
-    Copyright (C) 2003 Fredrik Arnerup and Daniel G. Taylor
+    Copyright (C) 2003 - 2004 Fredrik Arnerup and Daniel G. Taylor
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -33,7 +33,11 @@ class ProcessWindow(threading.Thread):
     RESPONSE_CLOSE = 0
     RESPONSE_KILL = 1
     
-    def __init__(self, command, environment = {}):
+    def __init__(self, command, environment = {}, preferences = None, callback = None):
+        # setup prefs
+        self.prefs = preferences
+        # setup callback
+        self.callback = callback
         threading.Thread.__init__(self)
         self.setDaemon(1)  # quit even if this thread is still running
         self.killed = 0
@@ -52,6 +56,7 @@ class ProcessWindow(threading.Thread):
         self.textview = gtk.TextView(self.textbuffer)
         self.textview.set_editable(gtk.FALSE)
         self.textview.set_cursor_visible(gtk.FALSE)
+        self.wrap_mode = self.textview.set_wrap_mode(gtk.WRAP_WORD)
         self.scroller = gtk.ScrolledWindow()
         self.scroller.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         self.scroller.set_shadow_type(gtk.SHADOW_IN)
@@ -62,8 +67,25 @@ class ProcessWindow(threading.Thread):
         self.window.connect("realize", self.on_realize)
         self.window.connect("destroy", self.on_destroy)
         self.window.connect("response", self.on_response)
-        self.window.set_size_request(400, 600)
+        # set minimum window size
+        self.window.set_size_request(400, 300)
         self.window.show_all()
+        self.window.resize((self.prefs.emerge.verbose and \
+                                self.prefs.process.width_verbose or \
+                                self.prefs.process.width), 
+                                self.prefs.process.height)
+        # MUST! do this command last, or nothing else will _init__
+        # after it untill emerge is finished. Also causes runaway recursion.
+        self.window.connect("size_request", self.on_size_request)
+
+    def on_size_request(self, window, gbox):
+        """Store new size in prefs"""
+        pos = window.get_size()
+        if self.prefs.emerge.verbose:
+            self.prefs.process.width_verbose = pos[0]
+        else:
+            self.prefs.process.width = pos[0]
+        self.prefs.process.height = pos[1]
 
     def on_realize(self, window):
         """Run the thread!"""
@@ -72,6 +94,7 @@ class ProcessWindow(threading.Thread):
     def on_destroy(self, widget, data = None):
         """Window was closed"""
         self.kill()
+        self.callback()
         #gtk.main_quit()
 
     def kill(self):
@@ -88,9 +111,11 @@ class ProcessWindow(threading.Thread):
         if response_id == self.RESPONSE_CLOSE:
             self.kill()
             #gtk.main_quit()
+            self.callback()
         elif response_id == self.RESPONSE_KILL:
             self.kill()
             self.window.hide()
+            self.callback()
 
     def append(self, text):
         """Append text to the end of the text buffer"""
@@ -101,7 +126,7 @@ class ProcessWindow(threading.Thread):
             'tt')
         self.textview.scroll_mark_onscreen(self.textbuffer.get_insert())
         # don't scroll sideways
-        adj = self.scroller.get_hadjustment(); adj.set_value(adj.lower)
+        #adj = self.scroller.get_hadjustment(); adj.set_value(adj.lower)
 
     def backspace(self):
         """Delete last character in buffer."""

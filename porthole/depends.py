@@ -4,7 +4,7 @@
     Porthole Depends TreeModel
     Calculates and stores package dependency information
 
-    Copyright (C) 2003 Fredrik Arnerup and Daniel G. Taylor
+    Copyright (C) 2003 - 2004 Fredrik Arnerup and Daniel G. Taylor
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@ class DependsTree(gtk.TreeStore):
         """Read through the depends list and order it nicely
            Returns a list of (parent, dep, satisfied) for each dep"""
         new_list = []
+        ops = ""
         for depend in depends_list:
             if depend[-1] == "?":
                 if depend[0] != "!":
@@ -48,7 +49,7 @@ class DependsTree(gtk.TreeStore):
                     try: depend, ops = self.get_ops(depend)
                     except: dprint("Depend didn't split: " + depend)
                     depend2 = None
-                    if ops: #should only be specific if there are operators
+                    if ops: # should only be specific if there are operators
                         depend2 = portagelib.extract_package(depend)
                     if not depend2:
                         depend2 = depend

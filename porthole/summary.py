@@ -4,7 +4,7 @@
     Porthole Summary Class
     Loads package info into a textview and makes it pretty
 
-    Copyright (C) 2003 Fredrik Arnerup and Daniel G. Taylor
+    Copyright (C) 2003 - 2004 Fredrik Arnerup and Daniel G. Taylor
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -95,9 +95,9 @@ class Summary(gtk.TextView):
         
         self.buffer.set_text("", 0)
         if not package:
-            #it's really a category selected!
+            # it's really a category selected!
             return
-        #read it's info
+        # read it's info
         metadata = package.get_metadata()
         ebuild = package.get_latest_ebuild()
         installed = package.get_installed()
@@ -110,7 +110,7 @@ class Summary(gtk.TextView):
         use_flags = props.get_use_flags()
         license = props.license
         slot = unicode(props.get_slot())
-        #build info into buffer
+        # build info into buffer
 
         def show_vnums(ebuilds):
             spam = []
@@ -137,7 +137,7 @@ class Summary(gtk.TextView):
         if metadata and metadata.longdescription:
             nl(); append(metadata.longdescription, "description"); nl()
         for homepage in homepages: append(homepage, "url"); nl()
-        nl()         #put a space between this info and the rest
+        nl()         # put a space between this info and the rest
         if installed:
             append("Installed versions:\n", "property")
             show_vnums(installed)
@@ -148,7 +148,7 @@ class Summary(gtk.TextView):
             append("Available versions:\n", "property")
             show_vnums(versions)
             nl()
-        nl()         #put a space between this info and the rest, again
+        nl()         # put a space between this info and the rest, again
         if use_flags:
             append("Use flags: ", "property")
             append(", ".join(use_flags), "value")

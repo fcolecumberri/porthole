@@ -13,7 +13,8 @@
   <property name="default_height">650</property>
   <property name="resizable">True</property>
   <property name="destroy_with_parent">False</property>
-  <signal name="destroy" handler="on_main_window_destroy" last_modification_time="Thu, 27 Nov 2003 20:50:11 GMT"/>
+  <signal name="size_request" handler="on_main_window_size_request" last_modification_time="Fri, 23 Jan 2004 00:50:13 GMT"/>
+  <signal name="destroy" handler="on_main_window_destroy" last_modification_time="Fri, 23 Jan 2004 00:57:17 GMT"/>
 
   <child>
     <widget class="GtkVBox" id="vbox1">
@@ -212,13 +213,12 @@
 		    </widget>
 		  </child>
 
-          <child>
- 		    <widget class="GtkCheckMenuItem" id="downgrade">
- 		      <property name="visible">False</property>
+		  <child>
+		    <widget class="GtkCheckMenuItem" id="downgrade">
 		      <property name="label" translatable="yes">Allow _Downgrades</property>
-       	      <property name="use_underline">True</property>
+		      <property name="use_underline">True</property>
 		      <property name="active">False</property>
-		      <signal name="activate" handler="on_downgrade_activate" last_modification_time="Sun, 18 Jan 2004 9:41:05 GMT"/>
+		      <signal name="activate" handler="on_downgrade_activate" last_modification_time="Sun, 18 Jan 2004 09:41:05 GMT"/>
 		      <accelerator key="D" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 		    </widget>
 		  </child>
@@ -229,7 +229,7 @@
 		      <property name="label" translatable="yes">Only _Fetch</property>
 		      <property name="use_underline">True</property>
 		      <property name="active">False</property>
-		      <signal name="activate" handler="on_fetch_activate" last_modification_time="Sun, 18 Jan 2004 9:41:05 GMT"/>
+		      <signal name="activate" handler="on_fetch_activate" last_modification_time="Sun, 18 Jan 2004 09:41:05 GMT"/>
 		      <accelerator key="F" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 		    </widget>
 		  </child>
@@ -240,11 +240,10 @@
 		      <property name="label" translatable="yes">_Verbose</property>
 		      <property name="use_underline">True</property>
 		      <property name="active">False</property>
-		      <signal name="activate" handler="on_verbose_activate" last_modification_time="Sun, 18 Jan 2004 9:41:05 GMT"/>
+		      <signal name="activate" handler="on_verbose_activate" last_modification_time="Sun, 18 Jan 2004 09:41:05 GMT"/>
 		      <accelerator key="V" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 		    </widget>
 		  </child>
-
 		</widget>
 	      </child>
 	    </widget>
@@ -445,9 +444,9 @@
 		    </widget>
 		  </child>
 
-          <child>
-            <widget class="GtkMenuItem" id="upgradable_packages1">
-              <property name="visible">True</property>
+		  <child>
+		    <widget class="GtkMenuItem" id="upgradable_packages1">
+		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Upgradable Packages</property>
 		      <property name="use_underline">True</property>
 		      <signal name="activate" handler="on_upgradable_packages1_activate" last_modification_time="Sat, 06 Dec 2003 00:29:10 GMT"/>
@@ -546,8 +545,6 @@
 		  <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
 		  <property name="shadow_type">GTK_SHADOW_IN</property>
 		  <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
-
-		  
 		</widget>
 		<packing>
 		  <property name="shrink">True</property>

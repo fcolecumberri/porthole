@@ -4,7 +4,7 @@
     Porthole
     A graphical frontend to Portage
 
-    Copyright (C) 2003 Fredrik Arnerup and Daniel G. Taylor
+    Copyright (C) 2003 - 2004 Fredrik Arnerup and Daniel G. Taylor
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,10 +21,10 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-#set data path for our glade and pixmap files
+# set data path for our glade and pixmap files
 DATA_PATH = "/usr/share/porthole/"
 
-#setup our path so we can load our custom modules
+# setup our path so we can load our custom modules
 from sys import path
 path.append("/usr/lib/porthole")
 
@@ -42,25 +42,30 @@ if __name__ == "__main__":
         exit(1)
     for opt, arg in opts:
         if opt in ("-l", "--local"):
-            #running a local version (i.e. not installed in /usr/*)
+            # running a local version (i.e. not installed in /usr/*)
             DATA_PATH = ""
         elif opt in ("-v", "--version"):
-            #print version info
+            # print version info
             print "Porthole " + utils.version
             exit(0)
         elif opt in ("-d", "--debug"):
             utils.debug = True
             utils.dprint("Debug printing is enabled")
-    #change dir to your data path
+    # change dir to your data path
     if DATA_PATH:
         from os import chdir
         chdir(DATA_PATH)
-    #make sure gtk lets threads run
+    # make sure gtk lets threads run
     gtk.threads_init()
-    #setup our app icon
+    # setup our app icon
     myicon = gtk.gdk.pixbuf_new_from_file("pixmaps/porthole-icon.png")
     gtk.window_set_default_icon_list(myicon)
-    #create the main window
-    myapp = MainWindow()
-    #start the program loop
+    # load prefs
+    prefs = utils.PortholePreferences()
+    prefs.load()
+    # create the main window
+    myapp = MainWindow(prefs)
+    # start the program loop
     gtk.mainloop()
+    # save the prefs to disk for next time
+    prefs.save()

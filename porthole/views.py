@@ -4,7 +4,7 @@
     Porthole Views
     The view filter classes
 
-    Copyright (C) 2003 Fredrik Arnerup and Daniel G. Taylor
+    Copyright (C) 2003 - 2004 Fredrik Arnerup and Daniel G. Taylor
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -57,7 +57,7 @@ class PackageView(CommonTreeView):
         self.PACKAGES = 0
         self.SEARCH_RESULTS = 1
         self.UPGRADABLE = 2
-        #setup the treecolumn
+        # setup the treecolumn
         self._column = gtk.TreeViewColumn("Packages")
         self.append_column(self._column)
         # setup the treemodels
@@ -71,7 +71,7 @@ class PackageView(CommonTreeView):
         self.upgrade_model = gtk.TreeStore(gobject.TYPE_STRING,
                                            gobject.TYPE_BOOLEAN,
                                            gobject.TYPE_PYOBJECT)
-        #set the view
+        # set the view
         self.set_view(self.PACKAGES) # default view
         # connect to clicked event
         self.connect("cursor_changed", self._clicked)
@@ -89,16 +89,16 @@ class PackageView(CommonTreeView):
         # clear the column
         self._column.clear()
         if self.current_view == self.UPGRADABLE:
-            #add the toggle renderer
+            # add the toggle renderer
             check = gtk.CellRendererToggle()
             self._column.pack_start(check, expand = False)
             self._column.add_attribute(check, "active", 1)
         else:
-            #add the pixbuf renderer
+            # add the pixbuf renderer
             pixbuf = gtk.CellRendererPixbuf()
             self._column.pack_start(pixbuf, expand = False)
             self._column.add_attribute(pixbuf, "pixbuf", 1)
-        #add the text renderer
+        # add the text renderer
         text = gtk.CellRendererText()
         self._column.pack_start(text, expand = True)
         self._column.add_attribute(text, "text", 0)
@@ -119,7 +119,7 @@ class PackageView(CommonTreeView):
 
     def _clicked(self, treeview):
         """ Handles treeview clicks """
-        #get the selection
+        # get the selection
         package = get_treeview_selection(treeview, 2)
         if self.current_view == self.UPGRADABLE:
             if package.full_name == self._last_selected:
@@ -140,16 +140,16 @@ class PackageView(CommonTreeView):
         """ Populate the current view with packages """
         if not packages:
             return
-        #get the right model
+        # get the right model
         model = self.get_model()
         model.clear()
         names = portagelib.sort(packages.keys())
         for name in names:
-            #go through each package
+            # go through each package
             iter = model.insert_before(None, None)
             model.set_value(iter, 0, name)
             model.set_value(iter, 2, packages[name])
-            #get an icon for the package
+            # get an icon for the package
             icon = get_icon_for_package(packages[name])
             model.set_value(iter, 1,
                 self.render_icon(icon,
@@ -199,7 +199,7 @@ class CategoryView(CommonTreeView):
         categories.sort()
         for cat in categories:
             try: catmaj, catmin = cat.split("-")
-            except: continue #quick fix to bug posted on forums
+            except: continue # quick fix to bug posted on forums
             if catmaj != last_catmaj:
                 cat_iter = self.model.insert_before(None, None)
                 self.model.set_value(cat_iter, 0, catmaj)

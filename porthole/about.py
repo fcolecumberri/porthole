@@ -4,7 +4,7 @@
     Porthole About Dialog
     Shows information about Porthole
 
-    Copyright (C) 2003 Fredrik Arnerup and Daniel G. Taylor
+    Copyright (C) 2003 - 2004 Fredrik Arnerup and Daniel G. Taylor
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -28,10 +28,10 @@ class AboutDialog:
     """Class to hold about dialog and functionality."""
 
     def __init__(self):
-        #setup glade
+        # setup glade
         self.gladefile = "porthole.glade"
         self.wtree = gtk.glade.XML(self.gladefile, "about_dialog")
-        #register callbacks
+        # register callbacks
         callbacks = {"on_ok_clicked" : self.ok_clicked,
                      "on_homepage_clicked" : self.homepage_clicked}
         self.wtree.signal_autoconnect(callbacks)
