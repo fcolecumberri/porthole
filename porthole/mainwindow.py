@@ -82,8 +82,8 @@ class MainWindow:
 	self.mainwindow = self.wtree.get_widget("main_window")
         self.notebook = self.wtree.get_widget("notebook")
         self.changelog = self.wtree.get_widget("changelog").get_buffer()
-        self.installed_files = self.wtree.get_widget(
-            "installed_files").get_buffer()
+        self.installed_files = self.wtree.get_widget("installed_files").get_buffer()
+        self.ebuild = self.wtree.get_widget("ebuild").get_buffer()
         # set unfinished items to not be sensitive
         #self.wtree.get_widget("contents2").set_sensitive(gtk.FALSE)
         # self.wtree.get_widget("btn_help").set_sensitive(gtk.FALSE)
@@ -174,7 +174,7 @@ class MainWindow:
         # view filter setting
         self.last_view_setting = None
         # set notebook tabs to load new package info
-        self.deps_filled = self.changelog_loaded = self.installed_loaded = False
+        self.deps_filled = self.changelog_loaded = self.installed_loaded = self.ebuild_loaded = False
         # declare the database
         self.db = None
         # load the db
@@ -632,7 +632,7 @@ class MainWindow:
         # if the user is looking at the deps we need to update them
         cur_page = self.notebook.get_current_page()
         # reset notebook tabs to reload new package info
-        self.deps_filled = self.changelog_loaded = self.installed_loaded = False
+        self.deps_filled = self.changelog_loaded = self.installed_loaded = self.ebuild_loaded = False
         if cur_page == 1:
             self.deps_view.fill_depends_tree(self.deps_view, package)
             self.deps_filled = True
@@ -642,6 +642,9 @@ class MainWindow:
         elif cur_page == 3:
             self.load_installed_files(package)
             self.installed_loaded = True
+        elif cur_page == 4:
+            self.load_ebuild(package)
+            self.ebuild_loaded = True
 
     def notebook_changed(self, widget, pointer, index):
         """Catch when the user changes the notebook"""
@@ -661,6 +664,11 @@ class MainWindow:
                 # load list of installed files
                 self.load_installed_files(package)
                 self.installed_loaded = True
+        elif index == 4:
+            if not self.ebuild_loaded:
+                # load list of installed files
+                self.load_ebuild(package)
+                self.ebuild_loaded = True
 
     def load_changelog(self, package):
         """ Load and display the changelog for a package """
@@ -695,6 +703,53 @@ class MainWindow:
         else:
             dprint("MAIN: No package sent to load_changelog!")
             self.changelog.set_text(_("No Change Log Available"))
+
+    def load_ebuild(self, package):
+        """ Load and display the ebuild for a package """
+        if package:
+            installed = package.get_installed()
+            versions = package.get_versions()
+            nonmasked = package.get_versions(include_masked = False)
+	    best = portagelib.best(installed + nonmasked)
+	    if best == "": # all versions are masked and the package is not installed
+	        ebuild = package.get_latest_ebuild(True) # get latest masked version
+	    else:
+	        ebuild = best
+	    dprint(package.full_name)
+	    dprint(ebuild)
+	    ebuild_name = (ebuild.split('/')[1]) + ".ebuild"
+	    dprint(ebuild_name)
+
+            try:
+		try:
+                    f = open(portagelib.portdir + '/' + package.full_name
+                            + "/" + ebuild_name)
+                    data = f.read(); f.close()
+		except:
+                    f = open(portagelib.portdir_overlay + '/' + package.full_name
+                            + "/" + ebuild_name)
+                    data = f.read(); f.close()
+
+		if data:
+		    try:
+			dprint("MAINWINDOW: load_ebuild(); trying utf_8 encoding")
+			self.ebuild.set_text(str(data).decode('utf_8').encode("utf_8",'replace'))
+		    except:
+			    try:
+			        dprint("MAINWINDOW: load_ebuild(); trying iso-8859-1 encoding")
+			        self.ebuild.set_text(str(data).decode('iso-8859-1').encode('utf_8', 'replace'))
+			    except:
+				dprint("MAINWINDOW: load_ebuild(); Failure = unknown encoding")
+				self.ebuild.set_text(_("This ebuild has an unknown encoding method to porthole \n") + \
+							_("Please report this to bugs.gentoo.org and pothole's bugtracker"))
+                else:
+                    self.ebuild.set_text(_("Ebuild not found") + package.full_name + "/" + ebuild_name)
+            except:
+                dprint("MAIN: Error opening ebuild for " + package.full_name + "/" + ebuild_name)
+                self.ebuild.set_text(_("Ebuild not found or Available"))
+        else:
+            dprint("MAIN: No package sent to load_ebuild()!")
+            self.ebuild.set_text(_("Ebuild not Available"))
 
     def load_installed_files(self, package):
         """Obtain and display list of installed files for a package,
@@ -886,13 +941,14 @@ class MainWindow:
         #       %(self.prefs.main.hpane, self.prefs.main.vpane))
 
     def clear_notebook(self):
-        """ Clear all notebook tabs & disble them """
+        """ Clear all notebook tabs & disable them """
         #dprint("MAINWINDOW: clear_notebook()")
         self.summary.update_package_info(None)
         self.set_package_actions_sensitive(gtk.FALSE)
         self.deps_view.clear()
         self.changelog.set_text('')
         self.installed_files.set_text('')
+	self.ebuild.set_text('')
 
     def open_log(self, widget):
         """ Open a log of a previous emerge in a new terminal window """
