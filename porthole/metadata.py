@@ -22,15 +22,18 @@
 """
 
 from xml.sax import make_parser
-from xml.sax.saxutils import DefaultHandler
-from xml.sax.handler import feature_namespaces
-from re import sub
+from xml.sax.handler import *
+from re import compile, sub
 from os.path import exists
 
+# precompile regexps
+re1 = compile("^\s+|\s+$")
+re2 = compile("\s+")
 def normalize_whitespace(text):
     """Remove space at beginning and end
     of string and replace all other whitespace with a single space."""
-    return sub("^\s+|\s+$", "", sub("\s+", " ", text))
+    return re1.sub("", re2.sub(" ", text))
+    #return sub("^\s+|\s+$", "", sub("\s+", " ", text))
 
 class Metadata:
     """Represents the information in the metadata file."""
@@ -39,24 +42,24 @@ class Metadata:
         self.herds = []
         self.maintainers = []
 
-class MetadataHandler(DefaultHandler):
-    def __init__(self):
+class MetadataHandler(ContentHandler):
+    def startDocument(self):
         self.path = [];  self.texts = []
         self.result = Metadata()
 
     def startElement(self, name, attrs):
         self.path.append(name)
-        self.texts.append("")
+        self.texts.append([])
         if name == "maintainer":
             self.result.maintainers.append({})
         # Todo: handle "lang" and "restrict" attributes
 
     def characters(self, content):
-        self.texts[-1] += content
+        self.texts[-1] += [content]
         
     def endElement(self, name):
         self.path.pop()
-        text = normalize_whitespace(self.texts.pop())
+        text = normalize_whitespace("".join(self.texts.pop()))
         if name == "longdescription":
             self.result.longdescription = text
         elif name == "herd":
@@ -64,23 +67,38 @@ class MetadataHandler(DefaultHandler):
         elif self.path and self.path[-1] == "maintainer":
             self.result.maintainers[-1][name] = text
         
-        
+# init globals
+parser = make_parser()
+# no validation or any of that; it takes too much time
+for feature in all_features:
+    parser.setFeature(feature, False)
+handler = MetadataHandler()
+parser.setContentHandler(handler)
+
 def parse_metadata(filename):
     """Read a portage metadata file and return a Metadata object."""
     if not exists(filename):
         raise Exception('Metadata file "' + filename + '" does not exist.')
-    parser = make_parser()
-    parser.setFeature(feature_namespaces, 0)
-    handler = MetadataHandler()
-    parser.setContentHandler(handler)
     parser.parse(filename)
     return handler.result
 
 
 
 if __name__ == '__main__':
-    from sys import argv
-    metadata = parse_metadata(argv[1])
-    print "Long description:", metadata.longdescription
-    print "Herds:", metadata.herds
-    print "Maintainers:", metadata.maintainers
+    def main():
+        from sys import argv
+        metadata = parse_metadata(argv[1])
+        print "Long description:", metadata.longdescription
+        print "Herds:", metadata.herds
+        print "Maintainers:", metadata.maintainers
+
+    import profile, pstats
+    from sys import stdout
+    profile.run("main()", "stats.txt")
+
+    stats = pstats.Stats("stats.txt")
+    stats.strip_dirs()
+    #stats.sort_stats('cumulative')
+    stats.sort_stats('time')
+    #stats.sort_stats('calls')
+    stats.print_stats(0.1)
