@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=The Porthole Portage Frontend
+Comment=Use a GTK-based frontend to the Gentoo package
+management system
+Icon=../porthole/pixmaps/porthole-icon.png
+Exec=porthole
+Type=Application
+Categories=Application;System;
