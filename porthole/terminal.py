@@ -648,7 +648,7 @@ class ProcessManager:
                             "*** Unfortunately, you don't have enough " +
                             "logged information about the listed packages, " +
                             "so I can't calculate estimated build times " +
-                            "accuratelly.\n\n")
+                            "accuratelly.\n\n", 'emerge')
                     return None
             self.append(self.process_text,
                         "*** Based on the build history of these packages " +
@@ -658,13 +658,13 @@ class ProcessManager:
                         (total.seconds // (24 * 3600),\
                          (total.seconds % (24 * 3600)) // 3600,\
                          ((total.seconds % (24 * 3600))  % 3600) //  60,\
-                         ((total.seconds % (24 * 3600))  % 3600) %  60))
+                         ((total.seconds % (24 * 3600))  % 3600) %  60), 'emerge')
             self.append(self.process_text,
                         "*** Note: If you have a lot of programs running on " +
                         "your system while porthole is emerging packages, " +
                         "or if you have changed your hardware since the " +
                         "last time you built some of these packages, the " +
-                        "estimates I calculate may be inaccurate.\n\n")
+                        "estimates I calculate may be inaccurate.\n\n", 'warning')
 
     def queue_clicked(self, widget):
         """Handle clicks to the queue treeview"""
