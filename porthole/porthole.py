@@ -369,8 +369,7 @@ class MainWindow:
         self.url_tag.set_property(
             "underline", 
             is_url and pango.UNDERLINE_SINGLE or pango.UNDERLINE_NONE)
-        # why does this not work?
-        widget.window.set_cursor(
+        widget.get_window(gtk.TEXT_WINDOW_TEXT).set_cursor(
             is_url and gtk.gdk.Cursor(gtk.gdk.HAND2) or None)
         return gtk.FALSE
 
