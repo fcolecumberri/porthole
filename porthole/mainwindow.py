@@ -409,13 +409,21 @@ class MainWindow:
 
     def load_changelog(self, package):
         """ Load and display the changelog for a package """
-        try:
-            f = open(portagelib.portdir + "/" + package.full_name
-                     + "/ChangeLog")
-            data = f.read(); f.close()
-            self.changelog.set_text(data)
-        except:
-            dprint("MAIN: Error opening changelog for " + package.full_name)
+        if package:
+            try:
+                f = open(portagelib.portdir + '/' + package.full_name
+                        + "/ChangeLog")
+                data = f.read(); f.close()
+                if data:
+                    self.changelog.set_text(str(data).encode("utf8"))
+                else:
+                    self.changelog.set_text("Change log is empty!")
+            except:
+                dprint("MAIN: Error opening changelog for " + package.full_name)
+                self.changelog.set_text("No Change Log Available")
+        else:
+            dprint("MAIN: No package sent to load_changelog!")
+            self.changelog.set_text("No Change Log Available")
 
     def load_installed_files(self, package):
         """Obtain and display list of installed files for a package,
