@@ -28,22 +28,30 @@ from utils import load_web_page, dprint
 from version_sort import ver_sort
 
 class Summary(gtk.TextView):
+    """ Class to manage display and contents of package info tab """
     def __init__(self):
+        """ Initialize object """
         gtk.TextView.__init__(self)
         self.set_wrap_mode(gtk.WRAP_WORD)
         self.set_editable(gtk.FALSE)
         self.set_cursor_visible(gtk.FALSE)
         margin = 10
-        self.set_left_margin(margin); self.set_right_margin(margin)
+        self.set_left_margin(margin)
+        self.set_right_margin(margin)
         tagtable = self.create_tag_table()
         self.buffer = gtk.TextBuffer(tagtable)
         self.set_buffer(self.buffer)
+
+        # Capture any mouse motion in this tab so we
+        # can highlight URL links & change mouse pointer
         self.connect("motion_notify_event", self.on_mouse_motion)
+
+        # List of active URLs in the tab
         self.url_tags = []
-        self.underligned_url = False
+        self.underlined_url = False
 
     def create_tag_table(self):
-        """Define all markup tags."""
+        """ Define all markup tags """
         def create(descs):
             table = gtk.TextTagTable()
             for name, properties in descs.items():
@@ -51,6 +59,7 @@ class Summary(gtk.TextView):
                 for property, value in properties.items():
                     tag.set_property(property, value)
             return table
+
         table = create(
             {'name': ({'weight': pango.WEIGHT_BOLD,
                        'scale': pango.SCALE_X_LARGE,
@@ -64,11 +73,11 @@ class Summary(gtk.TextView):
              'masked': ({"style": pango.STYLE_ITALIC}),
              })
         return table
-    
+
     def on_url_event(self, tag, widget, event, iter):
-        """Catch when the user clicks the url"""
+        """ Catch when the user clicks the URL """
         if event.type == gtk.gdk.BUTTON_RELEASE:
-            load_web_page(tag.get_property("name"))           
+            load_web_page(tag.get_property("name"))
 
     def on_mouse_motion(self, widget, event, data = None):
         # we need to call get_pointer, or we won't get any more events
@@ -76,68 +85,42 @@ class Summary(gtk.TextView):
         x, y, spam = self.window.get_pointer()
         x, y = self.window_to_buffer_coords(gtk.TEXT_WINDOW_TEXT, x, y)
         tags = self.get_iter_at_location(x, y).get_tags()
-        if self.underligned_url:
-            self.underligned_url.set_property("underline",pango.UNDERLINE_NONE)
+        if self.underlined_url:
+            self.underlined_url.set_property("underline",pango.UNDERLINE_NONE)
             self.get_window(gtk.TEXT_WINDOW_TEXT).set_cursor(None)
-            self.underligned_url = None
+            self.underlined_url = None
         for tag in tags:
             if tag in self.url_tags:
                 tag.set_property("underline",pango.UNDERLINE_SINGLE)
                 self.get_window(gtk.TEXT_WINDOW_TEXT).set_cursor(gtk.gdk.Cursor
                                                                  (gtk.gdk.HAND2))
-                self.underligned_url = tag
+                self.underlined_url = tag
         return gtk.FALSE
 
     def update_package_info(self, package):
-        """Update the notebook of information about a selected package"""
+        """ Update the notebook of information about a selected package """
+
+        ######################################
+        # Begin supporting internal functions
 
         def append(text, tag = None):
-            """Append (unicode) text to summary buffer."""
+            """ Append (unicode) text to summary buffer """
             iter = self.buffer.get_end_iter()
             buffer = self.buffer
             if tag: buffer.insert_with_tags_by_name(iter, text, tag)
             else: buffer.insert(iter, text)
 
         def append_url(text):
+            """ Append URL to textbuffer and connect an event """
             tag = self.buffer.create_tag(text)
             tag.set_property("foreground","blue")
-            tag.connect("event",self.on_url_event)
+            tag.connect("event", self.on_url_event)
             self.url_tags.append(tag)
-            append(text,tag.get_property("name"))
+            append(text, tag.get_property("name"))
 
-        def nl(): append("\n")
-        
-        self.buffer.set_text("", 0)
-        if not package:
-            # it's really a category selected!
-            return
-        # read it's info
-        metadata = package.get_metadata()
-        ebuild = package.get_latest_ebuild()
-        installed = package.get_installed()
-        versions = package.get_versions()
-        #dprint("SUMMARY: update_package_info(); versions")
-        #dprint(versions)
-        # Sort the version only list: vlist
-        versions = ver_sort(versions)
-        #dprint("new sorted versions[]")
-        #dprint(versions)
-
-        nonmasked = package.get_versions(include_masked = False)
-        props = package.get_properties()
-        description = props.description
-        homepages = props.get_homepages() # may be more than one
-        use_flags = props.get_use_flags()
-        system_use_flags = portagelib.get_portage_environ("USE")
-        table=self.buffer.get_tag_table()
-        for tag in self.url_tags:
-            table.remove(tag)
-        self.url_tags = []
-        if system_use_flags:
-            system_use_flags = system_use_flags.split()
-        license = props.license
-        slot = unicode(props.get_slot())
-        # build info into buffer
+        def nl(x=1):
+            """ Append a x new lines to the buffer """ 
+            append("\n"*x)
 
         def show_vnums(ebuilds):
             spam = []
@@ -157,30 +140,91 @@ class Summary(gtk.TextView):
                 spam += [version]
             append(", ".join(spam), "value")
             return
+
+        # End supporting internal functions
+        ####################################
+
+
+        # build info into buffer
+        self.buffer.set_text("", 0)
+        if not package:
+            # Category is selected, just exit
+            return
+
+        # Get the package info
+        metadata = package.get_metadata()
+        ebuild = package.get_latest_ebuild()
+        installed = package.get_installed()
+        versions = package.get_versions()
+        nonmasked = package.get_versions(include_masked = False)
+        props = package.get_properties()
+        description = props.description
+        homepages = props.get_homepages() # may be more than one
+        use_flags = props.get_use_flags()
+        license = props.license
+        slot = unicode(props.get_slot())
+
+        # Sort the versions in release order
+        versions = ver_sort(versions)
+
+        # Get the tag table and remove all URL tags
+        table=self.buffer.get_tag_table()
+        for tag in self.url_tags:
+            table.remove(tag)
+        self.url_tags = []
+
+        # Turn system use flags into a list
+        system_use_flags = portagelib.get_portage_environ("USE")
+        if system_use_flags:
+            system_use_flags = system_use_flags.split()
+
+        #############################
+        # Begin adding text to tab
+        #############################
         
-        append(package.full_name, "name"); nl()
+        # Full package name
+        append(package.full_name, "name")
+        nl()
+        
+        # Description, if available
         if description:
-            append(description, "description"); nl()
-        if metadata and metadata.longdescription:
-            nl(); append(metadata.longdescription, "description"); nl()
-        for homepage in homepages: #append(homepage, "url"); nl()
-            append_url(homepage)
+            append(description, "description")
             nl()
-        nl()         # put a space between this info and the rest
+
+        # Metadata long description(s), if available
+        if metadata and metadata.longdescription:
+            append(metadata.longdescription, "description")
+            nl()
+        nl()
+
+        # Insert homepage(s), if any
+        x = 0
+        if homepages:
+            for homepage in homepages:
+                if x > 0:
+                    append( ', ')
+                append_url(homepage)
+                x += 1
+            nl(2)
+    
+        # Installed version(s)
         if installed:
             append("Installed versions:\n", "property")
             show_vnums(installed)
+            nl()
         else:
             append("Not installed", "property")
-        nl()
+            nl()
+
+        # Remaining versions
         if versions:
             append("Available versions:\n", "property")
             show_vnums(versions)
-            nl()
-        nl()         # put a space between this info and the rest, again
+            nl(2)        
+
+        # Use flags
         if use_flags:
             append("Use flags: ", "property")
-            #append(", ".join(use_flags), "value")
             first_flag = True
             for flag in use_flags:
                 if not first_flag:
@@ -192,8 +236,10 @@ class Summary(gtk.TextView):
                     append('+' + flag,"useset")
                 else:
                     append('-' + flag,"useunset")
-            nl()
+            nl(2)
+
+        # License
         if license:
-            append("License: ", "property"); append(license, "value"); nl()
-        #if slot:
-        #    append("Slot: ", "property"); append(slot, "value"); nl()
+            append("License: ", "property")
+            append(license, "value")
+            nl()

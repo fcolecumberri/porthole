@@ -6,7 +6,7 @@
 <body>
 <img style='float:left;' src='../pixmaps/porthole-about.png'>
 <div class='toc'>
-<iframe src='toc.html' height=500 width=240 frameborder=0></iframe>
+<iframe src='toc.html' height=400 width=240 frameborder=0></iframe>
 </div>
 <br>
 <br>
@@ -42,7 +42,7 @@ without first examining it's deficiencies.
  &nbsp;Masks can be for all architectures or just for specific architectures.
  &nbsp;Packages can be masked for several reasons:
 <ul>
-<li>Basic software is not stable (that is to say, buggy)
+<li>Basic software is not stable (in other words, buggy)
 <li>Problems with the ebuild
 <li>Depends on obsolete/unstable packages
 <li>Not supported under a particular architecture
@@ -52,7 +52,8 @@ without first examining it's deficiencies.
 <li>Ebuild - Set by author
 <li><a target='_blank' href='/usr/portage/profiles/package.mask'>
 /usr/portage/profiles/package.mask</a> - Set by Gentoo package manager
-<li><a target='_blank' href='/etc/'>/etc/?</a>
+<li><a target='_blank' href='/etc/'>/etc/portage/package.keywords</a>
+ - Maintained by user.
 </ul>
 </dd>
 <dt>Package</dt>
@@ -79,7 +80,35 @@ for gnome and/or kde.
 </dd>
 </dl> 
 <h2>References</h2>
-<ul>
-<li><a href='http://www.gentoo.org/doc/en/handbook/handbook-x86.xml?part=2'>
-Gentoo Handbook Chapter 2 - Working with Gentoo</a> - excellent resource on
+<h3>Portage &amp; Gentoo</h3>
+<ol>
+<li>Gentoo Handbook Chapter 2 - Working with Gentoo (
+<a target='_blank' href='http://www.gentoo.org/doc/en/handbook/handbook-x86.xml?part=2'>
+http://www.gentoo.org/doc/en/handbook/handbook-x86.xml?part=2</a>
+) - excellent resource on
  use flags and portage in general.
+<li>Emerge Manual - run &quot;man emerge&quot; or &quot;info 
+emerge&quot; from a terminal
+<li>Package Database Web Site (
+<a target='_blank' href='http://packages.gentoo.org'>http://packages.gentoo.org</a>
+)
+
+</ol>
+
+<h3>Development Components</h3>
+
+<ol>
+<li>Python (<a target='_blank' href='http://www.python.org/'>http://www.python.org</a>)
+ - The language Porthole was developed in.
+<li>pyGTK (<a target='_blank' href='http://www.pygtk.org/'>http://www.pygtk.org/</a>)
+ - The GUI library used to build the interface.
+<li>Glade (<a target='_blank' href='http://glade.gnome.org/'>http://glade.gnome.org/</a>)
+ - GUI tool used to design the interface.
+<li>Regular expressions (<a target='_blank'
+ href='http://sitescooper.org/tao_regexps.html'>http://sitescooper.org/tao_regexps.html</a>)
+</ol>
+
+
+
+</body>
+</html>

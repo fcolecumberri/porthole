@@ -80,6 +80,18 @@ div.figleft
 div.figleft img
   {border: medium solid black
   }
+div.figinline
+  {font-size: 10pt;
+   text-align: center;
+   margin-right: 0.3cm;
+   margin-bottom: 0.3cm;
+   margin-top: 0.3cm;
+   color:blue;
+  }
+div.figinline img
+  {border: medium solid black
+  }
+
 div.warnright
   {float: right;
    font-size: 10pt;
@@ -87,23 +99,22 @@ div.warnright
    margin-left: 0.3cm;
    margin-bottom: 0.3cm;
    margin-top: 0.3cm;
-   color:crimson;
-   background-color: #ffffb0;
-   width:15em;
-   border: thin solid crimson;
+   color: #a00033;
+   background-color: yellow;
+   width: 15em;
+   border: thin solid red;
   }
-
 div.warnleft
   {float: left;
    font-size: 10pt;
    padding: 0.1cm;
-   color:crimson;
+   color: #a00033;
    margin-right: 0.3cm;
    margin-bottom: 0.3cm;
    margin-top: 0.3cm;
-   background-color:yellow;
-   width:15em;
-   border: thin solid crimson;
+   background-color: yellow;
+   width: 15em;
+   border: thin solid red;
    margin: 0.2cm;
   }
 div.noteright
@@ -113,20 +124,20 @@ div.noteright
    margin-left: 0.3cm;
    margin-bottom: 0.3cm;
    margin-top: 0.3cm;
-   color:navy;
-   background-color:yellow;
-   width:15em;
+   color: black;
+   background-color: #ffffdd;
+   width: 15em;
    border: thin solid black;
   }
 div.noteleft
   {float: left;
    font-size: 10pt;
    padding: 0.1cm;
-   color:navy;
+   color:black;
    margin-right: 0.3cm;
    margin-bottom: 0.3cm;
    margin-top: 0.3cm;
-   background-color:yellow;
+   background-color:  #ffffdd;
    width:15em;
    border: thin solid black;
    margin: 0.2cm;
@@ -139,7 +150,7 @@ div.tipright
    margin-top: 0.3cm;
    padding: 0.1cm;
    color:navy;
-   background-color:aliceblue;
+   background-color: #66ffcc;
    width:15em;
    border: thin solid green;
   }
@@ -151,7 +162,7 @@ div.tipleft
    margin-bottom: 0.3cm;
    margin-top: 0.3cm;
    color:navy;
-   background-color:aliceblue;
+   background-color: #66ffcc;
    width:15em;
    border: thin solid green;
   }

@@ -337,7 +337,14 @@ class AdvancedEmergeDialog:
                 self.ufList.append([button, '-' + flag])
 
             # Add tooltip, attach button to table and show it off
-            self.tooltips.set_tip(button, portagelib.UseFlagDict[flag][2])
+            # Use lower case flag, since that is how it is stored
+            # in the UseFlagDict.  In case flag doesn't exist
+            # we'll trap the error
+
+            try:
+                self.tooltips.set_tip(button, portagelib.UseFlagDict[flag.lower()][2])
+            except KeyError:
+                self.tooltips.set_tip(button, 'Unsupported use flag')
             table.attach(button, col, col+1, row, row+1)
             button.show()
             # Increment col & row counters
@@ -345,6 +352,7 @@ class AdvancedEmergeDialog:
             if col > maxcol:
                 col = 0
                 row += 1
+
         # Display the entire table
         table.show()
 
