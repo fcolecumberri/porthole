@@ -92,6 +92,7 @@ class ProcessManager:
         else:
             self.title = "Porthole-Terminal"
         self.log_mode = log_mode
+        self.Semaphore = threading.Semaphore()
         # copy the environment and preferences
         self.env = env
         self.prefs = prefs
@@ -412,6 +413,9 @@ class ProcessManager:
 
     def add_process(self, package_name, command_string, callback):
         """ Add a process to the queue """
+        # Prevent conflicts while changing process queue
+        self.Semaphore.acquire()  
+
         # if it's already in the queue, don't add it!
         for data in self.process_list:
             if package_name == data[0]:
@@ -464,6 +468,9 @@ class ProcessManager:
             else:
                 # pending processes, run the next one in the list
                 self.start_queue(False)
+
+        # Clear semaphore, we're done
+        self.Semaphore.release()
 
     def _run(self, command_string, iter = None):
         """ Run a given command string """
@@ -788,6 +795,9 @@ class ProcessManager:
     def process_done(self):
         """ Remove the finished process from the queue, and
         start the next one if there are any more to be run"""
+        # Prevent conflicts while changing process queue
+        self.Semaphore.acquire()
+        
         # reset to None, so next one starts properly
         self.reader.fd = None
         # if the last process was killed, stop until the user does something
@@ -830,6 +840,9 @@ class ProcessManager:
             # update the queue tree
             self.queue_clicked(self.queue_tree)
 
+        # We're finished, release semaphore
+        self.Semaphore.release()
+
     def render_icon(self, icon):
         """ Render an icon for the queue tree """
         return self.queue_tree.render_icon(icon,
@@ -837,6 +850,9 @@ class ProcessManager:
 
     def kill_process(self, widget):
         """ Kill currently running process """
+        # Prevent conflicts while changing process queue
+        self.Semaphore.acquire()
+
         if not self.reader.process_running and not self.file_input:
             dprint("TERMINAL: No running process to kill!")
             return
@@ -851,6 +867,9 @@ class ProcessManager:
             # set the resume buttons to sensitive
             self.set_resume(True)
         dprint("TERMINAL: leaving kill_process")
+
+        # We're finished, release semaphore
+        self.Semaphore.release()
         return
 
     def extract_num(self, line):
@@ -893,6 +912,7 @@ class ProcessManager:
 
     def resume_skip_first(self, widget):
         """ Resume killed process, skipping first package """
+
         # pass the normal command along with --resume --skipfirst
         name, command, iter, callback = self.process_list[0]
         command += " --resume --skipfirst"
@@ -947,6 +967,9 @@ class ProcessManager:
         """ Switch two adjacent queue items;
             direction is either 1 [down] or -1 [up] """
         dprint("TERMINAL: Switching queue items.")
+        # Prevent conflicts while changing process queue
+        self.Semaphore.acquire()
+
         # get the selected iter
         iter = get_treeview_selection(self.queue_tree)
         # get its path
@@ -973,15 +996,18 @@ class ProcessManager:
                           self.process_list[pos + direction][2], \
                           self.process_list[pos][3]
                     prev = self.process_list[pos + direction][0],\
-                           self.process_list[pos + direction][1],\
-                           self.process_list[pos][2],\
-                           self.process_list[pos + direction][3]
+                          self.process_list[pos + direction][1],\
+                          self.process_list[pos][2],\
+                          self.process_list[pos + direction][3]
                     self.process_list[pos] = prev
                     self.process_list[pos + direction] = sel
                     break
         else:
             dprint("TERMINAL: cannot move first or last item")
         self.queue_clicked(self.queue_tree)
+
+        # We're done, release semaphore
+        self.Semaphore.release()
 
     def move_queue_item_up(self, widget):
         """ Move selected queue item up in the queue """
@@ -993,6 +1019,9 @@ class ProcessManager:
 
     def remove_queue_item(self, widget):
         """ Remove the selected item from the queue """
+        # Prevent conflicts while changing process queue
+        self.Semaphore.acquire()
+
         # get the selected iter
         iter = get_treeview_selection(self.queue_tree)
         # find if this item is still in our process list
@@ -1004,6 +1033,9 @@ class ProcessManager:
                                     self.process_list[pos + 1:]
                 break
         self.queue_model.remove(iter)
+
+        # We're done, release semaphore
+        self.Semaphore.release()
 
     def estimate_build_time(self):
         """Estimates build times based on emerge --pretend output"""
@@ -1129,7 +1161,7 @@ class ProcessManager:
             return gtk.TRUE;
 
     def do_open(self, widget):
-        """opens the file selctor for file to open"""
+        """opens the file selector for file to open"""
         dprint("LOG: Entering do_open")
         if not self.directory:
             self.set_directory()

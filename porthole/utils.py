@@ -84,9 +84,11 @@ class web_page(threading.Thread):
         try:
             gnome.url_show(self.name)
         except:
+            dprint("Gnome failed trying to open: %s" %self.name)
             try:
                 webbrowser.open(self.name)
             except:
+                dprint("webbrowser failed trying to open: %s  -- giving up" %self.name)
                 pass
         dprint("Browser call_completed for: %s" %self.name)
 
