@@ -271,7 +271,7 @@ class MainWindow:
         homepage = package.get_homepage()
         use_flags = package.get_use_flags()
         license = package.get_license()
-        slot = package.get_slot()
+        slot = str(package.get_slot())
         #build the information together into a buffer
         ''' TODO:
             get dependencies and show them in the dependency tab/textview
@@ -297,7 +297,7 @@ class MainWindow:
             append(", ".join([portagelib.get_version(ebuild)
                               for ebuild in versions]),
                    "value")
-        nl()
+            nl()
         #put a space between this info and the rest, again
         nl()
         if use_flags:
