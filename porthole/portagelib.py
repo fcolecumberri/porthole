@@ -293,7 +293,7 @@ class DatabaseReader(threading.Thread):
         self.done = False     # false if the thread is still working
         self.count = 0        # number of packages read so far
         self.error = ""       # may contain error message after completion
-        self.count_lock = False
+        self.count_lock = False  # lock to try preventing segfaults
 
     def get_db(self):
         """Returns the database that was read."""

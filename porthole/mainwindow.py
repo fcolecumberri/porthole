@@ -157,7 +157,7 @@ class MainWindow:
         self.db_thread = portagelib.DatabaseReader()
         self.db_thread.start()
         self.reload = False
-        gtk.timeout_add(100, self.update_db_read)
+        self.db_timeout = gtk.timeout_add(100, self.update_db_read)
         # set status
         self.set_statusbar("Reading package database: %i packages read"
                            % 0)
@@ -174,7 +174,7 @@ class MainWindow:
         self.db_thread = portagelib.DatabaseReader()
         self.db_thread.start()
         self.reload = True
-        gtk.timeout_add(100, self.update_db_read)
+        self.db_timeout = gtk.timeout_add(100, self.update_db_read)
         # set status
         self.set_statusbar("Reading package database: %i packages read"
                            % 0)
@@ -222,11 +222,11 @@ class MainWindow:
             return gtk.FALSE  # disconnect from timeout
         else:
             dprint("MAINWINDOW: db_thread is done...")
-            self.db = self.db_thread.get_db()
-            self.set_statusbar("Populating tree ...")
             dprint("MAINWINDOW: db_thread.join...")
             self.db_thread.join()
             dprint("MAINWINDOW: db_thread.join is done...")
+            self.db = self.db_thread.get_db()
+            self.set_statusbar("Populating tree ...")
             self.update_statusbar(self.SHOW_ALL)
             dprint("MAINWINDOW: setting menubar,toolbar,etc to sensitive...")
             self.wtree.get_widget("menubar").set_sensitive(gtk.TRUE)
@@ -270,7 +270,7 @@ class MainWindow:
                 #self.category_view.populate(self.db.categories.keys(), self.current_category)
                 # update the views by calling view_filter_changed
                 self.view_filter_changed(view_filter)
-            dprint("Made it thru a reload, returning...")
+            dprint("MAINWINDOW: Made it thru a reload, returning...")
             self.reload = False
             return gtk.FALSE  # disconnect from timeout
         return gtk.TRUE
