@@ -53,7 +53,7 @@
 import pygtk; pygtk.require('2.0')
 import gtk, gtk.glade, gobject
 import signal, os, pty, threading, time, sre, portagelib
-import datetime, pango, errno
+import datetime, pango, errno, string
 
 if __name__ == "__main__":
     # setup our path so we can load our custom modules
@@ -142,11 +142,30 @@ class ProcessManager:
         # load the glade file
         self.wtree = gtk.glade.XML(self.prefs.DATA_PATH + "porthole.glade",
                                    "process_window")
+        # these need to be before the callbacks
+        # setup some aliases for easier access
+        self.window = self.wtree.get_widget("process_window")
+        self.notebook = self.wtree.get_widget("notebook1")
+        self.queue_tree = self.wtree.get_widget("queue_treeview")
+        self.queue_menu = self.wtree.get_widget("queue1")
+        self.statusbar = self.wtree.get_widget("statusbar")
+        self.resume_menu = self.wtree.get_widget("resume")
+        self.skip_first_menu = self.wtree.get_widget("skip_first1")
+        self.skip_queue_menu = self.wtree.get_widget("skip_queue")
+        self.save_menu = self.wtree.get_widget("save1")
+        self.save_as_menu = self.wtree.get_widget("save_as")
+        self.open_menu = self.wtree.get_widget("open")
+        self.move_up = self.wtree.get_widget("move_up1")
+        self.move_down = self.wtree.get_widget("move_down1")
+        self.queue_remove = self.wtree.get_widget("remove1")
+        # Initialize event widget source
+        self.event_src = None
         # setup the callbacks
         callbacks = {"on_process_window_destroy" : self.on_process_window_destroy,
                      "on_kill" : self.kill_process,
                      "on_resume_normal" : self.resume_normal,
                      "on_resume_skip_first" : self.resume_skip_first,
+                     "on_skip_queue" : self.start_queue,
                      "on_save_log" : self.do_save,
                      "on_save_log_as" : self.do_save_as,
                      "on_open_log" : self.do_open,
@@ -157,51 +176,20 @@ class ProcessManager:
                      "on_remove" : self.remove_queue_item,
                      "on_quit" : self.destroy_window}
         self.wtree.signal_autoconnect(callbacks)
-        # setup some aliases for easier access
-        self.window = self.wtree.get_widget("process_window")
-        self.notebook = self.wtree.get_widget("notebook1")
         # get a mostly blank structure to hold a number of widgets & settings
         self.term = terminal_notebook()
         # get the buffer & view widgets and assign them to their arrays
         widget_labels = ["process_text", "warnings_text", "cautions_text", "info_text"]
-        #dprint(len(widget_labels))
-        #y = 0  # only needed for dprint
         for x in widget_labels:
-            #dprint(x)
             buffer = self.wtree.get_widget(x).get_buffer()
             self.term.buffer += [buffer]
-            #dprint(buffer)
-            #dprint(self.term.buffer)
             view = self.wtree.get_widget(x)
             self.term.view += [view]
-            #dprint(self.term.view[y])
-            #dprint(self.term.view)
-            #y =+ 1
-        #dprint("TERMINAL: show_window() -- self.term.buffer[], self.term.view[]")
-        #dprint(self.term.buffer)
-        #dprint(self.term.view)
         widget_labels = ["scrolledwindow2", "scrolledwindow8", "scrolledwindow7",
                          "scrolledwindow5", "scrolledwindow4"]
-        #y = 0   # only needed for dprint
         for x in widget_labels:
             window = self.wtree.get_widget(x)
             self.term.scrolled_window += [window]
-            #dprint(self.term.scrolled_window[y])
-            #y += 1
-        #dprint("TERMINAL: show_window() -- self.term.scrolled_window[]")
-        #dprint(self.term.scrolled_window)
-        self.queue_tree = self.wtree.get_widget("queue_treeview")
-        self.queue_menu = self.wtree.get_widget("queue1")
-        self.statusbar = self.wtree.get_widget("statusbar")
-        self.resume_menu = self.wtree.get_widget("resume")
-        self.save_menu = self.wtree.get_widget("save1")
-        self.save_as_menu = self.wtree.get_widget("save_as")
-        self.open_menu = self.wtree.get_widget("open")
-        self.move_up = self.wtree.get_widget("move_up1")
-        self.move_down = self.wtree.get_widget("move_down1")
-        self.queue_remove = self.wtree.get_widget("remove1")
-        # Initialize event widget source
-        self.event_src = None
         # Catch button events on info, caution & warning tabs
         # Following a double click on a line, bring that line
         # in the process window into focus near center screen
@@ -218,6 +206,7 @@ class ProcessManager:
         # set some persistent variables for text capture
         self.catch_seq = False
         self.escape_seq = "" # to catch the escape sequence in
+        self.resume_line = None
         # setup the queue treeview
         column = gtk.TreeViewColumn("Packages to be merged      ")
         pixbuf = gtk.CellRendererPixbuf()
@@ -322,8 +311,6 @@ class ProcessManager:
     def switch_page(self, notebook, page, page_num):
         """callback function changes the current_page setting in the term structure"""
         dprint("TERMINAL: switch_page; page_num = %d" %page_num)
-        #dprint(page)  # gtk.notebook page ID
-        #dprint(page_num)
         self.term.current_tab = self.term.visible_tablist[page_num]
         if self.term.auto_scroll[self.term.current_tab]:
             #dprint("TERMINAL: append() -- self.term.vadjustment[], self.term.vhandler_id[]")
@@ -331,8 +318,8 @@ class ProcessManager:
             #dprint(self.term.vhandler_id)
             num = self.term.current_tab
             self.term.vadjustment[num].handler_block(self.term.vhandler_id[num])
-            result = self.term.view[num].scroll_to_iter(self.term.buffer[num].get_end_iter(),0.0, True, 0, 0.9)
-            #self.term.view[num].scroll_mark_onscreen(self.term.buffer[num].get_insert())
+            #result = self.term.view[num].scroll_to_iter(self.term.buffer[num].get_end_iter(),0.0, True, 0, 0.9)
+            self.term.view[num].scroll_mark_onscreen(self.term.buffer[num].get_insert())
             self.term.vadjustment[num].handler_unblock(self.term.vhandler_id[num])
         return
 
@@ -344,10 +331,10 @@ class ProcessManager:
         #dprint(vadjustment.upper)
         #dprint(vadjustment.page_size)
         #dprint(self.term.buffer[self.term.current_tab].get_line_count())
-        self.term.auto_scroll[self.term.current_tab] = (vadjustment.upper - \
-                                                        vadjustment.get_value() - \
+        self.term.auto_scroll[self.term.current_tab] = ((vadjustment.upper - \
+                                                        vadjustment.get_value()) - \
                                                         vadjustment.page_size < \
-                                                         SLIDER_CLOSE_ENOUGH * vadjustment.page_size)
+                                                         (SLIDER_CLOSE_ENOUGH * vadjustment.page_size))
         #dprint(self.term.auto_scroll[self.term.current_tab])
         return
 
@@ -466,9 +453,7 @@ class ProcessManager:
         # if no process is running, let's start one!
         if not self.reader.process_running:
             # pending processes, run the next one in the list
-            dprint("TERMINAL: (add_process) Starting pending processes, running now... [" + \
-                    self.process_list[0][0] + "]")
-            self._run(self.process_list[0][1], self.process_list[0][2])
+            self.start_queue(False)
 
     def _run(self, command_string, iter = None):
         """ Run a given command string """
@@ -561,11 +546,14 @@ class ProcessManager:
         # If started and still running
         if self.pid and not self.killed:
             try:
+                os.write(self.reader.fd, "\003")
+                dprint("TERMINAL: cntrl-C sent to process")
                 # make sure the thread notices
-                os.close(self.reader.fd)
+                #os.close(self.reader.fd)
                 # negative pid kills process group
-                os.kill(-self.pid, signal.SIGKILL)
+                #os.kill(-self.pid, signal.SIGKILL)
             except OSError:
+                dprint("TERMINAL: kill(), OSError")
                 pass
             self.killed = 1
             if self.term.tab_showing[TAB_QUEUE]:
@@ -597,7 +585,8 @@ class ProcessManager:
             #dprint(self.term.vadjustment)
             #dprint(self.term.vhandler_id)
             self.term.vadjustment[num].handler_block(self.term.vhandler_id[num])
-            result = self.term.view[num].scroll_to_iter(self.term.buffer[num].get_end_iter(),0.0, True, 0, 0.9)
+            #result = self.term.view[num].scroll_to_iter(self.term.buffer[num].get_end_iter(),0.0, True, 0, 0.9)
+            self.term.view[num].scroll_mark_onscreen(self.term.buffer[num].get_insert())
             self.term.vadjustment[num].handler_unblock(self.term.vhandler_id[num])
 
     def append_all(self, text, all = False, tag = None):
@@ -656,6 +645,7 @@ class ProcessManager:
                             if not self.file_input:
                                 self.set_file_name(self.process_buffer)
                                 self.set_statusbar(self.process_buffer[:-1])
+                                self.resume_line = self.process_buffer
 
                         elif self.config.isInfo(self.process_buffer):
                             # Info string has been found, show info tab if needed
@@ -765,18 +755,8 @@ class ProcessManager:
             self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_STOP))
         else:
             self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_APPLY))
-        # remove process from list
-        self.process_list = self.process_list[1:]
         # check for pending processes, and run them
-        if len(self.process_list):
-            dprint("TERMINAL: There are pending processes, running now... [" + \
-                    self.process_list[0][0] + "]")
-            self._run(self.process_list[0][1], self.process_list[0][2])
-        else: # re-activate the open/save menu items
-            self.save_menu.set_sensitive(gtk.TRUE)
-            self.save_as_menu.set_sensitive(gtk.TRUE)
-            self.open_menu.set_sensitive(gtk.TRUE)
-
+        self.start_queue(True)
         # if there is a callback set, call it
         if callback:
             callback()
@@ -803,21 +783,73 @@ class ProcessManager:
             iter = self.process_list[0][2]
             self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_CANCEL))
             # set the resume buttons to sensitive
-            self.resume_menu.set_sensitive(gtk.TRUE)
+            self.set_resume(True)
         dprint("TERMINAL: leaving kill_process")
         return
+
+    def extract_num(self, line):
+        """extracts the number of packages from the 'emerge (x of y) cat/package
+        for setting the resume menu entries"""
+        first = string.index(line, "(") + 1
+        last = string.index(line, ")")
+        num = string.split(line[first:last], " ")
+        return string.atoi(num[2]) - string.atoi(num[0])
+
+    def set_resume(self, active):
+        """sets the resume menu to the desired state,
+        checking and setting the individual entries to their correct state
+        at the time """
+        if active:
+            if self.resume_line:
+                remaining = self.extract_num(self.resume_line)
+            else:
+                remaining = 0
+                
+            if remaining:  # > 0
+                self.skip_first_menu.set_sensitive(gtk.TRUE)
+            else:
+                self.skip_first_menu.set_sensitive(gtk.FALSE)
+            self.resume_menu.set_sensitive(gtk.TRUE)
+            # check if there are more queue entries to process
+            if len(self.process_list)> 1:
+                self.skip_queue_menu.set_sensitive(gtk.TRUE)
+            else:
+                self.skip_queue_menu.set_sensitive(gtk.FALSE)
+        else:
+            self.resume_menu.set_sensitive(gtk.FALSE)
     
     def resume_normal(self, widget):
         """ Resume killed process """
         # pass the normal command along with --resume
         name, command, iter, callback = self.process_list[0]
-        self._run(command + " --resume", iter)
+        command += " --resume"
+        self._run(command, iter)
 
     def resume_skip_first(self, widget):
         """ Resume killed process, skipping first package """
         # pass the normal command along with --resume --skipfirst
         name, command, iter, callback = self.process_list[0]
-        self._run(command + " --resume --skipfirst", iter)
+        command += " --resume --skipfirst"
+        self._run(command, iter)
+
+    # skip_first needs to be true for the menu callback
+    def start_queue(self, skip_first = True):
+        """skips the first item in the process_list"""
+        dprint("TERMINAL: start_queue()")
+        if skip_first:
+            # remove process from list
+            self.process_list = self.process_list[1:]
+        # check for pending processes, and run them
+        dprint(self.process_list)
+        if len(self.process_list):
+            dprint("TERMINAL: There are pending processes, running now... [" + \
+                    self.process_list[0][0] + "]")
+            self._run(self.process_list[0][1], self.process_list[0][2])
+        else: # re-activate the open/save menu items
+            self.save_menu.set_sensitive(gtk.TRUE)
+            self.save_as_menu.set_sensitive(gtk.TRUE)
+            self.open_menu.set_sensitive(gtk.TRUE)
+
 
     def copy_selected(self, widget):
         """ Copy selected text to clipboard """
