@@ -94,7 +94,8 @@ class ProcessWindow(threading.Thread):
     def on_destroy(self, widget, data = None):
         """Window was closed"""
         self.kill()
-        self.callback()
+        if self.callback:
+            self.callback()
         #gtk.main_quit()
 
     def kill(self):
@@ -111,11 +112,13 @@ class ProcessWindow(threading.Thread):
         if response_id == self.RESPONSE_CLOSE:
             self.kill()
             #gtk.main_quit()
-            self.callback()
+            if self.callback:
+                self.callback()
         elif response_id == self.RESPONSE_KILL:
             self.kill()
             self.window.hide()
-            self.callback()
+            if self.callback:
+                self.callback()
 
     def append(self, text):
         """Append text to the end of the text buffer"""

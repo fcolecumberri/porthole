@@ -167,8 +167,13 @@ class MainWindow:
             self.wtree.get_widget("view_filter").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("search_entry").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("btn_search").set_sensitive(gtk.TRUE)
+            # make sure we search again if we reloaded!
+            view_filter = self.wtree.get_widget("view_filter")
+            if view_filter.get_history() == self.SHOW_SEARCH:
+                self.package_view.size = 0
+                self.package_search(None)
             # update the views by calling view_filter_changed
-            self.view_filter_changed(self.wtree.get_widget("view_filter"))
+            self.view_filter_changed(view_filter)
             return gtk.FALSE  # disconnect from timeout
         return gtk.TRUE
 
