@@ -4,7 +4,6 @@ depends.py
 metadata.py
 portagelib.py
 porthole
-process.py
 mainwindow.py
 setup.py
 summary.py

@@ -5,9 +5,12 @@ Release 0.4
 - Show ebuild source code
 - Updating the info for a selected package in a separate thread may make the gui more responsive
 - Faster dependency calculations by only partially loading the tree
+- USE flags editor (possibly)
+- change the mainwindow database reloads to the background and not collapse the views.
+  Just update the view if needed.
 
 Release 0.5
-- USE flags editor
+- integrate portages new API into porthole replacing portaglib (when ready)
 - A way to hide the details of an emerge and replace it with a pretty pulsing progressbar
 - A porthole panel applet similar to redhat's up2date applet [maybe...]
 
@@ -20,3 +23,7 @@ Features for future consideration
   Double-clicking should open the file or folder in Nautilus.  It would be neat 
   if right-click brought up the standard Nautilus context menu.
 
+- Adding su ability inside porthole.
+
+- Adding chroot ability to the terminal and mainwindow database.  This would allow porthole to
+  be used for some install purposes.  Or help in using porthole to do remote work.

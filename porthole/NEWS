@@ -1,3 +1,52 @@
+0.3.1:
+
+     * This release is primarily a bugfix release.  There have been quite a
+       few bugfixes due to submisissions from users and our own testing.
+
+       Thank you to all those that have helped make this release a good one.
+
+     * Kill/Resume has been fixed to work correctly.  Porthole now sends a
+       <ctrl>C to the running process to allow it to quit gracefully, so
+       emerge can save any info it needs to resume.
+
+     * A new "Resume" option has been added, "Skip Queue item", to skip a
+       killed emerge sitting in the queue so that you can continue with the
+       remaining entries in the queue.
+
+     * Killed processes now send the callback signal to the main window so that
+       any succefully emerged/unmerged packages will show in the change.
+
+     * You can now click on a line in any of the filtered views tabs and it
+       will bring you to that line in the process view tab.
+
+     * A new portage compliant sort routine for all the available ebuilds.
+       It now will sort correctly every time (I Hope).  It will lengthen
+       version strings to the same length (# of subversions [x.x.x]).
+       All version numbers are formattted to the same length with leading
+       zeros so that they can be correctly sorted alphabetically.
+
+     * Dependacy display bugs have been fixed.
+
+     * several bugs dealing with greyed out text/menus/icons have been fixed.
+
+     * We have renamed a few things that were causing some confusion.   The
+       "Info" tab was renamed to "Summary" to better reflect its contents.
+       The menu item "Save As Log" ==> "Save Log As".
+       The "Process Terminated" message is now "Process Complete".
+
+     * the search string will not accept special regular expression characters
+       to use in its search.  They will be escaped to be used as text characters.
+       That way a search for "c++" will use the search string "c\+\+".
+       The ++ would otherwise cause a reg. expression error due to multiple +'s.
+
+     * a little fine tuning to the autoscroll feature.  Note there seems to be a
+       bug in gtk that is causing the autocroll sticky feature to snap back to
+       fixed point in the buffer at times.  When the process stops you will be able to
+       scroll to the end again.
+       
+       
+
+
 0.3:
 
      * Emerge sync is fully functional again.
