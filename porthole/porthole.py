@@ -43,15 +43,6 @@ try:
 except ImportError:
     print "Error loading libraries!\nCan't find process!"
 
-def xml_esc(string):
-    """Escape characters that have special meanings in XML"""
-    def subst(c):
-        if c == '<': return '&lt;'
-        elif c == '>': return '&gt;'
-        elif c == '&': return '&amp;'
-        else: return c
-    return ''.join(map(subst, string))
-
 class MainWindow:
     """Main Window class to setup and manage main window interface."""
     
