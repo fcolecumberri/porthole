@@ -26,4 +26,4 @@
 #DEFAULT (echo ""; id; echo %{sVv}; date; cat) >> $CVSROOT/CVSROOT/commitlog
 
 # commit messages:
-DEFAULT /cvsroot/sitedocs/CVSROOT/cvstools/syncmail %{sVv} porthole-commit@lists.sourceforge.net
+DEFAULT /cvsroot/sitedocs/CVSROOT/cvstools/syncmail -u %{sVv} porthole-commit@lists.sourceforge.net
