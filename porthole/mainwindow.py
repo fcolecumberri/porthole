@@ -140,6 +140,8 @@ class MainWindow:
         self.upgrades_loaded_callback = None
         # descriptions loaded?
         self.desc_loaded = False
+        # set notebook tabs to load new package info
+        self.deps_filled = self.changelog_loaded = self.installed_loaded = False
         # declare the database
         self.db = None
         # load the db
@@ -400,25 +402,36 @@ class MainWindow:
         self.summary.update_package_info(package)
         # if the user is looking at the deps we need to update them
         cur_page = self.notebook.get_current_page()
+        # reset notebook tabs to reload new package info
+        self.deps_filled = self.changelog_loaded = self.installed_loaded = False
         if cur_page == 1:
             self.deps_view.fill_depends_tree(self.deps_view, package)
+            self.deps_filled = True
         elif cur_page == 2:
             self.load_changelog(package)
+            self.changelog_loaded = True
         elif cur_page == 3:
             self.load_installed_files(package)
+            self.installed_loaded = True
 
     def notebook_changed(self, widget, pointer, index):
         """Catch when the user changes the notebook"""
         package = get_treeview_selection(self.package_view, 2)
         if index == 1:
-            # fill the deps view!
-            self.deps_view.fill_depends_tree(self.deps_view, package)
+            if not self.deps_filled:
+                # fill the deps view!
+                self.deps_view.fill_depends_tree(self.deps_view, package)
+                self.deps_filled = True
         elif index == 2:
-            # fill in the change log
-            self.load_changelog(package)
+            if not self.changelog_loaded:
+                # fill in the change log
+                self.load_changelog(package)
+                self.changelog_loaded = True
         elif index == 3:
-            # load list of installed files
-            self.load_installed_files(package)
+            if not self.installed_loaded:
+                # load list of installed files
+                self.load_installed_files(package)
+                self.installed_loaded = True
 
     def load_changelog(self, package):
         """ Load and display the changelog for a package """
