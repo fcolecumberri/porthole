@@ -41,8 +41,7 @@
 # import external [system] modules
 import pygtk; pygtk.require('2.0')
 import gtk, gtk.glade, gobject
-import signal, os, pty, threading, time
-import utils
+import signal, os, pty, threading, time, re
 
 if __name__ == "__main__":
     # setup our path so we can load our custom modules
@@ -137,6 +136,10 @@ class ProcessManager:
         self.caution_tab.showing = False
         self.info_tab.showing = False
         self.queue_tab.showing = False
+        # setup the regular expression objects for searching later
+        self.re_object_caution = None
+        self.re_object_warning = None
+        self.re_object_info = re.compile("^>>> [^/]", re.I)
         # flag that the window is now visible
         self.window_visible = True
         if self.prefs:
@@ -287,7 +290,16 @@ class ProcessManager:
             elif 32 <= ord(char) <= 127 or char == '\n': # no unprintable
                 self.process_buffer += char
                 if char == '\n': # newline
-                    self.process_text.insert(self.process_text.get_end_iter(), self.process_buffer)
+                    if self.re_object_info.search(self.process_buffer):
+                        # info string has been found, show info tab if needed
+                        if not self.info_tab.showing:
+                            self.show_tab(TAB_INFO)
+                            self.info_tab.showing = True
+                        # insert the line into the info text buffer
+                        self.info_text.insert(self.info_text.get_end_iter(),\
+                                              self.process_buffer)
+                    self.process_text.insert(self.process_text.get_end_iter(),\
+                                             self.process_buffer)
                     self.process_buffer = ''
             elif ord(char) == 13: # carriage return?
                 pass
@@ -476,6 +488,7 @@ if __name__ == "__main__":
 
     from sys import argv, exit, stderr
     from getopt import getopt, GetoptError
+    import utils
 
     try:
         opts, args = getopt(argv[1:], "lvd", ["local", "version", "debug"])
@@ -512,7 +525,7 @@ if __name__ == "__main__":
     # un-comment the next line to get the queue to show up
     test.add_process("gnome (-vp)", "emerge -vp gnome")
     test.add_process("gtk+ (-vp)", "emerge -vp gtk+")
-    test.add_process("porthole (-vp)", "emerge -vp porthole")
+    test.add_process("bzip2 (-v)", "emerge -v bzip2")
     # start the program loop
     gtk.mainloop()
     # save the prefs to disk for next time
