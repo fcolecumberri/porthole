@@ -179,7 +179,10 @@ class ProcessManager:
         self.info_tab.showing = False
         self.queue_tab.showing = False
         self.tablist = [TAB_LABELS[TAB_PROCESS]]
+
         # Create formatting tags for each textbuffers' tag table
+        # for all emerge process commands bold, white text on navy
+
         self.info_text.create_tag('command',\
                 weight=700,\
                 background='navy',\
@@ -188,29 +191,66 @@ class ProcessManager:
                 weight=700,\
                 background='navy',\
                 foreground='white')
+        self.caution_text.create_tag('command',\
+                weight=700,\
+                background='navy',\
+                foreground='white')
         self.process_text.create_tag('command',
                 weight=700,\
                 background='navy',\
                 foreground='white')
+
         # All emerge lines will be bolded with light green background
+
         self.info_text.create_tag('emerge',\
                 weight=700,\
                 background='lightgreen')
         self.warning_text.create_tag('emerge',\
                 weight=700,\
                 background='lightgreen')
+        self.caution_text.create_tag('emerge',\
+                weight=700,\
+                background='lightgreen')
         self.process_text.create_tag('emerge',\
                 weight=700,\
                 background='lightgreen')
-        # In process window, warnings will have medium yellow background
+
+        # Warning lines will have medium yellow background
+        # in the process & info tabs
+
         self.process_text.create_tag('warning',\
                 background='#ffffb0')
         self.info_text.create_tag('warning',\
                 background='#ffffb0')
-        # In process window info will have medium cyan background
+
+        # Info lines will have medium cyan background
+        # in the process tab only
+
         self.process_text.create_tag('info',\
                 background='#b0ffff')
-        # all line numbers will be blue & bold
+
+        # Caution lines will have light red background
+        # in the process & info tabs
+
+        self.process_text.create_tag('caution',\
+                background='pink')
+        self.info_text.create_tag('caution',\
+                background='pink')
+
+        # Error lines will have bold light text on red background
+        # in process & info tabs
+
+        self.process_text.create_tag('error',\
+                weight=700,\
+                background='red',\
+                foreground='linen')
+        self.info_text.create_tag('error',\
+                weight=700,\
+                background='red',\
+                foreground='linen')
+
+        # All line numbers will be blue & bold
+
         self.process_text.create_tag('linenumber',\
                 foreground='blue',\
                 weight=700)
@@ -223,6 +263,12 @@ class ProcessManager:
         self.caution_text.create_tag('linenumber',\
                 foreground='blue',\
                 weight=700)
+
+        # Note lines will have magenta text in process
+
+        self.process_text.create_tag('note',\
+                foreground='magenta4')
+
         # text mark to mark the start of the current command
         self.command_start = None
         # flag that the window is now visible
@@ -429,7 +475,7 @@ class ProcessManager:
         # we need certain info in all tabs to know where
         # tab messages came from
         self.append(self.warning_text, text, tag)
-        #self.append(self.caution_text, text, tag)
+        self.append(self.caution_text, text, tag)
         self.append(self.info_text, text, tag)
         # NOTE: always write to the process_text buffer LAST to keep the
         # line numbers correct - see self.append above
@@ -482,17 +528,20 @@ class ProcessManager:
                                 self.set_statusbar(self.process_buffer[:-1])
 
                         elif self.config.isInfo(self.process_buffer):
-                            # info string has been found, show info tab if needed
+                            # Info string has been found, show info tab if needed
                             if not self.info_tab.showing:
                                 self.show_tab(TAB_INFO)
                                 self.info_tab.showing = True
                                 self.info_text.set_modified(gtk.TRUE)
-                            # insert the line into the info text buffer
-                            tag = 'info'
-                            self.append(self.info_text, self.process_buffer)
+
                             # Check for fatal error
                             if self.config.isError(self.process_buffer):
                                 self.Failed = True
+                                tag = 'error'
+                                self.append(self.info_text, self.process_buffer,'error')
+                            else:
+                                tag = 'info'
+                                self.append(self.info_text, self.process_buffer)
 
                         elif self.config.isWarning(self.process_buffer):
                             # warning string has been found, show info tab if needed
@@ -512,7 +561,7 @@ class ProcessManager:
                                 self.caution_tab.showing = True
                                 self.caution_text.set_modified(gtk.TRUE)
                             # insert the line into the info text buffer
-                            tag = 'warning' #None # yet
+                            tag = 'caution'
                             self.append(self.caution_text, self.process_buffer)
                             self.caution_count += 1
 
@@ -569,7 +618,7 @@ class ProcessManager:
                 self.info_text.set_modified(gtk.TRUE)
         if self.caution_count != 0:
             self.append(self.info_text, "*** Total cautions count for merge = %d \n"\
-                        %self.caution_count, 'warning')
+                        %self.caution_count, 'caution')
             if not self.info_tab.showing:
                 self.show_tab(TAB_INFO)
                 self.info_tab.showing = True
@@ -747,8 +796,7 @@ class ProcessManager:
                             "*** Unfortunately, you don't have enough " +
                             "logged information about the listed packages, " +
                             "so I can't calculate estimated build times " +
-                            "accuratelly.\n", 'emerge')
-                    self.append(self.process_text, "\n")
+                            "accurately.\n", 'note')
                     return None
             self.append(self.process_text,
                         "*** Based on the build history of these packages " +
@@ -758,15 +806,13 @@ class ProcessManager:
                         (total.seconds // (24 * 3600),\
                          (total.seconds % (24 * 3600)) // 3600,\
                          ((total.seconds % (24 * 3600))  % 3600) //  60,\
-                         ((total.seconds % (24 * 3600))  % 3600) %  60), 'emerge')
-            self.append(self.process_text, "\n")
+                         ((total.seconds % (24 * 3600))  % 3600) %  60), 'note')
             self.append(self.process_text,
                         "*** Note: If you have a lot of programs running on " +
                         "your system while porthole is emerging packages, " +
                         "or if you have changed your hardware since the " +
                         "last time you built some of these packages, the " +
-                        "estimates I calculate may be inaccurate.\n", 'warning')
-            self.append(self.process_text, "\n")
+                        "estimates I calculate may be inaccurate.\n", 'note')
 
     def queue_clicked(self, widget):
         """Handle clicks to the queue treeview"""
