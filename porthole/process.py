@@ -21,19 +21,16 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import pygtk
-pygtk.require('2.0')
+import pygtk; pygtk.require('2.0')
 import gtk, threading
-from popen2 import Popen4
-from os import kill, environ
-import signal
-from sys import argv
+import signal, os, pty
 
 class ProcessWindow(threading.Thread):
     RESPONSE_CLOSE = 0
     RESPONSE_KILL = 1
     
-    def __init__(self, command, environment = {}, preferences = None, callback = None):
+    def __init__(self, command, environment = {}, preferences = None,
+                 callback = lambda: None):
         # setup prefs
         self.prefs = preferences
         # setup callback
@@ -42,7 +39,7 @@ class ProcessWindow(threading.Thread):
         self.setDaemon(1)  # quit even if this thread is still running
         self.killed = 0
         self.line = ''
-        self.pipe = None
+        self.pid = self.fd = None
         self.command = command
         self.environment = environment
         self.window = gtk.Dialog(command, None, gtk.DIALOG_NO_SEPARATOR,
@@ -70,22 +67,24 @@ class ProcessWindow(threading.Thread):
         # set minimum window size
         self.window.set_size_request(400, 300)
         self.window.show_all()
-        self.window.resize((self.prefs.emerge.verbose and \
-                                self.prefs.process.width_verbose or \
+        if self.prefs:
+            self.window.resize((self.prefs.emerge.verbose and
+                                self.prefs.process.width_verbose or
                                 self.prefs.process.width), 
-                                self.prefs.process.height)
-        # MUST! do this command last, or nothing else will _init__
-        # after it untill emerge is finished. Also causes runaway recursion.
-        self.window.connect("size_request", self.on_size_request)
+                               self.prefs.process.height)
+            # MUST! do this command last, or nothing else will _init__
+            # after it until emerge is finished.
+            # Also causes runaway recursion.
+            self.window.connect("size_request", self.on_size_request)
 
     def on_size_request(self, window, gbox):
         """Store new size in prefs"""
-        pos = window.get_size()
+        width, height = window.get_size()
         if self.prefs.emerge.verbose:
-            self.prefs.process.width_verbose = pos[0]
+            self.prefs.process.width_verbose = width
         else:
-            self.prefs.process.width = pos[0]
-        self.prefs.process.height = pos[1]
+            self.prefs.process.width = width
+        self.prefs.process.height = height
 
     def on_realize(self, window):
         """Run the thread!"""
@@ -94,31 +93,28 @@ class ProcessWindow(threading.Thread):
     def on_destroy(self, widget, data = None):
         """Window was closed"""
         self.kill()
-        if self.callback:
-            self.callback()
-        #gtk.main_quit()
+        self.callback()
+        if __name__ == "__main__":
+            gtk.main_quit()
 
     def kill(self):
         """Kill process."""
         # If started and still running
-        if self.pipe and self.pipe.poll() == -1 and not self.killed:
-            self.pipe.fromchild.close()  # make sure the thread notices
-            #print "Killing ", self.pipe.pid
-            kill(self.pipe.pid, signal.SIGKILL)
+        if self.pid and not self.killed:
+            try:
+                os.close(self.fd)  # make sure the thread notices
+                # negative pid kills process group
+                os.kill(-self.pid, signal.SIGKILL)
+            except OSError:
+                pass
             self.killed = 1
 
     def on_response(self, widget, response_id):
         """Parse response given from user"""
-        if response_id == self.RESPONSE_CLOSE:
-            self.kill()
-            #gtk.main_quit()
-            if self.callback:
-                self.callback()
-        elif response_id == self.RESPONSE_KILL:
-            self.kill()
+        self.kill()
+        if not __name__ == "__main__":
             self.window.hide()
-            if self.callback:
-                self.callback()
+        self.callback()
 
     def append(self, text):
         """Append text to the end of the text buffer"""
@@ -127,9 +123,9 @@ class ProcessWindow(threading.Thread):
             iter,
             text.decode('ascii', 'replace'),
             'tt')
-        self.textview.scroll_mark_onscreen(self.textbuffer.get_insert())
-        # don't scroll sideways
-        #adj = self.scroller.get_hadjustment(); adj.set_value(adj.lower)
+        # only scroll when a newline is encountered
+        if '\n' in text:
+            self.textview.scroll_mark_onscreen(self.textbuffer.get_insert())
 
     def backspace(self):
         """Delete last character in buffer."""
@@ -144,27 +140,43 @@ class ProcessWindow(threading.Thread):
             self.append(text)
             gtk.threads_leave()
 
-        # set environment; this will affect the environment for
-        # the entire parent program as well(I think)
-        for name, value in self.environment.items():
-            environ[name] = value
-        self.pipe = Popen4(self.command)
+        # pty.fork() creates a new process group
+        self.pid, self.fd = pty.fork() 
+        if not self.pid:  # child
+            try:
+                # print os.getpgid(0), os.getpid()
+                shell = '/bin/sh'
+                os.execve(shell, [shell, '-c', self.command],
+                          self.environment)
+            except Exception, e:
+                print "hej ",
+                print e
+                os._exit(1)
+
+        # only the parent should reach this
         try:
             while True:
-                text = self.pipe.fromchild.read(1)
+                text = os.read(self.fd, 1)
                 if not text:
                     break
-                if text == "\b": self.backspace()
-                else: append(text)
-        except ValueError:
+##                 elif text == '\033':  # escape
+                elif text == "\b":
+                    self.backspace()
+                elif 32 <= ord(text) <= 127 or text == '\n': # no unprintable
+                    append(text)
+        except OSError:
             pass  # if the process is killed
-        self.pipe.wait()  # or poll() will return -1 in the main thread
+        except Exception, e:
+            append(str(e))
+        os.waitpid(self.pid, 0)
         append('\n')
         append('*** process terminated ***\n')
 
 # Test program,
 # run as ./process <any command with parameters>
 if __name__ == "__main__":
+    from sys import argv
     gtk.threads_init()  # make sure gtk lets other threads run too
-    w = ProcessWindow(' '.join(argv[1:]))
+    w = ProcessWindow(' '.join(argv[1:]), {"FEATURES": "notitles",
+                                           "NOCOLOR": "true"})
     gtk.main()

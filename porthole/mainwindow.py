@@ -179,11 +179,12 @@ class MainWindow:
 
     def setup_command(self, command):
         """Setup the command to run or not"""
-        env = {"FEATURES": "notitles"}  # Don't try to set the titlebar
+        env = {"FEATURES": "notitles",  # Don't try to set the titlebar
+               "NOCOLOR": "true"}       # and no colours, please
         if self.is_root or (self.prefs.emerge.pretend and
                             command[:11] != "emerge sync"):
             if self.prefs.emerge.pretend:
-                callback = None
+                callback = lambda: None  # a function that does nothing
             else:
                 callback = self.init_data
             ProcessWindow(command, env, self.prefs, callback)
