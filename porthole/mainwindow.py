@@ -262,9 +262,12 @@ class MainWindow:
 
     def upgrades_loaded_dialog_response(self, widget, response):
         """ Get and parse user's response """
-        if response == 0: # Yes was selected
+        if response == 0: # Yes was selected; upgrade all
             self.load_upgrades_list()
             self.upgrades_loaded_callback = self.upgrade_packages
+        else:
+            # load the upgrades view to select which packages
+            self.wtree.get_widget("view_filter").set_history(3)
         # get rid of the dialog
         self.upgrades_loaded_dialog.destroy()
 
