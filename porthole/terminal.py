@@ -200,10 +200,17 @@ class ProcessManager:
         self.move_up = self.wtree.get_widget("move_up1")
         self.move_down = self.wtree.get_widget("move_down1")
         self.queue_remove = self.wtree.get_widget("remove1")
-        # Catch clicks on info, caution & warning tabs
-        self.term.view[TAB_INFO].connect("button_press_event", self.line_dbl_clicked)
-        self.term.view[TAB_CAUTION].connect("button_press_event", self.line_dbl_clicked)
-        self.term.view[TAB_WARNING].connect("button_press_event", self.line_dbl_clicked)
+        # Initialize event widget source
+        self.event_src = None
+        # Catch button events on info, caution & warning tabs
+        # Following a double click on a line, bring that line
+        # in the process window into focus near center screen
+        self.term.view[TAB_INFO].connect("button_press_event", self.button_event)
+        self.term.view[TAB_CAUTION].connect("button_press_event", self.button_event)
+        self.term.view[TAB_WARNING].connect("button_press_event", self.button_event)        
+        self.term.view[TAB_INFO].connect("button_release_event", self.button_event)
+        self.term.view[TAB_CAUTION].connect("button_release_event", self.button_event)
+        self.term.view[TAB_WARNING].connect("button_release_event", self.button_event)
         # catch clicks to the queue tree
         self.queue_tree.connect("cursor_changed", self.queue_clicked)
         # process output buffer
@@ -271,21 +278,34 @@ class ProcessManager:
             # Also causes runaway recursion.
             self.window.connect("size_request", self.on_size_request)
 
-    def line_dbl_clicked(self, widget, event):
-        """ Double clicking on line will bring that line in the process
-            window into focus near center screen
+    def button_event(self, widget, event):
+        """ Catch button events.  When a dbl-click occurs save the widget
+            as the source.  When a correspong button release from the same
+            widget occurs, move to the process window and jump to the line
+            number clicked on.
         """
         if event.type == gtk.gdk._2BUTTON_PRESS:
+            # Capture the source of the dbl-click event
+            # but do nothing else
+            self.event_src = widget
+
+        elif event.type == gtk.gdk.BUTTON_RELEASE and \
+             self.event_src == widget:
+            # The button release event following the dbl-click
+            # from the same widget, go ahead and process now
             # Convert x,y window coords to buffer coords and get line text
             x = int(event.x)
             y = int(event.y)
             bufcoords = widget.window_to_buffer_coords(gtk.TEXT_WINDOW_TEXT,x,y)
-            # Set start iter at beginning of line
+            # Set start iter at beginning of line (0)
             iStart = widget.get_iter_at_location(0,bufcoords[1])
-            # Set end iter far enough right to grab number
+            # Set end iter far enough right to grab number (100)
             iEnd = widget.get_iter_at_location(100,bufcoords[1])
             try:
                 # get line number from textbuffer (0 based)
+                # we'll do this inside a try clause in case the user
+                # clicks on a line without a number or anything else
+                # goes wrong!
                 line = int(iStart.get_text(iEnd)[0:6]) - 1 
                 # Get the iter based on the line number index
                 iter = self.term.buffer[TAB_PROCESS].get_iter_at_line_index(line,0)
@@ -296,6 +316,8 @@ class ProcessManager:
                 # Display the tab
                 self.notebook.set_current_page(TAB_PROCESS)
             except: pass
+            # clear the event source 
+            self.dblclick_src = None
 
     def switch_page(self, notebook, page, page_num):
         """callback function changes the current_page setting in the term structure"""
