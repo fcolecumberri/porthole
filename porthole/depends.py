@@ -45,7 +45,8 @@ class DependsTree(gtk.TreeStore):
                     parent = "Not Using " + depend[1:-1]
             else:
                 if depend not in ["(", ")", ":"]:
-                    depend, ops = self.get_ops(depend)
+                    try: depend, ops = self.get_ops(depend)
+                    except: dprint("Depend didn't split: " + depend)
                     depend2 = None
                     if ops: #should only be specific if there are operators
                         depend2 = portagelib.extract_package(depend)
@@ -105,35 +106,21 @@ class DependsTree(gtk.TreeStore):
         """No, this isn't IRC...
            Returns depend with the operators cut out, and the operators"""
         op = depend[0]
-        if op == ">" or op == "<" or op == "=" or op == "!":
+        if op in [">", "<", "=", "!"]:
             op2 = depend[1]
-            if op2 == "=":
-                depend = depend[2:]
-                return depend, op + op2
-            else:
-                depend = depend[1:]
-                return depend, op
+            return op2 == "=" and depend, op + op2 or depend, op
         else:
             return depend, None
 
     def is_dep_satisfied(self, installed_ebuild, dep_ebuild, operator = "="):
-        """Returns True if (installed_ebuild <operator> dep_ebuild) is True, else False
-           Valid operators are '=', '>', '<', '>=', and '<=' """
+        """ Returns installed_ebuild <operator> dep_ebuild """
         retval = False
         ins_ver = portagelib.get_version(installed_ebuild)
         dep_ver = portagelib.get_version(dep_ebuild)
-        if operator == "=":
-            retval = (ins_ver == dep_ver)
-        elif operator == ">":
-            retval = (ins_ver > dep_ver)
-        elif operator == "<":
-            retval = (ins_ver < dep_ver)
-        elif operator == ">=":
-            retval = (ins_ver >= dep_ver)
-        elif operator == "<=":
-            retval = (ins_ver <= dep_ver)
-        else:
-            dprint("Invalid operator passed to is_dep_satisfied()!")
+        # this next one's a tongue twister!
+        if operator == "=": operator = "=="
+        # return the result of the operation
+        retval = eval(ins_ver + " " + operator + " " + dep_ver)
         return retval
 
     def fill_depends_tree(self, treeview, package):
