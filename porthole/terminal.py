@@ -46,7 +46,7 @@
 import pygtk; pygtk.require('2.0')
 import gtk, gtk.glade, gobject
 import signal, os, pty, threading, time, sre, portagelib
-import datetime, pango
+import datetime, pango, errno
 
 if __name__ == "__main__":
     # setup our path so we can load our custom modules
@@ -68,6 +68,8 @@ TAB_QUEUE = 4
 KILLED_STRING = "*** process killed ***\n"
 TERMINATED_STRING = "*** process terminated ***\n"
 TAB_LABELS = ["Process", "Warnings", "Cautions", "Information", "Emerge queue"]
+
+
 class ProcessManager:
     """ Manages queued and running processes """
     def __init__(self, env = {}, prefs = None, config = None):
@@ -159,14 +161,14 @@ class ProcessManager:
                                         gobject.TYPE_STRING)
         self.queue_tree.set_model(self.queue_model)
         # save the tab contents and remove them until we need em
-        self.warning_tab = self.notebook.get_nth_page(1)
-        self.caution_tab = self.notebook.get_nth_page(2)
-        self.info_tab = self.notebook.get_nth_page(3)
-        self.queue_tab = self.notebook.get_nth_page(4)
-        self.notebook.remove_page(4)
-        self.notebook.remove_page(3)
-        self.notebook.remove_page(2)
-        self.notebook.remove_page(1)
+        self.warning_tab = self.notebook.get_nth_page(TAB_WARNING)
+        self.caution_tab = self.notebook.get_nth_page(TAB_CAUTION)
+        self.info_tab = self.notebook.get_nth_page(TAB_INFO)
+        self.queue_tab = self.notebook.get_nth_page(TAB_QUEUE)
+        self.notebook.remove_page(TAB_QUEUE)
+        self.notebook.remove_page(TAB_INFO)
+        self.notebook.remove_page(TAB_CAUTION)
+        self.notebook.remove_page(TAB_WARNING)
         self.warning_tab.showing = False
         self.caution_tab.showing = False
         self.info_tab.showing = False
@@ -440,10 +442,10 @@ class ProcessManager:
                                 self.info_tab.showing = True
                             # insert the line into the info text buffer
                             tag = 'info'
+                            self.append(self.info_text, self.process_buffer)
                             # Check for fatal error
                             if self.config.isError(self.process_buffer):
                                 self.Failed = True
-                            self.append(self.info_text, self.process_buffer)
 
                         elif self.config.isWarning(self.process_buffer):
                             # warning string has been found, show info tab if needed
@@ -742,12 +744,17 @@ class ProcessManager:
 
     def set_save_buffer(self):
         """determines the notebook tab open and returns the visible buffer"""
+        dprint("entering set_save_buffer")
         page = self.notebook.get_current_page()
-        self.buffer_name = self.notebook.get_tab_label(page)
-        self.buffer = self.buffers[self.buffer_name]
+        self.buffer_name = TAB_LABELS[page]
+        self.buffer_to_save = self.buffers[self.buffer_name]
         self.buffer_type = self.buffer_types[self.buffer_name]
+        dprint("set_save_buffer: " + self.buffer_name + " type: " + self.buffer_type)
+        return (self.buffer_name != None)
 
     def open_ok_func(self, filename):
+        """callback function from file selector"""
+        dprint("entering open_ok_func")
         if not fill_buffer(filename):
             return gtk.FALSE
         else:
@@ -757,23 +764,32 @@ class ProcessManager:
 
     def do_open(self, callback_action, widget):
         """opens the file selctor for file to open"""
+        dprint("entering do_open")
         FileSel().run(self, "Open log File", None, self.open_ok_func)
 
     def do_save_as(self, widget):
-        """saves the buffer as"""
-        self.set_save_buffer()
-        self.save_as_buffer    
+        """determine buffer to save as and saves it"""
+        dprint("entering do_save_as")
+        if self.set_save_buffer():
+            self.filename = self.pretty_name()
+            result = self.save_as_buffer()
+        else:
+            dprint("set_save_buffer error")
 
     def do_save(self, widget):
         """determine buffer to save and proceed"""
+        dprint("entering do_save")
         if not self.filename:
             self.do_save_as(widget)
         else:
-            # determine buffer to save
-            self.set_save_buffer()
-            self.save_buffer()
+            if self.set_save_buffer():
+                result = self.save_buffer()    
+            else:
+                dprint("set_save_buffer error")
 
     def pretty_name(self):
+        """pre-assigns generic filename & serial #"""
+        dprint("entering pretty_name")
         if self.filename:
             return os.path.basename(self.filename)
         else:
@@ -783,9 +799,11 @@ class ProcessManager:
             if self.untitled_serial == 1:
                 return ("Untitled.%s" % self.type)
             else:
-                return ("Untitled #%d.%s" % self.untitled_serial % self.type)
+                return ("Untitled #%d.%s" % (self.untitled_serial, self.buffer_type))
 
     def fill_buffer(self, filename):
+        """loads a file into the reader.string"""
+        dprint("entering fill_buffer")
         try:
             f = open(filename, "r")
         except IOError, (errnum, errmsg):
@@ -814,6 +832,8 @@ class ProcessManager:
             
 
     def save_buffer(self):
+        """save the contens of the buffer"""
+        dprint("entering save_buffer")
         result = gtk.FALSE
         have_backup = gtk.FALSE
         if not self.filename:
@@ -837,6 +857,7 @@ class ProcessManager:
         have_backup = gtk.TRUE
         start, end = self.buffer_to_save.get_bounds()
         chars = self.buffer_to_save.get_text(start, end, gtk.FALSE)
+        self.set_statusbar("*** saving file: %s" % self.filename)
         try:
             file = open(self.filename, "w")
             file.write(chars)
@@ -862,12 +883,15 @@ class ProcessManager:
                 dialog.run()
                 dialog.destroy()
 
+        self.set_statusbar("*** File saved")
         return result
 
     def save_as_buffer(self):
-        return FileSel().run(self, "Save File", None, self.save_as_ok_func)
+        dprint("entering save_as_buffer")
+        return FileSel().run(self, "Save File", self.filename, self.save_as_ok_func)
 
     def save_as_ok_func(self, filename):
+        dprint("entering save_as_ok_func")
         old_filename = self.filename
 
         if (not self.filename or filename != self.filename):
@@ -890,6 +914,8 @@ class ProcessManager:
             return gtk.FALSE
 
     def check_buffer_saved(self, buffer):
+        """checks if buffer has been modified before saving again"""
+        dprint("entering check_buffer_saved")
         if buffer.get_modified():
             pretty_name = self.pretty_name()
             msg = "Save log to '%s'?" % pretty_name
