@@ -177,8 +177,11 @@ class MainWindow:
         env = {"FEATURES": "notitles"}  # Don't try to set the titlebar
         if self.is_root or (self.prefs.emerge.pretend and
                             command[:11] != "emerge sync"):
-            ProcessWindow(command, env, self.prefs, self.prefs.emerge.pretend \
-                          and None or self.init_data)
+            if self.prefs.emerge.pretend:
+                callback = None
+            else:
+                callback = self.init_data
+            ProcessWindow(command, env, self.prefs, callback)
         else:
             dprint("Sorry, you aren't root! -> " + command)
             self.sorry_dialog = SingleButtonDialog("You are not root!",
