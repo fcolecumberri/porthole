@@ -320,6 +320,7 @@ class MainWindow:
 
     def package_search(self, widget):
         """Search package db with a string and display results."""
+        self.clear_notebook()
         if not self.desc_loaded and self.prefs.main.search_desc:
             self.load_descriptions_list()
             return
@@ -374,11 +375,7 @@ class MainWindow:
         else:
             raise Exception("The programmer is stupid.");
         self.package_view.populate(packages)
-        self.summary.update_package_info(None)
-        self.set_package_actions_sensitive(gtk.FALSE)
-        self.deps_view.clear()
-        self.changelog.set_text('')
-        self.installed_files.set_text('')
+        self.clear_notebook()
 
     def package_changed(self, package):
         """Catch when the user changes packages."""
@@ -475,15 +472,16 @@ class MainWindow:
                 cat_scroll.hide();
                 self.package_view.set_view(self.package_view.UPGRADABLE)
                 self.summary.update_package_info(None)
-        # clear the summary
-        self.summary.update_package_info(None)
+        # clear the notebook tabs
+        self.clear_notebook()
+#        self.summary.update_package_info(None)
         # update sensibility of buttons
-        self.set_package_actions_sensitive(gtk.FALSE)
+#        self.set_package_actions_sensitive(gtk.FALSE)
         # clear the dependency view
-        self.deps_view.clear()
+#        self.deps_view.clear()
         # clear the changelog and installed files text
-        self.changelog.set_text('')
-        self.installed_files.set_text('')
+#        self.changelog.set_text('')
+#        self.installed_files.set_text('')
 
     def load_upgrades_list(self):
         # upgrades are not loaded, create dialog and load them
@@ -564,6 +562,14 @@ class MainWindow:
         self.prefs.main.height = pos[1]
         self.prefs.main.hpane = self.wtree.get_widget("hpane").get_position()
         self.prefs.main.vpane = self.wtree.get_widget("vpane").get_position()
+
+    def clear_notebook(self):
+        """ Clear all notebook tabs & disble them """
+        self.summary.update_package_info(None)
+        self.set_package_actions_sensitive(gtk.FALSE)
+        self.deps_view.clear()
+        self.changelog.set_text('')
+        self.installed_files.set_text('')
 
 
 class CommonReader(threading.Thread):
