@@ -27,6 +27,7 @@ import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, gtk.glade, gobject, pango
 import portagelib, os, string
 
+from gettext import gettext as _
 from about import AboutDialog
 from utils import load_web_page, get_icon_for_package, is_root, dprint, \
      get_treeview_selection, YesNoDialog, SingleButtonDialog, environment
@@ -165,9 +166,9 @@ class MainWindow:
         self.reload = False
         self.db_timeout = gtk.timeout_add(100, self.update_db_read)
         # set status
-        self.set_statusbar("Reading package database: %i packages read"
-                           % 0)
-	self.set_statusbar2("Loading database")
+        self.set_statusbar(_("Reading package database: %i packages read"
+                           % 0))
+	self.set_statusbar2(_("Loading database"))
 	self.progressbar = self.wtree.get_widget("progressbar1")
 	self.wtree.get_widget("btn_cancel").set_sensitive(False)
 
@@ -187,9 +188,9 @@ class MainWindow:
         self.reload = True
         self.db_timeout = gtk.timeout_add(100, self.update_db_read)
         # set status
-        self.set_statusbar("Reading package database: %i packages read"
-                           % 0)
-        self.set_statusbar2("Reloading database")
+        self.set_statusbar(_("Reading package database: %i packages read"
+                           % 0))
+        self.set_statusbar2(_("Reloading database"))
 
     def pkg_path_callback(self, path):
         """callback function to save the path to the package that
@@ -200,10 +201,10 @@ class MainWindow:
     def check_for_root(self):
         """figure out if the user can emerge or not..."""
         if not self.is_root:
-            self.no_root_dialog = SingleButtonDialog("You are not root!",
+            self.no_root_dialog = SingleButtonDialog(_("You are not root!"),
                             self.wtree.get_widget("main_window"),
-                            "You will not be able to emerge, unmerge,"
-                            " upgrade or sync!",
+                            _("You will not be able to emerge, unmerge,"
+                            " upgrade or sync!"),
                             self.remove_nag_dialog,
                             "_Ok")
 
@@ -229,8 +230,8 @@ class MainWindow:
         """Update the statusbar according to the number of packages read."""
         count = 0
         if not self.db_thread.done:
-            self.set_statusbar("Reading package database: %i packages read"
-                               % self.db_thread.count)
+            self.set_statusbar(_("Reading package database: %i packages read"
+                               % self.db_thread.count))
             count = self.db_thread.count
 	    fraction = count / float(self.prefs.database_size)
             self.progressbar.set_text(str(int(fraction * 100)) + "%")
@@ -249,7 +250,7 @@ class MainWindow:
             self.db_thread.join()
             dprint("MAINWINDOW: db_thread.join is done...")
             self.db = self.db_thread.get_db()
-            self.set_statusbar("Populating tree ...")
+            self.set_statusbar(_("Populating tree ..."))
             self.update_statusbar(self.SHOW_ALL)
             dprint("MAINWINDOW: setting menubar,toolbar,etc to sensitive...")
             self.wtree.get_widget("menubar").set_sensitive(gtk.TRUE)
@@ -315,9 +316,9 @@ class MainWindow:
             self.process_manager.add_process(package_name, command, callback)
         else:
             dprint("MAIN: Sorry, you aren't root! -> " + command)
-            self.sorry_dialog = SingleButtonDialog("You are not root!",
+            self.sorry_dialog = SingleButtonDialog(_("You are not root!"),
                     self.wtree.get_widget("main_window"),
-                    "Please run Porthole as root to emerge packages!",
+                    _("Please run Porthole as root to emerge packages!"),
                     None, "_Ok")
             return 0
         return 1
@@ -397,9 +398,9 @@ class MainWindow:
                     return
         else:
             dprint("MAIN: Upgrades not loaded; upgrade world?")
-            self.upgrades_loaded_dialog = YesNoDialog("Upgrade requested",
+            self.upgrades_loaded_dialog = YesNoDialog(_("Upgrade requested"),
                     self.wtree.get_widget("main_window"),
-                    "Do you want to upgrade all packages in your world file?",
+                    _("Do you want to upgrade all packages in your world file?"),
                      self.upgrades_loaded_dialog_response)
 
     def upgrades_loaded_dialog_response(self, widget, response):
@@ -415,9 +416,9 @@ class MainWindow:
 
     def load_descriptions_list(self):
         """ Load a list of all descriptions for searching """
-        self.desc_dialog = SingleButtonDialog("Please Wait!",
+        self.desc_dialog = SingleButtonDialog(_("Please Wait!"),
                 self.wtree.get_widget("main_window"),
-                "Loading package descriptions...",
+                _("Loading package descriptions..."),
                 self.desc_dialog_response, "_Cancel", True)
         self.desc_thread = DescriptionReader(self.db.list)
         self.desc_thread.start()
@@ -590,13 +591,13 @@ class MainWindow:
                 if data:
                     self.changelog.set_text(str(data).encode("utf8",'replace'))
                 else:
-                    self.changelog.set_text("Change log is Empty")
+                    self.changelog.set_text(_("Change log is Empty"))
             except:
                 dprint("MAIN: Error opening changelog for " + package.full_name)
-                self.changelog.set_text("No Change Log Available")
+                self.changelog.set_text(_("No Change Log Available"))
         else:
             dprint("MAIN: No package sent to load_changelog!")
-            self.changelog.set_text("No Change Log Available")
+            self.changelog.set_text(_("No Change Log Available"))
 
     def load_installed_files(self, package):
         """Obtain and display list of installed files for a package,
@@ -610,14 +611,14 @@ class MainWindow:
                 installed.sort()
                 installed_files = portagelib.get_installed_files(installed[-1])
                 self.installed_files.set_text(
-                    str(len(installed_files)) + " installed files:\n\n"
+                    str(len(installed_files)) + _(" installed files:\n\n")
                     + "\n".join(installed_files))
             else:
-                self.installed_files.set_text("Not installed")
+                self.installed_files.set_text(_("Not installed"))
         else:
             dprint("MAIN: No package sent to load_installed_files!")
-            self.installed_files.set_text("No data currently available.\n\
-                                           The package may not be installed")
+            self.installed_files.set_text(_("No data currently available.\n\
+                                           The package may not be installed"))
 
     SHOW_ALL = 0
     SHOW_INSTALLED = 1
@@ -670,7 +671,7 @@ class MainWindow:
                 #~ self.wtree.get_widget("main_window"),
                 #~ "Loading upgradable packages list...",
                 #~ self.wait_dialog_response, "_Cancel", True)
-        self.set_statusbar2("Loading upgradable")
+        self.set_statusbar2(_("Loading upgradable"))
         # create upgrade thread for loading the upgrades
         self.ut = UpgradableReader(self.package_view.upgrade_model,
                                    self.db.installed.items())
@@ -722,26 +723,26 @@ class MainWindow:
 	self.wtree.get_widget("btn_cancel").set_sensitive(False)
 	self.progressbar.set_text("")
 	self.progressbar.set_fraction(0)
-	self.set_statusbar2("Done")
+	self.set_statusbar2(_("Done"))
 
 
     def update_statusbar(self, mode):
         """Update the statusbar for the selected filter"""
-        text = "(undefined) Statusbar not yet available for this view"
+        text = _("(undefined) Statusbar not yet available for this view")
         if mode == self.SHOW_ALL:
             if not self.db:
                 dprint("MAINWINDOW: attempt to update status bar with no db assigned")
             else:
-                text = "%d packages in %d categories" % (len(self.db.list),
-                                                         len(self.db.categories))
+                text = _("%d packages in %d categories" % (len(self.db.list),
+                                                         len(self.db.categories)))
         elif mode == self.SHOW_INSTALLED:
             if not self.db:
                 dprint("MAINWINDOW: attempt to update status bar with no db assigned")
             else:
-                text = "%d packages in %d categories" % (self.db.installed_count,
-                                                         len(self.db.installed))
+                text = _("%d packages in %d categories" % (self.db.installed_count,
+                                                         len(self.db.installed)))
         elif mode == self.SHOW_SEARCH:
-            text = "%d matches found" % self.package_view.search_model.size
+            text = _("%d matches found" % self.package_view.search_model.size)
         self.set_statusbar(text)
 
     def set_package_actions_sensitive(self, enabled, package = None):

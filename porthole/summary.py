@@ -26,6 +26,7 @@ import portagelib
 import string, re
 from utils import load_web_page, dprint
 from version_sort import ver_sort
+from gettext import gettext as _
 
 class Summary(gtk.TextView):
     """ Class to manage display and contents of package info tab """
@@ -209,22 +210,22 @@ class Summary(gtk.TextView):
     
         # Installed version(s)
         if installed:
-            append("Installed versions:\n", "property")
+            append(_("Installed versions:\n"), "property")
             show_vnums(installed)
             nl()
         else:
-            append("Not installed", "property")
+            append(_("Not installed"), "property")
             nl()
 
         # Remaining versions
         if versions:
-            append("Available versions:\n", "property")
+            append(_("Available versions:\n"), "property")
             show_vnums(versions)
             nl(2)        
 
         # Use flags
         if use_flags:
-            append("Use flags: ", "property")
+            append(_("Use flags: "), "property")
             first_flag = True
             for flag in use_flags:
                 if not first_flag:
@@ -240,6 +241,6 @@ class Summary(gtk.TextView):
 
         # License
         if license:
-            append("License: ", "property")
+            append(_("License: "), "property")
             append(license, "value")
             nl()

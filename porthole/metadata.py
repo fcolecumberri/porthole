@@ -25,6 +25,7 @@ from xml.sax import make_parser
 from xml.sax.handler import *
 from re import compile, sub
 from os.path import exists
+from gettext import gettext as _
 
 # precompile regexps
 re1 = compile("^\s+|\s+$")
@@ -78,7 +79,7 @@ parser.setContentHandler(handler)
 def parse_metadata(filename):
     """Read a portage metadata file and return a Metadata object."""
     if not exists(filename):
-        raise Exception('Metadata file "' + filename + '" does not exist.')
+        raise Exception(_('Metadata file "' + filename + '" does not exist.'))
     parser.parse(filename)
     return handler.result
 

@@ -28,6 +28,7 @@ import gtk.glade
 import portagelib
 import utils
 from version_sort import ver_sort
+from gettext import gettext as _
 
 class AdvancedEmergeDialog:
     """Class to perform advanced emerge dialog functionality."""
@@ -59,7 +60,7 @@ class AdvancedEmergeDialog:
 
         self.wtree.signal_autoconnect(callbacks)
         self.window = self.wtree.get_widget("adv_emerge_dialog")
-        self.window.set_title("Advanced Emerge Settings for " + package.full_name)
+        self.window.set_title(_("Advanced Emerge Settings for ") + package.full_name)
         
         # Make tool tips available
         self.tooltips = gtk.Tooltips()
@@ -76,10 +77,10 @@ class AdvancedEmergeDialog:
             info = ver[0]
             info += '   [Slot:' + str(ver[4]) + ']'
             if ver[2]:
-                info += '   [best/latest]'
+                info += _('   [best/latest]')
                 index = x
             if ver[3]:
-                info += '   [installed]'
+                info += _('   [installed]')
             comboList.append(info)
             x += 1
 
@@ -350,7 +351,7 @@ class AdvancedEmergeDialog:
             try:
                 self.tooltips.set_tip(button, portagelib.UseFlagDict[flag.lower()][2])
             except KeyError:
-                self.tooltips.set_tip(button, 'Unsupported use flag')
+                self.tooltips.set_tip(button, _('Unsupported use flag'))
             table.attach(button, col, col+1, row, row+1)
             button.show()
             # Increment col & row counters
@@ -389,7 +390,7 @@ class AdvancedEmergeDialog:
         # checkboxes and attach to table
         col = 0
         row = 0
-        button = gtk.RadioButton(None, 'None')
+        button = gtk.RadioButton(None, _('None'))
         rbGroup = button
         table.attach(button, col, col+1, row, row+1)
         button.show()

@@ -23,6 +23,7 @@
 
 import gtk, gobject, portagelib, string
 from utils import dprint
+from gettext import gettext as _
 
 class DependsTree(gtk.TreeStore):
     """Calculate and display dependencies in a treeview"""
@@ -43,9 +44,9 @@ class DependsTree(gtk.TreeStore):
         for depend in depends_list:
             if depend[-1] == "?":
                 if depend[0] != "!":
-                    parent = "Using " + depend[:-1]
+                    parent = _("Using ") + depend[:-1]
                 else:
-                    parent = "Not Using " + depend[1:-1]
+                    parent = _("Not Using ") + depend[1:-1]
 		using_list=True
             else:
                 if depend not in ["(", ")", ":"]:
@@ -157,5 +158,5 @@ class DependsTree(gtk.TreeStore):
             self.add_depends_to_tree(depends, treeview)
         else:
             parent_iter = self.insert_before(None, None)
-            self.set_value(parent_iter, 0, "None")
+            self.set_value(parent_iter, 0, _("None"))
         treeview.set_model(self)

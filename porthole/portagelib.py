@@ -26,11 +26,13 @@ from sys import exit
 from utils import dprint, dsave
 import string
 from string import digits, zfill
+from gettext import gettext as _
+
 try:
     import portage
 except ImportError:
-    exit('Could not find portage module.\n'
-         'Are you sure this is a Gentoo system?')
+    exit(_('Could not find portage module.\n'
+         'Are you sure this is a Gentoo system?'))
 
 import threading
 
@@ -258,7 +260,7 @@ class Package:
             else:
                 ebuild = specific_ebuild
             if not ebuild:
-                raise Exception('No ebuild found.')
+                raise Exception(_('No ebuild found.'))
             return get_properties(ebuild)
         except Exception, e:
             dprint("PORTAGELIB: %s" % e)  # fixed bug # 924730
@@ -271,7 +273,7 @@ class Package:
         return portage.portdb.xmatch(criterion, self.full_name)
 
     def upgradable(self):
-        "Returns true if an unmasked upgrade is available"
+        """Returns true if an unmasked upgrade is available"""
         # Note: this is slow, see get_versions()
         installed = self.get_installed()
         if not installed:

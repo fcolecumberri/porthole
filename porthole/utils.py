@@ -34,6 +34,7 @@ import datetime
 from sys import stderr
 from version import version
 from xmlmgr import XMLManager, XMLManagerError
+from gettext import gettext as _
 
 import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk
@@ -189,7 +190,7 @@ class SingleButtonDialog(CommonDialog):
                                            callback, button)
         if progressbar:
             self.progbar = gtk.ProgressBar()
-            self.progbar.set_text("Loading")
+            self.progbar.set_text(_("Loading"))
             self.progbar.show()
             self.vbox.add(self.progbar)
 
@@ -715,5 +716,5 @@ def estimate(package_name, log_file_name="/var/log/emerge.log"):
         else:
             return None          
     except:
-        raise BadLogFile, "Error reading emerge log file.  Check file " +\
-                          "permissions, or check for corrupt log file."   
+        raise BadLogFile, _("Error reading emerge log file.  Check file " +\
+                          "permissions, or check for corrupt log file.")   

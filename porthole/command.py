@@ -25,6 +25,7 @@
 import gtk, gtk.glade
 from utils import dprint
 from version import version
+from gettext import gettext as _
 
 class RunDialog:
     """Class to hold run dialog and functionality."""
@@ -72,7 +73,7 @@ class RunDialog:
         self.command = self.entry.get_text()
         if self.command:
             #dprint("COMMAND: activated: %s" %self.command)
-            self.call_back("command line entry", self.command)
+            self.call_back(_("command line entry"), self.command)
             self.history_add()
         self.cancel(None)
         
@@ -81,7 +82,7 @@ class RunDialog:
         self.command = self.entry.get_text()
         if self.command:
             #dprint("COMMAND: execute: %s" %self.command)
-            self.call_back("command line entry", self.command)
+            self.call_back(_("command line entry"), self.command)
             self.history_add()
         self.cancel(None)
 

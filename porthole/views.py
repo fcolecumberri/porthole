@@ -27,6 +27,7 @@ import portagelib
 
 from depends import DependsTree
 from utils import get_treeview_selection, get_icon_for_package, dprint
+from gettext import gettext as _
 
 class CommonTreeView(gtk.TreeView):
     """ Common functions used by all views """
@@ -58,7 +59,7 @@ class PackageView(CommonTreeView):
         self.SEARCH_RESULTS = 1
         self.UPGRADABLE = 2
         # setup the treecolumn
-        self._column = gtk.TreeViewColumn("Packages")
+        self._column = gtk.TreeViewColumn(_("Packages"))
         self.append_column(self._column)
         # setup the treemodels
         self.package_model = gtk.TreeStore(gobject.TYPE_STRING,
@@ -186,7 +187,7 @@ class CategoryView(CommonTreeView):
         # initialize the treeview
         CommonTreeView.__init__(self)
         # setup the column
-        column = gtk.TreeViewColumn("Categories",
+        column = gtk.TreeViewColumn(_("Categories"),
                                     gtk.CellRendererText(),
                                     markup = 0)
         self.append_column(column)
@@ -241,7 +242,7 @@ class DependsView(CommonTreeView):
         # initialize the treeview
         CommonTreeView.__init__(self)
         # setup the column
-        column = gtk.TreeViewColumn("Dependencies")
+        column = gtk.TreeViewColumn(_("Dependencies"))
         pixbuf = gtk.CellRendererPixbuf()
         column.pack_start(pixbuf, expand = False)
         column.add_attribute(pixbuf, "pixbuf", 1)
