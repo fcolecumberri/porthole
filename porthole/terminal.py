@@ -70,11 +70,12 @@ TERMINATED_STRING = "*** process terminated ***\n"
 
 class ProcessManager:
     """ Manages queued and running processes """
-    def __init__(self, env = {}, prefs = None):
+    def __init__(self, env = {}, prefs = None, config = None):
         """ Initialize """
         # copy the environment and preferences
         self.env = env
         self.prefs = prefs
+        self.config = config
         self.killed = 0
         self.pid = None
         # process list to store pending processes
@@ -149,11 +150,11 @@ class ProcessManager:
         self.info_tab.showing = False
         self.queue_tab.showing = False
         # setup the regular expression objects for searching later
-        self.re_object_caution = None
-        self.re_object_warning = re.compile("WARNING:",re.I)
-        self.re_object_info = re.compile("^>>> [^/]", re.I)
-        self.re_object_info2 = re.compile("^ \* ", re.I)
-        self.re_object_emerge = re.compile("^>>> emerge [^/]", re.I)
+ #       self.re_object_caution = None
+ #       self.re_object_warning = re.compile("WARNING:",re.I)
+ #       self.re_object_info = re.compile("^>>> [^/]", re.I)
+ #       self.re_object_info2 = re.compile("^ \* ", re.I)
+ #       self.re_object_emerge = re.compile("^>>> emerge [^/]", re.I)
         # flag that the window is now visible
         self.window_visible = True
         if self.prefs:
@@ -336,12 +337,12 @@ class ProcessManager:
                 elif 32 <= ord(char) <= 127 or char == '\n': # no unprintable
                     self.process_buffer += char
                     if char == '\n': # newline
-                        if self.re_object_emerge.search(self.process_buffer):
+                        if self.config.isEmerge(self.process_buffer):
                             self.set_statusbar(self.process_buffer[:-1])
                             # add the pkg info to all other tabs to identify fom what
                             # pkg messages came from but no need to show it if it isn't
                             self.append_all(self.process_buffer,False)
-                        elif self.re_object_warning.search(self.process_buffer):
+                        elif self.config.isWarning(self.process_buffer):
                             # warning string has been found, show info tab if needed
                             if not self.warning_tab.showing:
                                 self.show_tab(TAB_WARNING)
@@ -349,8 +350,7 @@ class ProcessManager:
                             # insert the line into the info text buffer
                             self.warning_text.insert(self.warning_text.get_end_iter(),\
                                                   self.process_buffer)
-                        elif self.re_object_info.search(self.process_buffer) or \
-                             self.re_object_info2.search(self.process_buffer):
+                        elif self.config.isInfo(self.process_buffer):
                             # info string has been found, show info tab if needed
                             if not self.info_tab.showing:
                                 self.show_tab(TAB_INFO)

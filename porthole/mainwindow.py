@@ -37,9 +37,10 @@ from views import CategoryView, PackageView, DependsView
 
 class MainWindow:
     """Main Window class to setup and manage main window interface."""
-    def __init__(self, preferences = None):
+    def __init__(self, preferences = None, config = None):
         # setup prefs
         self.prefs = preferences
+        self.config = config
         # setup glade
         self.gladefile = "porthole.glade"
         self.wtree = gtk.glade.XML(self.gladefile, "main_window")
@@ -115,7 +116,7 @@ class MainWindow:
             # let the user know if he can emerge or not
             self.check_for_root()
         # create and start our process manager
-        self.process_manager = ProcessManager(environment(), self.prefs)
+        self.process_manager = ProcessManager(environment(), self.prefs, self.config)
 
     def init_data(self):
         # set things we can't do unless a package is selected to not sensitive

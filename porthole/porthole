@@ -63,8 +63,10 @@ if __name__ == "__main__":
     gtk.window_set_default_icon_list(myicon)
     # load prefs
     prefs = utils.PortholePreferences()
+    # load config info
+    config = utils.PortholeConfiguration()
     # create the main window
-    myapp = MainWindow(prefs)
+    myapp = MainWindow(prefs, config)
     # start the program loop
     gtk.mainloop()
     # save the prefs to disk for next time
