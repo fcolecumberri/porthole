@@ -88,31 +88,34 @@ class ProcessWindow(threading.Thread):
             self.kill()
             self.window.hide()
 
-    def append_line(self, line):
-        """Append a line to the end of the text buffer"""
+    def append(self, text):
+        """Append text to the end of the text buffer"""
         iter = self.textbuffer.get_end_iter()
         self.textbuffer.insert_with_tags_by_name(
             iter,
-            (line + '\n').decode('ascii', 'replace'),
+            text.decode('ascii', 'replace'),
             'tt')
         adj = self.scroller.get_vadjustment()
         adj.set_value(adj.upper - adj.page_size)
 
     def run(self):
         """The thread."""
-        def append_line(line):
+        def append(text):
             gtk.threads_enter()
-            self.append_line(line)
+            self.append(text)
             gtk.threads_leave()
         self.pipe = Popen4(self.command)
         try:
-            for line in self.pipe.fromchild:
-                append_line(line[:-1])
+            while True:
+                text = self.pipe.fromchild.read(1)
+                if not text:
+                    break
+                append(text)
         except ValueError:
             pass  # if the process is killed
         self.pipe.wait()  # or poll() will return -1 in the main thread
-        append_line('')
-        append_line('*** process terminated ***')
+        append('\n')
+        append('*** process terminated ***\n')
 
 # Test program,
 # run as ./process <any command with parameters>
