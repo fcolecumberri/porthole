@@ -383,7 +383,7 @@ class MainWindow:
         self.wait_dialog = SingleButtonDialog("Please Wait!",
                 self.wtree.get_widget("main_window"),
                 "Loading upgradable packages list...",
-                self.wait_dialog_response, "_Cancel")
+                self.wait_dialog_response, "_Cancel", True)
         # create upgrade thread for loading the upgrades
         self.ut = UpgradableReader(self.package_view.upgrade_model,
                                    self.db.installed.items())
@@ -417,6 +417,10 @@ class MainWindow:
                 self.summary.update_package_info(None)
                 self.wtree.get_widget("category_scrolled_window").hide()
             return gtk.FALSE
+        else:
+            fraction = self.ut.count / float(self.db.installed_count)
+            self.wait_dialog.progbar.set_text(str(fraction * 100)[:2] + "%")
+            self.wait_dialog.progbar.set_fraction(fraction)
         return gtk.TRUE
 
     def update_statusbar(self, mode):
@@ -460,6 +464,7 @@ class UpgradableReader(threading.Thread):
         threading.Thread.__init__(self)
         self.upgrade_results = upgrade_model
         self.installed_items = installed
+        self.count = 0
         self.done = False
         self.cancelled = False
         # quit even if this thread is still running
@@ -472,6 +477,7 @@ class UpgradableReader(threading.Thread):
         # find upgradable packages
         for cat, packages in self.installed_items:
             for name, package in packages.items():
+                self.count += 1
                 if self.cancelled: self.done = True; return
                 if package.upgradable():
                     installed += [(package.full_name, package)]

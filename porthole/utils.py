@@ -110,9 +110,14 @@ class YesNoDialog(CommonDialog):
 class SingleButtonDialog(CommonDialog):
     """ A simple please wait dialog class """
     def __init__(self, title, parent = None, message = None,
-                 callback = None, button = None):
+                 callback = None, button = None, progressbar = False):
         CommonDialog.__init__(self, title, parent, message,
                                            callback, button)
+        if progressbar:
+            self.progbar = gtk.ProgressBar()
+            self.progbar.set_text("Loading")
+            self.progbar.show()
+            self.vbox.add(self.progbar)
 
 class EmergeOptions:
     """ Holds common emerge options """
