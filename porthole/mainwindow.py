@@ -28,9 +28,10 @@ import portagelib
 
 from about import AboutDialog
 from depends import DependsTree
-from utils import load_web_page, get_icon_for_package, is_root, dprint
+from utils import load_web_page, get_icon_for_package, is_root, dprint, get_treeview_selection
 from process import ProcessWindow
 from summary import Summary
+from views import PackageView
 
 class MainWindow:
     """Main Window class to setup and manage main window interface."""
@@ -59,7 +60,6 @@ class MainWindow:
             }
         self.wtree.signal_autoconnect(callbacks)
         # aliases for convenience
-        self.package_view = self.wtree.get_widget("package_view")
         self.category_view = self.wtree.get_widget("category_view")
         self.notebook = self.wtree.get_widget("notebook")
         self.deps_view = self.wtree.get_widget("depend_view")
@@ -71,12 +71,10 @@ class MainWindow:
         self.set_package_actions_sensitive(gtk.FALSE)
         #setup our treemodels
         self.category_model = None
-        self.package_model = None
-        self.search_results = gtk.TreeStore(gobject.TYPE_STRING,
-                                            gtk.gdk.Pixbuf,
-                                            gobject.TYPE_PYOBJECT) # Package
-        # don't know how to read size from TreeStore
-        self.search_results.size = 0
+        #setup the package treeview
+        self.package_view = PackageView()
+        self.package_view.register_callbacks(self.package_changed)
+        self.wtree.get_widget("package_scrolled_window").add(self.package_view)
         #setup sudo use
         self.use_sudo = -1
         #want to use -p option for pretend?
@@ -95,15 +93,6 @@ class MainWindow:
                                              gtk.CellRendererText(),
                                              markup = 0)
         self.category_view.append_column(category_column)
-        #set package treeview header
-        package_column = gtk.TreeViewColumn("Packages")
-        package_pixbuf = gtk.CellRendererPixbuf()
-        package_column.pack_start(package_pixbuf, expand = False)
-        package_column.add_attribute(package_pixbuf, "pixbuf", 1)
-        package_text = gtk.CellRendererText()
-        package_column.pack_start(package_text, expand = True)
-        package_column.add_attribute(package_text, "text", 0)
-        self.package_view.append_column(package_column)
         #set dependency treeview header
         depend_column = gtk.TreeViewColumn("Dependencies")
         depend_pixbuf = gtk.CellRendererPixbuf()
@@ -210,38 +199,17 @@ class MainWindow:
             self.category_model.set_value(sub_cat_iter, 1, cat)
         self.category_view.set_model(self.category_model)
 
-    def populate_package_tree(self, packages):
-        """Fill the package tree."""
-        view = self.package_view
-        self.package_model = gtk.TreeStore(gobject.TYPE_STRING,
-                                           gtk.gdk.Pixbuf,
-                                           gobject.TYPE_PYOBJECT) # Package
-        view.set_model(self.package_model)
-        if not packages:
-            return
-        names = portagelib.sort(packages.keys())
-        for name in names:
-            #go through each package
-            iter = self.package_model.insert_before(None, None)
-            self.package_model.set_value(iter, 0, name)
-            self.package_model.set_value(iter, 2, packages[name])
-            #get an icon for the package
-            icon = get_icon_for_package(packages[name])
-            self.package_model.set_value(
-                iter, 1,
-                view.render_icon(icon,
-                                 size = gtk.ICON_SIZE_MENU,
-                                 detail = None))
-
     def setup_command(self, command, callback = None):
         """Setup the command to run with sudo or not at all"""
         env = {"FEATURES": "notitles"}  # Don't try to set the titlebar
-        if self.use_sudo == -1:
+        if self.use_sudo == -1 and not self.pretend:
             self.check_for_root(callback)
         else:
             if self.use_sudo:
                 if self.use_sudo == 1:
                     ProcessWindow("sudo " + command, env)
+                elif self.pretend:
+                    ProcessWindow(command, env)
                 else:
                     print "Sorry, can't do that!"
             else:
@@ -283,7 +251,8 @@ class MainWindow:
         """Search package db with a string and display results."""
         search_term = self.wtree.get_widget("search_entry").get_text()
         if search_term:
-            self.search_results.clear()
+            search_results = self.package_view.search_model
+            search_results.clear()
             re_object = re.compile(search_term, re.I)
             count = 0
             search_desc = self.wtree.get_widget("search_descriptions1").get_active()
@@ -295,18 +264,18 @@ class MainWindow:
                     searchstring += desc
                 if re_object.search(searchstring):
                     count += 1
-                    iter = self.search_results.insert_before(None, None)
-                    self.search_results.set_value(iter, 0, name)
-                    self.search_results.set_value(iter, 2, data)
+                    iter = search_results.insert_before(None, None)
+                    search_results.set_value(iter, 0, name)
+                    search_results.set_value(iter, 2, data)
                     #set the icon depending on the status of the package
                     icon = get_icon_for_package(data)
                     view = self.package_view
-                    self.search_results.set_value(
+                    search_results.set_value(
                         iter, 1,
                         view.render_icon(icon,
                                          size = gtk.ICON_SIZE_MENU,
                                          detail = None))
-            self.search_results.size = count  # store number of matches
+            search_results.size = count  # store number of matches
             self.wtree.get_widget("view_filter").set_history(self.SHOW_SEARCH)
             # in case the search view was already active
             self.update_statusbar(self.SHOW_SEARCH)
@@ -319,18 +288,9 @@ class MainWindow:
         """Show about dialog."""
         dialog = AboutDialog()
 
-    def get_treeview_selection(self, treeview, num):
-        """Get the value of whatever is selected in a treeview,
-        num is the column"""
-        model, iter = treeview.get_selection().get_selected()
-        selection = None
-        if iter:
-            selection = model.get_value(iter, num)
-        return selection
-
     def category_changed(self, treeview):
         """Catch when the user changes categories."""
-        category = self.get_treeview_selection(treeview, 1)
+        category = get_treeview_selection(treeview, 1)
         mode = self.wtree.get_widget("view_filter").get_history()
         if not category:
             packages = None
@@ -340,13 +300,12 @@ class MainWindow:
             packages = self.db.installed[category]
         else:
             raise Exception("The programmer is stupid.");
-        self.populate_package_tree(packages)
+        self.package_view.populate(packages)
         self.summary.update_package_info(None)
         self.set_package_actions_sensitive(gtk.FALSE)
 
-    def package_changed(self, treeview):
+    def package_changed(self, package):
         """Catch when the user changes packages."""
-        package = self.get_treeview_selection(treeview, 2)
         self.summary.update_package_info(package)
         #if the user is looking at the deps we need to update them
         notebook = self.wtree.get_widget("notebook")
@@ -364,26 +323,48 @@ class MainWindow:
     SHOW_ALL = 0
     SHOW_INSTALLED = 1
     SHOW_SEARCH = 2
+    SHOW_UPGRADE = 3
     def view_filter_changed(self, widget):
         """Update the treeviews for the selected filter"""
         index = widget.get_history()
         self.update_statusbar(index)
         cat_scroll = self.wtree.get_widget("category_scrolled_window")
         if index in (self.SHOW_INSTALLED, self.SHOW_ALL):
-            cat_scroll.show()
+            cat_scroll.show();
             self.populate_category_tree(
                 index == self.SHOW_ALL
                 and self.db.categories.keys()
                 or self.db.installed.keys())
-            if self.package_model:
-                self.package_model.clear()
-            self.package_view.set_model(self.package_model)
+            #if self.package_model:
+            #    self.package_model.clear()
+            self.package_view.set_view(self.package_view.PACKAGES)
+            self.package_view.clear()
             self.summary.update_package_info(None)
         elif index == self.SHOW_SEARCH:
-            cat_scroll.hide()
-            self.package_view.set_model(self.search_results)
+            cat_scroll.hide();
+            self.package_view.set_view(self.package_view.SEARCH_RESULTS)
+        elif index == self.SHOW_UPGRADE:
+            cat_scroll.hide();
+            self.package_view.set_view(self.package_view.UPGRADABLE)
         self.set_package_actions_sensitive(gtk.FALSE)
         self.depends.clear()
+
+    def fill_upgrade_results(self):
+        """fill upgrade tree"""
+        keys = self.db.categories.keys()
+        keys.sort()
+        for key in keys:
+            for name in self.db.categories[key]:
+                pac = portagelib.Package(key + "/" + name)
+                if pac.is_installed:
+                    installed = pac.get_installed()
+                    installed.sort()
+                    latest = pac.get_latest_ebuild()
+                    if latest > installed[-1]:
+                        iter = self.upgrade_results.insert_before(None, None)
+                        self.upgrade_results.set_value(iter, 0, name)
+                        self.upgrade_results.set_value(iter, 2, pac)
+                        self.upgrade_results.set_value(iter, 3, gtk.TRUE)
 
     def update_statusbar(self, mode):
         """Update the statusbar for the selected filter"""
@@ -395,7 +376,7 @@ class MainWindow:
             text = "%d packages in %d categories" % (self.db.installed_count,
                                                      len(self.db.installed))
         elif mode == self.SHOW_SEARCH:
-            text = "%d matches found" % self.search_results.size
+            text = "%d matches found" % self.package_view.search_model.size
         self.set_statusbar(text)
 
     def set_package_actions_sensitive(self, enabled):

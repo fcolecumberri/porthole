@@ -90,3 +90,11 @@ def read_access():
     except: pass
     return write_access() or (portage in (os.getgroups() + [os.getegid()]))
 
+def get_treeview_selection( treeview, num):
+        """Get the value of whatever is selected in a treeview,
+        num is the column"""
+        model, iter = treeview.get_selection().get_selected()
+        selection = None
+        if iter:
+            selection = model.get_value(iter, num)
+        return selection
