@@ -749,6 +749,9 @@ class ProcessOutputReader(threading.Thread):
                 else:
                     # clean up, process is terminated
                     self.process_running = False
+                    while self.string != "":
+                        # wait for update_callback to finish
+                        time.sleep(.5)
                     gtk.threads_enter()
                     self.finished_callback()
                     gtk.threads_leave()
