@@ -45,7 +45,6 @@ class MainWindow:
         # register callbacks
         callbacks = {
             "on_main_window_destroy" : gtk.mainquit,
-            "on_main_window_size_request" : self.size_update,
             "on_quit1_activate" : gtk.mainquit,
             "on_emerge_package" : self.emerge_package,
             "on_unmerge_package" : self.unmerge_package,
@@ -86,9 +85,6 @@ class MainWindow:
         self.summary = Summary()
         scroller.add(self.summary)
         self.summary.show()
-        # move horizontal and vertical panes
-        self.wtree.get_widget("hpane").set_position(self.prefs.main.hpane)
-        self.wtree.get_widget("vpane").set_position(self.prefs.main.vpane)
         # how should we setup our saved menus?
         if self.prefs.emerge.pretend:
             self.wtree.get_widget("pretend1").set_active(gtk.TRUE)
@@ -101,6 +97,12 @@ class MainWindow:
         # restore last window width/height
         self.wtree.get_widget("main_window").resize(self.prefs.main.width,
                                                     self.prefs.main.height)
+        # move horizontal and vertical panes
+        self.wtree.get_widget("hpane").set_position(self.prefs.main.hpane)
+        self.wtree.get_widget("vpane").set_position(self.prefs.main.vpane)
+        # connect to the resize signal
+        self.wtree.signal_autoconnect({"on_main_window_size_request" :
+                                                        self.size_update})
         # initialize our data
         self.init_data()
         # set if we are root or not
@@ -493,8 +495,8 @@ class MainWindow:
     def size_update(self, widget, gbox):
         """ Store the window and pane positions """
         pos = widget.get_size()
-        self.prefs.main.x = pos[0]
-        self.prefs.main.y = pos[1]
+        self.prefs.main.width = pos[0]
+        self.prefs.main.height = pos[1]
         self.prefs.main.hpane = self.wtree.get_widget("hpane").get_position()
         self.prefs.main.vpane = self.wtree.get_widget("vpane").get_position()
 

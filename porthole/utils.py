@@ -88,6 +88,15 @@ def get_user_home_dir():
     """Return the path to the current user's home dir"""
     return pwd.getpwuid(os.getuid())[5]
 
+def Environment():
+    """sets up the environment to run sub processes"""
+    HOME = os.getenv("HOME")
+    dprint("HOME = " + str(HOME))
+    env = {"FEATURES": "notitles",  # Don't try to set the titlebar
+            "NOCOLOR": "true",       # and no colours, please
+            "HOME":HOME}
+    return env
+
 class CommonDialog(gtk.Dialog):
     """ A common gtk Dialog class """
     def __init__(self, title, parent, message, callback, button):
@@ -158,6 +167,39 @@ class WindowPreferences:
         self.width = width      # width
         self.height = height    # height
 
+def load_user_prefs():
+    """ Load saved preferences """
+    # does ~/.porthole exist?
+    prefs = PortholePreferences()
+    home = get_user_home_dir()
+    if os.access(home + "/.porthole", os.F_OK):
+        if os.access(home + "/.porthole/prefs", os.F_OK):
+            # unpickle our preferences
+            dprint("Loading pickled user preferences...")
+            prefs = cPickle.load(open(home + "/.porthole/prefs"))
+            dprint("Found preferences, version " + str(prefs.version))
+            # make sure the version is up to date for when it is saved again
+            try:
+                if prefs.version == "0.3":
+                    # add things from after 0.3
+                    pass
+                # set version to latest
+                #prefs.version = version
+            except:
+                # This is from version 0.2, so we need to add some values
+                prefs.main.search_desc = False
+                prefs.main.show_nag_dialog = True
+                prefs.process.width_verbose = 900
+                prefs.terminal = WindowPreferences(500, 400)
+                prefs.terminal.width_verbose = 900
+                prefs.version = version
+    else:
+        # create the dir
+        dprint("~/.porthole does not exist, creating...")
+        os.mkdir(home + "/.porthole")
+    print prefs.main.vpane
+    return prefs
+
 class PortholePreferences:
     """ Holds all of Porthole's configurable preferences """
     def __init__(self):
@@ -169,31 +211,10 @@ class PortholePreferences:
         self.main.show_nag_dialog = True
         self.process = WindowPreferences(400, 600)
         self.process.width_verbose = 900
+        self.terminal = WindowPreferences(500, 400)
+        self.terminal.width_verbose = 900
         self.emerge = EmergeOptions()
         self.version = version
-
-    def load(self):
-        """ Load saved preferences """
-        # does ~/.porthole exist?
-        home = get_user_home_dir()
-        if os.access(home + "/.porthole", os.F_OK):
-            if os.access(home + "/.porthole/prefs", os.F_OK):
-                # unpickle our preferences
-                dprint("Loading pickled user preferences...")
-                saved = cPickle.load(open(home + "/.porthole/prefs"))
-                try:
-                    if saved.version == self.version:
-                        self.main = saved.main
-                        self.process = saved.process
-                        self.emerge = saved.emerge
-                    else:
-                        dprint("Not using old config, version " + str(saved.version))
-                except:
-                    dprint("Version information not found, assuming version 0.2")
-        else:
-            # create the dir
-            dprint("~/.porthole does not exist, creating...")
-            os.mkdir(home + "/.porthole")
 
     def save(self):
         """ Save preferences """
