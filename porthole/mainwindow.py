@@ -171,6 +171,11 @@ class MainWindow:
         if not self.db_thread.done:
             self.set_statusbar("Reading package database: %i packages read"
                                % self.db_thread.count)
+        elif self.db_thread.error:
+            # todo: display error dialog instead
+            self.db_thread.join()
+            self.set_statusbar(self.db_thread.error.decode('ascii', 'replace'))
+            return gtk.FALSE  # disconnect from timeout
         else:
             self.db = self.db_thread.get_db()
             self.set_statusbar("Populating tree ...")
