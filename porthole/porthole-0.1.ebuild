@@ -4,7 +4,7 @@
 
 DESCRIPTION="A GTK+-based frontend to Portage"
 HOMEPAGE="http://porthole.sourceforge.net"
-SRC_URI="http://porthole.sourceforge.net/${P}.tar.bz2"
+SRC_URI="mirror://sourceforge/porthole/${P}.tar.bz2"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~ppc ~sparc ~alpha"
@@ -14,4 +14,5 @@ DEPEND=">=dev-python/pygtk-2
 
 src_install() {
 	python setup.py install --root=${D} || die
+	chmod -R a+r ${D}/usr/share/porthole
 }
