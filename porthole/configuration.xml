@@ -1,9 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <portholeconfig ver='0.3'>
   <re_filters>
-    <info py_type='list' item_count='2'>
+    <info py_type='list' item_count='4'>
       <info-1>^>>>[\s][^/]</info-1>
       <info-2>^\s\*\s</info-2>
+      <info-3>.*[Rr]emember\sto</info-3>
+      <info-4>.*[Ff]orget\sto</info-4>
     </info>
     <warning py_type='list' item_count='2'>
       <warning-1>.*[^\-_.][Ww][Aa][Rr][Nn][Ii][Nn][Gg][:!,\s]</warning-1>

@@ -45,8 +45,8 @@
 # import external [system] modules
 import pygtk; pygtk.require('2.0')
 import gtk, gtk.glade, gobject
-import signal, os, pty, threading, time, re, portagelib
-import datetime
+import signal, os, pty, threading, time, sre, portagelib
+import datetime, pango
 
 if __name__ == "__main__":
     # setup our path so we can load our custom modules
@@ -154,19 +154,22 @@ class ProcessManager:
         self.caution_tab.showing = False
         self.info_tab.showing = False
         self.queue_tab.showing = False
-        # setup the regular expression objects for searching later
- #       self.re_object_caution = None
- #       self.re_object_warning = re.compile("WARNING:",re.I)
- #       self.re_object_info = re.compile("^>>> [^/]", re.I)
- #       self.re_object_info2 = re.compile("^ \* ", re.I)
- #       self.re_object_emerge = re.compile("^>>> emerge [^/]", re.I)
+        # Create formatting tags for textbuffer
+        self.emerge_tag_info = self.info_text.create_tag(name=None, pixels_above_lines=25, pixels_below_lines=10, weight=700, scale=pango.SCALE_X_LARGE, background='navy', foreground='white')
+        self.emerge_tag_warn = self.warning_text.create_tag(name=None, pixels_above_lines=25, pixels_below_lines=10, weight=700, scale=pango.SCALE_X_LARGE, background='navy', foreground='white')
+        self.emerge_tag = self.process_text.create_tag(name=None, pixels_above_lines=25, pixels_below_lines=10, weight=700, scale=pango.SCALE_X_LARGE, background='navy', foreground='white')
+        self.warning_tag = self.process_text.create_tag(name=None, background='yellow')
+        self.info_tag = self.process_text.create_tag(name=None, background='cyan')
+        self.line_tag = self.process_text.create_tag(name=None, foreground='blue', weight=700)
+        self.line_tag_info = self.info_text.create_tag(name=None, foreground='blue', weight=700)
+        self.line_tag_warn = self.warning_text.create_tag(name=None, foreground='blue', weight=700)
         # flag that the window is now visible
         self.window_visible = True
         if self.prefs:
             self.window.resize((self.prefs.emerge.verbose and
                                 self.prefs.terminal.width_verbose or
                                 self.prefs.terminal.width), 
-                               self.prefs.terminal.height)
+                                self.prefs.terminal.height)
             # MUST! do this command last, or nothing else will _init__
             # after it until emerge is finished.
             # Also causes runaway recursion.
@@ -303,20 +306,23 @@ class ProcessManager:
                 pass
             self.killed = 1
 
-    def append(self, buffer, text):
+    def append(self, buffer, text, tag = None):
         """ Append text to a text buffer """
         iter = buffer.get_end_iter()
-        buffer.insert(iter, text)
+        if tag == None:
+           buffer.insert(iter, text)
+        else:
+           buffer.insert_with_tags(iter, text, tag)
 
     # we need the emerge pkg info in all tabs to know where
     # tab messages came from
-    def append_all(self, text, all = False):
+    def append_all(self, text, all = False, tag = None):
         """ Append text to all buffers """
         if all: # otherwise skip the process_text buffer
-            self.append(self.process_text, text)
-        self.append(self.warning_text, text)
-        self.append(self.caution_text, text)
-        self.append(self.info_text, text)
+            self.append(self.process_text, text, tag)
+        self.append(self.warning_text, text, tag)
+        self.append(self.caution_text, text, tag)
+        self.append(self.info_text, text, tag)
 
     def update(self):
         """ Add text to the buffer """
@@ -342,30 +348,40 @@ class ProcessManager:
                 elif 32 <= ord(char) <= 127 or char == '\n': # no unprintable
                     self.process_buffer += char
                     if char == '\n': # newline
+                        tag = None
+                        line_number = self.process_text.get_line_count() + 1
                         if self.config.isEmerge(self.process_buffer):
                             self.set_statusbar(self.process_buffer[:-1])
                             # add the pkg info to all other tabs to identify fom what
                             # pkg messages came from but no need to show it if it isn't
-                            self.append_all(self.process_buffer,False)
-                        elif self.config.isWarning(self.process_buffer):
-                            # warning string has been found, show info tab if needed
-                            if not self.warning_tab.showing:
-                                self.show_tab(TAB_WARNING)
-                                self.warning_tab.showing = True
-                            # insert the line into the info text buffer
-                            self.warning_text.insert(self.warning_text.get_end_iter(),\
-                                                  self.process_buffer)
+                            tag = self.emerge_tag
+                            self.append(self.info_text, str(line_number), self.line_tag_info)
+                            self.append(self.info_text, '\t' + self.process_buffer, self.emerge_tag_info)
+                            self.append(self.warning_text, str(line_number), self.line_tag_warn)
+                            self.append(self.warning_text, '\t' + self.process_buffer, self.emerge_tag_warn)
                         elif self.config.isInfo(self.process_buffer):
                             # info string has been found, show info tab if needed
                             if not self.info_tab.showing:
                                 self.show_tab(TAB_INFO)
                                 self.info_tab.showing = True
                             # insert the line into the info text buffer
-                            self.info_text.insert(self.info_text.get_end_iter(),\
-                                                  self.process_buffer)
-                        self.process_text.insert(self.process_text.get_end_iter(),\
-                                                 self.process_buffer)
-                        self.process_buffer = ''
+                            tag = self.info_tag
+                            self.append(self.info_text, str(line_number), self.line_tag_info)
+                            self.append(self.info_text, '\t' + self.process_buffer)
+
+                        elif self.config.isWarning(self.process_buffer):
+                            # warning string has been found, show info tab if needed
+                            if not self.warning_tab.showing:
+                                self.show_tab(TAB_WARNING)
+                                self.warning_tab.showing = True
+                            # insert the line into the info text buffer
+                            tag = self.warning_tag
+                            self.append(self.warning_text, str(line_number), self.line_tag_warn)
+                            self.append(self.warning_text, '\t' + self.process_buffer) 
+
+                        self.append(self.process_text, str(line_number), self.line_tag)
+                        self.append(self.process_text, '\t' + self.process_buffer, tag)
+                        self.process_buffer = ''  # reset buffer
                 elif ord(char) == 13: # carriage return?
                     pass
         self.reader.string = ""
@@ -390,7 +406,7 @@ class ProcessManager:
             
         # If the user did an emerge --pretend, we print out
         # estimated build times on the output window
-        if re.compile(".* --pretend *.").match(self.process_list[0][1]):
+        if sre.compile(".* --pretend *.").match(self.process_list[0][1]):
             self.estimate_build_time()
 
         # display message that process finished
@@ -548,7 +564,7 @@ class ProcessManager:
                                  self.process_text.get_end_iter(), gtk.FALSE)
         package_list = []
         total = datetime.timedelta()        
-        pattern = re.compile("^\[ebuild *.")
+        pattern = sre.compile("^\[ebuild *.")
         for line in output.split("\n"):
             if pattern.match(line):
                 tokens = line.split(']')
