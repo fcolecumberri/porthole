@@ -36,18 +36,26 @@ import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, portagelib
 import os, grp, pwd, cPickle
 
+# if using gnome, see if we can import it
 try:
-    import webbrowser
+    import gnome
 except ImportError:
-    print >>stderr, ('Module "webbrowser" not found. '
+    # no gnome module, use the standard webbrowser module
+    try:
+        import webbrowser
+    except ImportError:
+        print >>stderr, ('Module "webbrowser" not found. '
                      'You will not be able to open web pages.')
 
 def load_web_page(name):
     """Try to load a web page in the default browser"""
     try:
-        webbrowser.open(name)
+        gnome.url_show(name)
     except:
-        pass
+        try:
+            webbrowser.open(name)
+        except:
+            pass
 
 def get_icon_for_package(package):
     """Return an icon for a package"""
