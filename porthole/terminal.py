@@ -21,26 +21,13 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
-DATA_PATH = "/usr/share/porthole/"
-
-# setup our path so we can load our custom modules
-from sys import path
-path.append("/usr/lib/porthole")
 
 import pygtk; pygtk.require('2.0')
 import gtk, gtk.glade, gobject
 import signal, os, pty, threading, time
 import utils
-from sys import argv, exit, stderr
 from utils import dprint, get_user_home_dir, SingleButtonDialog
-from getopt import getopt, GetoptError
 from version import version
-
-# no process is running yet
-process_running = False
-
-# global process file descriptor
-fd = None
 
 # some constants for the tabs
 TAB_PROCESS = 0
@@ -57,11 +44,9 @@ class ProcessManager:
         self.prefs = prefs
         self.killed = 0
         self.pid = None
-        global fd
-        fd = None
         self.process_list = []
         self.window_visible = False
-        self.reader = ProcessOutputReader(self.update)
+        self.reader = ProcessOutputReader(self.update, self.process_done)
         # start the reader
         self.reader.start()
 
@@ -85,10 +70,10 @@ class ProcessManager:
         # setup some aliases for easier access
         self.window = self.wtree.get_widget("process_window")
         self.notebook = self.wtree.get_widget("notebook1")
-        self.process_text = self.wtree.get_widget("process_text")
-        self.warning_text = self.wtree.get_widget("warnings_text")
-        self.caution_text = self.wtree.get_widget("cautions_text")
-        self.info_text = self.wtree.get_widget("info_text")
+        self.process_text = self.wtree.get_widget("process_text").get_buffer()
+        self.warning_text = self.wtree.get_widget("warnings_text").get_buffer()
+        self.caution_text = self.wtree.get_widget("cautions_text").get_buffer()
+        self.info_text = self.wtree.get_widget("info_text").get_buffer()
         self.queue_tree = self.wtree.get_widget("queue_treeview")
         self.queue_menu = self.wtree.get_widget("queue1")
         self.statusbar = self.wtree.get_widget("statusbar")
@@ -188,33 +173,26 @@ class ProcessManager:
             self.show_tab(TAB_QEUE)
             self.queue_menu.set_sensitive(gtk.TRUE)
         # if no process is running, let's start this one!
-        if not process_running:
+        if not self.reader.process_running:
             self._run(command_string)
 
     def _run(self, command_string):
         ''' Run a given command string '''
+        # set process_running so the reader thread reads it's output
+        self.reader.process_running = True
         # pty.fork() creates a new process group
-        dprint('starting _run')
-        global fd
-        global process_running
-        self.pid, fd = pty.fork()
+        self.pid, self.reader.fd = pty.fork()
         if self.pid == pty.CHILD:  # child
             try:
-                # set process_running so the reader thread reads it's output
-                process_running = True
-                dprint('process_running=True')
                 # run the command
                 shell = '/bin/sh'
                 os.execve(shell, [shell, '-c', command_string],
                           self.env)
-                process_running = False
-                dprint('process_running=False')
             except Exception, e:
                 dprint('Error in child' + e)
                 print "Error in child:"
                 print e
                 os._exit(1)
-        dprint('End of _run')
 
     def on_process_window_destroy(self, widget, data = None):
         """Window was closed"""
@@ -225,11 +203,10 @@ class ProcessManager:
 
     def kill(self):
         """Kill process."""
-        global fd
         # If started and still running
         if self.pid and not self.killed:
             try:
-                os.close(fd)  # make sure the thread notices
+                os.close(self.reader.fd)  # make sure the thread notices
                 # negative pid kills process group
                 os.kill(-self.pid, signal.SIGKILL)
             except OSError:
@@ -238,7 +215,17 @@ class ProcessManager:
 
     def update(self, char):
         ''' Add text to the buffer '''
-        pass
+        iter = self.process_text.get_end_iter()
+        self.process_text.insert(iter, char)
+
+    def process_done(self):
+        ''' Remove the finished process from the qeue, and
+        start the next one if there are any more to be run'''
+        self.process_list = self.process_list[1:]
+        if len(self.process_list):
+            dprint("TERMINAL: There are pending processes, running now...")
+            print self.process_list[0]
+            self._run(self.process_list[0][1])
 
     def kill_process(self, widget):
         ''' Kill currently running process '''
@@ -299,29 +286,46 @@ class ProcessManager:
 
 class ProcessOutputReader(threading.Thread):
     ''' Reads output from processes '''
-    def __init__(self, callback):
+    def __init__(self, update_callback, finished_callback):
         ''' Initialize '''
         threading.Thread.__init__(self)
-        # set a callback to be called when output is read
-        self.callback = callback
+        # set a callbacks
+        self.update_callback = update_callback
+        self.finished_callback = finished_callback
         self.setDaemon(1)  # quit even if this thread is still running
+        self.process_running = False
+        self.fd = None
 
     def run(self):
         ''' Watch for process output '''
         while True:
-            if process_running:
+            if self.process_running:
                 # get the output and pass it to self.callback()
-                char = os.read(fd, 1)
+                try:
+                    char = os.read(self.fd, 1)
+                except OSError:
+                    char = None
                 if char:
-                    dprint('char '+char)
-                    self.callback(char)
+                    self.update_callback(char)
+                else:
+                    self.process_running = False
+                    self.finished_callback()
             else:
-                # sleep for 1 second before we check again
-                time.sleep(1000)
-        
+                # sleep for .5 seconds before we check again
+                time.sleep(.5)
 
 
 if __name__ == "__main__":
+    
+    DATA_PATH = "/usr/share/porthole/"
+
+    # setup our path so we can load our custom modules
+    from sys import path
+    path.append("/usr/lib/porthole")
+
+    from sys import argv, exit, stderr
+    from getopt import getopt, GetoptError
+
     try:
         opts, args = getopt(argv[1:], 'lvd', ["local", "version", "debug"])
     except GetoptError, e:
