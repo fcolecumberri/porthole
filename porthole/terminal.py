@@ -67,7 +67,7 @@ TAB_QUEUE = 4
 # some contant strings that may be internationalized later
 KILLED_STRING = "*** process killed ***\n"
 TERMINATED_STRING = "*** process terminated ***\n"
-
+TAB_LABELS = ["Process", "Warnings", "Cautions", "Information", "Emerge queue"]
 class ProcessManager:
     """ Manages queued and running processes """
     def __init__(self, env = {}, prefs = None, config = None):
@@ -102,7 +102,9 @@ class ProcessManager:
                      "on_kill" : self.kill_process,
                      "on_resume_normal" : self.resume_normal,
                      "on_resume_skip_first" : self.resume_skip_first,
-                     "on_save_log" : self.save_log,
+                     "on_save_log" : self.do_save,
+                     "on_save_log_as" : self.do_save_as,
+                     "on_open_log" : self.do_open,
                      "on_copy" : self.copy_selected,
                      "on_clear" : self.clear_buffer,
                      "on_move_up" : self.move_queue_item_up,
@@ -118,6 +120,16 @@ class ProcessManager:
         self.caution_text = self.wtree.get_widget("cautions_text").get_buffer()
         self.info_text = self.wtree.get_widget("info_text").get_buffer()
         self.queue_tree = self.wtree.get_widget("queue_treeview")
+        self.buffers = {TAB_LABELS[TAB_PROCESS]:self.process_text,
+                        TAB_LABELS[TAB_WARNING]:self.warning_text,
+                        TAB_LABELS[TAB_CAUTION]:self.caution_text,
+                        TAB_LABELS[TAB_INFO]:self.info_text,
+                        TAB_LABELS[TAB_QUEUE]:None}
+        self.buffer_types = {TAB_LABELS[TAB_PROCESS]:"log",
+                        TAB_LABELS[TAB_WARNING]:"warn",
+                        TAB_LABELS[TAB_CAUTION]:"caution",
+                        TAB_LABELS[TAB_INFO]:"info",
+                        TAB_LABELS[TAB_QUEUE]:None}
         self.queue_menu = self.wtree.get_widget("queue1")
         self.statusbar = self.wtree.get_widget("statusbar")
         self.resume_menu = self.wtree.get_widget("resume")
@@ -229,10 +241,10 @@ class ProcessManager:
         # set the icon, label, tab, and position of the tab
         if tab == TAB_WARNING:
             icon.set_from_stock(gtk.STOCK_DIALOG_WARNING, gtk.ICON_SIZE_MENU)
-            label, tab, pos = "Warnings", self.warning_tab, 1
+            label, tab, pos = TAB_LABELS[TAB_WARNING], self.warning_tab, 1
         elif tab == TAB_CAUTION:
             icon.set_from_stock(gtk.STOCK_DIALOG_WARNING, gtk.ICON_SIZE_MENU)
-            label, tab = "Cautions", self.caution_tab
+            label, tab = TAB_LABELS[TAB_CAUTION], self.caution_tab
             # quick hack to make it always show before info & queue tabs
             pos = self.notebook.page_num(self.info_tab)
             if pos == -1:
@@ -241,13 +253,13 @@ class ProcessManager:
                     pos = 2
         elif tab == TAB_INFO:
             icon.set_from_stock(gtk.STOCK_DIALOG_INFO, gtk.ICON_SIZE_MENU)
-            label, tab = "Information", self.info_tab
+            label, tab = TAB_LABELS[TAB_INFO], self.info_tab
             pos = self.notebook.page_num(self.queue_tab)
             # set to show before queue tab
             if pos == -1: pos = 3
         elif tab == TAB_QUEUE:
             icon.set_from_stock(gtk.STOCK_INDEX, gtk.ICON_SIZE_MENU)
-            label, tab, pos = "Emerge queue", self.queue_tab, 4
+            label, tab, pos = TAB_LABELS[TAB_QUEUE], self.queue_tab, 4
         # pack the icon and label onto the hbox
         hbox.pack_start(icon)
         hbox.pack_start(gtk.Label(label))
@@ -718,6 +730,203 @@ class ProcessManager:
             self.move_up.set_sensitive(gtk.TRUE)
             self.move_down.set_sensitive(gtk.TRUE)
 
+    def set_save_buffer(self):
+        """determines the notebook tab open and returns the visible buffer"""
+        page = self.notebook.get_current_page()
+        self.buffer_name = self.notebook.get_tab_label(page)
+        self.buffer = self.buffers[self.buffer_name]
+        self.buffer_type = self.buffer_types[self.buffer_name]
+
+    def open_ok_func(self, filename):
+        if not fill_buffer(filename):
+            return gtk.FALSE
+        else:
+            self.filename = filename
+            self.set_statusbar("*** Log file :%s " %self.filename)
+            return gtk.TRUE;
+
+    def do_open(self, callback_action, widget):
+        """opens the file selctor for file to open"""
+        FileSel().run(self, "Open log File", None, self.open_ok_func)
+
+    def do_save_as(self, widget):
+        """saves the buffer as"""
+        self.set_save_buffer()
+        self.save_as_buffer    
+
+    def do_save(self, widget):
+        """determine buffer to save and proceed"""
+        if not self.filename:
+            self.do_save_as(widget)
+        else:
+            # determine buffer to save
+            self.set_save_buffer()
+            self.save_buffer()
+
+    def pretty_name(self):
+        if self.filename:
+            return os.path.basename(self.filename)
+        else:
+            if self.untitled_serial == -1:
+                self.untitled_serial += 1
+
+            if self.untitled_serial == 1:
+                return ("Untitled.%s" % self.type)
+            else:
+                return ("Untitled #%d.%s" % self.untitled_serial % self.type)
+
+    def fill_buffer(self, filename):
+        try:
+            f = open(filename, "r")
+        except IOError, (errnum, errmsg):
+            err = "Cannot open file '%s': %s" % (filename, errmsg)
+            dialog = gtk.MessageDialog(self.title, gtk.DIALOG_MODAL,
+                                       gtk.MESSAGE_INFO,
+                                       gtk.BUTTONS_OK, err);
+            result = dialog.run()
+            dialog.destroy()
+            return gtk.FALSE
+
+        if not self.string_locked:
+            self.string_locked = True
+            self.reader.string = f.read()
+            f.close()
+            self.string_locked = False
+            return gtk.TRUE
+        else:
+            err = "Error: 'reader.string' currently locked, ensure no process is running"
+            dialog = gtk.MessageDialog(self.title, gtk.DIALOG_MODAL,
+                                       gtk.MESSAGE_INFO,
+                                       gtk.BUTTONS_OK, err);
+            result = dialog.run()
+            dialog.destroy()
+            return gtk.FALSE
+            
+
+    def save_buffer(self):
+        result = gtk.FALSE
+        have_backup = gtk.FALSE
+        if not self.filename:
+            return gtk.FALSE
+
+        bak_filename = self.filename + "~"
+        try:
+            os.rename(self.filename, bak_filename)
+        except (OSError, IOError), (errnum, errmsg):
+            if errnum != errno.ENOENT:
+                err = "Cannot back up '%s' to '%s': %s" % (self.filename,
+                                                           bak_filename,
+                                                           errmsg)
+                dialog = gtk.MessageDialog(self.title, gtk.DIALOG_MODAL,
+                                           gtk.MESSAGE_INFO,
+                                           gtk.BUTTONS_OK, err);
+                dialog.run()
+                dialog.destroy()
+                return gtk.FALSE
+
+        have_backup = gtk.TRUE
+        start, end = self.buffer_to_save.get_bounds()
+        chars = self.buffer_to_save.get_text(start, end, gtk.FALSE)
+        try:
+            file = open(self.filename, "w")
+            file.write(chars)
+            file.close()
+            result = gtk.TRUE
+        except IOError, (errnum, errmsg):
+            err = "Error writing to '%s': %s" % (self.filename, errmsg)
+            dialog = gtk.MessageDialog(self.title, gtk.DIALOG_MODAL,
+                                       gtk.MESSAGE_INFO,
+                                       gtk.BUTTONS_OK, err);
+            dialog.run()
+            dialog.destroy()
+
+        if not result and have_backup:
+            try:
+                os.rename(bak_filename, self.filename)
+            except OSError, (errnum, errmsg):
+                err = "Can't restore backup file '%s' to '%s': %s\nBackup left as '%s'" % (
+                    self.filename, bak_filename, errmsg, bak_filename)
+                dialog = gtk.MessageDialog(self.title, gtk.DIALOG_MODAL,
+                                           gtk.MESSAGE_INFO,
+                                           gtk.BUTTONS_OK, err);
+                dialog.run()
+                dialog.destroy()
+
+        return result
+
+    def save_as_buffer(self):
+        return FileSel().run(self, "Save File", None, self.save_as_ok_func)
+
+    def save_as_ok_func(self, filename):
+        old_filename = self.filename
+
+        if (not self.filename or filename != self.filename):
+            if os.path.exists(filename):
+                err = "Ovewrite existing file '%s'?"  % filename
+                dialog = gtk.MessageDialog(self.title, gtk.DIALOG_MODAL,
+                                           gtk.MESSAGE_QUESTION,
+                                           gtk.BUTTONS_YES_NO, err);
+                result = dialog.run()
+                dialog.destroy()
+                if result != gtk.RESPONSE_YES:
+                    return gtk.FALSE
+
+        self.filename = filename
+
+        if self.save_buffer():
+            return gtk.TRUE
+        else:
+            self.filename = old_filename
+            return gtk.FALSE
+
+    def check_buffer_saved(self, buffer):
+        if buffer.get_modified():
+            pretty_name = self.pretty_name()
+            msg = "Save log to '%s'?" % pretty_name
+            dialog = gtk.MessageDialog(self.title, gtk.DIALOG_MODAL,
+                                       gtk.MESSAGE_QUESTION,
+                                       gtk.BUTTONS_YES_NO, msg);
+            dialog.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+            result = dialog.run()
+            dialog.destroy()
+            if result == gtk.RESPONSE_YES:
+                if self.filename:
+                    return self.save_buffer()
+                return self.save_as_buffer()
+            elif result == gtk.RESPONSE_NO:
+                return gtk.TRUE
+            else:
+                return gtk.FALSE
+        else:
+            return gtk.TRUE
+
+class FileSel(gtk.FileSelection):
+    def __init__(self):
+        gtk.FileSelection.__init__(self)
+        self.result = gtk.FALSE
+
+    def ok_cb(self, button):
+        self.hide()
+        if self.ok_func(self.get_filename()):
+            self.destroy()
+            self.result = gtk.TRUE
+        else:
+            self.show()
+
+    def run(self, parent, title, start_file, func):
+        if start_file:
+            self.set_filename(start_file)
+
+        self.ok_func = func
+        self.ok_button.connect("clicked", self.ok_cb)
+        self.cancel_button.connect("clicked", lambda x: self.destroy())
+        self.connect("destroy", lambda x: gtk.main_quit())
+        self.set_modal(gtk.TRUE)
+        self.show()
+        gtk.main()
+        return self.result
+
+
 class ProcessOutputReader(threading.Thread):
     """ Reads output from processes """
     def __init__(self, update_callback, finished_callback):
@@ -812,6 +1021,7 @@ if __name__ == "__main__":
     env = utils.environment()
     # to test the above classes when run standalone
     test = ProcessManager(env, prefs)
+    test.title = "Porthole-Terminal"
     test.add_process("kde (-vp)", "emerge -vp kde", callback)
     # un-comment the next line to get the queue to show up
     test.add_process("gnome (-vp)", "emerge -vp gnome", callback)
