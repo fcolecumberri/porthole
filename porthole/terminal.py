@@ -954,18 +954,18 @@ class ProcessManager:
 	Self.Semaphore.acquire()
         # pass the normal command along with --resume
         name, command, iter, callback = self.process_list[0]
-	self.Semaphore.release()
 	command += " --resume"
         self._run(command, iter)
+	self.Semaphore.release()
 
     def resume_skip_first(self, widget):
         """ Resume killed process, skipping first package """
 	Self.Semaphore.acquire()
         # pass the normal command along with --resume --skipfirst
         name, command, iter, callback = self.process_list[0]
-	self.Semaphore.release()
         command += " --resume --skipfirst"
         self._run(command, iter)
+	self.Semaphore.release()
 
     # skip_first needs to be true for the menu callback
     def start_queue(self, skip_first = True):
