@@ -731,7 +731,7 @@ class ProcessManager:
                             self.caution_count += 1
 
                         if self.overwrite_till_nl:
-                            dprint("TERMINAL: '\\n' detected in overwrite mode")
+                            #dprint("TERMINAL: '\\n' detected in overwrite mode")
                             self.overwrite(TAB_PROCESS, self.process_buffer, tag)
                             self.overwrite_till_nl = False
                         else:

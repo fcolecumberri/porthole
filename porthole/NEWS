@@ -1,3 +1,39 @@
+0.3.2:
+
+    * Combination bugfix & feature improvement release
+
+    * The version sorting routine has been re-written again, portage is/has just
+      changed it's version comparison code.  Also the code I released in -0.3.1
+      also failed badly for a few odd version strings.
+
+    * The hyperlinks for home pages has been patched to fix  multiple homepage listings
+      in the summary view.  Thanks to jonathanl for this patch.
+
+    * the terminal process view will show the download progress almost like it would in
+      a normal terminal.
+
+    * The browser opens from a threaded function now so that the rest of porthole
+      will no longer be frozen until the browser is closed.  It also now allows multiple
+      pages to be opened.
+
+    * The gtk horizontal pane bug is now caught and corrected as porthole opens.
+
+    * On completion of a terminal task the main porthole db is now reloaded without
+      disrupting the current view.  The package being viewed is reloaded automatically.
+      The upgrades view is the only one that requires a disruptive rebuild.  Sorry, I
+      could not get it to work non-disruptively.  I believe it is due to the checkboxes.
+
+    * The settings menu now has the "ALLOW DOWNGRADES" (--upgradeonly) setting (opposite
+      to the flag setting) to help fix some package upgrade issues.  Be careful with it's
+      setting as it can sometimes change expected emerge behavior when not upgrading packages.
+
+    * USE flags are now displayed with a +/- as well as being colored to show their current
+      setting.   Original feature patch submitted by jonathanl.
+
+    * One annoying bug remains in the autoscroll code that causes quirky behavior.
+      I have been thru my code, testing, and have concluded that it is a gtk bug in
+      the scrollbar code.
+
 0.3.1:
 
      * This release is primarily a bugfix release.  There have been quite a
