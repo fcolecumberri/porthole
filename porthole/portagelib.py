@@ -340,7 +340,7 @@ class Package:
             elif len(installed_ebuilds) == 0:
                 return ""
             installed_ebuilds = version_sort.ver_sort( installed_ebuilds )
-                self.latest_installed = installed_ebuilds[-1]
+            self.latest_installed = installed_ebuilds[-1]
         return self.latest_installed
 
     def get_metadata(self):
