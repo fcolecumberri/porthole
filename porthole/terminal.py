@@ -244,6 +244,8 @@ class ProcessManager:
         """Window was closed"""
         # kill any running processes
         self.kill()
+        # the window is no longer showing
+        self.window_visible = False
         if __name__ == "__main__":
             # if running standalone, quit
             gtk.main_quit()
@@ -369,13 +371,47 @@ class ProcessManager:
         """ Clear the text buffer """
         pass
 
+    def queue_items_switch(self, direction):
+        """ Switch two adjacent queue items;
+            direction is either 1 [down] or -1 [up] """
+        # get the selected iter
+        iter = get_treeview_selection(self.queue_tree)
+        # get its path
+        path = self.queue_model.get_path(iter)[0]
+        if path > 0:
+            # get the selected value
+            selected = self.queue_model[path]
+            # get the adjacent value
+            prev = self.queue_model[path + direction]
+            # store selected temporarily so it's not overwritten
+            temp = (selected[0], selected[1], selected[2])
+            # switch sides and make sure the original is still selected
+            self.queue_model[path] = prev
+            self.queue_model[path + direction] = temp
+            self.queue_tree.get_selection().select_path(path + direction)
+            # switch the process list entries
+            # basically similar to above, except that the iters are _not_ switched
+            for pos in range(len(self.process_list)):
+                if self.process_list[pos][0] == selected[1] and pos > 0:
+                    pos += 1
+                    sel = self.process_list[pos][0], self.process_list[pos][1],\
+                          self.process_list[pos + direction][2]
+                    prev = self.process_list[pos + direction][0],\
+                           self.process_list[pos + direction][1],\
+                           self.process_list[pos][2]
+                    self.process_list[pos] = prev
+                    self.process_list[pos + direction] = sel
+                    break
+        else:
+            dprint("TERMINAL: tree path = 0")
+
     def move_queue_item_up(self, widget):
         """ Move selected queue item up in the queue """
-        pass
+        self.queue_items_switch(-1)
 
     def move_queue_item_down(self, widget):
         """ Move selected queue item down in the queue """
-        pass
+        self.queue_items_switch(1)
 
     def remove_queue_item(self, widget):
         """ Remove the selected item from the queue """
@@ -433,20 +469,20 @@ if __name__ == "__main__":
     from getopt import getopt, GetoptError
 
     try:
-        opts, args = getopt(argv[1:], 'lvd', ["local", "version", "debug"])
+        opts, args = getopt(argv[1:], "lvd", ["local", "version", "debug"])
     except GetoptError, e:
         print >>stderr, e.msg
         exit(1)
 
     for opt, arg in opts:
-        if opt in ("-l", "--local"):
+        if opt in ('-l', "--local"):
             # running a local version (i.e. not installed in /usr/*)
             DATA_PATH = ""
-        elif opt in ("-v", "--version"):
+        elif opt in ('-v', "--version"):
             # print version info
             print "Porthole-Terminal " + version
             exit(0)
-        elif opt in ("-d", "--debug"):
+        elif opt in ('-d', "--debug"):
             utils.debug = True
             utils.dprint("Debug printing is enabled")
     # change dir to your data path
