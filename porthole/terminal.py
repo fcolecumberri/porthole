@@ -84,6 +84,9 @@ class ProcessManager:
         self.process_list = []
         # the window is not visible until a process is added
         self.window_visible = False
+        # filename and serial #
+        self.filename = None
+        self.untitled_serial = -1
         # create the process reader
         self.reader = ProcessOutputReader(self.update, self.process_done)
         # start the reader
@@ -179,6 +182,8 @@ class ProcessManager:
                 background='lightgreen')
         # In process window, warnings will have medium yellow background
         self.process_text.create_tag('warning',\
+                background='#ffffb0')
+        self.info_text.create_tag('warning',\
                 background='#ffffb0')
         # In process window info will have medium cyan background
         self.process_text.create_tag('info',\
@@ -282,6 +287,7 @@ class ProcessManager:
         """ Run a given command string """
         # we can't be killed anymore
         self.killed = 0
+        self.warning_count = 0
         start_iter = self.process_text.get_end_iter()
         if self.command_start:
             # move the start mark
@@ -427,7 +433,8 @@ class ProcessManager:
                                 self.warning_tab.showing = True
                             # insert the line into the info text buffer
                             tag = 'warning'
-                            self.append(self.warning_text, self.process_buffer) 
+                            self.append(self.warning_text, self.process_buffer)
+                            self.warning_count += 1
 
                         self.append(self.process_text, self.process_buffer, tag)
                         self.process_buffer = ''  # reset buffer
@@ -457,7 +464,9 @@ class ProcessManager:
         # estimated build times on the output window
         if sre.compile(".* --pretend *.").match(self.process_list[0][1]):
             self.estimate_build_time()
-
+        if self.warning_count != 0:
+            self.append(self.info_text, "*** Total warnings count for merge = %d \n"\
+                        %self.warning_count, 'warning')
         # display message that process finished
         self.append_all(TERMINATED_STRING,True)
         self.set_statusbar(TERMINATED_STRING[:-1])
