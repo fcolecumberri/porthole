@@ -1,0 +1,15 @@
+about.py
+depends.py
+metadata.py
+portagelib.py
+porthole.py
+process.py
+setup.py
+summary.py
+utils.py
+pixmaps/porthole-about.png
+pixmaps/porthole-icon.png
+porthole.glade
+COPYING
+MANIFEST
+setup.cfg
