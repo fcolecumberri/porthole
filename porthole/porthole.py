@@ -87,26 +87,31 @@ class MainWindow:
         self.db_thread.start()
         gtk.timeout_add(100, self.update_db_read)
         #set status
-        self.wtree.get_widget("statusbar1").push( 0, "Reading Package Database: 0 Packages Read")
+        self.set_statusbar("Reading package database: %i packages read"
+                           % 0)
+
+    def set_statusbar(self, string):
+        statusbar = self.wtree.get_widget("statusbar1")
+        statusbar.pop(0)
+        statusbar.push(0, string)
 
     #update the statusbar according to the number of packages read
     def update_db_read(self):
-        self.wtree.get_widget("statusbar1").pop(0)
         if not self.db_thread.done:
-            self.wtree.get_widget("statusbar1").push(0, "Reading Package Database: " + str(self.db_thread.count) + " Packages Read")
+            self.set_statusbar("Reading package database: %i packages read"
+                               % self.db_thread.count)
         else:
             self.db = self.db_thread.get_db()
-            self.wtree.get_widget("statusbar1").push(0, "Populating Tree...")
+            self.set_statusbar("Populating tree ...")
             self.db_thread.join()
             self.populate_category_tree()
-            self.wtree.get_widget("statusbar1").pop(0)
-            self.wtree.get_widget("statusbar1").push(0, "Idle")
+            self.set_statusbar("Idle")
             self.wtree.get_widget("menubar").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("toolbar").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("view_filter").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("search_entry").set_sensitive(gtk.TRUE)
             self.wtree.get_widget("btn_search").set_sensitive(gtk.TRUE)
-            return gtk.FALSE
+            return gtk.FALSE  # disconnect from timeout
         return gtk.TRUE
 
     #populate the category tree
