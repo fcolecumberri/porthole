@@ -33,7 +33,11 @@
     To use this program as a module:
     
         from terminal import ProcessManager
-        manager = ProcessManager(environment, preferences)
+
+        def callback():
+            print "This is called when a process finishes"
+
+        manager = ProcessManager(environment, preferences, callback)
         manager.add_process(package_name, command_to_run)
         ...
 """
