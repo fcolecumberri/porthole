@@ -75,8 +75,9 @@ class DependsTree(gtk.TreeStore):
                     if depends:
                         self.add_depends_to_tree(depends, depends_view, depend_iter)
 
-    def fill_depends_tree(self, treeview, ebuild):
+    def fill_depends_tree(self, treeview, package):
         """Fill the dependencies tree for a given ebuild"""
+        ebuild = package.get_latest_ebuild()
         depends = string.split(portagelib.get_property(ebuild, "DEPEND"))
         self.clear()
         if depends:

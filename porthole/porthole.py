@@ -422,7 +422,7 @@ class MainWindow:
         '''
         #handle dependencies
         depends = DependsTree()
-        depends.fill_depends_tree(self.wtree.get_widget("depend_view"), ebuild)
+        depends.fill_depends_tree(self.wtree.get_widget("depend_view"), package)
         #build info into buffer
         append(package.full_name, "name"); nl()
         if description:
