@@ -10,3 +10,13 @@ Release 0.5
 - USE flags editor
 - A way to hide the details of an emerge and replace it with a pretty pulsing progressbar
 - A porthole panel applet similar to redhat's up2date applet [maybe...]
+
+
+==================================
+Features for future consideration
+==================================
+
+- Make the package file list a filesystem tree, or a list of files.
+  Double-clicking should open the file or folder in Nautilus.  It would be neat 
+  if right-click brought up the standard Nautilus context menu.
+

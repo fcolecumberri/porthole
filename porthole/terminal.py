@@ -275,7 +275,7 @@ class ProcessManager:
         """ Double clicking on line will bring that line in the process
             window into focus near center screen
         """
-        if event.type == 5:
+        if event.type == gtk.gdk._2BUTTON_PRESS:
             # Convert x,y window coords to buffer coords and get line text
             x = int(event.x)
             y = int(event.y)
