@@ -21,13 +21,21 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
+#set data path for our glade and pixmap files
+DATA_PATH = "/usr/share/porthole/"
+
 #store our version here
 version = "0.1"
+
+#setup our path so we can load our custom modules
+from sys import path
+path.append("/usr/lib/porthole")
 
 import threading, re
 import pygtk; pygtk.require("2.0") #make sure we have the right version
 import gtk, gtk.glade, gobject, pango
 import portagelib
+from sys import argv, exit
 from about import AboutDialog
 from depends import DependsTree
 from utils import load_web_page, get_icon_for_package, is_root
@@ -39,7 +47,7 @@ class MainWindow:
     
     def __init__(self):
         #setup glade
-        self.gladefile = "porthole.glade"
+        self.gladefile = DATA_PATH + "porthole.glade"
         self.wtree = gtk.glade.XML(self.gladefile, "main_window")
         #register callbacks
         callbacks = {
@@ -391,6 +399,21 @@ class MainWindow:
 
 
 if __name__ == "__main__":
+    if len(argv) > 1:
+        if(argv[1] == "--local" or argv[1] == "-l"):
+            #running a local version (i.e. not installed in /usr/*)
+            DATA_PATH = ""
+        elif(argv[1] == "--version" or argv[1] == "-v"):
+            #print version info
+            print "Porthole " + version
+            exit()
+        else:
+            print "Invalid argument passed"
+            exit()
+    #change dir to your data path
+    if DATA_PATH:
+        from os import chdir
+        chdir(DATA_PATH)
     #make sure gtk lets threads run
     gtk.threads_init()
     #setup our app icon
