@@ -109,7 +109,10 @@ class DependsTree(gtk.TreeStore):
         op = depend[0]
         if op in [">", "<", "=", "!"]:
             op2 = depend[1]
-            return op2 == "=" and depend, op + op2 or depend, op
+            if op2 == "=":
+                return depend, op + op2
+            else:
+                return depend, op
         else:
             return depend, None
 
@@ -118,10 +121,17 @@ class DependsTree(gtk.TreeStore):
         retval = False
         ins_ver = portagelib.get_version(installed_ebuild)
         dep_ver = portagelib.get_version(dep_ebuild)
-        # this next one's a tongue twister!
+        # extend to normal comparison operators in case they aren't
         if operator == "=": operator = "=="
+        if operator == "!": operator = "!="
+        # determine the retval
+        if operator == "==": retval = ins_ver == dep_ver
+        elif operator == "<=":  retval = ins_ver <= dep_ver
+        elif operator == ">=": retval = ins_ver >= dep_ver
+        elif operator == "!=": retval = ins_ver != dep_ver
+        elif operator == "<": retval = ins_ver < dep_ver
+        elif operator == ">": retval = ins_ver > dep_ver
         # return the result of the operation
-        retval = eval(ins_ver + " " + operator + " " + dep_ver)
         return retval
 
     def fill_depends_tree(self, treeview, package):
