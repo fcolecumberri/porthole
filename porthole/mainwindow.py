@@ -34,6 +34,7 @@ from process import ProcessWindow
 from summary import Summary
 from terminal import ProcessManager
 from views import CategoryView, PackageView, DependsView
+from command import RunDialog
 
 class MainWindow:
     """Main Window class to setup and manage main window interface."""
@@ -63,7 +64,7 @@ class MainWindow:
             "on_verbose_activate" : self.verbose_set,
             "on_search_descriptions1_activate" : self.search_set,
             "on_open_log" : self.open_log,
-            "on_custom_run" : self.custom_run
+            "on_run_custom" : self.custom_run
             }
         self.wtree.signal_autoconnect(callbacks)
         # aliases for convenience
@@ -582,7 +583,8 @@ class MainWindow:
 
     def custom_run(self, widget):
         """ Run a custom command in the terminal window """
-        pass
+        dprint("MAINWINDOW: entering custom_run")
+        get_command = RunDialog(self.prefs, self.setup_command, None)
 
 
 class CommonReader(threading.Thread):

@@ -275,6 +275,18 @@ class PortholePreferences:
            width_verbose = 900   # Default value
         self.terminal.width_verbose = width_verbose
 
+        # Run Dialog window settings
+
+        try:
+           width = dom.getitem('/window/run_dialog/width')
+        except XMLManagerError:
+           width = 400   # Default value
+        try:
+           height = dom.getitem('/window/run_dialog/height')
+        except XMLManagerError:
+           height = 120   # Default value
+        self.run_dialog = WindowPreferences(width, height)
+
         # Emerge options
  
         self.emerge = EmergeOptions()

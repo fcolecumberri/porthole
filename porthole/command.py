@@ -29,7 +29,7 @@ from version import version
 class RunDialog:
     """Class to hold about dialog and functionality."""
 
-    def __init__(self, prefs = None, history = None, command = None):
+    def __init__(self, prefs, call_back, history = None):
         # setup glade
         self.gladefile = "porthole.glade"
         self.wtree = gtk.glade.XML(self.gladefile, "run_dialog")
@@ -37,32 +37,54 @@ class RunDialog:
         callbacks = {"on_execute" : self.execute,
                      "on_cancel" : self.cancel}
         self.wtree.signal_autoconnect(callbacks)
-        self.command = command
-        self.history = history
+        self.command = None
+        self.call_back = call_back
+        self.history = ["", "emerge ",
+                        "ACCEPT_KEYWORDS='~x86' emerge ",
+                        "USE=' ' emerge ",
+                        "ACCEPT_KEYWORDS='~x86' USE=' ' emerge"]
         self.prefs = prefs
         self.window = self.wtree.get_widget("run_dialog")
+        self.combo = self.wtree.get_widget("combo")
         self.entry = self.wtree.get_widget("combo-entry")
         self.list = self.wtree.get_widget("combo-list")
-        #window.set_title("Porthole")
-        self.entry.connect("activate", execute, command)
+        #self.window.set_title("Porthole")
+        self.combo.set_popdown_strings(self.history)
+        self.entry.connect("activate", self.activate, self.command)
+        if self.prefs:
+            self.window.resize(self.prefs.run_dialog.width, 
+                                self.prefs.run_dialog.height)
+            # MUST! do this command last, or nothing else will _init__
+            # after it until emerge is finished.
+            # Also causes runaway recursion.
+            self.window.connect("size_request", self.on_size_request)
 
-    def execute(self, widget, command):
+    def activate(self, widget, command):
+        self.command = self.entry.get_text()
+        if self.command:
+            dprint("COMMAND: activated :%s" %self.command)
+            self.call_back(("command line entry: %s" %self.command), self.command)
+        self.cancel(None)
+        
+    def execute(self, widget):
         """Adds the command line entry to the queue"""
-        if command:
-            self.command = command
-        self.wtree.get_widget("run_dialog").destroy()
-
+        self.command = self.entry.get_text()
+        if self.command:
+            dprint("COMMAND: run_dialog : %s" %self.command)
+            self.call_back("command line entry", self.command)
+        self.cancel(None)
 
     def cancel(self, widget):
         """cancels run dialog"""
-        self.wtree.get_widget("about_dialog").destroy()
+        self.wtree.get_widget("run_dialog").destroy()
+        
 
-    def run(self):
-        """main dialog control"""
-        # start the entry off with something usefull
-        self.entry.set_text("emerge ")
-        self.list.set_popdown_strings(self.history)
-
-
+    def on_size_request(self, window, gbox):
+        """ Store new size in prefs """
+        # get the width and height of the window
+        width, height = window.get_size()
+        # set the preferences
+        self.prefs.run_dialog.width = width
+        self.prefs.run_dialog.height = height
 
 

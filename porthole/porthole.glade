@@ -137,8 +137,8 @@
 		  </child>
 
 		  <child>
-			<widget class="GtkImageMenuItem" id="open_log">
-			  <property name="visible">True</property>
+		    <widget class="GtkImageMenuItem" id="open_log">
+		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Open Emerge _Log</property>
 		      <property name="use_underline">True</property>
 		      <signal name="activate" handler="on_open_log" last_modification_time="Mon, 01 Dec 2003 16:48:31 GMT"/>
@@ -159,8 +159,8 @@
 		  </child>
 
 		  <child>
-			<widget class="GtkImageMenuItem" id="run_custom">
-			  <property name="visible">True</property>
+		    <widget class="GtkImageMenuItem" id="run_custom">
+		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">_Run Custom Command</property>
 		      <property name="use_underline">True</property>
 		      <signal name="activate" handler="on_run_custom" last_modification_time="Mon, 01 Dec 2003 16:48:31 GMT"/>
