@@ -137,7 +137,8 @@ class MainWindow:
                 ("_Yes", 0))
             self.sudo_dialog.add_button("_No", 1)
             sudo_text = gtk.Label("Do you want use the sudo command "
-                                  "to install programs?")
+                                  "to install programs?\nNOTE: sudo "
+                                  "must be setup correctly!")
             sudo_text.set_padding(5, 5)
             self.sudo_dialog.vbox.pack_start(sudo_text)
             sudo_text.show()
@@ -191,7 +192,8 @@ class MainWindow:
         self.category_model = gtk.TreeStore(gobject.TYPE_STRING,
                                             gobject.TYPE_STRING)
         for cat in categories:
-            catmaj, catmin = cat.split("-")
+            try: catmaj, catmin = cat.split("-")
+            except: continue #quick fix to bug posted on forums
             if catmaj != last_catmaj:
                 cat_iter = self.category_model.insert_before(None, None)
                 self.category_model.set_value(cat_iter, 0, catmaj)
