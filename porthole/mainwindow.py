@@ -66,7 +66,7 @@ class MainWindow:
         #set unfinished items to not be sensitive
         self.wtree.get_widget("view_statistics1").set_sensitive(gtk.FALSE)
         self.wtree.get_widget("contents2").set_sensitive(gtk.FALSE)
-        self.wtree.get_widget("btn_help").set_sensitive(gtk.FALSE)
+        # self.wtree.get_widget("btn_help").set_sensitive(gtk.FALSE)
         #set things we can't do unless a package is selected to not sensitive
         self.set_package_actions_sensitive(gtk.FALSE)
         #setup our treemodels
