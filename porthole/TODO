@@ -34,9 +34,11 @@ Features for future consideration
   -- use flag
 
 - Architecture Support Matrix.  List the versions down the side, architectures across
-  the top, little icons for stable, unstable.  Possiblysticking with the format used
+  the top, little icons for stable, unstable.  Possibly sticking with the format used
   by packages.gentoo.org
 
 - Stable-unstable stuff for the "current" architecture was included in the summary 
   page.  Perhaps by color coding the version numbers.
  
+- When pyGTK 2.4 becomes available & stable, switch to gtk.ComboBox instead of the 
+  deprecated gtk.Combo

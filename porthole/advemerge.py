@@ -27,6 +27,7 @@ import gtk
 import gtk.glade
 import portagelib
 from version_sort import ver_sort
+from utils import load_web_page
 
 class AdvancedEmergeDialog:
     """Class to perform advanced emerge dialog functionality."""
@@ -59,28 +60,32 @@ class AdvancedEmergeDialog:
         self.wtree.signal_autoconnect(callbacks)
         self.window = self.wtree.get_widget("adv_emerge_dialog")
         self.window.set_title("Advanced Emerge Settings for " + package.full_name)
-
+        
         # Make tool tips available
         self.tooltips = gtk.Tooltips()
       
-        # Populate version combo list
+        # Build version combo list
         self.combo = self.wtree.get_widget("cmbVersion")
         self.get_versions()
 
         # Build a formatted combo list from the versioninfo list 
         comboList = []
+        index = 0
+        x = 0
         for ver in self.verList:
             info = ver[0]
             info += '   [Slot:' + str(ver[4]) + ']'
             if ver[2]:
-                info += '   [best/latest]'    
+                info += '   [best/latest]'
+                index = x
             if ver[3]:
                 info += '   [installed]'
             comboList.append(info)
+            x += 1
 
         # Set the combo list
         self.combo.set_popdown_strings(comboList)
-
+        
         # Set any emerge options the user wants defaulted
         if self.prefs.emerge.pretend:
             self.wtree.get_widget("cbPretend").set_active(gtk.TRUE)
@@ -133,8 +138,9 @@ class AdvancedEmergeDialog:
 
 
     def help_clicked(self, widget):
-        """ Display help (someday) """
-        self.window.destroy()
+        """ Display help file with web browser """
+        load_web_page('file://' + self.prefs.DATA_PATH + 'help/advemerge.html')
+
 
 
     def version_changed(self, widget):
