@@ -63,6 +63,9 @@ TAB_WARNING = 1
 TAB_CAUTION = 2
 TAB_INFO = 3
 TAB_QUEUE = 4
+# some contant strings that may be internationalized later
+KILLED_STRING = "*** process killed ***\n"
+TERMINATED_STRING = "*** process terminated ***\n"
 
 class ProcessManager:
     """ Manages queued and running processes """
@@ -116,6 +119,9 @@ class ProcessManager:
         self.resume_menu = self.wtree.get_widget("resume")
         # process output buffer
         self.process_buffer = ''
+        # set some persistent variables for text capture
+        self.catch_seq = False
+        self.escape_seq = "" # to catch the escape sequence in
         # disable the queue tab until we need it
         self.queue_menu.set_sensitive(gtk.FALSE)
         # setup the queue treeview
@@ -148,6 +154,7 @@ class ProcessManager:
         self.re_object_caution = None
         self.re_object_warning = None
         self.re_object_info = re.compile("^>>> [^/]", re.I)
+        self.re_object_emerge = re.compile("^>>> emerge [^/]", re.I)
         # flag that the window is now visible
         self.window_visible = True
         if self.prefs:
@@ -242,6 +249,7 @@ class ProcessManager:
         self.reader.process_running = True
         # show a message that the process is starting
         self.append_all("*** " + command_string + " ***\n")
+        self.set_statusbar("*** " + command_string + " ***\n")
         # pty.fork() creates a new process group
         self.pid, self.reader.fd = pty.fork()
         if self.pid == pty.CHILD:  # child
@@ -301,13 +309,21 @@ class ProcessManager:
         # prints line when '\n' is reached
         if char:
             # catch portage escape sequence NOCOLOR bugs
-            if ord(char) == 27 or False:
-                pass
+            if ord(char) == 27 or self.catch_seq:
+                    self.catch_seq = True
+                    if ord(char) != 27:
+                        self.escape_seq += char
+                    if char == 'm':
+                        self.catch_seq = False
+                        #dprint('escape_seq='+escape_seq)
+                        self.escape_seq = ""
             elif char == '\b': # backspace
                 self.process_buffer = self.process_buffer[:-1]
             elif 32 <= ord(char) <= 127 or char == '\n': # no unprintable
                 self.process_buffer += char
                 if char == '\n': # newline
+                    if self.re_object_emerge.search(self.process_buffer):
+                        self.set_statusbar(self.process_buffer)
                     if self.re_object_info.search(self.process_buffer):
                         # info string has been found, show info tab if needed
                         if not self.info_tab.showing:
@@ -322,16 +338,23 @@ class ProcessManager:
             elif ord(char) == 13: # carriage return?
                 pass
 
+    def set_statusbar(self, string):
+        """Update the statusbar without having to use push and pop."""
+        self.statusbar.pop(0)
+        self.statusbar.push(0, string)
+
     def process_done(self):
         """ Remove the finished process from the queue, and
         start the next one if there are any more to be run"""
         # if the last process was killed, stop until the user does something
         if self.killed:
             # display message that process has been killed
-            self.append_all("*** process killed ***\n")
+            self.append_all(KILLED_STRING)
+            self.set_statusbar(KILLED_STRING)
             return
         # display message that process finished
-        self.append_all("*** process terminated ***\n")
+        self.append_all(TERMINATED_STRING)
+        self.set_statusbar(TERMINATED_STRING)
         # set queue icon to done
         iter = self.process_list[0][2]
         self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_APPLY))
