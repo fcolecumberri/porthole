@@ -386,9 +386,11 @@ class MainWindow:
         return new_list
                     
 
-    def add_depends_to_tree(self, depends_list, parent = None, last_flag = None):
+    def add_depends_to_tree(self, depends_list, parent = None):
         """Add all dependencies to the tree"""
         depend_view = self.wtree.get_widget("depend_view")
+        parent_iter = parent
+        last_flag = None
         for use_flag, depend in depends_list:
             if last_flag != use_flag:
                 parent_iter = self.depend_model.insert_before(parent, None)
@@ -402,12 +404,14 @@ class MainWindow:
                                     size = gtk.ICON_SIZE_MENU,
                                     detail = None))
             if icon != gtk.STOCK_YES:
-                pack = portagelib.Package(depend)
-                ebuild = pack.get_latest_ebuild()
-                depends = string.split(portagelib.get_property(ebuild, "DEPEND"))
-                if depends:
-                    depends = self.parse_depends_list(depends)
-                    self.add_depends_to_tree(depends, depend_iter)
+                if depend not in self.depends_list:
+                    self.depends_list.append(depend)
+                    pack = portagelib.Package(depend)
+                    ebuild = pack.get_latest_ebuild()
+                    depends = string.split(portagelib.get_property(ebuild, "DEPEND"))
+                    if depends:
+                        depends = self.parse_depends_list(depends, None)
+                        self.add_depends_to_tree(depends, depend_iter)
 
     def on_mouse_motion(self, widget, event, data = None):
         # we need to call get_pointer, or we won't get any more events
@@ -465,7 +469,8 @@ class MainWindow:
         self.depend_model.clear()
         depend_view = self.wtree.get_widget("depend_view")
         if depends:
-            depends = self.parse_depends_list(depends)
+            self.depends_list = []
+            depends = self.parse_depends_list(depends, None)
             self.add_depends_to_tree(depends)
         else:
             parent_iter = self.depend_model.insert_before(None, None)
