@@ -53,14 +53,14 @@ try:
     pycrash_found = True
     class MyCrash(HTMLPyCrash):
         #def onExit(self):
-	def onExceptionRaised(self, time):
-	    save_file = LOG_FILE_DIR + "/crash.html"
-	    # saveToFile does not yet return a result: feature request submitted
-	    self.saveToFile(save_file)
-	    print "PORTHOLE: Crash detected.  Please submit a bug report &"
-	    print "         include the " + save_file
+        def onExceptionRaised(self, time):
+            save_file = LOG_FILE_DIR + "/crash.html"
+            # saveToFile does not yet return a result: feature request submitted
+            self.saveToFile(save_file)
+            print "PORTHOLE: Crash detected.  Please submit a bug report &"
+            print "         include the " + save_file
 except ImportError:
-    print "pycrash module not found.  For best debug info Please emerge >= dev-python/pycrash-0.4pre2"
+    print "pycrash module not found.  For best debug info Please emerge >= dev-python/pycrash-0.4pre3"
     
 
 from thread import *
