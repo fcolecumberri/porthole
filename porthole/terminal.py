@@ -210,6 +210,9 @@ class ProcessManager:
         
     def add_process(self, package_name, command_string, callback):
         """ Add a process to the queue """
+        # if it's already in the queue, don't add it!
+        for data in self.process_list:
+            if package_name == data[0]: return
         # show the window if it isn't yet
         if not self.window_visible:
             self.show_window()
