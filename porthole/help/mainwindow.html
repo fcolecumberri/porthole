@@ -5,17 +5,21 @@
 </head>
 <body>
 <img style='float:left;' src='../pixmaps/porthole-about.png'>
-<h1>Main Window</h1>
-<br>
 <div class='toc'>
-<iframe src='toc.html' height=500 width=250 frameborder=0></iframe>
+<iframe src='toc.html' height=500 width=240 frameborder=0></iframe>
 </div>
+<br>
+<br>
+<br>
+<br>
+<h1>Main Window</h1>
+
 <h2>General Features</h2>
 <p>
 A word about GUI interfaces:  depending on the windowing system
-and theme you have installed, the icons used by Porthole may differ radically.
-from this help manual.
-So if the illustrations in this manual don't look EXACTLY like yours,
+and theme you have installed, the icons used by Porthole may differ 
+radically from this help manual.
+ &nbsp;So if the illustrations in this manual don't look EXACTLY like yours,
 try to be open minded about it.
 </p>
 
@@ -35,40 +39,56 @@ the pane sizes between sessions.
 The main window is divided into a menu bar, a tool bar, package tree view,
  package list view and a tabbed package info. 
 </p>
+
 <h2>Menu Bar</h2>
+
 <p>
-The menu bar has three main options: Action, Settings and Help.
+The menu bar has three sub-menues: Action, Settings and Help.  
+ &nbsp;Each menu item has a hot key combo to select it from the keyboard.
 </p>
+
 <h3>Action Menu</h3>
+
+<div class='warnright'><b>Warning</b>: advanced emerge is just what it
+ says--advanced!
+ &nbsp;Resist the temptation to use this until you understand how portage works.
+ &nbsp;Using the standard emerge will warn you if problems exist and
+always install the best version.
+</div>
 <ul>
-<li><b>Emerge Package</b> - Install/reinstall the selected package.
-<li><b>Advanced Emerge Package</b> - Install/reinstall the selected package,
- but gives you fine-grained control of emerge options, use flags and keywords.
-<li><b>Unmerge Package</b> - Uninstall the selected package.
-<li><b>Sync Tree</b> - Sync the portage tree.
-<li><b>Upgrade Packages</b> - Display a list of all packages that can be
+<li><u>Emerge Package</u> - Install/reinstall the selected package.
+<li><u>Advanced Emerge Package</u> - Install/reinstall the selected package,
+ but gives you fine-grained control of emerge options, 
+use flags<a href='#notes'><span class='note'>1</span></a> and
+ keywords<a href='#notes'><span class='note'>1</span></a>.
+<li><u>Unmerge Package</u> - Uninstall the selected package.
+<li><u>Sync Tree</u> - Sync the portage tree.
+<li><u>Upgrade Packages</u> - Display a list of all packages that can be
  upgraded.
-<li><b>Open Emerge Log</b> - Open an existing emerge log.
-<li><b>Run Custom Command</b> - Run custom command.
-<li><b>Quit</b> - Exit the program.
+<li><u>Open Emerge Log</u> - Open an existing emerge log.
+<li><u>Run Custom Command</u> - Run custom command.
+<li><u>Quit</u> - Exit the program.
 </ul>
+
 <h3>Settings Menu</h3>
+
 <ul>
-<li><b>Pretend</b> - Prevents emerges and updates from installing
- and displays WHAT 
-would have been installed only.
-<li><b>Allow Downgrades</b> - Allows emerge and upgrade to install 
+<li><u>Pretend</u> - Prevents emerges and updates from installing
+ and displays WHAT would have been installed only.
+<li><u>Allow Downgrades</u> - Allows emerge and upgrade to install 
 older versions,
  <i>if</i> the ebuild directs.
-<li><b>Only Fetch</b> - Just downloads the files needed to install, but
+<li><u>Only Fetch</u> - Just downloads the files needed to install, but
 does not actually install the package.
-<li><b>Verbose</b> - Produce maximum output while emerging/unmerging.
-<li><b>Search Descriptions</b> - Look through descriptions as well as names
+<li><u>Verbose</u> - Produce maximum output while emerging/unmerging.
+<li><u>Search Descriptions</u> - Look through descriptions as well as names
  when searching for a package. 
 </ul>
+
 <h3>Help Menu</h3>
+
 <ul>
-<li><b>About</b> - Displays version, authors and links to home page
+<li><u>About</u> - Displays version, authors and links to home page
  and help system.
 </ul>
 <div class='figright'>
@@ -76,73 +96,166 @@ does not actually install the package.
 <br>
 Figure 1. Porthole Main Window
 </div>
+
 <h2>Tool Bar</h2>
+
+<div class='tipright'>
+TIP! The toolbar has its short cut keys underlined--hold 
+down the ALT key then press the short-cut key!
+</div>
 <p>
 The tool bar provides an alternative to the menu bar
  and can save you a click or two.
-</p>
-<div class='tipright'>
-TIP! The toolbar has its keyboard short cuts are underlined--hold 
-down the ALT key then press the short-cut key to activate.
-</div> 
-<div>
-<b>Emerge</b> - Install/reinstall the selected package.
-</div>
-<div>
-<b>Adv Emerge</b> - Install/reinstall the selected package,
- but gives you fine-grained control of emerge options, use flags and keywords.
-</div>
-<div><b>Unmerge</b> - Uninstall the selected package.
-</div>
-<div><b>Sync</b> - Sync the portage tree.
-</div>
-<div><b>Upgrade</b> - Display a list of all packages that can be upgraded.
-</div>
+</p> 
+<ul>
+<li>
+<u>Emerge</u> - Same as Action menu Emerge Package.
+<li>
+<u>Adv Emerge</u> - Same as Action menu Advanced Emerge Package.
+<li>
+<u>Unmerge</u> - Same as Action menu Unmerge.
+<li><u>Sync</u> - Same as Action menu Sync Tree.
+<li><u>Upgrade</u> - Same as Action menu Upgrade Packages.
+</ul>
 
 <h2>View Selector</h2>
+
 <p>
 The view selector let's you choose between the following views:
 </p>
 <ul>
-<li><b>All Packages</b> - Display all available packages in the tree view.
-<li><b>Installed Packages</b> - Display only the packages installed on 
+<li><u>All Packages</u> - Display all available packages in the tree view.
+<li><u>Installed Packages</u> - Display only the packages installed on 
 your system.
-<li><b>Search Results</b> - Display the packages meeting your search criteria.
-  In this view there is no treeview pane.
-<li><b>Upgradeable Packages</b> - Display only the packages that can be upgraded.
-  In this view there is no treeview pane.
+<li><u>Search Results</u> - Display the packages meeting your search criteria.
+ &nbsp;In this view there is no treeview pane.
+<li><u>Upgradable Packages</u> - Display only the packages that can be upgraded.
+ &nbsp;In this view there is no treeview pane.
 </ul>
 
 <h2>Find</h2>
+
 <div class='tipright'>
-TIP! Selecting &quot;Search descriptions&quot; or pressing Ctrl-D will 
-let you search the package descriptions too! 
+TIP! Setting &quot;Search descriptions&quot; on from the settings sub-menu 
+ will include the package descriptions in the search too! 
 </div> 
 <p>
 Enter a fragment of text in the input box next to the find button.
-  Clicking the find button or pressing enter will start the search.
-
-The system will automatically switch to the Search results view 
+ &nbsp;Clicking the find button or pressing enter will start the search.
+ &nbsp;The system will automatically switch to the Search results view 
 when the search is complete.
+ &nbsp;The search engine will find any occurrence of the selected text
+ even if it is in the middle or end of a word.
+</p>
+<h2>Package Category Treeview Pane</h2>
+<p>
+This pane hold the portage library tree.  
+ &nbsp;The categories and subcategories
+are sorted alphabetically. 
+ &nbsp;Clicking on the device beside the package category will expand the tree
+to reveal the sub levels.
+ &nbsp;Selecting the sub category will cause the package view pane to be populated
+with the individual packages.
+</p>
 
-The search engine will find any occurrence of the selected text even if it is
-in the middle or end of a word.
-</p>
-<h2>Package Category Treeview</h2>
+<h2>Package List Pane</h2>
+
 <p>
+In the All and Installed Packages views, the short name of the
+ packages in the selected category is displayed.
+ &nbsp;In the Search and Upgradable views, the full package name is displayed.
+ &nbsp;The icon preceding the package name indicates it is currently installed.
+ &nbsp;This icon is not shown in the Upgradable view because it 
+must be installed to be upgradable.  
+ &nbsp;Instead there is a checkbox so you can select which packages 
+ you want to upgrade.
+ &nbsp;The packages that are checked are ones in your /var/cache/edb/world file
+(i.e. packages you explicitly emerged).
+ &nbsp;It's the same list that would show up
+when you run 'emerge -Up world' but it allows you to deselect ones you
+don't need or want, and select other installed packages that aren't in
+your world file (i.e. dependencies of those packages in the world file).
+ &nbsp;Selecting all the packages in the upgrades list would be the equivalent
+of running 'emerge -UDp world' 
 </p>
-<h2>Package List</h2>
-<p>
-In the all and installed packages view, the short name of the
- packages in the selected category are displayed.
-In the search and upgrageable views, the full package name is displayed.
-If the package is installed
-</p>
+
 <h2>Package Information</h2>
 
 <h3>Summary Tab</h3>
+
+<p>The summary tab gives you a quick overview of the selected packages latest
+version only.
+ &nbsp;Note this may vary from what you have installed or want installed.
+The summary includes:
+</p>
+<ul>
+<li>Package full name (category and name).
+<div class='tipright'>
+TIP! Clicking the project URL will open that page in a browser.
+</div>
+<li>Package description provided by author(s).
+<li>URL of the package project home page.
+<li>Which version(s), if any, are installed in which slots.
+<li>Which versions are available.
+ &nbsp;Note: Versions in parenthesis are masked<a href='#notes'>
+<span class='note'>1</span></a>.
+<li>Which Use Flags the current package takes into consideration.
+ &nbsp;The use flags you have set in your make.conf file are green and 
+have a plus sign in front of them, those that don't; in red with a minus sign.
+<li>Which license the package is distributed under.
+</ul>
+<div class='figright'>
+<img src='dependencies.png'>
+<br>
+Figure 2. Dependencies Tab
+</div>
+
 <h3>Dependencies Tab</h3>
+
+<p>
+This tab lists a treeview of all the packages needed to build
+ the selected package.
+ &nbsp;Like the package list view, packages already
+ installed have an icon beside them.
+ &nbsp;Note that not all dependencies have to be installed 
+for the package to work.
+ &nbsp;Use flags play a big part in deciding what is or is not installed.
+</p>
+<div class='figright'>
+<img src='changelog.png'>
+<br>
+Figure 3. Change Log Tab
+</div>
+
 <h3>Change Log</h3>
+
+<p>
+If available, the change log text is included in here.
+ &nbsp;This is a good resource to use if you can't decide if you need to upgrade or not.
+ &nbsp;Look here for information on bug fixes and new features.
+</p>
+<div class='figright'>
+<img src='installedfiles.png'>
+<br>
+Figure 4. Installed Files Tab
+</div>
+
 <h3>Installed Files</h3>
+
+<p>
+A list of all the files this version installed.  
+ &nbsp;This can be useful for a number of reasons.
+ &nbsp;For example: the name of the executable binary file of that cool
+sounding utility you just installed which is completely different
+ from the package name and was not mentioned
+ in the release notes.
+</p>
+
+
+<hr>
+<a name='notes'>Notes:</a>
+<br>
+[1] See <a target='_top' href='termrefs.html'>
+Terms &amp; References</a> for more info on portage terms.
 </body>
 </html>

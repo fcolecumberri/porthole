@@ -4,8 +4,9 @@ html
 body
   {padding: .3cm;
    margin: 0;
-   background-color: linen;
+   background-color: oldlace;
    color: black;
+   font-size: 10pt;
   }
 a:active, a:visited, a:link
   {color: black; 
@@ -15,13 +16,41 @@ a:hover
    color: blue; 
   }
 p
-  {text-indent:2em;
+  {text-indent:1.5em;
   }
 pre
   {margin-left:2em;
    margin-right:2em;
    padding:.1cm;
    background-color:navajowhite;
+  }
+span.note
+  {font-style: italic;
+  }
+span.note:before {content: "["}
+span.note:after {content: "]"}
+span.command
+  {background-color: #000080;
+   color:white;
+   font-weight:bold;
+  }
+span.emerge
+  {background-color: #90ee90;
+   font-weight: bold;
+  }
+span.warning
+  {background-color:yellow;
+  }
+span.info
+  {background-color: #b0ffff;
+  }
+span.error
+  {color: #faf0e6;
+   background-color: #ff0000;
+   font-weight: bold;
+  }
+span.appnote
+  {color: #8b008b;
   }
 div.toc 
   {float: right;
@@ -32,20 +61,58 @@ div.figright
    font-size: 10pt;
    text-align: center;
    margin-left: 0.3cm;
+   margin-bottom: 0.3cm;
+   margin-top: 0.3cm;
    color: blue;
+  }
+div.figright img
+  {border: medium solid black
   }
 div.figleft
   {float: left;
    font-size: 10pt;
    text-align: center;
    margin-right: 0.3cm;
+   margin-bottom: 0.3cm;
+   margin-top: 0.3cm;
    color:blue;
+  }
+div.figleft img
+  {border: medium solid black
+  }
+div.warnright
+  {float: right;
+   font-size: 10pt;
+   padding: 0.1cm;
+   margin-left: 0.3cm;
+   margin-bottom: 0.3cm;
+   margin-top: 0.3cm;
+   color:crimson;
+   background-color: #ffffb0;
+   width:15em;
+   border: thin solid crimson;
+  }
+
+div.warnleft
+  {float: left;
+   font-size: 10pt;
+   padding: 0.1cm;
+   color:crimson;
+   margin-right: 0.3cm;
+   margin-bottom: 0.3cm;
+   margin-top: 0.3cm;
+   background-color:yellow;
+   width:15em;
+   border: thin solid crimson;
+   margin: 0.2cm;
   }
 div.noteright
   {float: right;
    font-size: 10pt;
    padding: 0.1cm;
    margin-left: 0.3cm;
+   margin-bottom: 0.3cm;
+   margin-top: 0.3cm;
    color:navy;
    background-color:yellow;
    width:15em;
@@ -57,6 +124,8 @@ div.noteleft
    padding: 0.1cm;
    color:navy;
    margin-right: 0.3cm;
+   margin-bottom: 0.3cm;
+   margin-top: 0.3cm;
    background-color:yellow;
    width:15em;
    border: thin solid black;
@@ -66,9 +135,11 @@ div.tipright
   {float: right;
    font-size: 10pt;
    margin-left: 0.3cm;
+   margin-bottom: 0.3cm;
+   margin-top: 0.3cm;
    padding: 0.1cm;
    color:navy;
-   background-color:papayawhip;
+   background-color:aliceblue;
    width:15em;
    border: thin solid green;
   }
@@ -77,22 +148,28 @@ div.tipleft
    font-size: 10pt;
    padding: 0.1cm;
    margin-right: 0.3cm;
+   margin-bottom: 0.3cm;
+   margin-top: 0.3cm;
    color:navy;
-   background-color:papayawhip;
+   background-color:aliceblue;
    width:15em;
    border: thin solid green;
   }
 img.left
   {float:left;
-   margin-right: 1em;
+   margin-right: 0.3cm;
+   margin-bottom: 0.3cm;
+   margin-top: 0.3cm;
   }
 img.right
   {float:right;
-   margin-left: 1em;
+   margin-left: 0.3cm;
+   margin-bottom: 0.3cm;
+   margin-top: 0.3cm;
   }
 iframe
-  {margin-right: 1em;
-   margin-botom: 1em;
+  {margin-bottom: 1em;
+   margin-left: 1em;
    float:left;
    border-top: thick solid brown;
    border-bottom: thick solid brown;
@@ -105,4 +182,13 @@ h1
   }
 h2
   {font-size:14pt;
+  }
+h3
+  {font-size:12pt;
+  }
+dl
+  {
+  }
+dt
+  {font-weight: bold;
   }

@@ -1,0 +1,85 @@
+<html>
+<head>
+<title>Porthole Help</title>
+<link rel="stylesheet" type="text/css" media="screen" href="porthole.css" />
+</head>
+<body>
+<img style='float:left;' src='../pixmaps/porthole-about.png'>
+<div class='toc'>
+<iframe src='toc.html' height=500 width=240 frameborder=0></iframe>
+</div>
+<br>
+<br>
+<br>
+<br>
+<h1>Terms & References</h1>
+<h2>Terms Defined</h2>
+<dl>
+<dt>Arch(itecture)</dt>
+<dd>
+Type of system.
+ &nbsp;Generally, a hardware specific distinction such as 64-bit processor or
+a mainframe.
+ &nbsp;Supported architectures are documented in <a target='_blank' 
+href='/usr/portage/profiles/arch.list'>/usr/portage/profiles/arch.list</a>
+</dd>
+<dt>Ebuild</dt>
+<dd>The script that installs a package,
+ specifies package dependencies, use flags and architectures that it supports or
+is unstable on.
+ &nbsp;See <i>Masked</i>.
+</dd>
+<dt>Keyword</dt>
+<dd>The architecture supported.  If it is masked it will be preceded by
+ a tilde (~).
+ &nbsp;Supported keywords are documented in <a target='_blank' 
+href='/usr/portage/profiles/keywords.desc'>/usr/portage/profiles/keywords.desc</a>
+</dd>
+<dt>Masked</dt>
+<dd>
+A package that for some reason should not be installed
+without first examining it's deficiencies.
+ &nbsp;Masks can be for all architectures or just for specific architectures.
+ &nbsp;Packages can be masked for several reasons:
+<ul>
+<li>Basic software is not stable (that is to say, buggy)
+<li>Problems with the ebuild
+<li>Depends on obsolete/unstable packages
+<li>Not supported under a particular architecture
+</ul>
+ &nbsp;Masks can be set in one of the following locations:
+<ul>
+<li>Ebuild - Set by author
+<li><a target='_blank' href='/usr/portage/profiles/package.mask'>
+/usr/portage/profiles/package.mask</a> - Set by Gentoo package manager
+<li><a target='_blank' href='/etc/'>/etc/?</a>
+</ul>
+</dd>
+<dt>Package</dt>
+<dd>
+The aggregate files and settings used to install a set of software.
+ &nbsp;Package information is stored in <a target='_blank'
+ href='/usr/portage'>/usr/portage</a>.
+</dd>
+<dt>Use Flag</dt>
+<dd>
+Use flags exist to provide a customized installation of packages.
+ &nbsp;Two of the most commony used flags are kde and gnome.
+ &nbsp;When set, these tell the package to provide custom support
+for gnome and/or kde.
+ &nbsp;You can set use flags permanently in <a target = '_blank'
+ href='/etc/make.conf'>/etc/make.conf</a>. 
+ &nbsp;Use flags descriptions and purpose are documented in:
+<ul>
+<li><a target='_blank' href='/usr/portage/profiles/use.desc'>
+/usr/portage/profiles/use.desc</a> (global)
+<li><a target='_blank' href='/usr/portage/profiles/use.desc'>
+/usr/portage/profiles/use.local.desc</a> (package specific)
+</ul> 
+</dd>
+</dl> 
+<h2>References</h2>
+<ul>
+<li><a href='http://www.gentoo.org/doc/en/handbook/handbook-x86.xml?part=2'>
+Gentoo Handbook Chapter 2 - Working with Gentoo</a> - excellent resource on
+ use flags and portage in general.
