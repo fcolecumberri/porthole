@@ -25,6 +25,7 @@ import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, gobject
 import portagelib
 
+from depends import DependsTree
 from utils import get_treeview_selection, get_icon_for_package
 
 class CommonTreeView(gtk.TreeView):
@@ -207,4 +208,25 @@ class CategoryView(CommonTreeView):
             # store full category name in hidden field
             self.model.set_value(sub_cat_iter, 1, cat)
 
+class DependsView(CommonTreeView):
+    """ Store dependency information """
+    def __init__(self):
+        """ Initialize """
+        # initialize the treeview
+        CommonTreeView.__init__(self)
+        # setup the column
+        column = gtk.TreeViewColumn("Dependencies")
+        pixbuf = gtk.CellRendererPixbuf()
+        column.pack_start(pixbuf, expand = False)
+        column.add_attribute(pixbuf, "pixbuf", 1)
+        text = gtk.CellRendererText()
+        column.pack_start(text, expand = True)
+        column.add_attribute(text, "text", 0)
+        self.append_column(column)
+        # setup the model
+        self.model = DependsTree()
+
+    def fill_depends_tree(self, treeview, package):
+        """ Fill the dependency tree with dependencies """
+        self.model.fill_depends_tree(treeview, package)
 

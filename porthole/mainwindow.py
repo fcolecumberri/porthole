@@ -31,7 +31,7 @@ from depends import DependsTree
 from utils import load_web_page, get_icon_for_package, is_root, dprint, get_treeview_selection
 from process import ProcessWindow
 from summary import Summary
-from views import CategoryView, PackageView
+from views import CategoryView, PackageView, DependsView
 
 class MainWindow:
     """Main Window class to setup and manage main window interface."""
@@ -61,7 +61,6 @@ class MainWindow:
         self.wtree.signal_autoconnect(callbacks)
         # aliases for convenience
         self.notebook = self.wtree.get_widget("notebook")
-        self.deps_view = self.wtree.get_widget("depend_view")
         #set unfinished items to not be sensitive
         self.wtree.get_widget("view_statistics1").set_sensitive(gtk.FALSE)
         self.wtree.get_widget("contents2").set_sensitive(gtk.FALSE)
@@ -72,10 +71,13 @@ class MainWindow:
         self.category_view = CategoryView()
         self.category_view.register_callback(self.category_changed)
         self.wtree.get_widget("category_scrolled_window").add(self.category_view)
-        #setup the package treeview
+        # setup the package treeview
         self.package_view = PackageView()
         self.package_view.register_callbacks(self.package_changed)
         self.wtree.get_widget("package_scrolled_window").add(self.package_view)
+        # setup the dependency treeview
+        self.deps_view = DependsView()
+        self.wtree.get_widget("dependencies_scrolled_window").add(self.deps_view)
         #setup sudo use
         self.use_sudo = -1
         #want to use -p option for pretend?
@@ -85,22 +87,8 @@ class MainWindow:
         self.summary = Summary()
         scroller.add(self.summary)
         self.summary.show()
-        # dependency treeview
-        self.depends = DependsTree() 
         #declare the database
         self.db = None
-        #set dependency treeview header
-        depend_column = gtk.TreeViewColumn("Dependencies")
-        depend_pixbuf = gtk.CellRendererPixbuf()
-        depend_column.pack_start(depend_pixbuf, expand = False)
-        depend_column.add_attribute(depend_pixbuf, "pixbuf", 1)
-        depend_text = gtk.CellRendererText()
-        depend_column.pack_start(depend_text, expand = True)
-        depend_column.add_attribute(depend_text, "text", 0)
-        self.deps_view.append_column(depend_column)
-        self.depend_model = gtk.TreeStore(gobject.TYPE_STRING,
-                                           gtk.gdk.Pixbuf,
-                                           gobject.TYPE_PYOBJECT) # Package
         #move horizontal and vertical panes
         self.wtree.get_widget("hpane").set_position(280)
         self.wtree.get_widget("vpane").set_position(250)
@@ -285,15 +273,15 @@ class MainWindow:
         #if the user is looking at the deps we need to update them
         notebook = self.wtree.get_widget("notebook")
         if notebook.get_current_page() == 1:
-            self.depends.fill_depends_tree(self.deps_view, package)
+            self.deps_view.fill_depends_tree(self.deps_view, package)
         self.set_package_actions_sensitive(gtk.TRUE)
 
     def notebook_changed(self, widget, pointer, index):
         """Catch when the user changes the notebook"""
         if index == 1:
             #fill the deps view!
-            package = self.get_treeview_selection(self.package_view, 2)
-            self.depends.fill_depends_tree(self.deps_view, package)
+            package = get_treeview_selection(self.package_view, 2)
+            self.deps_view.fill_depends_tree(self.deps_view, package)
 
     SHOW_ALL = 0
     SHOW_INSTALLED = 1
@@ -321,7 +309,7 @@ class MainWindow:
             self.fill_upgrade_results()
             self.package_view.set_view(self.package_view.UPGRADABLE)
         self.set_package_actions_sensitive(gtk.FALSE)
-        self.depends.clear()
+        self.deps_view.clear()
 
     def fill_upgrade_results(self):
         """fill upgrade tree"""
