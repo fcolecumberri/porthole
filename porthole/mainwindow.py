@@ -1003,7 +1003,7 @@ class MainWindow:
             if not self.ut:
                 dprint("MAINWINDOW: attempt to update status bar with no upgrade thread assigned")
             else:
-                text = _("%d world, %d dependency's" % (self.ut.world_count,
+                text = _("%d world, %d dependencies" % (self.ut.world_count,
                                                          self.ut.dep_count))
 
         self.set_statusbar2(self.status_root + text)
