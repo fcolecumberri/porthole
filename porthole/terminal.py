@@ -72,9 +72,13 @@ TAB_LABELS = ["Process", "Warnings", "Cautions", "Information", "Emerge queue"]
 
 class ProcessManager:
     """ Manages queued and running processes """
-    def __init__(self, env = {}, prefs = None, config = None):
+    def __init__(self, env = {}, prefs = None, config = None, log_mode = False):
         """ Initialize """
-        self.title = "Porthole-Terminal"
+        if log_mode:
+            self.title = "Porthole Log Viewer"
+        else:
+            self.title = "Porthole-Terminal"
+        self.log_mode = log_mode
         # copy the environment and preferences
         self.env = env
         self.prefs = prefs
@@ -271,6 +275,8 @@ class ProcessManager:
 
         # text mark to mark the start of the current command
         self.command_start = None
+        # set the window title
+        self.window.set_title(self.title)
         # flag that the window is now visible
         self.window_visible = True
         if self.prefs:
@@ -422,6 +428,7 @@ class ProcessManager:
 
     def destroy_window(self, widget):
         """ Destroy the window when the close button is pressed """
+        dprint("TERMINAL: close button clicked... destroying now")
         self.window.destroy()
 
     def on_process_window_destroy(self, widget, data = None):
@@ -439,6 +446,16 @@ class ProcessManager:
 
     def kill(self):
         """Kill process."""
+        if self.log_mode:
+            self.reader.file_input = False
+            dprint("LOG: kill() wait for reader to notice")
+            # wait for ProcessOutputReader to notice
+            time.sleep(.5)
+            dprint("LOG: kill() -- self.reader.f.close()")
+            self.reader.f.close()
+            self.file_input = False
+            dprint("LOG: leaving kill()")
+            return
         # If started and still running
         if self.pid and not self.killed:
             try:
@@ -452,6 +469,8 @@ class ProcessManager:
             if self.queue_tab.showing:
                 # update the queue tree
                 self.queue_clicked(self.queue_tree)
+        dprint("TERMINAL: leaving kill()")
+        return
 
     def append(self, buffer, text, tagname = None):
         """ Append text to a text buffer.  Line numbering based on
@@ -570,12 +589,13 @@ class ProcessManager:
                 elif ord(char) == 13: # carriage return?
                     pass
         self.reader.string = ""
-        if self.file_input and not self.reader.file_input:
+        #dprint("TERMINAL: update() checking file input/reader finished")
+        if self.file_input and not self.reader.file_input: # reading file finished
+            dprint("LOG: update()... end of file input... cleaning up")
             self.process_text.set_modified(gtk.FALSE)
-            if self.warning_count != 0:
-                self.append(self.info_text, "*** Total warnings count for merge = %d \n"\
-                            %self.warning_count, 'warning')
+            self.finish_update()
             self.set_statusbar("*** Log loading complete : %s" % self.filename)
+            self.reader.f.close()
             self.file_input = False
         # unlock the string
         self.reader.string_locked = False
@@ -595,20 +615,7 @@ class ProcessManager:
         self.statusbar.pop(0)
         self.statusbar.push(0, string)
 
-    def process_done(self):
-        """ Remove the finished process from the queue, and
-        start the next one if there are any more to be run"""
-        # if the last process was killed, stop until the user does something
-        if self.killed:
-            # display message that process has been killed
-            self.append_all(KILLED_STRING,True)
-            self.set_statusbar(KILLED_STRING[:-1])
-            return
-            
-        # If the user did an emerge --pretend, we print out
-        # estimated build times on the output window
-        if self.isPretend:
-            self.estimate_build_time()
+    def finish_update(self):
         if self.warning_count != 0:
             self.append(self.info_text, "*** Total warnings count for merge = %d \n"\
                         %self.warning_count, 'warning')
@@ -623,6 +630,23 @@ class ProcessManager:
                 self.show_tab(TAB_INFO)
                 self.info_tab.showing = True
                 self.info_text.set_modified(gtk.TRUE)
+        return
+
+    def process_done(self):
+        """ Remove the finished process from the queue, and
+        start the next one if there are any more to be run"""
+        # if the last process was killed, stop until the user does something
+        if self.killed:
+            # display message that process has been killed
+            self.append_all(KILLED_STRING,True)
+            self.set_statusbar(KILLED_STRING[:-1])
+            return
+            
+        # If the user did an emerge --pretend, we print out
+        # estimated build times on the output window
+        if self.isPretend:
+            self.estimate_build_time()
+        self.finish_update()
         # display message that process finished
         self.append_all(TERMINATED_STRING,True)
         self.set_statusbar(TERMINATED_STRING[:-1])
@@ -646,6 +670,7 @@ class ProcessManager:
             self.save_menu.set_sensitive(gtk.TRUE)
             self.save_as_menu.set_sensitive(gtk.TRUE)
             self.open_menu.set_sensitive(gtk.TRUE)
+
         # if there is a callback set, call it
         if callback:
             callback()
@@ -660,16 +685,22 @@ class ProcessManager:
 
     def kill_process(self, widget):
         """ Kill currently running process """
-        if not self.reader.process_running:
+        if not self.reader.process_running and not self.file_input:
             dprint("TERMINAL: No running process to kill!")
             return
         self.kill()
-        # set the queue icon to killed
-        iter = self.process_list[0][2]
-        self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_CANCEL))
-        # set the resume buttons to sensitive
-        self.resume_menu.set_sensitive(gtk.TRUE)
-
+        if self.log_mode:
+            dprint("LOG: set statusbar -- log killed")
+            self.set_statusbar("***Log Process Killed!")
+        else:
+            # set the queue icon to killed
+            iter = self.process_list[0][2]
+            self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_CANCEL))
+            # set the resume buttons to sensitive
+            self.resume_menu.set_sensitive(gtk.TRUE)
+        dprint("TERMINAL: leaving kill_process")
+        return
+    
     def resume_normal(self, widget):
         """ Resume killed process """
         # pass the normal command along with --resume
@@ -905,6 +936,7 @@ class ProcessManager:
             FileSel(self.title + ": Open log File").run(None,
                                                         self.directory+"*.log",
                                                         self.open_ok_func)
+        dprint("LOG: leaving do_open")
 
     def do_save_as(self, widget):
         """determine buffer to save as and saves it"""
@@ -963,7 +995,7 @@ class ProcessManager:
         """sets the starting directory for file selection"""
         if not self.directory:
             # no directory was specified, so we are making one up
-            dprint("LOG: directory not specified, saving to ~/.porthole/logs")
+            dprint("LOG: directory not specified, setting to ~/.porthole/logs")
             self.directory = get_user_home_dir()
             if os.access(self.directory + "/.porthole", os.F_OK):
                 if not os.access(self.directory + "/.porthole/logs", os.F_OK):
@@ -1020,25 +1052,6 @@ class ProcessManager:
         self.file_input = True
         self.reader.file_input = True
         return gtk.TRUE
-##
-##        if not self.reader.string_locked:
-##            self.file_input = True
-##            self.reader.string_locked = True
-##            self.reader.string = f.read()
-##            f.close()
-##            self.reader.string_locked = False
-##            #self.set_statusbar("*** Log loading complete : %s" % self.filename)
-##            dprint("LOG: Leaving fill_buffer")
-##            return gtk.TRUE
-##        else:
-##            err = "Error: 'reader.string' currently locked, ensure no process is running"
-##            dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
-##                                       gtk.MESSAGE_INFO,
-##                                       gtk.BUTTONS_OK, err);
-##            result = dialog.run()
-##            dialog.destroy()
-##            return gtk.FALSE
-            
 
     def save_buffer(self):
         """save the contens of the buffer"""
@@ -1227,6 +1240,7 @@ class ProcessOutputReader(threading.Thread):
                     # clean up, process is terminated
                     self.process_running = False
                     while self.string != "":
+                        dprint("TERMINAL ProcessOutputReader: waiting for update to finish")
                         # wait for update_callback to finish
                         time.sleep(.5)
                     if self.file_input:

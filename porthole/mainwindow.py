@@ -119,7 +119,7 @@ class MainWindow:
             # let the user know if he can emerge or not
             self.check_for_root()
         # create and start our process manager
-        self.process_manager = ProcessManager(environment(), self.prefs, self.config)
+        self.process_manager = ProcessManager(environment(), self.prefs, self.config, False)
         dprint("MAIN: Showing main window")
 
     def init_data(self):
@@ -583,7 +583,7 @@ class MainWindow:
 
     def open_log(self, widget):
         """ Open a log of a previous emerge in a new terminal window """
-        newterm = ProcessManager(environment(), self.prefs, self.config)
+        newterm = ProcessManager(environment(), self.prefs, self.config, True)
         newterm.do_open(widget)
 
     def custom_run(self, widget):
