@@ -1,10 +1,14 @@
 Porthole Release Feature Schedule
 
-Release 0.4
+
+
+Release 0.4.?
 - Show ebuild source code
 - Updating the info for a selected package in a separate thread may make the gui more responsive
 - Faster dependency calculations by only partially loading the tree
-- USE flags editor (possibly)
+- USE flags & features editor(s) (being worked on)
+- Look into caching the allnodes package list as portage-2.0.51 and newer no longer cache virtuals
+- Remove the view selector and integrate them with the categories. 
 
 Release 0.5
 - integrate portages new API into porthole replacing portaglib (when ready)
@@ -25,6 +29,9 @@ Features for future consideration
 
 - Adding chroot ability to the terminal and mainwindow database.  This would allow porthole to
   be used for some install purposes.  Or help in using porthole to do remote work.
+
+- Possibly re-write porthole terminal in c to fully integrate the vte terminal widget which will
+  be able to do chroot & su easily. 
 
 - Advanced filter/search capabilities
   -- specific architecture

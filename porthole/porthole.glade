@@ -1,7 +1,7 @@
 <?xml version="1.0" standalone="no"?> <!--*- mode: xml -*-->
 <!DOCTYPE glade-interface SYSTEM "http://glade.gnome.org/glade-2.0.dtd">
 
-<glade-interface>
+<glade-interface> 
 
 <widget class="GtkWindow" id="main_window">
   <property name="visible">True</property>
@@ -1652,7 +1652,6 @@ Copyright (C) 2003 - 2004</property>
 
 		      <child>
 			<widget class="GtkButton" id="kill">
-			  <property name="height_request">19</property>
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="relief">GTK_RELIEF_NORMAL</property>

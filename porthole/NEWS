@@ -1,4 +1,56 @@
-0.3.2:
+
+0.4.0:
+
+    * updated to use the new & pre portage-2.0.51 as the world file is relocated
+      as of 2.0.51
+
+    * Added an internal progress bar in a second statusbar on the main window.
+      I will probably merge the 2 statusbars in the future, depending on feedback.
+      The new progress bar does not tie up the gui from any other interation like
+      the dialog box did until it was closed.
+      
+    * Advanced emerge toolbar option & dialog giving fairly easy access to most
+      advanced emrge features & options.  TOC worked hard on this one and I think
+      he did a great job on it.
+      
+    * Help is now working with a good start on the basics and help on the advanced
+      emerge options.
+      
+    * The web browser is now opened from a threaded function call so that it does not
+      tie up the gui untill it is closed.  It also is used to open a browser to the
+      help files that are now in porthole.
+      
+    * Database reloads can be manually activated by menu option.  Good for when an
+      emerge has taken place independantly from an open porthole session.
+      
+     * Portage modules imported into porthole can be manually reloaded in order for
+       porthole to see changes in /etc/make.conf, etc.  Also usefull if portage was
+       updated to a new version .  It will reload the new version just emerged.
+       
+     * Added pycrash detection and inclusion into porthole.  Can be very usefull for
+       debugging.
+       
+     * Selectable upgrades only or standard upgrade/downgrade upgrades list selection
+
+     * Intermittent autoscroll bug now fixed.
+     
+     * Porthole now uses a semaphore system to prevent collisions accessing or modifying
+       variables by different/threaded program modules, functions.   It has helped prevent
+       many of the crashes/segfaults.
+       
+     * gettext internationalization support now started.  Most text strings are now marked,
+       readying for full translation/localization.
+
+     * improved terminal output, so that wget, etc. display their progress bar, etc.
+     
+     * numerous other bug fixes.
+     
+     * Changed the default window size to something quite small.  For those that start porthole
+       in lower resolutions.  It remembers any size changes between sessions anyway.
+
+     * Added  a -h, --help option to portholes command line interface
+
+0.3.2:  Did not make it to an actual release
 
     * Combination bugfix & feature improvement release
 

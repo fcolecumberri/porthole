@@ -22,8 +22,8 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 """
 
-from sys import exit
 from utils import dprint, dsave
+from sys import exit
 import string
 from string import digits, zfill
 from gettext import gettext as _
@@ -357,16 +357,17 @@ class DatabaseReader(threading.Thread):
         tree = portage.db['/']['porttree']
         self.get_installed()
         try:
-            dprint("PORTAGELIB: read_db(); allnodes")
+            dprint("PORTAGELIB: read_db(); getting allnodes package list")
             allnodes = tree.getallnodes()
+	    dprint("PORTAGELIB: read_db(); Done getting allnodes package list")
         except OSError, e:
             # I once forgot to give read permissions
             # to an ebuild I created in the portage overlay.
             self.error = str(e)
             return
 	self.allnodes_length = len(allnodes)
-        #dprint("PORTAGELIB: read_db() begin {for entry in allnodes length=%d" %len(allnodes))
-        #dsave("read_db_allnodes", allnodes)
+        dprint("PORTAGELIB: read_db() create internal porthole list; length=%d" %len(allnodes))
+        #dsave("db_allnodes_cache", allnodes)
         for entry in allnodes:
                 category, name = entry.split('/')
                 # why does getallnodes() return timestamps?
@@ -381,7 +382,7 @@ class DatabaseReader(threading.Thread):
                     self.db.installed.setdefault(category, {})[name] = data;
                     self.db.installed_count += 1
                 self.db.list.append((name, data))
-        dprint("PORTAGELIB: read_db(); end of {for entry in allnodes loop}, sort is next")
+        dprint("PORTAGELIB: read_db(); end of list build; sort is next")
         self.db.list = sort(self.db.list)
 
     def get_installed(self):

@@ -51,8 +51,8 @@ class MainWindow:
         self.wtree = gtk.glade.XML(self.gladefile, "main_window")
         # register callbacks  note: gtk.mainquit deprecated
         callbacks = {
-            "on_main_window_destroy" : gtk.main_quit,
-            "on_quit1_activate" : gtk.main_quit,
+            "on_main_window_destroy" : self.goodbye,
+            "on_quit1_activate" : self.quit,
             "on_emerge_package" : self.emerge_package,
             "on_adv_emerge_package" : self.adv_emerge_package,
             "on_unmerge_package" : self.unmerge_package,
@@ -78,6 +78,7 @@ class MainWindow:
             }
         self.wtree.signal_autoconnect(callbacks)
         # aliases for convenience
+	self.mainwindow = self.wtree.get_widget("main_window")
         self.notebook = self.wtree.get_widget("notebook")
         self.changelog = self.wtree.get_widget("changelog").get_buffer()
         self.installed_files = self.wtree.get_widget(
@@ -115,12 +116,22 @@ class MainWindow:
         if self.prefs.main.search_desc:
             self.wtree.get_widget("search_descriptions1").set_active(gtk.TRUE)
         # restore last window width/height
-        self.wtree.get_widget("main_window").resize(self.prefs.main.width,
+        self.mainwindow.resize(self.prefs.main.width,
                                                     self.prefs.main.height)
-        # move horizontal and vertical panes
+        # setup a convienience tuple
+	self.tool_widgets = ["emerge_package1","adv_emerge_package1","unmerge_package1","btn_emerge",
+			     "btn_adv_emerge","btn_unmerge"]
+	self.widget = {}
+	for x in self.tool_widgets:
+		self.widget[x] = self.wtree.get_widget(x)
+		if not self.widget[x]:
+			dprint("MAINWINDOW: __init__(); Failure to obtain widget '%s'" %x)
+	# move horizontal and vertical panes
         #dprint("MAINWINDOW: __init__() before hpane; %d, vpane; %d" %(self.prefs.main.hpane, self.prefs.main.vpane))
         self.wtree.get_widget("hpane").set_position(self.prefs.main.hpane)
         self.wtree.get_widget("vpane").set_position(self.prefs.main.vpane)
+	# Intercept the window delete event signal
+	self.mainwindow.connect('delete-event', self.confirm_delete)
         # initialize some variable to fix the hpane jump bug
         self.hpane_bug_count = 0
         self.hpane_bug = True
@@ -141,10 +152,11 @@ class MainWindow:
     def init_data(self):
         # set things we can't do unless a package is selected to not sensitive
         self.set_package_actions_sensitive(gtk.FALSE)
-        self.category_view.clear()  # clear just in case it's populated
+        #self.category_view.clear()  # clear just in case it's populated
         # clear search results
-        if self.wtree.get_widget("view_filter").get_history() != self.SHOW_SEARCH:
-            self.package_view.clear()
+        #if self.wtree.get_widget("view_filter").get_history() != self.SHOW_SEARCH:
+        #    self.package_view.clear()
+	dprint("MAINWINDOW: init_data(); Initializing data")
         # upgrades loaded?
         self.upgrades_loaded = False
         # upgrade loading callback
@@ -162,13 +174,13 @@ class MainWindow:
         # declare the database
         self.db = None
         # load the db
+	self.dbtime = 0
         self.db_thread = portagelib.DatabaseReader()
         self.db_thread.start()
         self.reload = False
         self.db_timeout = gtk.timeout_add(100, self.update_db_read)
         # set status
-        self.set_statusbar(_("Reading package database: %i packages read"
-                           % 0))
+        self.set_statusbar(_("Obtaining package list "))
 	self.set_statusbar2(_("Loading database"))
 	self.progressbar = self.wtree.get_widget("progressbar1")
 	self.wtree.get_widget("btn_cancel").set_sensitive(False)
@@ -185,14 +197,14 @@ class MainWindow:
 	# test to reset portage
 	#portagelib.reload_portage()
         # load the db
+	self.dbtime = 0
         self.db_thread = portagelib.DatabaseReader()
         self.db_thread.start()
         #test = 87/0  # used to test pycrash is functioning
         self.reload = True
         self.db_timeout = gtk.timeout_add(100, self.update_db_read)
         # set status
-        self.set_statusbar(_("Reading package database: %i packages read"
-                           % 0))
+        self.set_statusbar(_("Obtaining package list "))
         self.set_statusbar2(_("Reloading database"))
 
     def pkg_path_callback(self, path):
@@ -205,7 +217,7 @@ class MainWindow:
         """figure out if the user can emerge or not..."""
         if not self.is_root:
             self.no_root_dialog = SingleButtonDialog(_("You are not root!"),
-                            self.wtree.get_widget("main_window"),
+                            self.mainwindow,
                             _("You will not be able to emerge, unmerge,"
                             " upgrade or sync!"),
                             self.remove_nag_dialog,
@@ -231,12 +243,16 @@ class MainWindow:
 
     def update_db_read(self):
         """Update the statusbar according to the number of packages read."""
-        count = 0
+        #count = 0
         if not self.db_thread.done:
-            self.set_statusbar(_("Reading package database: %i packages read"
-                               % self.db_thread.count))
-            count = self.db_thread.count
-	    fraction = min(1.0, max(0,count / float(self.prefs.database_size)))
+	    self.dbtime += 1
+	    if self.db_thread.count > 0:
+		self.set_statusbar(_("Reading package database: %i packages read"
+				     % self.db_thread.count))
+            #count = self.db_thread.count
+	    #dprint("self.prefs.dbtime = ")
+	    #dprint(self.prefs.dbtime)
+	    fraction = min(1.0, max(0,(self.dbtime / float(self.prefs.dbtime))))
             self.progressbar.set_text(str(int(fraction * 100)) + "%")
 	    self.progressbar.set_fraction(fraction)
 
@@ -246,8 +262,9 @@ class MainWindow:
             self.set_statusbar(self.db_thread.error.decode('ascii', 'replace'))
             return gtk.FALSE  # disconnect from timeout
         else: # db_thread is done
-	    self.prefs.database_size = self.db_thread.allnodes_length
-	    self.progress_done()
+	    self.db_save_variables()
+            self.progressbar.set_text("100%")
+	    self.progressbar.set_fraction(1.0)
             #~ dprint("MAINWINDOW: db_thread is done...")
             #~ dprint("MAINWINDOW: db_thread.join...")
             #~ self.db_thread.join()
@@ -302,9 +319,30 @@ class MainWindow:
                 self.view_filter_changed(view_filter)
             dprint("MAINWINDOW: Made it thru a reload, returning...")
             self.reload = False
+	    self.progress_done()
             return gtk.FALSE  # disconnect from timeout
-        #~ dprint("MAINWINDOW: returning from update_db_read() count=%d" %count)
+        #dprint("MAINWINDOW: returning from update_db_read() count=%d dbtime=%d"  %(count, self.dbtime))
         return gtk.TRUE
+
+    def db_save_variables(self):
+	"""recalulates and stores persistent database variables into the prefernces"""
+	self.prefs.database_size = self.db_thread.allnodes_length
+	# store only the last 10 reload times
+	if len(self.prefs.dbtotals)==10:
+	    self.prefs.dbtotals = self.prefs.dbtotals[1:]+[str(self.dbtime)]
+	else:
+	    self.prefs.dbtotals += [str(self.dbtime)]
+	# calculate the average time to use for the progress bar calculations
+	total = 0
+	count = 0
+	for time in self.prefs.dbtotals:
+	    total += int(time)
+	    count += 1
+	#dprint("MAINWINDOW: db_save_variables(); total = %d : count = %d" %(total,count))
+	self.prefs.dbtime = int(total/count)
+	dprint("MAINWINDOW: db_save_variables(); dbtime = %d" %self.dbtime)
+	dprint("MAINWINDOW: db_save_variables(); new average load time = %d cycles" %self.prefs.dbtime)
+
 
     def setup_command(self, package_name, command):
         """Setup the command to run or not"""
@@ -321,7 +359,7 @@ class MainWindow:
         else:
             dprint("MAIN: Sorry, you aren't root! -> " + command)
             self.sorry_dialog = SingleButtonDialog(_("You are not root!"),
-                    self.wtree.get_widget("main_window"),
+                    self.mainwindow,
                     _("Please run Porthole as root to emerge packages!"),
                     None, "_Ok")
             return 0
@@ -412,7 +450,7 @@ class MainWindow:
         else:
             dprint("MAIN: Upgrades not loaded; upgrade world?")
             self.upgrades_loaded_dialog = YesNoDialog(_("Upgrade requested"),
-                    self.wtree.get_widget("main_window"),
+                    self.mainwindow,
                     _("Do you want to upgrade all packages in your world file?"),
                      self.upgrades_loaded_dialog_response)
 
@@ -430,7 +468,7 @@ class MainWindow:
     def load_descriptions_list(self):
         """ Load a list of all descriptions for searching """
         self.desc_dialog = SingleButtonDialog(_("Please Wait!"),
-                self.wtree.get_widget("main_window"),
+                self.mainwindow,
                 _("Loading package descriptions..."),
                 self.desc_dialog_response, "_Cancel", True)
         self.desc_thread = DescriptionReader(self.db.list)
@@ -681,7 +719,7 @@ class MainWindow:
     def load_upgrades_list(self):
         # upgrades are not loaded, create dialog and load them
         #~ self.wait_dialog = SingleButtonDialog("Please Wait!",
-                #~ self.wtree.get_widget("main_window"),
+                #~ self.mainwindow,
                 #~ "Loading upgradable packages list...",
                 #~ self.wait_dialog_response, "_Cancel", True)
         self.set_statusbar2(_("Loading upgradable"))
@@ -741,7 +779,7 @@ class MainWindow:
 
     def update_statusbar(self, mode):
         """Update the statusbar for the selected filter"""
-        text = _("(undefined) Statusbar not yet available for this view")
+        text = _("")
         if mode == self.SHOW_ALL:
             if not self.db:
                 dprint("MAINWINDOW: attempt to update status bar with no db assigned")
@@ -761,20 +799,20 @@ class MainWindow:
     def set_package_actions_sensitive(self, enabled, package = None):
         """Sets package action buttons/menu items to sensitive or not"""
         #dprint("MAINWINDOW: set_package_actions_sensitive(%d)" %enabled)
-        self.wtree.get_widget("emerge_package1").set_sensitive(enabled)
-        self.wtree.get_widget("adv_emerge_package1").set_sensitive(enabled)
-        self.wtree.get_widget("unmerge_package1").set_sensitive(enabled)
-        self.wtree.get_widget("btn_emerge").set_sensitive(enabled)
-        self.wtree.get_widget("btn_adv_emerge").set_sensitive(enabled)
+        self.widget["emerge_package1"].set_sensitive(enabled)
+        self.widget["adv_emerge_package1"].set_sensitive(enabled)
+        self.widget["unmerge_package1"].set_sensitive(enabled)
+        self.widget["btn_emerge"].set_sensitive(enabled)
+        self.widget["btn_adv_emerge"].set_sensitive(enabled)
         if not enabled or enabled and package.is_installed:
             #dprint("MAINWINDOW: set_package_actions_sensitive() setting unmerge to %d" %enabled)
-            self.wtree.get_widget("btn_unmerge").set_sensitive(enabled)
-            self.wtree.get_widget("unmerge_package1").set_sensitive(enabled)
+            self.widget["btn_unmerge"].set_sensitive(enabled)
+            self.widget["unmerge_package1"].set_sensitive(enabled)
         else:
             #dprint("MAINWINDOW: set_package_actions_sensitive() setting unmerge to %d" %(not enabled))
-            self.wtree.get_widget("btn_unmerge").set_sensitive(not enabled)
+            self.widget["btn_unmerge"].set_sensitive(not enabled)
             
-            self.wtree.get_widget("unmerge_package1").set_sensitive(not enabled)
+            self.widget["unmerge_package1"].set_sensitive(not enabled)
         self.notebook.set_sensitive(enabled)
 
     def size_update(self, widget, gbox):
@@ -829,6 +867,40 @@ class MainWindow:
 	    self.package_view.set_cursor(self.current_package_cursor[0],
 	    self.current_package_cursor[1])
 
+    def quit(self, widget):
+	if not self.confirm_delete():
+		self.goodbye(None)
+	return
+
+    def goodbye(self, widget):
+	"""Main window quit function"""
+	dprint("MAINWINDOW: goodbye(); quiting now")
+	try: # for >=pygtk-2.3.94
+	    dprint("MAINWINDOW: gtk.main_quit()")
+	    gtk.main_quit()
+	except: # use the depricated function
+	    dprint("MAINWINDOW: gtk.mainquit()")
+	    gtk.mainquit
+
+    def confirm_delete(self, widget = None, *event):
+	"""Check that there are no running processes & confirm the kill before doing it"""
+	if self.process_manager.task_completed:
+	    return False
+	err = _("Confirm: Kill the Running Process in the Terminal")
+        dialog = gtk.MessageDialog(self.mainwindow, gtk.DIALOG_MODAL,
+                                gtk.MESSAGE_QUESTION,
+                                gtk.BUTTONS_YES_NO, err);
+        result = dialog.run()
+        dialog.destroy()
+        if result != gtk.RESPONSE_YES:
+	    dprint("TERMINAL: kill(); not killing")
+            return True
+	#self.process_manager.confirm = False
+	if self.process_manager.kill_process(None, False):
+	    dprint("MAINWINDOW: process killed, destroying window")
+	    self.process_manager.window.hide()
+	return False
+
 class CommonReader(threading.Thread):
     """ Common data reading class that works in a seperate thread """
     def __init__(self):
@@ -871,7 +943,16 @@ class UpgradableReader(CommonReader):
         # read system world file
         # using this file, only packages explicitly installed by
         # the user are upgraded by default
-        world = open("/var/cache/edb/world", "r").read().split()
+	try:
+	    world = open("/var/lib/portage/world", "r").read().split()
+	except:
+	    dprint("MAINWINDOW: UpgradableReader(); Failure to locate file: '/var/lib/portage/world'")
+	    dprint("MAINWINDOW: UpgradableReader(); Trying '/var/cache/edb/world'")
+	    try:
+	        world = open("/var/cache/edb/world", "r").read().split()
+		dprint("OK")
+	    except:
+		dprint("MAINWINDOW: UpgradableReader(); Failed to locate the world file")
         # add the packages to the treemodel
         for full_name, package in installed:
             iter = self.upgrade_results.insert_before(None, None)

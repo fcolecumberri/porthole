@@ -1,4 +1,4 @@
-Porthole 0.3.2 (June 3, 2004)
+Porthole 0.4.0 (Oct ?, 2004)
 ===========================
 
 Porthole is a GTK-based frontend for Portage (the Gentoo package
@@ -37,6 +37,9 @@ Porthole requires:
 >=PyGTK-2 and libglade-2
 >=pyxml-0.8.3
 and, of course, Portage
+
+Optional at runtime:
+>=pycrash-0.4_pre3
 
 
 to install:

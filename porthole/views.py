@@ -180,6 +180,12 @@ class PackageView(CommonTreeView):
                         # correct place in the code to display properly
                         # get the position in the tree and save it instead
         
+    #~ def set_all(self, treeview, selected, checklist):
+	#~ """ Sets all (up/down)gradeable packages to value of (selected) accoring to
+	    #~ the checklist[]""" 
+	#~ for len(treeview)
+	#~ self.upgrade_model.set_value(iter, 1, selected)
+
 class CategoryView(CommonTreeView):
     """ Self contained treeview to hold categories """
     def __init__(self):

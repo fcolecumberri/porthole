@@ -513,10 +513,23 @@ class PortholePreferences:
            self.emerge.nospinner = dom.getitem('/emerge/options/nospinner')
         except XMLManagerError:
            pass
-        try:
+
+	# Misc. variables
+
+	try:
            self.database_size = dom.getitem('/database/size')
         except XMLManagerError:
-           self.database_size = 100
+           self.database_size = 7000
+        try:
+           self.dbtime = dom.getitem('/database/dbtime')
+	   #dprint("UTILS: __init__(); self.dbtime =")
+	   #dprint(self.dbtime)
+        except XMLManagerError:
+           self.dbtime = 50
+        try:
+           self.dbtotals = dom.getitem('/database/dbtotals')
+        except XMLManagerError:
+           self.dbtotals = []
         
         # All prefs now loaded or defaulted
         del dom   # no longer needed, release memory
@@ -558,6 +571,9 @@ class PortholePreferences:
         dom.additem('/emerge/options/upgradeonly', self.emerge.upgradeonly)
         dom.additem('/emerge/options/nospinner', self.emerge.nospinner)
 	dom.additem('/database/size', self.database_size)
+	#dprint("UTILS: save(); self.dbtime = %d" %self.dbtime)
+	dom.additem('/database/dbtime', self.dbtime)
+	dom.additem('/database/dbtotals', self.dbtotals)
         dom.save(self.__PFILE)
         del dom   # no longer needed, release memory
 

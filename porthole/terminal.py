@@ -108,6 +108,8 @@ class ProcessManager:
         self.process_list = []
         # the window is not visible until a process is added
         self.window_visible = False
+	self.task_completed = True
+	self.confirm = False
         # filename and serial #
         self.directory = None
         self.filename = None
@@ -269,6 +271,7 @@ class ProcessManager:
         #dprint(self.term.vhandler_id)
         #dprint(self.term.auto_scroll)
         self.notebook.connect("switch-page", self.switch_page)
+	self.window.connect('delete-event', self.confirm_delete)
         if self.prefs:
             self.window.resize((self.prefs.emerge.verbose and
                                 self.prefs.terminal.width_verbose or
@@ -538,14 +541,18 @@ class ProcessManager:
                 os._exit(1)
 
     def destroy_window(self, widget):
-        """ Destroy the window when the close button is pressed """
-        dprint("TERMINAL: close button clicked... destroying now")
+        """ hide the window when the close button is pressed """
+	dprint("TERMINAL: destroy_window()")
+	if self.confirm_delete():
+	    return
+        dprint("TERMINAL: menu==>quit clicked... starting destruction")
         self.window.destroy()
 
     def on_process_window_destroy(self, widget, data = None):
         """Window was closed"""
+	dprint("TERMINAL: on_process_window_destroy()")
         # kill any running processes
-        self.kill()
+	self.kill_process()
         # make sure to reset the process list
         self.process_list = []
         # the window is no longer showing
@@ -553,7 +560,48 @@ class ProcessManager:
         self.wtree = None
         if __name__ == "__main__":
             # if running standalone, quit
-            gtk.main_quit()
+	    try:
+                gtk.main_quit()
+	    except:
+		gtk.mainquit()
+	dprint("TERMINAL: on_process_window_destroy(); ...destroying now")
+	self.window.destroy
+
+    def kill_process(self, widget = None, confirm = False):
+        """ Kill currently running process """
+        # Prevent conflicts while changing process queue
+        self.Semaphore.acquire()
+        dprint("TERMINAL: kill_process; Semaphore acquired")
+
+        if not self.reader.process_running and not self.file_input:
+            dprint("TERMINAL: No running process to kill!")
+            # We're finished, release semaphore
+            self.Semaphore.release()
+            dprint("TERMINAL: kill_process; Semaphore released")
+            return True
+	#~ if widget or confirm:
+	    #~ self.confirm = False
+	if self.kill():
+	    # We're finished, release semaphore
+            self.Semaphore.release()
+            dprint("TERMINAL: kill_process; Semaphore released")
+	    return False
+	if self.log_mode:
+            dprint("LOG: set statusbar -- log killed")
+            self.set_statusbar(_("***Log Process Killed!"))
+        else:
+            # set the queue icon to killed
+            iter = self.process_list[0][2]
+            self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_CANCEL))
+            # set the resume buttons to sensitive
+            self.set_resume(True)
+
+	dprint("TERMINAL: leaving kill_process")
+
+        # We're finished, release semaphore
+        self.Semaphore.release()
+        dprint("TERMINAL: kill_process; Semaphore released")
+        return True
 
     def kill(self):
         """Kill process."""
@@ -566,7 +614,7 @@ class ProcessManager:
             self.reader.f.close()
             self.file_input = False
             dprint("LOG: leaving kill()")
-            return
+            return True
         # If started and still running
         if self.pid and not self.killed:
             try:
@@ -582,13 +630,29 @@ class ProcessManager:
             except OSError:
                 dprint("TERMINAL: kill(), OSError")
                 pass
-            self.killed = 1
+            self.killed = True
             if self.term.tab_showing[TAB_QUEUE]:
                 # update the queue tree
                 self.queue_clicked(self.queue_tree)
         dprint("TERMINAL: leaving kill()")
-        return
+        return True
 
+    def confirm_delete(self, widget = None, *event):
+	if self.task_completed:
+	    return False
+	err = _("Confirm: Kill the Running Process")
+        dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
+                                gtk.MESSAGE_QUESTION,
+                                gtk.BUTTONS_YES_NO, err);
+        result = dialog.run()
+        dialog.destroy()
+        if result != gtk.RESPONSE_YES:
+	    dprint("TERMINAL: confirm_delete(); stopping delete")
+            return True
+	dprint("TERMINAL: confirm_delete(); confirmed")
+	return False
+
+	
     def overwrite(self, num, text, tagname = None):
         """ Overwrite text to a text buffer.  Line numbering based on
             the process window line count is automatically added.
@@ -841,6 +905,7 @@ class ProcessManager:
         except: pass
         # remove process from list
         self.process_list = self.process_list[1:]
+	self.task_completed = True
         # check for pending processes, and run them
         self.start_queue(False)
         # if there is a callback set, call it
@@ -859,34 +924,6 @@ class ProcessManager:
         return self.queue_tree.render_icon(icon,
                     size = gtk.ICON_SIZE_MENU, detail = None)
 
-    def kill_process(self, widget):
-        """ Kill currently running process """
-        # Prevent conflicts while changing process queue
-        self.Semaphore.acquire()
-        dprint("TERMINAL: kill_process; Semaphore acquired")
-
-        if not self.reader.process_running and not self.file_input:
-            dprint("TERMINAL: No running process to kill!")
-            # We're finished, release semaphore
-            self.Semaphore.release()
-            dprint("TERMINAL: kill_process; Semaphore released")
-            return
-        self.kill()
-        if self.log_mode:
-            dprint("LOG: set statusbar -- log killed")
-            self.set_statusbar(_("***Log Process Killed!"))
-        else:
-            # set the queue icon to killed
-            iter = self.process_list[0][2]
-            self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_CANCEL))
-            # set the resume buttons to sensitive
-            self.set_resume(True)
-        dprint("TERMINAL: leaving kill_process")
-
-        # We're finished, release semaphore
-        self.Semaphore.release()
-        dprint("TERMINAL: kill_process; Semaphore released")
-        return
 
     def extract_num(self, line):
         """extracts the number of packages from the 'emerge (x of y) cat/package
@@ -956,6 +993,7 @@ class ProcessManager:
         if len(self.process_list):
             dprint("TERMINAL: There are pending processes, running now... [" + \
                     self.process_list[0][0] + "]")
+	    self.task_completed = False
             self._run(self.process_list[0][1], self.process_list[0][2])
         else: # re-activate the open/save menu items
             self.save_menu.set_sensitive(gtk.TRUE)
