@@ -4,13 +4,13 @@
 <glade-interface>
 
 <widget class="GtkWindow" id="main_window">
-  <property name="width_request">500</property>
-  <property name="height_request">700</property>
   <property name="visible">True</property>
   <property name="title" translatable="yes">Porthole</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
   <property name="modal">False</property>
+  <property name="default_width">500</property>
+  <property name="default_height">650</property>
   <property name="resizable">True</property>
   <property name="destroy_with_parent">False</property>
   <signal name="destroy" handler="on_main_window_destroy" last_modification_time="Thu, 27 Nov 2003 20:50:11 GMT"/>
