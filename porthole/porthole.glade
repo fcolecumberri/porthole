@@ -1035,7 +1035,7 @@ Special thanks to Brian Dolbec</property>
 		      </child>
 
 		      <child>
-			<widget class="GtkImageMenuItem" id="save_as1">
+			<widget class="GtkImageMenuItem" id="save1">
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Save _Log</property>
 			  <property name="use_underline">True</property>
@@ -1045,6 +1045,48 @@ Special thanks to Brian Dolbec</property>
 			    <widget class="GtkImage" id="image293">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-save</property>
+			      <property name="icon_size">1</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkImageMenuItem" id="save_as">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Save _As Log</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_save_log_as" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image293">
+			      <property name="visible">True</property>
+			      <property name="stock">gtk-save-as</property>
+			      <property name="icon_size">1</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+	    		    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkImageMenuItem" id="open">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">_Open Log</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_open_log" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image293">
+			      <property name="visible">True</property>
+			      <property name="stock">gtk-open</property>
 			      <property name="icon_size">1</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>

@@ -74,6 +74,7 @@ class ProcessManager:
     """ Manages queued and running processes """
     def __init__(self, env = {}, prefs = None, config = None):
         """ Initialize """
+        self.title = "Porthole-Terminal"
         # copy the environment and preferences
         self.env = env
         self.prefs = prefs
@@ -82,6 +83,7 @@ class ProcessManager:
         self.pid = None
         self.Failed = False
         self.isPretend = False
+        self.file_input = False
         # text mark to mark the start of the current command
         self.command_start = None
         # process list to store pending processes
@@ -433,8 +435,9 @@ class ProcessManager:
                             # add the pkg info to all other tabs to identify fom what
                             # pkg messages came from but no need to show it if it isn't
                             tag = 'emerge'
-                            self.append(self.info_text, self.process_buffer, 'emerge')
-                            self.append(self.warning_text, self.process_buffer, 'emerge')
+                            self.append(self.info_text, self.process_buffer, tag)
+                            self.append(self.warning_text, self.process_buffer, tag)
+
                         elif self.config.isInfo(self.process_buffer):
                             # info string has been found, show info tab if needed
                             if not self.info_tab.showing:
@@ -462,6 +465,12 @@ class ProcessManager:
                 elif ord(char) == 13: # carriage return?
                     pass
         self.reader.string = ""
+        if self.file_input:
+            if self.warning_count != 0:
+                self.append(self.info_text, "*** Total warnings count for merge = %d \n"\
+                            %self.warning_count, 'warning')
+            self.set_statusbar("*** Log loading complete : %s" % self.filename)
+            self.file_input = False
         # unlock the string
         self.reader.string_locked = False
         return gtk.TRUE
@@ -755,17 +764,17 @@ class ProcessManager:
     def open_ok_func(self, filename):
         """callback function from file selector"""
         dprint("entering open_ok_func")
-        if not fill_buffer(filename):
+        if not self.fill_buffer(filename):
             return gtk.FALSE
         else:
             self.filename = filename
             self.set_statusbar("*** Log file :%s " %self.filename)
             return gtk.TRUE;
 
-    def do_open(self, callback_action, widget):
+    def do_open(self, widget):
         """opens the file selctor for file to open"""
         dprint("entering do_open")
-        FileSel().run(self, "Open log File", None, self.open_ok_func)
+        FileSel().run(self.window, "Open log File", None, self.open_ok_func)
 
     def do_save_as(self, widget):
         """determine buffer to save as and saves it"""
@@ -804,26 +813,30 @@ class ProcessManager:
     def fill_buffer(self, filename):
         """loads a file into the reader.string"""
         dprint("entering fill_buffer")
+        self.set_statusbar("*** Loading File : %s" % self.filename)
         try:
             f = open(filename, "r")
         except IOError, (errnum, errmsg):
             err = "Cannot open file '%s': %s" % (filename, errmsg)
-            dialog = gtk.MessageDialog(self.title, gtk.DIALOG_MODAL,
+            dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
                                        gtk.MESSAGE_INFO,
                                        gtk.BUTTONS_OK, err);
             result = dialog.run()
             dialog.destroy()
             return gtk.FALSE
 
-        if not self.string_locked:
-            self.string_locked = True
+        if not self.reader.string_locked:
+            self.file_input = True
+            self.reader.string_locked = True
             self.reader.string = f.read()
             f.close()
-            self.string_locked = False
+            self.reader.string_locked = False
+            self.set_statusbar("*** Log loading complete : %s" % self.filename)
+            dprint("leaving fill_buffer")
             return gtk.TRUE
         else:
             err = "Error: 'reader.string' currently locked, ensure no process is running"
-            dialog = gtk.MessageDialog(self.title, gtk.DIALOG_MODAL,
+            dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
                                        gtk.MESSAGE_INFO,
                                        gtk.BUTTONS_OK, err);
             result = dialog.run()
@@ -847,7 +860,7 @@ class ProcessManager:
                 err = "Cannot back up '%s' to '%s': %s" % (self.filename,
                                                            bak_filename,
                                                            errmsg)
-                dialog = gtk.MessageDialog(self.title, gtk.DIALOG_MODAL,
+                dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
                                            gtk.MESSAGE_INFO,
                                            gtk.BUTTONS_OK, err);
                 dialog.run()
@@ -855,17 +868,31 @@ class ProcessManager:
                 return gtk.FALSE
 
         have_backup = gtk.TRUE
-        start, end = self.buffer_to_save.get_bounds()
-        chars = self.buffer_to_save.get_text(start, end, gtk.FALSE)
+        lines = self.buffer_to_save.get_line_count()
+        line = 0
         self.set_statusbar("*** saving file: %s" % self.filename)
         try:
             file = open(self.filename, "w")
-            file.write(chars)
+            # if buffer is "Process" strip line numbers
+            if self.buffer_name == TAB_LABELS[TAB_PROCESS]:
+                while line < lines:
+                    start = self.buffer_to_save.get_iter_at_line(line)
+                    end = start.copy(); end.forward_to_line_end()
+                    chars = self.buffer_to_save.get_text(start, end, gtk.FALSE)
+                    file.write(chars[7:]+ "\n")
+                    line += 1
+                    chars = ""
+                    
+            else: # save the entire buffer
+                start, end = self.buffer_to_save.get_bounds()
+                chars = self.buffer_to_save.get_text(start, end, gtk.FALSE)
+                file.write(chars)
+               
             file.close()
             result = gtk.TRUE
         except IOError, (errnum, errmsg):
             err = "Error writing to '%s': %s" % (self.filename, errmsg)
-            dialog = gtk.MessageDialog(self.title, gtk.DIALOG_MODAL,
+            dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
                                        gtk.MESSAGE_INFO,
                                        gtk.BUTTONS_OK, err);
             dialog.run()
@@ -877,18 +904,19 @@ class ProcessManager:
             except OSError, (errnum, errmsg):
                 err = "Can't restore backup file '%s' to '%s': %s\nBackup left as '%s'" % (
                     self.filename, bak_filename, errmsg, bak_filename)
-                dialog = gtk.MessageDialog(self.title, gtk.DIALOG_MODAL,
+                dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
                                            gtk.MESSAGE_INFO,
                                            gtk.BUTTONS_OK, err);
                 dialog.run()
                 dialog.destroy()
 
         self.set_statusbar("*** File saved")
+        dprint("buffer saved, exiting")
         return result
 
     def save_as_buffer(self):
         dprint("entering save_as_buffer")
-        return FileSel().run(self, "Save File", self.filename, self.save_as_ok_func)
+        return FileSel().run(self.window, "Save File", self.filename, self.save_as_ok_func)
 
     def save_as_ok_func(self, filename):
         dprint("entering save_as_ok_func")
@@ -897,7 +925,7 @@ class ProcessManager:
         if (not self.filename or filename != self.filename):
             if os.path.exists(filename):
                 err = "Ovewrite existing file '%s'?"  % filename
-                dialog = gtk.MessageDialog(self.title, gtk.DIALOG_MODAL,
+                dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
                                            gtk.MESSAGE_QUESTION,
                                            gtk.BUTTONS_YES_NO, err);
                 result = dialog.run()
@@ -919,7 +947,7 @@ class ProcessManager:
         if buffer.get_modified():
             pretty_name = self.pretty_name()
             msg = "Save log to '%s'?" % pretty_name
-            dialog = gtk.MessageDialog(self.title, gtk.DIALOG_MODAL,
+            dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
                                        gtk.MESSAGE_QUESTION,
                                        gtk.BUTTONS_YES_NO, msg);
             dialog.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
