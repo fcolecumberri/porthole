@@ -30,8 +30,9 @@
       <notwarning-5>.*warning: \-jN forced in submake:</notwarning-5>
       <notwarning-6>.*has not been installed in `/usr/lib</notwarning-6>
    </notwarning>
-    <error py_type='list' item_count='1'>
+    <error py_type='list' item_count='2'>
       <error-1>^\!\!\!\sERROR\:.*\sfailed\.</error-1>
+      <error-2>^\!\!\!\s[Ee]rror calculating dependencies.*[Pp]lease correct</error-2>
     </error>
     <noterror py_type='list' item_count='0'>
     </noterror>
