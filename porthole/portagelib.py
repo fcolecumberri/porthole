@@ -303,34 +303,41 @@ class DatabaseReader(threading.Thread):
         """Read portage's database and store it nicely"""
         tree = portage.db['/']['porttree']
         global installed # what's a better way to do this?
+        dprint("PORTAGELIB: read_db(); installed=")
         installed = portage.db['/']['vartree'].getallnodes()
         try:
+            dprint("PORTAGELIB: read_db(); allnodes=")
             allnodes = tree.getallnodes()
         except OSError, e:
             # I once forgot to give read permissions
             # to an ebuild I created in the portage overlay.
             self.error = str(e)
             return
+        dprint("PORTAGELIB: DatabaseReader.read_db() begin {for entry in allnodes}")
         for entry in allnodes:
-            category, name = entry.split('/')
-            # why does getallnodes() return timestamps?
-            if name == 'timestamp.x' or name[-4:] == "tbz2":  
-                continue
-            while (self.count_lock):
-                dprint("PORTAGELIB: DatabaseReader.read_db() count_lock caught, waiting...")
-                # wait 50 ms and check again
-                time.sleep(0.05)
-            self.count_lock = True
-            self.count += 1
-            self.count_lock = False
-            data = Package(entry)
-            self.db.categories.setdefault(category, {})[name] = data;
-            if entry in installed:
-                self.db.installed.setdefault(category, {})[name] = data;
-                self.db.installed_count += 1
-##                 if data.upgradable():
-##                     self.db.upgradable.append((name, data))
-            self.db.list.append((name, data))
+            if entry == None:
+                dprint("PORTAGELIB: DatabaseReader.read_db() entry = Null")
+            else:
+                category, name = entry.split('/')
+                # why does getallnodes() return timestamps?
+                if name == 'timestamp.x' or name[-4:] == "tbz2":  
+                    continue
+                while (self.count_lock):
+                    dprint("PORTAGELIB: read_db(); count_lock caught, waiting...")
+                    # wait 50 ms and check again
+                    time.sleep(0.05)
+                self.count_lock = True
+                self.count += 1
+                self.count_lock = False
+                data = Package(entry)
+                self.db.categories.setdefault(category, {})[name] = data;
+                if entry in installed:
+                    self.db.installed.setdefault(category, {})[name] = data;
+                    self.db.installed_count += 1
+##                   if data.upgradable():
+##                         self.db.upgradable.append((name, data))
+                self.db.list.append((name, data))
+        dprint("PORTAGELIB: read_db(); end of {for entry in allnodes loop}, sort is next")
         self.db.list = sort(self.db.list)
 ##        self.db.upgradable = sort(self.db.upgradable)
         

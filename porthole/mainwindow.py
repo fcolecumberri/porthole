@@ -209,12 +209,12 @@ class MainWindow:
     def update_db_read(self):
         """Update the statusbar according to the number of packages read."""
         if not self.db_thread.done:
-            dprint("MAINWINDOW: locking count")
+            #dprint("MAINWINDOW: locking count")
             self.db_thread.count_lock = True
             self.set_statusbar("Reading package database: %i packages read"
                                % self.db_thread.count)
+            dprint("MAINWINDOW: count = %s ; unlocking count" %self.db_thread.count)
             self.db_thread.count_lock = False
-            dprint("MAINWINDOW: unlocking count")
         elif self.db_thread.error:
             # todo: display error dialog instead
             self.db_thread.join()
@@ -246,8 +246,9 @@ class MainWindow:
                     # re-select the package
                     self.package_view.set_cursor(self.current_package_cursor[0],
                                                   self.current_package_cursor[1])
-            elif self.reload and (view_filter.get_history() == self.SHOW_ALL or
-                                  view_filter.get_history() == self.SHOW_INSTALLED):
+            elif self.reload and (view_filter.get_history() == self.SHOW_ALL or \
+                                  view_filter.get_history() == self.SHOW_INSTALLED) and \
+                                  self.current_category_cursor != None:
                 #dprint("MAINWINDOW: update_db_read()... self.reload=True ALL or INSTALLED view")
                 # reset _last_selected so it thinks this category is new again
                 self.category_view._last_selected = None
@@ -273,6 +274,7 @@ class MainWindow:
             dprint("MAINWINDOW: Made it thru a reload, returning...")
             self.reload = False
             return gtk.FALSE  # disconnect from timeout
+        dprint("MAINWINDOW: returning from update_db_read()")
         return gtk.TRUE
 
     def setup_command(self, package_name, command):
