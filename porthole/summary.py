@@ -43,6 +43,7 @@ class Summary(gtk.TextView):
         tagtable = self.create_tag_table()
         self.buffer = gtk.TextBuffer(tagtable)
         self.set_buffer(self.buffer)
+        self.license_dir = "file://"+ portagelib.portdir + "/licenses/"
 
         # Capture any mouse motion in this tab so we
         # can highlight URL links & change mouse pointer
@@ -120,6 +121,14 @@ class Summary(gtk.TextView):
             self.url_tags.append(tag)
             append(text, tag.get_property("name"))
 
+        def append_license(text):
+            """ Append URL to textbuffer and connect an event """
+            tag = self.buffer.create_tag(self.license_dir + text)
+            tag.set_property("foreground","blue")
+            tag.connect("event", self.on_url_event)
+            self.url_tags.append(tag)
+            append(text, tag.get_property("name"))
+
         def nl(x=1):
             """ Append a x new lines to the buffer """ 
             append("\n"*x)
@@ -171,7 +180,7 @@ class Summary(gtk.TextView):
         homepages = props.get_homepages() # may be more than one
         #dprint("SUMMARY: Summary; getting use flags")
         use_flags = props.get_use_flags()
-        license = props.license
+        licenses = props.license
         slot = unicode(props.get_slot())
 
         # Sort the versions in release order
@@ -254,7 +263,14 @@ class Summary(gtk.TextView):
             nl(2)
 
         # License
-        if license:
+        if licenses:
             append(_("License: "), "property")
-            append(license, "value")
+            _licenses = licenses.split()
+            x = 0
+            for license in _licenses:
+                if license not in ["||","(",")"]:
+                    if x > 0:
+                        append( ', ')
+                    append_license(license)
+                    x += 1
             nl()
