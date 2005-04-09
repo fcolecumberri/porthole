@@ -131,6 +131,8 @@ portdir = portage.config(clone=portage.settings).environ()['PORTDIR']
 # is PORTDIR_OVERLAY always defined?
 portdir_overlay = get_portage_environ('PORTDIR_OVERLAY')
 
+ACCEPT_KEYWORDS = get_portage_environ("ACCEPT_KEYWORDS")
+
 # Run it once for sake of efficiency
 SystemUseFlags = get_portage_environ("USE").split()
 
@@ -319,7 +321,7 @@ class Package:
         # Note: this is slow, see get_versions()
         if self.latest_ebuild == None:
             criterion = include_masked and 'match-all' or 'match-visible'
-            self.latest_ebuild = self.latest_ebuild = portage.best(self.get_versions(include_masked))
+            self.latest_ebuild = portage.best(self.get_versions(include_masked))
         return self.latest_ebuild
 
     def get_size( self ):
@@ -456,7 +458,7 @@ class DatabaseReader(threading.Thread):
         for entry in allnodes:
                 category, name = entry.split('/')
                 # why does getallnodes() return timestamps?
-                if name == 'timestamp.x' or name[-4:] == "tbz2":  
+                if name == 'timestamp.x' or name[-4:] == "tbz2" or name == "metadata.xml":  
                     continue
                 self.count += 1
                 #gtk.threads_enter()
