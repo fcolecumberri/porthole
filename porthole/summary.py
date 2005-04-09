@@ -113,18 +113,10 @@ class Summary(gtk.TextView):
             if tag: buffer.insert_with_tags_by_name(iter, text, tag)
             else: buffer.insert(iter, text)
 
-        def append_url(text):
+        def append_url(text, url, colour):
             """ Append URL to textbuffer and connect an event """
-            tag = self.buffer.create_tag(text)
-            tag.set_property("foreground","blue")
-            tag.connect("event", self.on_url_event)
-            self.url_tags.append(tag)
-            append(text, tag.get_property("name"))
-
-        def append_license(text):
-            """ Append URL to textbuffer and connect an event """
-            tag = self.buffer.create_tag(self.license_dir + text)
-            tag.set_property("foreground","blue")
+            tag = self.buffer.create_tag(url)
+            tag.set_property("foreground", colour)
             tag.connect("event", self.on_url_event)
             self.url_tags.append(tag)
             append(text, tag.get_property("name"))
@@ -223,7 +215,7 @@ class Summary(gtk.TextView):
             for homepage in homepages:
                 if x > 0:
                     append( ', ')
-                append_url(homepage)
+                append_url(homepage, homepage, "blue")
                 x += 1
             nl(2)
     
@@ -271,6 +263,6 @@ class Summary(gtk.TextView):
                 if license not in ["||","(",")"]:
                     if x > 0:
                         append( ', ')
-                    append_license(license)
+                    append_url(license, self.license_dir + license, "blue")
                     x += 1
             nl()
