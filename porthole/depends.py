@@ -43,12 +43,13 @@ class DependsTree(gtk.TreeStore):
         ops = ""
         using_list=False
         for depend in depends_list:
+            #dprint(depend)
             if depend[-1] == "?":
                 if depend[0] != "!":
                     parent = _("Using ") + depend[:-1]
+                    using_list=True
                 else:
                     parent = _("Not Using ") + depend[1:-1]
-                using_list=True
             else:
                 if depend not in ["(", ")", ":", "||"]:
                     try: depend, ops = self.get_ops(depend)
@@ -154,10 +155,11 @@ class DependsTree(gtk.TreeStore):
     def fill_depends_tree(self, treeview, package):
         """Fill the dependencies tree for a given ebuild"""
         dprint("DEPENDS: Updating deps tree for " + package.get_name())
-        ebuild = package.get_latest_ebuild()
+        ebuild = package.get_latest_ebuild(False)
         depends = portagelib.get_property(ebuild, "DEPEND").split()
         self.clear()
         if depends:
+            #dprint(depends)
             self.depends_list = []
             self.add_depends_to_tree(depends, treeview)
         else:
