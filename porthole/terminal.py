@@ -205,7 +205,7 @@ class ProcessManager:
         self.term.view[TAB_CAUTION].connect("button_release_event", self.button_event)
         self.term.view[TAB_WARNING].connect("button_release_event", self.button_event)
         # catch clicks to the queue tree
-        self.queue_tree.connect("cursor_changed", self.queue_clicked)
+        self.queue_tree.connect("cursor-changed", self.queue_clicked)
         # process output buffer
         self.process_buffer = ''
         # set some persistent variables for text capture
@@ -362,10 +362,10 @@ class ProcessManager:
 
     def new_window_state(self, widget, event):
         """set the minimized variable to change the title to the same as the statusbar text"""
-        dprint(event.new_window_state) # debug print statements
-        dprint(event.changed_mask)
-        if event.new_window_state & gtk.gdk.WINDOW_STATE_ICONIFIED:
-            #if not self.minimized:
+        #dprint(event.new_window_state) # debug print statements
+        #dprint(event.changed_mask
+        state = event.new_window_state
+        if state & gtk.gdk.WINDOW_STATE_ICONIFIED:
             dprint("TERMINAL: new_window_state; event = minimized")
             self.minimized = True
             self.window.set_title(self.status_text)
