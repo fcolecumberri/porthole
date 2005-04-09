@@ -55,6 +55,7 @@ class UpgradableReader(CommonReader):
         # dummy view to get dependancy's from existing depends.py code
         self.dep_view = DependsView()
         self.upgrade_results = upgrade_view.upgrade_model
+        self.upgrade_results.clear()
         self.installed_items = installed
         self.upgrade_only = upgrade_only
         #self.world = []
@@ -153,14 +154,14 @@ class UpgradableReader(CommonReader):
     def get_upgrade_deps(self, iter, parent_name):
         list = []
         while iter:
-                dprint("READERS: get_upgrade_deps();processing iter: model.get_value(iter, 0) %s" %self.model.get_value(iter, 0))
+                #dprint("READERS: get_upgrade_deps();processing iter: model.get_value(iter, 0) %s" %self.model.get_value(iter, 0))
                 blocker = False
                 ignore = False
                 version = None
                 package = self.model.get_value(iter, 2)
                 if package:
                     full_name = package.full_name
-                    dprint("READERS: get_upgrade_deps(); processing package: %s" %full_name)
+                    #dprint("READERS: get_upgrade_deps(); processing package: %s" %full_name)
                     if full_name[0] == '!':
                         blocker = True
                     if full_name[0] == '=':
@@ -169,7 +170,7 @@ class UpgradableReader(CommonReader):
                         full_name = full_name[1:]
                     if full_name[-1] == '*':
                         full_name = full_name[:-1]
-                    dprint("READERS: get_upgrade_deps(); OPS cleaned; new full_name = %s" %full_name)
+                    #dprint("READERS: get_upgrade_deps(); OPS cleaned; new full_name = %s" %full_name)
                     name = full_name.split('/')
                     if len(name) > 2:
                         dprint("READERS: get_upgrade_deps(); dependancy name error for %s !!!!!!!!!!!!!!!!!!!!!!" %full_name)
@@ -184,7 +185,7 @@ class UpgradableReader(CommonReader):
                         else:
                             dprint("READERS: get_upgrade_deps(); Key error for virtual name = %s " %full_name)
                             break
-                        dprint("READERS: get_upgrade_deps(); %s evaluated to %s" %(old_name+"/"+name[1], full_name))
+                        #dprint("READERS: get_upgrade_deps(); %s evaluated to %s" %(old_name+"/"+name[1], full_name))
                         if blocker and full_name == parent_name:
                             blocker = False
                             ignore = True # Ignore the self blocking package
@@ -195,7 +196,7 @@ class UpgradableReader(CommonReader):
                     if full_name and not full_name in self.deps_checked:
                         #if full_name:
                         self.deps_checked.append(full_name)
-                        dprint("READERS: get_upgrade_deps(); extracted dep name = %s" %full_name)
+                        #dprint("READERS: get_upgrade_deps(); extracted dep name = %s" %full_name)
                         if blocker:
                             pkg = portagelib.Package(full_name)
                             if pkg.is_installed:
@@ -246,7 +247,7 @@ class UpgradableReader(CommonReader):
 
     def add_deps(self, full_name, package, in_world, blocker):
         """Add all dependencies to the tree"""
-        dprint("READERS: add_deps() name = %s" %full_name)
+        #dprint("READERS: add_deps() name = %s" %full_name)
         child_iter = self.upgrade_results.insert_before(self.parent, None)
         self.upgrade_results.set_value(child_iter, 1, in_world)
         self.upgrade_results.set_value(child_iter, 4, in_world)
