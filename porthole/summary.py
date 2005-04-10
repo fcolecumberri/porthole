@@ -201,10 +201,11 @@ class Summary(gtk.TextView):
         # Description, if available
         if description:
             append(description, "description")
-            nl()
+            nl(2)
 
         # Metadata long description(s), if available
         if metadata and metadata.longdescription:
+            append("Long Description: ", "property")
             append(metadata.longdescription, "description")
             nl()
         nl()
