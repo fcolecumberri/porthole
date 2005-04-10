@@ -401,15 +401,15 @@ class MainWindow:
                         self.package_view.set_cursor(self.current_package_cursor[0],
                                                      self.current_package_cursor[1])
             elif self.reload and (view_filter.get_history() == SHOW_ALL or \
-                                  view_filter.get_history() == SHOW_INSTALLED) and \
-                                  self.current_category_cursor != None:
+                                  view_filter.get_history() == SHOW_INSTALLED):
                 #dprint("MAINWINDOW: update_db_read()... self.reload=True ALL or INSTALLED view")
                 # reset _last_selected so it thinks this category is new again
                 self.category_view._last_selected = None
                 #~dprint("MAINWINDOW: re-select the category")
-                # re-select the category
-                self.category_view.set_cursor(self.current_category_cursor[0],
-                                              self.current_category_cursor[1])
+                if self.current_category_cursor != None:
+                    # re-select the category
+                    self.category_view.set_cursor(self.current_category_cursor[0],
+                                                  self.current_category_cursor[1])
                 #~dprint("MAINWINDOW: reset _last_selected so it thinks this package is new again")
                 # reset _last_selected so it thinks this package is new again
                 self.package_view._last_selected = None
