@@ -203,6 +203,11 @@ class ViewOptions:
 		self.world_upgradeable_color = ''
 		self.world_downgradeable_color = ''
 
+class GlobalPreferences:
+    """Holds some global variables"""
+    def __init__(self):
+        self.LANG = None
+
 class PortholePreferences:
     """ Holds all of Porthole's user configurable preferences """
     def __init__(self):
@@ -535,6 +540,13 @@ class PortholePreferences:
                 self.plugins.path_list += new_paths
         except XMLManagerError:
             pass
+            
+        # Global variables
+        self.globals = GlobalPreferences()
+        try:
+           self.globals.LANG = dom.getitem('/globals/LANG')
+        except XMLManagerError:
+           self.globals.LANG = 'en'
 
         # All prefs now loaded or defaulted
         del dom   # no longer needed, release memory
@@ -582,6 +594,7 @@ class PortholePreferences:
         dom.additem('/database/dbtime', self.dbtime)
         dom.additem('/database/dbtotals', self.dbtotals)
         dom.additem('/plugins/path_list', self.plugins.path_list)
+        dom.additem('/globals/LANG', self.globals.LANG)
         dom.save(self.__PFILE)
         del dom   # no longer needed, release memory
 
