@@ -30,6 +30,13 @@ from gettext import gettext as _
 # precompile regexps
 re1 = compile("^\s+|\s+$")
 re2 = compile("\s+")
+
+#Define constants for the two states we care about
+ALLOW_CONTENT = 1
+SUPPRESS_CONTENT = 2
+
+LANG = 'en'
+
 def normalize_whitespace(text):
     """Remove space at beginning and end
     of string and replace all other whitespace with a single space."""
@@ -44,36 +51,84 @@ class Metadata:
         self.maintainers = []
 
 class MetadataHandler(ContentHandler):
+    
+    def __init__(self, target):
+        self.target_lang = target
+        return
+
     def startDocument(self):
         self.path = [];  self.texts = []
         self.result = Metadata()
+        #Set the initial state, and set up the stack of states
+        self._state = ALLOW_CONTENT
+        self._state_stack = [ALLOW_CONTENT]
+        return
 
     def startElement(self, name, attrs):
-        self.path.append(name)
-        self.texts.append([])
-        if name == "maintainer":
-            self.result.maintainers.append({})
-        # Todo: handle "lang" and "restrict" attributes
+        # Check if there is any language attribute
+        lang = attrs.get('lang')
+        #dprint("METADATA: lang = %s" %lang)
+        if lang:
+            # Set the state as appropriate
+            if lang[:2] == self.target_lang:
+                #dprint("METADATA: target_lang found!")
+                self._state = ALLOW_CONTENT
+            else:
+                self._state = SUPPRESS_CONTENT
+        else:
+            #dprint("METADATA: no lang attribute")
+            self._state = ALLOW_CONTENT
+        # Always update the stack with the current state
+        # Even if it has not changed
+        self._state_stack.append(self._state)
+        # Only add the event if the state warrants it
+        if self._state == ALLOW_CONTENT:
+            self.path.append(name)
+            #dprint("METADATA: "name = %s" %name)
+            #self.texts.append([''])
+            if name == "maintainer":
+                self.result.maintainers.append({})
+        # Todo: handle "restrict" attributes
 
     def characters(self, content):
-        self.texts[-1] += [content]
+        # Only save the content if the state warrants it
+        if self._state == ALLOW_CONTENT and content:
+            #dprint("METADATA: content = %s" %content)
+            self.texts = self.texts + [content]
+            #dprint("METADATA: self.texts = ")
+            #dprint( self.texts)
+        #else:
+            #dprint("METADATA: SUPPRESS_CONTENT")
         
     def endElement(self, name):
-        self.path.pop()
-        text = normalize_whitespace("".join(self.texts.pop()))
-        if name == "longdescription":
-            self.result.longdescription = text
-        elif name == "herd":
-            self.result.herds.append(text)
-        elif self.path and self.path[-1] == "maintainer":
-            self.result.maintainers[-1][name] = text
+        #dprint("METADATA: end element")
+        self._state = self._state_stack.pop()
+        #Only complete the event if the state warrants it
+        if self._state == ALLOW_CONTENT:
+            #self._downstream.endElement(name)
+            self.path.pop()
+            #text = normalize_whitespace("".join(self.texts.pop()))
+            text = normalize_whitespace("".join(self.texts))
+            self.texts = []
+            #dprint("METADATA: end element name = %s" %name)
+            #dprint("METADATA: end element text = %s" %text)
+            if name == "longdescription":
+                #dprint("METADATA: end element found longdescription")
+                self.result.longdescription = text
+            elif name == "herd":
+                self.result.herds.append(text)
+            elif self.path and self.path[-1] == "maintainer":
+                self.result.maintainers[-1][name] = text
+        return
         
 # init globals
 parser = make_parser()
 # no validation or any of that; it takes too much time
 for feature in all_features:
     parser.setFeature(feature, False)
-handler = MetadataHandler()
+
+# need to add a prefs.lang parameter instead of hardcoding
+handler = MetadataHandler(LANG)
 parser.setContentHandler(handler)
 
 def parse_metadata(filename):
