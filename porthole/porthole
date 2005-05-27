@@ -23,6 +23,8 @@
 
 APP = 'porthole'
 
+print("Starting Porthole...")
+
 # setup our path so we can load our custom modules
 from sys import path
 #path.append('/usr/lib/porthole')
@@ -38,7 +40,7 @@ except ValueError:
 
 LOG_FILE_DIR = "/var/log/porthole"
 
-import os
+import os, gobject
 # check if directory exists, if not create it
 if not os.access(LOG_FILE_DIR, os.F_OK):
     print LOG_FILE_DIR + " does not exist, creating..."
@@ -47,7 +49,6 @@ if not os.access(LOG_FILE_DIR, os.F_OK):
     except OSError, (errnum, errmsg):
         print "Failed to create %s:" % LOG_FILE_DIR, errmsg
 
-pycrash_found = False
 try:
     from pycrash.utils import *
     pycrash_found = True
@@ -60,8 +61,8 @@ try:
             print "PORTHOLE: Crash detected.  Please submit a bug report &"
             print "         include the " + save_file
 except ImportError:
-    print "pycrash module not found.  For best debug info Please emerge >= dev-python/pycrash-0.4pre3"
-    
+    pycrash_found = False
+   
 
 from thread import *
 from sys import argv, exit, stderr
@@ -123,6 +124,8 @@ if __name__ == "__main__":
         elif opt in ("-d", "--debug"):
             _utils.debug = True
             _utils.dprint("Debug printing is enabled")
+            if not pycrash_found:
+                print("*** PYCRASH MODULE NOT FOUND ***\n*** For best debug info Please emerge >= dev-python/pycrash-0.4pre3 ***")
         elif opt in ("-h", "--help"):
             usage()
             exit()
@@ -140,7 +143,10 @@ if __name__ == "__main__":
         p = MyCrash({'AppName': 'Porthole', 'Version': version, 'SendTo': 'porthole bugs'})
         p.enable() #New in PyCrash-0.4pre2
     # make sure gtk lets threads run
+    #os.putenv("PYGTK_USE_GIL_STATE_API", "True")
+    #gobject.threads_init()
     gtk.threads_init()
+    _utils.dprint("PORTHOLE: process id = %d ****************" %os.getpid())
     # setup our app icon
     myicon = gtk.gdk.pixbuf_new_from_file(DATA_PATH + "pixmaps/porthole-icon.png")
     gtk.window_set_default_icon_list(myicon)
@@ -155,7 +161,9 @@ if __name__ == "__main__":
     # create the main window
     myapp = MainWindow(prefs, config)
     # start the program loop
+    #gtk.threads_enter()
     gtk.main() # gtk.mainloop() depricated
-    print "PORTHOLE: normal quit"
+    #gtk.threads_leave()
+    print "Goodbye"
     # save the prefs to disk for next time
     prefs.save()

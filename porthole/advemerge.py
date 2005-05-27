@@ -27,6 +27,7 @@ import gtk
 import gtk.glade
 import portagelib
 import utils
+from utils import dprint
 from version_sort import ver_sort
 from loaders import load_web_page
 from gettext import gettext as _
@@ -40,9 +41,10 @@ class AdvancedEmergeDialog:
         self.prefs = prefs
         self.package = package
         self.setup_command = setup_command
-
+        self.arch = portagelib.get_arch()
+        
         # Parse glade file
-        self.gladefile = prefs.DATA_PATH + "advemerge.glade"
+        self.gladefile = prefs.DATA_PATH + "advemerge-new.glade"
         self.wtree = gtk.glade.XML(self.gladefile, "adv_emerge_dialog", self.prefs.APP)
      
         # register callbacks
@@ -57,7 +59,7 @@ class AdvancedEmergeDialog:
                      "on_cbBuildPkgOnly_clicked" : self.buildpkgonly_check,
                      "on_cbUsePkg_clicked" : self.usepkg_check,
                      "on_cbUsePkgOnly_clicked" : self.usepkgonly_check,
-                     "on_version_changed" : self.version_changed,}
+                     "on_cmbVersion_changed" : self.version_changed,}
 
         self.wtree.signal_autoconnect(callbacks)
         self.window = self.wtree.get_widget("adv_emerge_dialog")
@@ -67,32 +69,54 @@ class AdvancedEmergeDialog:
         self.tooltips = gtk.Tooltips()
       
         # Build version combo list
-        self.combo = self.wtree.get_widget("cmbVersion")
+        #self.combo = self.wtree.get_widget("cmbVersion")
         self.get_versions()
+        
 
         # Build a formatted combo list from the versioninfo list 
-        comboList = []
+        #comboList = []
+        self.comboList = gtk.ListStore(str)
         index = 0
-        x = 0
-        for ver in self.verList:
-            info = ver[0]
-            info += '   [Slot:' + str(ver[4]) + ']'
-            if ver[2]:
-                info += _('   [best/latest]')
+        for x in range(len(self.verList)):
+            ver = self.verList[x]
+            info = ver["number"]
+            info += '   [Slot:' + str(ver["slot"]) + ']'
+            if not ver["stable"]:
+                info += _('   (unstable)')
+            if ver["hard_masked"]:
+                info += _('   [MASKED]')
+            if ver["best"]:
+                if ver["best_downgrades"]:
+                    info += _('   (recommended) (downgrade)')
+                else:
+                    info += _('   (recommended)')
                 index = x
-            if ver[3]:
+            if ver["installed"]:
                 info += _('   [installed]')
-            comboList.append(info)
-            x += 1
+            #comboList.append(info)
+        # put the recommended upgrade (or downgrade) at the top of the list
+        #comboList.insert(0,comboList.pop(index))
 
         # Set the combo list
-        self.combo.set_popdown_strings(comboList)
+        #self.combo.set_popdown_strings(comboList)
+            self.comboList.append([info])
         
+        # Build version combobox
+        self.combobox = self.wtree.get_widget("cmbVersion")
+        self.combobox.set_model(self.comboList)
+        cell = gtk.CellRendererText()
+        self.combobox.pack_start(cell, gtk.TRUE)
+        self.combobox.add_attribute(cell, 'text', 0)
+        self.combobox.set_active(index) # select "recommended" ebuild by default
+        #self.combobox.connect("changed",self.version_changed) # register callback
+         
         # Set any emerge options the user wants defaulted
         if self.prefs.emerge.pretend:
             self.wtree.get_widget("cbPretend").set_active(True)
-        if self.prefs.emerge.verbose:
-            self.wtree.get_widget("cbVerbose").set_active(True)
+        ## this now just references --update, which is probably not the desired behaviour.
+        ## perhaps the current version should be indicated somewhere in the dialog
+        #if self.prefs.emerge.upgradeonly:
+        #    self.wtree.get_widget("cbUpgradeOnly").set_active(True)
         if self.prefs.emerge.upgradeonly:
             self.wtree.get_widget("cbUpgradeOnly").set_active(True)
         if self.prefs.emerge.fetch:
@@ -105,7 +129,10 @@ class AdvancedEmergeDialog:
     def ok_clicked(self, widget):
         """ Interrogate object for settings and start the ebuild """
         # Get selected version from combo list
-        sel_ver = self.combo.entry.get_text()
+        #sel_ver = self.combo.entry.get_text()
+        iter = self.combobox.get_active_iter()
+        model = self.combobox.get_model()
+        sel_ver = model.get_value(iter, 0)
 
         # Get version info of selected version
         verInfo = self.get_verInfo(sel_ver)
@@ -125,7 +152,7 @@ class AdvancedEmergeDialog:
             accept_keyword + \
             "emerge " + \
             self.get_options() + \
-            '=' + verInfo[1]
+            '=' + verInfo["name"]
 
         # Dispose of the dialog
         self.window.destroy()
@@ -147,13 +174,17 @@ class AdvancedEmergeDialog:
 
     def version_changed(self, widget):
         """ Version has changed, update the dialog window """
-        sel_ver = self.combo.entry.get_text()
+        #sel_ver = self.combo.entry.get_text()
+        dprint("ADVEMERGE: changing version")
+        iter = self.combobox.get_active_iter()
+        model = self.combobox.get_model()
+        sel_ver = model.get_value(iter, 0)
         if len(sel_ver) > 2:
             verInfo = self.get_verInfo(sel_ver)
             # Reset use flags
-            self.build_use_flag_widget(verInfo[6])
+            self.build_use_flag_widget(verInfo["use_flags"])
             # Reset keywords
-            self.build_keywords_widget(verInfo[5])
+            self.build_keywords_widget(verInfo["keywords"])
 
 
     def quiet_check(self, widget):
@@ -208,16 +239,19 @@ class AdvancedEmergeDialog:
     #------------------------------------------
 
     def get_versions(self):
-        """ Build a list of all versions for this package
+        """ Build a dictionary of all versions for this package
             with an info list for each version
  
-            info[0] = version number only
-            info[1] = full ebuild name
-            info[2] = is best (latest) version
-            info[3] = is installed
-            info[4] = slot
-            info[5] = keyword list
-            info[6] = use flag list
+            info["number"] = version number only
+            info["name"] = full ebuild name
+            info["best"] = True if best version for this system
+            info["best_downgrades"] = True if "best" version will downgrade
+            info["installed"] = True if installed
+            info["slot"] = slot number
+            info["keywords"] = keyword list
+            info["use_flags"] = use flag list
+            info["stable"] = True if stable on current architecture
+            info["hard_masked"] = True if hard masked
         """ 
         self.verList = []
         # Get all versions sorted in chronological order
@@ -226,26 +260,51 @@ class AdvancedEmergeDialog:
         # Get all installed versions
         installed = self.package.get_installed()
 
+        # get lists of hard masked and stable versions (unstable inferred)
+        hardmasked = self.package.get_hard_masked(check_unmask = True)
+        nonmasked = self.package.get_versions(include_masked = False)
+        
         # iterate through ebuild list and create data structure
         for ebuild in ebuilds:
-            props = self.package.get_properties(ebuild)
-            vernum = portagelib.get_version(ebuild)
-            isBest = ebuild == self.package.get_latest_ebuild()
-            isInstalled = ebuild in installed
-            slot = props.get_slot()
-            keywords = props.get_keywords()
-            useflags = props.get_use_flags()
-            # Append to list
-            self.verList.append([vernum, ebuild, isBest, isInstalled, slot, keywords, useflags])
- 
+            # removed by Tommy:
+            #~ props = self.package.get_properties(ebuild)
+            #~ vernum = portagelib.get_version(ebuild)
+            #~ isBest = ebuild == self.package.get_latest_ebuild()
+            #~ isInstalled = ebuild in installed
+            #~ slot = props.get_slot()
+            #~ keywords = props.get_keywords()
+            #~ useflags = props.get_use_flags()
+            #~ # Append to list
+            #~ self.verList.append([vernum, ebuild, isBest, isInstalled, slot, keywords, useflags])
+            # added by Tommy:
+            info = {}
+            props = self.package.get_properties(ebuild) 
+            info["name"] = ebuild
+            info["number"] = portagelib.get_version(ebuild)
+            if ebuild in self.package.get_best_ebuild():
+                info["best"] = True
+                info["best_downgrades"] = ebuild not in portagelib.best(installed + [ebuild])
+            else:
+                info["best"] = info["best_downgrades"] = False
+            info["installed"] = ebuild in installed
+            info["slot"] = props.get_slot()
+            info["keywords"] = props.get_keywords()
+            info["use_flags"] = props.get_use_flags()
+            info["stable"] = ebuild in nonmasked
+            info["hard_masked"] = ebuild in hardmasked
+            self.verList.append(info)
 
     def get_verInfo(self, version):
         # Find selected version
         sel_ver = version.split(' ')[0]
-        for ver in self.verList:
-            if sel_ver == ver[0]:
+        for x in range(len(self.verList)):
+            ver = self.verList[x]
+            if sel_ver == ver["number"]:
                verInfo = ver
                break
+        if not verInfo:
+            dprint("ADVEMERGE: get_verInfo(); freaking out! what's \"verInfo\"?")
+            verInfo = "?"
         return verInfo
 
 
@@ -317,8 +376,8 @@ class AdvancedEmergeDialog:
         size = len(use_flags)
         maxcol = 3
         maxrow = size / maxcol - 1
-        if maxrow < 0:
-            maxrow = 0
+        if maxrow < 1:
+            maxrow = 1
         table = gtk.Table(maxrow, maxcol-1, True)
         UseFlagFrame.add(table)
 
@@ -381,8 +440,8 @@ class AdvancedEmergeDialog:
         size = len(keywords) + 1  # Add one for None button
         maxcol = 5
         maxrow = size / maxcol - 1
-        if maxrow < 0:
-            maxrow = 0
+        if maxrow < 1:
+            maxrow = 1
         table = gtk.Table(maxrow, maxcol-1, True)
         KeywordsFrame.add(table)
         self.kwList = []

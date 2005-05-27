@@ -45,5 +45,6 @@
     </notcaution>
     <emerge>^&gt;&gt;&gt; emerge [^/]</emerge>
     <ebuild>^\d+\s+\[ebuild.*</ebuild>
+    <merged>merged.$</merged>
   </re_filters>
 </portholeconfig>

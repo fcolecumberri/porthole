@@ -116,7 +116,7 @@ def load_installed_files(window, view, package):
 
 def load_web_page(name):
     """Try to load a web page in the default browser"""
-    dprint("LOADERS: load_web_page()")
+    dprint("LOADERS: load_web_page(); starting browser thread")
     browser = web_page(name)
     browser.start()
     return

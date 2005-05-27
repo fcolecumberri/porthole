@@ -24,6 +24,7 @@
 
 from utils import dprint, dsave
 from sys import exit
+import os
 import string
 from string import digits, zfill
 from gettext import gettext as _
@@ -42,6 +43,8 @@ import threading
 #import gtk
 
 from metadata import parse_metadata
+
+thread_id = os.getpid()
 
 def get_world():
         world = []
@@ -155,6 +158,9 @@ Installed_Semaphore.acquire()
 installed = None
 Installed_Semaphore.release()
 
+def get_arch():
+    """Return host CPU architecture"""
+    return portage.settings["ARCH"]
 
 def get_name(full_name):
     """Extract name from full name."""
@@ -164,10 +170,37 @@ def get_category(full_name):
     """Extract category from full name."""
     return full_name.split('/')[0]
 
-def get_installed(full_name):
-    """Extract installed versions from full name."""
-    return portage.db['/']['vartree'].dep_match(full_name)
+def get_full_name(ebuild):
+    """Extract category/package from some ebuild identifier"""
+    if ebuild.endswith("*"): ebuild = ebuild[:-1]
+    cplist = portage.catpkgsplit(ebuild) or portage.catsplit(ebuild)
+    if not cplist or len(cplist) < 2:
+        dprint("PORTAGELIB get_full_name(): issues with '%s'" % ebuild)
+        return ''
+    cp = cplist[0] + "/" + cplist[1]
+    while cp[0] in ["<",">","=","!","*"]: cp = cp[1:]
+    return str(cp) # hmm ... unicode keeps appearing :(
 
+def get_installed(package_name):
+    """Extract installed versions from package_name.
+    package_name can be the short package name ('eric'), long package name ('dev-util/eric')
+    or a version-matching string ('>=dev-util/eric-2.5.1')
+    """
+    return portage.db['/']['vartree'].dep_match(package_name)
+
+def xmatch(*args):
+    """Pass arguments on to portage's caching match function.
+    xmatch('match-all',package-name) returns all ebuilds of <package-name> in a list,
+    xmatch('match-visible',package-name) returns non-masked ebuilds,
+    xmatch('match-list',package-name,mylist=list) checks for <package-name> in <list>
+    There are more possible arguments.
+    package-name may be, for example:
+       gnome-base/control-center            ebuilds for gnome-base/control-center
+       control-center                       ebuilds for gnome-base/control-center
+       >=gnome-base/control-center-2.8.2    only ebuilds with version >= 2.8.2
+    """
+    return portage.portdb.xmatch(*args)
+ 
 def get_version(ebuild):
     """Extract version number from ebuild name"""
     result = ''
@@ -217,8 +250,10 @@ class Properties:
         self.__dict = dict
         
     def __getattr__(self, name):
-        try: return self.__dict[name].decode('ascii')  # return unicode
-        except: return u""  # always return something
+        #try: return self.__dict[name].decode('ascii')  # return unicode
+        #except: return u""  # always return something
+        try: return self.__dict[name]
+        except: return ''
         
     def get_slot(self):
         """Return slot number as an integer."""
@@ -237,7 +272,7 @@ class Properties:
         """Returns a list of strings."""
         return self.homepage.split()
 
-def get_size( ebuild ):
+def get_size(ebuild):
     """ Returns size of package to fetch. """
     #This code to calculate size of downloaded files was taken from /usr/bin/emerge - BB
     mydigest = portage.db['/']['porttree'].dbapi.finddigest(ebuild)
@@ -258,6 +293,8 @@ def get_size( ebuild ):
     except Exception, e:
         dprint( "PORTAGELIB: get_size Exception:"  )
         dprint( e )
+        dprint( "ebuild: " + str(ebuild))
+        dprint( "mydigest: " + str(mydigest))
         mysum="[bad / blank digest]"
     return mysum
 
@@ -273,7 +310,7 @@ def get_digest( ebuild ):
     except SystemExit, e:
         raise # Needed else can't exit
     except Exception, e:
-        dprint( "PORTAGELIB: get_size Exception:"  )
+        dprint( "PORTAGELIB: get_digest Exception:"  )
         dprint( e )
     return digest_file
 
@@ -294,47 +331,98 @@ class Package:
     """An entry in the package database"""
 
     def __init__(self, full_name):
-        self.full_name = full_name
-        Installed_Semaphore.acquire()
-        self.is_installed = full_name in installed  # true if installed
-        Installed_Semaphore.release()
+        self.full_name = str(full_name) # unicode gives portage headaches
         self.latest_ebuild = None
+        self.hard_masked = None
+        self.hard_masked_nocheck = None
+        self.best_ebuild = None
+        self.installed_ebuilds = None
+        self.name = None
+        self.category = None
+        self.properties = {}
+        self.upgradable = None
+        self.latest_ebuild = None
+
         self.latest_installed = None
         self.size = None
         self.digest_file = None
         self.in_world = full_name in World
 
+    def update_info(self):
+        """Update the package info"""
+        self.latest_installed == None
+        Installed_Semaphore.acquire()
+        self.is_installed = full_name in installed  # true if installed
+        Installed_Semaphore.release()
+        self.in_world = full_name in World
+
     def get_installed(self):
         """Returns a list of all installed ebuilds."""
-        return get_installed(self.full_name)
+        if self.installed_ebuilds == None:
+            self.installed_ebuilds = get_installed(self.full_name)
+        return self.installed_ebuilds
     
     def get_name(self):
         """Return name portion of a package"""
-        return get_name(self.full_name)
+        if self.name == None:
+            self.name = get_name(self.full_name)
+        return self.name
 
     def get_category(self):
         """Return category portion of a package"""
-        return get_category(self.full_name)
+        if self.category == None:
+            self.category = get_category(self.full_name)
+        return self.category
 
-    def get_latest_ebuild(self, include_masked = True):
+    def get_latest_ebuild(self, include_masked = False):
         """Return latest ebuild of a package"""
         # Note: this is slow, see get_versions()
+        # removed by Tommy:
+        #~ if self.latest_ebuild == None:
+            #~ criterion = include_masked and 'match-all' or 'match-visible'
+            #~ self.latest_ebuild = portage.best(self.get_versions(include_masked))
+        #~ return self.latest_ebuild
+        # added by Tommy:
+        # changed to not return hard-masked packages by default, unless in package.unmask
+        # unstable packages however ARE returned. To return the best version for a system,
+        # taking into account keywords and masking, use get_best_ebuild().
+        if include_masked:
+            return portage.best(self.get_versions())
         if self.latest_ebuild == None:
-            criterion = include_masked and 'match-all' or 'match-visible'
-            self.latest_ebuild = portage.best(self.get_versions(include_masked))
+            vers = self.get_versions()
+            for m in self.get_hard_masked(check_unmask = True):
+                while m in vers:
+                    vers.remove(m)
+            self.latest_ebuild = portage.best(vers)
         return self.latest_ebuild
 
-    def get_size( self ):
+    def get_best_ebuild(self):
+        """Return best visible ebuild (taking account of package.keywords, .mask and .unmask.
+        If all ebuilds are masked for your architecture, returns ''."""
+        if self.best_ebuild == None:
+            self.best_ebuild = portage.portdb.xmatch("bestmatch-visible",self.full_name)
+        return self.best_ebuild
+
+    def get_default_ebuild(self):
+        return (self.get_best_ebuild() or
+                self.get_latest_ebuild() or
+                self.get_latest_ebuild(include_masked = True) or
+                self.get_latest_installed())
+
+    def get_size(self):
         if self.size == None:
             self.size = get_size( self.get_latest_ebuild() )
+            ebuild = self.get_default_ebuild()
+            if ebuild: self.size = get_size(ebuild)
+            else: self.size = ''
         return self.size
 
-    def get_digest( self ):
+    def get_digest(self):
         if self.digest_file == None:
             self.digest_file = get_digest( self.get_latest_ebuild() )
         return self.digest_file
 
-    def get_latest_installed( self ):
+    def get_latest_installed(self):
         if self.latest_installed == None:
             installed_ebuilds = self.get_installed( )
             if len(installed_ebuilds) == 1:
@@ -351,41 +439,76 @@ class Package:
 
     def get_properties(self, specific_ebuild = None):
         """ Returns properties of specific ebuild.
-           If no ebuild specified, get latest ebuild. """
-        dprint("PORTAGELIB: Package:get_properties()")
-        try:
-            if specific_ebuild == None:
-                ebuild = self.get_latest_ebuild()
-            else:
-                ebuild = specific_ebuild
+            If no ebuild specified, get latest ebuild. """
+        #dprint("PORTAGELIB: Package:get_properties()")
+#        try:
+        if specific_ebuild == None:
+            ebuild = self.get_default_ebuild()
             if not ebuild:
+                dprint("No ebuild found!")
                 raise Exception(_('No ebuild found.'))
-            return get_properties(ebuild)
-        except Exception, e:
-            dprint("PORTAGELIB: %s" % e)  # fixed bug # 924730
-            return Properties()
+        else:
+            dprint("PORTAGELIB get_properties(): Using specific ebuild")
+            ebuild = specific_ebuild
+        if not self.properties.has_key(ebuild):
+            #dprint("portagelib: geting properties for '%s'" % str(ebuild))
+            self.properties[ebuild] = get_properties(ebuild)
+        return self.properties[ebuild]
+#        except Exception, e:
+#            dprint("PORTAGELIB exception: %s" % e)  # fixed bug # 924730
+#            return Properties()
 
     def get_versions(self, include_masked = True):
-        """Returns all versions of the available ebuild"""
-        # Note: this slow, especially when include_masked is false
+        """Returns all available ebuilds for the package"""
+        # Note: this is slow, especially when include_masked is false
         criterion = include_masked and 'match-all' or 'match-visible'
-        return portage.portdb.xmatch(criterion, self.full_name)
+        return portage.portdb.xmatch(criterion, str(self.full_name))
 
-    def upgradable(self, upgrade_only = False):
-        """Returns true if an unmasked upgrade/downgrade is available"""
-        # Note: this is slow, see get_versions()
-        installed = self.get_installed()
-        if not installed:
-            return False
-        versions = self.get_versions(False);
-        if not versions:
-            return False
-        if upgrade_only:
-            best = portage.best(installed + versions)  # upgrade only
-        else:
-            best = portage.best(versions) # upgrade or downgrade
-        return best not in installed
+    def get_hard_masked(self, check_unmask = False):
+        """Returns all versions hard masked by package.mask.
+        if check_unmask is True, it excludes packages in package.unmask"""
+        if self.hard_masked_nocheck == None:
+            hardmasked = []
+            try:
+                for x in portage.portdb.mysettings.pmaskdict[self.full_name]:
+                    m = portage.portdb.xmatch("match-all",x)
+                    for n in m:
+                        if n not in hardmasked: hardmasked.append(n)
+            except KeyError:
+                pass
+            self.hard_masked_nocheck = hardmasked
+            try:
+                for x in portage.portdb.mysettings.punmaskdict[self.full_name]:
+                    m = portage.portdb.xmatch("match-all",x)
+                    for n in m:
+                        while n in hardmasked: hardmasked.remove(n)
+            except KeyError:
+                pass
+            self.hard_masked = hardmasked
+        return check_unmask and self.hard_masked or self.hard_masked_nocheck
+        
 
+    def is_upgradable(self):
+        """Indicates whether an unmasked upgrade/downgrade is available.
+        If portage wants to upgrade the package, returns 1.
+        If portage wants to downgrade the package, returns -1.
+        Else, returns 0.
+        """
+        if self.upgradable == None:
+            best = self.get_best_ebuild()
+            installed = self.get_latest_installed()
+            if not best or not installed:
+                self.upgradable = 0
+                return self.upgradable
+            better = portage.best([best,installed])
+            if best == installed:
+                self.upgradable = 0
+            elif better == best:
+                self.upgradable = 1
+            elif better == installed:
+                self.upgradable = -1
+        return self.upgradable
+ 
 def sort(list):
     """sort in alphabetic instead of ASCIIbetic order"""
     dprint("PORTAGELIB: sort()")
@@ -419,21 +542,44 @@ class Database:
         except:
             return None
 
+    def update_package(self, fullname):
+        """Update the package info in the full list and the installed list"""
+        #category, name = fullname.split("/")
+        category = get_category(full_name)
+        name = get_name(full_name)
+        if (category in self.categories and name in self.categories[category]):
+            self.categories[category][name].update_info()
+        if (category in self.installed and name in self.installed[category]):
+            self.installed[category][name].update_info()
 
+
+
+# this has to be here because we get recursive imports if it's up top.
+#from readers import CommonReader
 class DatabaseReader(threading.Thread):
     """Builds the database in a separate thread."""
 
-    def __init__(self):
+    def __init__(self, callback):
         threading.Thread.__init__(self)
         self.setDaemon(1)     # quit even if this thread is still running
-        self.db = Database()  # the database
+        self.db = Database()        # the database
+        self.callback = callback
         self.done = False     # false if the thread is still working
         self.count = 0        # number of packages read so far
+        self.nodecount = 0    # number of nodes read so far
         self.error = ""       # may contain error message after completion
-        self.new_installed_Semaphore = threading.Semaphore()
+        # we aren't done yet
+        self.done = False
+        # cancelled will be set when the thread should stop
+        self.cancelled = False
+        #self.new_installed_Semaphore = threading.Semaphore()
         self.installed_list = None
         self.allnodes_length = 0  # used for calculating the progress bar
         self.world = get_world()
+
+    def please_die(self):
+        """ Tell the thread to die """
+        self.cancelled = True
 
     def get_db(self):
         """Returns the database that was read."""
@@ -441,6 +587,8 @@ class DatabaseReader(threading.Thread):
 
     def read_db(self):
         """Read portage's database and store it nicely"""
+        global thread_id
+        dprint("PORTAGELIB: read_db(); process id = %d, thread_id = %d *****************" %(os.getpid(),thread_id))
         tree = portage.db['/']['porttree']
         self.get_installed()
         try:
@@ -455,48 +603,70 @@ class DatabaseReader(threading.Thread):
         self.allnodes_length = len(allnodes)
         dprint("PORTAGELIB: read_db() create internal porthole list; length=%d" %len(allnodes))
         #dsave("db_allnodes_cache", allnodes)
+        dprint("PORTAGELIB: read_db(); Threading info: %s" %str(threading.enumerate()) )
+        count = 0
         for entry in allnodes:
-                category, name = entry.split('/')
-                # why does getallnodes() return timestamps?
-                if name == 'timestamp.x' or name[-4:] == "tbz2" or name == "metadata.xml":  
-                    continue
-                self.count += 1
-                #gtk.threads_enter()
-                data = Package(entry)
-                #gtk.threads_leave()
-                self.db.categories.setdefault(category, {})[name] = data;
-                if entry in self.installed_list:
-                    self.db.installed.setdefault(category, {})[name] = data;
-                    self.db.installed_count += 1
-                self.db.list.append((name, data))
+            if self.cancelled: self.done = True; return
+            if count == 500:  # update the statusbar
+                self.nodecount += count
+                dprint("PORTAGELIB: read_db(); count = %d" %count)
+                self.callback([self.nodecount, self.allnodes_length, self.done])
+                count = 0
+            category, name = entry.split('/')
+            # why does getallnodes() return timestamps?
+            if name == 'timestamp.x' or name.endswith("tbz2") or name == "metadata.xml":  
+                continue
+            count += 1
+            data = Package(entry)
+            if self.cancelled: self.done = True; return
+            #self.db.categories.setdefault(category, {})[name] = data;
+            # after here be segfaults
+            # look out for segfaults 
+            if category not in self.db.categories:
+                self.db.categories[category] = {}
+                #dprint("added category %s" % str(category))
+            self.db.categories[category][name] = data;
+            if entry in self.installed_list: 
+                if category not in self.db.installed: 
+                    self.db.installed[category] = {} 
+                    #dprint("added category %s to installed" % str(category)) 
+                self.db.installed[category][name] = data; 
+                self.db.installed_count += 1
+            self.db.list.append((name, data))
+            self.nodecount += count
         dprint("PORTAGELIB: read_db(); end of list build; sort is next")
-        self.db.list = sort(self.db.list)
+        self.db.list = self.sort(self.db.list)
         dprint("PORTAGELIB: read_db(); end of sort, finished")
 
     def get_installed(self):
         """get a new installed list"""
         # I believe this next variable may be the cause of our segfaults
         # so I' am semaphoring it.  Brian 2004/08/19
-        self.new_installed_Semaphore.acquire()
+        #self.new_installed_Semaphore.acquire()
         #installed_list # a better way to do this?
         dprint("PORTAGELIB: get_installed();")
         self.installed_list = portage.db['/']['vartree'].getallnodes()
-        #gtk.threads_enter()
         global Installed_Semaphore
         global installed
         Installed_Semaphore.acquire()
         installed = self.installed_list
         Installed_Semaphore.release()
-        #gtk.threads_leave()
-        self.new_installed_Semaphore.release()
+        #self.new_installed_Semaphore.release()
         
-    def run(self):
+    def start(self): #run(self):
         """The thread function."""
         self.read_db()
-        self.done = True   # tell main thread that this thread has finished
+        self.done = True   # tell main thread that this thread has finished and pass back the db
+        self.callback([self.count, self.done, self.db])
         dprint("PORTAGELIB: DatabaseReader.run(); finished")
 
-
+    def sort(self, list):
+        """sort in alphabetic instead of ASCIIbetic order"""
+        dprint("PORTAGELIB: DatabaseReader.sort()")
+        spam = [(x[0].upper(), x) for x in list]
+        spam.sort()
+        dprint("PORTAGELIB: sort(); finished")
+        return [x[1] for x in spam]
 
 
 

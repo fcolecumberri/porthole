@@ -22,7 +22,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import threading, re, gtk
+import threading, re, gtk, os
 import portagelib
 from views import DependsView, CommonTreeView
 from utils import get_icon_for_package, get_icon_for_upgrade_package, dprint
@@ -54,8 +54,8 @@ class UpgradableReader(CommonReader):
         self.upgrade_view = upgrade_view
         # dummy view to get dependancy's from existing depends.py code
         self.dep_view = DependsView()
-        self.upgrade_results = upgrade_view.upgrade_model
-        self.upgrade_results.clear()
+        #self.upgrade_results = upgrade_view.upgrade_model
+        self.upgrade_results = upgrade_view.get_model()
         self.installed_items = installed
         self.upgrade_only = upgrade_only
         #self.world = []
@@ -66,43 +66,46 @@ class UpgradableReader(CommonReader):
  
     def run(self):
         """fill upgrade tree"""
+        dprint("READERS: UpgradableReader(); process id = %d *******************" %os.getpid())
         self.upgrade_results.clear()    # clear the treemodel
         installed_world = []
         installed_dep = []
+        upgradeflag = self.upgrade_only and True or False
         # find upgradable packages
         for cat, packages in self.installed_items:
             for name, package in packages.items():
                 self.count += 1
                 if self.cancelled: self.done = True; return
-                if package.upgradable(self.upgrade_only):
-                    if package.in_world:
-                        installed_world += [(package.full_name, package)]
-                    else:
-                        installed_dep += [(package.full_name, package)]
-                    self.upgradeables[package.full_name] = package
+                upgradable = package.is_upgradable()
+                if upgradable: # is_upgradable() = 1 for upgrade, -1 for downgrade
+                    if upgradable == 1 or not self.upgrade_only:
+                        if package.in_world:
+                            installed_world.append([package.full_name, package])
+                        else:
+                            installed_dep.append([package.full_name, package])
+                        self.upgradeables[package.full_name] = package
         installed_world = portagelib.sort(installed_world)
         installed_dep = portagelib.sort(installed_dep)
-        #installed = installed_world + installed_dep
         self.upgrade_total = len(installed_world) + len(installed_dep)
         self.world_count = 0
         self.dep_count = 0
-        #self.add_package(_("---- World upgradeable ----"), None, True)
         for full_name, package in installed_world:
             self.world_count += 1
             self.add_package(full_name, package, package.in_world)
-            self.check_deps(full_name, package)
+            #self.check_deps(full_name, package)
         if installed_dep != []:
-            self.add_package(_("Dependency upgradeable"), None, False, False)
+            self.add_package(_("Upgradable dependencies:"), None, False, False)
             for full_name, package in installed_dep:
                 self.dep_count += 1
                 if self.cancelled: self.done = True; return
                 self.add_deps(full_name, package, package.in_world, False)
-                self.check_deps(full_name, package)
+                #self.check_deps(full_name, package)
         # set the thread as finished
         self.done = True
 
     def check_deps(self, full_name, package):
         """checks for and adds any upgradeable dependencies to the tree"""
+        dprint("READERS: check_deps(); Checking dependencies...")
         self.dep_view.clear()
         self.dep_view.fill_depends_tree(self.dep_view, package)
         self.model = self.dep_view.get_model()
@@ -138,7 +141,7 @@ class UpgradableReader(CommonReader):
         if package:
             self.upgrade_results.set_value(self.parent, 6, package.get_size())
             installed = package.get_latest_installed()
-            latest = package.get_latest_ebuild()
+            latest = package.get_best_ebuild()
             try:
                 installed = installed = portagelib.get_version( installed )
             except IndexError:
@@ -171,8 +174,9 @@ class UpgradableReader(CommonReader):
                     if full_name[-1] == '*':
                         full_name = full_name[:-1]
                     #dprint("READERS: get_upgrade_deps(); OPS cleaned; new full_name = %s" %full_name)
+                    full_name = str(full_name)
                     name = full_name.split('/')
-                    if len(name) > 2:
+                    if len(name) != 2:
                         dprint("READERS: get_upgrade_deps(); dependancy name error for %s !!!!!!!!!!!!!!!!!!!!!!" %full_name)
                         return
                     if name[0] == 'virtual': # get a proper package name
@@ -199,7 +203,7 @@ class UpgradableReader(CommonReader):
                         #dprint("READERS: get_upgrade_deps(); extracted dep name = %s" %full_name)
                         if blocker:
                             pkg = portagelib.Package(full_name)
-                            if pkg.is_installed:
+                            if pkg.get_installed():
                                 if version and version in pkg.get_installed():
                                     self.dep_list += [(full_name, pkg, blocker)]
                                 else:
@@ -247,26 +251,30 @@ class UpgradableReader(CommonReader):
 
     def add_deps(self, full_name, package, in_world, blocker):
         """Add all dependencies to the tree"""
-        #dprint("READERS: add_deps() name = %s" %full_name)
+        #dprint("READERS: add_deps();  name = %s" %full_name)
         child_iter = self.upgrade_results.insert_before(self.parent, None)
         self.upgrade_results.set_value(child_iter, 1, in_world)
         self.upgrade_results.set_value(child_iter, 4, in_world)
         self.upgrade_results.set_value(child_iter, 0, full_name)
         self.upgrade_results.set_value(child_iter, 2, package)
         installed = package.get_latest_installed()
-        latest = package.get_latest_ebuild()
+        best = package.get_best_ebuild()
+        #dprint("READERS: add_deps(); installed = %s" % str(installed))
+        #dprint("READERS: add_deps(); best = %s" % str(best))
         try:
-            installed = portagelib.get_version( installed )
+            if installed:
+                instver = portagelib.get_version(installed)
         except IndexError:
+            dprint("READERS: add_deps(); Installed ??? : %s" % str(installed))
             installed = ""
         try:
-            latest = portagelib.get_version( latest )
+            if best:
+                bestver = portagelib.get_version(best)
         except IndexError:
-            latest = "Error"
-        self.upgrade_results.set_value(child_iter, 7, installed)
-        self.upgrade_results.set_value(child_iter, 8, latest)
+            bestver = "Error"
         self.upgrade_results.set_value(child_iter, 6, package.get_size())
-        self.upgrade_results.set_value(child_iter, 8, latest)
+        self.upgrade_results.set_value(child_iter, 7, instver)
+        self.upgrade_results.set_value(child_iter, 8, bestver)
         self.upgrade_results.set_value(child_iter, 9, package.get_properties().description )
         if blocker:
             icon, color = gtk.STOCK_STOP, 'red'
@@ -286,6 +294,7 @@ class DescriptionReader(CommonReader):
 
     def run(self):
         """ Load all descriptions """
+        dprint("READERS: DescriptionReader(); process id = %d *****************" %os.getpid())
         self.descriptions = {}
         for name, package in self.packages:
             if self.cancelled: self.done = True; return

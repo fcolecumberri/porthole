@@ -61,7 +61,7 @@ def dsave(name, item = None):
 def get_icon_for_package(package):
     """Return an icon for a package"""
     # if it's installed, find out if it can be upgraded
-    if package and package.is_installed:
+    if package and package.get_installed():
         icon = gtk.STOCK_YES
     else:
         # just put the STOCK_NO icon
@@ -74,7 +74,7 @@ def get_icon_for_upgrade_package(package, prefs):
     if not package:
         return '', 'blue'
     #  find out if it can be upgraded
-    if package.upgradable(upgrade_only = True):
+    if package.is_upgradable() == 1:  # 1 for only upgrades (no downgrades)
         icon = gtk.STOCK_GO_UP
         color = prefs.world_upgradeable_color
     else: # it's a downgrade
@@ -182,7 +182,8 @@ class EmergeOptions:
         if self.pretend:   opt_string += '--pretend '
         if self.fetch:     opt_string += '--fetchonly '
         if self.verbose:   opt_string += '--verbose '
-        if self.upgradeonly: opt_string += '--upgradeonly ' 
+        # upgradeonly does not have the desired effect when passed to emerge.
+        #if self.upgradeonly: opt_string += '--upgradeonly '
         if self.nospinner: opt_string += '--nospinner '
         return opt_string
 
@@ -649,6 +650,7 @@ class PortholeConfiguration:
 
         self.emerge_re = sre.compile(dom.getitem('/re_filters/emerge'))
         self.ebuild_re = sre.compile(dom.getitem('/re_filters/ebuild'))
+        self.merged_re = sre.compile(dom.getitem('/re_filters/merged'))
         del dom
 
     def isInfo(self, teststring):
@@ -695,6 +697,10 @@ class PortholeConfiguration:
     def isEmerge(self, teststring):
         ''' Parse string, return true if it is the initial emerge line '''
         return self.emerge_re.match(teststring) != None
+
+    def isMerged(self, teststring):
+        ''' Parse string, return true if it is the merged line '''
+        return self.merged_re.search(teststring) != None
 
 
 class BadLogFile(Exception):
@@ -745,8 +751,8 @@ def estimate(package_name, log_file_name="/var/log/emerge.log"):
                         end_time = string.atof((tokens[0])[0:-1])
                         emerge_count += 1
                         total_time = total_time +\
-								(datetime.datetime.fromtimestamp(end_time) -
-                                 datetime.datetime.fromtimestamp(start_time))
+                                (datetime.datetime.fromtimestamp(end_time) -
+                                datetime.datetime.fromtimestamp(start_time))
                         break
         if emerge_count > 0:
             return total_time / emerge_count

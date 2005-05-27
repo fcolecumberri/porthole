@@ -89,6 +89,7 @@ class ProcessManager:
     """ Manages queued and running processes """
     def __init__(self, env = {}, prefs = None, config = None, log_mode = False):
         """ Initialize """
+        dprint("TERMINAL: ProcessManager; process id = %d ****************" %os.getpid())
         if log_mode:
             self.title = _("Porthole Log Viewer")
         else:
@@ -104,6 +105,7 @@ class ProcessManager:
         self.Failed = False
         self.isPretend = False
         self.file_input = False
+        self.callback_armed = False
         # process list to store pending processes
         self.process_list = []
         # the window is not visible until a process is added
@@ -114,11 +116,6 @@ class ProcessManager:
         self.directory = None
         self.filename = None
         self.untitled_serial = -1
-        # create the process reader
-        self.reader = ProcessOutputReader(self.process_done)
-        # start the reader
-        self.reader.start()
-        gobject.timeout_add(100, self.update)
 
     def set_tags(self):
         """ set the text formatting tags from prefs object """
@@ -274,6 +271,13 @@ class ProcessManager:
         #dprint(self.term.auto_scroll)
         self.notebook.connect("switch-page", self.switch_page)
         self.window.connect('delete-event', self.confirm_delete)
+        dprint("TERMINAL: show_window(); starting reader thread")
+        # create the process reader
+        self.reader = ProcessOutputReader(self.process_done)
+        # start the reader
+        self.reader.start()
+        gobject.timeout_add(100, self.update)
+
         if self.prefs:
             self.window.resize((self.prefs.emerge.verbose and
                                 self.prefs.terminal.width_verbose or
@@ -779,6 +783,9 @@ class ProcessManager:
                                 self.set_file_name(self.process_buffer)
                                 self.set_statusbar(self.process_buffer[:-1])
                                 self.resume_line = self.process_buffer
+                                if self.callback_armed:
+                                    self.do_callback()
+                                    self.callback_armed = False
 
                         elif self.config.isInfo(self.process_buffer):
                             # Info string has been found, show info tab if needed
@@ -794,6 +801,17 @@ class ProcessManager:
                             else:
                                 tag = 'info'
                                 self.append(TAB_INFO, self.process_buffer)
+                                
+                            # Check if the info is ">>> category/package-version merged"
+                            # then set the callback to return the category/package to update the db
+                            #dprint("TERMINAL: update(); checking info line: %s" %self.process_buffer)
+                            if (not self.file_input) and self.config.isMerged(self.process_buffer):
+                                self.callback_package = self.process_buffer.split()[1]
+                                self.callback_armed = True
+                                dprint("TERMINAL: update(); Sucessfull merge of package: %s detected" %self.callback_package)
+                            #else:
+                                #dprint("TERMINAL: update(); merge not detected")
+
 
                         elif self.config.isWarning(self.process_buffer):
                             # warning string has been found, show info tab if needed
@@ -900,11 +918,8 @@ class ProcessManager:
         # display message that process finished
         self.append_all(TERMINATED_STRING,True)
         self.set_statusbar(TERMINATED_STRING[:-1])
-        # try to get a callback
-        try:
-            callback = self.process_list[0][3]
-        except:
-            callback = None
+        self.do_callback()
+        self.callback_armed = False
         # set queue icon to done
         try:
             iter = self.process_list[0][2]
@@ -922,14 +937,23 @@ class ProcessManager:
         dprint("TERMINAL: process_done; Semaphore released")
         # check for pending processes, and run them
         self.start_queue(False)
-        # if there is a callback set, call it
-        if callback:
-            callback()
         if self.term.tab_showing[TAB_QUEUE]:
             # update the queue tree
             result = self.queue_clicked(self.queue_tree)
 
+    def do_callback(self):
+        # try to get a callback
+        try:
+            callback = self.process_list[0][3]
+        except:
+            callback = None
+        # if there is a callback set, call it
+        if callback:
+            callback()
+            # callback(self.callback_package)
 
+
+        
     def render_icon(self, icon):
         """ Render an icon for the queue tree """
         return self.queue_tree.render_icon(icon,
@@ -971,7 +995,7 @@ class ProcessManager:
     
     def resume_normal(self, widget):
         """ Resume killed process """
-        Self.Semaphore.acquire()
+        self.Semaphore.acquire()
         # pass the normal command along with --resume
         name, command, iter, callback = self.process_list[0]
         command += " --resume"
@@ -980,7 +1004,7 @@ class ProcessManager:
 
     def resume_skip_first(self, widget):
         """ Resume killed process, skipping first package """
-        Self.Semaphore.acquire()
+        self.Semaphore.acquire()
         # pass the normal command along with --resume --skipfirst
         name, command, iter, callback = self.process_list[0]
         command += " --resume --skipfirst"
@@ -1587,6 +1611,7 @@ class ProcessOutputReader(threading.Thread):
 
     def run(self):
         """ Watch for process output """
+        dprint("TERMINAL: ProcessOutputReader(); process id = %d" %os.getpid())
         char = None
         while True:
             if self.process_running or self.file_input:

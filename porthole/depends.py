@@ -42,121 +42,146 @@ class DependsTree(gtk.TreeStore):
         use_list = []
         ops = ""
         using_list=False
-        for depend in depends_list:
-            #dprint(depend)
-            if depend[-1] == "?":
-                if depend[0] != "!":
-                    parent = _("Using ") + depend[:-1]
+        for dep in depends_list:
+            #dprint(dep)
+            if dep[-1] == "?":
+                if dep[0] != "!":
+                    parent = _("Using ") + dep[:-1]
                     using_list=True
                 else:
-                    parent = _("Not Using ") + depend[1:-1]
+                    parent = _("Not Using ") + dep[1:-1]
             else:
-                if depend not in ["(", ")", ":", "||"]:
-                    try: depend, ops = self.get_ops(depend)
-                    except: dprint("DEPENDS: Depend didn't split: " + depend)
-                    depend2 = None
-                    if ops: # should only be specific if there are operators
-                        depend2 = portagelib.extract_package(depend)
-                    if not depend2:
-                        depend2 = depend
-                    latest_installed = portagelib.Package(depend2).get_installed()
-                    if latest_installed:
-                        if ops:
-                            satisfied = self.is_dep_satisfied(latest_installed[0], depend, ops)
-                        else:
-                            satisfied = True
-                    else:
-                        satisfied = False
+                if dep not in ["(", ")", ":", "||"]:
+                    satisfied = portagelib.get_installed(dep)
                     if using_list:
-                        use_list.append((parent, depend, satisfied))
+                        if [parent,dep,satisfied] not in use_list:
+                            use_list.append([parent, dep, satisfied])
                     else:
-                        new_list.append((parent,depend,satisfied))
-                if depend == ")":
+                        if [parent,dep,satisfied] not in new_list:
+                            new_list.append([parent, dep, satisfied])
+                if dep == ")":
                     using_list = False
                     parent = None
         return new_list + use_list
                     
 
-    def add_depends_to_tree(self, depends_list, depends_view, parent = None):
-        """Add all dependencies to the tree"""
+    def add_depends_to_tree(self, depends_list, depends_view, base = None):
+        """Add dependencies to the tree"""
+        #dprint("DEPENDS: Parsing depends list")
         depends_list = self.parse_depends_list(depends_list)
-        parent_iter = parent
-        last_flag = None
-        for use_flag, depend, satisfied in depends_list:
-            if last_flag != use_flag and use_flag != None:
-                parent_iter = self.insert_before(parent, None)
-                self.set_value(parent_iter, 0, use_flag)
-                if use_flag[0] == "U":
-                    flag = use_flag[6:]
-                    icon = flag in self.use_flags and gtk.STOCK_YES or ''
+        #dprint("DEPENDS: Finished parsing depends list")
+        base_iter = base
+        last_parent = None
+        for parent, depend, satisfied in depends_list:
+            if parent != None and parent != last_parent:
+                if parent.startswith(_("Using ")):
+                    flag = parent[len(_("Using ")):]
+                    parent_icon = flag in self.use_flags and gtk.STOCK_YES or ''
+                elif parent.startswith(_("Not Using ")):
+                    flag = parent[len(_("Not Using ")):] 
+                    parent_icon = flag in self.use_flags and '' or gtk.STOCK_YES
                 else:
-                    flag = use_flag[9:] 
-                    icon = flag in self.use_flags and '' or gtk.STOCK_YES
-                self.set_value(parent_iter, 1, depends_view.render_icon(icon,
-                                    size = gtk.ICON_SIZE_MENU, detail = None))
-                last_flag = use_flag
-                depend_iter = self.insert_before(parent_iter, None)
-            elif use_flag == None:
-                depend_iter = self.insert_before(parent,None)
+                    dprint("Freak out!: What's going on?")
+                if base == None:
+                    base_iter = self.insert_before(base, None)
+                    self.set_value(base_iter, 0, parent)
+                    self.set_value(base_iter, 1, depends_view.render_icon(parent_icon,
+                                        size = gtk.ICON_SIZE_MENU, detail = None))
+                    dep_before = base_iter
+                last_parent = parent
+            elif parent == None:
+                dep_before = base
             else:
-                depend_iter = self.insert_before(parent_iter,None)
+                dep_before = base_iter
             self.set_value(depend_iter, 0, depend)
             if satisfied:
-                icon = gtk.STOCK_YES
+                if depend[0] == "!": icon = gtk.STOCK_NO
+                else: icon = gtk.STOCK_YES
             else:
-                icon = '' # used to be gtk.STOCK_NO
-            self.set_value(depend_iter, 3, satisfied)
-            self.set_value(depend_iter, 1, 
+                if depend[0] == "!": icon = gtk.STOCK_YES
+                else: icon = gtk.STOCK_NO
+            # only show base dependenciy layer, or unfilled dependencies
+            if icon == gtk.STOCK_NO or base == None:
+                if parent != None:
+                    if parent_icon == '': continue
+                    if icon == gtk.STOCK_NO and parent_icon == gtk.STOCK_YES:
+                        self.set_value(base_iter, 1, depends_view.render_icon(gtk.STOCK_NO,
+                                       size = gtk.ICON_SIZE_MENU, detail = None))
+                        if base != None:
+                            base_iter = self.insert_before(base, None)
+                            self.set_value(base_iter, 0, parent)
+                            dep_before = base_iter
+                depend_iter = self.insert_before(dep_before, None)
+                self.set_value(depend_iter, 0, depend)
+                self.set_value(depend_iter, 3, satisfied)
+                self.set_value(depend_iter, 1, 
                                     depends_view.render_icon(icon,
                                                              size = gtk.ICON_SIZE_MENU,
                                                              detail = None))
-            pack = portagelib.Package(depend)
-            self.set_value(depend_iter, 2, pack)
-            if icon != gtk.STOCK_YES:
-                if depend not in self.depends_list:
-                    self.depends_list.append(depend)
-                    #pack = portagelib.Package(depend)
-                    ebuild = pack.get_latest_ebuild()
-                    depends = portagelib.get_property(ebuild, "DEPEND").split()
-                    if depends:
-                        self.add_depends_to_tree(depends, depends_view, depend_iter)
-
-    def get_ops(self, depend):
-        """No, this isn't IRC...
-           Returns depend with the operators cut out, and the operators"""
-        op = depend[0]
-        if op in [">", "<", "=", "!"]:
-            op2 = depend[1]
-            if op2 == "=":
-                return depend, op + op2
+                # get depname from depend:
+                # The get_text stuff above converted this to unicode, which gives portage headaches.
+                # So we have to convert this with str()
+                depname = str(portagelib.get_full_name(depend))
+                if not depname: continue
+                pack = portagelib.Package(depname)
+                self.set_value(depend_iter, 2, pack)
+                if icon != gtk.STOCK_YES:
+                    #dprint("Dependency %s not found... recursing..." % str(depname))
+                    if depname not in self.depends_list:
+                        self.depends_list.append(depname)
+                        depends = (pack.get_properties().depend.split() +
+                                   pack.get_properties().rdepend.split())
+                        if depends:
+                            self.add_depends_to_tree(depends, depends_view, depend_iter)
+                # get depname from depend:
+                # The get_text stuff above converted this to unicode, which gives portage headaches.
+                # So we have to convert this with str()
+                depname = str(portagelib.get_full_name(depend))
+                if not depname: continue
+                pack = portagelib.Package(depname)
+                self.set_value(depend_iter, 2, pack)
+                if icon != gtk.STOCK_YES:
+                    #dprint("Dependency %s not found... recursing..." % str(depname))
+                    if depname not in self.depends_list:
+                        self.depends_list.append(depname)
+                        depends = (pack.get_properties().depend.split() +
+                                   pack.get_properties().rdepend.split())
+                        if depends:
+                            self.add_depends_to_tree(depends, depends_view, depend_iter)
             else:
-                return depend, op
-        else:
-            return depend, None
+                #dprint("dependency '%s' skipped" % depend)
+                pass
 
-    def is_dep_satisfied(self, installed_ebuild, dep_ebuild, operator = "="):
-        """ Returns installed_ebuild <operator> dep_ebuild """
-        retval = False
-        ins_ver = portagelib.get_version(installed_ebuild)
-        dep_ver = portagelib.get_version(dep_ebuild)
-        # extend to normal comparison operators in case they aren't
-        if operator == "=": operator = "=="
-        if operator == "!": operator = "!="
-        # determine the retval
-        if operator == "==": retval = ins_ver == dep_ver
-        elif operator == "<=":  retval = ins_ver <= dep_ver
-        elif operator == ">=": retval = ins_ver >= dep_ver
-        elif operator == "!=": retval = ins_ver != dep_ver
-        elif operator == "<": retval = ins_ver < dep_ver
-        elif operator == ">": retval = ins_ver > dep_ver
-        # return the result of the operation
-        return retval
+
+#~ return depend, op
+        #~ else:
+            #~ return depend, None
+
+    #~ def is_dep_satisfied(self, installed_ebuild, dep_ebuild, operator = "="):
+        #~ """ Returns installed_ebuild <operator> dep_ebuild """
+        #~ retval = False
+        #~ ins_ver = portagelib.get_version(installed_ebuild)
+        #~ dep_ver = portagelib.get_version(dep_ebuild)
+        #~ # extend to normal comparison operators in case they aren't
+        #~ if operator == "=": operator = "=="
+        #~ if operator == "!": operator = "!="
+        #~ # determine the retval
+        #~ if operator == "==": retval = ins_ver == dep_ver
+        #~ elif operator == "<=":  retval = ins_ver <= dep_ver
+        #~ elif operator == ">=": retval = ins_ver >= dep_ver
+        #~ elif operator == "!=": retval = ins_ver != dep_ver
+        #~ elif operator == "<": retval = ins_ver < dep_ver
+        #~ elif operator == ">": retval = ins_ver > dep_ver
+        #~ # return the result of the operation
+        #~ return retval
 
     def fill_depends_tree(self, treeview, package):
         """Fill the dependencies tree for a given ebuild"""
-        dprint("DEPENDS: Updating deps tree for " + package.get_name())
-        ebuild = package.get_latest_ebuild(False)
-        depends = portagelib.get_property(ebuild, "DEPEND").split()
+        #dprint("DEPENDS: Updating deps tree for " + package.get_name())
+        ebuild = package.get_default_ebuild()
+        ##depends = portagelib.get_property(ebuild, "DEPEND").split()
+        depends = (package.get_properties().depend.split() +
+                   package.get_properties().rdepend.split())
         self.clear()
         if depends:
             #dprint(depends)

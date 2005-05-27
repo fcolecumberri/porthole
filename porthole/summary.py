@@ -128,20 +128,40 @@ class Summary(gtk.TextView):
         def show_vnums(ebuilds):
             spam = []
             oldslot = -1
+            first_ebuild = True
             for ebuild in ebuilds:
+                # set the tag to the default
+                tag = "value" 
                 version = portagelib.get_version(ebuild)
-                slot = portagelib.get_property(ebuild, "SLOT")
+                if ebuild in versions:   # annoying message is output by portage if it isn't
+                    slot = portagelib.get_property(ebuild, "SLOT")
+                else:
+                    slot = "?"  # someone removed the ebuild for our installed package. Damn them!
                 if not slot == oldslot:
                    if spam:
-                      append(", ".join(spam), "value")
+                      #append(", ".join(spam), "value")
                       nl()
                       spam = []
                    append("\tSlot %s: " % slot, "property")
                    oldslot = slot
+                   first_ebuild = True
+
+                if not first_ebuild:
+                    append(", ", "value")
+
                 if ebuild not in nonmasked:
-                    version = "(" + version + ")"
-                spam += [version]
-            append(", ".join(spam), "value")
+                    if ebuild in hardmasked:
+                        version = "![" + version + "]"
+                        # set the tag to highlight this version
+                        tag = "useunset" # fixme:  need to make this user settable and different from use flags
+                    else:
+                        version = "~(" + version + ")"
+                        # set the tag to highlight this version
+                        tag = "useset" # fixme:  need to make this user settable and different from use flags
+                append(version, tag)
+                first_ebuild = False
+                spam += [version]  # now only used to track the need for a new slot
+            #append(", ".join(spam), "value")
             return
 
         # End supporting internal functions
@@ -160,6 +180,10 @@ class Summary(gtk.TextView):
         installed = package.get_installed()
         versions = package.get_versions()
         nonmasked = package.get_versions(include_masked = False)
+        
+        # added by Tommy
+        hardmasked = package.get_hard_masked()
+
         best = portagelib.best(installed + nonmasked)
         #dprint("SUMMARY: best = %s" %best)
         if best == "": # all versions are masked and the package is not installed

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: UTF8 -*-
 
 '''
     Porthole Main Window
@@ -67,18 +68,21 @@ def check_glade():
             old, new = ver_match(versions, ["2.0.1","2.5.0-r99"], ["2.5.1","2.99.99"])
             if old:
                 porthole_gladefile = "porthole.glade"
+                new_toolbar_API = False
             elif new:
                 porthole_gladefile = "porthole-new2.glade"
+                new_toolbar_API = True
         else:
             dprint("MAINWINDOW: No version list returned for libglade")
             return None
         dprint("MAINWINDOW: __init__(); glade file = %s" %porthole_gladefile)
-        return porthole_gladefile
+        return porthole_gladefile, new_toolbar_API
 
 class MainWindow:
     """Main Window class to setup and manage main window interface."""
     def __init__(self, preferences = None, config = None):
-        preferences.use_gladefile = check_glade()
+        dprint("MAINWINDOW: process id = %d ****************" %os.getpid())
+        preferences.use_gladefile, self.new_toolbar_API = check_glade()
         # setup prefs
         self.prefs = preferences
         self.config = config
@@ -131,7 +135,8 @@ class MainWindow:
         result = self.wtree.get_widget("category_scrolled_window").add(self.category_view)
         # setup the package treeview
         self.package_view = PackageView()
-        self.package_view.register_callbacks(self.package_changed, None, self.pkg_path_callback)
+        #self.package_view.register_callbacks(self.package_changed, None, self.pkg_path_callback)
+        self.package_view.register_callbacks(self.packageview_callback)
         result = self.wtree.get_widget("package_scrolled_window").add(self.package_view)
         # setup the dependency treeview
         self.deps_view = DependsView()
@@ -228,28 +233,24 @@ class MainWindow:
         self.ut = None
         # load the db
         self.dbtime = 0
-        self.db_thread = portagelib.DatabaseReader()
+        dprint("MAINWINDOW: init_db(); starting self.db_thread")
+        #self.db_thread = portagelib.DatabaseReader()
+        self.db_thread = portagelib.DatabaseReader(Dispatcher(self.update_db_read))
         self.db_thread.start()
         self.db_thread_running = True
         self.reload = False
-        self.db_timeout = gobject.timeout_add(100, self.update_db_read)
+        #self.db_timeout = gobject.timeout_add(100, self.update_db_read)
         self.get_sync_time()
-        dprint("MAINWINDOW: init(); sync tooltip = (before)")
-        dprint(gtk.tooltips_data_get(self.widget["btn_sync"]))
-        dprint("MAINWINDOW: init(); Setting sync tooltip")
-        self.synctooltip.set_tip(self.widget["btn_sync"], self.sync_tip + self.last_sync)
-        self.synctooltip.enable()
-        dprint("MAINWINDOW: init(); sync tooltip = ")
-        dprint(gtk.tooltips_data_get(self.widget["btn_sync"]))
+        self.set_sync_tip()
         # set status
         #self.set_statusbar(_("Obtaining package list "))
-        self.status_root = _("Loading database")
+        self.status_root = _("Initializing database...")
         self.set_statusbar2(self.status_root)
         self.progressbar = self.wtree.get_widget("progressbar1")
         self.set_cancel_btn(OFF)
 
     def reload_db(self, *widget):
-        dprint("TERMINAL: reload_db() callback")
+        dprint("MAINWINDOW: reload_db() callback")
         if self.db_thread_running or self.ut_running:
             if self.db_thread_running:
                 try:
@@ -279,20 +280,27 @@ class MainWindow:
         portagelib.reload_world()
         # load the db
         self.dbtime = 0
-        self.db_thread = portagelib.DatabaseReader()
+        dprint("MAINWINDOW: reload_db(); starting self.db_thread")
+        #self.db_thread = portagelib.DatabaseReader()
+        self.db_thread = portagelib.DatabaseReader(Dispatcher(self.update_db_read))
         self.db_thread.start()
         self.db_thread_running = True
         #test = 87/0  # used to test pycrash is functioning
         self.reload = True
-        self.db_timeout = gobject.timeout_add(100, self.update_db_read)
+        #self.db_timeout = gobject.timeout_add(100, self.update_db_read)
         self.get_sync_time()
-        self.synctooltip.set_tip(self.widget["btn_sync"], self.sync_tip + self.last_sync)
-        self.synctooltip.enable()
+        self.set_sync_tip()
         # set status
         #self.set_statusbar(_("Obtaining package list "))
         self.status_root = _("Reloading database")
         self.set_statusbar2(self.status_root)
         return False
+
+    def package_update(self, pkg):
+        """callback function to update an individual package
+            after a successfull emerge was detected"""
+        # find the pkg in self.db
+        self.db.update(portagelib.extract_package(pkg))
 
     def get_sync_time(self):
         """gets and returns the timestamp info saved during
@@ -316,12 +324,44 @@ class MainWindow:
         except:
             dprint("MAINWINDOW: get_sync_time(); file open or read error")
 
-    def pkg_path_callback(self, path):
-        """callback function to save the path to the package that
-        matched the name passed to the populate() in PackageView"""
-        self.current_package_path = path
-        return
+    def set_sync_tip(self):
+        """Sets the sync tip for the new or old toolbar API"""
+        if self.new_toolbar_API:
+            self.widget["btn_sync"].set_tooltip( self.synctooltip, self.sync_tip + self.last_sync)
+        else:
+            self.synctooltip.set_tip(self.widget["btn_sync"], self.sync_tip + self.last_sync)
+        #self.synctooltip.enable()
+        
+        
+    #~ def pkg_path_callback(self, path):
+        #~ """callback function to save the path to the package that
+        #~ matched the name passed to the populate() in PackageView"""
+        #~ self.current_package_path = path
+        #~ return
 
+    def packageview_callback(self, action = None, arg = None):
+        old_pretend_value = self.prefs.emerge.pretend
+        if action.startswith("emerge"):
+            if action == "emerge pretend":
+                self.prefs.emerge.pretend = True
+            else:
+                self.prefs.emerge.pretend = False
+            self.emerge_package(self.package_view)
+        elif action == "unmerge":
+            self.prefs.emerge.pretend = False
+            self.unmerge_package(self.package_view)
+        elif action == "set path":
+            # save the path to the package that matched the name passed
+            # to populate() in PackageView... (?)
+            self.current_package_path = arg # arg = path
+        elif action == "package changed":
+            self.package_changed(arg)
+        elif action == "refresh":
+            self.refresh()
+        else:
+            dprint("MAINWINDOW package_view callback: unknown action '%s'" % str(action))
+        self.prefs.emerge.pretend = old_pretend_value
+ 
     def check_for_root(self):
         """figure out if the user can emerge or not..."""
         if not self.is_root:
@@ -344,20 +384,110 @@ class MainWindow:
         statusbar2.pop(0)
         statusbar2.push(0, string)
 
-    def update_db_read(self):
+    #~ def update_db_read(self):
+        #~ """Update the statusbar according to the number of packages read."""
+        #~ #count = 0
+        #~ #dprint("MAINWINDOW: update_db_read()")
+        #~ if not self.db_thread.done:
+            #~ self.dbtime += 1
+            #~ if self.db_thread.count > 0:
+                #~ self.set_statusbar2(self.status_root + _(": %i packages read"
+                                     #~ % self.db_thread.count))
+            #~ #count = self.db_thread.count
+            #~ #dprint("self.prefs.dbtime = ")
+            #~ #dprint(self.prefs.dbtime)
+            #~ try:
+                #~ #fraction = min(1.0, max(0,(self.dbtime / float(self.prefs.dbtime))))
+                #~ fraction = min(1.0, max(0, (self.db_thread.nodecount / float(self.db_thread.allnodes_length))))
+                #~ self.progressbar.set_text(str(int(fraction * 100)) + "%")
+                #~ self.progressbar.set_fraction(fraction)
+            #~ except:
+                #~ pass
+
+        #~ elif self.db_thread.error:
+            #~ # todo: display error dialog instead
+            #~ self.db_thread.join()
+            #~ self.set_statusbar2(self.db_thread.error.decode('ascii', 'replace'))
+            #~ return False  # disconnect from timeout
+        #~ else: # db_thread is done
+            #~ self.db_thread_running = False
+            #~ self.db_save_variables()
+            #~ self.progressbar.set_text("100%")
+            #~ self.progressbar.set_fraction(1.0)
+            #~ dprint("MAINWINDOW: db_thread is done...")
+            #~ dprint("MAINWINDOW: db_thread.join...")
+            #~ self.db_thread.join()
+            #~ self.db_thread_running = False
+            #~ dprint("MAINWINDOW: db_thread.join is done...")
+            #~ self.db = self.db_thread.get_db()
+            #~ self.set_statusbar2(self.status_root + _(": Populating tree"))
+            #~ self.update_statusbar(SHOW_ALL)
+            #~dprint("MAINWINDOW: setting menubar,toolbar,etc to sensitive...")
+            #~ self.wtree.get_widget("menubar").set_sensitive(True)
+            #~ self.wtree.get_widget("toolbar").set_sensitive(True)
+            #~ self.wtree.get_widget("view_filter").set_sensitive(True)
+            #~ self.wtree.get_widget("search_entry").set_sensitive(True)
+            #~ self.wtree.get_widget("btn_search").set_sensitive(True)
+            #~ # make sure we search again if we reloaded!
+            #~ view_filter = self.wtree.get_widget("view_filter")
+            #~ if view_filter.get_history() == SHOW_SEARCH:
+                #~ #dprint("MAINWINDOW: update_db_read()... Search view")
+                #~ # update the views by calling view_filter_changed
+                #~ self.view_filter_changed(view_filter)
+                #~ if self.reload:
+                    #~ # reset _last_selected so it thinks this package is new again
+                    #~ self.package_view._last_selected = None
+                    #~ if self.current_package_cursor != None and self.current_package_cursor[0]: # should fix a type error in set_cursor; from pycrash report
+                        #~ # re-select the package
+                        #~ self.package_view.set_cursor(self.current_package_cursor[0],
+                                                     #~ self.current_package_cursor[1])
+            #~ elif self.reload and (view_filter.get_history() == SHOW_ALL or \
+                                  #~ view_filter.get_history() == SHOW_INSTALLED):
+                #~ #dprint("MAINWINDOW: update_db_read()... self.reload=True ALL or INSTALLED view")
+                #~ # reset _last_selected so it thinks this category is new again
+                #~ self.category_view._last_selected = None
+                #~dprint("MAINWINDOW: re-select the category")
+                #~ if self.current_category_cursor != None:
+                    #~ # re-select the category
+                    #~ self.category_view.set_cursor(self.current_category_cursor[0],
+                                                  #~ self.current_category_cursor[1])
+                #~dprint("MAINWINDOW: reset _last_selected so it thinks this package is new again")
+                #~ # reset _last_selected so it thinks this package is new again
+                #~ self.package_view._last_selected = None
+                #~dprint("MAINWINDOW: re-select the package")
+                #~ # re-select the package
+                #~ if self.current_package_path <> None:
+                    #~ self.package_view.set_cursor(self.current_package_path,
+                                                 #~ self.current_package_cursor[1])
+            #~ else:
+                #~ #dprint("MAINWINDOW: update_db_read()... must be an upgradeable view")
+                #~ self.package_view.clear()
+                #~ self.set_package_actions_sensitive(False, None)
+                #~ #self.category_view.populate(self.db.categories.keys(), self.current_category)
+                #~ # update the views by calling view_filter_changed
+                #~ self.view_filter_changed(view_filter)
+            #~ dprint("MAINWINDOW: Made it thru a reload, returning...")
+            #~ self.reload = False
+            #~ self.progress_done(False)
+            #~ self.view_filter_changed(view_filter)
+            #~ return False  # disconnect from timeout
+        #~ #dprint("MAINWINDOW: returning from update_db_read() count=%d dbtime=%d"  %(count, self.dbtime))
+        #~ return True
+
+    def update_db_read(self, dummy, args): # extra args for dispatcher callback
         """Update the statusbar according to the number of packages read."""
-        #count = 0
         #dprint("MAINWINDOW: update_db_read()")
-        if not self.db_thread.done:
+        if not args[1]:
             self.dbtime += 1
-            if self.db_thread.count > 0:
+            count = args[0]
+            if count > 0:
                 self.set_statusbar2(self.status_root + _(": %i packages read"
-                                     % self.db_thread.count))
-            #count = self.db_thread.count
+                                     % count))
             #dprint("self.prefs.dbtime = ")
             #dprint(self.prefs.dbtime)
             try:
-                fraction = min(1.0, max(0,(self.dbtime / float(self.prefs.dbtime))))
+                #fraction = min(1.0, max(0,(self.dbtime / float(self.prefs.dbtime))))
+                fraction = min(1.0, max(0, (count / float(args[2]))))
                 self.progressbar.set_text(str(int(fraction * 100)) + "%")
                 self.progressbar.set_fraction(fraction)
             except:
@@ -365,28 +495,25 @@ class MainWindow:
 
         elif self.db_thread.error:
             # todo: display error dialog instead
-            self.db_thread.join()
+            #self.db_thread.join()
             self.set_statusbar2(self.db_thread.error.decode('ascii', 'replace'))
             return False  # disconnect from timeout
-        else: # db_thread is done
+        else: # args[1] == True - db_thread is done
             self.db_thread_running = False
             self.db_save_variables()
             self.progressbar.set_text("100%")
             self.progressbar.set_fraction(1.0)
             dprint("MAINWINDOW: db_thread is done...")
             dprint("MAINWINDOW: db_thread.join...")
-            self.db_thread.join()
+            #self.db_thread.join()
             self.db_thread_running = False
             dprint("MAINWINDOW: db_thread.join is done...")
-            self.db = self.db_thread.get_db()
+            self.db = args[2] #self.db_thread.get_db()
             self.set_statusbar2(self.status_root + _(": Populating tree"))
             self.update_statusbar(SHOW_ALL)
-            #~dprint("MAINWINDOW: setting menubar,toolbar,etc to sensitive...")
-            self.wtree.get_widget("menubar").set_sensitive(True)
-            self.wtree.get_widget("toolbar").set_sensitive(True)
-            self.wtree.get_widget("view_filter").set_sensitive(True)
-            self.wtree.get_widget("search_entry").set_sensitive(True)
-            self.wtree.get_widget("btn_search").set_sensitive(True)
+            dprint("MAINWINDOW: setting menubar,toolbar,etc to sensitive...")
+            for x in ["menubar","toolbar","view_filter","search_entry","btn_search"]:
+                self.wtree.get_widget(x).set_sensitive(True)
             # make sure we search again if we reloaded!
             view_filter = self.wtree.get_widget("view_filter")
             if view_filter.get_history() == SHOW_SEARCH:
@@ -404,31 +531,33 @@ class MainWindow:
                                   view_filter.get_history() == SHOW_INSTALLED):
                 #dprint("MAINWINDOW: update_db_read()... self.reload=True ALL or INSTALLED view")
                 # reset _last_selected so it thinks this category is new again
-                self.category_view._last_selected = None
-                #~dprint("MAINWINDOW: re-select the category")
+                self.category_view._last_category = None
+                #~ #dprint("MAINWINDOW: re-select the category")
                 if self.current_category_cursor != None:
                     # re-select the category
                     self.category_view.set_cursor(self.current_category_cursor[0],
                                                   self.current_category_cursor[1])
-                #~dprint("MAINWINDOW: reset _last_selected so it thinks this package is new again")
+                #~ #dprint("MAINWINDOW: reset _last_selected so it thinks this package is new again")
                 # reset _last_selected so it thinks this package is new again
                 self.package_view._last_selected = None
-                #~dprint("MAINWINDOW: re-select the package")
+                #~ #dprint("MAINWINDOW: re-select the package")
                 # re-select the package
-                if self.current_package_path <> None:
-                    self.package_view.set_cursor(self.current_package_path,
-                                                 self.current_package_cursor[1])
+                if self.current_package_path != None:
+                    if self.current_package_cursor != None and self.current_package_cursor[0]:
+                        self.package_view.set_cursor(self.current_package_path,
+                                                     self.current_package_cursor[1])
             else:
+                pass ## hmm, don't mess with upgrade list after an emerge finishes.
                 #dprint("MAINWINDOW: update_db_read()... must be an upgradeable view")
-                self.package_view.clear()
-                self.set_package_actions_sensitive(False, None)
+                #self.package_view.clear()
+                #self.set_package_actions_sensitive(False, None)
                 #self.category_view.populate(self.db.categories.keys(), self.current_category)
                 # update the views by calling view_filter_changed
-                self.view_filter_changed(view_filter)
+                #self.view_filter_changed(view_filter)
             dprint("MAINWINDOW: Made it thru a reload, returning...")
             self.reload = False
             self.progress_done(False)
-            self.view_filter_changed(view_filter)
+            #self.view_filter_changed(view_filter)
             return False  # disconnect from timeout
         #dprint("MAINWINDOW: returning from update_db_read() count=%d dbtime=%d"  %(count, self.dbtime))
         return True
@@ -463,6 +592,7 @@ class MainWindow:
                 callback = self.init_data
             else:
                 callback = self.reload_db
+                #callback = self.package_update
             #ProcessWindow(command, env, self.prefs, callback)
             self.process_manager.add_process(package_name, command, callback)
         else:
@@ -588,10 +718,10 @@ class MainWindow:
             for key in self.keyorder:
                 if not self.packages_list[key]:
                         dprint("MAINWINDOW: upgrade_packages(); dependancy selected: " + key)
-                        if not self.setup_command(key, "emerge -u --oneshot" +
+                        if not self.setup_command(key, "emerge --oneshot" +
                                 self.prefs.emerge.get_string() + key.split('/')[1]):
                             return
-                elif not self.setup_command(key, "emerge -u" +
+                elif not self.setup_command(key, "emerge " +
                                 self.prefs.emerge.get_string() + ' ' + key.split('/')[1]):
                     return
         else:
@@ -630,6 +760,7 @@ class MainWindow:
                 self.mainwindow,
                 _("Loading package descriptions..."),
                 self.desc_dialog_response, "_Cancel", True)
+        dprint("MAINWINDOW: load_descriptions_list(); starting self.desc_thread")
         self.desc_thread = DescriptionReader(self.db.list)
         self.desc_thread.start()
         gobject.timeout_add(100, self.desc_thread_update)
@@ -698,7 +829,7 @@ class MainWindow:
                     search_results.set_value(iter, 0, name)
                     search_results.set_value(iter, 2, data)
                     search_results.set_value(iter, 5, '')
-                    dprint("MAINWINDOW: package_search; found: %s, in_world=%d" %(data.full_name,data.in_world))
+                    #dprint("MAINWINDOW: package_search; found: %s, in_world=%d" %(data.full_name,data.in_world))
                     search_results.set_value(iter, 4, data.in_world)
                     search_results.set_value(iter, 6, data.get_size())
                     installed = data.get_latest_installed()
@@ -748,6 +879,10 @@ class MainWindow:
     def about(self, widget):
         """Show about dialog."""
         dialog = AboutDialog(self.prefs)
+
+    def refresh(self):
+        """Refresh PackageView"""
+        self.category_changed(self.current_category)
 
     def category_changed(self, category):
         """Catch when the user changes categories."""
@@ -882,6 +1017,7 @@ class MainWindow:
             cat_scroll.hide();
             self.package_view.set_view(self.package_view.UPGRADABLE)
             if not self.upgrades_loaded:
+                dprint("MAINWINDOW: view_filter_changed(); calling load_upgrades_list ********************************")
                 self.load_upgrades_list()
                 self.package_view.clear()
                 dprint("MAINWINDOW: view_filter_changed(); back from load_upgrades_list()")
@@ -902,15 +1038,18 @@ class MainWindow:
 
     def load_upgrades_list(self):
         # upgrades are not loaded, create dialog and load them
-        self.set_statusbar2(_("Loading upgradable list"))
+        self.set_statusbar2(_("Searching for upgradable packages..."))
         # create upgrade thread for loading the upgrades
         #self.ut = UpgradableReader(Dispatcher(self.Update_upgrades, self.package_view, self.db.installed.items(),
         #                           self.prefs.emerge.upgradeonly, self.prefs.views ))
+        if self.ut_running:
+            dprint("MAINWINDOW: load_upgrades_list(); upgrades thread already running!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            return
+        dprint("MAINWINDOW: load_upgrades_list(); starting upgrades thread")
         self.ut = UpgradableReader(self.package_view, self.db.installed.items(),
                                    self.prefs.emerge.upgradeonly, self.prefs.views )
         self.ut.start()
         self.ut_running = True
-        dprint("MAINWINDOW: load_upgrades_list(); starting upgrades thread")
         self.build_deps = False
         # add a timeout to check if thread is done
         gobject.timeout_add(200, self.update_upgrade_thread)
@@ -929,12 +1068,12 @@ class MainWindow:
         """ Find out if thread is finished """
         # needs error checking perhaps...
         if self.ut.done:
-            if self.ut.cancelled:
-                return False
             self.ut.join()
             self.ut_running = False
-            self.upgrades_loaded = True
             self.progress_done(True)
+            if self.ut.cancelled:
+                return False
+            self.upgrades_loaded = True
             view_filter = self.wtree.get_widget("view_filter")
             self.view_filter_changed(view_filter)
             if self.upgrades_loaded_callback:
@@ -959,7 +1098,7 @@ class MainWindow:
                         self.progressbar.set_fraction(fraction)
                         if fraction == 1:
                             self.build_deps = True
-                            self.set_statusbar2(_("Building Dependancy trees"))
+                            self.set_statusbar2(_("Building Package List"))
                 except:
                     pass
         return True
@@ -1011,7 +1150,7 @@ class MainWindow:
         self.widget["unmerge_package1"].set_sensitive(enabled)
         self.widget["btn_emerge"].set_sensitive(enabled)
         self.widget["btn_adv_emerge"].set_sensitive(enabled)
-        if not enabled or enabled and package.is_installed:
+        if not enabled or enabled and package.get_installed():
             #dprint("MAINWINDOW: set_package_actions_sensitive() setting unmerge to %d" %enabled)
             self.widget["btn_unmerge"].set_sensitive(enabled)
             self.widget["unmerge_package1"].set_sensitive(enabled)
