@@ -187,6 +187,12 @@ class EmergeOptions:
         if self.nospinner: opt_string += '--nospinner '
         return opt_string
 
+class AdvEmergeOptions:
+    """ Holds common advanced emerge options """
+    def __init__(self):
+        # let's get some saved values in here!
+        self.enable_all_keywords = False
+
 class PluginOptions:
     """ Holds preferences for plugins """
     def __init__( self, ):
@@ -502,6 +508,14 @@ class PortholePreferences:
         except XMLManagerError:
            pass
 
+        # Advanced emerge options
+        
+        self.advemerge = AdvEmergeOptions()
+        try:
+           self.advemerge.enable_all_keywords = dom.getitem('/advemerge/enable_all_keywords')
+        except XMLManagerError:
+            pass
+
         # Views config variables
 
 	self.views = ViewOptions()
@@ -588,6 +602,7 @@ class PortholePreferences:
         dom.additem('/emerge/options/verbose', self.emerge.verbose)
         dom.additem('/emerge/options/upgradeonly', self.emerge.upgradeonly)
         dom.additem('/emerge/options/nospinner', self.emerge.nospinner)
+        dom.additem('/advemerge/enable_all_keywords', self.advemerge.enable_all_keywords)
         dom.additem('/views/world_upgradeable_color', self.views.world_upgradeable_color)
         dom.additem('/views/world_downgradeable_color', self.views.world_downgradeable_color)
         dom.additem('/database/size', self.database_size)

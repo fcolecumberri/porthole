@@ -80,8 +80,7 @@ class AdvancedEmergeDialog:
         for x in range(len(self.verList)):
             ver = self.verList[x]
             info = ver["number"]
-            #info += '   [Slot:' + str(ver["slot"]) + ']'
-            info += '   [' + _('Slot:%s' % ver["slot"]) + ']'
+            info += '   [Slot:' + str(ver["slot"]) + ']'
             if not ver["stable"]:
                 info += _('   (unstable)')
             if ver["hard_masked"]:
@@ -106,7 +105,7 @@ class AdvancedEmergeDialog:
         self.combobox = self.wtree.get_widget("cmbVersion")
         self.combobox.set_model(self.comboList)
         cell = gtk.CellRendererText()
-        self.combobox.pack_start(cell, gtk.TRUE)
+        self.combobox.pack_start(cell, True)
         self.combobox.add_attribute(cell, 'text', 0)
         self.combobox.set_active(index) # select "recommended" ebuild by default
         #self.combobox.connect("changed",self.version_changed) # register callback
@@ -114,12 +113,12 @@ class AdvancedEmergeDialog:
         # Set any emerge options the user wants defaulted
         if self.prefs.emerge.pretend:
             self.wtree.get_widget("cbPretend").set_active(True)
-        if self.prefs.emerge.verbose:
-            self.wtree.get_widget("cbVerbose").set_active(True)
         ## this now just references --update, which is probably not the desired behaviour.
         ## perhaps the current version should be indicated somewhere in the dialog
         #if self.prefs.emerge.upgradeonly:
         #    self.wtree.get_widget("cbUpgradeOnly").set_active(True)
+        if self.prefs.emerge.upgradeonly:
+            self.wtree.get_widget("cbUpgradeOnly").set_active(True)
         if self.prefs.emerge.fetch:
             self.wtree.get_widget("cbFetchOnly").set_active(True)
 
@@ -279,7 +278,7 @@ class AdvancedEmergeDialog:
             #~ self.verList.append([vernum, ebuild, isBest, isInstalled, slot, keywords, useflags])
             # added by Tommy:
             info = {}
-            props = self.package.get_properties(ebuild)
+            props = self.package.get_properties(ebuild) 
             info["name"] = ebuild
             info["number"] = portagelib.get_version(ebuild)
             if ebuild in self.package.get_best_ebuild():
@@ -288,7 +287,7 @@ class AdvancedEmergeDialog:
             else:
                 info["best"] = info["best_downgrades"] = False
             info["installed"] = ebuild in installed
-            info["slot"] = portagelib.get_property(ebuild, "SLOT")
+            info["slot"] = props.get_slot()
             info["keywords"] = props.get_keywords()
             info["use_flags"] = props.get_use_flags()
             info["stable"] = ebuild in nonmasked
@@ -456,21 +455,27 @@ class AdvancedEmergeDialog:
         table.attach(button, col, col+1, row, row+1)
         button.show()
         col += 1
+        button_added = False
         for keyword in keywords:
             if keyword[0] == '~':
-                button = gtk.RadioButton(rbGroup, keyword)
-                self.kwList.append([button, keyword])
-                table.attach(button, col, col+1, row, row+1)
-                button.show()
+                if self.prefs.advemerge.enable_all_keywords or (keyword[1:] == self.arch):
+                    button = gtk.RadioButton(rbGroup, keyword)
+                    self.kwList.append([button, keyword])
+                    table.attach(button, col, col+1, row, row+1)
+                    button.show()
+                    button_added = True
             else:
-                label = gtk.Label(keyword)
-                label.set_alignment(.05, .5)
-                table.attach(label, col, col+1, row, row+1)
-                label.show()
+                if self.prefs.advemerge.enable_all_keywords or (keyword == self.arch):
+                    label = gtk.Label(keyword)
+                    label.set_alignment(.05, .5)
+                    table.attach(label, col, col+1, row, row+1)
+                    label.show()
+                    button_added = True
             # Increment col & row counters
-            col += 1
-            if col > maxcol:
-                col = 0
-                row += 1
+            if button_added:
+                col += 1
+                if col > maxcol:
+                    col = 0
+                    row += 1
         # Display the entire table
         table.show()
