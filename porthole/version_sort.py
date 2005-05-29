@@ -53,8 +53,8 @@ def pad_ver(vlist):
     #dprint("VERSION_SORT:  pad_ver();  vlist[]")
     #dprint(vlist)
     # short circuit for  list of 1
-    if len(vlist) == 1:
-        return vlist
+    #if len(vlist) == 1:
+    #    return vlist
 
     max_length = 0
 

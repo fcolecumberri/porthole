@@ -228,7 +228,7 @@ class MainWindow:
         # set notebook tabs to load new package info
         self.deps_filled = self.changelog_loaded = self.installed_loaded = self.ebuild_loaded = False
         # declare the database
-        self.db = None
+        self.db = portagelib.Database()#        self.db = None
         self.ut_running = False
         self.ut = None
         # load the db
@@ -239,6 +239,7 @@ class MainWindow:
         self.db_thread.start()
         self.db_thread_running = True
         self.reload = False
+        self.upgrade_view = False
         #self.db_timeout = gobject.timeout_add(100, self.update_db_read)
         self.get_sync_time()
         self.set_sync_tip()
@@ -287,6 +288,7 @@ class MainWindow:
         self.db_thread_running = True
         #test = 87/0  # used to test pycrash is functioning
         self.reload = True
+        self.upgrade_view = False
         #self.db_timeout = gobject.timeout_add(100, self.update_db_read)
         self.get_sync_time()
         self.set_sync_tip()
@@ -477,9 +479,10 @@ class MainWindow:
     def update_db_read(self, dummy, args): # extra args for dispatcher callback
         """Update the statusbar according to the number of packages read."""
         #dprint("MAINWINDOW: update_db_read()")
-        if not args[1]:
-            self.dbtime += 1
-            count = args[0]
+        #args ["nodecount", "allnodes_length","done"]
+        if args["done"] == False:
+            #self.dbtime += 1
+            count = args["nodecount"]
             if count > 0:
                 self.set_statusbar2(self.status_root + _(": %i packages read"
                                      % count))
@@ -487,7 +490,7 @@ class MainWindow:
             #dprint(self.prefs.dbtime)
             try:
                 #fraction = min(1.0, max(0,(self.dbtime / float(self.prefs.dbtime))))
-                fraction = min(1.0, max(0, (count / float(args[2]))))
+                fraction = min(1.0, max(0, (count / float(args["allnodes_length"]))))
                 self.progressbar.set_text(str(int(fraction * 100)) + "%")
                 self.progressbar.set_fraction(fraction)
             except:
@@ -495,20 +498,21 @@ class MainWindow:
 
         elif self.db_thread.error:
             # todo: display error dialog instead
-            #self.db_thread.join()
+            self.db_thread.join()
             self.set_statusbar2(self.db_thread.error.decode('ascii', 'replace'))
             return False  # disconnect from timeout
-        else: # args[1] == True - db_thread is done
+        else: # args["done"] == True - db_thread is done
             self.db_thread_running = False
             self.db_save_variables()
             self.progressbar.set_text("100%")
             self.progressbar.set_fraction(1.0)
             dprint("MAINWINDOW: db_thread is done...")
             dprint("MAINWINDOW: db_thread.join...")
-            #self.db_thread.join()
+            self.db_thread.join()
             self.db_thread_running = False
             dprint("MAINWINDOW: db_thread.join is done...")
-            self.db = args[2] #self.db_thread.get_db()
+            del self.db  # clean up the old db
+            self.db = self.db_thread.get_db()
             self.set_statusbar2(self.status_root + _(": Populating tree"))
             self.update_statusbar(SHOW_ALL)
             dprint("MAINWINDOW: setting menubar,toolbar,etc to sensitive...")
@@ -555,9 +559,10 @@ class MainWindow:
                 # update the views by calling view_filter_changed
                 #self.view_filter_changed(view_filter)
             dprint("MAINWINDOW: Made it thru a reload, returning...")
-            self.reload = False
             self.progress_done(False)
-            #self.view_filter_changed(view_filter)
+            if not self.reload:
+                self.view_filter_changed(view_filter)
+            self.reload = False
             return False  # disconnect from timeout
         #dprint("MAINWINDOW: returning from update_db_read() count=%d dbtime=%d"  %(count, self.dbtime))
         return True
@@ -994,9 +999,8 @@ class MainWindow:
         self.category_view.set_search( False )
         if index in (SHOW_INSTALLED, SHOW_ALL):
             cat_scroll.show();
-            self.category_view.populate(
-                index == SHOW_ALL
-                and self.db.categories.keys()
+            self.category_view.populate( \
+                index == SHOW_ALL and self.db.categories.keys()
                 or self.db.installed.keys())
             self.package_view.set_view(self.package_view.PACKAGES)
             self.package_view.clear()

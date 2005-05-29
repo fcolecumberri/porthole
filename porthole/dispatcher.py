@@ -121,4 +121,4 @@ if __name__ == "__main__":
     thread_finished = {"thread1":False, "thread2":False, "thread3":False, "thread4":False}
     gtk.threads_enter()
     gtk.main()
-    gtk.threads_LEAVE()
+    gtk.threads_leave()

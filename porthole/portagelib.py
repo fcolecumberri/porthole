@@ -565,7 +565,7 @@ class DatabaseReader(threading.Thread):
         self.db = Database()        # the database
         self.callback = callback
         self.done = False     # false if the thread is still working
-        self.count = 0        # number of packages read so far
+        #self.count = 0        # number of packages read so far
         self.nodecount = 0    # number of nodes read so far
         self.error = ""       # may contain error message after completion
         # we aren't done yet
@@ -601,16 +601,17 @@ class DatabaseReader(threading.Thread):
             self.error = str(e)
             return
         self.allnodes_length = len(allnodes)
-        dprint("PORTAGELIB: read_db() create internal porthole list; length=%d" %len(allnodes))
+        dprint("PORTAGELIB: read_db() create internal porthole list; length=%d" %self.allnodes_length)
         #dsave("db_allnodes_cache", allnodes)
         dprint("PORTAGELIB: read_db(); Threading info: %s" %str(threading.enumerate()) )
         count = 0
         for entry in allnodes:
             if self.cancelled: self.done = True; return
-            if count == 500:  # update the statusbar
+            if count == 250:  # update the statusbar
                 self.nodecount += count
-                dprint("PORTAGELIB: read_db(); count = %d" %count)
-                self.callback([self.nodecount, self.allnodes_length, self.done])
+                #dprint("PORTAGELIB: read_db(); count = %d" %count)
+                self.callback({"nodecount": self.nodecount, "allnodes_length": self.allnodes_length,
+                                "done": self.done})
                 count = 0
             category, name = entry.split('/')
             # why does getallnodes() return timestamps?
@@ -633,9 +634,11 @@ class DatabaseReader(threading.Thread):
                 self.db.installed[category][name] = data; 
                 self.db.installed_count += 1
             self.db.list.append((name, data))
-            self.nodecount += count
+        self.nodecount += count
         dprint("PORTAGELIB: read_db(); end of list build; sort is next")
+        dprint(self.db)
         self.db.list = self.sort(self.db.list)
+        dprint(self.db)
         dprint("PORTAGELIB: read_db(); end of sort, finished")
 
     def get_installed(self):
@@ -653,11 +656,11 @@ class DatabaseReader(threading.Thread):
         Installed_Semaphore.release()
         #self.new_installed_Semaphore.release()
         
-    def start(self): #run(self):
+    def run(self):
         """The thread function."""
         self.read_db()
         self.done = True   # tell main thread that this thread has finished and pass back the db
-        self.callback([self.count, self.done, self.db])
+        self.callback({"nodecount": self.nodecount, "done": True})
         dprint("PORTAGELIB: DatabaseReader.run(); finished")
 
     def sort(self, list):

@@ -80,7 +80,8 @@ class AdvancedEmergeDialog:
         for x in range(len(self.verList)):
             ver = self.verList[x]
             info = ver["number"]
-            info += '   [Slot:' + str(ver["slot"]) + ']'
+            #info += '   [Slot:' + str(ver["slot"]) + ']'
+            info += '   [' + _('Slot:%s' % ver["slot"]) + ']'
             if not ver["stable"]:
                 info += _('   (unstable)')
             if ver["hard_masked"]:
@@ -113,12 +114,12 @@ class AdvancedEmergeDialog:
         # Set any emerge options the user wants defaulted
         if self.prefs.emerge.pretend:
             self.wtree.get_widget("cbPretend").set_active(True)
+        if self.prefs.emerge.verbose:
+            self.wtree.get_widget("cbVerbose").set_active(True)
         ## this now just references --update, which is probably not the desired behaviour.
         ## perhaps the current version should be indicated somewhere in the dialog
         #if self.prefs.emerge.upgradeonly:
         #    self.wtree.get_widget("cbUpgradeOnly").set_active(True)
-        if self.prefs.emerge.upgradeonly:
-            self.wtree.get_widget("cbUpgradeOnly").set_active(True)
         if self.prefs.emerge.fetch:
             self.wtree.get_widget("cbFetchOnly").set_active(True)
 
@@ -278,7 +279,7 @@ class AdvancedEmergeDialog:
             #~ self.verList.append([vernum, ebuild, isBest, isInstalled, slot, keywords, useflags])
             # added by Tommy:
             info = {}
-            props = self.package.get_properties(ebuild) 
+            props = self.package.get_properties(ebuild)
             info["name"] = ebuild
             info["number"] = portagelib.get_version(ebuild)
             if ebuild in self.package.get_best_ebuild():
@@ -287,7 +288,7 @@ class AdvancedEmergeDialog:
             else:
                 info["best"] = info["best_downgrades"] = False
             info["installed"] = ebuild in installed
-            info["slot"] = props.get_slot()
+            info["slot"] = portagelib.get_property(ebuild, "SLOT")
             info["keywords"] = props.get_keywords()
             info["use_flags"] = props.get_use_flags()
             info["stable"] = ebuild in nonmasked

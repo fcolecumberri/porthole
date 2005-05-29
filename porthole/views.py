@@ -162,9 +162,9 @@ class PackageView(CommonTreeView):
         if self.info_thread:
             if self.info_thread.isAlive():
                 dprint("VIEWS: Waiting for info_thread to die")
-                gtk.threads_leave() 
-                self.info_thread.join() 
-                gtk.threads_enter() 
+                gtk.threads_leave()
+                self.info_thread.join()
+                gtk.threads_enter()
                 dprint("VIEWS: infothread seems to have finished!")
             del self.info_thread
             self.info_thread = None
@@ -245,12 +245,6 @@ class PackageView(CommonTreeView):
             self.set_model(self.search_model)
         else:
             self.set_model(self.upgrade_model)
-
-    def register_callbacks(self, package_changed = None, upgrade_selected = None, return_path = None):
-        """ Register callbacks for events """
-        self._package_changed = package_changed
-        self._upgrade_selected = upgrade_selected
-        self._return_path = return_path
 
     def register_callbacks(self, callback = None):
         """ Callback to MainWindow.
@@ -359,9 +353,9 @@ class PackageView(CommonTreeView):
         if self.info_thread:
             if self.info_thread.isAlive():
                 dprint("VIEWS: Waiting for info_thread to die")
-                gtk.threads_leave() 
-                self.info_thread.join() 
-                gtk.threads_enter() 
+                gtk.threads_leave()
+                self.info_thread.join()
+                gtk.threads_enter()
                 dprint("VIEWS: infothread seems to have finished!")
             del self.info_thread
             self.info_thread = None

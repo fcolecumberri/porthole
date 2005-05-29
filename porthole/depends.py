@@ -93,7 +93,7 @@ class DependsTree(gtk.TreeStore):
                 dep_before = base
             else:
                 dep_before = base_iter
-            self.set_value(depend_iter, 0, depend)
+            #self.set_value(depend_iter, 0, depend)
             if satisfied:
                 if depend[0] == "!": icon = gtk.STOCK_NO
                 else: icon = gtk.STOCK_YES
@@ -118,21 +118,6 @@ class DependsTree(gtk.TreeStore):
                                     depends_view.render_icon(icon,
                                                              size = gtk.ICON_SIZE_MENU,
                                                              detail = None))
-                # get depname from depend:
-                # The get_text stuff above converted this to unicode, which gives portage headaches.
-                # So we have to convert this with str()
-                depname = str(portagelib.get_full_name(depend))
-                if not depname: continue
-                pack = portagelib.Package(depname)
-                self.set_value(depend_iter, 2, pack)
-                if icon != gtk.STOCK_YES:
-                    #dprint("Dependency %s not found... recursing..." % str(depname))
-                    if depname not in self.depends_list:
-                        self.depends_list.append(depname)
-                        depends = (pack.get_properties().depend.split() +
-                                   pack.get_properties().rdepend.split())
-                        if depends:
-                            self.add_depends_to_tree(depends, depends_view, depend_iter)
                 # get depname from depend:
                 # The get_text stuff above converted this to unicode, which gives portage headaches.
                 # So we have to convert this with str()
