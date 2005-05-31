@@ -114,12 +114,12 @@ class AdvancedEmergeDialog:
         # Set any emerge options the user wants defaulted
         if self.prefs.emerge.pretend:
             self.wtree.get_widget("cbPretend").set_active(True)
+        if self.prefs.emerge.verbose:
+            self.wtree.get_widget("cbVerbose").set_active(True)
         ## this now just references --update, which is probably not the desired behaviour.
         ## perhaps the current version should be indicated somewhere in the dialog
         #if self.prefs.emerge.upgradeonly:
         #    self.wtree.get_widget("cbUpgradeOnly").set_active(True)
-        if self.prefs.emerge.upgradeonly:
-            self.wtree.get_widget("cbUpgradeOnly").set_active(True)
         if self.prefs.emerge.fetch:
             self.wtree.get_widget("cbFetchOnly").set_active(True)
 

@@ -245,8 +245,8 @@ class MainWindow:
         self.set_sync_tip()
         # set status
         #self.set_statusbar(_("Obtaining package list "))
-        self.status_root = _("Initializing database...")
-        self.set_statusbar2(self.status_root)
+        self.status_root = _("Loading database")
+        self.set_statusbar2(_("Initializing database..."))
         self.progressbar = self.wtree.get_widget("progressbar1")
         self.set_cancel_btn(OFF)
 

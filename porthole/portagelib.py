@@ -400,7 +400,7 @@ class Package:
         """Return best visible ebuild (taking account of package.keywords, .mask and .unmask.
         If all ebuilds are masked for your architecture, returns ''."""
         if self.best_ebuild == None:
-            self.best_ebuild = portage.portdb.xmatch("bestmatch-visible",self.full_name)
+            self.best_ebuild = portage.portdb.xmatch("bestmatch-visible",str(self.full_name)) # no unicode
         return self.best_ebuild
 
     def get_default_ebuild(self):
@@ -411,7 +411,7 @@ class Package:
 
     def get_size(self):
         if self.size == None:
-            self.size = get_size( self.get_latest_ebuild() )
+            #self.size = get_size( self.get_latest_ebuild() )
             ebuild = self.get_default_ebuild()
             if ebuild: self.size = get_size(ebuild)
             else: self.size = ''
