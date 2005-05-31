@@ -196,6 +196,7 @@ class Summary(gtk.TextView):
         homepages = props.get_homepages() # may be more than one
         #dprint("SUMMARY: Summary; getting use flags")
         use_flags = props.get_use_flags()
+        keywords = props.get_keywords()
         licenses = props.license
         slot = unicode(props.get_slot())
 
@@ -277,6 +278,18 @@ class Summary(gtk.TextView):
                     append('+' + flag,"useset")
                 else:
                     append('-' + flag,"useunset")
+            nl(2)
+
+        # Keywords
+        if keywords:
+            append(_("Keywords: "), "property")
+            first_keyword = True
+            for keyword in keywords:
+                if not first_keyword:
+                    append(", ", "value")
+                else:
+                    first_keyword = False
+                append(keyword, "value")
             nl(2)
 
         # License
