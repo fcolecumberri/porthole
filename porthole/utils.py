@@ -243,290 +243,389 @@ class PortholePreferences:
         # set pref to default value.  The beauty of this is: older versions
         # of the prefs files are still compatible and even if the user has
         # no prefs file, it still works!
-
-        # Main window settings
-
-        try:
-           width = dom.getitem('/window/main/width')
-        except XMLManagerError:
-           width = 200   # Default value
-        try:
-           height = dom.getitem('/window/main/height')
-        except XMLManagerError:
-           height = 350   # Default value
-        self.main = WindowPreferences(width, height)
-        try:
-           hpane = dom.getitem('/window/main/hpane')
-        except XMLManagerError:
-           hpane = 180   # Default value
-        self.main.hpane = hpane
-        dprint("UTILS: __init__() hpane: %d" %self.main.hpane)
-        try:
-           vpane = dom.getitem('/window/main/vpane')
-        except XMLManagerError:
-           vpane = 125   # Default value
-        self.main.vpane = vpane
-        try:
-           search_desc = dom.getitem('/window/main/search_desc')
-        except XMLManagerError:
-           search_desc = False   # Default value
-        self.main.search_desc = search_desc
-        try:
-           show_nag_dialog = dom.getitem('/window/main/show_nag_dialog')
-        except XMLManagerError:
-           show_nag_dialog = True   # Default value
-        self.main.show_nag_dialog = show_nag_dialog
-
-        # Process window settings
-
-        try:
-           width = dom.getitem('/window/process/width')
-        except XMLManagerError:
-           width = 300   # Default value
-        try:
-           height = dom.getitem('/window/process/height')
-        except XMLManagerError:
-           height = 350   # Default value
-        self.process = WindowPreferences(width, height)
-        try:
-           width_verbose = dom.getitem('/window/process/width_verbose')
-        except XMLManagerError:
-           width_verbose = 500   # Default value
-        self.process.width_verbose = width_verbose
-
-        # Terminal window settings
-
-        try:
-           width = dom.getitem('/window/terminal/width')
-        except XMLManagerError:
-           width = 300   # Default value
-        try:
-           height = dom.getitem('/window/terminal/height')
-        except XMLManagerError:
-           height = 350   # Default value
-        self.terminal = WindowPreferences(width, height)
-        try:
-           width_verbose = dom.getitem('/window/terminal/width_verbose')
-        except XMLManagerError:
-           width_verbose = 500   # Default value
-        self.terminal.width_verbose = width_verbose
+        
+        preflist = {}
+        
+        preflist['main'] = [['width', 200],
+                            ['height', 350],
+                            ['xpos', False],
+                            ['ypos', False],
+                            ['hpane', 180],
+                            ['vpane', 125],
+                            ['maximized', False],
+                            ['search_desc', False],
+                            ['show_nag_dialog', True]]
+        
+        preflist['process'] = [['width', 300],
+                               ['height', 350],
+                               ['width_verbose', 500]]
+        
+        preflist['terminal'] = [['width', 300],
+                                ['height', 350],
+                                ['width_verbose', 500]]
+        
+        history = ["",
+                   "emerge ",
+                   "ACCEPT_KEYWORDS='~x86' emerge ",
+                   "USE=' ' emerge ",
+                   "ACCEPT_KEYWORDS='~x86' USE=' ' emerge ",
+                   "emerge --help"]
+        # default_history = length of the history items to always remain
+        # at the start of the popdown history list & set above when history is set
+        # history_length = Default value for maximum nuber of retained history items
+        
+        preflist['run_dialog'] = [['width', 400],
+                                  ['height', 120],
+                                  ['history', history],
+                                  ['default_history', len(history)],
+                                  ['history_length', 10]]
+        
+        for window_name in preflist.keys():
+            setattr(self, window_name, WindowPreferences()) # create self.main etc
+            for pref_name, default_value in preflist[window_name]:
+                try:
+                    value = dom.getitem(''.join(['/window/',window_name,'/',pref_name]))
+                    # (e.g. '/window/main/width')
+                except XMLManagerError:
+                    value = default_value
+                setattr(getattr(self, window_name), pref_name, value) # set self.main.width etc
         
         # Formatting tags for the terminal window tabs.  
         # Note: normal font weight = 400 (pango.WEIGHT_NORMAL),
         #       bold = 700 (pango.WEIGHT_BOLD)
         # Note: all colors are in hex for future color editor;
         #       '' means use default color.
-
-        # Caution tag
-
-        self.TAG_DICT = {}
-        try:
-           forecolor = dom.getitem('/window/terminal/tag/caution/forecolor')
-        except XMLManagerError:
-           forecolor = ''  # Default value
-        try:
-           backcolor = dom.getitem('/window/terminal/tag/caution/backcolor')
-        except XMLManagerError:
-           backcolor = '#ff14b4'  # Default value
-        try:
-           fontweight = dom.getitem('/window/terminal/tag/caution/fontweight')
-        except XMLManagerError:
-           fontweight = 400  # Default value
-        self.TAG_DICT['caution'] = [forecolor, backcolor, fontweight]
-
-        # Command tag
-
-        try:
-           forecolor = dom.getitem('/window/terminal/tag/command/forecolor')
-        except XMLManagerError:
-           forecolor = '#ffffff'  # Default value
-        try:
-           backcolor = dom.getitem('/window/terminal/tag/command/backcolor')
-        except XMLManagerError:
-           backcolor = '#000080'  # Default value
-        try:
-           fontweight = dom.getitem('/window/terminal/tag/command/fontweight')
-        except XMLManagerError:
-           fontweight = 700  # Default value
-        self.TAG_DICT['command'] = [forecolor, backcolor, fontweight]
-
-        # Emerge tag
-
-        try:
-           forecolor = dom.getitem('/window/terminal/tag/emerge/forecolor')
-        except XMLManagerError:
-           forecolor = ''  # Default value
-        try:
-           backcolor = dom.getitem('/window/terminal/tag/emerge/backcolor')
-        except XMLManagerError:
-           backcolor = '#90ee90'  # Default value
-        try:
-           fontweight = dom.getitem('/window/terminal/tag/emerge/fontweight')
-        except XMLManagerError:
-           fontweight = 700  # Default value
-        self.TAG_DICT['emerge'] = [forecolor, backcolor, fontweight]
-
-        # Error tag
-
-        try:
-           forecolor = dom.getitem('/window/terminal/tag/error/forecolor')
-        except XMLManagerError:
-           forecolor = '#faf0e6'  # Default value
-        try:
-           backcolor = dom.getitem('/window/terminal/tag/error/backcolor')
-        except XMLManagerError:
-           backcolor = '#ff0000'  # Default value
-        try:
-           fontweight = dom.getitem('/window/terminal/tag/error/fontweight')
-        except XMLManagerError:
-           fontweight = 700  # Default value
-        self.TAG_DICT['error'] = [forecolor, backcolor, fontweight]
-
-        # Info tag
-
-        try:
-           forecolor = dom.getitem('/window/terminal/tag/info/forecolor')
-        except XMLManagerError:
-           forecolor = ''  # Default value
-        try:
-           backcolor = dom.getitem('/window/terminal/tag/info/backcolor')
-        except XMLManagerError:
-           backcolor = '#b0ffff'  # Default value
-        try:
-           fontweight = dom.getitem('/window/terminal/tag/info/fontweight')
-        except XMLManagerError:
-           fontweight = 400  # Default value
-        self.TAG_DICT['info'] = [forecolor, backcolor, fontweight]
-
-        # Line number tag 
-
-        try:
-           forecolor = dom.getitem('/window/terminal/tag/linenumber/forecolor')
-        except XMLManagerError:
-           forecolor = '#0000ff'  # Default value
-        try:
-           backcolor = dom.getitem('/window/terminal/tag/linenumber/backcolor')
-        except XMLManagerError:
-           backcolor = ''  # Default value
-        try:
-           fontweight = dom.getitem('/window/terminal/tag/linenumber/fontweight')
-        except XMLManagerError:
-           fontweight = 700  # Default value
-        self.TAG_DICT['linenumber'] = [forecolor, backcolor, fontweight]
-
-        # Note tag
-
-        try:
-           forecolor = dom.getitem('/window/terminal/tag/note/forecolor')
-        except XMLManagerError:
-           forecolor = '#8b008b'  # Default value
-        try:
-           backcolor = dom.getitem('/window/terminal/tag/note/backcolor')
-        except XMLManagerError:
-           backcolor = ''  # Default value
-        try:
-           fontweight = dom.getitem('/window/terminal/tag/note/fontweight')
-        except XMLManagerError:
-           fontweight = 400  # Default value
-        self.TAG_DICT['note'] = [forecolor, backcolor, fontweight]
-
-        # Warning tag
-
-        try:
-           forecolor = dom.getitem('/window/terminal/tag/warning/forecolor')
-        except XMLManagerError:
-           forecolor = ''  # Default value
-        try:
-           backcolor = dom.getitem('/window/terminal/tag/warning/backcolor')
-        except XMLManagerError:
-           backcolor = '#eeee80'  # Default value
-        try:
-           fontweight = dom.getitem('/window/terminal/tag/warning/fontweight')
-        except XMLManagerError:
-           fontweight = 400  # Default value
-        self.TAG_DICT['warning'] = [forecolor, backcolor, fontweight]
-
-        # Run Dialog window settings
-
-        try:
-           width = dom.getitem('/window/run_dialog/width')
-        except XMLManagerError:
-           width = 400   # Default value
-        try:
-           height = dom.getitem('/window/run_dialog/height')
-        except XMLManagerError:
-           height = 120   # Default value
-        self.run_dialog = WindowPreferences(width, height)
-        try:
-           history = dom.getitem('/window/run_dialog/history')
-        except XMLManagerError:
-           # Default value
-           history = ["",
-                      "emerge ",
-                      "ACCEPT_KEYWORDS='~x86' emerge ",
-                      "USE=' ' emerge ",
-                      "ACCEPT_KEYWORDS='~x86' USE=' ' emerge ",
-                      "emerge --help"]
-           default_history = len(history)
-        self.run_dialog.history = history
-        try:
-           default_history = dom.getitem('/window/run_dialog/default_history')
-        except XMLManagerError:
-           # Default value
-           # default_history = length of the history items to always remain
-           # at the start of the popdown history list & set above when history is set
-           default_history = len(history)
-        self.run_dialog.default_history = default_history
-        try:
-           history_length = dom.getitem('/window/run_dialog/history_length')
-        except XMLManagerError:
-           # Default value for maximum nuber of retained history items
-           history_length = 10
-        self.run_dialog.history_length = history_length
-
-        # Emerge options
- 
-        self.emerge = EmergeOptions()
-        try:
-           self.emerge.pretend = dom.getitem('/emerge/options/pretend')
-        except XMLManagerError:
-           pass
-        try:
-           self.emerge.fetch = dom.getitem('/emerge/options/fetch')
-        except XMLManagerError:
-           pass
-        try:
-           self.emerge.verbose = dom.getitem('/emerge/options/verbose')
-        except XMLManagerError:
-           pass
-        try:
-           self.emerge.upgradeonly = dom.getitem('/emerge/options/upgradeonly')
-        except XMLManagerError:
-           pass
-        try:
-           self.emerge.nospinner = dom.getitem('/emerge/options/nospinner')
-        except XMLManagerError:
-           pass
-
-        # Advanced emerge options
         
+        self.TAG_DICT = {}
+        
+        taglist = [['caution','','#ff14b4',400],  # [name, default forecolor, backcolor, fontweight]
+                   ['command','#ffffff','#000080',700],
+                   ['emerge','','#90ee90',700],
+                   ['error','#faf0e6','#ff0000',700],
+                   ['info','','#b0ffff',400],
+                   ['linenumber','#0000ff','',700],
+                   ['note','#8b008b','',400],
+                   ['warning','','#eeee80',400]]
+        
+        for tag_name, forecolor, backcolor, fontweight in taglist:
+            try:
+                fc = dom.getitem(''.join(['/window/terminal/tag/',tag_name,'/forecolor']))
+            except XMLManagerError:
+                fc = forecolor
+            try:
+                bc = dom.getitem(''.join(['/window/terminal/tag/',tag_name,'/backcolor']))
+            except XMLManagerError:
+                bc = backcolor
+            try:
+                fw = dom.getitem(''.join(['/window/terminal/tag/',tag_name,'/fontweight']))
+            except XMLManagerError:
+                fw = fontweight
+            self.TAG_DICT[tag_name] = [fc, bc, fw]
+        
+        emergeoptions = ['pretend', 'fetch', 'verbose', 'upgradeonly', 'nospinner']
+        self.emerge = EmergeOptions()
+        for option in emergeoptions:
+            try:
+                setattr(self.emerge, option, dom.getitem(''.join(['/emerge/options/', option])))
+            except XMLManagerError:
+                pass
+        
+        advemergeoptions = ['enable_all_keywords']
         self.advemerge = AdvEmergeOptions()
-        try:
-           self.advemerge.enable_all_keywords = dom.getitem('/advemerge/enable_all_keywords')
-        except XMLManagerError:
-            pass
+        for option in advemergeoptions:
+            try:
+                setattr(self.emerge, option, dom.getitem(''.join(['/advemerge/options/', option])))
+            except XMLManagerError:
+                pass
+        
+        viewoptions = [['world_downgradable_color', 'red'],
+                       ['world_upgradable_color', '']] # green?
+        self.views = ViewOptions()
+        for option, default in viewoptions:
+            try:
+                value = dom.getitem(''.join(['/views/', option]))
+            except XMLManagerError:
+                value = default
+            setattr(self.views, option, value)
+        
+        
+##        # Main window settings
+##
+##        try:
+##           width = dom.getitem('/window/main/width')
+##        except XMLManagerError:
+##           width = 200   # Default value
+##        try:
+##           height = dom.getitem('/window/main/height')
+##        except XMLManagerError:
+##           height = 350   # Default value
+##        self.main = WindowPreferences(width, height)
+##        try:
+##           hpane = dom.getitem('/window/main/hpane')
+##        except XMLManagerError:
+##           hpane = 180   # Default value
+##        self.main.hpane = hpane
+##        dprint("UTILS: __init__() hpane: %d" %self.main.hpane)
+##        try:
+##           vpane = dom.getitem('/window/main/vpane')
+##        except XMLManagerError:
+##           vpane = 125   # Default value
+##        self.main.vpane = vpane
+##        try:
+##           search_desc = dom.getitem('/window/main/search_desc')
+##        except XMLManagerError:
+##           search_desc = False   # Default value
+##        self.main.search_desc = search_desc
+##        try:
+##           show_nag_dialog = dom.getitem('/window/main/show_nag_dialog')
+##        except XMLManagerError:
+##           show_nag_dialog = True   # Default value
+##        self.main.show_nag_dialog = show_nag_dialog
+##
+##        # Process window settings
+##
+##        try:
+##           width = dom.getitem('/window/process/width')
+##        except XMLManagerError:
+##           width = 300   # Default value
+##        try:
+##           height = dom.getitem('/window/process/height')
+##        except XMLManagerError:
+##           height = 350   # Default value
+##        self.process = WindowPreferences(width, height)
+##        try:
+##           width_verbose = dom.getitem('/window/process/width_verbose')
+##        except XMLManagerError:
+##           width_verbose = 500   # Default value
+##        self.process.width_verbose = width_verbose
+##
+##        # Terminal window settings
+##
+##        try:
+##           width = dom.getitem('/window/terminal/width')
+##        except XMLManagerError:
+##           width = 300   # Default value
+##        try:
+##           height = dom.getitem('/window/terminal/height')
+##        except XMLManagerError:
+##           height = 350   # Default value
+##        self.terminal = WindowPreferences(width, height)
+##        try:
+##           width_verbose = dom.getitem('/window/terminal/width_verbose')
+##        except XMLManagerError:
+##           width_verbose = 500   # Default value
+##        self.terminal.width_verbose = width_verbose
+        
+        
+##        # Caution tag
+##        
+##        try:
+##           forecolor = dom.getitem('/window/terminal/tag/caution/forecolor')
+##        except XMLManagerError:
+##           forecolor = ''  # Default value
+##        try:
+##           backcolor = dom.getitem('/window/terminal/tag/caution/backcolor')
+##        except XMLManagerError:
+##           backcolor = '#ff14b4'  # Default value
+##        try:
+##           fontweight = dom.getitem('/window/terminal/tag/caution/fontweight')
+##        except XMLManagerError:
+##           fontweight = 400  # Default value
+##        self.TAG_DICT['caution'] = [forecolor, backcolor, fontweight]
+##
+##        # Command tag
+##
+##        try:
+##           forecolor = dom.getitem('/window/terminal/tag/command/forecolor')
+##        except XMLManagerError:
+##           forecolor = '#ffffff'  # Default value
+##        try:
+##           backcolor = dom.getitem('/window/terminal/tag/command/backcolor')
+##        except XMLManagerError:
+##           backcolor = '#000080'  # Default value
+##        try:
+##           fontweight = dom.getitem('/window/terminal/tag/command/fontweight')
+##        except XMLManagerError:
+##           fontweight = 700  # Default value
+##        self.TAG_DICT['command'] = [forecolor, backcolor, fontweight]
+##
+##        # Emerge tag
+##
+##        try:
+##           forecolor = dom.getitem('/window/terminal/tag/emerge/forecolor')
+##        except XMLManagerError:
+##           forecolor = ''  # Default value
+##        try:
+##           backcolor = dom.getitem('/window/terminal/tag/emerge/backcolor')
+##        except XMLManagerError:
+##           backcolor = '#90ee90'  # Default value
+##        try:
+##           fontweight = dom.getitem('/window/terminal/tag/emerge/fontweight')
+##        except XMLManagerError:
+##           fontweight = 700  # Default value
+##        self.TAG_DICT['emerge'] = [forecolor, backcolor, fontweight]
+##
+##        # Error tag
+##
+##        try:
+##           forecolor = dom.getitem('/window/terminal/tag/error/forecolor')
+##        except XMLManagerError:
+##           forecolor = '#faf0e6'  # Default value
+##        try:
+##           backcolor = dom.getitem('/window/terminal/tag/error/backcolor')
+##        except XMLManagerError:
+##           backcolor = '#ff0000'  # Default value
+##        try:
+##           fontweight = dom.getitem('/window/terminal/tag/error/fontweight')
+##        except XMLManagerError:
+##           fontweight = 700  # Default value
+##        self.TAG_DICT['error'] = [forecolor, backcolor, fontweight]
+##
+##        # Info tag
+##
+##        try:
+##           forecolor = dom.getitem('/window/terminal/tag/info/forecolor')
+##        except XMLManagerError:
+##           forecolor = ''  # Default value
+##        try:
+##           backcolor = dom.getitem('/window/terminal/tag/info/backcolor')
+##        except XMLManagerError:
+##           backcolor = '#b0ffff'  # Default value
+##        try:
+##           fontweight = dom.getitem('/window/terminal/tag/info/fontweight')
+##        except XMLManagerError:
+##           fontweight = 400  # Default value
+##        self.TAG_DICT['info'] = [forecolor, backcolor, fontweight]
+##
+##        # Line number tag 
+##
+##        try:
+##           forecolor = dom.getitem('/window/terminal/tag/linenumber/forecolor')
+##        except XMLManagerError:
+##           forecolor = '#0000ff'  # Default value
+##        try:
+##           backcolor = dom.getitem('/window/terminal/tag/linenumber/backcolor')
+##        except XMLManagerError:
+##           backcolor = ''  # Default value
+##        try:
+##           fontweight = dom.getitem('/window/terminal/tag/linenumber/fontweight')
+##        except XMLManagerError:
+##           fontweight = 700  # Default value
+##        self.TAG_DICT['linenumber'] = [forecolor, backcolor, fontweight]
+##
+##        # Note tag
+##
+##        try:
+##           forecolor = dom.getitem('/window/terminal/tag/note/forecolor')
+##        except XMLManagerError:
+##           forecolor = '#8b008b'  # Default value
+##        try:
+##           backcolor = dom.getitem('/window/terminal/tag/note/backcolor')
+##        except XMLManagerError:
+##           backcolor = ''  # Default value
+##        try:
+##           fontweight = dom.getitem('/window/terminal/tag/note/fontweight')
+##        except XMLManagerError:
+##           fontweight = 400  # Default value
+##        self.TAG_DICT['note'] = [forecolor, backcolor, fontweight]
+##
+##        # Warning tag
+##
+##        try:
+##           forecolor = dom.getitem('/window/terminal/tag/warning/forecolor')
+##        except XMLManagerError:
+##           forecolor = ''  # Default value
+##        try:
+##           backcolor = dom.getitem('/window/terminal/tag/warning/backcolor')
+##        except XMLManagerError:
+##           backcolor = '#eeee80'  # Default value
+##        try:
+##           fontweight = dom.getitem('/window/terminal/tag/warning/fontweight')
+##        except XMLManagerError:
+##           fontweight = 400  # Default value
+##        self.TAG_DICT['warning'] = [forecolor, backcolor, fontweight]
 
-        # Views config variables
+##        # Run Dialog window settings
+##
+##        try:
+##           width = dom.getitem('/window/run_dialog/width')
+##        except XMLManagerError:
+##           width = 400   # Default value
+##        try:
+##           height = dom.getitem('/window/run_dialog/height')
+##        except XMLManagerError:
+##           height = 120   # Default value
+##        self.run_dialog = WindowPreferences(width, height)
+##        try:
+##           history = dom.getitem('/window/run_dialog/history')
+##        except XMLManagerError:
+##           # Default value
+##           history = ["",
+##                      "emerge ",
+##                      "ACCEPT_KEYWORDS='~x86' emerge ",
+##                      "USE=' ' emerge ",
+##                      "ACCEPT_KEYWORDS='~x86' USE=' ' emerge ",
+##                      "emerge --help"]
+##           default_history = len(history)
+##        self.run_dialog.history = history
+##        try:
+##           default_history = dom.getitem('/window/run_dialog/default_history')
+##        except XMLManagerError:
+##           # Default value
+##           # default_history = length of the history items to always remain
+##           # at the start of the popdown history list & set above when history is set
+##           default_history = len(history)
+##        self.run_dialog.default_history = default_history
+##        try:
+##           history_length = dom.getitem('/window/run_dialog/history_length')
+##        except XMLManagerError:
+##           # Default value for maximum nuber of retained history items
+##           history_length = 10
+##        self.run_dialog.history_length = history_length
 
-	self.views = ViewOptions()
-	#~ try:
-		#~ self.views.world_upgradeable_color = dom.getitem('/views/world_upgradeable_color')
-	#~ except XMLManagerError:
-	self.views.world_upgradeable_color = '' #'green'
-	try:
-		self.views.world_downgradeable_color = dom.getitem('/views/world_downgradeable_color')
-	except XMLManagerError:
-		self.views.world_downgradeable_color = 'red'
+##        # Emerge options
+## 
+##        self.emerge = EmergeOptions()
+##        try:
+##           self.emerge.pretend = dom.getitem('/emerge/options/pretend')
+##        except XMLManagerError:
+##           pass
+##        try:
+##           self.emerge.fetch = dom.getitem('/emerge/options/fetch')
+##        except XMLManagerError:
+##           pass
+##        try:
+##           self.emerge.verbose = dom.getitem('/emerge/options/verbose')
+##        except XMLManagerError:
+##           pass
+##        try:
+##           self.emerge.upgradeonly = dom.getitem('/emerge/options/upgradeonly')
+##        except XMLManagerError:
+##           pass
+##        try:
+##           self.emerge.nospinner = dom.getitem('/emerge/options/nospinner')
+##        except XMLManagerError:
+##           pass
+##
+##        # Advanced emerge options
+##        
+##        self.advemerge = AdvEmergeOptions()
+##        try:
+##           self.advemerge.enable_all_keywords = dom.getitem('/advemerge/enable_all_keywords')
+##        except XMLManagerError:
+##            pass
+##
+##        # Views config variables
+##
+##	self.views = ViewOptions()
+##	#~ try:
+##		#~ self.views.world_upgradeable_color = dom.getitem('/views/world_upgradeable_color')
+##	#~ except XMLManagerError:
+##	self.views.world_upgradeable_color = '' #'green'
+##	try:
+##		self.views.world_downgradeable_color = dom.getitem('/views/world_downgradeable_color')
+##	except XMLManagerError:
+##		self.views.world_downgradeable_color = 'red'
 
 	# Misc. variables
 
@@ -575,9 +674,12 @@ class PortholePreferences:
         dom.version = version
         dom.additem('/window/main/width', self.main.width)
         dom.additem('/window/main/height', self.main.height)
+        dom.additem('/window/main/xpos', self.main.xpos)
+        dom.additem('/window/main/ypos', self.main.ypos)
         dom.additem('/window/main/hpane', self.main.hpane)
         #dprint("UTILS: save() hpane: %d" %self.main.hpane)
         dom.additem('/window/main/vpane', self.main.vpane)
+        dom.additem('/window/main/maximized', self.main.maximized)
         dom.additem('/window/main/search_desc', self.main.search_desc)
         dom.additem('/window/main/show_nag_dialog', self.main.show_nag_dialog)
         dom.additem('/window/process/width', self.process.width)
@@ -622,46 +724,59 @@ class PortholeConfiguration:
 
         # Handle all the regular expressions.  They will be compiled
         # within this object for the sake of efficiency.
-
-        patternlist = dom.getitem('/re_filters/info')
-        self.info_re_list = []
-        for regexp in patternlist:
-            self.info_re_list.append(sre.compile(regexp))
-
-        patternlist = dom.getitem('/re_filters/notinfo')
-        self.info_re_notlist = []
-        for regexp in patternlist:
-            self.info_re_notlist.append(sre.compile(regexp))
-
-        patternlist = dom.getitem('/re_filters/warning')
-        self.warning_re_list = []
-        for regexp in patternlist:
-            self.warning_re_list.append(sre.compile(regexp))
-
-        patternlist = dom.getitem('/re_filters/notwarning')
-        self.warning_re_notlist = []
-        for regexp in patternlist:
-            self.warning_re_notlist.append(sre.compile(regexp))
-
-        patternlist = dom.getitem('/re_filters/error')
-        self.error_re_list = []
-        for regexp in patternlist:
-            self.error_re_list.append(sre.compile(regexp))
-
-        patternlist = dom.getitem('/re_filters/noterror')
-        self.error_re_notlist = []
-        for regexp in patternlist:
-            self.error_re_notlist.append(sre.compile(regexp))
-
-        patternlist = dom.getitem('/re_filters/caution')
-        self.caution_re_list = []
-        for regexp in patternlist:
-            self.caution_re_list.append(sre.compile(regexp))
-
-        patternlist = dom.getitem('/re_filters/notcaution')
-        self.caution_re_notlist = []
-        for regexp in patternlist:
-            self.caution_re_notlist.append(sre.compile(regexp))
+        
+        filterlist = ['info', 'warning', 'error', 'caution']
+        for filter in filterlist:
+            patternlist = dom.getitem(''.join(['/re_filters/',filter])) # e.g. '/re_filters/info'
+            attrname = ''.join([filter, '_re_list'])
+            setattr(self, attrname, []) # e.g. self.info_re_list = []
+            for regexp in patternlist:
+                getattr(self, attrname).append(sre.compile(regexp))
+            patternlist = dom.getitem(''.join(['/re_filters/not',filter])) # e.g. '/re_filters/notinfo'
+            attrname = ''.join([filter, '_re_notlist'])
+            setattr(self, attrname, []) # e.g. self.info_re_notlist = []
+            for regexp in patternlist:
+                getattr(self, attrname).append(sre.compile(regexp))
+        
+##        patternlist = dom.getitem('/re_filters/info')
+##        self.info_re_list = []
+##        for regexp in patternlist:
+##            self.info_re_list.append(sre.compile(regexp))
+##
+##        patternlist = dom.getitem('/re_filters/notinfo')
+##        self.info_re_notlist = []
+##        for regexp in patternlist:
+##            self.info_re_notlist.append(sre.compile(regexp))
+##
+##        patternlist = dom.getitem('/re_filters/warning')
+##        self.warning_re_list = []
+##        for regexp in patternlist:
+##            self.warning_re_list.append(sre.compile(regexp))
+##
+##        patternlist = dom.getitem('/re_filters/notwarning')
+##        self.warning_re_notlist = []
+##        for regexp in patternlist:
+##            self.warning_re_notlist.append(sre.compile(regexp))
+##
+##        patternlist = dom.getitem('/re_filters/error')
+##        self.error_re_list = []
+##        for regexp in patternlist:
+##            self.error_re_list.append(sre.compile(regexp))
+##
+##        patternlist = dom.getitem('/re_filters/noterror')
+##        self.error_re_notlist = []
+##        for regexp in patternlist:
+##            self.error_re_notlist.append(sre.compile(regexp))
+##
+##        patternlist = dom.getitem('/re_filters/caution')
+##        self.caution_re_list = []
+##        for regexp in patternlist:
+##            self.caution_re_list.append(sre.compile(regexp))
+##
+##        patternlist = dom.getitem('/re_filters/notcaution')
+##        self.caution_re_notlist = []
+##        for regexp in patternlist:
+##            self.caution_re_notlist.append(sre.compile(regexp))
 
         self.emerge_re = sre.compile(dom.getitem('/re_filters/emerge'))
         self.ebuild_re = sre.compile(dom.getitem('/re_filters/ebuild'))

@@ -169,7 +169,14 @@ class MainWindow:
         self.synctooltip = gtk.Tooltips()
         self.sync_tip = _(" Syncronise Package Database \n The last sync was done:\n")
         # restore last window width/height
+        dprint("xpos, ypos: %s, %s" % (self.prefs.main.xpos, self.prefs.main.ypos))
+        if self.prefs.main.xpos and self.prefs.main.ypos:
+            self.mainwindow.move(self.prefs.main.xpos, self.prefs.main.ypos)
         self.mainwindow.resize(self.prefs.main.width, self.prefs.main.height)
+        # restore maximized state and set window-state-event handler to keep track of it
+        if self.prefs.main.maximized:
+            self.mainwindow.maximize()
+        self.mainwindow.connect("window-state-event", self.on_window_state_event)
         # move horizontal and vertical panes
         dprint("MAINWINDOW: __init__() before hpane; %d, vpane; %d" %(self.prefs.main.hpane, self.prefs.main.vpane))
         self.wtree.get_widget("hpane").set_position(self.prefs.main.hpane)
@@ -708,6 +715,16 @@ class MainWindow:
         self.ut.join()
         self.progress_done(True)
 
+    def on_window_state_event(self, widget, event):
+        """Handler for window-state-event gtk callback.
+        Just checks if the window is maximized or not"""
+        if widget is not self.mainwindow: return False
+        dprint("MAINWINDOW: on_window_state_event(); event detected")
+        if gtk.gdk.WINDOW_STATE_MAXIMIZED & event.new_window_state:
+            self.prefs.main.maximized = True
+        else:
+            self.prefs.main.maximized = False
+
     def upgrade_packages(self, widget):
         """Upgrade selected packages that have newer versions available."""
         if self.upgrades_loaded:
@@ -1177,9 +1194,12 @@ class MainWindow:
                 del self.hpane_bug_count
             else:
                 self.hpane_bug_count += 1
-        pos = widget.get_size()
-        self.prefs.main.width = pos[0]
-        self.prefs.main.height = pos[1]
+        size = widget.get_size()
+        self.prefs.main.width = size[0]
+        self.prefs.main.height = size[1]
+        pos = widget.get_position()
+        self.prefs.main.xpos = pos[0]
+        self.prefs.main.ypos = pos[1]
         self.prefs.main.hpane = self.wtree.get_widget("hpane").get_position()
         self.prefs.main.vpane = self.wtree.get_widget("vpane").get_position()
         #~ dprint("MAINWINDOW: size_update() hpane; %d, vpane; %d" \
