@@ -172,16 +172,16 @@ class Use_App( gtk.Window ):
         # Create display box
         self.display_box = gtk.Window()
         self.display_box.set_title("Use Var - Changes made to make.conf")
-	self.db_vbox = gtk.VBox()
-	self.display_box.add( self.db_vbox )
-	self.db_label = gtk.Label("Should porthole make the following changes to make.conf?")
-	self.db_vbox.add( self.db_label )
+        self.db_vbox = gtk.VBox()
+        self.display_box.add( self.db_vbox )
+        self.db_label = gtk.Label("Should porthole make the following changes to make.conf?")
+        self.db_vbox.add( self.db_label )
         self.textbuffer = gtk.TextBuffer(None)
         self.text = gtk.TextView()
         self.text.set_buffer(self.textbuffer)
         self.text.set_wrap_mode(gtk.WRAP_WORD)
         self.db_vbox.add( self.text )
-	self.create_display_buttons()
+        self.create_display_buttons()
         self.display_box.set_default_size( 620, 200 )
         self.display_box.connect( "delete_event", self.display_box_destroy_cb )
         self.box_showing = False
@@ -248,16 +248,15 @@ class Use_App( gtk.Window ):
         self.vbox.pack_start( hbox, expand=FALSE, fill=FALSE, padding=1 )
 
     def create_display_buttons( self ):
-	hbox = gtk.HBox(1)
-	hbox.set_size_request( -1, 35 )
-	button = gtk.Button( "Yes" )
-	button.connect( "clicked", self.display_box_write_changes )
-	hbox.add( button )
-	button = gtk.Button( "No" )
-	button.connect( "clicked", self.display_box_destroy_cb )
-	hbox.add( button )
-	self.db_vbox.pack_start( hbox, expand=FALSE, fill=FALSE, padding=1 )
-	
+        hbox = gtk.HBox(1)
+        hbox.set_size_request( -1, 35 )
+        button = gtk.Button( "Yes" )
+        button.connect( "clicked", self.display_box_write_changes )
+        hbox.add( button )
+        button = gtk.Button( "No" )
+        button.connect( "clicked", self.display_box_destroy_cb )
+        hbox.add( button )
+        self.db_vbox.pack_start( hbox, expand=FALSE, fill=FALSE, padding=1 )
 
     def dump_cb( self, *args ):
         requested = []
@@ -269,26 +268,26 @@ class Use_App( gtk.Window ):
         self.use_var = self.use_info.generate_var( requested, full )
         self.text.set_editable( True )
         #self.text.delete_text( 0, -1 )
-	
+        
         #shutil.move( self.use_info.make_con_fn, self.use_info.make_con_fn + ".backup" )
         #fout = open( self.use_info.make_con_fn,'w' )
-	
-	#First, write the temp file
+    
+        #First, write the temp file
         self.write_file( self.use_info.test_make_con_fn )
-
-	#Then, run diff between the temp file and make.conf
-            
-	# run the commandbuffer.tag_table.lookup(tagname)
-	command_string = 'diff -u ' + self.use_info.make_con_fn + ' ' + self.use_info.test_make_con_fn
-	self.fd = os.popen(command_string)
-
-	read_string = 'start' 
-	diff_text = ''
-	while read_string != '':
-	    read_string = self.fd.readline()
-	    diff_text += read_string
-
-	#Now, show the diff and ask for approval!
+        
+        #Then, run diff between the temp file and make.conf
+        
+        # run the commandbuffer.tag_table.lookup(tagname)
+        command_string = 'diff -u ' + self.use_info.make_con_fn + ' ' + self.use_info.test_make_con_fn
+        self.fd = os.popen(command_string)
+        
+        read_string = 'start' 
+        diff_text = ''
+        while read_string != '':
+            read_string = self.fd.readline()
+            diff_text += read_string
+        
+        #Now, show the diff and ask for approval!
         if self.box_showing:
             self.textbuffer.set_text('')
         self.textbuffer.insert_at_cursor( diff_text,len(diff_text) )
@@ -297,20 +296,19 @@ class Use_App( gtk.Window ):
         self.box_showing = True
         self.text.set_editable( False )
 
-								    
     def write_file( self, file_name ):
         fout = open( file_name, 'w' )
-	fout.write( self.use_info.pre_use )
-	fout.write( self.use_var )
-	fout.write( '\n' )
-	fout.write( self.use_info.post_use )
+        fout.write( self.use_info.pre_use )
+        fout.write( self.use_var )
+        fout.write( '\n' )
+        fout.write( self.use_info.post_use )
         fout.close()
 
     def destroy_cb( self, *args ):
         self.destroy()
         if self.is_app:
             gtk.main_quit()
-	
+
     def display_box_destroy_cb( self, *args ):
         self.display_box.hide()
         self.textbuffer.set_text('')
@@ -318,9 +316,8 @@ class Use_App( gtk.Window ):
         return True
 
     def display_box_write_changes( self, *args ):
-    	self.display_box_destroy_cb( 0 )
-    	return self.write_file( self.use_info.make_con_fn )
-	
+        self.display_box_destroy_cb( 0 )
+        return self.write_file( self.use_info.make_con_fn )
 
 if __name__ == '__main__':
     gui_output = True # Set this to False to stop the gui popup window with the use var

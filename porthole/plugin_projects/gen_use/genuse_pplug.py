@@ -19,30 +19,28 @@ def new_instance( my_manager ):
 
 def destroy_instance( ):
     if genuse_pplug.initialized == True:
-	disable_plugin()    
+        disable_plugin()    
     if app:	
-	app.destroy_cb()
+        app.destroy_cb()
     genuse_pplug.manager.del_menuitem( menuitem )
     genuse_pplug.initialized = False
     
 def enable_plugin():
     if initialized == False:
-	return
+        return
     genuse_pplug.menuitem = genuse_pplug.manager.new_menuitem("Generate USE Vars")
     genuse_pplug.menuitem.connect("activate", show_dialog )
     genuse_pplug.enabled = True
 
 def disable_plugin():
     if genuse_pplug.initialized == False:
-	return
+        return
     genuse_pplug.manager.del_menuitem( genuse_pplug.menuitem )
     genuse_pplug.enabled = False
 
 def show_dialog( *args ):
     app = genuse.Use_App(True,False)
     app.show_all()
-
-
 
 event_table = {
 	"load" : new_instance,
