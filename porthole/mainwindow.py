@@ -1203,8 +1203,8 @@ class MainWindow:
         # note: event has x and y attributes but they do not give the same values as get_position().
         self.prefs.main.xpos = pos[0]
         self.prefs.main.ypos = pos[1]
-        self.prefs.main.hpane = self.wtree.get_widget("hpane").get_position()
-        self.prefs.main.vpane = self.wtree.get_widget("vpane").get_position()
+        #self.prefs.main.hpane = self.wtree.get_widget("hpane").get_position() # moved to self.goodbye()
+        #self.prefs.main.vpane = self.wtree.get_widget("vpane").get_position() # moved to self.goodbye()
         #~ dprint("MAINWINDOW: size_update() hpane; %d, vpane; %d" \
                #~ %(self.prefs.main.hpane, self.prefs.main.vpane))
 
@@ -1249,6 +1249,9 @@ class MainWindow:
     def goodbye(self, widget):
         """Main window quit function"""
         dprint("MAINWINDOW: goodbye(); quiting now")
+        # save hpane, vpane positions - this isn't very tidy.
+        self.prefs.main.hpane = self.wtree.get_widget("hpane").get_position()
+        self.prefs.main.vpane = self.wtree.get_widget("vpane").get_position()
         try: # for >=pygtk-2.3.94
             dprint("MAINWINDOW: gtk.main_quit()")
             gtk.main_quit()
