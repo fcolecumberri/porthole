@@ -114,7 +114,7 @@ class MainWindow:
             "on_reload_db" : self.reload_db,
             "on_re_init_portage" : self.re_init_portage,
             "on_cancel_btn" : self.on_cancel_btn,
-            "on_main_window_size_request" : self.size_update,
+            #"on_main_window_size_request" : self.size_update,
             "on_plugin_settings_activate" : self.plugin_settings_activate
         }
         self.wtree.signal_autoconnect(callbacks)
@@ -169,7 +169,6 @@ class MainWindow:
         self.synctooltip = gtk.Tooltips()
         self.sync_tip = _(" Syncronise Package Database \n The last sync was done:\n")
         # restore last window width/height
-        dprint("xpos, ypos: %s, %s" % (self.prefs.main.xpos, self.prefs.main.ypos))
         if self.prefs.main.xpos and self.prefs.main.ypos:
             self.mainwindow.move(self.prefs.main.xpos, self.prefs.main.ypos)
         self.mainwindow.resize(self.prefs.main.width, self.prefs.main.height)
@@ -177,6 +176,8 @@ class MainWindow:
         if self.prefs.main.maximized:
             self.mainwindow.maximize()
         self.mainwindow.connect("window-state-event", self.on_window_state_event)
+        # connect gtk callback for window movement and resize events
+        self.mainwindow.connect("configure-event", self.size_update)
         # move horizontal and vertical panes
         dprint("MAINWINDOW: __init__() before hpane; %d, vpane; %d" %(self.prefs.main.hpane, self.prefs.main.vpane))
         self.wtree.get_widget("hpane").set_position(self.prefs.main.hpane)
@@ -1182,7 +1183,8 @@ class MainWindow:
             self.widget["unmerge_package1"].set_sensitive(not enabled)
         self.notebook.set_sensitive(enabled)
 
-    def size_update(self, widget, gbox):
+    def size_update(self, widget, event):
+        #dprint("MAINWINDOW: size_update(); called.")
         """ Store the window and pane positions """
         # bugfix for hpane jump bug
         if self.hpane_bug:
@@ -1194,10 +1196,11 @@ class MainWindow:
                 del self.hpane_bug_count
             else:
                 self.hpane_bug_count += 1
-        size = widget.get_size()
-        self.prefs.main.width = size[0]
-        self.prefs.main.height = size[1]
+        #size = widget.get_size()  # size[0] = width, size[1] = height
+        self.prefs.main.width = event.width
+        self.prefs.main.height = event.height
         pos = widget.get_position()
+        # note: event has x and y attributes but they do not give the same values as get_position().
         self.prefs.main.xpos = pos[0]
         self.prefs.main.ypos = pos[1]
         self.prefs.main.hpane = self.wtree.get_widget("hpane").get_position()
