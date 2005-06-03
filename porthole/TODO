@@ -1,6 +1,118 @@
+--------------------------------------------------------------------------------
+|                          TODO list for Porthole:                             |
+--------------------------------------------------------------------------------
+
+ * Preferences Dialog:
+      sync options (e.g. websync)
+      default emerge options (e.g. verbose)
+      option to disable screensaver ? (RFE [1094373])
+      Font and colour chooser for Terminal window ?
+      use flag options ? 
+      mirrors, proxies ?
+
+ * Add right-click menu to summary view.
+   Refine Package View right-click menu.
+
+ * Allow multiple packages to be selected, then emerge in one line
+   i.e. "emerge <package1> <package2> <package3>"
+   (see RFE [974902])
+
+ * Select All / None in upgradable view (RFE [939337])
+
+ * Update statusbar to indicate that a search is taking place
+
+ * Fix upgradable dependencies column (doesn't expand on first click)
+   (This column won't even be necessary if a "deep" option is available)
+   (see below)
+
+ * Some sort of sudo functionality (RFE [950598, 1027080], Bug [1112449]).
+   Perhaps using libgksu, libgksuui somehow (swig?).
+   Pygksu is in gnome-python-extras cvs, but not ready for use (03 June 2005)
+
+ * Manager for: (RFE [954349, 994537])
+      use flags (make.conf)
+      package.use
+      package.unmask
+      package.keywords
+      mirrorselect
+      http_proxy
+   Viewer for:
+      package.mask
+   Perhaps some of this could be included in a preferences dialog
+
+ * Reap zombie emerge processes (bug [1081506, 1119366])
+
+ * Ability to unmerge certain version (e.g. only one slot) (bug [1082297]).
+   Could perhaps include this in summary view somehow.
+
+ * Ability to save an emerge list and perform the emerge at a later date
+   This could also be saved on disk before an emerge, to be resumed in the
+   case of a crash.
+   (see RFE [974902, 1081511, 1112457], bug [1112449, 1112459])
+
+ * Add an option for "deep" dependency upgrading. Only show dependencies in
+   upgrade view if this is enabled, and then select them by default.
+   (RFE [1013912])
+
+ * Fix webbrowser choice, add "copy link" option in summary (bug [908237])
+   Porthole needs to do more work to open the default browser.
+
+ * Go back to selected category / package when changing views.
+
+ * Method of faking or performing "ask" emerge - see what will be emerged
+   then click "yes / no"
+
+ * Allow the details for specific ebuilds to be viewed in the bottom pane
+   (not just the default one)
+
+ * Way of seeing what installed packages depend on a certain package.
+
+ ? Table of available ebuilds for our architecture in summary, or for all
+   architectures if that setting is enabled (shared with advemerge).
+   This could indicate: Slots, Installed packages, Masking.
+   Perhaps also use flags for each ebuild ? (tooltip?)
+   This could also be useful for uninstalling or installing specific
+   ebuilds (or slots), or building for specific architectures if enabled.
+   Could also add specific ebuilds to package.keywords, package.unmask
+   (as opposed to unmasking all versions of a package).
+
+ ? Central database (perhaps persistant across sessions) of "Package" objects
+   (i.e. don't keep them in TreeView objects)
+   Perhaps check on startup to see if the portage database has changed since
+   porthole was closed last, and update then (i.e. only when necessary).
+   Porthole could keep track of changes while running, and thus wouldn't have
+   to reload information so much.
+   This could help for fast description searching (RFE [998428]), and would
+   make Porthole a lot faster in general, but has the potential for lots
+   of problems with discrepancies between Porthole and portage.
+
+ ? Advanced search criteria (masking, architectures, use flags)
+
+ ? "emerge world" and "emerge system" interface. Include support for "newuse".
+
+ ? Possibly prompt to add package to package.keywords if the user tries to
+   merge a masked package (bug [1107532])
+
+ ? Option to sort the packageview with installed packages on top, then
+   installed dependencies, then uninstalled packages.
+
+ ? Something to show if we have run porthole as root or not (icon?).
+   This will not be necessary when some sort of sudo functionality is
+   worked out. (RFE [1181795, ?])
+
+ ? Possible "uninstalled packages" view (bug [1078839])
+ ? Show upgrade flags (B, NS etc.) in upgrade view (bug [1078839])
+
+ ? Possible support for easy etc-update (RFE [954349])
+
+ ? Distcc monitor ? (RFE [1071208])
+
+
+--------------------------------------------------------------------------------
+|                            Original TODO list                                |
+--------------------------------------------------------------------------------
+
 Porthole Release Feature Schedule
-
-
 
 Release 0.4.?
 
@@ -9,11 +121,11 @@ Release 0.4.?
 - USE flags & features editor(s) (being worked on)
 - Look into caching the allnodes package list as portage-2.0.51 and newer no longer caches virtuals
 - Remove the view selector and integrate them with the categories. 
-- Code the clipboard functions
-- begin adding right click menus for many areas
+(done?) Code the clipboard functions
+(in progress) begin adding right click menus for many areas
 - Make the package versions and use flags mouse & right click sensitive to bring up context sensitive
   menus for changing use flag status or displaying properties for different ebuilds, etc.
-- Change the masked pversion display to indicate keyword masked/hard masked or /etc/portage.* listed
+(in progress) Change the masked pversion display to indicate keyword masked/hard masked or /etc/portage.* listed
 
 Release 0.5
 - integrate portages new API into porthole replacing portaglib (when ready)
@@ -31,7 +143,7 @@ Features for future consideration
   Double-clicking should open the file or folder in Nautilus.  It would be neat 
   if right-click brought up the standard Nautilus context menu.
 
-- Adding su ability inside porthole.  gksu now has the new API with  separate Libs for a gtk+ widget and core lib.
+(see above) Adding su ability inside porthole.  gksu now has the new API with  separate Libs for a gtk+ widget and core lib.
    It does not yet have a python interface.  I have been looking at using swig to create the python interface to the libs.
 
 - Adding chroot ability to the terminal and mainwindow database.  This would allow porthole to
@@ -40,17 +152,17 @@ Features for future consideration
 - Possibly re-write porthole terminal in c to fully integrate the vte terminal widget which will
   be able to do chroot & su easily. 
 
-- Advanced filter/search capabilities
+(see above) Advanced filter/search capabilities
   -- specific architecture
   -- stable/unstable
   -- use flag
 
-- Architecture Support Matrix.  List the versions down the side, architectures across
+(see above) Architecture Support Matrix.  List the versions down the side, architectures across
   the top, little icons for stable, unstable.  Possibly sticking with the format used
   by packages.gentoo.org
 
-- Stable-unstable stuff for the "current" architecture was included in the summary 
+(done) Stable-unstable stuff for the "current" architecture was included in the summary 
   page.  Perhaps by color coding the version numbers.
  
-- When pyGTK 2.4 becomes available & stable, switch to gtk.ComboBox instead of the 
+(done) When pyGTK 2.4 becomes available & stable, switch to gtk.ComboBox instead of the 
   deprecated gtk.Combo

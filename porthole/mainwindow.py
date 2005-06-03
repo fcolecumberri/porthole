@@ -917,7 +917,7 @@ class MainWindow:
         #dprint("Category cursor = " +str(self.current_category_cursor))
         #dprint(self.current_category_cursor[0][1])
         mode = self.wtree.get_widget("view_filter").get_history()
-        if mode == SHOW_SEARCH:	    
+        if mode == SHOW_SEARCH:
             packages = self.search_history[category]
         elif not category or self.current_category_cursor[0][1] == None:
             #dprint("MAINWINDOW: category_changed(); category=False or self.current_category_cursor[0][1]=None")
