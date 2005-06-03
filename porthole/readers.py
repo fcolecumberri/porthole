@@ -284,7 +284,6 @@ class UpgradableReader(CommonReader):
         self.upgrade_results.set_value(child_iter, 3, self.upgrade_view.render_icon(icon,
                                        size = gtk.ICON_SIZE_MENU, detail = None))
 
-	
 class DescriptionReader(CommonReader):
     """ Read and store package descriptions for searching """
     def __init__(self, packages):

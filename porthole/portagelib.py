@@ -69,7 +69,7 @@ def reload_world():
 
 
 def reload_portage():
-	reload(portage)
+    reload(portage)
 
 def get_use_flag_dict():
     """ Get all the use flags and return them as a dictionary 

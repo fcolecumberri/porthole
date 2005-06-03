@@ -53,15 +53,20 @@ class CommonTreeView(gtk.TreeView):
             model.clear()
 
 def PackageModel():
-	"""Common model for a package Treestore"""
-	return gtk.TreeStore(gobject.TYPE_STRING,    # package name
-				gobject.TYPE_BOOLEAN,       # checkbox value in upgrade view
-				gobject.TYPE_PYOBJECT,      # package object
-				gtk.gdk.Pixbuf,             # room for various icons
-				gobject.TYPE_BOOLEAN,       # true if package is in 'world' file
-				gobject.TYPE_STRING,        # foreground text colour
-				str, str, str, str )        # information columns
-	
+    """Common model for a package Treestore"""
+    return gtk.TreeStore(
+        gobject.TYPE_STRING,        # package name
+        gobject.TYPE_BOOLEAN,       # checkbox value in upgrade view
+        gobject.TYPE_PYOBJECT,      # package object
+        gtk.gdk.Pixbuf,            # room for various icons
+        gobject.TYPE_BOOLEAN,       # true if package is in 'world' file
+        gobject.TYPE_STRING,        # foreground text colour
+        gobject.TYPE_STRING,        # installed version
+        gobject.TYPE_STRING,        # portage recommended version
+        gobject.TYPE_STRING,        # size
+        gobject.TYPE_STRING,        # description
+    )
+
 class PackageView(CommonTreeView):
     """ Self contained treeview of packages """
     def __init__(self):
@@ -500,11 +505,11 @@ class CategoryView(CommonTreeView):
                 last_catmaj = catmaj
             sub_cat_iter = self.model.insert_before(cat_iter, None)
             self.model.set_value(sub_cat_iter, 0, catmin)
+##            dprint( threading.enumerate() )
+##                if self.new_thread:
+##                    if self.new_thread.isAlive():
+##                        self.new_thread.join()
             # store full category name in hidden field
-#	dprint( threading.enumerate() )
-#	if self.new_thread:
-#	    if self.new_thread.isAlive():
-#		self.new_thread.join()
             self.model.set_value(sub_cat_iter, 1, cat)
 
     def populate_search( self, categories ):
@@ -549,7 +554,7 @@ class DependsView(CommonTreeView):
         iter = model.get_iter_first()
         while iter:
             package = model.get_value(iter, 2)
-            model.set_value(iter, 6, package.get_size())	    
+            model.set_value(iter, 6, package.get_size())
             try:
                 installed = package.get_latest_installed()
                 installed = portagelib.get_version(installed)

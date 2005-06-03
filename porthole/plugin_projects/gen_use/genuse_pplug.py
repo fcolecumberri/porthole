@@ -20,7 +20,7 @@ def new_instance( my_manager ):
 def destroy_instance( ):
     if genuse_pplug.initialized == True:
         disable_plugin()    
-    if app:	
+    if app:
         app.destroy_cb()
     genuse_pplug.manager.del_menuitem( menuitem )
     genuse_pplug.initialized = False
@@ -43,9 +43,9 @@ def show_dialog( *args ):
     app.show_all()
 
 event_table = {
-	"load" : new_instance,
-	"reload" : new_instance,
-	"unload" : destroy_instance,
-	"enable" : enable_plugin,
-	"disable" : disable_plugin
+    "load" : new_instance,
+    "reload" : new_instance,
+    "unload" : destroy_instance,
+    "enable" : enable_plugin,
+    "disable" : disable_plugin
 }

@@ -608,7 +608,7 @@ class ProcessManager:
             # set the resume buttons to sensitive
             self.set_resume(True)
 
-	dprint("TERMINAL: leaving kill_process")
+        dprint("TERMINAL: leaving kill_process")
 
         # We're finished, release semaphore
         self.Semaphore.release()
@@ -1564,7 +1564,7 @@ class terminal_notebook:
         self.vadjustment = [] #[None, None, None, None, None]
         self.vhandler_id = [] #[None, None, None, None, None]
         self.auto_scroll = [True, False, False, False, False]
-	self.end_mark = [] # hold the end of buffer text marks for autoscrolling
+        self.end_mark = [] # hold the end of buffer text marks for autoscrolling
         self.get_tab_list() # initialize to default state
 
 

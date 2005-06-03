@@ -205,10 +205,10 @@ class WindowPreferences:
         self.height = height    # height
 
 class ViewOptions:
-	""" Holds foreground colors for a package name"""
-	def __init__(self):
-		self.world_upgradeable_color = ''
-		self.world_downgradeable_color = ''
+    """ Holds foreground colors for a package name"""
+    def __init__(self):
+        self.world_upgradeable_color = ''
+        self.world_downgradeable_color = ''
 
 class GlobalPreferences:
     """Holds some global variables"""
@@ -617,17 +617,17 @@ class PortholePreferences:
 ##
 ##        # Views config variables
 ##
-##	self.views = ViewOptions()
-##	#~ try:
-##		#~ self.views.world_upgradeable_color = dom.getitem('/views/world_upgradeable_color')
-##	#~ except XMLManagerError:
-##	self.views.world_upgradeable_color = '' #'green'
-##	try:
-##		self.views.world_downgradeable_color = dom.getitem('/views/world_downgradeable_color')
-##	except XMLManagerError:
-##		self.views.world_downgradeable_color = 'red'
+##  self.views = ViewOptions()
+##  #~ try:
+##      #~ self.views.world_upgradeable_color = dom.getitem('/views/world_upgradeable_color')
+##  #~ except XMLManagerError:
+##  self.views.world_upgradeable_color = '' #'green'
+##  try:
+##      self.views.world_downgradeable_color = dom.getitem('/views/world_downgradeable_color')
+##  except XMLManagerError:
+##      self.views.world_downgradeable_color = 'red'
 
-	# Misc. variables
+        # Misc. variables
 
         try:
            self.database_size = dom.getitem('/database/size')

@@ -84,19 +84,19 @@ def pad_ver(vlist):
             dprint(val1)
             return None
 
-	# building lists of the version parts before the suffix
-	# first part is simple
-	list1 = [zfill(match1.group(2), fill_size)]
+        # building lists of the version parts before the suffix
+        # first part is simple
+        list1 = [zfill(match1.group(2), fill_size)]
 
-	# extend version numbers
-	# this part would greatly benefit from a fixed-length version pattern
-	if len(match1.group(3)):
-	    vlist1 = match1.group(3)[1:].split(".")
-	    for i in range(0, max_length):
-	        if len(vlist1) <= i or len(vlist1[i]) == 0:
-	            list1.append(zfill("0",fill_size))
-	        else:
-	            list1.append(zfill(vlist1[i],fill_size))
+        # extend version numbers
+        # this part would greatly benefit from a fixed-length version pattern
+        if len(match1.group(3)):
+            vlist1 = match1.group(3)[1:].split(".")
+            for i in range(0, max_length):
+                if len(vlist1) <= i or len(vlist1[i]) == 0:
+                    list1.append(zfill("0",fill_size))
+                else:
+                    list1.append(zfill(vlist1[i],fill_size))
 
         # and now the final letter
         #dprint("VERSION_SORT: pad_ver(); final letter")
@@ -123,7 +123,7 @@ def pad_ver(vlist):
                 
         # the suffix part is done, so finally the revision
         #dprint("VERSION_SORT: pad_ver(); revision part")
-        r1 = None	
+        r1 = None
         if match1.group(10):
             r1 = 'r' + zfill(match1.group(10), fill_size)
         else:
@@ -173,39 +173,38 @@ def ver_sort(versions):
     return sorted
 
 def get_versions_only(versions):
-	"""inputs a cat/pkg-version list and returns a version list"""
-	#dprint("VERSION_SORT: get_versions()")
-	# convert versions into the padded version only list
-	vlist = []
-	for v in versions:
-		#dprint(v)
-		vlist += [portagelib.get_version(v)]
-		#dprint(vlist)
-	return vlist
+    """inputs a cat/pkg-version list and returns a version list"""
+    #dprint("VERSION_SORT: get_versions()")
+    # convert versions into the padded version only list
+    vlist = []
+    for v in versions:
+        #dprint(v)
+        vlist += [portagelib.get_version(v)]
+        #dprint(vlist)
+    return vlist
 
 
 def ver_match(versions, range1, range2 = None):
-	"""looks for a version match in range1 and optionaly in range2"""
-	if not versions:
-		return None
-	plist = pad_ver(get_versions_only(versions))
-	r1 = pad_ver(range1)
-	if range2:
-		r2 = pad_ver(range2)
-	if not plist:
-		dprint("VERSION_SORT: ver_match(); plist[] creation error")
-		return False, False
-	match1 = False
-	match2 = False
-	for x in plist:
-		if (x >= r1[0] and x <= r1[1]):
-			dprint("VERSION_SORT: ver_match(); match1 %s, %s:%s" %(x,r1[0],r1[1]))
-			match1 = True
-		if range2 and (x >= r2[0] and x <= r2[1]):
-			dprint("VERSION_SORT: ver_match(); match2 %s, %s:%s" %(x,r2[0],r2[1]))
-			match2 = True
-	return match1, match2
-		
+    """looks for a version match in range1 and optionaly in range2"""
+    if not versions:
+        return None
+    plist = pad_ver(get_versions_only(versions))
+    r1 = pad_ver(range1)
+    if range2:
+        r2 = pad_ver(range2)
+    if not plist:
+        dprint("VERSION_SORT: ver_match(); plist[] creation error")
+        return False, False
+    match1 = False
+    match2 = False
+    for x in plist:
+        if (x >= r1[0] and x <= r1[1]):
+            dprint("VERSION_SORT: ver_match(); match1 %s, %s:%s" %(x,r1[0],r1[1]))
+            match1 = True
+        if range2 and (x >= r2[0] and x <= r2[1]):
+            dprint("VERSION_SORT: ver_match(); match2 %s, %s:%s" %(x,r2[0],r2[1]))
+            match2 = True
+    return match1, match2
 
 if __name__ == "__main__":
 

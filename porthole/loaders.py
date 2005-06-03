@@ -46,53 +46,53 @@ except ImportError:
 Textfile_type = {"changelog": "/ChangeLog", "best_ebuild": ".ebuild", "version_ebuild": ".ebuild"}
 
 def load_textfile(view, package, mode, version = None):
-		""" Load and display a text file associated with a package """
-		if package:
-			dprint(package.full_name)
-			if mode != "changelog":
-				installed = package.get_installed()
-				versions = package.get_versions()
-				nonmasked = package.get_versions(include_masked = False)
-				if mode == "best_ebuild":
-					best = portagelib.best(installed + nonmasked)
-					if best == "": # all versions are masked and the package is not installed
-						ebuild = package.get_latest_ebuild(True) # get latest masked version
-					else:
-						ebuild = best
-					dprint(ebuild)
-					package_file = ('/' + package.full_name + '/' + ebuild.split('/')[1]) + Textfile_type[mode]
-				else:
-					package_file = ('/' + package.full_name + '/' + package.full_name.split('/')[1] + '-' + version + Textfile_type[mode])
-				dprint(package_file)
-			else:
-				package_file = "/" + package.full_name + Textfile_type[mode]
-			try:
-				try:
-					f = open(portagelib.portdir + package_file)
-					data = f.read(); f.close()
-				except:
-					f = open(portagelib.portdir_overlay + package_file)
-					data = f.read(); f.close()
-				if data != None:
-					try:
-						dprint("LOADERS: load_textfile(); trying utf_8 encoding")
-						view.set_text(str(data).decode('utf_8').encode("utf_8",'replace'))
-					except:
-						try:
-							dprint("LOADERS: load_textfile(); trying iso-8859-1 encoding")
-							view.set_text(str(data).decode('iso-8859-1').encode('utf_8', 'replace'))
-						except:
-							dprint("LOADERS: load_textfile(); Failure = unknown encoding")
-							view.set_text(_("This ") + Textfile_type[mode][1:] + _(" has an unknown encoding method to porthole \n") + \
-										_("Please report this to bugs.gentoo.org and pothole's bugtracker"))
-				else:
-					view.set_text(Textfile_type[mode][1:] + _(" is Empty"))
-			except:
-				dprint("LOADERS: Error opening " + Textfile_type[mode][1:] + " for " + package.full_name)
-				view.set_text(Textfile_type[mode][1:] + _(" Not Available"))
-		else:
-			dprint("LOADERS: No package sent to load_textfile()!")
-			view.set_text(Textfile_type[mode][1:] + _(" Not Available"))
+        """ Load and display a text file associated with a package """
+        if package:
+            dprint(package.full_name)
+            if mode != "changelog":
+                installed = package.get_installed()
+                versions = package.get_versions()
+                nonmasked = package.get_versions(include_masked = False)
+                if mode == "best_ebuild":
+                    best = portagelib.best(installed + nonmasked)
+                    if best == "": # all versions are masked and the package is not installed
+                        ebuild = package.get_latest_ebuild(True) # get latest masked version
+                    else:
+                        ebuild = best
+                    dprint(ebuild)
+                    package_file = ('/' + package.full_name + '/' + ebuild.split('/')[1]) + Textfile_type[mode]
+                else:
+                    package_file = ('/' + package.full_name + '/' + package.full_name.split('/')[1] + '-' + version + Textfile_type[mode])
+                dprint(package_file)
+            else:
+                package_file = "/" + package.full_name + Textfile_type[mode]
+            try:
+                try:
+                    f = open(portagelib.portdir + package_file)
+                    data = f.read(); f.close()
+                except:
+                    f = open(portagelib.portdir_overlay + package_file)
+                    data = f.read(); f.close()
+                if data != None:
+                    try:
+                        dprint("LOADERS: load_textfile(); trying utf_8 encoding")
+                        view.set_text(str(data).decode('utf_8').encode("utf_8",'replace'))
+                    except:
+                        try:
+                            dprint("LOADERS: load_textfile(); trying iso-8859-1 encoding")
+                            view.set_text(str(data).decode('iso-8859-1').encode('utf_8', 'replace'))
+                        except:
+                            dprint("LOADERS: load_textfile(); Failure = unknown encoding")
+                            view.set_text(_("This ") + Textfile_type[mode][1:] + _(" has an unknown encoding method to porthole \n") + \
+                                        _("Please report this to bugs.gentoo.org and pothole's bugtracker"))
+                else:
+                    view.set_text(Textfile_type[mode][1:] + _(" is Empty"))
+            except:
+                dprint("LOADERS: Error opening " + Textfile_type[mode][1:] + " for " + package.full_name)
+                view.set_text(Textfile_type[mode][1:] + _(" Not Available"))
+        else:
+            dprint("LOADERS: No package sent to load_textfile()!")
+            view.set_text(Textfile_type[mode][1:] + _(" Not Available"))
 
 def load_installed_files(window, view, package):
         """Obtain and display list of installed files for a package,

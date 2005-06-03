@@ -105,16 +105,16 @@ if __name__ == "__main__":
             i18n_DIR = DATA_PATH + 'i18n'
             path_set = True
 
-	if not path_set: # then run the installed modules
-		try:
-			from porthole.version import version
-			# set data path for our glade and pixmap files
-			DATA_PATH = "/usr/share/porthole/"
-			from porthole import utils as _utils
-			from porthole.mainwindow import MainWindow
-			i18n_DIR = DATA_PATH + 'i18n'
-		except:
-			print "NO installed porthole modules found!   Please run with the --local flag"
+    if not path_set: # then run the installed modules
+        try:
+            from porthole.version import version
+            # set data path for our glade and pixmap files
+            DATA_PATH = "/usr/share/porthole/"
+            from porthole import utils as _utils
+            from porthole.mainwindow import MainWindow
+            i18n_DIR = DATA_PATH + 'i18n'
+        except:
+            print "NO installed porthole modules found!   Please run with the --local flag"
 
     for opt, arg in opts:
         if opt in ("-v", "--version"):
