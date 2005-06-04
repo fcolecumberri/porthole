@@ -143,7 +143,7 @@ class MainWindow:
         result = self.wtree.get_widget("dependencies_scrolled_window").add(self.deps_view)
         # summary view
         scroller = self.wtree.get_widget("summary_text_scrolled_window");
-        self.summary = Summary()
+        self.summary = Summary(self.prefs)
         result = scroller.add(self.summary)
         self.summary.show()
         # how should we setup our saved menus?

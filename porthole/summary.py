@@ -31,9 +31,10 @@ from gettext import gettext as _
 
 class Summary(gtk.TextView):
     """ Class to manage display and contents of package info tab """
-    def __init__(self):
+    def __init__(self, prefs):
         """ Initialize object """
         gtk.TextView.__init__(self)
+        self.prefs = prefs
         self.set_wrap_mode(gtk.WRAP_WORD)
         self.set_editable(False)
         self.set_cursor_visible(False)
@@ -163,7 +164,103 @@ class Summary(gtk.TextView):
                 spam += [version]  # now only used to track the need for a new slot
             #append(", ".join(spam), "value")
             return
-
+        
+        def create_ebuild_table(ebuilds):
+            archlist = ["alpha", "amd64", "arm", "hppa", "ia64", "mips", "ppc",
+                       "ppc64", "ppc-macos", "s390", "sparc", "x86"]
+            myarch = portagelib.get_arch()
+            #if self.prefs.advemerge.enable_all_keywords:
+            if True:    # Just for testing, until we have a preferences dialog.
+                rows = 1 + len(ebuilds)
+                cols = 1 + len(archlist)
+                table = gtk.Table(rows, cols)
+                table.attach(boxify(gtk.Label(), "white"), 0, 1, 0, 1)
+                x = 0
+                for arch in archlist:
+                    x += 1
+                    label = gtk.Label(arch)
+                    label.set_padding(3, 3)
+                    table.attach(boxify(label, "#EEEEEE"), x, x+1, 0, 1)
+                y = len(ebuilds) + 1
+                for ebuild in ebuilds:
+                    y -= 1
+                    version = portagelib.get_version(ebuild)
+                    label = gtk.Label(str(version))
+                    label.set_padding(3, 3)
+                    table.attach(boxify(label, "#EEEEEE"), 0, 1, y, y+1)
+                    keys = package.get_properties(ebuild).get_keywords()
+                    x = 0
+                    for arch in archlist:
+                        x += 1
+                        if "".join(["~", arch]) in keys:
+                            text = "~"
+                            color = "#EEEE90"
+                        elif arch in keys:
+                            text = "+"
+                            color = "#90EE90"
+                        else:
+                            text = "-"
+                            color = "#EEEEEE"
+                        if ebuild in hardmasked and text != "-":
+                            text = "".join(["M", text])
+                            color = "#ED9191"
+                        if ebuild in installed and arch == myarch:
+                            color = "#9090EE"
+                        label = gtk.Label(text)
+                        table.attach(boxify(label, color), x, x+1, y, y+1)
+            else:
+                rows = 2
+                cols = 1 + len(ebuilds)
+                table = gtk.Table(rows, cols)
+                label = gtk.Label()
+                table.attach(boxify(label, "white"), 0, 1, 0, 1)
+                label = gtk.Label(myarch)
+                label.set_padding(3, 3)
+                table.attach(boxify(label, "#EEEEEE"), 0, 1, 1, 2)
+                x = 0
+                for ebuild in ebuilds:
+                    x += 1
+                    version = portagelib.get_version(ebuild)
+                    label = gtk.Label(str(version))
+                    label.set_padding(3, 3)
+                    table.attach(boxify(label, "#EEEEEE"), x, x+1, 0, 1)
+                    keys = package.get_properties(ebuild).get_keywords()
+                    if "".join(["~", myarch]) in keys:
+                        text = "~"
+                        color = "#EEEE90"
+                    elif myarch in keys:
+                        text = "+"
+                        color = "#90EE90"
+                    else:
+                        text = "-"
+                        color = "#EEEEEE"
+                    if ebuild in hardmasked and text != "-":
+                        text = "".join(["M", text])
+                        color = "#ED9191"
+                    if ebuild in installed:
+                        color = "#9090EE"
+                    label = gtk.Label(text)
+                    table.attach(boxify(label, color), x, x+1, 1, 2)
+            table.set_row_spacings(1)
+            table.set_col_spacings(1)
+            table.set_border_width(1)
+            tablebox = boxify(table, "darkgrey")
+            tablebox.show_all()
+            iter = self.buffer.get_end_iter()
+            anchor = self.buffer.create_child_anchor(iter)
+            self.add_child_at_anchor(tablebox, anchor)
+            nl()
+            nl()
+            
+        def boxify(label, color = None):
+            box = gtk.EventBox()
+            box.add(label)
+            if color:
+                style = box.get_style().copy()
+                style.bg[gtk.STATE_NORMAL] = gtk.gdk.color_parse(color)
+                box.set_style(style)
+            return box
+        
         # End supporting internal functions
         ####################################
 
@@ -244,7 +341,11 @@ class Summary(gtk.TextView):
                 append_url(homepage, homepage, "blue")
                 x += 1
             nl(2)
-    
+        
+        # display a table of architectures and support / stability
+        # like on packages.gentoo.org :)
+        create_ebuild_table(versions)
+        
         # Installed version(s)
         if installed:
             append(_("Installed versions:\n"), "property")
