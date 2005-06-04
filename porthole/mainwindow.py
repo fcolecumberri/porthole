@@ -1055,6 +1055,7 @@ class MainWindow:
         self.last_view_setting = index
         self.current_category = None
         self.category_view.last_category = None
+        self.current_category_cursor = None
         self.current_package_cursor = None
             
 
