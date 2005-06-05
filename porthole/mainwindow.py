@@ -65,12 +65,14 @@ def check_glade():
         versions = portagelib.get_installed("gnome-base/libglade")
         if versions:
             dprint(versions)
-            old, new = ver_match(versions, ["2.0.1","2.5.0-r99"], ["2.5.1","2.99.99"])
+            old, new = ver_match(versions, ["2.0.1","2.4.9-r99"], ["2.5.0","2.99.99"])
             if old:
+                dprint("MAINWINDOW: Check_glade(); Porthole no longer supports the older versions\n"+\
+                        "of libglade.  Please upgrade libglade to >=2.5.0 for all GUI features to work")
                 porthole_gladefile = "porthole.glade"
                 new_toolbar_API = False
             elif new:
-                porthole_gladefile = "porthole-new2.glade"
+                porthole_gladefile = "porthole.glade"  # formerly "porthole-new2.glade"
                 new_toolbar_API = True
         else:
             dprint("MAINWINDOW: No version list returned for libglade")

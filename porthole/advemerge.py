@@ -44,7 +44,7 @@ class AdvancedEmergeDialog:
         self.arch = portagelib.get_arch()
         
         # Parse glade file
-        self.gladefile = prefs.DATA_PATH + "advemerge-new.glade"
+        self.gladefile = prefs.DATA_PATH + "advemerge.glade"
         self.wtree = gtk.glade.XML(self.gladefile, "adv_emerge_dialog", self.prefs.APP)
      
         # register callbacks

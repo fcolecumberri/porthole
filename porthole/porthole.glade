@@ -447,12 +447,15 @@
 	      <property name="show_arrow">True</property>
 
 	      <child>
-		<widget class="button" id="btn_emerge">
+		<widget class="GtkToolButton" id="btn_emerge">
 		  <property name="visible">True</property>
 		  <property name="tooltip" translatable="yes">Emerge Package</property>
 		  <property name="label" translatable="yes">E_merge</property>
 		  <property name="use_underline">True</property>
-		  <property name="stock_pixmap">gtk-add</property>
+		  <property name="stock_id">gtk-add</property>
+		  <property name="visible_horizontal">True</property>
+		  <property name="visible_vertical">True</property>
+		  <property name="is_important">False</property>
 		  <signal name="clicked" handler="on_emerge_package" last_modification_time="Mon, 01 Dec 2003 16:45:27 GMT"/>
 		</widget>
 		<packing>
@@ -462,12 +465,15 @@
 	      </child>
 
 	      <child>
-		<widget class="button" id="btn_adv_emerge">
+		<widget class="GtkToolButton" id="btn_adv_emerge">
 		  <property name="visible">True</property>
 		  <property name="tooltip" translatable="yes">Advanced Emerge Package</property>
 		  <property name="label" translatable="yes">A_dv Emerge</property>
 		  <property name="use_underline">True</property>
-		  <property name="stock_pixmap">gtk-preferences</property>
+		  <property name="stock_id">gtk-preferences</property>
+		  <property name="visible_horizontal">True</property>
+		  <property name="visible_vertical">True</property>
+		  <property name="is_important">False</property>
 		  <signal name="clicked" handler="on_adv_emerge_package" last_modification_time="Fri, 21 May 2004 16:45:27 GMT"/>
 		</widget>
 		<packing>
@@ -477,12 +483,15 @@
 	      </child>
 
 	      <child>
-		<widget class="button" id="btn_unmerge">
+		<widget class="GtkToolButton" id="btn_unmerge">
 		  <property name="visible">True</property>
 		  <property name="tooltip" translatable="yes">Unmerge Package</property>
 		  <property name="label" translatable="yes">U_nmerge</property>
 		  <property name="use_underline">True</property>
-		  <property name="stock_pixmap">gtk-remove</property>
+		  <property name="stock_id">gtk-remove</property>
+		  <property name="visible_horizontal">True</property>
+		  <property name="visible_vertical">True</property>
+		  <property name="is_important">False</property>
 		  <signal name="clicked" handler="on_unmerge_package" last_modification_time="Mon, 01 Dec 2003 16:46:04 GMT"/>
 		</widget>
 		<packing>
@@ -513,11 +522,14 @@
 	      </child>
 
 	      <child>
-		<widget class="button" id="btn_sync">
+		<widget class="GtkToolButton" id="btn_sync">
 		  <property name="visible">True</property>
 		  <property name="label" translatable="yes">S_ync</property>
 		  <property name="use_underline">True</property>
-		  <property name="stock_pixmap">gtk-refresh</property>
+		  <property name="stock_id">gtk-refresh</property>
+		  <property name="visible_horizontal">True</property>
+		  <property name="visible_vertical">True</property>
+		  <property name="is_important">False</property>
 		  <signal name="clicked" handler="on_sync_tree" last_modification_time="Mon, 01 Dec 2003 16:46:16 GMT"/>
 		</widget>
 		<packing>
@@ -527,12 +539,15 @@
 	      </child>
 
 	      <child>
-		<widget class="button" id="btn_upgrade">
+		<widget class="GtkToolButton" id="btn_upgrade">
 		  <property name="visible">True</property>
 		  <property name="tooltip" translatable="yes">Upgrade packages to newest versions</property>
 		  <property name="label" translatable="yes">_Upgrade</property>
 		  <property name="use_underline">True</property>
-		  <property name="stock_pixmap">gtk-go-forward</property>
+		  <property name="stock_id">gtk-go-forward</property>
+		  <property name="visible_horizontal">True</property>
+		  <property name="visible_vertical">True</property>
+		  <property name="is_important">False</property>
 		  <signal name="clicked" handler="on_upgrade_packages" last_modification_time="Mon, 01 Dec 2003 16:46:38 GMT"/>
 		</widget>
 		<packing>
@@ -645,7 +660,7 @@
 	      <property name="max_length">0</property>
 	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">True</property>
-	      <property name="invisible_char" translatable="yes">*</property>
+	      <property name="invisible_char">*</property>
 	      <property name="activates_default">False</property>
 	      <signal name="activate" handler="on_search_entry_activate" last_modification_time="Wed, 03 Dec 2003 23:22:52 GMT"/>
 	    </widget>
@@ -1005,7 +1020,7 @@
 	      <property name="visible">True</property>
 	      <property name="orientation">GTK_PROGRESS_LEFT_TO_RIGHT</property>
 	      <property name="fraction">0</property>
-	      <property name="pulse_step">0.1</property>
+	      <property name="pulse_step">0.10000000149</property>
 	    </widget>
 	    <packing>
 	      <property name="padding">0</property>
@@ -2198,7 +2213,12 @@ Copyright (C) 2003 - 2004</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
   <property name="modal">True</property>
   <property name="resizable">True</property>
-  <property name="destroy_with_parent">True</property>
+  <property name="destroy_with_parent">False</property>
+  <property name="decorated">True</property>
+  <property name="skip_taskbar_hint">False</property>
+  <property name="skip_pager_hint">False</property>
+  <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
+  <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -2210,47 +2230,46 @@ Copyright (C) 2003 - 2004</property>
       <child internal-child="action_area">
 	<widget class="GtkHButtonBox" id="dialog-action_area2">
 	  <property name="visible">True</property>
-	  <property name="layout_style">GTK_BUTTONBOX_END</property>
+	  <property name="layout_style">GTK_BUTTONBOX_DEFAULT_STYLE</property>
 
 	  <child>
-	    <widget class="GtkButton" id="help">
+	    <widget class="GtkButton" id="button_help">
 	      <property name="visible">True</property>
 	      <property name="can_default">True</property>
 	      <property name="can_focus">True</property>
 	      <property name="label">gtk-help</property>
 	      <property name="use_stock">True</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>
-	      <property name="response_id">-11</property>
-	      <signal name="clicked" handler="on_help" last_modification_time="Sun, 10 Oct 2004 06:33:55 GMT"/>
+	      <property name="focus_on_click">True</property>
+	      <property name="response_id">0</property>
 	    </widget>
 	  </child>
 
 	  <child>
-	    <widget class="GtkButton" id="cancel">
+	    <widget class="GtkButton" id="button_cancel">
 	      <property name="visible">True</property>
 	      <property name="can_default">True</property>
 	      <property name="can_focus">True</property>
 	      <property name="label">gtk-cancel</property>
 	      <property name="use_stock">True</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>
+	      <property name="focus_on_click">True</property>
 	      <property name="response_id">-6</property>
-	      <signal name="clicked" handler="on_cancel" last_modification_time="Thur, 25 Mar 2004 04:36:47 GMT"/>
 	    </widget>
 	  </child>
 
 	  <child>
-	    <widget class="GtkButton" id="execute">
+	    <widget class="GtkButton" id="button_execute">
 	      <property name="visible">True</property>
 	      <property name="can_default">True</property>
 	      <property name="can_focus">True</property>
 	      <property name="label">gtk-execute</property>
 	      <property name="use_stock">True</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>
+	      <property name="focus_on_click">True</property>
 	      <property name="response_id">0</property>
-	      <signal name="clicked" handler="on_execute" last_modification_time="Thur, 25 Mar 2004 04:36:47 GMT"/>
 	    </widget>
 	  </child>
-
 	</widget>
 	<packing>
 	  <property name="padding">0</property>
@@ -2267,7 +2286,7 @@ Copyright (C) 2003 - 2004</property>
 	  <property name="spacing">3</property>
 
 	  <child>
-	    <widget class="GtkLabel" id="instruction_label">
+	    <widget class="GtkLabel" id="label23">
 	      <property name="height_request">30</property>
 	      <property name="visible">True</property>
 	      <property name="label" translatable="yes">Please Enter Command to Execute</property>
@@ -2302,7 +2321,7 @@ Copyright (C) 2003 - 2004</property>
 	  <property name="spacing">0</property>
 
 	  <child>
-	    <widget class="GtkLabel" id="entry_label">
+	    <widget class="GtkLabel" id="label24">
 	      <property name="visible">True</property>
 	      <property name="label" translatable="yes">RUN :</property>
 	      <property name="use_underline">False</property>
@@ -2323,7 +2342,7 @@ Copyright (C) 2003 - 2004</property>
 	  </child>
 
 	  <child>
-	    <widget class="GtkCombo" id="combo">
+	    <widget class="GtkCombo" id="combo2">
 	      <property name="visible">True</property>
 	      <property name="value_in_list">False</property>
 	      <property name="allow_empty">True</property>
@@ -2332,21 +2351,21 @@ Copyright (C) 2003 - 2004</property>
 	      <property name="enable_arrows_always">False</property>
 
 	      <child internal-child="entry">
-		<widget class="GtkEntry" id="combo-entry">
+		<widget class="GtkEntry" id="combo-entry2">
 		  <property name="visible">True</property>
 		  <property name="can_focus">True</property>
 		  <property name="editable">True</property>
 		  <property name="visibility">True</property>
-		  <property name="max_length">100</property>
+		  <property name="max_length">0</property>
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">True</property>
-		  <property name="invisible_char" translatable="yes">*</property>
+		  <property name="invisible_char">*</property>
 		  <property name="activates_default">False</property>
 		</widget>
 	      </child>
 
 	      <child internal-child="list">
-		<widget class="GtkList" id="combo-list">
+		<widget class="GtkList" id="combo-list2">
 		  <property name="visible">True</property>
 		  <property name="selection_mode">GTK_SELECTION_BROWSE</property>
 		</widget>
