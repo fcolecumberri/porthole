@@ -95,11 +95,11 @@ class AdvancedEmergeDialog:
             if ver["installed"]:
                 info += _('   [installed]')
             #comboList.append(info)
-        # put the recommended upgrade (or downgrade) at the top of the list
-        #comboList.insert(0,comboList.pop(index))
+            # put the recommended upgrade (or downgrade) at the top of the list
+            #comboList.insert(0,comboList.pop(index))
 
-        # Set the combo list
-        #self.combo.set_popdown_strings(comboList)
+            # Set the combo list
+            #self.combo.set_popdown_strings(comboList)
             self.comboList.append([info])
         
         # Build version combobox
