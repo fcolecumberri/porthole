@@ -38,7 +38,8 @@ class RunDialog:
         # register callbacks
         callbacks = {"on_help" : self.help,
                      "on_execute" : self.execute,
-                     "on_cancel" : self.cancel}
+                     "on_cancel" : self.cancel,
+                     "on_comboboxentry1_changed" : self.command_changed}
         self.wtree.signal_autoconnect(callbacks)
         self.command = None
         self.call_back = call_back
@@ -52,15 +53,28 @@ class RunDialog:
                             "ACCEPT_KEYWORDS='~x86' emerge ",
                             "USE=' ' emerge ",
                             "ACCEPT_KEYWORDS='~x86' USE=' ' emerge"]
-        dprint("COMMAND: self.history:")
-        dprint(self.history)
+        #dprint("COMMAND: self.history:")
+        #dprint(self.history)
         self.window = self.wtree.get_widget("run_dialog")
-        self.combo = self.wtree.get_widget("combo")
-        self.entry = self.wtree.get_widget("combo-entry")
-        self.list = self.wtree.get_widget("combo-list")
-        #self.window.set_title("Porthole")
-        if len(self.history):
-            self.combo.set_popdown_strings(self.history)
+        self.combo = self.wtree.get_widget("comboboxentry1")
+        self.entry = self.combo.child
+        #self.list = self.wtree.get_widget("combo-list")
+        # Build a formatted combo list from the versioninfo list 
+        self.comboList = gtk.ListStore(str)
+        index = 0
+        for x in self.history:
+            # Set the combo list
+            self.comboList.append([x])
+        
+        # Set the comboboxentry to the new model
+        self.combo.set_model(self.comboList)
+        cell = gtk.CellRendererText()
+        self.combo.pack_start(cell, True)
+        self.combo.add_attribute(cell, 'text', 0)
+        #self.combo.set_active(index) # select blank entry by default
+
+        #~ if len(self.history):
+            #~ self.combo.set_popdown_strings(self.history)
         self.entry.connect("activate", self.activate, self.command)
         if self.prefs:
             self.window.resize(self.prefs.run_dialog.width, 
@@ -121,4 +135,11 @@ class RunDialog:
             dprint(self.history)
         self.prefs.run_dialog.history = self.history
         return
-        
+
+    def command_changed(self,widget):
+        """Updates the gtk.Entry with the history item selected"""
+        dprint("COMMAND: changing entry item")
+        iter = self.combo.get_active_iter()
+        model = self.combo.get_model()
+        selection = model.get_value(iter, 0)
+        self.entry.set_text(selection)
