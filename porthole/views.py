@@ -272,7 +272,7 @@ class PackageView(CommonTreeView):
         dprint("VIEWS: Handling PackageView button press event")
         self.event = event # save the event so we can access it in _clicked()
         if event.type != gtk.gdk.BUTTON_PRESS:
-            dprint("Strange event type got passed to on_button_press() callback...")
+            dprint("VIEWS: Strange event type got passed to on_button_press() callback...")
             dprint(event.type)
         if event.button == 3: # secondary mouse button
             self.dopopup = True # indicate that the popup menu should be displayed.
@@ -290,9 +290,9 @@ class PackageView(CommonTreeView):
         name = get_treeview_selection(self, 2).full_name
         string = name + " " + arch + "\n"
         dprint("VIEWS: Package view add_keyword(); %s" %string)
-        #keywordsfile = open(USER_CONFIG_PATH + "/package.keywords", "a")
-        #keywordsfile.write(string)
-        #keywordsfile.close()
+        keywordsfile = open(USER_CONFIG_PATH + "/package.keywords", "a")
+        keywordsfile.write(string)
+        keywordsfile.close()
         package = get_treeview_selection(self,2)
         package.best_ebuild = package.get_latest_ebuild()
         self.mainwindow_callback("refresh")

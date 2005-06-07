@@ -5,6 +5,7 @@
  * Preferences Dialog:
       sync options (e.g. websync)
       default emerge options (e.g. verbose)
+      archlist option (for advemerge and summary view)
       option to disable screensaver ? (RFE [1094373])
       Font and colour chooser for Terminal window ?
       use flag options ? 
@@ -22,7 +23,7 @@
  * Update statusbar to indicate that a search is taking place
 
  * Fix upgradable dependencies column (doesn't expand on first click)
-   (This column won't even be necessary if a "deep" option is available)
+   (This column might not be necessary if a "deep" option is available)
    (see below)
 
  * Some sort of sudo functionality (RFE [950598, 1027080], Bug [1112449]).
@@ -42,8 +43,8 @@
 
  * Reap zombie emerge processes (bug [1081506, 1119366])
 
- * Ability to unmerge certain version (e.g. only one slot) (bug [1082297]).
-   Could perhaps include this in summary view somehow.
+ * Ability to unmerge certain version (e.g. only one slot) (bug [1082297]) using
+   advemerge window. Could perhaps include this in summary view also.
 
  * Ability to save an emerge list and perform the emerge at a later date
    This could also be saved on disk before an emerge, to be resumed in the
@@ -51,8 +52,11 @@
    (see RFE [974902, 1081511, 1112457], bug [1112449, 1112459])
 
  * Add an option for "deep" dependency upgrading. Only show dependencies in
-   upgrade view if this is enabled, and then select them by default.
+   upgrade view if this is enabled, and then select them by default ?
    (RFE [1013912])
+
+ * Reinstate tree view with dependencies branching from world packages
+   in upgradable view
 
  * Fix webbrowser choice, add "copy link" option in summary (bug [908237])
    Porthole needs to do more work to open the default browser.
@@ -84,17 +88,18 @@
    to reload information so much.
    This could help for fast description searching (RFE [998428]), and would
    make Porthole a lot faster in general, but has the potential for lots
-   of problems with discrepancies between Porthole and portage.
+   of problems with discrepancies between Porthole and portage...
+   perhaps use python fam interface.
 
  ? Advanced search criteria (masking, architectures, use flags)
 
- ? "emerge world" and "emerge system" interface. Include support for "newuse".
+ ? Possible "newuse" and "system" filters for upgrade list ?
 
- ? Possibly prompt to add package to package.keywords if the user tries to
-   merge a masked package (bug [1107532])
+ ? Somehow prompt to add packages to package.keywords if the user tries to
+   merge a masked package (bug [1107532]). Check dependencies also.
 
- ? Option to sort the packageview with installed packages on top, then
-   installed dependencies, then uninstalled packages.
+ ? Ability to sort the PackageView by clicking on the headers of columns
+   (e.g. sort by size)
 
  ? Something to show if we have run porthole as root or not (icon?).
    This will not be necessary when some sort of sudo functionality is

@@ -64,7 +64,7 @@ def check_glade():
         # determine glade version
         versions = portagelib.get_installed("gnome-base/libglade")
         if versions:
-            dprint(versions)
+            dprint("libglade: %s" % versions)
             old, new = ver_match(versions, ["2.0.1","2.4.9-r99"], ["2.5.0","2.99.99"])
             if old:
                 dprint("MAINWINDOW: Check_glade(); Porthole no longer supports the older versions\n"+\
@@ -179,15 +179,19 @@ class MainWindow:
             self.mainwindow.maximize()
         self.mainwindow.connect("window-state-event", self.on_window_state_event)
         # connect gtk callback for window movement and resize events
-        self.mainwindow.connect("configure-event", self.size_update)
+        #self.mainwindow.connect("configure-event", self.size_update)
         # move horizontal and vertical panes
         dprint("MAINWINDOW: __init__() before hpane; %d, vpane; %d" %(self.prefs.main.hpane, self.prefs.main.vpane))
-        self.wtree.get_widget("hpane").set_position(self.prefs.main.hpane)
-        self.wtree.get_widget("vpane").set_position(self.prefs.main.vpane)
+        self.hpane = self.wtree.get_widget("hpane")
+        self.hpane.set_position(self.prefs.main.hpane)
+        self.hpane.connect("notify", self.on_pane_notify)
+        self.vpane = self.wtree.get_widget("vpane")
+        self.vpane.set_position(self.prefs.main.vpane)
+        self.vpane.connect("notify", self.on_pane_notify)
         # Intercept the window delete event signal
         self.mainwindow.connect('delete-event', self.confirm_delete)
         # initialize some variable to fix the hpane jump bug
-        self.hpane_bug_count = 0
+        #self.hpane_bug_count = 0
         self.hpane_bug = True
         # initialize our data
         self.init_data()
@@ -206,11 +210,10 @@ class MainWindow:
         self.setup_plugins()
         dprint("MAIN: Showing main window")
 
-    def setup_plugins( self ):
+    def setup_plugins(self):
         #Plugin-related statements
         self.needs_plugin_menu = False
-        dprint( "MAIN: Path List for plugins:" ) 
-        dprint( self.prefs.plugins.path_list )
+        dprint("MAIN; setup_plugins(): path_list %s" % self.prefs.plugins.path_list)
         self.plugin_root_menu = gtk.MenuItem("Active Plugins")
         self.plugin_menu = gtk.Menu()
         self.plugin_root_menu.set_submenu(self.plugin_menu)
@@ -727,7 +730,20 @@ class MainWindow:
             self.prefs.main.maximized = True
         else:
             self.prefs.main.maximized = False
-
+    
+    def on_pane_notify(self, pane, gparamspec):
+        if gparamspec.name == "position":
+            # bugfix for hpane jump bug. Now why does this happen?
+            # it seems we need to reset the hpane the first time this gets called...
+            if self.hpane_bug:
+                self.hpane.set_position(self.prefs.main.hpane)
+                self.hpane_bug = False
+                return True
+            # save hpane, vpane positions
+            self.prefs.main.hpane = hpanepos = self.hpane.get_position()
+            self.prefs.main.vpane = vpanepos = self.vpane.get_position()
+            dprint("MAINWINDOW on_pane_notify(): saved hpane %(hpanepos)s, vpane %(vpanepos)s" % locals())
+    
     def upgrade_packages(self, widget):
         """Upgrade selected packages that have newer versions available."""
         if self.upgrades_loaded:
@@ -761,7 +777,7 @@ class MainWindow:
            used to add packages to an upgrades list"""
         if model.get_value(iter, 1):
             name = model.get_value(iter, 0)
-            dprint(name)
+            dprint("MAINWINDOW; tree_node_to_list(): name '%s'" % name)
             if name not in self.keyorder:
                 self.packages_list[name] = model.get_value(iter, 4) # model.get_value(iter, 2), name]
                 self.keyorder = [name] + self.keyorder 
@@ -1186,30 +1202,30 @@ class MainWindow:
             self.widget["unmerge_package1"].set_sensitive(not enabled)
         self.notebook.set_sensitive(enabled)
 
-    def size_update(self, widget, event):
-        #dprint("MAINWINDOW: size_update(); called.")
-        """ Store the window and pane positions """
-        # bugfix for hpane jump bug
-        if self.hpane_bug:
-            if self.hpane_bug_count == 2: # this is when the bug caused the jump
-                dprint("MAIN: hpane bugfix activated")
-                # reset it back to where it should be
-                self.wtree.get_widget("hpane").set_position(self.prefs.main.hpane)
-                self.hpane_bug = False
-                del self.hpane_bug_count
-            else:
-                self.hpane_bug_count += 1
-        #size = widget.get_size()  # size[0] = width, size[1] = height
-        self.prefs.main.width = event.width
-        self.prefs.main.height = event.height
-        pos = widget.get_position()
-        # note: event has x and y attributes but they do not give the same values as get_position().
-        self.prefs.main.xpos = pos[0]
-        self.prefs.main.ypos = pos[1]
-        #self.prefs.main.hpane = self.wtree.get_widget("hpane").get_position() # moved to self.goodbye()
-        #self.prefs.main.vpane = self.wtree.get_widget("vpane").get_position() # moved to self.goodbye()
-        #~ dprint("MAINWINDOW: size_update() hpane; %d, vpane; %d" \
-               #~ %(self.prefs.main.hpane, self.prefs.main.vpane))
+##    def size_update(self, widget, event):
+##        #dprint("MAINWINDOW: size_update(); called.")
+##        """ Store the window and pane positions """
+##        # bugfix for hpane jump bug
+##        if self.hpane_bug:
+##            if self.hpane_bug_count == 2: # this is when the bug caused the jump
+##                dprint("MAIN: hpane bugfix activated")
+##                # reset it back to where it should be
+##                self.wtree.get_widget("hpane").set_position(self.prefs.main.hpane)
+##                self.hpane_bug = False
+##                del self.hpane_bug_count
+##            else:
+##                self.hpane_bug_count += 1
+##        #size = widget.get_size()  # size[0] = width, size[1] = height
+##        self.prefs.main.width = event.width
+##        self.prefs.main.height = event.height
+##        pos = widget.get_position()
+##        # note: event has x and y attributes but they do not give the same values as get_position().
+##        self.prefs.main.xpos = pos[0]
+##        self.prefs.main.ypos = pos[1]
+##        #self.prefs.main.hpane = self.wtree.get_widget("hpane").get_position() # moved to self.goodbye()
+##        #self.prefs.main.vpane = self.wtree.get_widget("vpane").get_position() # moved to self.goodbye()
+##        #~ dprint("MAINWINDOW: size_update() hpane; %d, vpane; %d" \
+##               #~ %(self.prefs.main.hpane, self.prefs.main.vpane))
 
     def clear_notebook(self):
         """ Clear all notebook tabs & disable them """
@@ -1252,9 +1268,6 @@ class MainWindow:
     def goodbye(self, widget):
         """Main window quit function"""
         dprint("MAINWINDOW: goodbye(); quiting now")
-        # save hpane, vpane positions - this isn't very tidy.
-        self.prefs.main.hpane = self.wtree.get_widget("hpane").get_position()
-        self.prefs.main.vpane = self.wtree.get_widget("vpane").get_position()
         try: # for >=pygtk-2.3.94
             dprint("MAINWINDOW: gtk.main_quit()")
             gtk.main_quit()

@@ -48,7 +48,7 @@ Textfile_type = {"changelog": "/ChangeLog", "best_ebuild": ".ebuild", "version_e
 def load_textfile(view, package, mode, version = None):
         """ Load and display a text file associated with a package """
         if package:
-            dprint(package.full_name)
+            dprint("LOADERS; load_textfile(): for '%s'" % package.full_name)
             if mode != "changelog":
                 installed = package.get_installed()
                 versions = package.get_versions()
@@ -59,11 +59,11 @@ def load_textfile(view, package, mode, version = None):
                         ebuild = package.get_latest_ebuild(True) # get latest masked version
                     else:
                         ebuild = best
-                    dprint(ebuild)
+                    #dprint("LOADERS; load_textfile(): best_ebuild '%s'" % ebuild)
                     package_file = ('/' + package.full_name + '/' + ebuild.split('/')[1]) + Textfile_type[mode]
                 else:
                     package_file = ('/' + package.full_name + '/' + package.full_name.split('/')[1] + '-' + version + Textfile_type[mode])
-                dprint(package_file)
+                #dprint("LOADERS: load_textfile(): package file '%s'" % package_file)
             else:
                 package_file = "/" + package.full_name + Textfile_type[mode]
             try:

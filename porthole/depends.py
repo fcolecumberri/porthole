@@ -169,7 +169,20 @@ class DependsTree(gtk.TreeStore):
                    package.get_properties().rdepend.split())
         self.clear()
         if depends:
-            #dprint(depends)
+            #dprint("DEPENDS: depends = %s" % depends)
+            # remove !bootstrap? entries:
+            x = 0
+            while x < len(depends):
+                if depends[x] == "!bootstrap?":
+                    depends.pop(x) # remove !bootstrap?
+                    depends.pop(x) # remove (
+                    level = 1
+                    while level:
+                        if depends[x] == "(": level += 1
+                        if depends[x] == ")": level -= 1
+                        depends.pop(x)
+                else: x += 1
+            #dprint("DEPENDS: reduced depends = %s" % depends)
             self.depends_list = []
             self.add_depends_to_tree(depends, treeview)
         else:

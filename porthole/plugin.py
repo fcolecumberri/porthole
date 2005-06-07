@@ -62,21 +62,23 @@ class PluginManager:
 class Plugin:
     """Class that defines all of our plugins"""
     def __init__(self, name, path, manager):
-        dprint("New plugin being made: "+ name + ", " + path)
+        dprint("PLUGIN; init(): New plugin being made: '%(name)s' in %(path)s" % locals())
         self.name = name
         self.path = path
         self.manager = manager
         initialized = self.initialize_plugin()
         self.enabled = False
 
-    def initialize_plugin( self ):
+    def initialize_plugin(self):
         try:
             os.chdir(self.path)
-            find_results = imp.find_module(self.name)
-            self.module = imp.load_module(self.name, *find_results)
+            #find_results = imp.find_module(self.name, self.path)
+            #self.module = imp.load_module(self.name, *find_results)
+            self.module = __import__('/'.join([self.path, self.name]))
             self.valid = True
-        except ImportError:
-            dprint("Unable to find plugin " + self.name)
+        except ImportError, e:
+            dprint("PLUGIN; initialize_plugin(): ImportError '%s'" % e)
+            dprint("PLUGIN; initialize_plugin(): Error loading plugin '%s' in %s" % (self.name, self.path))
             self.valid = False
             return False
         find_results[0].close()

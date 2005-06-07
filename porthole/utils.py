@@ -195,7 +195,7 @@ class AdvEmergeOptions:
 
 class PluginOptions:
     """ Holds preferences for plugins """
-    def __init__( self, ):
+    def __init__(self):
         self.path_list = [os.getcwd()]
 
 class WindowPreferences:
@@ -646,14 +646,14 @@ class PortholePreferences:
         
         self.plugins = PluginOptions()
         # Load Plugin Preferences
-        try:
-            new_paths = dom.getitem('/plugins/path_list')
-            if new_paths.count(self.plugins.path_list[0]) >= 1:
-                self.plugins.path_list = new_paths
-            else:
-                self.plugins.path_list += new_paths
-        except XMLManagerError:
-            pass
+        #try:
+        #    new_paths = dom.getitem('/plugins/path_list')
+        #    if new_paths.count(self.plugins.path_list[0]) >= 1:
+        #        self.plugins.path_list = new_paths
+        #    else:
+        #        self.plugins.path_list += new_paths
+        #except XMLManagerError:
+        #    pass
             
         # Global variables
         self.globals = GlobalPreferences()
@@ -665,6 +665,16 @@ class PortholePreferences:
         # All prefs now loaded or defaulted
         del dom   # no longer needed, release memory
 
+    def init_plugins(self):
+        self.PLUGIN_DIRS = [self.DATA_PATH + 'plugin_projects'] # could add more dirs later
+        self.plugins.path_list = []
+        # search for sub-dirs
+        for dir in self.PLUGIN_DIRS:
+            list = os.listdir(dir)
+            for entry in list:
+                entry = ''.join([dir, '/', entry]) # get full path
+                if os.path.isdir(entry):
+                    self.plugins.path_list.append(entry)
 
     def save(self):
         """ Save preferences """

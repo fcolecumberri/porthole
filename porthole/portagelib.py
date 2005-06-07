@@ -445,10 +445,10 @@ class Package:
         if specific_ebuild == None:
             ebuild = self.get_default_ebuild()
             if not ebuild:
-                dprint("No ebuild found!")
+                dprint("PORTAGELIB; get_properties(): No ebuild found!")
                 raise Exception(_('No ebuild found.'))
         else:
-            dprint("PORTAGELIB get_properties(): Using specific ebuild")
+            #dprint("PORTAGELIB get_properties(): Using specific ebuild")
             ebuild = specific_ebuild
         if not self.properties.has_key(ebuild):
             #dprint("portagelib: geting properties for '%s'" % str(ebuild))
@@ -636,9 +636,9 @@ class DatabaseReader(threading.Thread):
             self.db.list.append((name, data))
         self.nodecount += count
         dprint("PORTAGELIB: read_db(); end of list build; sort is next")
-        dprint(self.db)
+        #dprint(self.db)
         self.db.list = self.sort(self.db.list)
-        dprint(self.db)
+        #dprint(self.db)
         dprint("PORTAGELIB: read_db(); end of sort, finished")
 
     def get_installed(self):
