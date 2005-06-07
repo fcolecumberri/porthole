@@ -25,6 +25,26 @@ import gtk, gobject, portagelib, string
 from utils import dprint
 from gettext import gettext as _
 
+class DependAtom:
+    def __init__(self, parent):
+        self.type = ''
+        self.children = []
+        self.parent = parent
+        self.useflag = ''
+        self.name = ''
+    def __repr__(self): # called by the "print" function
+        if self.type == 'DEP': return self.name
+        elif self.type == 'BLOCKER': return ''.join(['!', self.name])
+        elif self.type == 'OPTION': prefix = '||'
+        elif self.type == 'USING': prefix = ''.join([self.useflag, '?'])
+        elif self.type == 'NOTUSING': prefix = ''.join(['!', self.useflag, '?'])
+        else: return ''
+        if self.children:
+            bulk = ', '.join([kid.__repr__() for kid in self.children])
+            return ''.join([prefix,'[',bulk,']'])
+        elif prefix: return ''.join([prefix,'[]'])
+        else: return ''
+
 class DependsTree(gtk.TreeStore):
     """Calculate and display dependencies in a treeview"""
     def __init__(self):
@@ -160,6 +180,63 @@ class DependsTree(gtk.TreeStore):
         #~ # return the result of the operation
         #~ return retval
 
+    
+    def atomize_depends_list(self, depends_list = [], parent = None):
+        """Takes a list of the form:
+        portage.portdb.aux_get(<ebuild>, ["DEPEND"]).split()
+        and arranges it into a list of nested list-like DependAtom()s.
+        if more closing brackets are encountered than opening ones then it
+        will return, meaning we can recursively pass the unparsed part of the
+        list back to ourselves...
+        """
+        atomized_list = []
+        temp_atom = None
+        while depends_list:
+            item = depends_list[0]
+            if item.startswith("||"):
+                temp_atom = DependAtom(parent)
+                temp_atom.type = 'OPTION'
+                if item != "||":
+                    depends_list[0] = item[2:]
+                else:
+                    depends_list.pop(0)
+                item = depends_list[0]
+            elif item.endswith("?"):
+                temp_atom = DependAtom(parent)
+                if item.startswith("!"):
+                    temp_atom.type = 'NOTUSING'
+                    temp_atom.useflag = item[1:-1]
+                else:
+                    temp_atom.type = 'USING'
+                    temp_atom.useflag = item[:-1]
+                depends_list.pop(0)
+                item = depends_list[0]
+            if item.startswith("("):
+                if item != "(":
+                    depends_list[0] = item[1:]
+                else:
+                    depends_list.pop(0)
+                temp_atom.children = self.atomize_depends_list(depends_list, temp_atom)
+                atomized_list.append(temp_atom)
+                continue
+            elif item.startswith(")"):
+                if item != ")":
+                    depends_list[0] = item[1:]
+                else:
+                    depends_list.pop(0)
+                return atomized_list
+            else: # hopefully a nicely formatted dependency
+                temp_atom = DependAtom(parent)
+                if item.startswith("!"):
+                    temp_atom.type = "BLOCKER"
+                    temp_atom.name = item[1:]
+                else:
+                    temp_atom.type = "DEP"
+                    temp_atom.name = item
+                atomized_list.append(temp_atom)
+                depends_list.pop(0)
+        return atomized_list
+    
     def fill_depends_tree(self, treeview, package):
         """Fill the dependencies tree for a given ebuild"""
         #dprint("DEPENDS: Updating deps tree for " + package.get_name())

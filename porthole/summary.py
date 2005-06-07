@@ -169,8 +169,8 @@ class Summary(gtk.TextView):
             archlist = ["alpha", "amd64", "arm", "hppa", "ia64", "mips", "ppc",
                        "ppc64", "ppc-macos", "s390", "sparc", "x86"]
             myarch = portagelib.get_arch()
-            #if self.prefs.advemerge.enable_all_keywords:
-            if True:    # Just for testing, until we have a preferences dialog.
+            if self.prefs.advemerge.enable_all_keywords:
+            #if True:    # Just for testing, until we have a preferences dialog.
                 rows = 1 + len(ebuilds)
                 cols = 1 + len(archlist)
                 table = gtk.Table(rows, cols)
