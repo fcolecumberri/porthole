@@ -666,7 +666,7 @@ class PortholePreferences:
         del dom   # no longer needed, release memory
 
     def init_plugins(self):
-        self.PLUGIN_DIRS = [self.DATA_PATH + 'plugin_projects'] # could add more dirs later
+        self.PLUGIN_DIRS = [self.DATA_PATH + 'plugins'] # could add more dirs later
         self.plugins.path_list = []
         # search for sub-dirs
         for dir in self.PLUGIN_DIRS:

@@ -70,6 +70,8 @@ import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, time
 from getopt import getopt, GetoptError
 import locale, gettext
+# it is recommended to init threads right after importing gtk just in case
+gtk.threads_init()
 
 def usage():
     tabs = "\t\t"
@@ -93,7 +95,7 @@ if __name__ == "__main__":
         exit(1)
     # run thru the options and set the DATA_PATH & imported modules properly
     # bug ==> any porthole script can be used to load both --local and installed modules
-    path_set = False
+    RUN_LOCAL = False
     for opt, arg in opts:
         if opt in ("-l", "--local"):
             # running a local version (i.e. not installed in /usr/*)
@@ -103,9 +105,9 @@ if __name__ == "__main__":
             import utils as _utils
             from mainwindow import MainWindow
             i18n_DIR = DATA_PATH + 'i18n'
-            path_set = True
+            RUN_LOCAL = True
 
-    if not path_set: # then run the installed modules
+    if not RUN_LOCAL: # then run the installed modules
         try:
             from porthole.version import version
             # set data path for our glade and pixmap files
@@ -145,7 +147,6 @@ if __name__ == "__main__":
     # make sure gtk lets threads run
     #os.putenv("PYGTK_USE_GIL_STATE_API", "True")
     #gobject.threads_init()
-    gtk.threads_init()
     _utils.dprint("PORTHOLE: process id = %d ****************" %os.getpid())
     # setup our app icon
     myicon = gtk.gdk.pixbuf_new_from_file(DATA_PATH + "pixmaps/porthole-icon.png")
@@ -155,6 +156,7 @@ if __name__ == "__main__":
     prefs.DATA_PATH = DATA_PATH
     prefs.APP = APP
     prefs.i18n_DIR = i18n_DIR
+    prefs.RUN_LOCAL = RUN_LOCAL
     prefs.init_plugins()
     # load config info
     config = _utils.PortholeConfiguration(DATA_PATH)
