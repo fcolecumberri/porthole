@@ -672,9 +672,10 @@ class PortholePreferences:
         for dir in self.PLUGIN_DIRS:
             list = os.listdir(dir)
             for entry in list:
-                entry = ''.join([dir, '/', entry]) # get full path
-                if os.path.isdir(entry):
-                    self.plugins.path_list.append(entry)
+                if entry != 'CVS': # skip the CVS directory.
+                    entry = ''.join([dir, '/', entry]) # get full path
+                    if os.path.isdir(entry):
+                        self.plugins.path_list.append(entry)
 
     def save(self):
         """ Save preferences """
