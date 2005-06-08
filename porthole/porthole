@@ -23,8 +23,6 @@
 
 APP = 'porthole'
 
-print("Starting Porthole...")
-
 # setup our path so we can load our custom modules
 from sys import path
 #path.append('/usr/lib/porthole')
@@ -167,6 +165,5 @@ if __name__ == "__main__":
     #gtk.threads_enter()
     gtk.main() # gtk.mainloop() depricated
     #gtk.threads_leave()
-    print "Goodbye"
     # save the prefs to disk for next time
     prefs.save()

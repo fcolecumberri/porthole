@@ -244,6 +244,21 @@ def best(versions):
     """returns the best version in the list"""
     return portage.best(versions)
 
+def get_archlist():
+    """lists the architectures accepted by portage as valid keywords"""
+    list = portage.archlist[:]
+    for entry in list:
+        if entry.startswith("~"):
+            list.remove(entry)
+    return list
+
+def get_masking_reason(ebuild):
+    """Strips trailing \n from, and returns the masking reason given by portage"""
+    reason = portage.getmaskingreason(ebuild)
+    if reason.endswith("\n"):
+        reason = reason[:-1]
+    return reason
+
 class Properties:
     """Contains all variables in an ebuild."""
     def __init__(self, dict = None):

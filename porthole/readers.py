@@ -60,7 +60,7 @@ class UpgradableReader(CommonReader):
         self.upgrade_only = upgrade_only
         #self.world = []
         self.view_prefs = view_prefs
-        self.upgradeables = {}
+        self.upgradables = {}
         self.world_count = 0
         self.dep_count = 0
  
@@ -83,7 +83,7 @@ class UpgradableReader(CommonReader):
                             installed_world.append([package.full_name, package])
                         else:
                             installed_dep.append([package.full_name, package])
-                        self.upgradeables[package.full_name] = package
+                        self.upgradables[package.full_name] = package
         installed_world = portagelib.sort(installed_world)
         installed_dep = portagelib.sort(installed_dep)
         self.upgrade_total = len(installed_world) + len(installed_dep)
@@ -104,7 +104,7 @@ class UpgradableReader(CommonReader):
         self.done = True
 
     def check_deps(self, full_name, package):
-        """checks for and adds any upgradeable dependencies to the tree"""
+        """checks for and adds any upgradable dependencies to the tree"""
         dprint("READERS: check_deps(); Checking dependencies...")
         self.dep_view.clear()
         self.dep_view.fill_depends_tree(self.dep_view, package)
@@ -208,7 +208,7 @@ class UpgradableReader(CommonReader):
                                     self.dep_list += [(full_name, pkg, blocker)]
                                 else:
                                     self.dep_list += [(full_name, pkg, blocker)]
-                        elif not ignore and self.upgradeables.has_key(full_name): # or not self.model.get_value(iter, 3):
+                        elif not ignore and self.upgradables.has_key(full_name): # or not self.model.get_value(iter, 3):
                             pkg = portagelib.Package(full_name)
                             if self.model.iter_has_child(iter):
                                 # check for dependency upgrades

@@ -34,7 +34,10 @@ class Summary(gtk.TextView):
     def __init__(self, prefs):
         """ Initialize object """
         gtk.TextView.__init__(self)
-        self.prefs = prefs
+        self.prefs = prefs.summary
+        self.prefs.enable_all_keywords = prefs.advemerge.enable_all_keywords
+        self.prefs.archlist = prefs.advemerge.archlist
+        self.tooltips = gtk.Tooltips()
         self.set_wrap_mode(gtk.WRAP_WORD)
         self.set_editable(False)
         self.set_cursor_visible(False)
@@ -165,12 +168,22 @@ class Summary(gtk.TextView):
             #append(", ".join(spam), "value")
             return
         
-        def create_ebuild_table(ebuilds):
-            archlist = ["alpha", "amd64", "arm", "hppa", "ia64", "mips", "ppc",
-                       "ppc64", "ppc-macos", "s390", "sparc", "x86"]
+        def create_ebuild_table(versions):
             myarch = portagelib.get_arch()
-            if self.prefs.advemerge.enable_all_keywords:
+            ebuilds = versions[:] # make a copy
+            modified = False
+            for entry in installed:
+                if entry not in ebuilds:
+                    dprint("SUMMARY; create_ebuild_table(): adding %s to ebuild list" % entry)
+                    ebuilds.append(entry)
+                    modified = True
+            if modified: ebuilds = ver_sort(ebuilds) # otherwise already sorted
+            
+            if self.prefs.enable_all_keywords:
             #if True:    # Just for testing, until we have a preferences dialog.
+                archlist = ["alpha", "amd64", "arm", "hppa", "ia64", "mips",
+                            "ppc", "ppc64", "s390", "sparc", "x86"]
+                #archlist = self.prefs.archlist # currently empty, set in pref dialog
                 rows = 1 + len(ebuilds)
                 cols = 1 + len(archlist)
                 table = gtk.Table(rows, cols)
@@ -188,7 +201,10 @@ class Summary(gtk.TextView):
                     label = gtk.Label(str(version))
                     label.set_padding(3, 3)
                     table.attach(boxify(label, "#EEEEEE"), 0, 1, y, y+1)
-                    keys = package.get_properties(ebuild).get_keywords()
+                    if ebuild in versions:
+                        keys = package.get_properties(ebuild).get_keywords()
+                    else: # the ebuild for an installed program has been removed
+                        keys = ''
                     x = 0
                     for arch in archlist:
                         x += 1
@@ -207,7 +223,10 @@ class Summary(gtk.TextView):
                         if ebuild in installed and arch == myarch:
                             color = "#9090EE"
                         label = gtk.Label(text)
-                        table.attach(boxify(label, color), x, x+1, y, y+1)
+                        box = boxify(label, color)
+                        if text.startswith("M"):
+                            self.tooltips.set_tip(box, portagelib.get_masking_reason(ebuild))
+                        table.attach(box, x, x+1, y, y+1)
             else:
                 rows = 2
                 cols = 1 + len(ebuilds)
@@ -224,7 +243,10 @@ class Summary(gtk.TextView):
                     label = gtk.Label(str(version))
                     label.set_padding(3, 3)
                     table.attach(boxify(label, "#EEEEEE"), x, x+1, 0, 1)
-                    keys = package.get_properties(ebuild).get_keywords()
+                    if ebuild in versions:
+                        keys = package.get_properties(ebuild).get_keywords()
+                    else: # the ebuild for an installed program has been removed
+                        keys = ''
                     if "".join(["~", myarch]) in keys:
                         text = "~"
                         color = "#EEEE90"
@@ -240,7 +262,10 @@ class Summary(gtk.TextView):
                     if ebuild in installed:
                         color = "#9090EE"
                     label = gtk.Label(text)
-                    table.attach(boxify(label, color), x, x+1, 1, 2)
+                    box = boxify(label, color)
+                    if text.startswith("M"):
+                        self.tooltips.set_tip(box, portagelib.get_masking_reason(ebuild))
+                    table.attach(box, x, x+1, 1, 2)
             table.set_row_spacings(1)
             table.set_col_spacings(1)
             table.set_border_width(1)
@@ -326,15 +351,14 @@ class Summary(gtk.TextView):
             nl(2)
 
         # Metadata long description(s), if available
-        if metadata and metadata.longdescription:
+        if metadata and metadata.longdescription and self.prefs.showlongdesc:
             append("Long Description: ", "property")
             append(metadata.longdescription, "description")
-            nl()
-        nl()
-
+            nl(2)
+        
         # Insert homepage(s), if any
         x = 0
-        if homepages:
+        if homepages and self.prefs.showurl:
             for homepage in homepages:
                 if x > 0:
                     append( ', ')
@@ -344,19 +368,20 @@ class Summary(gtk.TextView):
         
         # display a table of architectures and support / stability
         # like on packages.gentoo.org :)
-        create_ebuild_table(versions)
+        if self.prefs.showtable: create_ebuild_table(versions)
         
         # Installed version(s)
-        if installed:
-            append(_("Installed versions:\n"), "property")
-            show_vnums(installed)
-            nl()
-        else:
-            append(_("Not installed"), "property")
-            nl()
-
+        if self.prefs.showinstalled:
+            if installed:
+                append(_("Installed versions:\n"), "property")
+                show_vnums(installed)
+                nl()
+            else:
+                append(_("Not installed"), "property")
+                nl()
+        
         # Remaining versions
-        if versions:
+        if versions and self.prefs.showavailable:
             append(_("Available versions:\n"), "property")
             show_vnums(versions)
             nl(2)        
@@ -366,7 +391,7 @@ class Summary(gtk.TextView):
         nl()
 
         # Use flags
-        if use_flags:
+        if use_flags and self.prefs.showuseflags:
             append(_("Use flags: "), "property")
             first_flag = True
             for flag in use_flags:
@@ -379,10 +404,10 @@ class Summary(gtk.TextView):
                     append('+' + flag,"useset")
                 else:
                     append('-' + flag,"useunset")
-            nl(2)
+            nl()
 
         # Keywords
-        if keywords:
+        if keywords and self.prefs.showkeywords:
             append(_("Keywords: "), "property")
             first_keyword = True
             for keyword in keywords:
@@ -391,10 +416,10 @@ class Summary(gtk.TextView):
                 else:
                     first_keyword = False
                 append(keyword, "value")
-            nl(2)
+            nl()
 
         # License
-        if licenses:
+        if licenses and self.prefs.showlicense:
             append(_("License: "), "property")
             _licenses = licenses.split()
             x = 0

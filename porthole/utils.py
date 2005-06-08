@@ -76,10 +76,10 @@ def get_icon_for_upgrade_package(package, prefs):
     #  find out if it can be upgraded
     if package.is_upgradable() == 1:  # 1 for only upgrades (no downgrades)
         icon = gtk.STOCK_GO_UP
-        color = prefs.world_upgradeable_color
+        color = prefs.world_upgradable_color
     else: # it's a downgrade
         icon = gtk.STOCK_GO_DOWN
-        color = prefs.world_downgradeable_color
+        color = prefs.world_downgradable_color
     return icon, color      
 
 def is_root():
@@ -187,33 +187,37 @@ class EmergeOptions:
         if self.nospinner: opt_string += '--nospinner '
         return opt_string
 
-class AdvEmergeOptions:
-    """ Holds common advanced emerge options """
-    def __init__(self):
-        # let's get some saved values in here!
-        self.enable_all_keywords = False
+##class AdvEmergeOptions:
+##    """ Holds common advanced emerge options """
+##    def __init__(self):
+##        # let's get some saved values in here!
+##        self.enable_all_keywords = False
+##
+##class PluginOptions:
+##    """ Holds preferences for plugins """
+##    def __init__(self):
+##        self.path_list = [os.getcwd()]
+##
+##class WindowPreferences:
+##    """ Holds preferences for a window """
+##    def __init__(self, width = 0, height = 0):
+##        self.width = width      # width
+##        self.height = height    # height
+##
+##class ViewOptions:
+##    """ Holds foreground colors for a package name"""
+##    def __init__(self):
+##        self.world_upgradable_color = ''
+##        self.world_downgradable_color = ''
+##
+##class GlobalPreferences:
+##    """Holds some global variables"""
+##    def __init__(self):
+##        self.LANG = None
 
-class PluginOptions:
-    """ Holds preferences for plugins """
-    def __init__(self):
-        self.path_list = [os.getcwd()]
-
-class WindowPreferences:
-    """ Holds preferences for a window """
-    def __init__(self, width = 0, height = 0):
-        self.width = width      # width
-        self.height = height    # height
-
-class ViewOptions:
-    """ Holds foreground colors for a package name"""
-    def __init__(self):
-        self.world_upgradeable_color = ''
-        self.world_downgradeable_color = ''
-
-class GlobalPreferences:
-    """Holds some global variables"""
-    def __init__(self):
-        self.LANG = None
+class OptionsClass:
+    """Blank class to hold options"""
+    pass
 
 class PortholePreferences:
     """ Holds all of Porthole's user configurable preferences """
@@ -246,23 +250,29 @@ class PortholePreferences:
         
         preflist = {}
         
-        preflist['main'] = [['width', 200],
-                            ['height', 350],
-                            ['xpos', False],
-                            ['ypos', False],
-                            ['hpane', 180],
-                            ['vpane', 125],
-                            ['maximized', False],
-                            ['search_desc', False],
-                            ['show_nag_dialog', True]]
+        preflist['main'] = [ \
+            ['width', 200],
+            ['height', 350],
+            ['xpos', False],
+            ['ypos', False],
+            ['hpane', 180],
+            ['vpane', 125],
+            ['maximized', False],
+            ['search_desc', False],
+            ['show_nag_dialog', True]
+        ]
         
-        preflist['process'] = [['width', 300],
-                               ['height', 350],
-                               ['width_verbose', 500]]
+        preflist['process'] = [ \
+            ['width', 300],
+            ['height', 350],
+            ['width_verbose', 500]
+        ]
         
-        preflist['terminal'] = [['width', 300],
-                                ['height', 350],
-                                ['width_verbose', 500]]
+        preflist['terminal'] = [ \
+            ['width', 300],
+            ['height', 350],
+            ['width_verbose', 500]
+        ]
         
         history = ["",
                    "emerge ",
@@ -274,14 +284,17 @@ class PortholePreferences:
         # at the start of the popdown history list & set above when history is set
         # history_length = Default value for maximum nuber of retained history items
         
-        preflist['run_dialog'] = [['width', 400],
-                                  ['height', 120],
-                                  ['history', history],
-                                  ['default_history', len(history)],
-                                  ['history_length', 10]]
+        preflist['run_dialog'] = [ \
+            ['width', 400],
+            ['height', 120],
+            ['history', history],
+            ['default_history', len(history)],
+            ['history_length', 10]
+        ]
         
         for window_name in preflist.keys():
-            setattr(self, window_name, WindowPreferences()) # create self.main etc
+            #setattr(self, window_name, WindowPreferences()) # create self.main etc
+            setattr(self, window_name, OptionsClass()) # construct self.main etc.
             for pref_name, default_value in preflist[window_name]:
                 try:
                     value = dom.getitem(''.join(['/window/',window_name,'/',pref_name]))
@@ -298,14 +311,16 @@ class PortholePreferences:
         
         self.TAG_DICT = {}
         
-        taglist = [['caution','','#ff14b4',400],  # [name, default forecolor, backcolor, fontweight]
-                   ['command','#ffffff','#000080',700],
-                   ['emerge','','#90ee90',700],
-                   ['error','#faf0e6','#ff0000',700],
-                   ['info','','#b0ffff',400],
-                   ['linenumber','#0000ff','',700],
-                   ['note','#8b008b','',400],
-                   ['warning','','#eeee80',400]]
+        taglist = [ \
+            ['caution','','#ff14b4',400],  # [name, default forecolor, backcolor, fontweight]
+            ['command','#ffffff','#000080',700],
+            ['emerge','','#90ee90',700],
+            ['error','#faf0e6','#ff0000',700],
+            ['info','','#b0ffff',400],
+            ['linenumber','#0000ff','',700],
+            ['note','#8b008b','',400],
+            ['warning','','#eeee80',400]
+        ]
         
         for tag_name, forecolor, backcolor, fontweight in taglist:
             try:
@@ -328,19 +343,27 @@ class PortholePreferences:
             try:
                 setattr(self.emerge, option, dom.getitem(''.join(['/emerge/options/', option])))
             except XMLManagerError:
-                pass
+                pass # defaults set in EmergeOptions class
         
-        advemergeoptions = ['enable_all_keywords']
-        self.advemerge = AdvEmergeOptions()
-        for option in advemergeoptions:
+        advemergeoptions = [
+            ['enable_all_keywords', False],
+            ['archlist', []],
+        ]
+        #self.advemerge = AdvEmergeOptions()
+        self.advemerge = OptionsClass()
+        for option, default in advemergeoptions:
             try:
-                setattr(self.emerge, option, dom.getitem(''.join(['/advemerge/options/', option])))
+                value = dom.getitem(''.join(['/advemerge/options/', option]))
             except XMLManagerError:
-                pass
+                value = default
+            setattr(self.advemerge, option, value)
         
-        viewoptions = [['world_downgradable_color', 'red'],
-                       ['world_upgradable_color', '']] # green?
-        self.views = ViewOptions()
+        viewoptions = [ \
+            ['world_downgradable_color', 'red'],
+            ['world_upgradable_color', ''] # green?
+        ]
+        #self.views = ViewOptions()
+        self.views = OptionsClass()
         for option, default in viewoptions:
             try:
                 value = dom.getitem(''.join(['/views/', option]))
@@ -348,287 +371,26 @@ class PortholePreferences:
                 value = default
             setattr(self.views, option, value)
         
+        summaryoptions = [ \
+            ['showtable', True],
+            ['showkeywords', True],
+            ['showinstalled', True],
+            ['showavailable', True],
+            ['showlongdesc', True],
+            ['showuseflags', True],
+            ['showlicense', True],
+            ['showurl', True],
+        ]
+        self.summary = OptionsClass()
+        for option, default in summaryoptions:
+            try:
+                value = dom.getitem(''.join(['/summary/', option]))
+            except XMLManagerError:
+                value = default
+            setattr(self.summary, option, value)
         
-##        # Main window settings
-##
-##        try:
-##           width = dom.getitem('/window/main/width')
-##        except XMLManagerError:
-##           width = 200   # Default value
-##        try:
-##           height = dom.getitem('/window/main/height')
-##        except XMLManagerError:
-##           height = 350   # Default value
-##        self.main = WindowPreferences(width, height)
-##        try:
-##           hpane = dom.getitem('/window/main/hpane')
-##        except XMLManagerError:
-##           hpane = 180   # Default value
-##        self.main.hpane = hpane
-##        dprint("UTILS: __init__() hpane: %d" %self.main.hpane)
-##        try:
-##           vpane = dom.getitem('/window/main/vpane')
-##        except XMLManagerError:
-##           vpane = 125   # Default value
-##        self.main.vpane = vpane
-##        try:
-##           search_desc = dom.getitem('/window/main/search_desc')
-##        except XMLManagerError:
-##           search_desc = False   # Default value
-##        self.main.search_desc = search_desc
-##        try:
-##           show_nag_dialog = dom.getitem('/window/main/show_nag_dialog')
-##        except XMLManagerError:
-##           show_nag_dialog = True   # Default value
-##        self.main.show_nag_dialog = show_nag_dialog
-##
-##        # Process window settings
-##
-##        try:
-##           width = dom.getitem('/window/process/width')
-##        except XMLManagerError:
-##           width = 300   # Default value
-##        try:
-##           height = dom.getitem('/window/process/height')
-##        except XMLManagerError:
-##           height = 350   # Default value
-##        self.process = WindowPreferences(width, height)
-##        try:
-##           width_verbose = dom.getitem('/window/process/width_verbose')
-##        except XMLManagerError:
-##           width_verbose = 500   # Default value
-##        self.process.width_verbose = width_verbose
-##
-##        # Terminal window settings
-##
-##        try:
-##           width = dom.getitem('/window/terminal/width')
-##        except XMLManagerError:
-##           width = 300   # Default value
-##        try:
-##           height = dom.getitem('/window/terminal/height')
-##        except XMLManagerError:
-##           height = 350   # Default value
-##        self.terminal = WindowPreferences(width, height)
-##        try:
-##           width_verbose = dom.getitem('/window/terminal/width_verbose')
-##        except XMLManagerError:
-##           width_verbose = 500   # Default value
-##        self.terminal.width_verbose = width_verbose
-        
-        
-##        # Caution tag
-##        
-##        try:
-##           forecolor = dom.getitem('/window/terminal/tag/caution/forecolor')
-##        except XMLManagerError:
-##           forecolor = ''  # Default value
-##        try:
-##           backcolor = dom.getitem('/window/terminal/tag/caution/backcolor')
-##        except XMLManagerError:
-##           backcolor = '#ff14b4'  # Default value
-##        try:
-##           fontweight = dom.getitem('/window/terminal/tag/caution/fontweight')
-##        except XMLManagerError:
-##           fontweight = 400  # Default value
-##        self.TAG_DICT['caution'] = [forecolor, backcolor, fontweight]
-##
-##        # Command tag
-##
-##        try:
-##           forecolor = dom.getitem('/window/terminal/tag/command/forecolor')
-##        except XMLManagerError:
-##           forecolor = '#ffffff'  # Default value
-##        try:
-##           backcolor = dom.getitem('/window/terminal/tag/command/backcolor')
-##        except XMLManagerError:
-##           backcolor = '#000080'  # Default value
-##        try:
-##           fontweight = dom.getitem('/window/terminal/tag/command/fontweight')
-##        except XMLManagerError:
-##           fontweight = 700  # Default value
-##        self.TAG_DICT['command'] = [forecolor, backcolor, fontweight]
-##
-##        # Emerge tag
-##
-##        try:
-##           forecolor = dom.getitem('/window/terminal/tag/emerge/forecolor')
-##        except XMLManagerError:
-##           forecolor = ''  # Default value
-##        try:
-##           backcolor = dom.getitem('/window/terminal/tag/emerge/backcolor')
-##        except XMLManagerError:
-##           backcolor = '#90ee90'  # Default value
-##        try:
-##           fontweight = dom.getitem('/window/terminal/tag/emerge/fontweight')
-##        except XMLManagerError:
-##           fontweight = 700  # Default value
-##        self.TAG_DICT['emerge'] = [forecolor, backcolor, fontweight]
-##
-##        # Error tag
-##
-##        try:
-##           forecolor = dom.getitem('/window/terminal/tag/error/forecolor')
-##        except XMLManagerError:
-##           forecolor = '#faf0e6'  # Default value
-##        try:
-##           backcolor = dom.getitem('/window/terminal/tag/error/backcolor')
-##        except XMLManagerError:
-##           backcolor = '#ff0000'  # Default value
-##        try:
-##           fontweight = dom.getitem('/window/terminal/tag/error/fontweight')
-##        except XMLManagerError:
-##           fontweight = 700  # Default value
-##        self.TAG_DICT['error'] = [forecolor, backcolor, fontweight]
-##
-##        # Info tag
-##
-##        try:
-##           forecolor = dom.getitem('/window/terminal/tag/info/forecolor')
-##        except XMLManagerError:
-##           forecolor = ''  # Default value
-##        try:
-##           backcolor = dom.getitem('/window/terminal/tag/info/backcolor')
-##        except XMLManagerError:
-##           backcolor = '#b0ffff'  # Default value
-##        try:
-##           fontweight = dom.getitem('/window/terminal/tag/info/fontweight')
-##        except XMLManagerError:
-##           fontweight = 400  # Default value
-##        self.TAG_DICT['info'] = [forecolor, backcolor, fontweight]
-##
-##        # Line number tag 
-##
-##        try:
-##           forecolor = dom.getitem('/window/terminal/tag/linenumber/forecolor')
-##        except XMLManagerError:
-##           forecolor = '#0000ff'  # Default value
-##        try:
-##           backcolor = dom.getitem('/window/terminal/tag/linenumber/backcolor')
-##        except XMLManagerError:
-##           backcolor = ''  # Default value
-##        try:
-##           fontweight = dom.getitem('/window/terminal/tag/linenumber/fontweight')
-##        except XMLManagerError:
-##           fontweight = 700  # Default value
-##        self.TAG_DICT['linenumber'] = [forecolor, backcolor, fontweight]
-##
-##        # Note tag
-##
-##        try:
-##           forecolor = dom.getitem('/window/terminal/tag/note/forecolor')
-##        except XMLManagerError:
-##           forecolor = '#8b008b'  # Default value
-##        try:
-##           backcolor = dom.getitem('/window/terminal/tag/note/backcolor')
-##        except XMLManagerError:
-##           backcolor = ''  # Default value
-##        try:
-##           fontweight = dom.getitem('/window/terminal/tag/note/fontweight')
-##        except XMLManagerError:
-##           fontweight = 400  # Default value
-##        self.TAG_DICT['note'] = [forecolor, backcolor, fontweight]
-##
-##        # Warning tag
-##
-##        try:
-##           forecolor = dom.getitem('/window/terminal/tag/warning/forecolor')
-##        except XMLManagerError:
-##           forecolor = ''  # Default value
-##        try:
-##           backcolor = dom.getitem('/window/terminal/tag/warning/backcolor')
-##        except XMLManagerError:
-##           backcolor = '#eeee80'  # Default value
-##        try:
-##           fontweight = dom.getitem('/window/terminal/tag/warning/fontweight')
-##        except XMLManagerError:
-##           fontweight = 400  # Default value
-##        self.TAG_DICT['warning'] = [forecolor, backcolor, fontweight]
-
-##        # Run Dialog window settings
-##
-##        try:
-##           width = dom.getitem('/window/run_dialog/width')
-##        except XMLManagerError:
-##           width = 400   # Default value
-##        try:
-##           height = dom.getitem('/window/run_dialog/height')
-##        except XMLManagerError:
-##           height = 120   # Default value
-##        self.run_dialog = WindowPreferences(width, height)
-##        try:
-##           history = dom.getitem('/window/run_dialog/history')
-##        except XMLManagerError:
-##           # Default value
-##           history = ["",
-##                      "emerge ",
-##                      "ACCEPT_KEYWORDS='~x86' emerge ",
-##                      "USE=' ' emerge ",
-##                      "ACCEPT_KEYWORDS='~x86' USE=' ' emerge ",
-##                      "emerge --help"]
-##           default_history = len(history)
-##        self.run_dialog.history = history
-##        try:
-##           default_history = dom.getitem('/window/run_dialog/default_history')
-##        except XMLManagerError:
-##           # Default value
-##           # default_history = length of the history items to always remain
-##           # at the start of the popdown history list & set above when history is set
-##           default_history = len(history)
-##        self.run_dialog.default_history = default_history
-##        try:
-##           history_length = dom.getitem('/window/run_dialog/history_length')
-##        except XMLManagerError:
-##           # Default value for maximum nuber of retained history items
-##           history_length = 10
-##        self.run_dialog.history_length = history_length
-
-##        # Emerge options
-## 
-##        self.emerge = EmergeOptions()
-##        try:
-##           self.emerge.pretend = dom.getitem('/emerge/options/pretend')
-##        except XMLManagerError:
-##           pass
-##        try:
-##           self.emerge.fetch = dom.getitem('/emerge/options/fetch')
-##        except XMLManagerError:
-##           pass
-##        try:
-##           self.emerge.verbose = dom.getitem('/emerge/options/verbose')
-##        except XMLManagerError:
-##           pass
-##        try:
-##           self.emerge.upgradeonly = dom.getitem('/emerge/options/upgradeonly')
-##        except XMLManagerError:
-##           pass
-##        try:
-##           self.emerge.nospinner = dom.getitem('/emerge/options/nospinner')
-##        except XMLManagerError:
-##           pass
-##
-##        # Advanced emerge options
-##        
-##        self.advemerge = AdvEmergeOptions()
-##        try:
-##           self.advemerge.enable_all_keywords = dom.getitem('/advemerge/enable_all_keywords')
-##        except XMLManagerError:
-##            pass
-##
-##        # Views config variables
-##
-##  self.views = ViewOptions()
-##  #~ try:
-##      #~ self.views.world_upgradeable_color = dom.getitem('/views/world_upgradeable_color')
-##  #~ except XMLManagerError:
-##  self.views.world_upgradeable_color = '' #'green'
-##  try:
-##      self.views.world_downgradeable_color = dom.getitem('/views/world_downgradeable_color')
-##  except XMLManagerError:
-##      self.views.world_downgradeable_color = 'red'
-
         # Misc. variables
-
+        
         try:
            self.database_size = dom.getitem('/database/size')
         except XMLManagerError:
@@ -644,7 +406,8 @@ class PortholePreferences:
         except XMLManagerError:
            self.dbtotals = []
         
-        self.plugins = PluginOptions()
+        #self.plugins = PluginOptions()
+        self.plugins = OptionsClass()
         # Load Plugin Preferences
         #try:
         #    new_paths = dom.getitem('/plugins/path_list')
@@ -654,9 +417,10 @@ class PortholePreferences:
         #        self.plugins.path_list += new_paths
         #except XMLManagerError:
         #    pass
-            
+        
         # Global variables
-        self.globals = GlobalPreferences()
+        #self.globals = GlobalPreferences()
+        self.globals = OptionsClass()
         try:
            self.globals.LANG = dom.getitem('/globals/LANG')
         except XMLManagerError:
@@ -673,7 +437,7 @@ class PortholePreferences:
             list = os.listdir(dir)
             for entry in list:
                 if entry != 'CVS': # skip the CVS directory.
-                    entry = ''.join([dir, '/', entry]) # get full path
+                    entry = '/'.join([dir, entry]) # get full path
                     if os.path.isdir(entry):
                         self.plugins.path_list.append(entry)
 
@@ -716,8 +480,16 @@ class PortholePreferences:
         dom.additem('/emerge/options/upgradeonly', self.emerge.upgradeonly)
         dom.additem('/emerge/options/nospinner', self.emerge.nospinner)
         dom.additem('/advemerge/enable_all_keywords', self.advemerge.enable_all_keywords)
-        dom.additem('/views/world_upgradeable_color', self.views.world_upgradeable_color)
-        dom.additem('/views/world_downgradeable_color', self.views.world_downgradeable_color)
+        dom.additem('/views/world_upgradable_color', self.views.world_upgradable_color)
+        dom.additem('/views/world_downgradable_color', self.views.world_downgradable_color)
+        dom.additem('/summary/showtable', self.summary.showtable)
+        dom.additem('/summary/showkeywords', self.summary.showkeywords)
+        dom.additem('/summary/showinstalled', self.summary.showinstalled)
+        dom.additem('/summary/showavailable', self.summary.showavailable)
+        dom.additem('/summary/showlongdesc', self.summary.showlongdesc)
+        dom.additem('/summary/showuseflags', self.summary.showuseflags)
+        dom.additem('/summary/showlicense', self.summary.showlicense)
+        dom.additem('/summary/showurl', self.summary.showurl)
         dom.additem('/database/size', self.database_size)
         #dprint("UTILS: save(); self.dbtime = %d" %self.dbtime)
         dom.additem('/database/dbtime', self.dbtime)
