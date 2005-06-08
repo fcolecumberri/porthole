@@ -134,7 +134,7 @@ parser.setContentHandler(handler)
 def parse_metadata(filename):
     """Read a portage metadata file and return a Metadata object."""
     if not exists(filename):
-        raise Exception(_('Metadata file "' + filename + '" does not exist.'))
+        raise Exception(_('Metadata file "%s" does not exist.') % filename)
     parser.parse(filename)
     return handler.result
 

@@ -83,16 +83,18 @@ def load_textfile(view, package, mode, version = None):
                             view.set_text(str(data).decode('iso-8859-1').encode('utf_8', 'replace'))
                         except:
                             dprint("LOADERS: load_textfile(); Failure = unknown encoding")
-                            view.set_text(_("This ") + Textfile_type[mode][1:] + _(" has an unknown encoding method to porthole \n") + \
-                                        _("Please report this to bugs.gentoo.org and pothole's bugtracker"))
+                            view.set_text(_(
+                                "This %s has an encoding method unknown to porthole.\n"
+                                "Please report this to bugs.gentoo.org and porthole's bugtracker"
+                                ) % Textfile_type[mode][1:])
                 else:
-                    view.set_text(Textfile_type[mode][1:] + _(" is Empty"))
+                    view.set_text(_("%s is Empty") % Textfile_type[mode][1:])
             except:
                 dprint("LOADERS: Error opening " + Textfile_type[mode][1:] + " for " + package.full_name)
-                view.set_text(Textfile_type[mode][1:] + _(" Not Available"))
+                view.set_text(_("%s Not Available") % Textfile_type[mode][1:])
         else:
             dprint("LOADERS: No package sent to load_textfile()!")
-            view.set_text(Textfile_type[mode][1:] + _(" Not Available"))
+            view.set_text(_("%s Not Available") % Textfile_type[mode][1:])
 
 def load_installed_files(window, view, package):
         """Obtain and display list of installed files for a package,
@@ -105,14 +107,14 @@ def load_installed_files(window, view, package):
                 installed.sort()
                 installed_files = portagelib.get_installed_files(installed[-1])
                 view.set_text(
-                    str(len(installed_files)) + _(" installed files:\n\n")
+                    (_("%i installed files:\n\n") % len(installed_files))
                     + "\n".join(installed_files))
             else:
                 view.set_text(_("Not installed"))
         else:
             dprint("LOADERS: No package sent to load_installed_files!")
-            view.set_text(_("No data currently available.\n\
-                                           The package may not be installed"))
+            view.set_text(_("No data currently available.\n" \
+                            "The package may not be installed"))
 
 def load_web_page(name):
     """Try to load a web page in the default browser"""

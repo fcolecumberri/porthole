@@ -101,7 +101,7 @@ class DependsTree(gtk.TreeStore):
                     flag = parent[len(_("Not Using ")):] 
                     parent_icon = flag in self.use_flags and '' or gtk.STOCK_YES
                 else:
-                    dprint("Freak out!: What's going on?")
+                    dprint("DEPENDS; add_depends_to_tree(): Help! Strange parent...")
                 if base == None:
                     base_iter = self.insert_before(base, None)
                     self.set_value(base_iter, 0, parent)

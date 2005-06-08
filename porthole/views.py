@@ -132,7 +132,7 @@ class PackageView(CommonTreeView):
         menuitems["unmerge"] = gtk.MenuItem(_("Unmerge"))
         menuitems["unmerge"].connect("activate", self.unmerge)
         arch = "~" + portagelib.get_arch()
-        menuitems["add-keyword"] = gtk.MenuItem(_("Append with %s to package.keywords" % arch))
+        menuitems["add-keyword"] = gtk.MenuItem(_("Append with %s to package.keywords") % arch)
         menuitems["add-keyword"].connect("activate", self.add_keyword)
         
         for item in menuitems.values():

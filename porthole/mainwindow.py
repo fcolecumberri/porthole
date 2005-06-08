@@ -259,7 +259,7 @@ class MainWindow:
         # set status
         #self.set_statusbar(_("Obtaining package list "))
         self.status_root = _("Loading database")
-        self.set_statusbar2(_("Initializing database..."))
+        self.set_statusbar2(_("Initializing database. Please wait..."))
         self.progressbar = self.wtree.get_widget("progressbar1")
         self.set_cancel_btn(OFF)
 
@@ -497,8 +497,8 @@ class MainWindow:
             #self.dbtime += 1
             count = args["nodecount"]
             if count > 0:
-                self.set_statusbar2(self.status_root + _(": %i packages read"
-                                     % count))
+                self.set_statusbar2(_("%(base)s: %(count)i packages read")
+                                     % {'base':self.status_root, 'count':count})
             #dprint("self.prefs.dbtime = ")
             #dprint(self.prefs.dbtime)
             try:
@@ -526,7 +526,7 @@ class MainWindow:
             dprint("MAINWINDOW: db_thread.join is done...")
             del self.db  # clean up the old db
             self.db = self.db_thread.get_db()
-            self.set_statusbar2(self.status_root + _(": Populating tree"))
+            self.set_statusbar2(_("%(base)s: Populating tree") % {'base':self.status_root})
             self.update_statusbar(SHOW_ALL)
             dprint("MAINWINDOW: setting menubar,toolbar,etc to sensitive...")
             for x in ["menubar","toolbar","view_filter","search_entry","btn_search"]:
@@ -1163,23 +1163,23 @@ class MainWindow:
             if not self.db:
                 dprint("MAINWINDOW: attempt to update status bar with no db assigned")
             else:
-                text = _("%d packages in %d categories" % (len(self.db.list),
-                                                         len(self.db.categories)))
+                text = (_("%(pack)d packages in %(cat)d categories")
+                        % {'pack':len(self.db.list), 'cat':len(self.db.categories)})
         elif mode == SHOW_INSTALLED:
             if not self.db:
                 dprint("MAINWINDOW: attempt to update status bar with no db assigned")
             else:
-                text = _("%d packages in %d categories" % (self.db.installed_count,
-                                                         len(self.db.installed)))
+                text = (_("%(pack)d packages in %(cat)d categories") 
+                        % {'pack':self.db.installed_count, 'cat':len(self.db.installed)})
         elif mode == SHOW_SEARCH:
-            text = _("%d matches found" % self.package_view.search_model.size)
+            text = (_("%d matches found") % self.package_view.search_model.size)
 
         elif mode == SHOW_UPGRADE:
             if not self.ut:
                 dprint("MAINWINDOW: attempt to update status bar with no upgrade thread assigned")
             else:
-                text = _("%d world, %d dependencies" % (self.ut.world_count,
-                                                         self.ut.dep_count))
+                text = (_("%(world)d world, %(deps)d dependencies")
+                            % {'world':self.ut.world_count, 'deps':self.ut.dep_count})
 
         self.set_statusbar2(self.status_root + text)
 

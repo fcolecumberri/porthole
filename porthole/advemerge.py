@@ -63,7 +63,7 @@ class AdvancedEmergeDialog:
 
         self.wtree.signal_autoconnect(callbacks)
         self.window = self.wtree.get_widget("adv_emerge_dialog")
-        self.window.set_title(_("Advanced Emerge Settings for ") + package.full_name)
+        self.window.set_title(_("Advanced Emerge Settings for %s") % package.full_name)
         
         # Make tool tips available
         self.tooltips = gtk.Tooltips()
