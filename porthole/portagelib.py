@@ -49,12 +49,16 @@ thread_id = os.getpid()
 def get_world():
         world = []
         try:
-            world = open("/var/lib/portage/world", "r").read().split()
+            file = open("/var/lib/portage/world", "r")
+            world = file.read().split()
+            file.close()
         except:
             dprint("UTILS: get_world(); Failure to locate file: '/var/lib/portage/world'")
             dprint("UTILS: get_world(); Trying '/var/cache/edb/world'")
             try:
-                world = open("/var/cache/edb/world", "r").read().split()
+                file = open("/var/cache/edb/world", "r")
+                world = file.read().split()
+                file.close()
                 dprint("OK")
             except:
                 dprint("MAINWINDOW: UpgradableReader(); Failed to locate the world file")
@@ -237,8 +241,13 @@ def get_installed_files(ebuild):
 def get_property(ebuild, property):
     """Read a property of an ebuild. Returns a string."""
     # portage.auxdbkeys contains a list of properties
-    try: return portage.portdb.aux_get(ebuild, [property])[0]
-    except: return ''
+    if portage.portdb.cpv_exists(ebuild): # if in portage tree
+        return portage.portdb.aux_get(ebuild, [property])[0]
+    else:
+        vartree = portage.db['/']['vartree']
+        if vartree.dbapi.cpv_exists(ebuild): # elif in installed pkg tree
+            return vartree.dbapi.aux_get(ebuild, [property])[0]
+        else: return ''
 
 def best(versions):
     """returns the best version in the list"""
@@ -272,8 +281,9 @@ class Properties:
         
     def get_slot(self):
         """Return slot number as an integer."""
-        try: return int(self.slot)
-        except ValueError: return 0   # ?
+        #try: return int(self.slot)
+        #except ValueError: return 0   # ?
+        return self.slot # not always integer
 
     def get_keywords(self):
         """Returns a list of strings."""
@@ -331,9 +341,13 @@ def get_digest( ebuild ):
 
 def get_properties(ebuild):
     """Get all ebuild variables in one chunk."""
-    return Properties(dict(zip(keys,
-                               portage.portdb.aux_get(ebuild,
-                                                      portage.auxdbkeys))))
+    if portage.portdb.cpv_exists(ebuild): # if in portage tree
+        return Properties(dict(zip(keys, portage.portdb.aux_get(ebuild, portage.auxdbkeys))))
+    else:
+        vartree = portage.db['/']['vartree']
+        if vartree.dbapi.cpv_exists(ebuild): # elif in installed pkg tree
+            return Properties(dict(zip(keys, vartree.dbapi.aux_get(ebuild, portage.auxdbkeys))))
+        else: return Properties()
     
 def get_metadata(package):
     """Get the metadata for a package"""
@@ -608,7 +622,7 @@ class DatabaseReader(threading.Thread):
         self.get_installed()
         try:
             dprint("PORTAGELIB: read_db(); getting allnodes package list")
-            allnodes = tree.getallnodes()
+            allnodes = tree.getallnodes()[:] # copy
             dprint("PORTAGELIB: read_db(); Done getting allnodes package list")
         except OSError, e:
             # I once forgot to give read permissions
@@ -636,7 +650,6 @@ class DatabaseReader(threading.Thread):
             data = Package(entry)
             if self.cancelled: self.done = True; return
             #self.db.categories.setdefault(category, {})[name] = data;
-            # after here be segfaults
             # look out for segfaults 
             if category not in self.db.categories:
                 self.db.categories[category] = {}
@@ -663,7 +676,7 @@ class DatabaseReader(threading.Thread):
         #self.new_installed_Semaphore.acquire()
         #installed_list # a better way to do this?
         dprint("PORTAGELIB: get_installed();")
-        self.installed_list = portage.db['/']['vartree'].getallnodes()
+        self.installed_list = portage.db['/']['vartree'].getallnodes()[:] # try copying...
         global Installed_Semaphore
         global installed
         Installed_Semaphore.acquire()

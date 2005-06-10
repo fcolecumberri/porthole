@@ -137,18 +137,21 @@ class Summary(gtk.TextView):
                 # set the tag to the default
                 tag = "value" 
                 version = portagelib.get_version(ebuild)
-                if ebuild in versions:   # annoying message is output by portage if it isn't
-                    slot = portagelib.get_property(ebuild, "SLOT")
-                else:
-                    slot = "?"  # someone removed the ebuild for our installed package. Damn them!
+                #if ebuild in versions:   # annoying message is output by portage if it isn't
+                #    slot = portagelib.get_property(ebuild, "SLOT")
+                #else:
+                #    slot = "?"  # someone removed the ebuild for our installed package. Damn them!
+                slot = portagelib.get_property(ebuild, "SLOT") # fixed!
                 if not slot == oldslot:
-                   if spam:
-                      #append(", ".join(spam), "value")
-                      nl()
-                      spam = []
-                   append("\tSlot %s: " % slot, "property")
-                   oldslot = slot
-                   first_ebuild = True
+                    if spam:
+                        #append(", ".join(spam), "value")
+                        nl()
+                        spam = []
+                    if slot != '0':
+                        append(_("\tSlot %s: ") % slot, "property")
+                    else: append("\t", "property")
+                    oldslot = slot
+                    first_ebuild = True
 
                 if not first_ebuild:
                     append(", ", "value")
@@ -201,10 +204,11 @@ class Summary(gtk.TextView):
                     label = gtk.Label(str(version))
                     label.set_padding(3, 3)
                     table.attach(boxify(label, "#EEEEEE"), 0, 1, y, y+1)
-                    if ebuild in versions:
-                        keys = package.get_properties(ebuild).get_keywords()
-                    else: # the ebuild for an installed program has been removed
-                        keys = ''
+                    #if ebuild in versions:
+                    #    keys = package.get_properties(ebuild).get_keywords()
+                    #else: # the ebuild for an installed program has been removed
+                    #    keys = ''
+                    keys = package.get_properties(ebuild).get_keywords()
                     x = 0
                     for arch in archlist:
                         x += 1
@@ -243,10 +247,11 @@ class Summary(gtk.TextView):
                     label = gtk.Label(str(version))
                     label.set_padding(3, 3)
                     table.attach(boxify(label, "#EEEEEE"), x, x+1, 0, 1)
-                    if ebuild in versions:
-                        keys = package.get_properties(ebuild).get_keywords()
-                    else: # the ebuild for an installed program has been removed
-                        keys = ''
+                    #if ebuild in versions:
+                    #    keys = package.get_properties(ebuild).get_keywords()
+                    #else: # the ebuild for an installed program has been removed
+                    #    keys = ''
+                    keys = package.get_properties(ebuild).get_keywords()
                     if "".join(["~", myarch]) in keys:
                         text = "~"
                         color = "#EEEE90"

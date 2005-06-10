@@ -81,7 +81,9 @@ class AdvancedEmergeDialog:
             ver = self.verList[x]
             info = ver["number"]
             #info += '   [Slot:' + str(ver["slot"]) + ']'
-            info += '   [' + _('Slot:%s') % str(ver["slot"]) + ']'
+            slot = ver["slot"]
+            if slot != '0':
+                info += ''.join(['   [', _('Slot:%s') % slot, ']'])
             if not ver["stable"]:
                 info += _('   (unstable)')
             if ver["hard_masked"]:

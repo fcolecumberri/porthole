@@ -576,8 +576,14 @@ class ProcessManager:
                 gtk.main_quit()
             except:
                 gtk.mainquit()
+        if self.reader.isAlive():
+            self.reader.die = "Please"
+            dprint("TERMINAL: reader process still alive - killing...")
+            self.reader.join()
+            dprint("okay!")
+            del self.reader
         dprint("TERMINAL: on_process_window_destroy(); ...destroying now")
-        self.window.destroy
+        self.window.destroy()
 
     def kill_process(self, widget = None, confirm = False):
         """ Kill currently running process """
@@ -730,7 +736,7 @@ class ProcessManager:
         # stores line of text in buffer
         # if the string is locked, we'll get it on the next round
         cr_flag = False   # Carriage Return flag
-        if self.reader.string_locked or not self.window_visible:
+        if not self.window_visible or self.reader.string_locked:
             return True
         # lock the string
         self.reader.string_locked = True
@@ -1608,12 +1614,13 @@ class ProcessOutputReader(threading.Thread):
         self.string = ""
         # lock to prevent loosing characters from simultaneous accesses
         self.string_locked = False
+        self.die = False
 
     def run(self):
         """ Watch for process output """
         dprint("TERMINAL: ProcessOutputReader(); process id = %d" %os.getpid())
         char = None
-        while True:
+        while not self.die:
             if self.process_running or self.file_input:
                 # get the output and pass it to self.callback()
                 if self.process_running and (self.fd != None):
