@@ -34,9 +34,10 @@ class Summary(gtk.TextView):
     def __init__(self, prefs):
         """ Initialize object """
         gtk.TextView.__init__(self)
-        self.prefs = prefs.summary
-        self.prefs.enable_all_keywords = prefs.advemerge.enable_all_keywords
-        self.prefs.archlist = prefs.advemerge.archlist
+        # get the preferences we need
+        self.Sprefs = prefs.summary
+        self.enable_archlist = prefs.globals.enable_archlist
+        self.archlist = prefs.globals.archlist
         self.tooltips = gtk.Tooltips()
         self.set_wrap_mode(gtk.WRAP_WORD)
         self.set_editable(False)
@@ -186,10 +187,13 @@ class Summary(gtk.TextView):
                     modified = True
             if modified: ebuilds = ver_sort(ebuilds) # otherwise already sorted
             
-            if self.prefs.enable_all_keywords:
-            #if True:    # Just for testing, until we have a preferences dialog.
-                archlist = ["alpha", "amd64", "arm", "hppa", "ia64", "mips",
-                            "ppc", "ppc64", "s390", "sparc", "x86"]
+            if self.enable_archlist:
+                archlist = self.archlist
+            else:
+                archlist = [myarch]
+            if True:    # Just for testing, until we have a preferences dialog.
+                #archlist = ["alpha", "amd64", "arm", "hppa", "ia64", "mips",
+                #            "ppc", "ppc64", "s390", "sparc", "x86"]
                 #archlist = self.prefs.archlist # currently empty, set in pref dialog
                 rows = 1 + len(ebuilds)
                 cols = 1 + len(archlist)
@@ -360,14 +364,14 @@ class Summary(gtk.TextView):
             nl(2)
 
         # Metadata long description(s), if available
-        if metadata and metadata.longdescription and self.prefs.showlongdesc:
+        if metadata and metadata.longdescription and self.Sprefs.showlongdesc:
             append("Long Description: ", "property")
             append(metadata.longdescription, "description")
             nl(2)
         
         # Insert homepage(s), if any
         x = 0
-        if homepages and self.prefs.showurl:
+        if homepages and self.Sprefs.showurl:
             for homepage in homepages:
                 if x > 0:
                     append( ', ')
@@ -377,30 +381,30 @@ class Summary(gtk.TextView):
         
         # display a table of architectures and support / stability
         # like on packages.gentoo.org :)
-        if self.prefs.showtable: create_ebuild_table(versions)
+        if self.Sprefs.showtable: create_ebuild_table(versions)
         
         # Installed version(s)
-        if self.prefs.showinstalled:
+        if self.Sprefs.showinstalled:
             if installed:
                 append(_("Installed versions:\n"), "property")
                 show_vnums(installed)
-                nl()
+                nl(2)
             else:
                 append(_("Not installed"), "property")
-                nl()
+                nl(2)
         
         # Remaining versions
-        if versions and self.prefs.showavailable:
+        if versions and self.Sprefs.showavailable:
             append(_("Available versions:\n"), "property")
             show_vnums(versions)
             nl(2)        
 
         append("Properties for version: ", "property")
         append(portagelib.get_version(ebuild))
-        nl()
+        nl(2)
 
         # Use flags
-        if use_flags and self.prefs.showuseflags:
+        if use_flags and self.Sprefs.showuseflags:
             append(_("Use flags: "), "property")
             first_flag = True
             for flag in use_flags:
@@ -413,10 +417,10 @@ class Summary(gtk.TextView):
                     append('+' + flag,"useset")
                 else:
                     append('-' + flag,"useunset")
-            nl()
+            nl(2)
 
         # Keywords
-        if keywords and self.prefs.showkeywords:
+        if keywords and self.Sprefs.showkeywords:
             append(_("Keywords: "), "property")
             first_keyword = True
             for keyword in keywords:
@@ -425,10 +429,10 @@ class Summary(gtk.TextView):
                 else:
                     first_keyword = False
                 append(keyword, "value")
-            nl()
+            nl(2)
 
         # License
-        if licenses and self.prefs.showlicense:
+        if licenses and self.Sprefs.showlicense:
             append(_("License: "), "property")
             _licenses = licenses.split()
             x = 0

@@ -347,7 +347,7 @@ class PortholePreferences:
         
         advemergeoptions = [
             ['enable_all_keywords', False],
-            ['archlist', []],
+            #['archlist', []],
         ]
         #self.advemerge = AdvEmergeOptions()
         self.advemerge = OptionsClass()
@@ -420,11 +420,22 @@ class PortholePreferences:
         
         # Global variables
         #self.globals = GlobalPreferences()
+        
+        globaloptions = [
+                        ["LANG", 'en'],
+                        ["enable_archlist", True],
+                        ["archlist", ["alpha", "amd64", "arm", "hppa", "ia64", "mips",
+                                        "ppc", "ppc64", "s390", "sparc", "x86"]],
+        ]
+        
         self.globals = OptionsClass()
-        try:
-           self.globals.LANG = dom.getitem('/globals/LANG')
-        except XMLManagerError:
-           self.globals.LANG = 'en'
+        for option, default in globaloptions:
+            try:
+                value = dom.getitem(''.join(['/globals/', option]))
+            except XMLManagerError:
+                value = default
+            setattr(self.globals, option, value)
+            dprint("UTILS: PortholePreferences; setting globals.%s = %s" %(option, str(value)))
 
         # All prefs now loaded or defaulted
         del dom   # no longer needed, release memory
@@ -496,6 +507,8 @@ class PortholePreferences:
         dom.additem('/database/dbtotals', self.dbtotals)
         dom.additem('/plugins/path_list', self.plugins.path_list)
         dom.additem('/globals/LANG', self.globals.LANG)
+        dom.additem('/globals/enable_archlist', self.globals.enable_archlist)
+        dom.additem('/globals/archlist', self.globals.archlist)
         dom.save(self.__PFILE)
         del dom   # no longer needed, release memory
 
