@@ -1278,6 +1278,7 @@ class MainWindow:
     def confirm_delete(self, widget = None, *event):
         """Check that there are no running processes & confirm the kill before doing it"""
         if self.process_manager.task_completed:
+            self.process_manager.allow_delete = True
             return False
         err = _("Confirm: Kill the Running Process in the Terminal")
         dialog = gtk.MessageDialog(self.mainwindow, gtk.DIALOG_MODAL,
@@ -1291,6 +1292,7 @@ class MainWindow:
         #self.process_manager.confirm = False
         if self.process_manager.kill_process(None, False):
             dprint("MAINWINDOW: process killed, destroying window")
+            self.process_manager.allow_delete = True
             self.process_manager.window.hide()
         return False
 

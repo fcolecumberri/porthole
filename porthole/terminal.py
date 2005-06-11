@@ -116,6 +116,7 @@ class ProcessManager:
         self.directory = None
         self.filename = None
         self.untitled_serial = -1
+        self.allow_delete = False
 
     def set_tags(self):
         """ set the text formatting tags from prefs object """
@@ -141,6 +142,12 @@ class ProcessManager:
 
     def show_window(self):
         """ Show the process window """
+        if hasattr(self, 'window'):
+            dprint("TERMINAL; show_window(): window attribute already set... attempting show")
+            self.window.show()
+            self.window_visible = True
+            dprint("TERMINAL; show_window(): returning")
+            return True
         # load the glade file
         self.wtree = gtk.glade.XML(self.prefs.DATA_PATH + self.prefs.use_gladefile,
                                    "process_window", self.prefs.APP)
@@ -366,7 +373,7 @@ class ProcessManager:
 
     def new_window_state(self, widget, event):
         """set the minimized variable to change the title to the same as the statusbar text"""
-        #dprint(event.new_window_state) # debug print statements
+        dprint("TERMINAL: window state event: %s" % event.new_window_state) # debug print statements
         #dprint(event.changed_mask
         state = event.new_window_state
         if state & gtk.gdk.WINDOW_STATE_ICONIFIED:
@@ -505,6 +512,7 @@ class ProcessManager:
 
     def _run(self, command_string, iter = None):
         """ Run a given command string """
+        dprint("TERMINAL: running command string %s" % command_string)
         # we can't be killed anymore
         self.killed = 0
         # reset back to terminal mode in case it is not
@@ -535,6 +543,10 @@ class ProcessManager:
         self.append_all("*** " + command_string + " ***\n", True, 'command')
         self.set_statusbar("*** " + command_string + " ***")
         # pty.fork() creates a new process group
+        if self.reader.fd:
+            dprint("TERMINAL: self.reader already has fd, closing")
+            os.close(self.reader.fd)
+            del self.reader.fd
         self.pid, self.reader.fd = pty.fork()
         if self.pid == pty.CHILD:  # child
             try:
@@ -549,6 +561,9 @@ class ProcessManager:
                 #print "Error in child:"
                 #print e
                 os._exit(1)
+        else:
+            dprint("TERMINAL: pty process id: %s ******" % self.pid)
+
 
     def menu_quit(self, widget):
         """ hide the window when the close button is pressed """
@@ -584,6 +599,7 @@ class ProcessManager:
             del self.reader
         dprint("TERMINAL: on_process_window_destroy(); ...destroying now")
         self.window.destroy()
+        del self.window
 
     def kill_process(self, widget = None, confirm = False):
         """ Kill currently running process """
@@ -603,7 +619,7 @@ class ProcessManager:
             # We're finished, release semaphore
             self.Semaphore.release()
             dprint("TERMINAL: kill_process; Semaphore released")
-            return False
+            return True
         if self.log_mode:
             dprint("LOG: set statusbar -- log killed")
             self.set_statusbar(_("***Log Process Killed!"))
@@ -645,8 +661,8 @@ class ProcessManager:
                 else: # just in case there is anything left
                     # negative pid kills process group
                     os.kill(-self.pid, signal.SIGKILL)
-            except OSError:
-                dprint("TERMINAL: kill(), OSError")
+            except OSError, e:
+                dprint("TERMINAL: kill(), OSError %s" % e)
                 pass
             self.killed = True
             if self.term.tab_showing[TAB_QUEUE]:
@@ -656,19 +672,39 @@ class ProcessManager:
         return True
 
     def confirm_delete(self, widget = None, *event):
-        if self.task_completed:
-            return False
-        err = _("Confirm: Kill the Running Process")
-        dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
-                                gtk.MESSAGE_QUESTION,
-                                gtk.BUTTONS_YES_NO, err);
-        result = dialog.run()
-        dialog.destroy()
-        if result != gtk.RESPONSE_YES:
-            dprint("TERMINAL: confirm_delete(); stopping delete")
-            return True
-        dprint("TERMINAL: confirm_delete(); confirmed")
-        return False
+        if self.allow_delete:
+            retval = False
+        else:
+            dprint("TERMINAL: disallowing delete event")
+            retval = True
+        if not self.task_completed:
+            err = _("Confirm: Kill the Running Process")
+            dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
+                                    gtk.MESSAGE_QUESTION,
+                                    gtk.BUTTONS_YES_NO, err);
+            result = dialog.run()
+            dialog.destroy()
+            if result != gtk.RESPONSE_YES:
+                dprint("TERMINAL: confirm_delete(); stopping delete")
+                return True
+            dprint("TERMINAL: confirm_delete(); confirmed")
+            if self.kill_process():
+                self.task_completed = True
+        # hide the window. if retval is false it'll be destroyed soon.
+        self.window.hide()
+        self.window_visible = False
+        # now also seems like the only good time to clean up.
+        dprint("TERMINAL: cleaning up zombie emerge processes")
+        while True:
+            try:
+                m = os.wait() # wait for any child processes to finish
+                dprint("TERMINAL: process %s finished, status %s" % m)
+            except OSError, e:
+                if e.args[0] == 10: # 10 = no process to kill
+                    break
+                dprint("TERMINAL: OSError %s" % e)
+                break
+        return retval
 
 
     def overwrite(self, num, text, tagname = None):
@@ -742,6 +778,7 @@ class ProcessManager:
         self.reader.string_locked = True
         for char in self.reader.string:
             if char:
+                #dprint("TERMINAL: adding text to buffer")
                 # if we find a CR without a LF, switch to overwrite mode
                 if cr_flag:
                     if char != '\n':
@@ -903,6 +940,9 @@ class ProcessManager:
         # Prevent conflicts while changing process queue
         self.Semaphore.acquire()
         dprint("TERMINAL: process_done; Semaphore acquired")
+        dprint("process id: %s" % os.getpid())
+        dprint("process group id: %s" % os.getpgrp())
+        dprint("parent process id: %s" % os.getppid())
         
         # reset to None, so next one starts properly
         self.reader.fd = None
@@ -1051,7 +1091,7 @@ class ProcessManager:
             self.open_menu.set_sensitive(True)
         # We're finished, release semaphore
         self.Semaphore.release()
-        dprint("TERMINAL: start_queue(); finnished... returning")
+        dprint("TERMINAL: start_queue(); finished... returning")
         return
 
 
@@ -1220,7 +1260,7 @@ class ProcessManager:
                    "there is probably nothing selected.")
             # We're finished, release semaphore
             self.Semaphore.release()
-            dprint("TERMINAL: queue_clicked(); finnished... returning")
+            dprint("TERMINAL: queue_clicked(); finished... returning")
             return False
         # if the item is not in the process list
         # don't make the controls sensitive and return
@@ -1239,7 +1279,7 @@ class ProcessManager:
                 self.queue_remove.set_sensitive(True)
             # We're finished, release semaphore
             self.Semaphore.release()
-            dprint("TERMINAL: queue_clicked(); finnished... returning")
+            dprint("TERMINAL: queue_clicked(); finished... returning")
             return True
         # if we reach here it's still in the process list
         # activate the delete item
@@ -1261,7 +1301,7 @@ class ProcessManager:
             self.move_down.set_sensitive(True)
         # We're finished, release semaphore
         self.Semaphore.release()
-        dprint("TERMINAL: queue_clicked(); finnished... returning")
+        dprint("TERMINAL: queue_clicked(); finished... returning")
         return True
 
     def set_save_buffer(self):
@@ -1626,15 +1666,21 @@ class ProcessOutputReader(threading.Thread):
                 if self.process_running and (self.fd != None):
                     try:
                         char = os.read(self.fd, 1)
-                    except OSError:
-                        # maybe the process died?
+                    except OSError, e:
+                        if e.args[0] == 5: # 5 = i/o error
+                            dprint("TERMINAL: ProcessOutputReader: process finished, closing")
+                            os.close(self.fd)
+                        else:
+                            # maybe the process died?
+                            dprint("TERMINAL: ProcessOutputReader: .fd OSError: %s" % e)
                         char = None
                 elif self.file_input:
                     try:
                         # keep read(number) small so as to not cripple the 
                         # system reading large files.  even 2 can hinder gui response
                         char = self.f.read(1)
-                    except OSError:
+                    except OSError, e:
+                        dprint("TERMINAL: ProcessOutputReader: .f OSError: %s" % e)
                         # maybe the process died?
                         char = None
                 if char:

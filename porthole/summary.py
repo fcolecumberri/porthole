@@ -56,6 +56,7 @@ class Summary(gtk.TextView):
         # List of active URLs in the tab
         self.url_tags = []
         self.underlined_url = False
+        self.reset_cursor = 'Please'
 
     def create_tag_table(self):
         """ Define all markup tags """
@@ -102,6 +103,9 @@ class Summary(gtk.TextView):
                 self.get_window(gtk.TEXT_WINDOW_TEXT).set_cursor(gtk.gdk.Cursor
                                                                  (gtk.gdk.HAND2))
                 self.underlined_url = tag
+        if self.reset_cursor: # defaults to gtk.gdk.XTERM - reset it to None
+            self.get_window(gtk.TEXT_WINDOW_TEXT).set_cursor(None)
+            self.reset_cursor = False
         return False
 
     def update_package_info(self, package):

@@ -618,11 +618,10 @@ class DatabaseReader(threading.Thread):
         """Read portage's database and store it nicely"""
         global thread_id
         dprint("PORTAGELIB: read_db(); process id = %d, thread_id = %d *****************" %(os.getpid(),thread_id))
-        tree = portage.db['/']['porttree']
         self.get_installed()
         try:
             dprint("PORTAGELIB: read_db(); getting allnodes package list")
-            allnodes = tree.getallnodes()[:] # copy
+            allnodes = portage.db['/']['porttree'].getallnodes()[:] # copy
             dprint("PORTAGELIB: read_db(); Done getting allnodes package list")
         except OSError, e:
             # I once forgot to give read permissions
