@@ -144,6 +144,11 @@ class ProcessManager:
         """ Show the process window """
         if hasattr(self, 'window'):
             dprint("TERMINAL; show_window(): window attribute already set... attempting show")
+            # clear text buffer and emerge queue, hide tabs then show
+            self.clear_buffer(None)
+            self.queue_model.clear()
+            for tab in [TAB_WARNING, TAB_CAUTION, TAB_INFO, TAB_QUEUE]:
+                self.hide_tab(tab)
             self.window.show()
             self.window_visible = True
             dprint("TERMINAL; show_window(): returning")
@@ -428,6 +433,20 @@ class ProcessManager:
         dprint("TERMINAL: self.term.visible_tablist")
         dprint(self.term.visible_tablist)
         
+    def hide_tab(self, tab):
+        pos = -1
+        if tab == TAB_WARNING:
+            pos = self.notebook.page_num(self.warning_tab)
+        elif tab == TAB_CAUTION:
+            pos = self.notebook.page_num(self.caution_tab)
+        elif tab == TAB_INFO:
+            pos = self.notebook.page_num(self.info_tab)
+        elif tab == TAB_QUEUE:
+            pos = self.notebook.page_num(self.queue_tab)
+        if pos is not -1:
+            dprint("TERMINAL: hiding tab %s, pos %s." % (tab, pos))
+            self.notebook.remove_page(pos)
+            self.term.tab_showing[tab] = False
 
     def resume_dialog(self, message):
         """ Handle response when user tries to re-add killed process to queue """
