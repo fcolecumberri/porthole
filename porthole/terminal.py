@@ -127,9 +127,13 @@ class ProcessManager:
             for process_tab in [TAB_PROCESS, TAB_WARNING, TAB_CAUTION, TAB_INFO]:
                 text_tag = self.prefs.TAG_DICT[key] 
                 if text_tag[0] == '':
-                    self.term.buffer[process_tab].create_tag(key,\
-                        background=text_tag[1],\
-                        weight=text_tag[2])
+                    if text_tag[1] == '':
+                        self.term.buffer[process_tab].create_tag(key,\
+                            weight=text_tag[2])
+                    else:
+                        self.term.buffer[process_tab].create_tag(key,\
+                            background=text_tag[1],\
+                            weight=text_tag[2])
                 elif text_tag[1] == '':
                     self.term.buffer[process_tab].create_tag(key,\
                         foreground=text_tag[0],\
@@ -143,7 +147,7 @@ class ProcessManager:
     def show_window(self):
         """ Show the process window """
         if hasattr(self, 'window'):
-            dprint("TERMINAL; show_window(): window attribute already set... attempting show")
+            dprint("TERMINAL: show_window(): window attribute already set... attempting show")
             # clear text buffer and emerge queue, hide tabs then show
             self.clear_buffer(None)
             self.queue_model.clear()
@@ -151,7 +155,7 @@ class ProcessManager:
                 self.hide_tab(tab)
             self.window.show()
             self.window_visible = True
-            dprint("TERMINAL; show_window(): returning")
+            dprint("TERMINAL: show_window(): returning")
             return True
         # load the glade file
         self.wtree = gtk.glade.XML(self.prefs.DATA_PATH + self.prefs.use_gladefile,
@@ -199,6 +203,14 @@ class ProcessManager:
             self.term.buffer += [buffer]
             view = self.wtree.get_widget(x)
             self.term.view += [view]
+            if x == "process_text" or self.prefs.terminal.all_tabs_use_custom_colors:
+                fg, bg, weight = self.prefs.TAG_DICT['default']
+                if bg != '':
+                    self.term.view[-1].modify_base(gtk.STATE_NORMAL, \
+                        gtk.gdk.color_parse(bg))
+                if fg != '':
+                    self.term.view[-1].modify_text(gtk.STATE_NORMAL, \
+                        gtk.gdk.color_parse(fg))
         widget_labels = ["scrolledwindow2", "scrolledwindow8", "scrolledwindow7",
                          "scrolledwindow5", "scrolledwindow4"]
         for x in widget_labels:
@@ -430,8 +442,7 @@ class ProcessManager:
         self.notebook.insert_page(tab, hbox, pos)
         # reset the visible_tablist
         self.term.get_tab_list()
-        dprint("TERMINAL: self.term.visible_tablist")
-        dprint(self.term.visible_tablist)
+        dprint("TERMINAL: self.term.visible_tablist %s" % self.term.visible_tablist)
         
     def hide_tab(self, tab):
         pos = -1
@@ -764,8 +775,8 @@ class ProcessManager:
         #dprint(self.term.current_tab)
         line_number = self.term.buffer[TAB_PROCESS].get_line_count() 
         iter = self.term.buffer[num].get_end_iter()
-        lntext = '000000' + str(line_number) + ' '
-        self.term.buffer[num].insert_with_tags_by_name(iter, lntext[-7:] , 'linenumber')
+        lntext = str(line_number).zfill(6) + ' '
+        self.term.buffer[num].insert_with_tags_by_name(iter, lntext, 'linenumber')
         if tagname == None:
            self.term.buffer[num].insert(iter, text)
         else:
@@ -797,7 +808,7 @@ class ProcessManager:
         self.reader.string_locked = True
         for char in self.reader.string:
             if char:
-                #dprint("TERMINAL: adding text to buffer")
+                #dprint("TERMINAL: adding text to buffer: %s, %s" % (char, ord(char)))
                 # if we find a CR without a LF, switch to overwrite mode
                 if cr_flag:
                     if char != '\n':
@@ -819,13 +830,13 @@ class ProcessManager:
                     cr_flag = False
                 # catch portage escape sequence NOCOLOR bugs
                 if ord(char) == 27 or self.catch_seq:
-                        self.catch_seq = True
-                        if ord(char) != 27:
-                            self.escape_seq += char
-                        if char == 'm':
-                            self.catch_seq = False
-                            #dprint('escape_seq='+escape_seq)
-                            self.escape_seq = ""
+                    self.catch_seq = True
+                    if ord(char) != 27:
+                        self.escape_seq += char
+                    if char == 'm':
+                        self.catch_seq = False
+                        dprint('escape_seq = ' + self.escape_seq)
+                        self.escape_seq = ""
                 elif char == '\b' : # backspace
                     self.process_buffer = self.process_buffer[:-1]
                 elif ord(char) == 13:  # carriage return
@@ -902,8 +913,6 @@ class ProcessManager:
                         else:
                             self.append(TAB_PROCESS, self.process_buffer, tag)
                         self.process_buffer = ''  # reset buffer
-                elif ord(char) == 13: # carriage return?
-                    pass
             elif self.process_buffer == ">>> Updating Portage cache...":
                 # print it to screen so the user knows what is happening
                 self.append(TAB_PROCESS, self.process_buffer, tag)
@@ -1613,7 +1622,7 @@ class terminal_notebook:
     """generates a terminal notebook structure containing all needed views,
     buffers,handler id's, etc."""
 
-    def __init__(self): # all arays follow the same TABS order
+    def __init__(self): # all arrays follow the same TABS order
         self.view = [] #[None, None, None, None]
         self.scrolled_window = [] #[None, None, None, None, None]
         self.buffer = [] #[None, None, None, None]
@@ -1646,8 +1655,7 @@ class terminal_notebook:
             if tab:
                 self.visible_tablist += [tab_num]
             tab_num += 1
-        dprint("TERMINAL: terminal_notebook() new self.visible_tablist:")
-        dprint(self.visible_tablist)
+        dprint("TERMINAL: terminal_notebook() new self.visible_tablist: %s" % self.visible_tablist)
         return
 
     def get_current_vadjustment_value(self):

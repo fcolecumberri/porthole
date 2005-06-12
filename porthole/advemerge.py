@@ -63,7 +63,14 @@ class AdvancedEmergeDialog:
 
         self.wtree.signal_autoconnect(callbacks)
         self.window = self.wtree.get_widget("adv_emerge_dialog")
+        self.use_flags_frame = self.wtree.get_widget("frameUseFlags")
+        self.keywords_frame = self.wtree.get_widget("frameKeywords")
         self.window.set_title(_("Advanced Emerge Settings for %s") % package.full_name)
+        
+        if not self.prefs.advemerge.showuseflags:
+            self.use_flags_frame.hide()
+        if not self.prefs.advemerge.showkeywords:
+            self.keywords_frame.hide()
         
         # Make tool tips available
         self.tooltips = gtk.Tooltips()

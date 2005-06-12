@@ -38,6 +38,7 @@ class Summary(gtk.TextView):
         self.Sprefs = prefs.summary
         self.enable_archlist = prefs.globals.enable_archlist
         self.archlist = prefs.globals.archlist
+        self.myarch = portagelib.get_arch()
         self.tooltips = gtk.Tooltips()
         self.set_wrap_mode(gtk.WRAP_WORD)
         self.set_editable(False)
@@ -142,11 +143,11 @@ class Summary(gtk.TextView):
                 # set the tag to the default
                 tag = "value" 
                 version = portagelib.get_version(ebuild)
-                #if ebuild in versions:   # annoying message is output by portage if it isn't
-                #    slot = portagelib.get_property(ebuild, "SLOT")
-                #else:
-                #    slot = "?"  # someone removed the ebuild for our installed package. Damn them!
-                slot = portagelib.get_property(ebuild, "SLOT") # fixed!
+                keys = package.get_properties(ebuild).get_keywords()
+                if self.myarch not in keys and ''.join(['~',self.myarch]) not in keys:
+                    # we won't display the ebuild if it's not available to us
+                    continue
+                slot = portagelib.get_property(ebuild, "SLOT")
                 if not slot == oldslot:
                     if spam:
                         #append(", ".join(spam), "value")
@@ -173,11 +174,13 @@ class Summary(gtk.TextView):
                 append(version, tag)
                 first_ebuild = False
                 spam += [version]  # now only used to track the need for a new slot
+            if first_ebuild: # only still true if no ebuilds were acceptable
+                append('\tNone', 'value')
             #append(", ".join(spam), "value")
             return
         
         def create_ebuild_table(versions):
-            myarch = portagelib.get_arch()
+            myarch = self.myarch
             ebuilds = versions[:] # make a copy
             modified = False
             for entry in installed:
@@ -192,9 +195,6 @@ class Summary(gtk.TextView):
             else:
                 archlist = [myarch]
             if True:    # Just for testing, until we have a preferences dialog.
-                #archlist = ["alpha", "amd64", "arm", "hppa", "ia64", "mips",
-                #            "ppc", "ppc64", "s390", "sparc", "x86"]
-                #archlist = self.prefs.archlist # currently empty, set in pref dialog
                 rows = 1 + len(ebuilds)
                 cols = 1 + len(archlist)
                 table = gtk.Table(rows, cols)
@@ -212,10 +212,6 @@ class Summary(gtk.TextView):
                     label = gtk.Label(str(version))
                     label.set_padding(3, 3)
                     table.attach(boxify(label, "#EEEEEE"), 0, 1, y, y+1)
-                    #if ebuild in versions:
-                    #    keys = package.get_properties(ebuild).get_keywords()
-                    #else: # the ebuild for an installed program has been removed
-                    #    keys = ''
                     keys = package.get_properties(ebuild).get_keywords()
                     x = 0
                     for arch in archlist:
@@ -255,10 +251,6 @@ class Summary(gtk.TextView):
                     label = gtk.Label(str(version))
                     label.set_padding(3, 3)
                     table.attach(boxify(label, "#EEEEEE"), x, x+1, 0, 1)
-                    #if ebuild in versions:
-                    #    keys = package.get_properties(ebuild).get_keywords()
-                    #else: # the ebuild for an installed program has been removed
-                    #    keys = ''
                     keys = package.get_properties(ebuild).get_keywords()
                     if "".join(["~", myarch]) in keys:
                         text = "~"
@@ -395,7 +387,7 @@ class Summary(gtk.TextView):
         
         # Remaining versions
         if versions and self.Sprefs.showavailable:
-            append(_("Available versions:\n"), "property")
+            append(_("Available versions for %s:\n") % self.myarch, "property")
             show_vnums(versions)
             nl(2)        
 

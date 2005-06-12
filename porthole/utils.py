@@ -120,7 +120,7 @@ def environment():
         env["FEATURES"] += ", notitles"
     else:
         env ["FEATURES"] = "notitles"
-    env["NOCOLOR"] = "true"
+    #env["NOCOLOR"] = "true"
     #dprint(env)
     return env
 
@@ -271,7 +271,8 @@ class PortholePreferences:
         preflist['terminal'] = [ \
             ['width', 300],
             ['height', 350],
-            ['width_verbose', 500]
+            ['width_verbose', 500],
+            ['all_tabs_use_custom_colors', False],
         ]
         
         history = ["",
@@ -297,7 +298,7 @@ class PortholePreferences:
             setattr(self, window_name, OptionsClass()) # construct self.main etc.
             for pref_name, default_value in preflist[window_name]:
                 try:
-                    value = dom.getitem(''.join(['/window/',window_name,'/',pref_name]))
+                    value = dom.getitem('/'.join(['/window',window_name,pref_name]))
                     # (e.g. '/window/main/width')
                 except XMLManagerError:
                     value = default_value
@@ -312,6 +313,7 @@ class PortholePreferences:
         self.TAG_DICT = {}
         
         taglist = [ \
+            ['default','','',400],
             ['caution','','#ff14b4',400],  # [name, default forecolor, backcolor, fontweight]
             ['command','#ffffff','#000080',700],
             ['emerge','','#90ee90',700],
@@ -347,6 +349,8 @@ class PortholePreferences:
         
         advemergeoptions = [
             ['enable_all_keywords', False],
+            ['showuseflags', True],
+            ['showkeywords', True],
             #['archlist', []],
         ]
         #self.advemerge = AdvEmergeOptions()
@@ -380,6 +384,7 @@ class PortholePreferences:
             ['showuseflags', True],
             ['showlicense', True],
             ['showurl', True],
+            ['ebuilds_top', True],
         ]
         self.summary = OptionsClass()
         for option, default in summaryoptions:
