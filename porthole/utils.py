@@ -391,6 +391,7 @@ class PortholePreferences:
         
         # Misc. variables
         
+        # probably depricated variables, was used for progressbar calc
         try:
            self.database_size = dom.getitem('/database/size')
         except XMLManagerError:
@@ -406,26 +407,17 @@ class PortholePreferences:
         except XMLManagerError:
            self.dbtotals = []
         
-        #self.plugins = PluginOptions()
         self.plugins = OptionsClass()
-        # Load Plugin Preferences
-        #try:
-        #    new_paths = dom.getitem('/plugins/path_list')
-        #    if new_paths.count(self.plugins.path_list[0]) >= 1:
-        #        self.plugins.path_list = new_paths
-        #    else:
-        #        self.plugins.path_list += new_paths
-        #except XMLManagerError:
-        #    pass
-        
-        # Global variables
-        #self.globals = GlobalPreferences()
         
         globaloptions = [
                         ["LANG", 'en'],
                         ["enable_archlist", True],
                         ["archlist", ["alpha", "amd64", "arm", "hppa", "ia64", "mips",
                                         "ppc", "ppc64", "s390", "sparc", "x86"]],
+                        ["Sync", "emerge sync"],
+                        ["Sync_label", "My Sync"],
+                        ["Sync_methods", [['emerge sync', 'Sync'], ['emerge webrsync', 'WebRsync'],
+                                            ['#user defined', 'Uknown Sync']]],
         ]
         
         self.globals = OptionsClass()
@@ -509,6 +501,9 @@ class PortholePreferences:
         dom.additem('/globals/LANG', self.globals.LANG)
         dom.additem('/globals/enable_archlist', self.globals.enable_archlist)
         dom.additem('/globals/archlist', self.globals.archlist)
+        dom.additem('/globals/Sync', self.globals.Sync)
+        dom.additem('/globals/Sync_label', self.globals.Sync_label)
+        dom.additem('/globals/Sync_methods', self.globals.Sync_methods)
         dom.save(self.__PFILE)
         del dom   # no longer needed, release memory
 

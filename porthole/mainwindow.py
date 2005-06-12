@@ -117,7 +117,8 @@ class MainWindow:
             "on_re_init_portage" : self.re_init_portage,
             "on_cancel_btn" : self.on_cancel_btn,
             #"on_main_window_size_request" : self.size_update,
-            "on_plugin_settings_activate" : self.plugin_settings_activate
+            "on_plugin_settings_activate" : self.plugin_settings_activate,
+            "on_view_refresh" : self.reload_view
         }
         self.wtree.signal_autoconnect(callbacks)
         self.set_statusbar2("Starting")
@@ -161,7 +162,7 @@ class MainWindow:
             self.wtree.get_widget("search_descriptions1").set_active(True)
         # setup a convienience tuple
         self.tool_widgets = ["emerge_package1","adv_emerge_package1","unmerge_package1","btn_emerge",
-                     "btn_adv_emerge","btn_unmerge", "btn_sync"]
+                     "btn_adv_emerge","btn_unmerge", "btn_sync", "view_refresh"]
         self.widget = {}
         for x in self.tool_widgets:
             self.widget[x] = self.wtree.get_widget(x)
@@ -170,6 +171,9 @@ class MainWindow:
         # get an empty tooltip
         self.synctooltip = gtk.Tooltips()
         self.sync_tip = _(" Syncronise Package Database \n The last sync was done:\n")
+        # set the sync label to the saved one set in the options
+        self.widget["btn_sync"].set_label(self.prefs.globals.Sync_label)
+        self.widget["view_refresh"].set_sensitive(False)
         # restore last window width/height
         if self.prefs.main.xpos and self.prefs.main.ypos:
             self.mainwindow.move(self.prefs.main.xpos, self.prefs.main.ypos)
@@ -311,11 +315,21 @@ class MainWindow:
         self.set_statusbar2(self.status_root)
         return False
 
+    def reload_view(self, widget):
+        """reload the package view"""
+        pass
+
     def package_update(self, pkg):
         """callback function to update an individual package
             after a successfull emerge was detected"""
         # find the pkg in self.db
         self.db.update(portagelib.extract_package(pkg))
+
+    def sync_callback(self):
+        """re-initializes portage so it uses the new metadata cache
+           then init our db"""
+        self.re-init_portage()
+        self.init_data()
 
     def get_sync_time(self):
         """gets and returns the timestamp info saved during
@@ -398,96 +412,6 @@ class MainWindow:
         statusbar2 = self.wtree.get_widget("statusbar2")
         statusbar2.pop(0)
         statusbar2.push(0, string)
-
-    #~ def update_db_read(self):
-        #~ """Update the statusbar according to the number of packages read."""
-        #~ #count = 0
-        #~ #dprint("MAINWINDOW: update_db_read()")
-        #~ if not self.db_thread.done:
-            #~ self.dbtime += 1
-            #~ if self.db_thread.count > 0:
-                #~ self.set_statusbar2(self.status_root + _(": %i packages read"
-                                     #~ % self.db_thread.count))
-            #~ #count = self.db_thread.count
-            #~ #dprint("self.prefs.dbtime = ")
-            #~ #dprint(self.prefs.dbtime)
-            #~ try:
-                #~ #fraction = min(1.0, max(0,(self.dbtime / float(self.prefs.dbtime))))
-                #~ fraction = min(1.0, max(0, (self.db_thread.nodecount / float(self.db_thread.allnodes_length))))
-                #~ self.progressbar.set_text(str(int(fraction * 100)) + "%")
-                #~ self.progressbar.set_fraction(fraction)
-            #~ except:
-                #~ pass
-
-        #~ elif self.db_thread.error:
-            #~ # todo: display error dialog instead
-            #~ self.db_thread.join()
-            #~ self.set_statusbar2(self.db_thread.error.decode('ascii', 'replace'))
-            #~ return False  # disconnect from timeout
-        #~ else: # db_thread is done
-            #~ self.db_thread_running = False
-            #~ self.db_save_variables()
-            #~ self.progressbar.set_text("100%")
-            #~ self.progressbar.set_fraction(1.0)
-            #~ dprint("MAINWINDOW: db_thread is done...")
-            #~ dprint("MAINWINDOW: db_thread.join...")
-            #~ self.db_thread.join()
-            #~ self.db_thread_running = False
-            #~ dprint("MAINWINDOW: db_thread.join is done...")
-            #~ self.db = self.db_thread.get_db()
-            #~ self.set_statusbar2(self.status_root + _(": Populating tree"))
-            #~ self.update_statusbar(SHOW_ALL)
-            #~dprint("MAINWINDOW: setting menubar,toolbar,etc to sensitive...")
-            #~ self.wtree.get_widget("menubar").set_sensitive(True)
-            #~ self.wtree.get_widget("toolbar").set_sensitive(True)
-            #~ self.wtree.get_widget("view_filter").set_sensitive(True)
-            #~ self.wtree.get_widget("search_entry").set_sensitive(True)
-            #~ self.wtree.get_widget("btn_search").set_sensitive(True)
-            #~ # make sure we search again if we reloaded!
-            #~ view_filter = self.wtree.get_widget("view_filter")
-            #~ if view_filter.get_history() == SHOW_SEARCH:
-                #~ #dprint("MAINWINDOW: update_db_read()... Search view")
-                #~ # update the views by calling view_filter_changed
-                #~ self.view_filter_changed(view_filter)
-                #~ if self.reload:
-                    #~ # reset _last_selected so it thinks this package is new again
-                    #~ self.package_view._last_selected = None
-                    #~ if self.current_package_cursor != None and self.current_package_cursor[0]: # should fix a type error in set_cursor; from pycrash report
-                        #~ # re-select the package
-                        #~ self.package_view.set_cursor(self.current_package_cursor[0],
-                                                     #~ self.current_package_cursor[1])
-            #~ elif self.reload and (view_filter.get_history() == SHOW_ALL or \
-                                  #~ view_filter.get_history() == SHOW_INSTALLED):
-                #~ #dprint("MAINWINDOW: update_db_read()... self.reload=True ALL or INSTALLED view")
-                #~ # reset _last_selected so it thinks this category is new again
-                #~ self.category_view._last_selected = None
-                #~dprint("MAINWINDOW: re-select the category")
-                #~ if self.current_category_cursor != None:
-                    #~ # re-select the category
-                    #~ self.category_view.set_cursor(self.current_category_cursor[0],
-                                                  #~ self.current_category_cursor[1])
-                #~dprint("MAINWINDOW: reset _last_selected so it thinks this package is new again")
-                #~ # reset _last_selected so it thinks this package is new again
-                #~ self.package_view._last_selected = None
-                #~dprint("MAINWINDOW: re-select the package")
-                #~ # re-select the package
-                #~ if self.current_package_path <> None:
-                    #~ self.package_view.set_cursor(self.current_package_path,
-                                                 #~ self.current_package_cursor[1])
-            #~ else:
-                #~ #dprint("MAINWINDOW: update_db_read()... must be an upgradeable view")
-                #~ self.package_view.clear()
-                #~ self.set_package_actions_sensitive(False, None)
-                #~ #self.category_view.populate(self.db.categories.keys(), self.current_category)
-                #~ # update the views by calling view_filter_changed
-                #~ self.view_filter_changed(view_filter)
-            #~ dprint("MAINWINDOW: Made it thru a reload, returning...")
-            #~ self.reload = False
-            #~ self.progress_done(False)
-            #~ self.view_filter_changed(view_filter)
-            #~ return False  # disconnect from timeout
-        #~ #dprint("MAINWINDOW: returning from update_db_read() count=%d dbtime=%d"  %(count, self.dbtime))
-        #~ return True
 
     def update_db_read(self, dummy, args): # extra args for dispatcher callback
         """Update the statusbar according to the number of packages read."""
@@ -603,11 +527,11 @@ class MainWindow:
     def setup_command(self, package_name, command):
         """Setup the command to run or not"""
         if self.is_root or (self.prefs.emerge.pretend and
-                            command[:11] != "emerge sync"):
+                            command[:11] != self.prefs.globals.Sync):
             if self.prefs.emerge.pretend or pretend_check(command) or help_check(command):
                 callback = lambda: None  # a function that does nothing
-            elif package_name == "Sync":
-                callback = self.init_data
+            elif package_name == "Sync Portage Tree":
+                callback = self.sync_callback #self.init_data
             else:
                 callback = self.reload_db
                 #callback = self.package_update
@@ -706,12 +630,12 @@ class MainWindow:
 
     def sync_tree(self, widget):
         """Sync the portage tree and reload it when done."""
-        sync = "emerge sync"
+        sync = self.prefs.globals.Sync
         if self.prefs.emerge.verbose:
             sync += " --verbose"
         if self.prefs.emerge.nospinner:
             sync += " --nospinner "
-        self.setup_command("Emerge Sync", sync)
+        self.setup_command("Sync Portage Tree", sync)
 
     def on_cancel_btn(self, widget):
         """cancel button callback function"""
