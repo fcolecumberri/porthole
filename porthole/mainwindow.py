@@ -771,6 +771,15 @@ class MainWindow:
         tmp_search_term = self.wtree.get_widget("search_entry").get_text()
         #dprint(tmp_search_term)
         if tmp_search_term:
+            # change view and statusbar so user knows it's searching.
+            # This won't actually do anything unless we thread the search.
+            self.widget["view_filter"].set_history(SHOW_SEARCH)
+            self.search_loaded = True # or else v_f_c() tries to call package_search again
+            self.view_filter_changed(self.widget["view_filter"])
+            if self.prefs.main.search_desc:
+                self.set_statusbar2(_("Searching descriptions for %s") % tmp_search_term)
+            else:
+                self.set_statusbar2(_("Searching for %s") % tmp_search_term)
             search_term = ''
             Plus_exeption_count = 0
             for char in tmp_search_term:
@@ -826,7 +835,6 @@ class MainWindow:
                                          detail = None))
                     package_list[name] = data
             search_results.size = count  # store number of matches
-            self.widget["view_filter"].set_history(SHOW_SEARCH)
             # in case the search view was already active
             self.update_statusbar(SHOW_SEARCH)
             self.search_history[search_term] = package_list
@@ -856,14 +864,18 @@ class MainWindow:
 
     def category_changed(self, category):
         """Catch when the user changes categories."""
+        mode = self.widget["view_filter"].get_history()
         # log the new category for reloads
-        self.current_category = category
-        self.current_category_cursor = self.category_view.get_cursor()
+        if mode != SHOW_SEARCH:
+            self.current_category = category
+            self.current_category_cursor = self.category_view.get_cursor()
+        else:
+            self.current_search = category
+            self.current_search_cursor = self.category_view.get_cursor()
         if not self.reload:
             self.current_package_cursor = None
         #dprint("Category cursor = " +str(self.current_category_cursor))
         #dprint(self.current_category_cursor[0][1])
-        mode = self.widget["view_filter"].get_history()
         if mode == SHOW_SEARCH:
             packages = self.search_history[category]
         elif not category or self.current_category_cursor[0][1] == None:
@@ -969,7 +981,55 @@ class MainWindow:
                 index == SHOW_ALL and self.db.categories.keys()
                 or self.db.installed.keys())
             self.package_view.set_view(self.package_view.PACKAGES)
+            self.package_view._init_view()
             self.package_view.clear()
+            cat = self.current_category
+            dprint("MAINWINDOW: view_filter_changed(): current category '%s'" % cat)
+            if "-" in str(cat):
+                model = self.category_view.get_model()
+                # find path of category
+                catmaj, catmin = cat.split("-")
+                iter = model.get_iter_first()
+                catpath = None
+                #dprint("catmaj, catmin = %s, %s" % (catmaj, catmin))
+                while iter:
+                    #dprint("value at iter %s: %s" % (iter, model.get_value(iter, 0)))
+                    if catmaj == model.get_value(iter, 0):
+                        kids = model.iter_n_children(iter)
+                        while kids: # this will count backwards, but hey so what
+                            kiditer = model.iter_nth_child(iter, kids - 1)
+                            if catmin == model.get_value(kiditer, 0):
+                                catpath = model.get_path(kiditer)
+                                break
+                            kids -= 1
+                        if catpath: break
+                    iter = model.iter_next(iter)
+                dprint(catpath)
+                if catpath:
+                    self.category_view.expand_to_path(catpath)
+                    self.category_view.last_category = None # so it thinks it's changed
+                    self.category_view.set_cursor(catpath)
+                    #self.category_view._clicked(self.category_view)
+                    # now reselect whatever package we had selected
+                    packname = self.current_package_name
+                    model = self.package_view.get_model()
+                    iter = model.get_iter_first()
+                    path = None
+                    while iter:
+                        #dprint("value at iter %s: %s" % (iter, model.get_value(iter, 0)))
+                        if model.get_value(iter, 0) == packname:
+                            path = model.get_path(iter)
+                            self.package_view._last_selected = None
+                            self.package_view.set_cursor(path)
+                            break
+                        iter = model.iter_next(iter)
+                    if not path:
+                        self.clear_notebook()
+                else:
+                    dprint("MAINWINDOW: view_filter_changed(): no category path found")
+                    self.clear_notebook()
+                self.last_view_setting = index
+                return
         elif index == SHOW_SEARCH:
             self.category_view.set_search(True)
             if not self.search_loaded:
@@ -1001,10 +1061,10 @@ class MainWindow:
         #if self.last_view_setting != index:
         dprint("MAINWINDOW: view_filter_changed(); last_view_setting changed")
         self.last_view_setting = index
-        self.current_category = None
-        self.category_view.last_category = None
-        self.current_category_cursor = None
-        self.current_package_cursor = None
+        #self.current_category = None
+        #self.category_view.last_category = None
+        #self.current_category_cursor = None
+        #self.current_package_cursor = None
             
 
     def load_upgrades_list(self):

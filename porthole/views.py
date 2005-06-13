@@ -317,7 +317,7 @@ class PackageView(CommonTreeView):
         if not package:
             self.mainwindow_callback("package changed", None)
             return False
-        if self.toggle != None:
+        if self.toggle != None: # for upgrade view
             iter = self.get_model().get_iter(self.toggle)
             check = self.upgrade_model.get_value(iter, 1)
             self.upgrade_model.set_value(iter, 1, not check)
@@ -430,8 +430,9 @@ class PackageView(CommonTreeView):
                 iter = model.iter_next(iter)
                 gtk.threads_leave() 
             except Exception, e:
-                dprint("VIEWS: populate_info(); Thread 'package_info' hit exception '%s'. Retrying..." % str(e))
-            gtk.threads_leave() 
+                dprint("VIEWS: populate_info(); Thread 'package_info' hit exception '%s'. Skipping..." % str(e))
+                iter = model.iter_next(iter)
+                gtk.threads_leave() 
         if not (self.infothread_die): 
             gtk.threads_enter() 
             self.queue_draw() 
@@ -478,6 +479,7 @@ class CategoryView(CommonTreeView):
         #category = get_treeview_selection(treeview, 1)
         model, iter = treeview.get_selection().get_selected()
         if iter: category = model.get_value(iter, 1)
+        else: category = self.last_category
         # has the selection really changed?
         if category != self.last_category:
             dprint("VIEWS: category change detected")
@@ -498,7 +500,9 @@ class CategoryView(CommonTreeView):
         categories.sort()
         for cat in categories:
             try: catmaj, catmin = cat.split("-")
-            except: continue # quick fix to bug posted on forums
+            except:
+                dprint("VIEWS: CategoryView.populate(): can't split '%s'. Probably a search." % cat)
+                continue # quick fix to bug posted on forums
             if catmaj != last_catmaj:
                 cat_iter = self.model.insert_before(None, None)
                 self.model.set_value(cat_iter, 0, catmaj)
