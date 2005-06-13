@@ -335,7 +335,7 @@ class MainWindow:
     def sync_callback(self):
         """re-initializes portage so it uses the new metadata cache
            then init our db"""
-        self.re-init_portage()
+        self.re_init_portage()
         self.init_data()
 
     def get_sync_time(self):
