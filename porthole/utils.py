@@ -420,7 +420,7 @@ class PortholePreferences:
                         ["archlist", ["alpha", "amd64", "arm", "hppa", "ia64", "mips",
                                         "ppc", "ppc64", "s390", "sparc", "x86"]],
                         ["Sync", "emerge sync"],
-                        ["Sync_label", "My Sync"],
+                        ["Sync_label", "Sync"],
                         #                use the form " [sync-command, sync-label],
                         ["Sync_methods", [['emerge sync', 'Sync'], ['emerge webrsync', 'WebRsync'],
                                             ['#user defined', 'Uknown Sync']]],

@@ -54,6 +54,7 @@ import pygtk; pygtk.require('2.0')
 import gtk, gtk.glade, gobject
 import signal, os, pty, threading, time, sre, portagelib
 import datetime, pango, errno, string
+from dispatcher import Dispatcher
 
 if __name__ == "__main__":
     # setup our path so we can load our custom modules
@@ -297,7 +298,7 @@ class ProcessManager:
         self.window.connect('delete-event', self.confirm_delete)
         dprint("TERMINAL: show_window(); starting reader thread")
         # create the process reader
-        self.reader = ProcessOutputReader(self.process_done)
+        self.reader = ProcessOutputReader(Dispatcher(self.process_done))
         # start the reader
         self.reader.start()
         gobject.timeout_add(100, self.update)
@@ -365,16 +366,10 @@ class ProcessManager:
     def set_scroll(self,  vadjustment):
         """Sets autoscrolling on when moved to bottom of scrollbar"""
         #dprint("TERMINAL: set_scroll -- vadjustment")
-        #dprint(vadjustment)
-        #dprint(vadjustment.get_value())
-        #dprint(vadjustment.upper)
-        #dprint(vadjustment.page_size)
-        #dprint(self.term.buffer[self.term.current_tab].get_line_count())
         self.term.auto_scroll[self.term.current_tab] = ((vadjustment.upper - \
                                                         vadjustment.get_value()) - \
                                                         vadjustment.page_size < \
                                                          (SLIDER_CLOSE_ENOUGH * vadjustment.page_size))
-        #dprint(self.term.auto_scroll[self.term.current_tab])
         return
 
     def on_size_request(self, window, gbox):
@@ -962,7 +957,7 @@ class ProcessManager:
                 self.term.buffer[TAB_INFO].set_modified(True)
         return
 
-    def process_done(self):
+    def process_done(self, *args):
         """ Remove the finished process from the queue, and
         start the next one if there are any more to be run"""
         # Prevent conflicts while changing process queue
@@ -1665,11 +1660,11 @@ class terminal_notebook:
 
 class ProcessOutputReader(threading.Thread):
     """ Reads output from processes """
-    def __init__(self, finished_callback):
+    def __init__(self, dispatcher):
         """ Initialize """
         threading.Thread.__init__(self)
         # set callback
-        self.finished_callback = finished_callback
+        self.dispatcher = dispatcher
         self.setDaemon(1)  # quit even if this thread is still running
         self.process_running = False
         # initialize only, self.fd set by ProcessManager._run()
@@ -1732,7 +1727,7 @@ class ProcessOutputReader(threading.Thread):
                         self.file_input = False
                     else:
                         gtk.threads_enter()
-                        self.finished_callback()
+                        self.dispatcher()
                         gtk.threads_leave()
             else:
                 # sleep for .5 seconds before we check again
