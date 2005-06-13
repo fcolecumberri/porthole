@@ -34,7 +34,7 @@ from gettext import gettext as _
 from about import AboutDialog
 from utils import get_icon_for_package, get_icon_for_upgrade_package, is_root, dprint, \
      get_treeview_selection, YesNoDialog, SingleButtonDialog, environment, \
-     pretend_check, help_check #,  get_world
+     pretend_check, help_check, info_check #,  get_world
 #from process import ProcessWindow  # no longer used in favour of terminal and would need updating to be used
 from summary import Summary
 from terminal import ProcessManager
@@ -162,7 +162,7 @@ class MainWindow:
             self.wtree.get_widget("search_descriptions1").set_active(True)
         # setup a convienience tuple
         self.tool_widgets = ["emerge_package1","adv_emerge_package1","unmerge_package1","btn_emerge",
-                     "btn_adv_emerge","btn_unmerge", "btn_sync", "view_refresh"]
+                     "btn_adv_emerge","btn_unmerge", "btn_sync", "view_refresh", "view_filter"]
         self.widget = {}
         for x in self.tool_widgets:
             self.widget[x] = self.wtree.get_widget(x)
@@ -315,9 +315,16 @@ class MainWindow:
         self.set_statusbar2(self.status_root)
         return False
 
-    def reload_view(self, widget):
+    def reload_view(self, *widget):
         """reload the package view"""
-        pass
+        #if self.widget["view_filter"].get_history() == SHOW_UPGRADE:
+        self.package_view.clear()
+        self.set_package_actions_sensitive(False, None)
+        self.category_view.populate(self.db.categories.keys())
+        # update the views by calling view_filter_changed
+        self.view_filter_changed(self.widget["view_filter"])
+        self.widget["view_refresh"].set_sensitive(False)
+        return
 
     def package_update(self, pkg):
         """callback function to update an individual package
@@ -456,11 +463,10 @@ class MainWindow:
             for x in ["menubar","toolbar","view_filter","search_entry","btn_search"]:
                 self.wtree.get_widget(x).set_sensitive(True)
             # make sure we search again if we reloaded!
-            view_filter = self.wtree.get_widget("view_filter")
-            if view_filter.get_history() == SHOW_SEARCH:
+            if self.widget["view_filter"].get_history() == SHOW_SEARCH:
                 #dprint("MAINWINDOW: update_db_read()... Search view")
                 # update the views by calling view_filter_changed
-                self.view_filter_changed(view_filter)
+                self.view_filter_changed(self.widget["view_filter"])
                 if self.reload:
                     # reset _last_selected so it thinks this package is new again
                     self.package_view._last_selected = None
@@ -468,8 +474,8 @@ class MainWindow:
                         # re-select the package
                         self.package_view.set_cursor(self.current_package_cursor[0],
                                                      self.current_package_cursor[1])
-            elif self.reload and (view_filter.get_history() == SHOW_ALL or \
-                                  view_filter.get_history() == SHOW_INSTALLED):
+            elif self.reload and (self.widget["view_filter"].get_history() == SHOW_ALL or \
+                                  self.widget["view_filter"].get_history() == SHOW_INSTALLED):
                 #dprint("MAINWINDOW: update_db_read()... self.reload=True ALL or INSTALLED view")
                 # reset _last_selected so it thinks this category is new again
                 self.category_view._last_category = None
@@ -488,17 +494,16 @@ class MainWindow:
                         self.package_view.set_cursor(self.current_package_path,
                                                      self.current_package_cursor[1])
             else:
-                pass ## hmm, don't mess with upgrade list after an emerge finishes.
-                #dprint("MAINWINDOW: update_db_read()... must be an upgradeable view")
-                #self.package_view.clear()
-                #self.set_package_actions_sensitive(False, None)
-                #self.category_view.populate(self.db.categories.keys(), self.current_category)
-                # update the views by calling view_filter_changed
-                #self.view_filter_changed(view_filter)
+                if self.reload:
+                    #dprint("MAINWINDOW: update_db_read()... must be an upgradeable view")
+                    self.widget['view_refresh'].set_sensitive(True)
+                    ## hmm, don't mess with upgrade list after an emerge finishes.
+                else:
+                    self.reload_view()
             dprint("MAINWINDOW: Made it thru a reload, returning...")
             self.progress_done(False)
             if not self.reload:
-                self.view_filter_changed(view_filter)
+                self.view_filter_changed(self.widget["view_filter"])
             self.reload = False
             return False  # disconnect from timeout
         #dprint("MAINWINDOW: returning from update_db_read() count=%d dbtime=%d"  %(count, self.dbtime))
@@ -528,7 +533,8 @@ class MainWindow:
         """Setup the command to run or not"""
         if self.is_root or (self.prefs.emerge.pretend and
                             command[:11] != self.prefs.globals.Sync):
-            if self.prefs.emerge.pretend or pretend_check(command) or help_check(command):
+            if self.prefs.emerge.pretend or pretend_check(command) or help_check(command)\
+                or info_check(command):
                 callback = lambda: None  # a function that does nothing
             elif package_name == "Sync Portage Tree":
                 callback = self.sync_callback #self.init_data
@@ -563,13 +569,12 @@ class MainWindow:
         self.prefs.emerge.upgradeonly = widget.get_active()
         # reset the upgrades list due to the change
         self.upgrades_loaded = False
-        view_filter = self.wtree.get_widget("view_filter")
-        if view_filter.get_history() == SHOW_UPGRADE:
+        if self.widget["view_filter"].get_history() == SHOW_UPGRADE:
                 #dprint("MAINWINDOW: upgradeonly_set()...reload upgradeable view")
                 self.package_view.clear()
                 self.set_package_actions_sensitive(False, None)
                 # update the views by calling view_filter_changed
-                self.view_filter_changed(view_filter)
+                self.view_filter_changed(self.widget["view_filter"])
 
     def search_set(self, widget):
         """Set whether or not to search descriptions"""
@@ -715,7 +720,7 @@ class MainWindow:
             self.upgrades_loaded_callback = self.upgrade_packages
         else:
             # load the upgrades view to select which packages
-            self.wtree.get_widget("view_filter").set_history(3)
+            self.widget["view_filter"].set_history(SHOW_UPGRADE)
         # get rid of the dialog
         self.upgrades_loaded_dialog.destroy()
 
@@ -821,7 +826,7 @@ class MainWindow:
                                          detail = None))
                     package_list[name] = data
             search_results.size = count  # store number of matches
-            self.wtree.get_widget("view_filter").set_history(SHOW_SEARCH)
+            self.widget["view_filter"].set_history(SHOW_SEARCH)
             # in case the search view was already active
             self.update_statusbar(SHOW_SEARCH)
             self.search_history[search_term] = package_list
@@ -858,7 +863,7 @@ class MainWindow:
             self.current_package_cursor = None
         #dprint("Category cursor = " +str(self.current_category_cursor))
         #dprint(self.current_category_cursor[0][1])
-        mode = self.wtree.get_widget("view_filter").get_history()
+        mode = self.widget["view_filter"].get_history()
         if mode == SHOW_SEARCH:
             packages = self.search_history[category]
         elif not category or self.current_category_cursor[0][1] == None:
@@ -954,6 +959,7 @@ class MainWindow:
         """Update the treeviews for the selected filter"""
         dprint("MAINWINDOW: view_filter_changed()")
         index = widget.get_history()
+        dprint("MAINWINDOW: view_filter_changed(); index = %d" %index)
         self.update_statusbar(index)
         cat_scroll = self.wtree.get_widget("category_scrolled_window")
         self.category_view.set_search( False )
@@ -965,7 +971,7 @@ class MainWindow:
             self.package_view.set_view(self.package_view.PACKAGES)
             self.package_view.clear()
         elif index == SHOW_SEARCH:
-            self.category_view.set_search( True )
+            self.category_view.set_search(True)
             if not self.search_loaded:
                 self.set_package_actions_sensitive(False, None)
                 self.category_view.populate(self.search_history.keys())
@@ -1039,8 +1045,7 @@ class MainWindow:
             if self.ut.cancelled:
                 return False
             self.upgrades_loaded = True
-            view_filter = self.wtree.get_widget("view_filter")
-            self.view_filter_changed(view_filter)
+            self.view_filter_changed(self.widget["view_filter"])
             if self.upgrades_loaded_callback:
                 self.upgrades_loaded_callback(None)
                 self.upgrades_loaded_callback = None

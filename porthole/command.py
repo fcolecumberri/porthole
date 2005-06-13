@@ -39,7 +39,8 @@ class RunDialog:
         callbacks = {"on_help" : self.help,
                      "on_execute" : self.execute,
                      "on_cancel" : self.cancel,
-                     "on_comboboxentry1_changed" : self.command_changed}
+                     "on_comboboxentry1_changed" : self.command_changed
+                    }
         self.wtree.signal_autoconnect(callbacks)
         self.command = None
         self.call_back = call_back
@@ -68,13 +69,7 @@ class RunDialog:
         
         # Set the comboboxentry to the new model
         self.combo.set_model(self.comboList)
-        cell = gtk.CellRendererText()
-        self.combo.pack_start(cell, True)
-        self.combo.add_attribute(cell, 'text', 0)
-        #self.combo.set_active(index) # select blank entry by default
-
-        #~ if len(self.history):
-            #~ self.combo.set_popdown_strings(self.history)
+        self.combo.set_text_column(0)
         self.entry.connect("activate", self.activate, self.command)
         if self.prefs:
             self.window.resize(self.prefs.run_dialog.width, 
@@ -139,7 +134,8 @@ class RunDialog:
     def command_changed(self,widget):
         """Updates the gtk.Entry with the history item selected"""
         dprint("COMMAND: changing entry item")
-        iter = self.combo.get_active_iter()
-        model = self.combo.get_model()
+        return # not needed at this time
+        model = widget.get_model()
+        iter = widget.get_active_iter()
         selection = model.get_value(iter, 0)
-        self.entry.set_text(selection)
+        

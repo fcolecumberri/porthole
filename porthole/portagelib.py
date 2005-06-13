@@ -190,7 +190,7 @@ def get_installed(package_name):
     package_name can be the short package name ('eric'), long package name ('dev-util/eric')
     or a version-matching string ('>=dev-util/eric-2.5.1')
     """
-    return portage.db['/']['vartree'].dep_match(package_name)
+    return portage.db['/']['vartree'].dep_match(str(package_name))
 
 def xmatch(*args):
     """Pass arguments on to portage's caching match function.
@@ -341,6 +341,7 @@ def get_digest( ebuild ):
 
 def get_properties(ebuild):
     """Get all ebuild variables in one chunk."""
+    ebuild = str(ebuild) #just in case
     if portage.portdb.cpv_exists(ebuild): # if in portage tree
         return Properties(dict(zip(keys, portage.portdb.aux_get(ebuild, portage.auxdbkeys))))
     else:
@@ -499,7 +500,7 @@ class Package:
         if self.hard_masked_nocheck == None:
             hardmasked = []
             try:
-                for x in portage.portdb.mysettings.pmaskdict[self.full_name]:
+                for x in portage.portdb.mysettings.pmaskdict[str(self.full_name)]:
                     m = portage.portdb.xmatch("match-all",x)
                     for n in m:
                         if n not in hardmasked: hardmasked.append(n)
@@ -507,7 +508,7 @@ class Package:
                 pass
             self.hard_masked_nocheck = hardmasked
             try:
-                for x in portage.portdb.mysettings.punmaskdict[self.full_name]:
+                for x in portage.portdb.mysettings.punmaskdict[str(self.full_name)]:
                     m = portage.portdb.xmatch("match-all",x)
                     for n in m:
                         while n in hardmasked: hardmasked.remove(n)

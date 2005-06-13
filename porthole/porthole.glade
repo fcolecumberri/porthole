@@ -659,12 +659,23 @@
 	    <widget class="GtkButton" id="view_refresh">
 	      <property name="border_width">3</property>
 	      <property name="visible">True</property>
+	      <property name="tooltip" translatable="yes">Refresh the Current View</property>
 	      <property name="can_focus">True</property>
-	      <property name="label">gtk-refresh</property>
-	      <property name="use_stock">True</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>
 	      <property name="focus_on_click">True</property>
 	      <signal name="clicked" handler="on_view_refresh" last_modification_time="Sun, 12 Jun 2005 04:35:13 GMT"/>
+
+	      <child>
+		<widget class="GtkImage" id="image400">
+		  <property name="visible">True</property>
+		  <property name="stock">gtk-refresh</property>
+		  <property name="icon_size">4</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		</widget>
+	      </child>
 	    </widget>
 	    <packing>
 	      <property name="padding">0</property>
@@ -2336,6 +2347,7 @@ Copyright (C) 2003 - 2004</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>
 	      <property name="focus_on_click">True</property>
 	      <property name="response_id">0</property>
+	      <signal name="clicked" handler="on_help" last_modification_time="Mon, 13 Jun 2005 04:51:08 GMT"/>
 	    </widget>
 	  </child>
 
@@ -2349,6 +2361,7 @@ Copyright (C) 2003 - 2004</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>
 	      <property name="focus_on_click">True</property>
 	      <property name="response_id">-6</property>
+	      <signal name="clicked" handler="on_cancel" last_modification_time="Mon, 13 Jun 2005 04:51:29 GMT"/>
 	    </widget>
 	  </child>
 
@@ -2362,6 +2375,7 @@ Copyright (C) 2003 - 2004</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>
 	      <property name="focus_on_click">True</property>
 	      <property name="response_id">0</property>
+	      <signal name="clicked" handler="on_execute" last_modification_time="Mon, 13 Jun 2005 04:51:52 GMT"/>
 	    </widget>
 	  </child>
 	</widget>

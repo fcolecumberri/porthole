@@ -421,6 +421,7 @@ class PortholePreferences:
                                         "ppc", "ppc64", "s390", "sparc", "x86"]],
                         ["Sync", "emerge sync"],
                         ["Sync_label", "My Sync"],
+                        #                use the form " [sync-command, sync-label],
                         ["Sync_methods", [['emerge sync', 'Sync'], ['emerge webrsync', 'WebRsync'],
                                             ['#user defined', 'Uknown Sync']]],
         ]
@@ -703,3 +704,7 @@ def pretend_check(command_string):
 
 def help_check(command_string):
     return (sre.search("--help", command_string) != None)
+
+def info_check(command_string):
+    return (sre.search("emerge info", command_string) != None)
+

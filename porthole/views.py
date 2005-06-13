@@ -249,6 +249,7 @@ class PackageView(CommonTreeView):
         elif self.current_view == self.SEARCH_RESULTS:
             self.set_model(self.search_model)
         else:
+            dprint("VIEWS: Package_view._set_model(); changing to upgrades view")
             self.set_model(self.upgrade_model)
 
     def register_callbacks(self, callback = None):
