@@ -80,6 +80,33 @@ class PackageView(CommonTreeView):
         self.SEARCH_RESULTS = 1
         self.UPGRADABLE = 2
 
+        # create popup menu for rmb-click
+        arch = "~" + portagelib.get_arch()
+        menu = gtk.Menu()
+        menuitems = {}
+        menuitems["emerge"] = gtk.MenuItem(_("Emerge"))
+        menuitems["emerge"].connect("activate", self.emerge)
+        menuitems["pretend-emerge"] = gtk.MenuItem(_("Pretend Emerge"))
+        menuitems["pretend-emerge"].connect("activate", self.emerge, True)
+        menuitems["unmerge"] = gtk.MenuItem(_("Unmerge"))
+        menuitems["unmerge"].connect("activate", self.unmerge)
+        menuitems["add-keyword"] = gtk.MenuItem(_("Append with %s to package.keywords") % arch)
+        menuitems["add-keyword"].connect("activate", self.add_keyword)
+        menuitems["deselect_all"] = gtk.MenuItem(_("De-Select all"))
+        menuitems["deselect_all"].connect("activate", self.deselect_all)
+        menuitems["select_all"] = gtk.MenuItem(_("Select all"))
+        menuitems["select_all"].connect("activate", self.select_all)
+        
+        for item in menuitems.values():
+            menu.append(item)
+            item.show()
+        
+        self.popup_menu = menu
+        self.popup_menuitems = menuitems
+        self.dopopup = None
+        self.event = None
+        self.toggle = None
+        
         # setup the treecolumn
         self._column = gtk.TreeViewColumn(_("Packages"))
         self._column.set_resizable(True)
@@ -121,30 +148,7 @@ class PackageView(CommonTreeView):
         self.search_model.size = 0
         # set the view
         self.set_view(self.PACKAGES) # default view
-        
-        # create popup menu for rmb-click
-        menu = gtk.Menu()
-        menuitems = {}
-        menuitems["emerge"] = gtk.MenuItem(_("Emerge"))
-        menuitems["emerge"].connect("activate", self.emerge)
-        menuitems["pretend-emerge"] = gtk.MenuItem(_("Pretend Emerge"))
-        menuitems["pretend-emerge"].connect("activate", self.emerge, True)
-        menuitems["unmerge"] = gtk.MenuItem(_("Unmerge"))
-        menuitems["unmerge"].connect("activate", self.unmerge)
-        arch = "~" + portagelib.get_arch()
-        menuitems["add-keyword"] = gtk.MenuItem(_("Append with %s to package.keywords") % arch)
-        menuitems["add-keyword"].connect("activate", self.add_keyword)
-        
-        for item in menuitems.values():
-            menu.append(item)
-            item.show()
-        
-        self.popup_menu = menu
-        self.popup_menuitems = menuitems
-        self.dopopup = None
-        self.event = None
-        self.toggle = None
-        
+
         # connect to clicked event
         self.connect("cursor_changed", self._clicked)
         self.connect("button_press_event", self.on_button_press)
@@ -246,11 +250,17 @@ class PackageView(CommonTreeView):
         """ Set the correct treemodel for the current view """
         if self.current_view == self.PACKAGES:
             self.set_model(self.package_model)
+            self.popup_menuitems["deselect_all"].hide()
+            self.popup_menuitems["select_all"].hide()
         elif self.current_view == self.SEARCH_RESULTS:
             self.set_model(self.search_model)
+            self.popup_menuitems["deselect_all"].hide()
+            self.popup_menuitems["select_all"].hide()
         else:
             dprint("VIEWS: Package_view._set_model(); changing to upgrades view")
             self.set_model(self.upgrade_model)
+            self.popup_menuitems["deselect_all"].show()
+            self.popup_menuitems["select_all"].show()
 
     def register_callbacks(self, callback = None):
         """ Callback to MainWindow.
@@ -438,6 +448,17 @@ class PackageView(CommonTreeView):
             self.queue_draw() 
             gtk.threads_leave() 
         dprint("VIEWS: populate_info(); Package info populated")
+
+    def deselect_all(self, widget):
+        """upgrades view deselect all packages callback"""
+        dprint("VIEWS: deselect_all(); right click menu call")
+        pass
+
+    def select_all(self, widget):
+        """upgrades view deselect all packages callback"""
+        dprint("VIEWS: select_all(); right click menu call")
+        pass
+
 
 class CategoryView(CommonTreeView):
     """ Self contained treeview to hold categories """
