@@ -336,7 +336,9 @@ class MainWindow:
         """re-initializes portage so it uses the new metadata cache
            then init our db"""
         self.re_init_portage()
-        self.init_data()
+        # self.reload==False is currently broken for init_data when reloading after a sync
+        #self.init_data() 
+        self.reload_db()
 
     def get_sync_time(self):
         """gets and returns the timestamp info saved during
@@ -535,7 +537,8 @@ class MainWindow:
                             command[:11] != self.prefs.globals.Sync):
             if self.prefs.emerge.pretend or pretend_check(command) or help_check(command)\
                 or info_check(command):
-                callback = lambda: None  # a function that does nothing
+                # temp set callback for testing
+                callback = self.sync_callback #lambda: None  # a function that does nothing
             elif package_name == "Sync Portage Tree":
                 callback = self.sync_callback #self.init_data
             else:

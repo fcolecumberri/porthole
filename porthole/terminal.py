@@ -830,7 +830,7 @@ class ProcessManager:
                         self.escape_seq += char
                     if char == 'm':
                         self.catch_seq = False
-                        dprint('escape_seq = ' + self.escape_seq)
+                        #dprint('escape_seq = ' + self.escape_seq)
                         self.escape_seq = ""
                 elif char == '\b' : # backspace
                     self.process_buffer = self.process_buffer[:-1]
