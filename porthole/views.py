@@ -452,13 +452,17 @@ class PackageView(CommonTreeView):
     def deselect_all(self, widget):
         """upgrades view deselect all packages callback"""
         dprint("VIEWS: deselect_all(); right click menu call")
-        pass
+        model = self.get_model()
+        model.foreach(self.set_select, False)
 
     def select_all(self, widget):
         """upgrades view deselect all packages callback"""
         dprint("VIEWS: select_all(); right click menu call")
-        pass
+        model = self.get_model()
+        model.foreach(self.set_select, True)
 
+    def set_select(self, model, path, iter, selected):
+        model.set_value(iter, 1, selected)
 
 class CategoryView(CommonTreeView):
     """ Self contained treeview to hold categories """
