@@ -692,10 +692,10 @@ class MainWindow:
                 if not self.packages_list[key]:
                         dprint("MAINWINDOW: upgrade_packages(); dependancy selected: " + key)
                         if not self.setup_command(key, "emerge --oneshot" +
-                                self.prefs.emerge.get_string() + key.split('/')[1]):
+                                self.prefs.emerge.get_string() + key[:]): #use the full name
                             return
                 elif not self.setup_command(key, "emerge " +
-                                self.prefs.emerge.get_string() + ' ' + key.split('/')[1]):
+                                self.prefs.emerge.get_string() + ' ' + key[:]): #use the full name
                     return
         else:
             dprint("MAIN: Upgrades not loaded; upgrade world?")
