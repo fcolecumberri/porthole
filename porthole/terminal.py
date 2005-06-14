@@ -127,23 +127,40 @@ class ProcessManager:
         for key in self.prefs.TAG_DICT:
             for process_tab in [TAB_PROCESS, TAB_WARNING, TAB_CAUTION, TAB_INFO]:
                 text_tag = self.prefs.TAG_DICT[key] 
-                if text_tag[0] == '':
-                    if text_tag[1] == '':
-                        self.term.buffer[process_tab].create_tag(key,\
-                            weight=text_tag[2])
-                    else:
-                        self.term.buffer[process_tab].create_tag(key,\
-                            background=text_tag[1],\
-                            weight=text_tag[2])
-                elif text_tag[1] == '':
-                    self.term.buffer[process_tab].create_tag(key,\
-                        foreground=text_tag[0],\
-                        weight=text_tag[2])
-                else:
-                    self.term.buffer[process_tab].create_tag(key,\
-                        foreground=text_tag[0],\
-                        background=text_tag[1],\
-                        weight=text_tag[2])
+                argdict = {}
+                if text_tag[0]:
+                    argdict["foreground"] = text_tag[0]
+                if text_tag[1]:
+                    argdict["background"] = text_tag[1]
+                if text_tag[2]:
+                    argdict["weight"] = text_tag[2]
+                self.term.buffer[process_tab].create_tag(key, **argdict)
+        # shell format codes. Values defined with other tags in prefs.
+        self.esc_seq_dict = { \
+            0  : 'default',
+            1  : 'bold',
+            2  : 'light',
+            30 : 'fg_black',
+            31 : 'fg_red',
+            32 : 'fg_green',
+            33 : 'fg_yellow',
+            34 : 'fg_blue',
+            35 : 'fg_magenta',
+            36 : 'fg_cyan',
+            37 : 'fg_white',
+            38 : None,
+            39 : None,
+            40 : 'bg_black',
+            41 : 'bg_red',
+            42 : 'bg_green',
+            43 : 'bg_yellow',
+            44 : 'bg_blue',
+            45 : 'bg_magenta',
+            46 : 'bg_cyan',
+            47 : 'bg_white',
+            48 : None,
+            49 : None,
+        }
 
     def show_window(self):
         """ Show the process window """
@@ -193,7 +210,8 @@ class ProcessManager:
                      "on_move_up" : self.move_queue_item_up,
                      "on_move_down" : self.move_queue_item_down,
                      "on_remove" : self.remove_queue_item,
-                     "on_quit" : self.menu_quit}
+                     "on_quit" : self.menu_quit,
+                     "on_process_text_key_press_event" : self.on_pty_keypress}
         self.wtree.signal_autoconnect(callbacks)
         # get a mostly blank structure to hold a number of widgets & settings
         self.term = terminal_notebook()
@@ -204,6 +222,7 @@ class ProcessManager:
             self.term.buffer += [buffer]
             view = self.wtree.get_widget(x)
             self.term.view += [view]
+            self.term.last_text += ['\n']
             if x == "process_text" or self.prefs.terminal.all_tabs_use_custom_colors:
                 fg, bg, weight = self.prefs.TAG_DICT['default']
                 if bg != '':
@@ -230,12 +249,16 @@ class ProcessManager:
         self.queue_tree.connect("cursor-changed", self.queue_clicked)
         # process output buffer
         self.process_buffer = ''
+        self.line_buffer = ''
         # set some persistent variables for text capture
         self.catch_seq = False
         self.escape_seq = "" # to catch the escape sequence in
         self.first_cr = True  # first time cr is detected for a line
         self.overwrite_till_nl = False  # overwrite until after a '\n' detected for this line
         self.resume_line = None
+        self.lastchar = ''
+        self.cr_flag = False
+        self.b_flag = False
         # setup the queue treeview
         column = gtk.TreeViewColumn(_("Packages to be merged      "))
         pixbuf = gtk.CellRendererPixbuf()
@@ -266,6 +289,8 @@ class ProcessManager:
         # initialize to None
         self.pid = None
         # Set formatting tags now that tabs are established
+        self.current_tagnames = ['default']
+        self.esc_seq_dict = {}
         self.set_tags()
         # text mark to mark the start of the current command
         self.command_start = None
@@ -302,6 +327,8 @@ class ProcessManager:
         # start the reader
         self.reader.start()
         gobject.timeout_add(100, self.update)
+        # set keyboard focus to process tab
+        self.wtree.get_widget("process_text").grab_focus()
 
         if self.prefs:
             self.window.resize((self.prefs.emerge.verbose and
@@ -749,7 +776,7 @@ class ProcessManager:
         end.forward_line()
         self.term.buffer[num].delete(iter, end)
         if tagname == None:
-           self.term.buffer[num].insert(iter, text)
+           self.term.buffer[num].insert_with_tags_by_name(iter, text, *self.current_tagnames)
         else:
            self.term.buffer[num].insert_with_tags_by_name(iter, text, tagname)
 
@@ -771,13 +798,17 @@ class ProcessManager:
         line_number = self.term.buffer[TAB_PROCESS].get_line_count() 
         iter = self.term.buffer[num].get_end_iter()
         lntext = str(line_number).zfill(6) + ' '
-        self.term.buffer[num].insert_with_tags_by_name(iter, lntext, 'linenumber')
+        if self.term.last_text[num].endswith('\n'):
+            self.term.buffer[num].insert_with_tags_by_name(iter, lntext, 'linenumber')
         if tagname == None:
-           self.term.buffer[num].insert(iter, text)
+            #self.term.buffer[num].insert(iter, text)
+            #dprint("TERMINAL: append(): attempting to set text with tagnames %s" % self.current_tagnames)
+            self.term.buffer[num].insert_with_tags_by_name(iter, text, *self.current_tagnames)
         else:
-           self.term.buffer[num].insert_with_tags_by_name(iter, text, tagname)
+            self.term.buffer[num].insert_with_tags_by_name(iter, text, tagname)
         if self.term.auto_scroll[num] and num == self.term.current_tab:
             self.scroll_current_view()
+        self.term.last_text[num] = text
 
     def append_all(self, text, all = False, tag = None):
         """ Append text to all buffers """
@@ -796,7 +827,7 @@ class ProcessManager:
         """ Add text to the buffer """
         # stores line of text in buffer
         # if the string is locked, we'll get it on the next round
-        cr_flag = False   # Carriage Return flag
+        #cr_flag = False   # Carriage Return flag
         if not self.window_visible or self.reader.string_locked:
             return True
         # lock the string
@@ -805,7 +836,7 @@ class ProcessManager:
             if char:
                 #dprint("TERMINAL: adding text to buffer: %s, %s" % (char, ord(char)))
                 # if we find a CR without a LF, switch to overwrite mode
-                if cr_flag:
+                if self.cr_flag:
                     if char != '\n':
                         tag = None
                         if self.first_cr:
@@ -814,104 +845,131 @@ class ProcessManager:
                             self.first_cr = False
                             self.overwrite_till_nl = True
                             self.process_buffer = ''
+                            self.line_buffer = ''
                         # overwrite until after a '\n' detected for this line
                         else:
                             #dprint("TERMINAL: self.first_cr = False")
                             self.overwrite(TAB_PROCESS, self.process_buffer, tag)
                             self.process_buffer = ''
+                            self.line_buffer = ''
                     else:
                         # reset for next time
                         self.first_cr = True
-                    cr_flag = False
+                    self.cr_flag = False
                 # catch portage escape sequence NOCOLOR bugs
                 if ord(char) == 27 or self.catch_seq:
                     self.catch_seq = True
-                    if ord(char) != 27:
+                    if ord(char) == 27:
+                        self.append(TAB_PROCESS, self.process_buffer, None)
+                        self.process_buffer = ''
+                    else:
                         self.escape_seq += char
                     if char == 'm':
                         self.catch_seq = False
                         #dprint('escape_seq = ' + self.escape_seq)
-                        self.escape_seq = ""
+                        self.parse_escape_sequence(self.escape_seq)
+                        self.escape_seq = ''
                 elif char == '\b' : # backspace
+                    # this is used when portage prints ">>> Updating Portage Cache"
+                    # it uses backspaces to update the number. So on each update
+                    # we display the old value (better than waiting for \n)
+                    # (it's also used for the spinner)
+                    if self.lastchar != '\b': # i.e. starting to delete old value
+                        if not self.b_flag: # initial display
+                            self.append(TAB_PROCESS, self.line_buffer)
+                        else: # every other display until \n is found
+                            self.overwrite(TAB_PROCESS, self.line_buffer)
                     self.process_buffer = self.process_buffer[:-1]
+                    self.line_buffer = self.line_buffer[:-1]
+                    self.b_flag = True
+                    self.overwrite_till_nl = True
                 elif ord(char) == 13:  # carriage return
-                    cr_flag = True
+                    self.cr_flag = True
                 elif 32 <= ord(char) <= 127 or char == '\n': # no unprintable
                     self.process_buffer += char
+                    self.line_buffer += char
                     if char == '\n': # newline
                         tag = None
-                        
-                        if self.config.isEmerge(self.process_buffer):
+                        self.b_flag = False
+                        if self.line_buffer != self.process_buffer:
+                            overwrite = True
+                        else:
+                            overwrite = False
+                        #if self.config.isEmerge(self.process_buffer):
+                        if self.config.isEmerge(self.line_buffer):
                             # add the pkg info to all other tabs to identify fom what
                             # pkg messages came from but no need to show it if it isn't
                             tag = 'emerge'
-                            self.append(TAB_INFO, self.process_buffer, tag)
-                            self.append(TAB_WARNING, self.process_buffer, tag)
+                            self.append(TAB_INFO, self.line_buffer, tag)
+                            self.append(TAB_WARNING, self.line_buffer, tag)
                             if not self.file_input:
-                                self.set_file_name(self.process_buffer)
-                                self.set_statusbar(self.process_buffer[:-1])
-                                self.resume_line = self.process_buffer
+                                self.set_file_name(self.line_buffer)
+                                self.set_statusbar(self.line_buffer[:-1])
+                                self.resume_line = self.line_buffer
                                 if self.callback_armed:
                                     self.do_callback()
                                     self.callback_armed = False
-
-                        elif self.config.isInfo(self.process_buffer):
+                        
+                        #elif self.config.isInfo(self.process_buffer):
+                        elif self.config.isInfo(self.line_buffer):
                             # Info string has been found, show info tab if needed
                             if not self.term.tab_showing[TAB_INFO]:
                                 self.show_tab(TAB_INFO)
                                 self.term.buffer[TAB_INFO].set_modified(True)
-
+                            
                             # Check for fatal error
-                            if self.config.isError(self.process_buffer):
+                            #if self.config.isError(self.process_buffer):
+                            if self.config.isError(self.line_buffer):
                                 self.Failed = True
                                 tag = 'error'
-                                self.append(TAB_INFO, self.process_buffer,'error')
+                                self.append(TAB_INFO, self.line_buffer, tag)
                             else:
                                 tag = 'info'
-                                self.append(TAB_INFO, self.process_buffer)
-                                
+                                self.append(TAB_INFO, self.line_buffer)
+                            
                             # Check if the info is ">>> category/package-version merged"
                             # then set the callback to return the category/package to update the db
                             #dprint("TERMINAL: update(); checking info line: %s" %self.process_buffer)
-                            if (not self.file_input) and self.config.isMerged(self.process_buffer):
-                                self.callback_package = self.process_buffer.split()[1]
+                            if (not self.file_input) and self.config.isMerged(self.line_buffer):
+                                self.callback_package = self.line_buffer.split()[1]
                                 self.callback_armed = True
-                                dprint("TERMINAL: update(); Sucessfull merge of package: %s detected" %self.callback_package)
+                                dprint("TERMINAL: update(); Sucessfull merge of package: %s detected" % self.callback_package)
                             #else:
                                 #dprint("TERMINAL: update(); merge not detected")
-
-
-                        elif self.config.isWarning(self.process_buffer):
+                        
+                        elif self.config.isWarning(self.line_buffer):
                             # warning string has been found, show info tab if needed
                             if not self.term.tab_showing[TAB_WARNING]:
                                 self.show_tab(TAB_WARNING)
                                 self.term.buffer[TAB_WARNING].set_modified(True)
                             # insert the line into the info text buffer
                             tag = 'warning'
-                            self.append(TAB_WARNING, self.process_buffer)
+                            self.append(TAB_WARNING, self.line_buffer)
                             self.warning_count += 1
-
-                        elif self.config.isCaution(self.process_buffer):
+                        
+                        elif self.config.isCaution(self.line_buffer):
                             # warning string has been found, show info tab if needed
                             if not self.term.tab_showing[TAB_CAUTION]:
                                 self.show_tab(TAB_CAUTION)
                                 self.term.buffer[TAB_CAUTION].set_modified(True)
                             # insert the line into the info text buffer
                             tag = 'caution'
-                            self.append(TAB_CAUTION, self.process_buffer)
+                            self.append(TAB_CAUTION, self.line_buffer)
                             self.caution_count += 1
-
+                        
                         if self.overwrite_till_nl:
                             #dprint("TERMINAL: '\\n' detected in overwrite mode")
-                            self.overwrite(TAB_PROCESS, self.process_buffer, tag)
+                            self.overwrite(TAB_PROCESS, self.line_buffer[:-1], tag)
+                            self.append(TAB_PROCESS, '\n', tag)
                             self.overwrite_till_nl = False
+                        elif overwrite and tag:
+                            self.overwrite(TAB_PROCESS, self.line_buffer[:-1], tag)
+                            self.append(TAB_PROCESS, '\n', tag)
                         else:
                             self.append(TAB_PROCESS, self.process_buffer, tag)
                         self.process_buffer = ''  # reset buffer
-            elif self.process_buffer == ">>> Updating Portage cache...":
-                # print it to screen so the user knows what is happening
-                self.append(TAB_PROCESS, self.process_buffer, tag)
-                self.process_buffer = ''  # reset buffer
+                        self.line_buffer = ''
+                self.lastchar = char
         self.reader.string = ""
         #dprint("TERMINAL: update() checking file input/reader finished")
         if self.file_input and not self.reader.file_input: # reading file finished
@@ -924,7 +982,55 @@ class ProcessManager:
         # unlock the string
         self.reader.string_locked = False
         return True
-
+    
+    def parse_escape_sequence(self, sequence = "[39;49;00m"):
+        """Modifies the default text tag in response to colour change requests
+        from the emerge process.
+        """
+        #dprint("TERMINAL: parse_escape_sequence(): parsing '%s'" % sequence)
+        if not sequence.startswith("[") or not sequence.endswith("m"):
+            dprint("TERMINAL: parse_escqpe_sequence(): bad escape sequence '%s'" % sequence)
+            return False
+        if ";" in sequence:
+            terms = sequence[1:-1].split(";")
+        else:
+            terms = [sequence[1:-1]]
+        fg_tagname = None
+        bg_tagname = None
+        weight_tagname = None
+        for item in terms:
+            item = int(item)
+            if 0 <= item <= 1:
+                weight_tagname = self.esc_seq_dict[item]
+            elif 30 <= item <= 39:
+                fg_tagname = self.esc_seq_dict[item]
+            elif 40 <= item <= 49:
+                bg_tagname = self.esc_seq_dict[item]
+            else:
+                dprint("TERMINAL: parse_escape_sequence(): ignoring term '%s'" % item)
+        self.current_tagnames = []
+        if fg_tagname:
+            self.current_tagnames.append(fg_tagname)
+        if bg_tagname:
+            self.current_tagnames.append(bg_tagname)
+        if weight_tagname:
+            self.current_tagnames.append(weight_tagname)
+        if not self.current_tagnames:
+            self.current_tagnames = ['default']
+        #dprint("TERMINAL: parse_escape_sequence(): tagnames are %s" % self.current_tagnames)
+        return True
+    
+    def on_pty_keypress(self, widget, event):
+        """ Catch keypresses in the terminal process window, and forward
+        them on to the emerge process. Very low tech.
+        """
+        #dprint("TERMINAL: on_pty_keypress(): string %s" % event.string)
+        if self.reader.fd:
+            try:
+                os.write(self.reader.fd, event.string)
+            except OSError, e:
+                dprint("TERMINAL: on_pty_keypress(): Error with string %s. Error: %s" % (event.string, e))
+    
     def set_file_name(self, line):
         """extracts the ebuild name and assigns it to self.filename"""
         x = line.split("/")
@@ -1634,6 +1740,7 @@ class terminal_notebook:
         self.vhandler_id = [] #[None, None, None, None, None]
         self.auto_scroll = [True, False, False, False, False]
         self.end_mark = [] # hold the end of buffer text marks for autoscrolling
+        self.last_text = [] # keep a record of the last text entered
         self.get_tab_list() # initialize to default state
 
 

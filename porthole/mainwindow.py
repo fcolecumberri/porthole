@@ -170,7 +170,7 @@ class MainWindow:
                 dprint("MAINWINDOW: __init__(); Failure to obtain widget '%s'" %x)
         # get an empty tooltip
         self.synctooltip = gtk.Tooltips()
-        self.sync_tip = _(" Syncronise Package Database \n The last sync was done:\n")
+        self.sync_tip = _(" Synchronise Package Database \n The last sync was done:\n")
         # set the sync label to the saved one set in the options
         self.widget["btn_sync"].set_label(self.prefs.globals.Sync_label)
         self.widget["view_refresh"].set_sensitive(False)
@@ -183,7 +183,7 @@ class MainWindow:
             self.mainwindow.maximize()
         self.mainwindow.connect("window-state-event", self.on_window_state_event)
         # connect gtk callback for window movement and resize events
-        #self.mainwindow.connect("configure-event", self.size_update)
+        self.mainwindow.connect("configure-event", self.size_update)
         # move horizontal and vertical panes
         dprint("MAINWINDOW: __init__() before hpane; %d, vpane; %d" %(self.prefs.main.hpane, self.prefs.main.vpane))
         self.hpane = self.wtree.get_widget("hpane")
@@ -365,9 +365,9 @@ class MainWindow:
     def set_sync_tip(self):
         """Sets the sync tip for the new or old toolbar API"""
         if self.new_toolbar_API:
-            self.widget["btn_sync"].set_tooltip( self.synctooltip, self.sync_tip + self.last_sync)
+            self.widget["btn_sync"].set_tooltip(self.synctooltip, ' '.join([self.sync_tip, self.last_sync[:-1], '']))
         else:
-            self.synctooltip.set_tip(self.widget["btn_sync"], self.sync_tip + self.last_sync)
+            self.synctooltip.set_tip(self.widget["btn_sync"], ' '.join([self.sync_tip, self.last_sync[:-1], '']))
         #self.synctooltip.enable()
         
         
@@ -504,8 +504,8 @@ class MainWindow:
                     self.reload_view()
             dprint("MAINWINDOW: Made it thru a reload, returning...")
             self.progress_done(False)
-            if not self.reload:
-                self.view_filter_changed(self.widget["view_filter"])
+            #if not self.reload:
+            self.view_filter_changed(self.widget["view_filter"])
             self.reload = False
             return False  # disconnect from timeout
         #dprint("MAINWINDOW: returning from update_db_read() count=%d dbtime=%d"  %(count, self.dbtime))
@@ -1194,30 +1194,15 @@ class MainWindow:
             self.widget["unmerge_package1"].set_sensitive(not enabled)
         self.notebook.set_sensitive(enabled)
 
-##    def size_update(self, widget, event):
-##        #dprint("MAINWINDOW: size_update(); called.")
-##        """ Store the window and pane positions """
-##        # bugfix for hpane jump bug
-##        if self.hpane_bug:
-##            if self.hpane_bug_count == 2: # this is when the bug caused the jump
-##                dprint("MAIN: hpane bugfix activated")
-##                # reset it back to where it should be
-##                self.wtree.get_widget("hpane").set_position(self.prefs.main.hpane)
-##                self.hpane_bug = False
-##                del self.hpane_bug_count
-##            else:
-##                self.hpane_bug_count += 1
-##        #size = widget.get_size()  # size[0] = width, size[1] = height
-##        self.prefs.main.width = event.width
-##        self.prefs.main.height = event.height
-##        pos = widget.get_position()
-##        # note: event has x and y attributes but they do not give the same values as get_position().
-##        self.prefs.main.xpos = pos[0]
-##        self.prefs.main.ypos = pos[1]
-##        #self.prefs.main.hpane = self.wtree.get_widget("hpane").get_position() # moved to self.goodbye()
-##        #self.prefs.main.vpane = self.wtree.get_widget("vpane").get_position() # moved to self.goodbye()
-##        #~ dprint("MAINWINDOW: size_update() hpane; %d, vpane; %d" \
-##               #~ %(self.prefs.main.hpane, self.prefs.main.vpane))
+    def size_update(self, widget, event):
+        #dprint("MAINWINDOW: size_update(); called.")
+        """ Store the window and pane positions """
+        self.prefs.main.width = event.width
+        self.prefs.main.height = event.height
+        pos = widget.get_position()
+        # note: event has x and y attributes but they do not give the same values as get_position().
+        self.prefs.main.xpos = pos[0]
+        self.prefs.main.ypos = pos[1]
 
     def clear_notebook(self):
         """ Clear all notebook tabs & disable them """

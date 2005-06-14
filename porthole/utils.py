@@ -321,7 +321,26 @@ class PortholePreferences:
             ['info','','#b0ffff',400],
             ['linenumber','#0000ff','',700],
             ['note','#8b008b','',400],
-            ['warning','','#eeee80',400]
+            ['warning','','#eeee80',400],
+            # the following tags are for emerge's output formatting
+            ['bold','','',700],
+            ['light','','',300],
+            ['fg_black','black','',None],
+            ['fg_red','darkred','',None],
+            ['fg_green','darkgreen','',None],
+            ['fg_yellow','brown','',None],
+            ['fg_blue','darkblue','',None],
+            ['fg_magenta','magenta','',None],
+            ['fg_cyan','blue','',None],
+            ['fg_white','yellow','',None],
+            ['bg_black','','black',None],
+            ['bg_red','','darkred',None],
+            ['bg_green','','darkgreen',None],
+            ['bg_yellow','','brown',None],
+            ['bg_blue','','darkblue',None],
+            ['bg_magenta','','magenta',None],
+            ['bg_cyan','','blue',None],
+            ['bg_white','','white',None],
         ]
         
         for tag_name, forecolor, backcolor, fontweight in taglist:
