@@ -259,6 +259,7 @@ class ProcessManager:
         self.lastchar = ''
         self.cr_flag = False
         self.b_flag = False
+        self.force_buffer_write = True
         # setup the queue treeview
         column = gtk.TreeViewColumn(_("Packages to be merged      "))
         pixbuf = gtk.CellRendererPixbuf()
@@ -564,7 +565,7 @@ class ProcessManager:
 
     def _run(self, command_string, iter = None):
         """ Run a given command string """
-        dprint("TERMINAL: running command string %s" % command_string)
+        dprint("TERMINAL: running command string '%s'" % command_string)
         # we can't be killed anymore
         self.killed = 0
         # reset back to terminal mode in case it is not
@@ -822,6 +823,9 @@ class ProcessManager:
         if all: # otherwise skip the process_text buffer
             self.append(TAB_PROCESS, text, tag)
 
+    def force_buffer_write_timer(self):
+        dprint("TERMINAL: force_buffer_write_timer(): setting True")
+        self.force_buffer_write = True
 
     def update(self):
         """ Add text to the buffer """
@@ -856,19 +860,30 @@ class ProcessManager:
                         # reset for next time
                         self.first_cr = True
                     self.cr_flag = False
-                # catch portage escape sequence NOCOLOR bugs
-                if ord(char) == 27 or self.catch_seq:
-                    self.catch_seq = True
-                    if ord(char) == 27:
-                        self.append(TAB_PROCESS, self.process_buffer, None)
-                        self.process_buffer = ''
-                    else:
-                        self.escape_seq += char
-                    if char == 'm':
+                # catch portage escape sequences for colour and terminal title
+                if self.catch_seq and ord(char) != 27:
+                    self.escape_seq += char
+                    if self.escape_seq.startswith("[") and char == 'm':
                         self.catch_seq = False
                         #dprint('escape_seq = ' + self.escape_seq)
                         self.parse_escape_sequence(self.escape_seq)
                         self.escape_seq = ''
+                    elif self.escape_seq.startswith("]") and ord(char) == 7:
+                        self.catch_seq = False
+                        self.parse_escape_sequence(self.escape_seq)
+                        self.escape_seq = ''
+                    elif self.escape_seq.startswith("k"): # note - terminated with chr(27) + \
+                        if char == "\\":
+                            self.catch_seq = False
+                            self.parse_escape_sequence(self.escape_seq)
+                            self.escape_seq = ''
+                elif ord(char) == 27:
+                    if self.escape_seq.startswith("k"):
+                        self.escape_seq += char
+                    else:
+                        self.catch_seq = True
+                        self.append(TAB_PROCESS, self.process_buffer, None)
+                        self.process_buffer = ''
                 elif char == '\b' : # backspace
                     # this is used when portage prints ">>> Updating Portage Cache"
                     # it uses backspaces to update the number. So on each update
@@ -879,7 +894,7 @@ class ProcessManager:
                             self.append(TAB_PROCESS, self.line_buffer)
                         else: # every other display until \n is found
                             self.overwrite(TAB_PROCESS, self.line_buffer)
-                    self.process_buffer = self.process_buffer[:-1]
+                    self.process_buffer = ''
                     self.line_buffer = self.line_buffer[:-1]
                     self.b_flag = True
                     self.overwrite_till_nl = True
@@ -969,7 +984,25 @@ class ProcessManager:
                             self.append(TAB_PROCESS, self.process_buffer, tag)
                         self.process_buffer = ''  # reset buffer
                         self.line_buffer = ''
+                    elif self.force_buffer_write:
+                        if self.overwrite_till_nl:
+                            self.overwrite(TAB_PROCESS, self.line_buffer)
+                        else:
+                            self.append(TAB_PROCESS, self.process_buffer)
+                        self.process_buffer = ''
+                        self.force_buffer_write = False
+                        gobject.timeout_add(200, self.force_buffer_write_timer)
                 self.lastchar = char
+        else: # if reader string is empty... maybe waiting for input
+            if self.force_buffer_write and self.process_buffer:
+                dprint("TERMINAL: update(): nothing else to do - forcing text to buffer")
+                if self.overwrite_till_nl:
+                    self.overwrite(TAB_PROCESS, self.line_buffer)
+                else:
+                    self.append(TAB_PROCESS, self.process_buffer)
+                self.process_buffer = ''
+                self.force_buffer_write = False
+                gobject.timeout_add(200, self.force_buffer_write_timer)
         self.reader.string = ""
         #dprint("TERMINAL: update() checking file input/reader finished")
         if self.file_input and not self.reader.file_input: # reading file finished
@@ -988,37 +1021,44 @@ class ProcessManager:
         from the emerge process.
         """
         #dprint("TERMINAL: parse_escape_sequence(): parsing '%s'" % sequence)
-        if not sequence.startswith("[") or not sequence.endswith("m"):
-            dprint("TERMINAL: parse_escqpe_sequence(): bad escape sequence '%s'" % sequence)
-            return False
-        if ";" in sequence:
-            terms = sequence[1:-1].split(";")
-        else:
-            terms = [sequence[1:-1]]
-        fg_tagname = None
-        bg_tagname = None
-        weight_tagname = None
-        for item in terms:
-            item = int(item)
-            if 0 <= item <= 1:
-                weight_tagname = self.esc_seq_dict[item]
-            elif 30 <= item <= 39:
-                fg_tagname = self.esc_seq_dict[item]
-            elif 40 <= item <= 49:
-                bg_tagname = self.esc_seq_dict[item]
+        if sequence.startswith("[") and sequence.endswith("m"):
+            if ";" in sequence:
+                terms = sequence[1:-1].split(";")
             else:
-                dprint("TERMINAL: parse_escape_sequence(): ignoring term '%s'" % item)
-        self.current_tagnames = []
-        if fg_tagname:
-            self.current_tagnames.append(fg_tagname)
-        if bg_tagname:
-            self.current_tagnames.append(bg_tagname)
-        if weight_tagname:
-            self.current_tagnames.append(weight_tagname)
-        if not self.current_tagnames:
-            self.current_tagnames = ['default']
-        #dprint("TERMINAL: parse_escape_sequence(): tagnames are %s" % self.current_tagnames)
-        return True
+                terms = [sequence[1:-1]]
+            fg_tagname = None
+            bg_tagname = None
+            weight_tagname = None
+            for item in terms:
+                item = int(item)
+                if 0 <= item <= 1:
+                    weight_tagname = self.esc_seq_dict[item]
+                elif 30 <= item <= 39:
+                    fg_tagname = self.esc_seq_dict[item]
+                elif 40 <= item <= 49:
+                    bg_tagname = self.esc_seq_dict[item]
+                else:
+                    dprint("TERMINAL: parse_escape_sequence(): ignoring term '%s'" % item)
+            self.current_tagnames = []
+            if fg_tagname:
+                self.current_tagnames.append(fg_tagname)
+            if bg_tagname:
+                self.current_tagnames.append(bg_tagname)
+            if weight_tagname:
+                self.current_tagnames.append(weight_tagname)
+            if not self.current_tagnames:
+                self.current_tagnames = ['default']
+            #dprint("TERMINAL: parse_escape_sequence(): tagnames are %s" % self.current_tagnames)
+            return True
+        elif sequence.startswith("]2;") and ord(sequence[-1]) == 7:
+            sequence = sequence[3:-1]
+            self.set_statusbar(sequence)
+        elif sequence.startswith("k") and sequence.endswith(chr(27) + "\\"):
+            sequence = sequence[1:-2]
+            self.set_statusbar(sequence)
+        else:
+            dprint("TERMINAL: parse_escape_sequence(): bad escape sequence '%s'" % sequence)
+            return False
     
     def on_pty_keypress(self, widget, event):
         """ Catch keypresses in the terminal process window, and forward

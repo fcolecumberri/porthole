@@ -380,14 +380,20 @@ class MainWindow:
     def packageview_callback(self, action = None, arg = None):
         old_pretend_value = self.prefs.emerge.pretend
         if action.startswith("emerge"):
-            if action == "emerge pretend":
+            if "pretend" in action:
                 self.prefs.emerge.pretend = True
             else:
                 self.prefs.emerge.pretend = False
-            self.emerge_package(self.package_view)
-        elif action == "unmerge":
+            if "sudo" in action:
+                self.emerge_package(self.package_view, sudo=True)
+            else:
+                self.emerge_package(self.package_view)
+        elif action.startswith("unmerge"):
             self.prefs.emerge.pretend = False
-            self.unmerge_package(self.package_view)
+            if "sudo" in action:
+                self.unmerge_package(self.package_view, sudo=True)
+            else:
+                self.unmerge_package(self.package_view)
         elif action == "set path":
             # save the path to the package that matched the name passed
             # to populate() in PackageView... (?)
@@ -495,6 +501,7 @@ class MainWindow:
                     if self.current_package_cursor != None and self.current_package_cursor[0]:
                         self.package_view.set_cursor(self.current_package_path,
                                                      self.current_package_cursor[1])
+                self.view_filter_changed(self.widget["view_filter"])
             else:
                 if self.reload:
                     #dprint("MAINWINDOW: update_db_read()... must be an upgradeable view")
@@ -505,7 +512,7 @@ class MainWindow:
             dprint("MAINWINDOW: Made it thru a reload, returning...")
             self.progress_done(False)
             #if not self.reload:
-            self.view_filter_changed(self.widget["view_filter"])
+            #self.view_filter_changed(self.widget["view_filter"])
             self.reload = False
             return False  # disconnect from timeout
         #dprint("MAINWINDOW: returning from update_db_read() count=%d dbtime=%d"  %(count, self.dbtime))
@@ -533,8 +540,9 @@ class MainWindow:
 
     def setup_command(self, package_name, command):
         """Setup the command to run or not"""
-        if self.is_root or (self.prefs.emerge.pretend and
-                            command[:11] != self.prefs.globals.Sync):
+        if (self.is_root
+                or (self.prefs.emerge.pretend and command[:11] != self.prefs.globals.Sync)
+                or command.startswith("sudo")):
             if self.prefs.emerge.pretend or pretend_check(command) or help_check(command)\
                 or info_check(command):
                 # temp set callback for testing
@@ -583,11 +591,15 @@ class MainWindow:
         """Set whether or not to search descriptions"""
         self.prefs.main.search_desc = widget.get_active()
 
-    def emerge_package(self, widget):
+    def emerge_package(self, widget, sudo=False):
         """Emerge the currently selected package."""
         package = get_treeview_selection(self.package_view, 2)
-        self.setup_command(package.get_name(), "emerge" +
-            self.prefs.emerge.get_string() + package.full_name)
+        if sudo:
+            self.setup_command(package.get_name(), "sudo emerge" +
+                self.prefs.emerge.get_string() + package.full_name)
+        else:
+            self.setup_command(package.get_name(), "emerge" +
+                self.prefs.emerge.get_string() + package.full_name)
 
     def adv_emerge_package(self, widget):
         """Advanced emerge of the currently selected package."""
@@ -630,11 +642,15 @@ class MainWindow:
             self.needs_plugin_menu = False
         del menuitem
 
-    def unmerge_package(self, widget):
+    def unmerge_package(self, widget, sudo=False):
         """Unmerge the currently selected package."""
         package = get_treeview_selection(self.package_view, 2)
-        self.setup_command(package.get_name(), "emerge unmerge" +
-                self.prefs.emerge.get_string() + package.full_name)
+        if sudo:
+            self.setup_command(package.get_name(), "sudo emerge unmerge" +
+                    self.prefs.emerge.get_string() + package.full_name)
+        else:
+            self.setup_command(package.get_name(), "emerge unmerge" +
+                    self.prefs.emerge.get_string() + package.full_name)
 
     def sync_tree(self, widget):
         """Sync the portage tree and reload it when done."""

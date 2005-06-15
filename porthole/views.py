@@ -87,9 +87,13 @@ class PackageView(CommonTreeView):
         menuitems["emerge"] = gtk.MenuItem(_("Emerge"))
         menuitems["emerge"].connect("activate", self.emerge)
         menuitems["pretend-emerge"] = gtk.MenuItem(_("Pretend Emerge"))
-        menuitems["pretend-emerge"].connect("activate", self.emerge, True)
+        menuitems["pretend-emerge"].connect("activate", self.emerge, True, None)
+        menuitems["sudo emerge"] = gtk.MenuItem(_("Sudo Emerge"))
+        menuitems["sudo emerge"].connect("activate", self.emerge, None, True)
         menuitems["unmerge"] = gtk.MenuItem(_("Unmerge"))
         menuitems["unmerge"].connect("activate", self.unmerge)
+        menuitems["sudo unmerge"] = gtk.MenuItem(_("Sudo Unmerge"))
+        menuitems["sudo unmerge"].connect("activate", self.unmerge, True)
         menuitems["add-keyword"] = gtk.MenuItem(_("Append with %s to package.keywords") % arch)
         menuitems["add-keyword"].connect("activate", self.add_keyword)
         menuitems["deselect_all"] = gtk.MenuItem(_("De-Select all"))
@@ -308,15 +312,23 @@ class PackageView(CommonTreeView):
         package.best_ebuild = package.get_latest_ebuild()
         self.mainwindow_callback("refresh")
 
-    def emerge(self, widget, pretend=False):
+    def emerge(self, widget, pretend=None, sudo=None):
+        emergestring = 'emerge'
         if pretend:
-            self.mainwindow_callback("emerge pretend")
-            return
-        else:
-            self.mainwindow_callback("emerge")
+            #self.mainwindow_callback("emerge pretend")
+            #return
+            emergestring += ' pretend'
+        #else:
+        #    self.mainwindow_callback("emerge")
+        if sudo:
+            emergestring += ' sudo'
+        self.mainwindow_callback(emergestring)
 
-    def unmerge(self, widget):
-        self.mainwindow_callback("unmerge")
+    def unmerge(self, widget, sudo=None):
+        if sudo:
+            self.mainwindow_callback("unmerge sudo")
+        else:
+            self.mainwindow_callback("unmerge")
 
     def _clicked(self, treeview, *args):
         """ Handles treeview clicks """
@@ -349,10 +361,14 @@ class PackageView(CommonTreeView):
                 else: self.popup_menuitems["add-keyword"].hide()
                 self.popup_menuitems["emerge"].show()
                 self.popup_menuitems["unmerge"].show()
+                self.popup_menuitems["sudo emerge"].hide()
+                self.popup_menuitems["sudo unmerge"].hide()
             else:
                 self.popup_menuitems["emerge"].hide()
                 self.popup_menuitems["unmerge"].hide()
                 self.popup_menuitems["add-keyword"].hide()
+                self.popup_menuitems["sudo emerge"].show()
+                self.popup_menuitems["sudo unmerge"].show()
             self.popup_menu.popup(None, None, None, self.event.button, self.event.time)
             self.dopopup = False
             self.event = None
