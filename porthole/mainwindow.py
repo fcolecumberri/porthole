@@ -317,7 +317,8 @@ class MainWindow:
 
     def reload_view(self, *widget):
         """reload the package view"""
-        #if self.widget["view_filter"].get_history() == SHOW_UPGRADE:
+        if self.widget["view_filter"].get_history() == SHOW_UPGRADE:
+            self.upgrades_loaded = False
         self.package_view.clear()
         self.set_package_actions_sensitive(False, None)
         self.category_view.populate(self.db.categories.keys())

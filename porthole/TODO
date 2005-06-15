@@ -18,7 +18,7 @@
    i.e. "emerge <package1> <package2> <package3>"
    (see RFE [974902])
 
- * Select All / None in upgradable view (RFE [939337])
+ *  (Done) Select All / None in upgradable view (RFE [939337])
 
  * Update statusbar to indicate that a search is taking place
 
