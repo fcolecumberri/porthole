@@ -824,7 +824,7 @@ class ProcessManager:
             self.append(TAB_PROCESS, text, tag)
 
     def force_buffer_write_timer(self):
-        dprint("TERMINAL: force_buffer_write_timer(): setting True")
+        #dprint("TERMINAL: force_buffer_write_timer(): setting True")
         self.force_buffer_write = True
 
     def update(self):
@@ -986,21 +986,23 @@ class ProcessManager:
                         self.line_buffer = ''
                     elif self.force_buffer_write:
                         if self.overwrite_till_nl:
-                            self.overwrite(TAB_PROCESS, self.line_buffer)
+                            #self.overwrite(TAB_PROCESS, self.line_buffer)
+                            pass
                         else:
                             self.append(TAB_PROCESS, self.process_buffer)
-                        self.process_buffer = ''
+                            self.process_buffer = ''
                         self.force_buffer_write = False
                         gobject.timeout_add(200, self.force_buffer_write_timer)
                 self.lastchar = char
         else: # if reader string is empty... maybe waiting for input
             if self.force_buffer_write and self.process_buffer:
-                dprint("TERMINAL: update(): nothing else to do - forcing text to buffer")
+                #dprint("TERMINAL: update(): nothing else to do - forcing text to buffer")
                 if self.overwrite_till_nl:
-                    self.overwrite(TAB_PROCESS, self.line_buffer)
+                    #self.overwrite(TAB_PROCESS, self.line_buffer)
+                    pass
                 else:
                     self.append(TAB_PROCESS, self.process_buffer)
-                self.process_buffer = ''
+                    self.process_buffer = ''
                 self.force_buffer_write = False
                 gobject.timeout_add(200, self.force_buffer_write_timer)
         self.reader.string = ""
@@ -1108,13 +1110,19 @@ class ProcessManager:
         start the next one if there are any more to be run"""
         # Prevent conflicts while changing process queue
         self.Semaphore.acquire()
-        dprint("TERMINAL: process_done; Semaphore acquired")
-        dprint("process id: %s" % os.getpid())
-        dprint("process group id: %s" % os.getpgrp())
-        dprint("parent process id: %s" % os.getppid())
+        dprint("TERMINAL: process_done(): Semaphore acquired")
+        dprint("TERMINAL: process_done(): process id: %s" % os.getpid())
+        dprint("TERMINAL: process_done(): process group id: %s" % os.getpgrp())
+        dprint("TERMINAL: process_done(): parent process id: %s" % os.getppid())
         
         # reset to None, so next one starts properly
         self.reader.fd = None
+        # clean up finished emerge process
+        try:
+            m = os.waitpid(self.pid, 0) # wait for any child processes to finish
+            dprint("TERMINAL: process %s finished, status %s" % m)
+        except OSError, e:
+            dprint("TERMINAL: OSError %s" % e)
         # if the last process was killed, stop until the user does something
         if self.killed:
             # display message that process has been killed
@@ -1143,7 +1151,8 @@ class ProcessManager:
                 self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_STOP))
             else:
                 self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_APPLY))
-        except: pass
+        except Exception, e:
+            dprint("TERMINAL: process_done(): exception %s" % e)
         # remove process from list
         self.process_list = self.process_list[1:]
         self.task_completed = True

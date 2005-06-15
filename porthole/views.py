@@ -274,14 +274,6 @@ class PackageView(CommonTreeView):
         "package changed" or "refresh".
         """
         self.mainwindow_callback = callback
-##        self._package_changed = package_changed
-##        self._upgrade_selected = upgrade_selected
-##        self._return_path = return_path
-##        self._refresh = refresh
-##        if emergeitem:
-##            emerge, emergeprefs = emergeitem
-##            self._emerge = emerge
-##            self._emergeprefs = emergeprefs
 
     def on_button_press(self, widget, event):
         dprint("VIEWS: Handling PackageView button press event")
@@ -297,7 +289,7 @@ class PackageView(CommonTreeView):
 
     def on_toggled(self, widget, path):
         self.toggle = path
-        dprint("Toggle activated at path '%s'" % path)
+        dprint("VIEWS: Toggle activated at path '%s'" % path)
         return False # will continue to _clicked() event
 
     def add_keyword(self, widget):

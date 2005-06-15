@@ -471,7 +471,6 @@ class Package:
         """ Returns properties of specific ebuild.
             If no ebuild specified, get latest ebuild. """
         #dprint("PORTAGELIB: Package:get_properties()")
-#        try:
         if specific_ebuild == None:
             ebuild = self.get_default_ebuild()
             if not ebuild:
@@ -484,9 +483,6 @@ class Package:
             #dprint("portagelib: geting properties for '%s'" % str(ebuild))
             self.properties[ebuild] = get_properties(ebuild)
         return self.properties[ebuild]
-#        except Exception, e:
-#            dprint("PORTAGELIB exception: %s" % e)  # fixed bug # 924730
-#            return Properties()
 
     def get_versions(self, include_masked = True):
         """Returns all available ebuilds for the package"""

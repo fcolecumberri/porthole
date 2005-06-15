@@ -92,6 +92,7 @@ class UpgradableReader(CommonReader):
         for full_name, package in installed_world:
             self.world_count += 1
             self.add_package(full_name, package, package.in_world)
+            if self.cancelled: self.done = True; return
             #self.check_deps(full_name, package)
         if installed_dep != []:
             self.add_package(_("Upgradable dependencies:"), None, False, False)

@@ -287,8 +287,8 @@ class MainWindow:
             return True
         # upgrades loaded?
         # reset so that it reloads the upgrade list
-        self.upgrades_loaded = False
-        self.ut_cancelled = False
+        #self.upgrades_loaded = False
+        #self.ut_cancelled = False
         # upgrade loading callback
         self.upgrades_loaded_callback = None
         self.search_loaded = False
@@ -581,11 +581,18 @@ class MainWindow:
         # reset the upgrades list due to the change
         self.upgrades_loaded = False
         if self.widget["view_filter"].get_history() == SHOW_UPGRADE:
-                #dprint("MAINWINDOW: upgradeonly_set()...reload upgradeable view")
-                self.package_view.clear()
-                self.set_package_actions_sensitive(False, None)
-                # update the views by calling view_filter_changed
-                self.view_filter_changed(self.widget["view_filter"])
+            if self.ut_running: # aargh, kill it
+                self.ut.please_die()
+                dprint("MAINWINDOW: joining upgrade thread...")
+                self.ut.join()
+                dprint("MAINWINDOW: finished!")
+                self.ut_running = False
+            #dprint("MAINWINDOW: upgradeonly_set()...reload upgradeable view")
+            self.package_view.clear()
+            self.set_package_actions_sensitive(False, None)
+            # update the views by calling view_filter_changed
+            self.view_filter_changed(self.widget["view_filter"])
+            self.reload_view(None)
 
     def search_set(self, widget):
         """Set whether or not to search descriptions"""
@@ -707,10 +714,10 @@ class MainWindow:
             for key in self.keyorder:
                 if not self.packages_list[key]:
                         dprint("MAINWINDOW: upgrade_packages(); dependancy selected: " + key)
-                        if not self.setup_command(key, "emerge --oneshot" +
+                        if not self.setup_command(key, "emerge --oneshot --noreplace" +
                                 self.prefs.emerge.get_string() + key[:]): #use the full name
                             return
-                elif not self.setup_command(key, "emerge " +
+                elif not self.setup_command(key, "emerge --noreplace" +
                                 self.prefs.emerge.get_string() + ' ' + key[:]): #use the full name
                     return
         else:
