@@ -863,24 +863,31 @@ class ProcessManager:
                 # catch portage escape sequences for colour and terminal title
                 if self.catch_seq and ord(char) != 27:
                     self.escape_seq += char
-                    if self.escape_seq.startswith("["):
+                    if self.escape_seq.startswith('['):
                         # xterm escape sequence. terminated with:
-                        # @ (63), A to Z (64 to 90), a to z (97 to 122)
-                        # note: this may not be exhaustive......
-                        if 63 <= ord(char) <= 90 or 97 <= ord(char) <= 122:
+                        # @ (63), A to Z (64 to 90), a to z (97 to 122), {,|,},~ (123 to 126)
+                        # and _perhaps_ '`' (96) (an erroneous character may be output to the
+                        # screen after this)
+                        # also note: this list may not be exhaustive......
+                        if 63 <= ord(char) <= 90 or 96 <= ord(char) <= 126:
                             self.catch_seq = False
                             #dprint('escape_seq = ' + self.escape_seq)
                             self.parse_escape_sequence(self.escape_seq)
                             self.escape_seq = ''
-                    elif self.escape_seq.startswith("]") and ord(char) == 7:
-                        self.catch_seq = False
-                        self.parse_escape_sequence(self.escape_seq)
-                        self.escape_seq = ''
-                    elif self.escape_seq.startswith("k"): # note - terminated with chr(27) + \
-                        if char == "\\":
+                    elif self.escape_seq.startswith(']'):
+                        if ord(char) == 7 or self.escape_seq.endswith('\x1b\\'):
                             self.catch_seq = False
                             self.parse_escape_sequence(self.escape_seq)
                             self.escape_seq = ''
+                    elif self.escape_seq.startswith('k'): # note - terminated with chr(27) + \
+                        if self.escape_seq.endswith('\x1b\\'): # \x1b = chr(27)
+                            self.catch_seq = False
+                            self.parse_escape_sequence(self.escape_seq)
+                            self.escape_seq = ''
+                    else: # don't know how to handle this - stop now
+                        self.catch_seq = False
+                        self.parse_escape_sequence(self.escape_seq)
+                        self.escape_seq = ''
                 elif ord(char) == 27:
                     if self.escape_seq.startswith("k"):
                         self.escape_seq += char
@@ -1064,11 +1071,15 @@ class ProcessManager:
         elif sequence.startswith("]2;") and ord(sequence[-1]) == 7:
             sequence = sequence[3:-1]
             self.set_statusbar(sequence)
+            return True
         elif sequence.startswith("k") and sequence.endswith(chr(27) + "\\"):
             sequence = sequence[1:-2]
             self.set_statusbar(sequence)
+            return True
         else:
-            dprint("TERMINAL: parse_escape_sequence(): unhandled escape sequence '%s'" % sequence)
+            # note: the "[A' then "[-7G" used to display "[ ok ]" on the
+            # right hand side of patching lines is currently unsupported.
+            dprint("TERMINAL: parse_escape_sequence(): unsupported escape sequence '%s'" % sequence)
             return False
     
     def on_pty_keypress(self, widget, event):
