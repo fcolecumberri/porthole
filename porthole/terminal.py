@@ -1027,7 +1027,8 @@ class ProcessManager:
         from the emerge process.
         """
         #dprint("TERMINAL: parse_escape_sequence(): parsing '%s'" % sequence)
-        if sequence.startswith("[") and sequence.endswith("m"):
+        if sequence.startswith("[") and sequence.endswith("m")\
+            and sequence != "[A[73G [34;01m": # <== right justify the" [OK]"
             if ";" in sequence:
                 terms = sequence[1:-1].split(";")
             else:
@@ -1036,7 +1037,11 @@ class ProcessManager:
             bg_tagname = None
             weight_tagname = None
             for item in terms:
-                item = int(item)
+                try:
+                    item = int(item)
+                except:
+                    dprint("TERMINAL: parse_escape_sequence(); failed to convert item:%s to an integer" %item)
+                    return False
                 if 0 <= item <= 1:
                     weight_tagname = self.esc_seq_dict[item]
                 elif 30 <= item <= 39:
