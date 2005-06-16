@@ -863,11 +863,15 @@ class ProcessManager:
                 # catch portage escape sequences for colour and terminal title
                 if self.catch_seq and ord(char) != 27:
                     self.escape_seq += char
-                    if self.escape_seq.startswith("[") and char == 'm':
-                        self.catch_seq = False
-                        #dprint('escape_seq = ' + self.escape_seq)
-                        self.parse_escape_sequence(self.escape_seq)
-                        self.escape_seq = ''
+                    if self.escape_seq.startswith("["):
+                        # xterm escape sequence. terminated with:
+                        # @ (63), A to Z (64 to 90), a to z (97 to 122)
+                        # note: this may not be exhaustive......
+                        if 63 <= ord(char) <= 90 or 97 <= ord(char) <= 122:
+                            self.catch_seq = False
+                            #dprint('escape_seq = ' + self.escape_seq)
+                            self.parse_escape_sequence(self.escape_seq)
+                            self.escape_seq = ''
                     elif self.escape_seq.startswith("]") and ord(char) == 7:
                         self.catch_seq = False
                         self.parse_escape_sequence(self.escape_seq)
@@ -1059,7 +1063,7 @@ class ProcessManager:
             sequence = sequence[1:-2]
             self.set_statusbar(sequence)
         else:
-            dprint("TERMINAL: parse_escape_sequence(): bad escape sequence '%s'" % sequence)
+            dprint("TERMINAL: parse_escape_sequence(): unhandled escape sequence '%s'" % sequence)
             return False
     
     def on_pty_keypress(self, widget, event):
