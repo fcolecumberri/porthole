@@ -47,6 +47,17 @@ if not os.access(LOG_FILE_DIR, os.F_OK):
     except OSError, (errnum, errmsg):
         print "Failed to create %s:" % LOG_FILE_DIR, errmsg
 
+from thread import *
+from sys import argv, exit, stderr
+import pygtk; pygtk.require("2.0") # make sure we have the right version
+import gtk, time
+from getopt import getopt, GetoptError
+import locale, gettext
+from gettext import gettext as _
+
+# it is recommended to init threads right after importing gtk just in case
+gtk.threads_init()
+
 try:
     from pycrash.utils import *
     pycrash_found = True
@@ -56,20 +67,19 @@ try:
             save_file = LOG_FILE_DIR + "/crash.html"
             # saveToFile does not yet return a result: feature request submitted
             self.saveToFile(save_file)
-            print "PORTHOLE: Crash detected.  Please submit a bug report &"
-            print "         include the " + save_file
+            err = "*** PORTHOLE: Crash detected! ***\nPlease submit a bug report including\n"
+            err = err + "all debug text from the terminal you ran porthole from.\n"
+            err = err + ("Plus the the file: %s" %save_file)
+            print err
+            dialog = gtk.MessageDialog(None, gtk.DIALOG_MODAL,
+                                       gtk.MESSAGE_ERROR,
+                                       gtk.BUTTONS_OK, _(err));
+            result = dialog.run()
+            dialog.destroy()
+            
 except ImportError:
     pycrash_found = False
-   
 
-from thread import *
-from sys import argv, exit, stderr
-import pygtk; pygtk.require("2.0") # make sure we have the right version
-import gtk, time
-from getopt import getopt, GetoptError
-import locale, gettext
-# it is recommended to init threads right after importing gtk just in case
-gtk.threads_init()
 
 def usage():
     tabs = "\t\t"
