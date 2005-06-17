@@ -654,7 +654,7 @@ class MainWindow:
         """Unmerge the currently selected package."""
         package = get_treeview_selection(self.package_view, 2)
         if sudo:
-            self.setup_command(package.get_name(), 'sudo -p "Password: " maemerge unmerge' +
+            self.setup_command(package.get_name(), 'sudo -p "Password: " emerge unmerge' +
                     self.prefs.emerge.get_string() + package.full_name)
         else:
             self.setup_command(package.get_name(), "emerge unmerge" +
