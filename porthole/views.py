@@ -88,12 +88,12 @@ class PackageView(CommonTreeView):
         menuitems["emerge"].connect("activate", self.emerge)
         menuitems["pretend-emerge"] = gtk.MenuItem(_("Pretend Emerge"))
         menuitems["pretend-emerge"].connect("activate", self.emerge, True, None)
-        menuitems["sudo emerge"] = gtk.MenuItem(_("Sudo Emerge"))
-        menuitems["sudo emerge"].connect("activate", self.emerge, None, True)
+        menuitems["sudo-emerge"] = gtk.MenuItem(_("Sudo Emerge"))
+        menuitems["sudo-emerge"].connect("activate", self.emerge, None, True)
         menuitems["unmerge"] = gtk.MenuItem(_("Unmerge"))
         menuitems["unmerge"].connect("activate", self.unmerge)
-        menuitems["sudo unmerge"] = gtk.MenuItem(_("Sudo Unmerge"))
-        menuitems["sudo unmerge"].connect("activate", self.unmerge, True)
+        menuitems["sudo-unmerge"] = gtk.MenuItem(_("Sudo Unmerge"))
+        menuitems["sudo-unmerge"].connect("activate", self.unmerge, True)
         menuitems["add-keyword"] = gtk.MenuItem(_("Append with %s to package.keywords") % arch)
         menuitems["add-keyword"].connect("activate", self.add_keyword)
         menuitems["deselect_all"] = gtk.MenuItem(_("De-Select all"))
@@ -351,16 +351,40 @@ class PackageView(CommonTreeView):
                 if package.get_best_ebuild() != package.get_latest_ebuild(): # i.e. no ~arch keyword
                     self.popup_menuitems["add-keyword"].show()
                 else: self.popup_menuitems["add-keyword"].hide()
-                self.popup_menuitems["emerge"].show()
-                self.popup_menuitems["unmerge"].show()
-                self.popup_menuitems["sudo emerge"].hide()
-                self.popup_menuitems["sudo unmerge"].hide()
+                installed = package.get_installed()
+                havebest = False
+                if installed:
+                    self.popup_menuitems["unmerge"].show()
+                    if package.get_best_ebuild() in installed:
+                        havebest = True
+                else:
+                    self.popup_menuitems["unmerge"].hide()
+                if havebest:
+                    self.popup_menuitems["emerge"].hide()
+                    self.popup_menuitems["pretend-emerge"].hide()
+                else:
+                    self.popup_menuitems["emerge"].show()
+                    self.popup_menuitems["pretend-emerge"].show()
+                self.popup_menuitems["sudo-emerge"].hide()
+                self.popup_menuitems["sudo-unmerge"].hide()
             else:
                 self.popup_menuitems["emerge"].hide()
                 self.popup_menuitems["unmerge"].hide()
                 self.popup_menuitems["add-keyword"].hide()
-                self.popup_menuitems["sudo emerge"].show()
-                self.popup_menuitems["sudo unmerge"].show()
+                installed = package.get_installed()
+                havebest = False
+                if installed:
+                    self.popup_menuitems["sudo-unmerge"].show()
+                    if package.get_best_ebuild() in installed:
+                        havebest = True
+                else:
+                    self.popup_menuitems["sudo-unmerge"].hide()
+                if havebest:
+                    self.popup_menuitems["sudo-emerge"].hide()
+                    self.popup_menuitems["pretend-emerge"].hide()
+                else:
+                    self.popup_menuitems["sudo-emerge"].show()
+                    self.popup_menuitems["pretend-emerge"].show()
             self.popup_menu.popup(None, None, None, self.event.button, self.event.time)
             self.dopopup = False
             self.event = None

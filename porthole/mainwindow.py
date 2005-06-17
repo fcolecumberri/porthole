@@ -178,12 +178,12 @@ class MainWindow:
         if self.prefs.main.xpos and self.prefs.main.ypos:
             self.mainwindow.move(self.prefs.main.xpos, self.prefs.main.ypos)
         self.mainwindow.resize(self.prefs.main.width, self.prefs.main.height)
+        # connect gtk callback for window movement and resize events
+        self.mainwindow.connect("configure-event", self.size_update)
         # restore maximized state and set window-state-event handler to keep track of it
         if self.prefs.main.maximized:
             self.mainwindow.maximize()
         self.mainwindow.connect("window-state-event", self.on_window_state_event)
-        # connect gtk callback for window movement and resize events
-        self.mainwindow.connect("configure-event", self.size_update)
         # move horizontal and vertical panes
         dprint("MAINWINDOW: __init__() before hpane; %d, vpane; %d" %(self.prefs.main.hpane, self.prefs.main.vpane))
         self.hpane = self.wtree.get_widget("hpane")
@@ -581,7 +581,7 @@ class MainWindow:
         self.prefs.emerge.upgradeonly = widget.get_active()
         # reset the upgrades list due to the change
         self.upgrades_loaded = False
-        if self.widget["view_filter"].get_history() == SHOW_UPGRADE:
+        if hasattr(self, "widget") and self.widget["view_filter"].get_history() == SHOW_UPGRADE:
             if self.ut_running: # aargh, kill it
                 self.ut.please_die()
                 dprint("MAINWINDOW: joining upgrade thread...")
@@ -603,7 +603,7 @@ class MainWindow:
         """Emerge the currently selected package."""
         package = get_treeview_selection(self.package_view, 2)
         if sudo:
-            self.setup_command(package.get_name(), "sudo emerge" +
+            self.setup_command(package.get_name(), 'sudo -p "Password: " emerge' +
                 self.prefs.emerge.get_string() + package.full_name)
         else:
             self.setup_command(package.get_name(), "emerge" +
@@ -654,7 +654,7 @@ class MainWindow:
         """Unmerge the currently selected package."""
         package = get_treeview_selection(self.package_view, 2)
         if sudo:
-            self.setup_command(package.get_name(), "sudo emerge unmerge" +
+            self.setup_command(package.get_name(), 'sudo -p "Password: " maemerge unmerge' +
                     self.prefs.emerge.get_string() + package.full_name)
         else:
             self.setup_command(package.get_name(), "emerge unmerge" +

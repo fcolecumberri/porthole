@@ -824,6 +824,7 @@ class ProcessManager:
             self.append(TAB_PROCESS, text, tag)
 
     def force_buffer_write_timer(self):
+        """ Indicates that text in the buffer should be displayed immediately. """
         #dprint("TERMINAL: force_buffer_write_timer(): setting True")
         self.force_buffer_write = True
 
@@ -1016,6 +1017,12 @@ class ProcessManager:
                     self.process_buffer = ''
                 self.force_buffer_write = False
                 gobject.timeout_add(200, self.force_buffer_write_timer)
+                # perhaps sudo is waiting for a password
+                # this can be coded at some point
+                # the prompt should be set to be "Password:" when sudo is called
+                # to override any default.
+                if self.line_buffer.startswith("Password:"):
+                    self.do_password_popup()
         self.reader.string = ""
         #dprint("TERMINAL: update() checking file input/reader finished")
         if self.file_input and not self.reader.file_input: # reading file finished
@@ -1029,9 +1036,55 @@ class ProcessManager:
         self.reader.string_locked = False
         return True
     
+    def do_password_popup(self):
+        """ Pops up a dialog asking for the users password """
+        dialog = gtk.Dialog("Password Required",
+                            self.window,
+                            gtk.DIALOG_MODAL & gtk.DIALOG_DESTROY_WITH_PARENT,
+                            (_("_Cancel"), gtk.RESPONSE_CANCEL));
+        dialog.vbox.set_spacing(10)
+        #dialog.set_has_separator(False)
+        dialog.set_border_width(10)
+        command = self.process_list[0][1]
+        if command.startswith('sudo -p "Password: " '):
+            command = command[21:]
+        label = gtk.Label(_("Sudo requires your password to perform the command:\n'%s'")
+                            % command)
+        dialog.vbox.pack_start(label)
+        label.show()
+        hbox = gtk.HBox()
+        label = gtk.Label(_("Password: "))
+        entry = gtk.Entry()
+        entry.set_property("visibility", False) # password mode
+        entry.connect("activate", self.forward_password, dialog)
+        hbox.pack_start(label, expand=False)
+        hbox.pack_start(entry, expand=True)
+        dialog.vbox.pack_start(hbox)
+        hbox.show_all()
+        gtk.threads_enter()
+        result = dialog.run()
+        gtk.threads_leave()
+        dprint("TERMINAL: do_password_popup(): result %s" % result)
+        dialog.destroy()
+        if result == gtk.RESPONSE_CANCEL:
+            self.write_to_term('\x03') # control-C
+            self.append(TAB_PROCESS, '^C')
+    
+    def forward_password(self, entrywidget, entrydialog):
+        """ Callback to pass a password to the terminal process """
+        password = entrywidget.get_text()
+        if self.reader.fd:
+            try:
+                os.write(self.reader.fd, password + '\n')
+            except OSError:
+                dprint(" * TERMINAL: forward_password(): Error forwarding password!")
+        del password
+        self.append(TAB_PROCESS, '********')
+        entrydialog.response(1)
+    
     def parse_escape_sequence(self, sequence = "[39;49;00m"):
-        """Modifies the default text tag in response to colour change requests
-        from the emerge process.
+        """ Handles xterm escape sequences. This includes colour change requests,
+        window title changes and cursor position requests
         """
         #dprint("TERMINAL: parse_escape_sequence(): parsing '%s'" % sequence)
         if sequence.startswith("[") and sequence.endswith("m")\
@@ -1083,15 +1136,22 @@ class ProcessManager:
             return False
     
     def on_pty_keypress(self, widget, event):
-        """ Catch keypresses in the terminal process window, and forward
-        them on to the emerge process. Very low tech.
+        """Catch keypresses in the terminal process window, and forward
+        them on to the emerge process.
         """
         #dprint("TERMINAL: on_pty_keypress(): string %s" % event.string)
+        self.write_to_term(event.string)
+    
+    def write_to_term(self, text=''):
+        """Forward text to the terminal process. Very low tech."""
         if self.reader.fd:
             try:
-                os.write(self.reader.fd, event.string)
+                os.write(self.reader.fd, text)
+                return True
             except OSError, e:
-                dprint("TERMINAL: on_pty_keypress(): Error with string %s. Error: %s" % (event.string, e))
+                dprint(" * TERMINAL: write_to_term(): Error '%s' writing text '%s'"
+                        % (e, text))
+                return False
     
     def set_file_name(self, line):
         """extracts the ebuild name and assigns it to self.filename"""
