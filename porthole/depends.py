@@ -73,7 +73,7 @@ class DependAtom:
             satisfied = []
             for child in self.children:
                 a = child.is_satisfied(use_flags)
-                if a: satisfied.extend(a)
+                if a: satisfied.append(a)
             return satisfied
         elif self.type == 'USING': # -1 if not using, 0 if not satisfied, 1 if satisfied
             if self.useflag in use_flags:
