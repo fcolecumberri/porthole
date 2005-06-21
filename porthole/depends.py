@@ -26,13 +26,19 @@ from utils import dprint
 from gettext import gettext as _
 
 class DependAtom:
+    """Dependency Atom Class.
+    Important methods: __repr__(), __eq__(), is_satisfied().
+    """
     def __init__(self, parent):
         self.type = ''
         self.children = []
         self.parent = parent
         self.useflag = ''
         self.name = ''
+    
     def __repr__(self): # called by the "print" function
+        """Returns a human-readable string representation of the DependAtom
+        (used by the "print" statement)."""
         if self.type == 'DEP': return self.name
         elif self.type == 'BLOCKER': return ''.join(['!', self.name])
         elif self.type == 'OPTION': prefix = '||'
@@ -44,6 +50,45 @@ class DependAtom:
             return ''.join([prefix,'[',bulk,']'])
         elif prefix: return ''.join([prefix,'[]'])
         else: return ''
+    
+    def __eq__(self, test_atom): # "atomA == atomB" <==> "atomA.__eq__(atomB)"
+        """Returns True if the test_atom is equivalent to self
+        (used by the statement "atomA == atomB")"""
+        if (self.type != test_atom.type
+                or self.name != test_atom.name
+                or self.useflag != test_atom.useflag
+                or self.children != test_atom.children): # children will recurse
+            return False
+        else: return True
+    
+    def is_satisfied(self, use_flags):
+        """Currently returns an object of variable type, indicating whether
+        this dependency is satisfied.
+        Returns -1 if being satisfied is irrelevant (e.g. use flag for a
+        "USING" DependAtom is not set). Otherwise, the return value can be
+        evaluated as True if the dep is satisfied, False if unsatisfied."""
+        if self.type == 'DEP': return portagelib.get_installed(self.name)
+        elif self.type == 'BLOCKER': return not portagelib.get_installed(self.name)
+        elif self.type == 'OPTION': # nonempty if any child is satisfied
+            satisfied = []
+            for child in self.children:
+                a = child.is_satisfied(use_flags)
+                if a: satisfied.extend(a)
+            return satisfied
+        elif self.type == 'USING': # -1 if not using, 0 if not satisfied, 1 if satisfied
+            if self.useflag in use_flags:
+                satisfied = 1
+                for child in self.children:
+                    if not child.is_satisfied(use_flags): satisfied = 0
+            else: satisfied = -1
+            return satisfied
+        elif self.type == 'NOTUSING': # -1 if using, 0 if not satisfied, 1 if satisfied
+            if self.useflag not in use_flags:
+                satisfied = 1
+                for child in self.children:
+                    if not child.is_satisfied(use_flags): satisfied = 0
+            else: satisfied = -1
+            return satisfied
 
 class DependsTree(gtk.TreeStore):
     """Calculate and display dependencies in a treeview"""
@@ -157,7 +202,6 @@ class DependsTree(gtk.TreeStore):
                 #dprint("dependency '%s' skipped" % depend)
                 pass
 
-
 #~ return depend, op
         #~ else:
             #~ return depend, None
@@ -179,6 +223,52 @@ class DependsTree(gtk.TreeStore):
         #~ elif operator == ">": retval = ins_ver > dep_ver
         #~ # return the result of the operation
         #~ return retval
+
+    def add_atomized_depends_to_tree(self, atomized_depends_list, depends_view,
+                                     parent_iter=None, add_satisfied=1):
+        """Add atomized dependencies to the tree"""
+        for atom in atomized_depends_list:
+            satisfied = atom.is_satisfied(self.use_flags)
+            if satisfied:
+                icon = gtk.STOCK_YES
+                add_kids = 0
+            else:
+                icon = gtk.STOCK_NO
+                add_kids = 1
+            
+            if add_satisfied or not satisfied: # then add deps to treeview
+                #dprint("DEPENDS: atom '%s', type '%s', satisfied '%s'" % (atom.name, atom.type, satisfied))
+                iter = self.insert_before(parent_iter, None)
+                if atom.type == 'USING':
+                    text = _("Using %s") % atom.useflag
+                    if satisfied == -1: icon = gtk.STOCK_REMOVE # -1 ==> irrelevant
+                elif atom.type == 'NOTUSING':
+                    text = _("Not Using %s") % atom.useflag
+                    if satisfied == -1: icon = gtk.STOCK_REMOVE # -1 ==> irrelevant
+                elif atom.type == 'DEP':
+                    text = atom.name
+                elif atom.type == 'BLOCKER':
+                    text = "!" + atom.name
+                    if not satisfied: icon = gtk.STOCK_DIALOG_WARNING
+                elif atom.type == 'OPTION':
+                    text = _("Any of:")
+                    add_kids = -1 # add kids but don't expand
+                
+                if icon:
+                    self.set_value(iter, 1, depends_view.render_icon(icon,
+                                      size = gtk.ICON_SIZE_MENU, detail = None))
+                self.set_value(iter, 0, text)
+                self.set_value(iter, 3, bool(satisfied))
+                if atom.type in ['DEP', 'BLOCKER']:
+                    depname = portagelib.get_full_name(atom.name)
+                    if not depname:
+                        dprint(" * DEPENDS: add_atomized_depends_list(): No depname found for '%s'" % atom.name or atom.useflag)
+                        continue
+                    pack = portagelib.Package(depname)
+                    self.set_value(iter, 2, pack)
+                # add kids if we should
+                if add_kids and add_satisfied != -1:
+                    self.add_atomized_depends_to_tree(atom.children, depends_view, iter, add_kids)
 
     
     def atomize_depends_list(self, depends_list = [], parent = None):
@@ -217,7 +307,10 @@ class DependsTree(gtk.TreeStore):
                 else:
                     depends_list.pop(0)
                 temp_atom.children = self.atomize_depends_list(depends_list, temp_atom)
-                atomized_list.append(temp_atom)
+                if not filter(lambda a: temp_atom == a, [a for a in atomized_list]):
+                # i.e. if temp_atom is not any atom in atomized_list.
+                # This is checked by calling DependAtom.__eq__().
+                    atomized_list.append(temp_atom)
                 continue
             elif item.startswith(")"):
                 if item != ")":
@@ -233,7 +326,10 @@ class DependsTree(gtk.TreeStore):
                 else:
                     temp_atom.type = "DEP"
                     temp_atom.name = item
-                atomized_list.append(temp_atom)
+                if not filter(lambda a: temp_atom == a, [a for a in atomized_list]):
+                # i.e. if temp_atom is not any atom in atomized_list.
+                # This is checked by calling DependsAtom.__eq__().
+                    atomized_list.append(temp_atom)
                 depends_list.pop(0)
         return atomized_list
     
@@ -261,7 +357,10 @@ class DependsTree(gtk.TreeStore):
                 else: x += 1
             #dprint("DEPENDS: reduced depends = %s" % depends)
             self.depends_list = []
-            self.add_depends_to_tree(depends, treeview)
+            #self.add_depends_to_tree(depends, treeview)
+            atomized_depends = self.atomize_depends_list(depends)
+            #dprint(atomized_depends)
+            self.add_atomized_depends_to_tree(atomized_depends, treeview)
         else:
             parent_iter = self.insert_before(None, None)
             self.set_value(parent_iter, 0, _("None"))
