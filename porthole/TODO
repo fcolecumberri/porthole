@@ -18,7 +18,7 @@
    i.e. "emerge <package1> <package2> <package3>"
    (see RFE [974902])
 
- *  (Done) Select All / None in upgradable view (RFE [939337])
+ + (Done) Select All / None in upgradable view (RFE [939337])
 
  * Update statusbar to indicate that a search is taking place
 
@@ -26,7 +26,7 @@
    (This column might not be necessary if a "deep" option is available)
    (see below)
 
- * Some sort of sudo functionality (RFE [950598, 1027080], Bug [1112449]).
+ / (Partially Done) Some sort of sudo functionality (RFE [950598, 1027080], Bug [1112449]).
    Perhaps using libgksu, libgksuui somehow (swig?).
    Pygksu is in gnome-python-extras cvs, but not ready for use (03 June 2005)
 
@@ -41,7 +41,7 @@
       package.mask
    Perhaps some of this could be included in a preferences dialog
 
- * Reap zombie emerge processes (bug [1081506, 1119366])
+ + (Done) Reap zombie emerge processes (bug [1081506, 1119366])
 
  * Ability to unmerge certain version (e.g. only one slot) (bug [1082297]) using
    advemerge window. Could perhaps include this in summary view also.
@@ -61,7 +61,7 @@
  * Fix webbrowser choice, add "copy link" option in summary (bug [908237])
    Porthole needs to do more work to open the default browser.
 
- * Go back to selected category / package when changing views.
+ + (Done) Go back to selected category / package when changing views.
 
  * Method of faking or performing "ask" emerge - see what will be emerged
    then click "yes / no"
@@ -70,6 +70,8 @@
    (not just the default one)
 
  * Way of seeing what installed packages depend on a certain package.
+
+ * Indication of unstable packages in package view (bug [1222366])
 
  ? Table of available ebuilds for our architecture in summary, or for all
    architectures if that setting is enabled (shared with advemerge).
@@ -107,6 +109,10 @@
 
  ? Possible "uninstalled packages" view (bug [1078839])
  ? Show upgrade flags (B, NS etc.) in upgrade view (bug [1078839])
+
+ ? Possibility to show info for packages in the emerge queue (right click ->
+   select in packageview?) and to indicate queued packages in the packageview
+   (Bug [1222366])
 
  ? Possible support for easy etc-update (RFE [954349])
 

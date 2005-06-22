@@ -21,12 +21,13 @@ class Dispatcher:
         self.queue.put(args)
         # write to pipe afterwards
         os.write(self.pipe_w, "X")
-        
-        
-
+    
     def on_data(self, source, cb_condition):
         if select([self.pipe_r],[],[], 0)[0] and os.read(self.pipe_r,1):
-            self.callback(self.callback_args, *self.queue.get())
+            if self.callback_args is not None:
+                self.callback(self.callback_args, *self.queue.get())
+            else:
+                self.callback(*self.queue.get())
         return self.continue_io_watch
 
 # ####################################

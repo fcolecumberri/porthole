@@ -146,7 +146,7 @@ class MainWindow:
         result = self.wtree.get_widget("dependencies_scrolled_window").add(self.deps_view)
         # summary view
         scroller = self.wtree.get_widget("summary_text_scrolled_window");
-        self.summary = Summary(self.prefs)
+        self.summary = Summary(self.prefs, Dispatcher(self.summary_callback))
         result = scroller.add(self.summary)
         self.summary.show()
         # how should we setup our saved menus?
@@ -406,7 +406,47 @@ class MainWindow:
         else:
             dprint("MAINWINDOW package_view callback: unknown action '%s'" % str(action))
         self.prefs.emerge.pretend = old_pretend_value
- 
+
+    def summary_callback(self, action = None, arg = None):
+        dprint("MAINWINDOW: summary_callback(): called")
+        old_pretend_value = self.prefs.emerge.pretend
+        if action.startswith("emerge"):
+            ebuild = arg
+            cp = portagelib.pkgsplit(ebuild)[0]
+            if "pretend" in action:
+                self.prefs.emerge.pretend = True
+            else:
+                self.prefs.emerge.pretend = False
+            if "sudo" in action:
+                self.setup_command( \
+                    portagelib.get_name(cp),
+                    ''.join(['sudo -p "Password: " emerge',
+                              self.prefs.emerge.get_string(), '=', ebuild])
+                )
+            else:
+                self.setup_command( \
+                    portagelib.get_name(cp),
+                    ''.join(["emerge", self.prefs.emerge.get_string(), '=', ebuild])
+                )
+        elif action.startswith("unmerge"):
+            ebuild = arg
+            cp = portagelib.pkgsplit(ebuild)[0]
+            self.prefs.emerge.pretend = False
+            if "sudo" in action:
+                self.setup_command( \
+                    portagelib.get_name(cp),
+                    ''.join(['sudo -p "Password: " emerge unmerge',
+                    self.prefs.emerge.get_string(), '=', ebuild])
+                )
+            else:
+                self.setup_command(
+                    portagelib.get_name(cp),
+                    ''.join(["emerge unmerge", self.prefs.emerge.get_string(), '=', ebuild])
+                )
+        else:
+            dprint("MAINWINDOW package_view callback: unknown action '%s'" % str(action))
+        self.prefs.emerge.pretend = old_pretend_value
+
     def check_for_root(self):
         """figure out if the user can emerge or not..."""
         if not self.is_root:
@@ -429,7 +469,8 @@ class MainWindow:
         statusbar2.pop(0)
         statusbar2.push(0, string)
 
-    def update_db_read(self, dummy, args): # extra args for dispatcher callback
+    #def update_db_read(self, dummy, args): # extra args for dispatcher callback
+    def update_db_read(self, args): # extra args for dispatcher callback
         """Update the statusbar according to the number of packages read."""
         #dprint("MAINWINDOW: update_db_read()")
         #args ["nodecount", "allnodes_length","done"]

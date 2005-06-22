@@ -1018,8 +1018,7 @@ class ProcessManager:
                 self.force_buffer_write = False
                 gobject.timeout_add(200, self.force_buffer_write_timer)
                 # perhaps sudo is waiting for a password
-                # this can be coded at some point
-                # the prompt should be set to be "Password:" when sudo is called
+                # note: the prompt is set to "Password:" in the command string
                 # to override any default.
                 if self.line_buffer.startswith("Password:"):
                     self.do_password_popup()

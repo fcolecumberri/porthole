@@ -24,20 +24,21 @@
 import gtk, pango
 import portagelib
 import string, re
-from utils import dprint
+from utils import dprint, is_root
 from loaders import load_web_page
 from version_sort import ver_sort
 from gettext import gettext as _
 
 class Summary(gtk.TextView):
     """ Class to manage display and contents of package info tab """
-    def __init__(self, prefs):
+    def __init__(self, prefs, dispatcher):
         """ Initialize object """
         gtk.TextView.__init__(self)
         # get the preferences we need
         self.Sprefs = prefs.summary
         self.enable_archlist = prefs.globals.enable_archlist
         self.archlist = prefs.globals.archlist
+        self.dispatch = dispatcher
         self.myarch = portagelib.get_arch()
         self.tooltips = gtk.Tooltips()
         self.set_wrap_mode(gtk.WRAP_WORD)
@@ -50,6 +51,7 @@ class Summary(gtk.TextView):
         self.buffer = gtk.TextBuffer(tagtable)
         self.set_buffer(self.buffer)
         self.license_dir = "file://"+ portagelib.portdir + "/licenses/"
+        self.package = None
 
         # Capture any mouse motion in this tab so we
         # can highlight URL links & change mouse pointer
@@ -59,6 +61,34 @@ class Summary(gtk.TextView):
         self.url_tags = []
         self.underlined_url = False
         self.reset_cursor = 'Please'
+        
+        # create popup menu for rmb-click
+        arch = "~" + portagelib.get_arch()
+        menu = gtk.Menu()
+        menuitems = {}
+        menuitems["emerge"] = gtk.MenuItem(_("Emerge"))
+        menuitems["emerge"].connect("activate", self.emerge)
+        menuitems["pretend-emerge"] = gtk.MenuItem(_("Pretend Emerge"))
+        menuitems["pretend-emerge"].connect("activate", self.emerge, True, None)
+        menuitems["sudo-emerge"] = gtk.MenuItem(_("Sudo Emerge"))
+        menuitems["sudo-emerge"].connect("activate", self.emerge, None, True)
+        menuitems["unmerge"] = gtk.MenuItem(_("Unmerge"))
+        menuitems["unmerge"].connect("activate", self.unmerge)
+        menuitems["sudo-unmerge"] = gtk.MenuItem(_("Sudo Unmerge"))
+        menuitems["sudo-unmerge"].connect("activate", self.unmerge, True)
+        menuitems["add-keyword"] = gtk.MenuItem(_("Append with %s to package.keywords") % arch)
+        menuitems["add-keyword"].connect("activate", self.add_keyword)
+        
+        for item in menuitems.values():
+            menu.append(item)
+            item.show()
+        
+        self.popup_menu = menu
+        self.popup_menuitems = menuitems
+        self.dopopup = None
+        self.selected_ebuild = None
+        self.selected_arch = None
+        self.connect("button_press_event", self.on_button_press)
 
     def create_tag_table(self):
         """ Define all markup tags """
@@ -230,9 +260,13 @@ class Summary(gtk.TextView):
                             color = "#ED9191"
                         if ebuild in installed and arch == myarch:
                             color = "#9090EE"
+                        if keyword_unmasked[arch] and '~' in text:
+                            if ebuild in keyword_unmasked[arch]:
+                                # take account of package.keywords in text but leave colour unchanged
+                                text = text.replace('~', '(+)')
                         label = gtk.Label(text)
-                        box = boxify(label, color)
-                        if text.startswith("M"):
+                        box = boxify(label, color=color, ebuild=ebuild, arch=arch, text=text)
+                        if "M" in text or "[" in text:
                             self.tooltips.set_tip(box, portagelib.get_masking_reason(ebuild))
                         table.attach(box, x, x+1, y, y+1)
             else:
@@ -266,8 +300,12 @@ class Summary(gtk.TextView):
                         color = "#ED9191"
                     if ebuild in installed:
                         color = "#9090EE"
+                    if keyword_unmasked[myarch] and '~' in text:
+                        if ebuild in keyword_unmasked[myarch]:
+                            # take account of package.keywords in text but leave colour unchanged
+                            text = text.replace('~', '(+)')
                     label = gtk.Label(text)
-                    box = boxify(label, color)
+                    box = boxify(label, color=color, ebuild=ebuild, arch=myarch, text=text)
                     if text.startswith("M"):
                         self.tooltips.set_tip(box, portagelib.get_masking_reason(ebuild))
                     table.attach(box, x, x+1, 1, 2)
@@ -282,13 +320,21 @@ class Summary(gtk.TextView):
             nl()
             nl()
             
-        def boxify(label, color = None):
+        def boxify(label, color=None, ebuild=None, arch=None, text=None):
             box = gtk.EventBox()
             box.add(label)
             if color:
                 style = box.get_style().copy()
                 style.bg[gtk.STATE_NORMAL] = gtk.gdk.color_parse(color)
                 box.set_style(style)
+            if ebuild:
+                box.color = color
+                box.ebuild = ebuild
+                box.arch = arch
+                box.text = text
+                box.connect("button-press-event", self.on_table_clicked)
+                box.connect("enter-notify-event", self.on_table_mouse)
+                box.connect("leave-notify-event", self.on_table_mouse)
             return box
         
         # End supporting internal functions
@@ -300,16 +346,21 @@ class Summary(gtk.TextView):
         if not package:
             # Category is selected, just exit
             return
-
+        
+        self.package = package
+        
         # Get the package info
         #dprint("SUMMARY: get package info")
         metadata = package.get_metadata()
-        installed = package.get_installed()
+        installed = self.installed = package.get_installed()
         versions = package.get_versions()
         nonmasked = package.get_versions(include_masked = False)
         
         # added by Tommy
         hardmasked = package.get_hard_masked()
+        keyword_unmasked = portagelib.get_keyword_unmasked_ebuilds(
+                            archlist=self.archlist, full_name=package.full_name)
+        #dprint(keyword_unmasked)
 
         best = portagelib.best(installed + nonmasked)
         #dprint("SUMMARY: best = %s" %best)
@@ -435,3 +486,120 @@ class Summary(gtk.TextView):
                     append_url(license, self.license_dir + license, "blue")
                     x += 1
             nl()
+
+
+    def on_button_press(self, summaryview, event):
+        """Button press callback for Summary.
+        (note: table clicks are handled in on_table_clicked)"""
+        dprint("SUMMARY: Handling SummaryView button press event")
+        if event.type != gtk.gdk.BUTTON_PRESS:
+            dprint("SUMMARY: Strange event type got passed to on_button_press() callback...")
+            dprint(event.type)
+        if event.button == 3: # secondary mouse button
+            self.do_popup()
+            return True
+        else: return False
+    
+    def do_popup(self):
+        dprint("SUMMARY: do_popup(): pop!")
+    
+    def on_table_clicked(self, eventbox, event):
+        dprint("SUMMARY: EventBox clicked")
+        #dprint(eventbox)
+        #dprint(eventbox.get_parent())
+        #dprint([eventbox.ebuild, eventbox.arch, eventbox.text])
+        if event.button == 3: # secondary mouse button
+            self.do_table_popup(eventbox, event)
+        return True
+    
+    def do_table_popup(self, eventbox, event):
+        self.selected_ebuild = eventbox.ebuild
+        self.selected_arch = eventbox.arch
+        if is_root():
+            if '~' in eventbox.text:
+                self.popup_menuitems["add-keyword"].show()
+            else: self.popup_menuitems["add-keyword"].hide()
+            if eventbox.ebuild in self.installed:
+                self.popup_menuitems["unmerge"].show()
+                self.popup_menuitems["emerge"].hide()
+                self.popup_menuitems["pretend-emerge"].hide()
+            else:
+                self.popup_menuitems["unmerge"].hide()
+                self.popup_menuitems["emerge"].show()
+                self.popup_menuitems["pretend-emerge"].show()
+            self.popup_menuitems["sudo-emerge"].hide()
+            self.popup_menuitems["sudo-unmerge"].hide()
+        else:
+            self.popup_menuitems["emerge"].hide()
+            self.popup_menuitems["unmerge"].hide()
+            self.popup_menuitems["add-keyword"].hide()
+            if eventbox.ebuild in self.installed:
+                self.popup_menuitems["sudo-unmerge"].show()
+                self.popup_menuitems["sudo-emerge"].hide()
+                self.popup_menuitems["pretend-emerge"].hide()
+            else:
+                self.popup_menuitems["sudo-unmerge"].hide()
+                self.popup_menuitems["sudo-emerge"].show()
+                self.popup_menuitems["pretend-emerge"].show()
+        self.popup_menu.popup(None, None, None, event.button, event.time)
+        # de-select the table cell. Would be nice to leave it selected,
+        # but it doesn't get de-selected when the menu is closed.
+        eventbox.emit("leave-notify-event", gtk.gdk.Event(gtk.gdk.LEAVE_NOTIFY))
+        return True
+    
+    def on_table_mouse(self, eventbox, event):
+        if event.mode != gtk.gdk.CROSSING_NORMAL: return False
+        if event.type == gtk.gdk.ENTER_NOTIFY:
+            #dprint("SUMMARY: on_table_mouse(): Enter notify")
+            # note: colour should be of form "#xxxxxx" (not name)
+            if eventbox.color.startswith('#'):
+                colour = eventbox.color[1:]
+                colourlist = ['#']
+                # make mouseover'd box twice as bright
+                for char in colour:
+                    # not very technical
+                    colourint = int('0x' + char, 0)
+                    newint = (colourint + 16) / 2
+                    tempchar = hex(newint)[2]
+                    colourlist.append(tempchar)
+                newcolour = ''.join(colourlist)
+                #dprint("old colour = %s" % eventbox.color)
+                #dprint("new colour = %s" % newcolour)
+                style = eventbox.get_style().copy()
+                style.bg[gtk.STATE_NORMAL] = gtk.gdk.color_parse(newcolour)
+                eventbox.set_style(style)
+        elif event.type == gtk.gdk.LEAVE_NOTIFY:
+            #dprint("SUMMARY: on_table_mouse(): Leave notify")
+            style = eventbox.get_style().copy()
+            style.bg[gtk.STATE_NORMAL] = gtk.gdk.color_parse(eventbox.color)
+            eventbox.set_style(style)
+        return False
+    
+    def emerge(self, menuitem_widget, pretend=None, sudo=None):
+        emergestring = 'emerge'
+        if pretend:
+            emergestring += ' pretend'
+        if sudo:
+            emergestring += ' sudo'
+        self.dispatch(emergestring, self.selected_ebuild)
+        
+    def unmerge(self, menuitem_widget, sudo=None):
+        if sudo:
+            self.dispatch("unmerge sudo", self.selected_ebuild)
+        else:
+            self.dispatch("unmerge", self.selected_ebuild)
+    
+    def add_keyword(self, menuitem_widget): # implement me
+        arch = "~" + portagelib.get_arch()
+        #name = get_treeview_selection(self, 2).full_name
+        #string = name + " " + arch + "\n"
+        #dprint("VIEWS: Package view add_keyword(); %s" %string)
+        #keywordsfile = open(USER_CONFIG_PATH + "/package.keywords", "a")
+        #keywordsfile.write(string)
+        #keywordsfile.close()
+        #self.mainwindow_callback("refresh")
+
+    
+
+
+

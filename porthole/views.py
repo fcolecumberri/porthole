@@ -58,7 +58,7 @@ def PackageModel():
         gobject.TYPE_STRING,        # 0: package name
         gobject.TYPE_BOOLEAN,       # 1: checkbox value in upgrade view
         gobject.TYPE_PYOBJECT,      # 2: package object
-        gtk.gdk.Pixbuf,            # 3: room for various icons
+        gtk.gdk.Pixbuf,             # 3: room for various icons
         gobject.TYPE_BOOLEAN,       # 4: true if package is in 'world' file
         gobject.TYPE_STRING,        # 5: foreground text colour
         gobject.TYPE_STRING,        # 6: size

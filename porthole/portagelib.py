@@ -32,6 +32,7 @@ import version_sort
 
 try:
     import portage
+    import portage_const
 except ImportError:
     exit(_('Could not find portage module.\n'
          'Are you sure this is a Gentoo system?'))
@@ -170,6 +171,10 @@ def get_name(full_name):
     """Extract name from full name."""
     return full_name.split('/')[1]
 
+def pkgsplit(ebuild):
+    """Split ebuild into [category/package, version, release]"""
+    return portage.pkgsplit(ebuild)
+
 def get_category(full_name):
     """Extract category from full name."""
     return full_name.split('/')[0]
@@ -192,7 +197,7 @@ def get_installed(package_name):
     """
     return portage.db['/']['vartree'].dep_match(str(package_name))
 
-def xmatch(*args):
+def xmatch(*args, **kwargs):
     """Pass arguments on to portage's caching match function.
     xmatch('match-all',package-name) returns all ebuilds of <package-name> in a list,
     xmatch('match-visible',package-name) returns non-masked ebuilds,
@@ -203,8 +208,38 @@ def xmatch(*args):
        control-center                       ebuilds for gnome-base/control-center
        >=gnome-base/control-center-2.8.2    only ebuilds with version >= 2.8.2
     """
-    return portage.portdb.xmatch(*args)
- 
+    return portage.portdb.xmatch(*args, **kwargs)
+
+def get_keyword_unmasked_ebuilds(arch=None, full_name='', archlist=None):
+    """Return a list of ebuilds unmasked by package.keywords.
+    If 'arch': returns a list of ebuilds.
+    Elif 'archlist': returns a dictionary with dict[arch] = list of ebuilds for arch in archlist.
+    Else returns a dictionary with dict[arch] = list of ebuilds for all architectures.
+    If 'full_name' is given, ebuilds are only given for that package.
+    """
+    keywordsfile = open('/'.join([portage_const.USER_CONFIG_PATH, 'package.keywords']), 'r')
+    keywordslines = keywordsfile.read().split('\n')
+    keywordsfile.close()
+    package_keywords = [line.split(' ') for line in keywordslines]
+    # e.g. [['gnome-base/control-center', '~x86'], ['app-portage/porthole', '~x86', '~amd64']]
+    if arch: archlist = [arch]
+    if not archlist: archlist = get_archlist()
+    dict = {}
+    for item in archlist:
+        list = [element[0]
+            for element in package_keywords
+            if (('~' + item) in element
+                and full_name in element[0])]
+        ebuild_list = []
+        for entry in list:
+            matching_ebuilds = xmatch('match-all', entry)
+            for ebuild in matching_ebuilds:
+                if ebuild not in ebuild_list:
+                    ebuild_list.append(ebuild)
+        dict[item] = ebuild_list
+    if arch: return dict[item]
+    else: return dict
+
 def get_version(ebuild):
     """Extract version number from ebuild name"""
     result = ''
