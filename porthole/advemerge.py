@@ -43,7 +43,7 @@ class AdvancedEmergeDialog:
         self.setup_command = setup_command
         self.arch = portagelib.get_arch()
         self.system_use_flags = portagelib.SystemUseFlags
-        self.emerge_unmerge = "emerge "
+        self.emerge_unmerge = "emerge"
         self.is_root = is_root()
         
         # Parse glade file
@@ -447,11 +447,9 @@ class AdvancedEmergeDialog:
 
         # Build table to hold checkboxes
         size = len(use_flags)
-        maxcol = 3
-        maxrow = size / maxcol - 1
-        if maxrow < 1:
-            maxrow = 1
-        table = gtk.Table(maxrow, maxcol-1, True)
+        maxcol = 3  # = number of columns - 1 = index of last column
+        maxrow = size / (maxcol + 1)  # = number of rows - 1
+        table = gtk.Table(maxrow+1, maxcol+1, True)
         UseFlagFrame.add(table)
 
         self.ufList = []
@@ -462,7 +460,7 @@ class AdvancedEmergeDialog:
         row = 0
         for flag in use_flags:
             
-            button = gtk.CheckButton(flag)
+            #button = gtk.CheckButton(flag)
             #if flag in portagelib.SystemUseFlags:
             if flag in self.system_use_flags:
                 # Display system level flags with a +
