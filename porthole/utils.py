@@ -149,9 +149,9 @@ class YesNoDialog(CommonDialog):
     def __init__(self, title, parent = None,
                  message = None, callback = None):
         CommonDialog.__init__(self, title, parent, message,
-                                           callback, "_Yes")
+                                           callback, _("_Yes"))
         # add "No" button
-        self.add_button("_No", 1)
+        self.add_button(_("_No"), 1)
         
 
 class SingleButtonDialog(CommonDialog):

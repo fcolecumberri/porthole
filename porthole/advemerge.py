@@ -27,7 +27,7 @@ import gtk
 import gtk.glade
 import portagelib
 import utils
-from utils import dprint
+from utils import dprint, is_root
 from version_sort import ver_sort
 from loaders import load_web_page
 from gettext import gettext as _
@@ -42,6 +42,9 @@ class AdvancedEmergeDialog:
         self.package = package
         self.setup_command = setup_command
         self.arch = portagelib.get_arch()
+        self.system_use_flags = portagelib.SystemUseFlags
+        self.emerge_unmerge = "emerge "
+        self.is_root = is_root()
         
         # Parse glade file
         self.gladefile = prefs.DATA_PATH + "advemerge.glade"
@@ -59,13 +62,24 @@ class AdvancedEmergeDialog:
                      "on_cbBuildPkgOnly_clicked" : self.buildpkgonly_check,
                      "on_cbUsePkg_clicked" : self.usepkg_check,
                      "on_cbUsePkgOnly_clicked" : self.usepkgonly_check,
-                     "on_cmbVersion_changed" : self.version_changed,}
+                     "on_cmbVersion_changed" : self.version_changed,
+                     "on_cmbEmerge_changed" : self.emerge_changed,}
 
         self.wtree.signal_autoconnect(callbacks)
         self.window = self.wtree.get_widget("adv_emerge_dialog")
         self.use_flags_frame = self.wtree.get_widget("frameUseFlags")
         self.keywords_frame = self.wtree.get_widget("frameKeywords")
         self.window.set_title(_("Advanced Emerge Settings for %s") % package.full_name)
+        
+        self.command_status = self.wtree.get_widget("statusbarEmergeCommand")
+        self.command_eventbox = self.wtree.get_widget("eventboxEmergeCommand")
+        # Connect option toggles to on_toggled
+        for checkbutton in self.wtree.get_widget("table2").get_children():
+            if isinstance(checkbutton, gtk.CheckButton):
+                checkbutton.connect("toggled", self.on_toggled)
+            else:
+                dprint("ADVEMERGE: table2 has child not of type gtk.CheckButton")
+                dprint(checkbutton)
         
         if not self.prefs.advemerge.showuseflags:
             self.use_flags_frame.hide()
@@ -79,7 +93,6 @@ class AdvancedEmergeDialog:
         #self.combo = self.wtree.get_widget("cmbVersion")
         self.get_versions()
         
-
         # Build a formatted combo list from the versioninfo list 
         #comboList = []
         self.comboList = gtk.ListStore(str)
@@ -91,7 +104,9 @@ class AdvancedEmergeDialog:
             slot = ver["slot"]
             if slot != '0':
                 info += ''.join(['   [', _('Slot:%s') % slot, ']'])
-            if not ver["stable"]:
+            if not ver["available"]:
+                info += _('   {unavailable}')
+            elif not ver["stable"]:
                 info += _('   (unstable)')
             if ver["hard_masked"]:
                 info += _('   [MASKED]')
@@ -103,12 +118,7 @@ class AdvancedEmergeDialog:
                 index = x
             if ver["installed"]:
                 info += _('   [installed]')
-            #comboList.append(info)
-            # put the recommended upgrade (or downgrade) at the top of the list
-            #comboList.insert(0,comboList.pop(index))
-
-            # Set the combo list
-            #self.combo.set_popdown_strings(comboList)
+            
             self.comboList.append([info])
         
         # Build version combobox
@@ -119,7 +129,18 @@ class AdvancedEmergeDialog:
         self.combobox.add_attribute(cell, 'text', 0)
         self.combobox.set_active(index) # select "recommended" ebuild by default
         #self.combobox.connect("changed",self.version_changed) # register callback
-         
+        
+        # emerge / unmerge combobox:
+        self.emerge_combolist = gtk.ListStore(str)
+        iter = self.emerge_combolist.append(["emerge"])
+        self.emerge_combolist.append(["unmerge"])
+        self.emerge_combobox = self.wtree.get_widget("cmbEmerge")
+        self.emerge_combobox.set_model(self.emerge_combolist)
+        cell = gtk.CellRendererText()
+        self.emerge_combobox.pack_start(cell, True)
+        self.emerge_combobox.add_attribute(cell, 'text', 0)
+        self.emerge_combobox.set_active_iter(iter)
+        
         # Set any emerge options the user wants defaulted
         if self.prefs.emerge.pretend:
             self.wtree.get_widget("cbPretend").set_active(True)
@@ -131,6 +152,9 @@ class AdvancedEmergeDialog:
         #    self.wtree.get_widget("cbUpgradeOnly").set_active(True)
         if self.prefs.emerge.fetch:
             self.wtree.get_widget("cbFetchOnly").set_active(True)
+        
+        # show command in command_label
+        self.display_emerge_command()
 
     #-----------------------------------------------
     # GUI Callback function definitions start here
@@ -138,38 +162,13 @@ class AdvancedEmergeDialog:
 
     def ok_clicked(self, widget):
         """ Interrogate object for settings and start the ebuild """
-        # Get selected version from combo list
-        #sel_ver = self.combo.entry.get_text()
-        iter = self.combobox.get_active_iter()
-        model = self.combobox.get_model()
-        sel_ver = model.get_value(iter, 0)
-
-        # Get version info of selected version
-        verInfo = self.get_verInfo(sel_ver)
-
-        # Build use flag string
-        use_flags = self.get_use_flags()
-        if len(use_flags) > 0:
-            use_flags = "USE='" + use_flags + "' "
+        command = self.get_command()
         
-        # Build accept keyword string
-        accept_keyword = self.get_keyword()
-        if len(accept_keyword) > 0:
-            accept_keyword = "ACCEPT_KEYWORDS='" + accept_keyword + "' "
-
-        # Send command to be processed
-        command = use_flags + \
-            accept_keyword + \
-            "emerge " + \
-            self.get_options() + \
-            '=' + verInfo["name"]
-
         # Dispose of the dialog
         self.window.destroy()
         
         # Submit the command for processing
         self.setup_command(self.package.get_name(), command)
-
 
     def cancel_clicked(self, widget):
         """ Cancel emerge """
@@ -195,8 +194,16 @@ class AdvancedEmergeDialog:
             self.build_use_flag_widget(verInfo["use_flags"])
             # Reset keywords
             self.build_keywords_widget(verInfo["keywords"])
-
-
+        self.display_emerge_command()
+    
+    def emerge_changed(self, widget):
+        """ Swap between emerge and unmerge """
+        dprint("ADVEMERGE: emerge_changed()")
+        iter = self.emerge_combobox.get_active_iter()
+        model = self.emerge_combobox.get_model()
+        self.emerge_unmerge = model.get_value(iter, 0)
+        self.display_emerge_command()
+    
     def quiet_check(self, widget):
         """ If quiet is selected, disable verbose """
         if widget.get_active():
@@ -244,6 +251,10 @@ class AdvancedEmergeDialog:
         if widget.get_active():
             self.wtree.get_widget("cbUsePkg").set_active(False)
 
+    def on_toggled(self, widget):
+        self.display_emerge_command()
+        return False
+
     #------------------------------------------
     # Support function definitions start here
     #------------------------------------------
@@ -265,33 +276,29 @@ class AdvancedEmergeDialog:
         """ 
         self.verList = []
         # Get all versions sorted in chronological order
-        ebuilds = ver_sort(self.package.get_versions())
+        portage_versions = self.package.get_versions()
  
         # Get all installed versions
         installed = self.package.get_installed()
-
+        
+        ebuilds = portage_versions[:]
+        for item in installed:
+            if item not in portage_versions:
+                ebuilds.append(item)
+        
+        ebuilds = ver_sort(ebuilds)
+        
         # get lists of hard masked and stable versions (unstable inferred)
         hardmasked = self.package.get_hard_masked(check_unmask = True)
         nonmasked = self.package.get_versions(include_masked = False)
         
         # iterate through ebuild list and create data structure
         for ebuild in ebuilds:
-            # removed by Tommy:
-            #~ props = self.package.get_properties(ebuild)
-            #~ vernum = portagelib.get_version(ebuild)
-            #~ isBest = ebuild == self.package.get_latest_ebuild()
-            #~ isInstalled = ebuild in installed
-            #~ slot = props.get_slot()
-            #~ keywords = props.get_keywords()
-            #~ useflags = props.get_use_flags()
-            #~ # Append to list
-            #~ self.verList.append([vernum, ebuild, isBest, isInstalled, slot, keywords, useflags])
-            # added by Tommy:
             info = {}
             props = self.package.get_properties(ebuild) 
             info["name"] = ebuild
             info["number"] = portagelib.get_version(ebuild)
-            if ebuild in self.package.get_best_ebuild():
+            if ebuild == self.package.get_best_ebuild():
                 info["best"] = True
                 info["best_downgrades"] = ebuild not in portagelib.best(installed + [ebuild])
             else:
@@ -302,6 +309,7 @@ class AdvancedEmergeDialog:
             info["use_flags"] = props.get_use_flags()
             info["stable"] = ebuild in nonmasked
             info["hard_masked"] = ebuild in hardmasked
+            info["available"] = ebuild in portage_versions
             self.verList.append(info)
 
     def get_verInfo(self, version):
@@ -330,15 +338,22 @@ class AdvancedEmergeDialog:
 
     def get_use_flags(self):
         """ Get use flags selected by user """
-        flags = ''
+        #flags = ''
+        flaglist = []
         for child in self.ufList:
-            flag = child[1][1:]
+            #flag = child[1][1:]
+            flag = child[1]
             if child[0].get_active():
-                if child[1][0] == '-':
-                    flags += flag + ' '
+                #if child[1][0] == '-':
+                if flag not in self.system_use_flags:
+                    #flags += flag + ' '
+                    flaglist.append(flag)
             else:
-                if child[1][0] == '+':
-                    flags += '-' + flag + ' '
+                #if child[1][0] == '+':
+                if flag in self.system_use_flags:
+                    #flags += '-' + flag + ' '
+                    flaglist.append('-' + flag)
+        flags = ' '.join(flaglist)
         return flags
 
 
@@ -370,7 +385,55 @@ class AdvancedEmergeDialog:
             options += '--nospinner '
         return options
 
-
+    def get_command(self):
+        # Get selected version from combo list
+        #sel_ver = self.combo.entry.get_text()
+        iter = self.combobox.get_active_iter()
+        model = self.combobox.get_model()
+        sel_ver = model.get_value(iter, 0)
+        
+        # Get version info of selected version
+        verInfo = self.get_verInfo(sel_ver)
+        
+        # Build use flag string
+        use_flags = self.get_use_flags()
+        if len(use_flags) > 0:
+            use_flags = "USE='" + use_flags + "' "
+        
+        # Build accept keyword string
+        accept_keyword = self.get_keyword()
+        if len(accept_keyword) > 0:
+            accept_keyword = "ACCEPT_KEYWORDS='" + accept_keyword + "' "
+        
+        # Build emerge or unmerge base command
+        if (self.is_root or self.wtree.get_widget("cbPretend").get_active()):
+            emerge_unmerge = ''
+        else:
+            emerge_unmerge = 'sudo -p "Password: " '
+        
+        if self.emerge_unmerge == "emerge":
+            emerge_unmerge += "emerge "
+        else: # self.emerge_unmerge == "unmerge"
+            emerge_unmerge += "emerge unmerge "
+        
+        # Send command to be processed
+        command = ''.join([ \
+            use_flags,
+            accept_keyword,
+            #self.emerge_unmerge,
+            emerge_unmerge,
+            self.get_options(),
+            '=',
+            verInfo["name"]
+        ])
+        return command
+    
+    def display_emerge_command(self):
+        command = self.get_command()
+        self.command_status.pop(0)
+        self.command_status.push(0, ' ' + command)
+        self.tooltips.set_tip(self.command_eventbox, command)
+    
     def build_use_flag_widget(self, use_flags):
         """ Create a table layout and populate it with 
             checkbox widgets representing the available
@@ -400,18 +463,23 @@ class AdvancedEmergeDialog:
         for flag in use_flags:
             
             button = gtk.CheckButton(flag)
-            if flag in portagelib.SystemUseFlags:
+            #if flag in portagelib.SystemUseFlags:
+            if flag in self.system_use_flags:
                 # Display system level flags with a +
-                button = gtk.CheckButton('+' + flag)
+                #button = gtk.CheckButton('+' + flag)
+                button = gtk.CheckButton(flag)
                 # By default they are set "on"
                 button.set_active(True)
-                self.ufList.append([button, '+' + flag])
+                #self.ufList.append([button, '+' + flag])
+                self.ufList.append([button, flag])
             else:
                 # Display unset flags with a -
-                button = gtk.CheckButton('-' + flag)
+                #button = gtk.CheckButton('-' + flag)
+                button = gtk.CheckButton(flag)
                 # By default they are set "off"
                 button.set_active(False)
-                self.ufList.append([button, '-' + flag])
+                #self.ufList.append([button, '-' + flag])
+                self.ufList.append([button, flag])
 
             # Add tooltip, attach button to table and show it off
             # Use lower case flag, since that is how it is stored
@@ -423,6 +491,8 @@ class AdvancedEmergeDialog:
             except KeyError:
                 self.tooltips.set_tip(button, _('Unsupported use flag'))
             table.attach(button, col, col+1, row, row+1)
+            # connect to on_toggled so we can show changes
+            button.connect("toggled", self.on_toggled)
             button.show()
             # Increment col & row counters
             col += 1
@@ -472,6 +542,8 @@ class AdvancedEmergeDialog:
                     button = gtk.RadioButton(rbGroup, keyword)
                     self.kwList.append([button, keyword])
                     table.attach(button, col, col+1, row, row+1)
+                    # connect to on_toggled so we can show changes
+                    button.connect("toggled", self.on_toggled)
                     button.show()
                     button_added = True
             else:
