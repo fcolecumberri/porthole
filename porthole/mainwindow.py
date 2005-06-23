@@ -23,7 +23,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import threading, re
+import threading, re #, types
 import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, gtk.glade, gobject, pango
 import portagelib, os, string
@@ -517,6 +517,8 @@ class MainWindow:
                 #dprint("MAINWINDOW: update_db_read()... Search view")
                 # update the views by calling view_filter_changed
                 self.view_filter_changed(self.widget["view_filter"])
+                # reset the upgrades list if it is loaded and not being viewed
+                self.upgrades_loaded = False
                 if self.reload:
                     # reset _last_selected so it thinks this package is new again
                     self.package_view._last_selected = None
@@ -529,11 +531,17 @@ class MainWindow:
                 #dprint("MAINWINDOW: update_db_read()... self.reload=True ALL or INSTALLED view")
                 # reset _last_selected so it thinks this category is new again
                 self.category_view._last_category = None
-                #~ #dprint("MAINWINDOW: re-select the category")
-                if self.current_category_cursor != None:
+                #dprint("MAINWINDOW: re-select the category: self.current_category_cursor =")
+                #dprint(self.current_category_cursor)
+                #dprint(type(self.current_category_cursor))
+                if (self.current_category_cursor != None) and (self.current_category_cursor != [None,None]):
                     # re-select the category
-                    self.category_view.set_cursor(self.current_category_cursor[0],
-                                                  self.current_category_cursor[1])
+                    try:
+                        self.category_view.set_cursor(self.current_category_cursor[0],
+                                                      self.current_category_cursor[1])
+                    except:
+                        dprint("MAINWINDOW: update_db_read(); error converting self.current_category_cursor[]: %s"
+                                %str(self.current_category_cursor))
                 #~ #dprint("MAINWINDOW: reset _last_selected so it thinks this package is new again")
                 # reset _last_selected so it thinks this package is new again
                 self.package_view._last_selected = None
@@ -544,6 +552,8 @@ class MainWindow:
                         self.package_view.set_cursor(self.current_package_path,
                                                      self.current_package_cursor[1])
                 self.view_filter_changed(self.widget["view_filter"])
+                # reset the upgrades list if it is loaded and not being viewed
+                self.upgrades_loaded = False
             else:
                 if self.reload:
                     #dprint("MAINWINDOW: update_db_read()... must be an upgradeable view")
