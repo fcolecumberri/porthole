@@ -154,6 +154,8 @@ class AdvancedEmergeDialog:
         #    self.wtree.get_widget("cbUpgradeOnly").set_active(True)
         if self.prefs.emerge.fetch:
             self.wtree.get_widget("cbFetchOnly").set_active(True)
+        if self.prefs.emerge.nospinner:
+            self.wtree.get_widget("cbNoSpinner").set_active(True)
         
         # show command in command_label
         self.display_emerge_command()
@@ -370,6 +372,7 @@ class AdvancedEmergeDialog:
                 ('cbNoConfMem', '--noconfmem ', '--noconfmem '),
                 ('cbNoDeps', '-O ', '--nodeps '),
                 ('cbNoReplace', '-n ', '--noreplace '),
+                ('cbNoSpinner', '--nospinner', '--nospinner'),
                 ('cbOneShot', '--oneshot ', '--oneshot '),
                 ('cbOnlyDeps', '-o ', '--onlydeps '),
                 ('cbPretend','-p ', '--pretend '),
@@ -383,8 +386,8 @@ class AdvancedEmergeDialog:
         for Name, ShortOption, LongOption in List:
             if self.wtree.get_widget(Name).get_active():
                 options += LongOption
-        if self.prefs.emerge.nospinner:
-            options += '--nospinner '
+        #if self.prefs.emerge.nospinner:
+        #    options += '--nospinner '
         return options
 
     def get_command(self):
@@ -438,7 +441,7 @@ class AdvancedEmergeDialog:
         end = self.command_buffer.get_end_iter()
         start = self.command_buffer.get_start_iter()
         self.command_buffer.delete(start, end)
-        self.command_buffer.insert(self.command_buffer.get_end_iter(),command)
+        self.command_buffer.insert(self.command_buffer.get_end_iter(),command + '\n')
     
     def build_use_flag_widget(self, use_flags):
         """ Create a table layout and populate it with 
