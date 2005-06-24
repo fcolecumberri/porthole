@@ -73,6 +73,8 @@ class AdvancedEmergeDialog:
         
         self.command_status = self.wtree.get_widget("statusbarEmergeCommand")
         self.command_eventbox = self.wtree.get_widget("eventboxEmergeCommand")
+        self.command_textview = self.wtree.get_widget("command_textview")
+        self.command_buffer = self.command_textview.get_buffer()
         # Connect option toggles to on_toggled
         for checkbutton in self.wtree.get_widget("table2").get_children():
             if isinstance(checkbutton, gtk.CheckButton):
@@ -433,6 +435,10 @@ class AdvancedEmergeDialog:
         self.command_status.pop(0)
         self.command_status.push(0, ' ' + command)
         self.tooltips.set_tip(self.command_eventbox, command)
+        end = self.command_buffer.get_end_iter()
+        start = self.command_buffer.get_start_iter()
+        self.command_buffer.delete(start, end)
+        self.command_buffer.insert(self.command_buffer.get_end_iter(),command)
     
     def build_use_flag_widget(self, use_flags):
         """ Create a table layout and populate it with 

@@ -16,6 +16,7 @@
   <property name="skip_pager_hint">False</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
+  <property name="focus_on_map">True</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -23,40 +24,6 @@
       <property name="visible">True</property>
       <property name="homogeneous">False</property>
       <property name="spacing">0</property>
-
-      <child>
-	<widget class="GtkAlignment" id="alignment1">
-	  <property name="visible">True</property>
-	  <property name="xalign">0.5</property>
-	  <property name="yalign">0.5</property>
-	  <property name="xscale">1</property>
-	  <property name="yscale">1</property>
-	  <property name="top_padding">3</property>
-	  <property name="bottom_padding">0</property>
-	  <property name="left_padding">3</property>
-	  <property name="right_padding">3</property>
-
-	  <child>
-	    <widget class="GtkEventBox" id="eventboxEmergeCommand">
-	      <property name="visible">True</property>
-	      <property name="visible_window">True</property>
-	      <property name="above_child">False</property>
-
-	      <child>
-		<widget class="GtkStatusbar" id="statusbarEmergeCommand">
-		  <property name="visible">True</property>
-		  <property name="has_resize_grip">False</property>
-		</widget>
-	      </child>
-	    </widget>
-	  </child>
-	</widget>
-	<packing>
-	  <property name="padding">0</property>
-	  <property name="expand">False</property>
-	  <property name="fill">False</property>
-	</packing>
-      </child>
 
       <child internal-child="action_area">
 	<widget class="GtkHButtonBox" id="dialog-action_area1">
@@ -114,6 +81,40 @@
       </child>
 
       <child>
+	<widget class="GtkAlignment" id="alignment1">
+	  <property name="visible">True</property>
+	  <property name="xalign">0.5</property>
+	  <property name="yalign">0.5</property>
+	  <property name="xscale">1</property>
+	  <property name="yscale">1</property>
+	  <property name="top_padding">3</property>
+	  <property name="bottom_padding">0</property>
+	  <property name="left_padding">3</property>
+	  <property name="right_padding">3</property>
+
+	  <child>
+	    <widget class="GtkEventBox" id="eventboxEmergeCommand">
+	      <property name="visible">True</property>
+	      <property name="visible_window">True</property>
+	      <property name="above_child">False</property>
+
+	      <child>
+		<widget class="GtkStatusbar" id="statusbarEmergeCommand">
+		  <property name="visible">True</property>
+		  <property name="has_resize_grip">False</property>
+		</widget>
+	      </child>
+	    </widget>
+	  </child>
+	</widget>
+	<packing>
+	  <property name="padding">0</property>
+	  <property name="expand">False</property>
+	  <property name="fill">False</property>
+	</packing>
+      </child>
+
+      <child>
 	<widget class="GtkVBox" id="vbox1">
 	  <property name="visible">True</property>
 	  <property name="homogeneous">False</property>
@@ -131,8 +132,8 @@
 		<widget class="GtkTable" id="table2">
 		  <property name="border_width">3</property>
 		  <property name="visible">True</property>
-		  <property name="n_rows">3</property>
-		  <property name="n_columns">6</property>
+		  <property name="n_rows">4</property>
+		  <property name="n_columns">5</property>
 		  <property name="homogeneous">True</property>
 		  <property name="row_spacing">1</property>
 		  <property name="column_spacing">1</property>
@@ -210,24 +211,24 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkCheckButton" id="cbFetchOnly">
+		    <widget class="GtkCheckButton" id="cbDeep">
 		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Instead of doing any package building, just perform fetches for all packages (the main package as well as  all  dependencies.)</property>
+		      <property name="tooltip" translatable="yes">When used in conjunction with update, this flag forces emerge to consider the entire dependency tree of packages, instead of checking only the immediate dependencies of the packages.  As an example, this catches updates in libraries that are not directly listed in the dependencies of a package.</property>
 		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">fetchonly</property>
+		      <property name="label" translatable="yes">deep</property>
 		      <property name="use_underline">True</property>
 		      <property name="relief">GTK_RELIEF_NORMAL</property>
 		      <property name="focus_on_click">True</property>
 		      <property name="active">False</property>
 		      <property name="inconsistent">False</property>
 		      <property name="draw_indicator">True</property>
-		      <signal name="clicked" handler="on_cbFetchOnly_clicked" last_modification_time="Sun, 23 May 2004 22:05:08 GMT"/>
+		      <signal name="clicked" handler="on_cbDeep_clicked" last_modification_time="Sun, 23 May 2004 22:04:52 GMT"/>
 		    </widget>
 		    <packing>
-		      <property name="left_attach">1</property>
-		      <property name="right_attach">2</property>
-		      <property name="top_attach">2</property>
-		      <property name="bottom_attach">3</property>
+		      <property name="left_attach">0</property>
+		      <property name="right_attach">1</property>
+		      <property name="top_attach">3</property>
+		      <property name="bottom_attach">4</property>
 		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
@@ -250,32 +251,32 @@
 		    <packing>
 		      <property name="left_attach">1</property>
 		      <property name="right_attach">2</property>
-		      <property name="top_attach">1</property>
-		      <property name="bottom_attach">2</property>
+		      <property name="top_attach">0</property>
+		      <property name="bottom_attach">1</property>
 		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
 		  </child>
 
 		  <child>
-		    <widget class="GtkCheckButton" id="cbDeep">
+		    <widget class="GtkCheckButton" id="cbFetchOnly">
 		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">When used in conjunction with update, this flag forces emerge to consider the entire dependency tree of packages, instead of checking only the immediate dependencies of the packages.  As an example, this catches updates in libraries that are not directly listed in the dependencies of a package.</property>
+		      <property name="tooltip" translatable="yes">Instead of doing any package building, just perform fetches for all packages (the main package as well as  all  dependencies.)</property>
 		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">deep</property>
+		      <property name="label" translatable="yes">fetchonly</property>
 		      <property name="use_underline">True</property>
 		      <property name="relief">GTK_RELIEF_NORMAL</property>
 		      <property name="focus_on_click">True</property>
 		      <property name="active">False</property>
 		      <property name="inconsistent">False</property>
 		      <property name="draw_indicator">True</property>
-		      <signal name="clicked" handler="on_cbDeep_clicked" last_modification_time="Sun, 23 May 2004 22:04:52 GMT"/>
+		      <signal name="clicked" handler="on_cbFetchOnly_clicked" last_modification_time="Sun, 23 May 2004 22:05:08 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
 		      <property name="right_attach">2</property>
-		      <property name="top_attach">0</property>
-		      <property name="bottom_attach">1</property>
+		      <property name="top_attach">1</property>
+		      <property name="bottom_attach">2</property>
 		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
@@ -296,10 +297,10 @@
 		      <signal name="clicked" handler="on_cbNoConfMem_clicked" last_modification_time="Sun, 23 May 2004 22:05:17 GMT"/>
 		    </widget>
 		    <packing>
-		      <property name="left_attach">2</property>
-		      <property name="right_attach">3</property>
-		      <property name="top_attach">0</property>
-		      <property name="bottom_attach">1</property>
+		      <property name="left_attach">1</property>
+		      <property name="right_attach">2</property>
+		      <property name="top_attach">2</property>
+		      <property name="bottom_attach">3</property>
 		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
@@ -320,10 +321,10 @@
 		      <signal name="clicked" handler="on_cbNoDeps_clicked" last_modification_time="Sun, 23 May 2004 20:05:26 GMT"/>
 		    </widget>
 		    <packing>
-		      <property name="left_attach">2</property>
-		      <property name="right_attach">3</property>
-		      <property name="top_attach">1</property>
-		      <property name="bottom_attach">2</property>
+		      <property name="left_attach">1</property>
+		      <property name="right_attach">2</property>
+		      <property name="top_attach">3</property>
+		      <property name="bottom_attach">4</property>
 		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
@@ -346,8 +347,32 @@
 		    <packing>
 		      <property name="left_attach">2</property>
 		      <property name="right_attach">3</property>
-		      <property name="top_attach">2</property>
-		      <property name="bottom_attach">3</property>
+		      <property name="top_attach">0</property>
+		      <property name="bottom_attach">1</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options"></property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkCheckButton" id="cbNoSpinner">
+		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes">Skips the packages specified on the command-line that have already been installed.  Without this option, any packages, ebuilds, or deps you specify on on the command-line *will* cause Portage to remerge the package, even if it is already installed.  Note that Portage will not remerge dependencies by default.</property>
+		      <property name="can_focus">True</property>
+		      <property name="label" translatable="yes">nospinner</property>
+		      <property name="use_underline">True</property>
+		      <property name="relief">GTK_RELIEF_NORMAL</property>
+		      <property name="focus_on_click">True</property>
+		      <property name="active">False</property>
+		      <property name="inconsistent">False</property>
+		      <property name="draw_indicator">True</property>
+		      <signal name="clicked" handler="on_cbNoReplace_clicked" last_modification_time="Sun, 23 May 2004 22:05:25 GMT"/>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">2</property>
+		      <property name="right_attach">3</property>
+		      <property name="top_attach">1</property>
+		      <property name="bottom_attach">2</property>
 		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
@@ -368,10 +393,10 @@
 		      <signal name="clicked" handler="on_cbOneShot_clicked" last_modification_time="Sun, 23 May 2004 22:05:31 GMT"/>
 		    </widget>
 		    <packing>
-		      <property name="left_attach">3</property>
-		      <property name="right_attach">4</property>
-		      <property name="top_attach">0</property>
-		      <property name="bottom_attach">1</property>
+		      <property name="left_attach">2</property>
+		      <property name="right_attach">3</property>
+		      <property name="top_attach">2</property>
+		      <property name="bottom_attach">3</property>
 		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
@@ -392,10 +417,10 @@
 		      <signal name="clicked" handler="on_cbOnlyDeps_clicked" last_modification_time="Sun, 23 May 2004 20:05:40 GMT"/>
 		    </widget>
 		    <packing>
-		      <property name="left_attach">3</property>
-		      <property name="right_attach">4</property>
-		      <property name="top_attach">1</property>
-		      <property name="bottom_attach">2</property>
+		      <property name="left_attach">2</property>
+		      <property name="right_attach">3</property>
+		      <property name="top_attach">3</property>
+		      <property name="bottom_attach">4</property>
 		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
@@ -414,6 +439,54 @@
 		      <property name="inconsistent">False</property>
 		      <property name="draw_indicator">True</property>
 		      <signal name="clicked" handler="on_cbPretend_clicked" last_modification_time="Sun, 23 May 2004 22:05:42 GMT"/>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">3</property>
+		      <property name="right_attach">4</property>
+		      <property name="top_attach">0</property>
+		      <property name="bottom_attach">1</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options"></property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkCheckButton" id="cbQuiet">
+		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes">Results may vary, but the general outcome is a reduced or condensed output from portage's displays.</property>
+		      <property name="can_focus">True</property>
+		      <property name="label" translatable="yes">quiet</property>
+		      <property name="use_underline">True</property>
+		      <property name="relief">GTK_RELIEF_NORMAL</property>
+		      <property name="focus_on_click">True</property>
+		      <property name="active">False</property>
+		      <property name="inconsistent">False</property>
+		      <property name="draw_indicator">True</property>
+		      <signal name="clicked" handler="on_cbQuiet_clicked" last_modification_time="Sat, 22 May 2004 22:38:19 GMT"/>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">3</property>
+		      <property name="right_attach">4</property>
+		      <property name="top_attach">1</property>
+		      <property name="bottom_attach">2</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options"></property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkCheckButton" id="cbUpdate">
+		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes">Updates packages to the most recent version available.  Note that update does not have full functionality yet.  It will not automatically update dependencies of packages in the world file, unless they too are in the world file.</property>
+		      <property name="can_focus">True</property>
+		      <property name="label" translatable="yes">update</property>
+		      <property name="use_underline">True</property>
+		      <property name="relief">GTK_RELIEF_NORMAL</property>
+		      <property name="focus_on_click">True</property>
+		      <property name="active">False</property>
+		      <property name="inconsistent">False</property>
+		      <property name="draw_indicator">True</property>
+		      <signal name="clicked" handler="on_cbUpdate_clicked" last_modification_time="Sun, 23 May 2004 22:05:50 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">3</property>
@@ -440,34 +513,10 @@
 		      <signal name="clicked" handler="on_cbUpgradeOnly_clicked" last_modification_time="Sun, 23 May 2004 22:06:00 GMT"/>
 		    </widget>
 		    <packing>
-		      <property name="left_attach">4</property>
-		      <property name="right_attach">5</property>
-		      <property name="top_attach">2</property>
-		      <property name="bottom_attach">3</property>
-		      <property name="x_options">fill</property>
-		      <property name="y_options"></property>
-		    </packing>
-		  </child>
-
-		  <child>
-		    <widget class="GtkCheckButton" id="cbUpdate">
-		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Updates packages to the most recent version available.  Note that update does not have full functionality yet.  It will not automatically update dependencies of packages in the world file, unless they too are in the world file.</property>
-		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">update</property>
-		      <property name="use_underline">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">True</property>
-		      <property name="active">False</property>
-		      <property name="inconsistent">False</property>
-		      <property name="draw_indicator">True</property>
-		      <signal name="clicked" handler="on_cbUpdate_clicked" last_modification_time="Sun, 23 May 2004 22:05:50 GMT"/>
-		    </widget>
-		    <packing>
-		      <property name="left_attach">4</property>
-		      <property name="right_attach">5</property>
-		      <property name="top_attach">1</property>
-		      <property name="bottom_attach">2</property>
+		      <property name="left_attach">3</property>
+		      <property name="right_attach">4</property>
+		      <property name="top_attach">3</property>
+		      <property name="bottom_attach">4</property>
 		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
@@ -488,8 +537,8 @@
 		      <signal name="clicked" handler="on_cbUsePkg_clicked" last_modification_time="Sun, 23 May 2004 22:06:13 GMT"/>
 		    </widget>
 		    <packing>
-		      <property name="left_attach">5</property>
-		      <property name="right_attach">6</property>
+		      <property name="left_attach">4</property>
+		      <property name="right_attach">5</property>
 		      <property name="top_attach">0</property>
 		      <property name="bottom_attach">1</property>
 		      <property name="x_options">fill</property>
@@ -512,34 +561,10 @@
 		      <signal name="clicked" handler="on_cbUsePkgOnly_clicked" last_modification_time="Sun, 23 May 2004 22:06:21 GMT"/>
 		    </widget>
 		    <packing>
-		      <property name="left_attach">5</property>
-		      <property name="right_attach">6</property>
-		      <property name="top_attach">1</property>
-		      <property name="bottom_attach">2</property>
-		      <property name="x_options">fill</property>
-		      <property name="y_options"></property>
-		    </packing>
-		  </child>
-
-		  <child>
-		    <widget class="GtkCheckButton" id="cbQuiet">
-		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Results may vary, but the general outcome is a reduced or condensed output from portage's displays.</property>
-		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">quiet</property>
-		      <property name="use_underline">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">True</property>
-		      <property name="active">False</property>
-		      <property name="inconsistent">False</property>
-		      <property name="draw_indicator">True</property>
-		      <signal name="clicked" handler="on_cbQuiet_clicked" last_modification_time="Sat, 22 May 2004 22:38:19 GMT"/>
-		    </widget>
-		    <packing>
 		      <property name="left_attach">4</property>
 		      <property name="right_attach">5</property>
-		      <property name="top_attach">0</property>
-		      <property name="bottom_attach">1</property>
+		      <property name="top_attach">1</property>
+		      <property name="bottom_attach">2</property>
 		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
@@ -560,8 +585,8 @@
 		      <signal name="clicked" handler="on_cbVerbose_clicked" last_modification_time="Sat, 22 May 2004 22:52:19 GMT"/>
 		    </widget>
 		    <packing>
-		      <property name="left_attach">5</property>
-		      <property name="right_attach">6</property>
+		      <property name="left_attach">4</property>
+		      <property name="right_attach">5</property>
 		      <property name="top_attach">2</property>
 		      <property name="bottom_attach">3</property>
 		      <property name="x_options">fill</property>
@@ -584,6 +609,10 @@
 		  <property name="yalign">0.5</property>
 		  <property name="xpad">0</property>
 		  <property name="ypad">0</property>
+		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		  <property name="width_chars">-1</property>
+		  <property name="single_line_mode">False</property>
+		  <property name="angle">0</property>
 		</widget>
 		<packing>
 		  <property name="type">label_item</property>
@@ -621,6 +650,8 @@
 		      <child>
 			<widget class="GtkComboBox" id="cmbEmerge">
 			  <property name="visible">True</property>
+			  <property name="add_tearoffs">False</property>
+			  <property name="focus_on_click">True</property>
 			  <signal name="changed" handler="on_cmbEmerge_changed" last_modification_time="Thu, 23 Jun 2005 10:36:23 GMT"/>
 			</widget>
 			<packing>
@@ -643,6 +674,10 @@
 			  <property name="yalign">0.5</property>
 			  <property name="xpad">0</property>
 			  <property name="ypad">0</property>
+			  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+			  <property name="width_chars">-1</property>
+			  <property name="single_line_mode">False</property>
+			  <property name="angle">0</property>
 			</widget>
 			<packing>
 			  <property name="padding">0</property>
@@ -654,6 +689,8 @@
 		      <child>
 			<widget class="GtkComboBox" id="cmbVersion">
 			  <property name="visible">True</property>
+			  <property name="add_tearoffs">False</property>
+			  <property name="focus_on_click">True</property>
 			  <signal name="changed" handler="on_cmbVersion_changed" last_modification_time="Tue, 24 May 2005 23:06:43 GMT"/>
 			</widget>
 			<packing>
@@ -695,6 +732,10 @@
 			  <property name="yalign">0.5</property>
 			  <property name="xpad">0</property>
 			  <property name="ypad">0</property>
+			  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+			  <property name="width_chars">-1</property>
+			  <property name="single_line_mode">False</property>
+			  <property name="angle">0</property>
 			</widget>
 			<packing>
 			  <property name="type">label_item</property>
@@ -733,6 +774,10 @@
 			  <property name="yalign">0.5</property>
 			  <property name="xpad">0</property>
 			  <property name="ypad">0</property>
+			  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+			  <property name="width_chars">-1</property>
+			  <property name="single_line_mode">False</property>
+			  <property name="angle">0</property>
 			</widget>
 			<packing>
 			  <property name="type">label_item</property>
@@ -761,6 +806,92 @@
 		  <property name="yalign">0.5</property>
 		  <property name="xpad">0</property>
 		  <property name="ypad">0</property>
+		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		  <property name="width_chars">-1</property>
+		  <property name="single_line_mode">False</property>
+		  <property name="angle">0</property>
+		</widget>
+		<packing>
+		  <property name="type">label_item</property>
+		</packing>
+	      </child>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">True</property>
+	      <property name="fill">True</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkFrame" id="frameCommand">
+	      <property name="visible">True</property>
+	      <property name="label_xalign">0</property>
+	      <property name="label_yalign">0.5</property>
+	      <property name="shadow_type">GTK_SHADOW_NONE</property>
+
+	      <child>
+		<widget class="GtkAlignment" id="alignment2">
+		  <property name="visible">True</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xscale">1</property>
+		  <property name="yscale">1</property>
+		  <property name="top_padding">0</property>
+		  <property name="bottom_padding">0</property>
+		  <property name="left_padding">12</property>
+		  <property name="right_padding">0</property>
+
+		  <child>
+		    <widget class="GtkScrolledWindow" id="scrolledwindow1">
+		      <property name="visible">True</property>
+		      <property name="can_focus">True</property>
+		      <property name="hscrollbar_policy">GTK_POLICY_NEVER</property>
+		      <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+		      <property name="shadow_type">GTK_SHADOW_IN</property>
+		      <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
+
+		      <child>
+			<widget class="GtkTextView" id="command_textview">
+			  <property name="visible">True</property>
+			  <property name="can_focus">True</property>
+			  <property name="editable">False</property>
+			  <property name="overwrite">False</property>
+			  <property name="accepts_tab">True</property>
+			  <property name="justification">GTK_JUSTIFY_LEFT</property>
+			  <property name="wrap_mode">GTK_WRAP_WORD</property>
+			  <property name="cursor_visible">False</property>
+			  <property name="pixels_above_lines">0</property>
+			  <property name="pixels_below_lines">0</property>
+			  <property name="pixels_inside_wrap">0</property>
+			  <property name="left_margin">0</property>
+			  <property name="right_margin">0</property>
+			  <property name="indent">0</property>
+			  <property name="text" translatable="yes"></property>
+			</widget>
+		      </child>
+		    </widget>
+		  </child>
+		</widget>
+	      </child>
+
+	      <child>
+		<widget class="GtkLabel" id="label1">
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">&lt;b&gt;Command Preview&lt;/b&gt;</property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">True</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		  <property name="width_chars">-1</property>
+		  <property name="single_line_mode">False</property>
+		  <property name="angle">0</property>
 		</widget>
 		<packing>
 		  <property name="type">label_item</property>
