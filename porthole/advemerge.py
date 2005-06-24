@@ -71,10 +71,12 @@ class AdvancedEmergeDialog:
         self.keywords_frame = self.wtree.get_widget("frameKeywords")
         self.window.set_title(_("Advanced Emerge Settings for %s") % package.full_name)
         
-        self.command_status = self.wtree.get_widget("statusbarEmergeCommand")
-        self.command_eventbox = self.wtree.get_widget("eventboxEmergeCommand")
         self.command_textview = self.wtree.get_widget("command_textview")
         self.command_buffer = self.command_textview.get_buffer()
+        style = self.keywords_frame.get_style().copy()
+        self.bgcolor = style.bg[gtk.STATE_NORMAL]
+        self.command_textview.modify_base(gtk.STATE_NORMAL, self.bgcolor)
+        
         # Connect option toggles to on_toggled
         for checkbutton in self.wtree.get_widget("table2").get_children():
             if isinstance(checkbutton, gtk.CheckButton):
@@ -372,7 +374,7 @@ class AdvancedEmergeDialog:
                 ('cbNoConfMem', '--noconfmem ', '--noconfmem '),
                 ('cbNoDeps', '-O ', '--nodeps '),
                 ('cbNoReplace', '-n ', '--noreplace '),
-                ('cbNoSpinner', '--nospinner', '--nospinner'),
+                ('cbNoSpinner', '--nospinner ', '--nospinner '),
                 ('cbOneShot', '--oneshot ', '--oneshot '),
                 ('cbOnlyDeps', '-o ', '--onlydeps '),
                 ('cbPretend','-p ', '--pretend '),
@@ -435,13 +437,10 @@ class AdvancedEmergeDialog:
     
     def display_emerge_command(self):
         command = self.get_command()
-        self.command_status.pop(0)
-        self.command_status.push(0, ' ' + command)
-        self.tooltips.set_tip(self.command_eventbox, command)
         end = self.command_buffer.get_end_iter()
         start = self.command_buffer.get_start_iter()
         self.command_buffer.delete(start, end)
-        self.command_buffer.insert(self.command_buffer.get_end_iter(),command + '\n')
+        self.command_buffer.insert(self.command_buffer.get_end_iter(), command)
     
     def build_use_flag_widget(self, use_flags):
         """ Create a table layout and populate it with 
@@ -456,8 +455,8 @@ class AdvancedEmergeDialog:
 
         # Build table to hold checkboxes
         size = len(use_flags)
-        maxcol = 3  # = number of columns - 1 = index of last column
-        maxrow = size / (maxcol + 1)  # = number of rows - 1
+        maxcol = 4  # = number of columns - 1 = index of last column
+        maxrow = (size - 1) / (maxcol + 1)  # = number of rows - 1
         table = gtk.Table(maxrow+1, maxcol+1, True)
         UseFlagFrame.add(table)
 
