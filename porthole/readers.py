@@ -89,6 +89,10 @@ class UpgradableReader(CommonReader):
         self.upgrade_total = len(installed_world) + len(installed_dep)
         self.world_count = 0
         self.dep_count = 0
+        # show a temporary model while we add stuff to it (significant speedup)
+        gtk.threads_enter()
+        self.upgrade_view.remove_model()
+        gtk.threads_leave()
         for full_name, package in installed_world:
             self.world_count += 1
             self.add_package(full_name, package, package.in_world)
@@ -101,6 +105,10 @@ class UpgradableReader(CommonReader):
                 if self.cancelled: self.done = True; return
                 self.add_deps(full_name, package, package.in_world, False)
                 #self.check_deps(full_name, package)
+        # restore upgrade model
+        gtk.threads_enter()
+        self.upgrade_view.restore_model()
+        gtk.threads_leave()
         # set the thread as finished
         self.done = True
 

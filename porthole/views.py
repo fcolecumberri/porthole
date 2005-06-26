@@ -150,6 +150,9 @@ class PackageView(CommonTreeView):
         self.package_model = PackageModel()
         self.search_model =  PackageModel()
         self.search_model.size = 0
+        self.blank_model = PackageModel()
+        self.temp_model = self.package_model
+        self.temp_view = None
         # set the view
         self.set_view(self.PACKAGES) # default view
 
@@ -177,7 +180,7 @@ class PackageView(CommonTreeView):
                 dprint("VIEWS: Waiting for info_thread to die")
                 gtk.threads_leave()
                 self.info_thread.join()
-                gtk.threads_enter()
+                #gtk.threads_enter()
                 dprint("VIEWS: infothread seems to have finished!")
             del self.info_thread
             self.info_thread = None
@@ -403,7 +406,7 @@ class PackageView(CommonTreeView):
                 dprint("VIEWS: Waiting for info_thread to die")
                 gtk.threads_leave()
                 self.info_thread.join()
-                gtk.threads_enter()
+                #gtk.threads_enter()
                 dprint("VIEWS: infothread seems to have finished!")
             del self.info_thread
             self.info_thread = None
@@ -439,6 +442,7 @@ class PackageView(CommonTreeView):
         dprint("VIEWS: starting info_thread")
         self.infothread_die = False
         self.info_thread = threading.Thread(target = self.populate_info)
+        self.info_thread.setDaemon(True)
         self.info_thread.start()
  
     def populate_info(self):
@@ -495,6 +499,15 @@ class PackageView(CommonTreeView):
 
     def set_select(self, model, path, iter, selected):
         model.set_value(iter, 1, selected)
+    
+    def remove_model(self): # used by upgrade reader to speed up adding to the model
+        self.temp_model = self.get_model()
+        self.temp_view = self.current_view
+        self.set_model(self.blank_model)
+    
+    def restore_model(self):
+        if self.temp_view == self.current_view: # otherwise don't worry about it
+            self.set_model(self.temp_model)
 
 class CategoryView(CommonTreeView):
     """ Self contained treeview to hold categories """

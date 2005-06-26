@@ -1207,8 +1207,8 @@ class MainWindow:
                         if fraction == 1:
                             self.build_deps = True
                             self.set_statusbar2(_("Building Package List"))
-                except:
-                    pass
+                except Exception, e:
+                    dprint("MAINWINDOW: update_upgrade_thread(): Exception: %s" % e)
         return True
 
     def progress_done(self, button_off=False):

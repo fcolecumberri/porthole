@@ -554,46 +554,6 @@ class PortholeConfiguration:
             for regexp in patternlist:
                 getattr(self, attrname).append(sre.compile(regexp))
         
-##        patternlist = dom.getitem('/re_filters/info')
-##        self.info_re_list = []
-##        for regexp in patternlist:
-##            self.info_re_list.append(sre.compile(regexp))
-##
-##        patternlist = dom.getitem('/re_filters/notinfo')
-##        self.info_re_notlist = []
-##        for regexp in patternlist:
-##            self.info_re_notlist.append(sre.compile(regexp))
-##
-##        patternlist = dom.getitem('/re_filters/warning')
-##        self.warning_re_list = []
-##        for regexp in patternlist:
-##            self.warning_re_list.append(sre.compile(regexp))
-##
-##        patternlist = dom.getitem('/re_filters/notwarning')
-##        self.warning_re_notlist = []
-##        for regexp in patternlist:
-##            self.warning_re_notlist.append(sre.compile(regexp))
-##
-##        patternlist = dom.getitem('/re_filters/error')
-##        self.error_re_list = []
-##        for regexp in patternlist:
-##            self.error_re_list.append(sre.compile(regexp))
-##
-##        patternlist = dom.getitem('/re_filters/noterror')
-##        self.error_re_notlist = []
-##        for regexp in patternlist:
-##            self.error_re_notlist.append(sre.compile(regexp))
-##
-##        patternlist = dom.getitem('/re_filters/caution')
-##        self.caution_re_list = []
-##        for regexp in patternlist:
-##            self.caution_re_list.append(sre.compile(regexp))
-##
-##        patternlist = dom.getitem('/re_filters/notcaution')
-##        self.caution_re_notlist = []
-##        for regexp in patternlist:
-##            self.caution_re_notlist.append(sre.compile(regexp))
-
         self.emerge_re = sre.compile(dom.getitem('/re_filters/emerge'))
         self.ebuild_re = sre.compile(dom.getitem('/re_filters/ebuild'))
         self.merged_re = sre.compile(dom.getitem('/re_filters/merged'))

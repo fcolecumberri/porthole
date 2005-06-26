@@ -457,6 +457,10 @@ class AdvancedEmergeDialog:
         size = len(use_flags)
         maxcol = 4  # = number of columns - 1 = index of last column
         maxrow = (size - 1) / (maxcol + 1)  # = number of rows - 1
+        # resize the table if it's taller than it is wide
+        if maxrow > maxcol:
+            maxcol = int( (size) ** 0.5 ) # = rounddown(sqrt(size))
+            maxrow = (size - 1) / (maxcol + 1)
         table = gtk.Table(maxrow+1, maxcol+1, True)
         UseFlagFrame.add(table)
 

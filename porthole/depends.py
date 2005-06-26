@@ -242,9 +242,15 @@ class DependsTree(gtk.TreeStore):
                 if atom.type == 'USING':
                     text = _("Using %s") % atom.useflag
                     if satisfied == -1: icon = gtk.STOCK_REMOVE # -1 ==> irrelevant
+                    else:
+                        add_kids = -1 # add kids but don't expand unsatisfied deps
+                        add_satisfied = 1
                 elif atom.type == 'NOTUSING':
                     text = _("Not Using %s") % atom.useflag
                     if satisfied == -1: icon = gtk.STOCK_REMOVE # -1 ==> irrelevant
+                    else:
+                        add_kids = -1 # add kids but don't expand unsatisfied deps
+                        add_satisfied = 1
                 elif atom.type == 'DEP':
                     text = atom.name
                 elif atom.type == 'BLOCKER':
@@ -252,7 +258,8 @@ class DependsTree(gtk.TreeStore):
                     if not satisfied: icon = gtk.STOCK_DIALOG_WARNING
                 elif atom.type == 'OPTION':
                     text = _("Any of:")
-                    add_kids = -1 # add kids but don't expand
+                    add_kids = -1 # add kids but don't expand unsatisfied deps
+                    add_satisfied = 1
                 
                 if icon:
                     self.set_value(iter, 1, depends_view.render_icon(icon,
