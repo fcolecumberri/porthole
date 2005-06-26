@@ -103,7 +103,7 @@
  ? Ability to sort the PackageView by clicking on the headers of columns
    (e.g. sort by size)
 
- ? Something to show if we have run porthole as root or not (icon?).
+ (Done) Something to show if we have run porthole as root or not (icon?).
    This will not be necessary when some sort of sudo functionality is
    worked out. (RFE [1181795, ?])
 

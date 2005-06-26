@@ -501,19 +501,11 @@
 	      </child>
 
 	      <child>
-		<widget class="GtkToolItem" id="toolitem1">
+		<widget class="GtkSeparatorToolItem" id="separatortoolitem2">
 		  <property name="visible">True</property>
+		  <property name="draw">True</property>
 		  <property name="visible_horizontal">True</property>
 		  <property name="visible_vertical">True</property>
-		  <property name="is_important">False</property>
-
-		  <child>
-		    <widget class="GtkVSeparator" id="vseparator1">
-		      <property name="width_request">5</property>
-		      <property name="height_request">25</property>
-		      <property name="visible">True</property>
-		    </widget>
-		  </child>
 		</widget>
 		<packing>
 		  <property name="expand">False</property>
@@ -534,7 +526,7 @@
 		</widget>
 		<packing>
 		  <property name="expand">False</property>
-		  <property name="homogeneous">True</property>
+		  <property name="homogeneous">False</property>
 		</packing>
 	      </child>
 
@@ -552,7 +544,39 @@
 		</widget>
 		<packing>
 		  <property name="expand">False</property>
-		  <property name="homogeneous">True</property>
+		  <property name="homogeneous">False</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkSeparatorToolItem" id="toolbar_expander">
+		  <property name="visible">True</property>
+		  <property name="sensitive">False</property>
+		  <property name="draw">False</property>
+		  <property name="visible_horizontal">True</property>
+		  <property name="visible_vertical">True</property>
+		</widget>
+		<packing>
+		  <property name="expand">True</property>
+		  <property name="homogeneous">False</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkToolButton" id="btn_root_warning">
+		  <property name="visible">True</property>
+		  <property name="tooltip" translatable="yes">In order to access all the features of Porthole, please run it with root privileges.</property>
+		  <property name="label" translatable="yes">Not Root</property>
+		  <property name="use_underline">True</property>
+		  <property name="stock_id">gtk-dialog-warning</property>
+		  <property name="visible_horizontal">True</property>
+		  <property name="visible_vertical">True</property>
+		  <property name="is_important">False</property>
+		  <signal name="clicked" handler="on_root_warning_clicked" last_modification_time="Sun, 26 Jun 2005 09:57:16 GMT"/>
+		</widget>
+		<packing>
+		  <property name="expand">False</property>
+		  <property name="homogeneous">False</property>
 		</packing>
 	      </child>
 	    </widget>

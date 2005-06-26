@@ -240,6 +240,33 @@ def get_keyword_unmasked_ebuilds(arch=None, full_name='', archlist=None):
     if arch: return dict[item]
     else: return dict
 
+def get_package_use(name=None):
+    """
+    Return /etc/portage/package.use as a dictionary of ebuilds, with
+    dict[ebuild] = list of flags.
+    If name is given, it will be parsed for ebuilds with xmatch('match-all'),
+    and only those will be returned in dict.
+    """
+    usepkgfile = open('/'.join([portage_const.USER_CONFIG_PATH, 'package.use']), 'r')
+    usepkglines = usepkgfile.read().split('\n')
+    usepkgfile.close()
+    package_use = [line.split(' ') for line in usepkglines]
+    # e.g. [['media-video/mplayer', 'real', '-v4l'], [app-portage/porthole', 'sudo']]
+    dict = {}
+    if name: target = xmatch('match-all', name)
+    else: target = None
+    for line in package_use:
+        if line[0]:
+            ebuilds = xmatch('match-all', line[0])
+            if target is None:
+                for ebuild in ebuilds:
+                    dict[ebuild] = line[1:]
+            else:
+                for ebuild in ebuilds:
+                    if ebuild in target:
+                        dict[ebuild] = line[1:]
+    return dict
+
 def get_version(ebuild):
     """Extract version number from ebuild name"""
     result = ''

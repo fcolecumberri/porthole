@@ -118,7 +118,8 @@ class MainWindow:
             "on_cancel_btn" : self.on_cancel_btn,
             #"on_main_window_size_request" : self.size_update,
             "on_plugin_settings_activate" : self.plugin_settings_activate,
-            "on_view_refresh" : self.reload_view
+            "on_view_refresh" : self.reload_view,
+            "on_root_warning_clicked" : self.check_for_root,
         }
         self.wtree.signal_autoconnect(callbacks)
         self.set_statusbar2("Starting")
@@ -207,6 +208,12 @@ class MainWindow:
         if self.prefs.main.show_nag_dialog:
             # let the user know if he can emerge or not
             self.check_for_root()
+        if self.is_root:
+            # hide warning toolbar widget
+            self.wtree.get_widget("btn_root_warning").hide()
+        self.toolbar_expander = self.wtree.get_widget("toolbar_expander")
+        # This should be set in the glade file, but doesn't seem to work ?
+        self.toolbar_expander.set_expand(True)
         # create and start our process manager
         self.process_manager = ProcessManager(environment(), self.prefs, self.config, False)
         # Search History
@@ -447,15 +454,15 @@ class MainWindow:
             dprint("MAINWINDOW package_view callback: unknown action '%s'" % str(action))
         self.prefs.emerge.pretend = old_pretend_value
 
-    def check_for_root(self):
+    def check_for_root(self, *args):
         """figure out if the user can emerge or not..."""
         if not self.is_root:
-            self.no_root_dialog = SingleButtonDialog(_("You are not root!"),
+            self.no_root_dialog = SingleButtonDialog(_("No root privileges"),
                             self.mainwindow,
-                            _("You will not be able to emerge, unmerge,"
-                            " upgrade or sync!"),
+                            _("In order to access all the features of Porthole,\n"
+                            "please run it with root privileges."),
                             self.remove_nag_dialog,
-                            "_Ok")
+                            _("_Ok"))
 
     def remove_nag_dialog(self, widget, response):
         """ Remove the nag dialog and set it to not display next time """

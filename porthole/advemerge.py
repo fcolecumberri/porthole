@@ -45,6 +45,7 @@ class AdvancedEmergeDialog:
         self.system_use_flags = portagelib.SystemUseFlags
         self.emerge_unmerge = "emerge"
         self.is_root = is_root()
+        self.package_use_flags = portagelib.get_package_use(package.full_name)
         
         # Parse glade file
         self.gladefile = prefs.DATA_PATH + "advemerge.glade"
@@ -197,7 +198,7 @@ class AdvancedEmergeDialog:
         if len(sel_ver) > 2:
             verInfo = self.get_verInfo(sel_ver)
             # Reset use flags
-            self.build_use_flag_widget(verInfo["use_flags"])
+            self.build_use_flag_widget(verInfo["use_flags"], verInfo["name"])
             # Reset keywords
             self.build_keywords_widget(verInfo["keywords"])
         self.display_emerge_command()
@@ -342,21 +343,25 @@ class AdvancedEmergeDialog:
         return ''
 
 
-    def get_use_flags(self):
+    def get_use_flags(self, ebuild):
         """ Get use flags selected by user """
         #flags = ''
         flaglist = []
+        if self.package_use_flags.has_key(ebuild):
+            ebuild_use_flags = self.system_use_flags + self.package_use_flags[ebuild]
+        else:
+            ebuild_use_flags = self.system_use_flags
         for child in self.ufList:
             #flag = child[1][1:]
             flag = child[1]
             if child[0].get_active():
                 #if child[1][0] == '-':
-                if flag not in self.system_use_flags:
+                if flag not in ebuild_use_flags:
                     #flags += flag + ' '
                     flaglist.append(flag)
             else:
                 #if child[1][0] == '+':
-                if flag in self.system_use_flags:
+                if flag in ebuild_use_flags:
                     #flags += '-' + flag + ' '
                     flaglist.append('-' + flag)
         flags = ' '.join(flaglist)
@@ -403,7 +408,7 @@ class AdvancedEmergeDialog:
         verInfo = self.get_verInfo(sel_ver)
         
         # Build use flag string
-        use_flags = self.get_use_flags()
+        use_flags = self.get_use_flags(verInfo["name"])
         if len(use_flags) > 0:
             use_flags = "USE='" + use_flags + "' "
         
@@ -442,7 +447,7 @@ class AdvancedEmergeDialog:
         self.command_buffer.delete(start, end)
         self.command_buffer.insert(self.command_buffer.get_end_iter(), command)
     
-    def build_use_flag_widget(self, use_flags):
+    def build_use_flag_widget(self, use_flags, ebuild):
         """ Create a table layout and populate it with 
             checkbox widgets representing the available
             use flags
@@ -470,11 +475,13 @@ class AdvancedEmergeDialog:
         # and attach to table
         col = 0
         row = 0
+        if self.package_use_flags.has_key(ebuild):
+            ebuild_use_flags = self.system_use_flags + self.package_use_flags[ebuild]
+        else:
+            ebuild_use_flags = self.system_use_flags
         for flag in use_flags:
-            
             #button = gtk.CheckButton(flag)
-            #if flag in portagelib.SystemUseFlags:
-            if flag in self.system_use_flags:
+            if flag in ebuild_use_flags:
                 # Display system level flags with a +
                 #button = gtk.CheckButton('+' + flag)
                 button = gtk.CheckButton(flag)
