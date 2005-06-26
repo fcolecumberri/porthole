@@ -1412,11 +1412,11 @@ class ProcessManager:
                     break
         else:
             dprint("TERMINAL: cannot move first or last item")
-        result = self.queue_clicked(self.queue_tree)
 
         # We're done, release semaphore
         self.Semaphore.release()
         dprint("TERMINAL: queue_items_switch; Semaphore released")
+        result = self.queue_clicked(self.queue_tree)
 
     def move_queue_item_up(self, widget):
         """ Move selected queue item up in the queue """
@@ -1447,60 +1447,6 @@ class ProcessManager:
         # We're done, release semaphore
         self.Semaphore.release()
         dprint("TERMINAL: remove_queue_item; Semaphore released")
-
-    def estimate_build_time(self):
-        """Estimates build times based on emerge --pretend output"""
-        start_iter = self.term.buffer[TAB_PROCESS].get_iter_at_mark(self.command_start)
-        output = self.term.buffer[TAB_PROCESS].get_text(start_iter,
-                                 self.term.buffer[TAB_PROCESS].get_end_iter(), False)
-        package_list = []
-        total = datetime.timedelta()        
-        for line in output.split("\n"):
-            if self.config.ebuild_re.match(line):
-                tokens = line.split(']')
-                tokens = tokens[1].split()
-                tmp_name = portagelib.get_name(tokens[0])
-                name = ""
-                # We want to get rid of the version number in the package name
-                # because if a user is upgrading from, for instance, mozilla 1.4 to
-                # 1.5, there's a good chance the build times will be pretty close.
-                # So, we want to match only on the name
-                for j in range(0, len(tmp_name)):
-                    if tmp_name[j] == "-" and tmp_name[j+1].isdigit():
-                        break
-                    else:
-                        name += tmp_name[j]        
-                package_list.append(name)
-        if len(package_list) > 0:  
-            for package in package_list:
-                try:
-                    curr_estimate = estimate(package)
-                except:
-                    return None
-                if curr_estimate != None:
-                    total += curr_estimate
-                else:
-                    self.append(TAB_PROCESS,
-                            "*** Unfortunately, you don't have enough " +
-                            "logged information about the listed packages, " +
-                            "so I can't calculate estimated build times " +
-                            "accurately.\n", 'note')
-                    return None
-            self.append(TAB_PROCESS,
-                        "*** Based on the build history of these packages " +
-                        "on your system, I can estimate that emerging them " +
-                        "usually takes, on average, " + 
-                        "%d days, %d hrs, %d mins, and %d secs.\n" %
-                        (total.seconds // (24 * 3600),\
-                         (total.seconds % (24 * 3600)) // 3600,\
-                         ((total.seconds % (24 * 3600))  % 3600) //  60,\
-                         ((total.seconds % (24 * 3600))  % 3600) %  60), 'note')
-            self.append(TAB_PROCESS,
-                        "*** Note: If you have a lot of programs running on " +
-                        "your system while porthole is emerging packages, " +
-                        "or if you have changed your hardware since the " +
-                        "last time you built some of these packages, the " +
-                        "estimates I calculate may be inaccurate.\n", 'note')
 
     def queue_clicked(self, widget):
         """Handle clicks to the queue treeview"""
@@ -1560,6 +1506,60 @@ class ProcessManager:
         self.Semaphore.release()
         dprint("TERMINAL: queue_clicked(); finished... returning")
         return True
+
+    def estimate_build_time(self):
+        """Estimates build times based on emerge --pretend output"""
+        start_iter = self.term.buffer[TAB_PROCESS].get_iter_at_mark(self.command_start)
+        output = self.term.buffer[TAB_PROCESS].get_text(start_iter,
+                                 self.term.buffer[TAB_PROCESS].get_end_iter(), False)
+        package_list = []
+        total = datetime.timedelta()        
+        for line in output.split("\n"):
+            if self.config.ebuild_re.match(line):
+                tokens = line.split(']')
+                tokens = tokens[1].split()
+                tmp_name = portagelib.get_name(tokens[0])
+                name = ""
+                # We want to get rid of the version number in the package name
+                # because if a user is upgrading from, for instance, mozilla 1.4 to
+                # 1.5, there's a good chance the build times will be pretty close.
+                # So, we want to match only on the name
+                for j in range(0, len(tmp_name)):
+                    if tmp_name[j] == "-" and tmp_name[j+1].isdigit():
+                        break
+                    else:
+                        name += tmp_name[j]        
+                package_list.append(name)
+        if len(package_list) > 0:  
+            for package in package_list:
+                try:
+                    curr_estimate = estimate(package)
+                except:
+                    return None
+                if curr_estimate != None:
+                    total += curr_estimate
+                else:
+                    self.append(TAB_PROCESS,
+                            "*** Unfortunately, you don't have enough " +
+                            "logged information about the listed packages, " +
+                            "so I can't calculate estimated build times " +
+                            "accurately.\n", 'note')
+                    return None
+            self.append(TAB_PROCESS,
+                        "*** Based on the build history of these packages " +
+                        "on your system, I can estimate that emerging them " +
+                        "usually takes, on average, " + 
+                        "%d days, %d hrs, %d mins, and %d secs.\n" %
+                        (total.seconds // (24 * 3600),\
+                         (total.seconds % (24 * 3600)) // 3600,\
+                         ((total.seconds % (24 * 3600))  % 3600) //  60,\
+                         ((total.seconds % (24 * 3600))  % 3600) %  60), 'note')
+            self.append(TAB_PROCESS,
+                        "*** Note: If you have a lot of programs running on " +
+                        "your system while porthole is emerging packages, " +
+                        "or if you have changed your hardware since the " +
+                        "last time you built some of these packages, the " +
+                        "estimates I calculate may be inaccurate.\n", 'note')
 
     def set_save_buffer(self):
         """Sets the save info for the notebook tab's visible buffer"""
