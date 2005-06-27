@@ -24,7 +24,7 @@
       <warning-4>.*([Ss]yntax[Ee]rror|[Ss]yntax [Ee]rror[:\-\!,])</warning-4>
       <warning-5>^\*\*\*</warning-5>
     </warning>
-    <notwarning py_type="list" item_count="7">
+    <notwarning py_type="list" item_count="8">
       <notwarning-1>.*[Ii]f you wanted to set the \-\-build type</notwarning-1>
       <notwarning-2>.*(checking|check).* compiler warning flags</notwarning-2>
       <notwarning-3>.*(checking|check).* warning flags.* compiler</notwarning-3>
@@ -32,6 +32,7 @@
       <notwarning-5>.*warning: \-jN forced in submake:</notwarning-5>
       <notwarning-6>.*has not been installed in `/usr/lib</notwarning-6>
       <notwarning-7>^libtool\:.*seems to be moved</notwarning-7>
+      <notwarning-8>^\*\*\*$</notwarning-8>
     </notwarning>
     <error py_type="list" item_count="3">
       <error-1>^\!\!\!\sERROR\:.*\sfailed\.</error-1>
