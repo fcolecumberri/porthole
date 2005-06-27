@@ -123,13 +123,13 @@ class PackageView(CommonTreeView):
 
         # Setup the Installed Column
         self._installed_column = gtk.TreeViewColumn(_("Installed"))
-        self.append_column( self._installed_column )
+        self.append_column(self._installed_column)
         self._installed_column.set_resizable(True)
         self._installed_column.set_expand(False)
 
         # Setup the Latest Column
         self._latest_column = gtk.TreeViewColumn(_("Recommended"))
-        self.append_column( self._latest_column )
+        self.append_column(self._latest_column)
         self._latest_column.set_resizable(True)
         self._latest_column.set_expand(False)
 
@@ -141,9 +141,9 @@ class PackageView(CommonTreeView):
 
         # setup the Description column
         self._desc_column = gtk.TreeViewColumn(_("Description"))
-        self.append_column( self._desc_column )
-        self._desc_column.set_resizable( True )
-        self._desc_column.set_expand( False )
+        self.append_column(self._desc_column)
+        self._desc_column.set_resizable(True)
+        self._desc_column.set_expand(False)
 
         # setup the treemodels
         self.upgrade_model = PackageModel()
@@ -223,13 +223,13 @@ class PackageView(CommonTreeView):
         self._latest_column.pack_start(text_latest, expand = False)
         self._installed_column.add_attribute(text_installed, "text", 7)
         self._latest_column.add_attribute(text_latest, "text", 8)
-        self._latest_column.set_sizing( gtk.TREE_VIEW_COLUMN_GROW_ONLY )
-        self._installed_column.set_sizing( gtk.TREE_VIEW_COLUMN_GROW_ONLY )
-        self._size_column.set_sizing( gtk.TREE_VIEW_COLUMN_GROW_ONLY )
+        self._latest_column.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
+        self._installed_column.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
+        self._size_column.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
         text_desc = gtk.CellRendererText()
-        self._desc_column.pack_start( text_desc, expand=False )
-        self._desc_column.add_attribute( text_desc, 'text', 9 )
-        self._desc_column.set_sizing( gtk.TREE_VIEW_COLUMN_GROW_ONLY )
+        self._desc_column.pack_start(text_desc, expand=False)
+        self._desc_column.add_attribute(text_desc, 'text', 9)
+        self._desc_column.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
 
         # set the last selected to nothing
         self._last_selected = None
@@ -447,10 +447,10 @@ class PackageView(CommonTreeView):
  
     def populate_info(self):
         """ Populate the current view with package info"""
-        gtk.threads_enter() 
+        gtk.threads_enter()
         model = self.get_model()
         iter = model.get_iter_first()
-        gtk.threads_leave() 
+        gtk.threads_leave()
         while iter and not (self.infothread_die):
             try:
                 gtk.threads_enter()
@@ -474,15 +474,15 @@ class PackageView(CommonTreeView):
                 except:
                     dprint("VIEWS populate_info(): Failed to get item description for '%s'" % package.full_name)
                 iter = model.iter_next(iter)
-                gtk.threads_leave() 
+                gtk.threads_leave()
             except Exception, e:
                 dprint("VIEWS: populate_info(); Thread 'package_info' hit exception '%s'. Skipping..." % str(e))
                 iter = model.iter_next(iter)
-                gtk.threads_leave() 
-        if not (self.infothread_die): 
-            gtk.threads_enter() 
-            self.queue_draw() 
-            gtk.threads_leave() 
+                gtk.threads_leave()
+        if not (self.infothread_die):
+            gtk.threads_enter()
+            self.queue_draw()
+            gtk.threads_leave()
         dprint("VIEWS: populate_info(); Package info populated")
 
     def deselect_all(self, widget):
