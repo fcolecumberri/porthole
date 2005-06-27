@@ -45,7 +45,7 @@ class AdvancedEmergeDialog:
         self.system_use_flags = portagelib.SystemUseFlags
         self.emerge_unmerge = "emerge"
         self.is_root = is_root()
-        self.package_use_flags = portagelib.get_package_use(package.full_name)
+        self.package_use_flags = portagelib.get_user_confg('package.use', package.full_name)
         
         # Parse glade file
         self.gladefile = prefs.DATA_PATH + "advemerge.glade"
@@ -280,6 +280,7 @@ class AdvancedEmergeDialog:
             info["use_flags"] = use flag list
             info["stable"] = True if stable on current architecture
             info["hard_masked"] = True if hard masked
+            info["available"] = False if the ebuild is no longer available
         """ 
         self.verList = []
         # Get all versions sorted in chronological order
@@ -457,7 +458,11 @@ class AdvancedEmergeDialog:
         child = UseFlagFrame.child
         if child != None:
             UseFlagFrame.remove(child)
-
+        # If no use flags, hide the frame
+        if not use_flags:
+            UseFlagFrame.hide()
+        else:
+            UseFlagFrame.show()
         # Build table to hold checkboxes
         size = len(use_flags)
         maxcol = 4  # = number of columns - 1 = index of last column
