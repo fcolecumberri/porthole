@@ -240,31 +240,53 @@ def get_keyword_unmasked_ebuilds(arch=None, full_name='', archlist=None):
     if arch: return dict[item]
     else: return dict
 
-def get_package_use(name=None):
+def get_user_config(file, name=None, ebuild=None):
     """
-    Return /etc/portage/package.use as a dictionary of ebuilds, with
+    Function for parsing package.use, package.mask, package.unmask
+    and package.keywords.
+    
+    Returns /etc/portage/<file> as a dictionary of ebuilds, with
     dict[ebuild] = list of flags.
     If name is given, it will be parsed for ebuilds with xmatch('match-all'),
-    and only those will be returned in dict.
+    and only those ebuilds will be returned in dict.
+    
+    If ebuildname is given, it will be matched against each line in <file>.
+    The flags for the first matching line are returned.
     """
-    usepkgfile = open('/'.join([portage_const.USER_CONFIG_PATH, 'package.use']), 'r')
-    usepkglines = usepkgfile.read().split('\n')
-    usepkgfile.close()
-    package_use = [line.split(' ') for line in usepkglines]
+    package_files = ['package.use', 'package.keywords', 'package.unmask', 'package.mask']
+    if file not in package_files:
+        dprint(" * PORTAGELIB: get_user_config(): unsupported config file '%s'" % file)
+        return None
+    filename = '/'.join([portage_const.USER_CONFIG_PATH, file])
+    if not os.access(filename, os.R_OK):
+        dprint(" * PORTAGELIB: get_user_config(): no read access on '%s'?" % file)
+        return {}
+    configfile = open(filename, 'r')
+    configlines = configfile.read().split('\n')
+    configfile.close()
+    config = [line.split(' ') for line in configlines]
     # e.g. [['media-video/mplayer', 'real', '-v4l'], [app-portage/porthole', 'sudo']]
     dict = {}
-    if name: target = xmatch('match-all', name)
-    else: target = None
-    for line in package_use:
-        if line[0]:
-            ebuilds = xmatch('match-all', line[0])
-            if target is None:
-                for ebuild in ebuilds:
-                    dict[ebuild] = line[1:]
-            else:
+    if ebuild is not None:
+        for line in config:
+            if line[0]:
+                match = xmatch('match-list', line[0], mylist=[ebuildname])
+                if match: return line[1:]
+        return []
+    if name:
+        target = xmatch('match-all', name)
+        for line in config:
+            if line[0]:
+                ebuilds = xmatch('match-all', line[0])
                 for ebuild in ebuilds:
                     if ebuild in target:
                         dict[ebuild] = line[1:]
+    else:
+        for line in config:
+            if line[0]:
+                ebuilds = xmatch('match-all', line[0])
+                for ebuild in ebuilds:
+                    dict[ebuild] = line[1:]
     return dict
 
 def get_version(ebuild):
