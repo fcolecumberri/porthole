@@ -45,7 +45,7 @@ class AdvancedEmergeDialog:
         self.system_use_flags = portagelib.SystemUseFlags
         self.emerge_unmerge = "emerge"
         self.is_root = is_root()
-        self.package_use_flags = portagelib.get_user_confg('package.use', package.full_name)
+        self.package_use_flags = portagelib.get_user_config('package.use', package.full_name)
         
         # Parse glade file
         self.gladefile = prefs.DATA_PATH + "advemerge.glade"
