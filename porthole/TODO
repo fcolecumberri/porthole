@@ -73,14 +73,9 @@
 
  * Indication of unstable packages in package view (bug [1222366])
 
- ? Table of available ebuilds for our architecture in summary, or for all
-   architectures if that setting is enabled (shared with advemerge).
-   This could indicate: Slots, Installed packages, Masking.
-   Perhaps also use flags for each ebuild ? (tooltip?)
-   This could also be useful for uninstalling or installing specific
-   ebuilds (or slots), or building for specific architectures if enabled.
-   Could also add specific ebuilds to package.keywords, package.unmask
-   (as opposed to unmasking all versions of a package).
+ * Show slots in summary view table
+
+ + (mostly done) Table of available ebuilds in summary view
 
  ? Central database (perhaps persistant across sessions) of "Package" objects
    (i.e. don't keep them in TreeView objects)
