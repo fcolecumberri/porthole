@@ -300,9 +300,7 @@ class PackageView(CommonTreeView):
         name = get_treeview_selection(self, 2).full_name
         string = name + " " + arch + "\n"
         dprint("VIEWS: Package view add_keyword(); %s" %string)
-        keywordsfile = open(USER_CONFIG_PATH + "/package.keywords", "a")
-        keywordsfile.write(string)
-        keywordsfile.close()
+        portagelib.set_user_config('package.keywords', name=name, add=arch)
         package = get_treeview_selection(self,2)
         package.best_ebuild = package.get_latest_ebuild()
         self.mainwindow_callback("refresh")
@@ -563,15 +561,16 @@ class CategoryView(CommonTreeView):
     def populate(self, categories):
         """Fill the category tree."""
         self.clear()
-        if self.search_cat == True:
-            self.populate_search( categories )
         dprint("VIEWS: Populating category view")
         last_catmaj = None
         categories.sort()
+        if self.search_cat == True:
+            self.populate_search(categories)
+            return
         for cat in categories:
             try: catmaj, catmin = cat.split("-")
             except:
-                dprint("VIEWS: CategoryView.populate(): can't split '%s'. Probably a search." % cat)
+                dprint(" * VIEWS: CategoryView.populate(): can't split '%s'." % cat)
                 continue # quick fix to bug posted on forums
             if catmaj != last_catmaj:
                 cat_iter = self.model.insert_before(None, None)
@@ -580,10 +579,6 @@ class CategoryView(CommonTreeView):
                 last_catmaj = catmaj
             sub_cat_iter = self.model.insert_before(cat_iter, None)
             self.model.set_value(sub_cat_iter, 0, catmin)
-##            dprint( threading.enumerate() )
-##                if self.new_thread:
-##                    if self.new_thread.isAlive():
-##                        self.new_thread.join()
             # store full category name in hidden field
             self.model.set_value(sub_cat_iter, 1, cat)
 
