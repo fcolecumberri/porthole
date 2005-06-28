@@ -218,9 +218,9 @@ def get_keyword_unmasked_ebuilds(arch=None, full_name='', archlist=None):
     If 'full_name' is given, ebuilds are only given for that package.
     """
     keywordsfile = open('/'.join([portage_const.USER_CONFIG_PATH, 'package.keywords']), 'r')
-    keywordslines = keywordsfile.read().split('\n')
+    keywordslines = keywordsfile.readlines()
     keywordsfile.close()
-    package_keywords = [line.split(' ') for line in keywordslines]
+    package_keywords = [line.split() for line in keywordslines]
     # e.g. [['gnome-base/control-center', '~x86'], ['app-portage/porthole', '~x86', '~amd64']]
     if arch: archlist = [arch]
     if not archlist: archlist = get_archlist()
@@ -250,10 +250,14 @@ def get_user_config(file, name=None, ebuild=None):
     If name is given, it will be parsed for ebuilds with xmatch('match-all'),
     and only those ebuilds will be returned in dict.
     
-    If ebuildname is given, it will be matched against each line in <file>.
-    The flags for the first matching line are returned.
+    If <ebuild> is given, it will be matched against each line in <file>.
+    For package.use/keywords, a list of applicable flags is returned.
+    For package.mask/unmask, a list containing the matching lines is returned.
     """
-    package_files = ['package.use', 'package.keywords', 'package.unmask', 'package.mask']
+    dprint("PORTAGELIB: get_user_config()")
+    maskfiles = ['package.mask', 'package.unmask']
+    otherfiles = ['package.use', 'package.keywords']
+    package_files = otherfiles + maskfiles
     if file not in package_files:
         dprint(" * PORTAGELIB: get_user_config(): unsupported config file '%s'" % file)
         return None
@@ -262,17 +266,20 @@ def get_user_config(file, name=None, ebuild=None):
         dprint(" * PORTAGELIB: get_user_config(): no read access on '%s'?" % file)
         return {}
     configfile = open(filename, 'r')
-    configlines = configfile.read().split('\n')
+    configlines = configfile.readlines()
     configfile.close()
-    config = [line.split(' ') for line in configlines]
+    config = [line.split() for line in configlines]
     # e.g. [['media-video/mplayer', 'real', '-v4l'], [app-portage/porthole', 'sudo']]
     dict = {}
     if ebuild is not None:
+        result = []
         for line in config:
             if line[0]:
                 match = xmatch('match-list', line[0], mylist=[ebuildname])
-                if match: return line[1:]
-        return []
+                if match:
+                    if file in maskfiles: result.extend(line[0]) # package.mask/unmask
+                    else: result.extend(line[1:]) # package.use/keywords
+        return result
     if name:
         target = xmatch('match-all', name)
         for line in config:
@@ -288,6 +295,178 @@ def get_user_config(file, name=None, ebuild=None):
                 for ebuild in ebuilds:
                     dict[ebuild] = line[1:]
     return dict
+
+def set_user_config(file, name='', ebuild='', add=[], remove=[]):
+    """
+    Adds <name> or '=' + <ebuild> to <file> with flags <add>.
+    If an existing entry is found, items in <remove> are removed and <add> is added.
+    
+    If <name> and <ebuild> are not given then lines starting with something in
+    remove are removed, and items in <add> are added as new lines.
+    """
+    dprint("PORTAGELIB: set_user_config()")
+    if isinstance(add, basestring):
+        add = [add]
+    if isinstance(remove, basestring):
+        remove = [remove]
+    maskfiles = ['package.mask', 'package.unmask']
+    otherfiles = ['package.use', 'package.keywords']
+    package_files = otherfiles + maskfiles
+    if file not in package_files:
+        dprint(" * PORTAGELIB: get_user_config(): unsupported config file '%s'" % file)
+        return False
+    config_path = portage_const.USER_CONFIG_PATH
+    if not os.access(config_path, os.W_OK):
+        dprint(" * PORTAGELIB: get_user_config(): no write access to '%s'. " \
+              "Perhaps the user is not root?" % config_path)
+        return False
+    filename = '/'.join([config_path, file])
+    if os.access(filename, os.F_OK): # if file exists
+        configfile = open(filename, 'r')
+        configlines = configfile.readlines()
+        configfile.close()
+    else:
+        configlines = ['']
+    config = [line.split() for line in configlines]
+    if not name:
+        name = '=' + ebuild
+    done = False
+    # Check if there is already a line to append to
+    for line in config:
+        if line[0] == name:
+            done = True
+            for flag in remove:
+                if flag in line:
+                    line.remove(flag)
+            for flag in add:
+                if flag not in line:
+                    line.append(flag)
+        elif line[0] in remove:
+            config[config.index(line)] = []
+    if not done:
+        if name != '=': # package.use/keywords: name or ebuild given
+            config.append([name] + add)
+        else: # package.mask/unmask: list of names to add
+            config.extend([[item] for item in add])
+        done = True
+    # remove blank lines
+    while [] in config:
+        config.remove([])
+    while [''] in config:
+        config.remove([''])
+    # add one blank line to end (so we end with a \n)
+    config.append([''])
+    configlines = [' '.join(line) for line in config]
+    configtext = '\n'.join(configlines)
+    configfile = open(filename, 'w')
+    configfile.write(configtext)
+    configfile.close()
+    return True
+
+def get_make_conf(want_linelist=False, savecopy=False):
+    """
+    Parses /etc/make.conf into a dictionary of items with
+    dict[setting] = properties string
+    
+    If want_linelist is True, the list of lines read from make.conf will also
+    be returned.
+    
+    If savecopy is true, a copy of make.conf is saved in make.conf.bak.
+    """
+    dprint("PORTAGELIB: get_make_conf()")
+    file = open(portage_const.MAKE_CONF_FILE, 'r')
+    if savecopy:
+        file2 = open(portage_const.MAKE_CONF_FILE + '.bak', 'w')
+        file2.write(file.read())
+        file.close()
+        file2.close()
+        return True
+    lines = file.readlines()
+    file.close()
+    linelist = []
+    for line in lines:
+        strippedline = line.strip()
+        if strippedline.startswith('#'):
+            linelist.append([strippedline])
+        elif '=' in strippedline:
+            splitline = strippedline.split('=')
+            linelist.append([splitline[0]])
+            linelist[-1].append(''.join(splitline[1:])) # might have been another '='
+        else:
+            dprint(" * PORTAGELIB: get_make_conf(): couldn't handle line %s" % line)
+            linelist.append([strippedline])
+    dict = {}
+    for line in linelist:
+        if len(line) == 2:
+            dict[line[0]] = line[1].strip('"') # line[1] should be of form '"settings"'
+    if want_linelist:
+        return dict, linelist
+    return dict
+
+def set_make_conf(property, add=[], remove=[], replace=''):
+    """
+    Sets a variable in make.conf.
+    If remove: removes elements of <remove> from variable string.
+    If add: adds elements of <add> to variable string.
+    If replace: replaces entire variable string with <replace>.
+    
+    if remove contains the variable name, the whole variable is removed.
+    
+    e.g. set_make_conf('USE', add=['gtk', 'gtk2'], remove=['-gtk', '-gtk2'])
+    e.g. set_make_conf('ACCEPT_KEYWORDS', remove='ACCEPT_KEYWORDS')
+    e.g. set_make_conf('PORTAGE_NICENESS', replace='15')
+    """
+    dprint("PORTAGELIB: set_make_conf()")
+    if isinstance(add, basestring):
+        add = [add]
+    if isinstance(remove, basestring):
+        remove = [remove]
+    if isinstance(replace, list):
+        replace = ' '.join(replace)
+    dict, linelist = get_make_conf(True)
+    if not dict.has_key(property):
+        dprint("PORTAGELIB: set_make_conf(): dict does not have key '%s'. Creating..." % property)
+        dict[property] = ''
+    if not os.access(portage_const.MAKE_CONF_FILE, os.W_OK):
+        dprint(" * PORTAGELIB: get_user_config(): no write access to '%s'. " \
+              "Perhaps the user is not root?" % portage_const.MAKE_CONF_FILE)
+        return False
+    propline = dict[property]
+    splitline = propline.split()
+    if remove:
+        for element in remove:
+            while element in splitline:
+                splitline.remove(element)
+    if add:
+        for element in add:
+            if element not in splitline:
+                splitline.append(element)
+    if replace:
+        splitline = [replace]
+    joinedline = ' '.join(splitline)
+    # Now write to make.conf, keeping comments, unparsed lines and line order intact
+    done = False
+    for line in linelist:
+        if line[0].strip() == property:
+            if line[0] in remove:
+                linelist.remove(line)
+            else:
+                line[1] = '"' + joinedline + '"'
+            done = True
+    if not done:
+        while linelist and len(linelist[-1]) == 1 and linelist[-1][0].strip() == '': # blank line
+            linelist.pop(-1)
+        linelist.append([property, '"' + joinedline + '"'])
+        linelist.append(['']) # blank line
+    joinedlist = ['='.join(line) for line in linelist]
+    make_conf = '\n'.join(joinedlist)
+    if not make_conf.endswith('\n'):
+        make_conf += '\n'
+    get_make_conf(savecopy=True) # just saves a copy with ".bak" on the end
+    file = open(portage_const.MAKE_CONF_FILE, 'w')
+    file.write(make_conf)
+    file.close()
+    return True
 
 def get_version(ebuild):
     """Extract version number from ebuild name"""
@@ -348,6 +527,7 @@ def get_archlist():
 def get_masking_reason(ebuild):
     """Strips trailing \n from, and returns the masking reason given by portage"""
     reason = portage.getmaskingreason(ebuild)
+    if not reason: return _('No masking reason given')
     if reason.endswith("\n"):
         reason = reason[:-1]
     return reason
@@ -407,7 +587,7 @@ def get_size(ebuild):
         mysum="[bad / blank digest]"
     return mysum
 
-def get_digest( ebuild ):
+def get_digest(ebuild):
     """Returns digest of an ebuild"""
     mydigest = portage.db['/']['porttree'].dbapi.finddigest(ebuild)
     digest_file = []
@@ -419,8 +599,7 @@ def get_digest( ebuild ):
     except SystemExit, e:
         raise # Needed else can't exit
     except Exception, e:
-        dprint( "PORTAGELIB: get_digest Exception:"  )
-        dprint( e )
+        dprint("PORTAGELIB: get_digest(): Exception: %s" % e)
     return digest_file
 
 def get_properties(ebuild):
