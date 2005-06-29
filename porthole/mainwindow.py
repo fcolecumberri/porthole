@@ -333,7 +333,7 @@ class MainWindow:
         self.category_view.populate(self.db.categories.keys())
         # update the views by calling view_filter_changed
         self.view_filter_changed(self.widget["view_filter"])
-        self.widget["view_refresh"].set_sensitive(False)
+        #self.widget["view_refresh"].set_sensitive(False)
         return
 
     def package_update(self, pkg):
@@ -519,7 +519,7 @@ class MainWindow:
             self.set_statusbar2(_("%(base)s: Populating tree") % {'base':self.status_root})
             self.update_statusbar(SHOW_ALL)
             dprint("MAINWINDOW: setting menubar,toolbar,etc to sensitive...")
-            for x in ["menubar","toolbar","view_filter","search_entry","btn_search"]:
+            for x in ["menubar","toolbar","view_filter","search_entry","btn_search","view_refresh"]:
                 self.wtree.get_widget(x).set_sensitive(True)
             # make sure we search again if we reloaded!
             if self.widget["view_filter"].get_history() == SHOW_SEARCH:
