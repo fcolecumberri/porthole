@@ -52,9 +52,83 @@ class CommonTreeView(gtk.TreeView):
             # clear it
             model.clear()
 
+def size_sort_func(treemodel, iter1, iter2):
+    """Sorts by download size"""
+    text1 = treemodel.get_value(iter1, 6)
+    text2 = treemodel.get_value(iter2, 6)
+    try: size1 = int(text1[:-3].replace(',', ''))
+    except:
+        try: size2 = int(text2[:-3].replace(',', ''))
+        except: return 0
+        return 1
+    try: size2 = int(text2[:-3].replace(',', ''))
+    except: return -1
+    if size2 > size1: return 1
+    if size2 < size1: return -1
+    return 0
+
+def latest_sort_func(treemodel, iter1, iter2):
+    """Sorts by the difference between the installed and recommended versions"""
+    installed1 = treemodel.get_value(iter1, 7)
+    installed2 = treemodel.get_value(iter2, 7)
+    latest1 = treemodel.get_value(iter1, 8)
+    latest2 = treemodel.get_value(iter2, 8)
+    if not installed1 or not latest1:
+        if not installed2 or not latest2:
+            return 0
+        return 1
+    if not installed2 or not latest2: return -1
+    lsplit1 = latest1.split('.')
+    lsplit2 = latest2.split('.')
+    isplit1 = installed1.split('.')
+    isplit2 = installed2.split('.')
+    dlist1 = []
+    for x in range(min(len(lsplit1), len(isplit1))):
+        try: diff = int(lsplit1[x]) - int(isplit1[x])
+        except: break
+        dlist1.append(diff)
+    dlist2 = []
+    for x in range(min(len(lsplit2), len(isplit2))):
+        try: diff = int(lsplit2[x]) - int(isplit2[x])
+        except: break
+        dlist2.append(diff)
+    for x in range(max(len(dlist1), len(dlist2))):
+        if x == len(dlist1): dlist1.append(0)
+        if x == len(dlist2): dlist2.append(0)
+        if dlist1[x] > dlist2[x]: return -1
+        if dlist1[x] < dlist2[x]: return 1
+    return 0
+
+def installed_sort_func(treemodel, iter1, iter2):
+    """Currently just puts installed packages at the top,
+    with world packages above deps"""
+    inst1 = treemodel.get_value(iter1, 7)
+    inst2 = treemodel.get_value(iter2, 7)
+    if not inst1:
+        if not inst2:
+            return package_sort_func(treemodel, iter1, iter2)
+        return 1
+    if not inst2:
+        return -1
+    if treemodel.get_value(iter1, 4): # True if in world file
+        if treemodel.get_value(iter2, 4):
+            return package_sort_func(treemodel, iter1, iter2)
+        return -1
+    if treemodel.get_value(iter2, 4):
+        return 1
+    return package_sort_func(treemodel, iter1, iter2)
+
+def package_sort_func(treemodel, iter1, iter2):
+    """Sorts alphabetically by package name"""
+    name1 = treemodel.get_value(iter1, 0)
+    name2 = treemodel.get_value(iter2, 0)
+    if name1 > name2: return 1
+    if name2 > name1: return -1
+    return 0
+
 def PackageModel():
     """Common model for a package Treestore"""
-    return gtk.TreeStore(
+    store = gtk.TreeStore(
         gobject.TYPE_STRING,        # 0: package name
         gobject.TYPE_BOOLEAN,       # 1: checkbox value in upgrade view
         gobject.TYPE_PYOBJECT,      # 2: package object
@@ -66,6 +140,10 @@ def PackageModel():
         gobject.TYPE_STRING,        # 8: portage recommended version
         gobject.TYPE_STRING,        # 9: description
     )
+    store.set_sort_func(6, size_sort_func)
+    store.set_sort_func(8, latest_sort_func)
+    store.set_sort_func(7, installed_sort_func)
+    return store
 
 class PackageView(CommonTreeView):
     """ Self contained treeview of packages """
@@ -115,36 +193,42 @@ class PackageView(CommonTreeView):
         self._column = gtk.TreeViewColumn(_("Packages"))
         self._column.set_resizable(True)
         self.append_column(self._column)
-
+        self._column.set_sort_column_id(0)
         # add checkbox column
         self._checkbox_column = gtk.TreeViewColumn()
         self._checkbox_column.set_resizable(False)
         self.append_column(self._checkbox_column)
-
         # Setup the Installed Column
         self._installed_column = gtk.TreeViewColumn(_("Installed"))
         self.append_column(self._installed_column)
         self._installed_column.set_resizable(True)
         self._installed_column.set_expand(False)
-
+        self._installed_column.set_sort_column_id(7)
         # Setup the Latest Column
         self._latest_column = gtk.TreeViewColumn(_("Recommended"))
         self.append_column(self._latest_column)
         self._latest_column.set_resizable(True)
         self._latest_column.set_expand(False)
-
+        self._latest_column.set_sort_column_id(8)
         # setup the packagesize column
         self._size_column = gtk.TreeViewColumn(_("Download Size"))
         self.append_column(self._size_column)
         self._size_column.set_resizable(True)
         self._size_column.set_expand(False)
-
+        self._size_column.set_sort_column_id(6)
         # setup the Description column
         self._desc_column = gtk.TreeViewColumn(_("Description"))
         self.append_column(self._desc_column)
         self._desc_column.set_resizable(True)
         self._desc_column.set_expand(False)
-
+        
+        self.clickable_columns = [
+            self._column,
+            self._installed_column,
+            self._latest_column,
+            self._size_column,
+        ]
+        
         # setup the treemodels
         self.upgrade_model = PackageModel()
         self.package_model = PackageModel()
@@ -182,6 +266,7 @@ class PackageView(CommonTreeView):
                 self.info_thread.join()
                 #gtk.threads_enter()
                 dprint("VIEWS: infothread seems to have finished!")
+            self.enable_column_sort()
             del self.info_thread
             self.info_thread = None
         # clear the columns
@@ -278,7 +363,7 @@ class PackageView(CommonTreeView):
         """
         self.mainwindow_callback = callback
 
-    def on_button_press(self, widget, event):
+    def on_button_press(self, treeview, event):
         dprint("VIEWS: Handling PackageView button press event")
         self.event = event # save the event so we can access it in _clicked()
         if event.type != gtk.gdk.BUTTON_PRESS:
@@ -288,7 +373,14 @@ class PackageView(CommonTreeView):
             self.dopopup = True # indicate that the popup menu should be displayed.
         else:
             self.dopopup = False
-        return False # will continue to _clicked() event
+        # Test to make sure something was clicked on:
+        pathinfo = treeview.get_path_at_pos(int(event.x), int(event.y))
+        if pathinfo == None:
+            self.dopopup = False
+        else:
+            path, col, cellx, celly = pathinfo
+            treeview.set_cursor(path, col, 0) # Note: sets off _clicked again
+        return False
 
     def on_toggled(self, widget, path):
         self.toggle = path
@@ -329,21 +421,31 @@ class PackageView(CommonTreeView):
         # get the selection
         package = get_treeview_selection(treeview, 2)
         #dprint("VIEWS: package = %s" % package.full_name)
-        if not package:
+        if not package and not self.toggle:
             self.mainwindow_callback("package changed", None)
             return False
         if self.toggle != None: # for upgrade view
             iter = self.get_model().get_iter(self.toggle)
             check = self.upgrade_model.get_value(iter, 1)
-            self.upgrade_model.set_value(iter, 1, not check)
+            check = not check
+            self.upgrade_model.set_value(iter, 1, check)
+            if self.upgrade_model.get_value(iter, 2) == None:
+                dprint("VIEWS: _clicked(): Toggling all upgradable deps")
+                # package == None for "Upgradable Dependencies" row
+                # so select or deselect all deps
+                iter = self.upgrade_model.iter_children(iter)
+                while iter:
+                    self.upgrade_model.set_value(iter, 1, check)
+                    iter = self.upgrade_model.iter_next(iter)
             self.dopopup = False # don't popup menu if clicked on checkbox
             self.toggle = None
             return True # we've got it sorted
         else:
             #dprint("VIEWS: full_name != _last_package = %d" %(package.full_name != self._last_selected))
-            if package.full_name != self._last_selected:
-                #dprint("VIEWS: passing package changed back to mainwindow")
-                self.mainwindow_callback("package changed", package)
+            #if package.full_name != self._last_selected:
+            #    #dprint("VIEWS: passing package changed back to mainwindow")
+            #    self.mainwindow_callback("package changed", package)
+            self.mainwindow_callback("package changed", package)
         self._last_selected = package.full_name
 
         #pop up menu if was rmb-click
@@ -406,6 +508,7 @@ class PackageView(CommonTreeView):
                 self.info_thread.join()
                 #gtk.threads_enter()
                 dprint("VIEWS: infothread seems to have finished!")
+            self.enable_column_sort()
             del self.info_thread
             self.info_thread = None
         if locate_name:
@@ -421,10 +524,6 @@ class PackageView(CommonTreeView):
             model.set_value(iter, 4, (packages[name].in_world))
             model.set_value(iter, 0, name)
             model.set_value(iter, 5, '') # foreground text color
-            #model.set_value(iter, 6, packages[name].get_size()) # Size
-            #model.set_value(iter, 7, portagelib.get_version(packages[name].get_latest_installed())) # installed
-            #model.set_value(iter, 8, portagelib.get_version(packages[name].get_latest_ebuild())) # latest
-            #model.set_value(iter, 9, '@') # Description
             # get an icon for the package
             icon = get_icon_for_package(packages[name])
             model.set_value(iter, 3,
@@ -439,6 +538,8 @@ class PackageView(CommonTreeView):
                         self.mainwindow_callback("set path", path)
         dprint("VIEWS: starting info_thread")
         self.infothread_die = False
+        self.get_model().set_sort_column_id(0, gtk.SORT_ASCENDING)
+        self.disable_column_sort()
         self.info_thread = threading.Thread(target = self.populate_info)
         self.info_thread.setDaemon(True)
         self.info_thread.start()
@@ -480,6 +581,7 @@ class PackageView(CommonTreeView):
         if not (self.infothread_die):
             gtk.threads_enter()
             self.queue_draw()
+            self.enable_column_sort()
             gtk.threads_leave()
         dprint("VIEWS: populate_info(); Package info populated")
 
@@ -506,6 +608,20 @@ class PackageView(CommonTreeView):
     def restore_model(self):
         if self.temp_view == self.current_view: # otherwise don't worry about it
             self.set_model(self.temp_model)
+    
+    def column_clicked(self, column):
+        # This seems to be unnecessary - gtk does all the work.
+        # It would have been useful if column clicks could be escaped,
+        # But gtk seems to just ignore "return True" in this case.
+        pass
+    
+    def disable_column_sort(self):
+        for col in self.clickable_columns:
+            col.set_clickable(False)
+    
+    def enable_column_sort(self):
+        for col in self.clickable_columns:
+            col.set_clickable(True)
 
 class CategoryView(CommonTreeView):
     """ Self contained treeview to hold categories """
