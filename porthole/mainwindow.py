@@ -46,6 +46,7 @@ from plugin import PluginGUI, PluginManager
 from readers import UpgradableReader, DescriptionReader
 from loaders import *
 from version_sort import ver_match
+import config
 
 
 EXCEPTION_LIST = ['.','^','$','*','+','?','(',')','\\','[',']','|','{','}']
@@ -120,6 +121,7 @@ class MainWindow:
             "on_plugin_settings_activate" : self.plugin_settings_activate,
             "on_view_refresh" : self.reload_view,
             "on_root_warning_clicked" : self.check_for_root,
+            "on_configure_porthole" : self.configure_porthole,
         }
         self.wtree.signal_autoconnect(callbacks)
         self.set_statusbar2("Starting")
@@ -688,7 +690,11 @@ class MainWindow:
     def plugin_settings_activate( self, widget ):
         """Shows the plugin settings window"""
         plugin_dialog = PluginGUI( self.prefs, self.plugin_manager )
- 
+    
+    def configure_porthole(self, menuitem_widget):
+        """Shows the Configuration GUI"""
+        config_dialog = config.ConfigDialog(self.prefs)
+    
     def new_plugin_menuitem( self, label ):
         dprint("MAINWINDOW: Adding new Menu Entry")
         if self.needs_plugin_menu == False:
