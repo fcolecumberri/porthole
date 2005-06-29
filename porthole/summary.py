@@ -66,18 +66,24 @@ class Summary(gtk.TextView):
         arch = "~" + portagelib.get_arch()
         menu = gtk.Menu()
         menuitems = {}
-        menuitems["emerge"] = gtk.MenuItem(_("Emerge"))
+        menuitems["emerge"] = gtk.MenuItem(_("Emerge this ebuild"))
         menuitems["emerge"].connect("activate", self.emerge)
-        menuitems["pretend-emerge"] = gtk.MenuItem(_("Pretend Emerge"))
+        menuitems["pretend-emerge"] = gtk.MenuItem(_("Pretend Emerge this ebuild"))
         menuitems["pretend-emerge"].connect("activate", self.emerge, True, None)
-        menuitems["sudo-emerge"] = gtk.MenuItem(_("Sudo Emerge"))
+        menuitems["sudo-emerge"] = gtk.MenuItem(_("Sudo Emerge this ebuild"))
         menuitems["sudo-emerge"].connect("activate", self.emerge, None, True)
-        menuitems["unmerge"] = gtk.MenuItem(_("Unmerge"))
+        menuitems["unmerge"] = gtk.MenuItem(_("Unmerge this ebuild"))
         menuitems["unmerge"].connect("activate", self.unmerge)
-        menuitems["sudo-unmerge"] = gtk.MenuItem(_("Sudo Unmerge"))
+        menuitems["sudo-unmerge"] = gtk.MenuItem(_("Sudo Unmerge this ebuild"))
         menuitems["sudo-unmerge"].connect("activate", self.unmerge, True)
-        menuitems["add-keyword"] = gtk.MenuItem(_("Append with %s to package.keywords") % arch)
+        menuitems["add-keyword"] = gtk.MenuItem(_("Add %s to package.keywords (for this ebuild only)") % arch)
         menuitems["add-keyword"].connect("activate", self.add_keyword)
+        menuitems["remove-keyword"] = gtk.MenuItem(_("Remove %s from package.keywords") % arch)
+        menuitems["remove-keyword"].connect("activate", self.remove_keyword)
+        menuitems["package-unmask"] = gtk.MenuItem(_("Unmask this ebuild"))
+        menuitems["package-unmask"].connect("activate", self.package_unmask)
+        menuitems["un-package-unmask"] = gtk.MenuItem(_("Remask this ebuild"))
+        menuitems["un-package-unmask"].connect("activate", self.un_package_unmask)
         
         for item in menuitems.values():
             menu.append(item)
@@ -260,10 +266,12 @@ class Summary(gtk.TextView):
                             color = "#ED9191"
                         if ebuild in installed and arch == myarch:
                             color = "#9090EE"
-                        if keyword_unmasked[arch] and '~' in text:
-                            if ebuild in keyword_unmasked[arch]:
-                                # take account of package.keywords in text but leave colour unchanged
-                                text = text.replace('~', '(+)')
+                        if (keyword_unmasked.has_key(ebuild) and '~' in text and
+                                    '~' + arch in keyword_unmasked[ebuild]):
+                            # take account of package.keywords in text but leave colour unchanged
+                            text = text.replace('~', '(+)')
+                        if ebuild in package_unmasked and 'M' in text:
+                            text = '[' + text.replace('M', '') + ']'
                         label = gtk.Label(text)
                         box = boxify(label, color=color, ebuild=ebuild, arch=arch, text=text)
                         if "M" in text or "[" in text:
@@ -300,10 +308,12 @@ class Summary(gtk.TextView):
                         color = "#ED9191"
                     if ebuild in installed:
                         color = "#9090EE"
-                    if keyword_unmasked[myarch] and '~' in text:
-                        if ebuild in keyword_unmasked[myarch]:
-                            # take account of package.keywords in text but leave colour unchanged
-                            text = text.replace('~', '(+)')
+                    if (keyword_unmasked.has_key(ebuild) and '~' in text and
+                                '~' + myarch in keyword_unmasked[ebuild]):
+                        # take account of package.keywords in text but leave colour unchanged
+                        text = text.replace('~', '(+)')
+                    if ebuild in package_unmasked and 'M' in text:
+                        text = '[' + text.replace('M', '') + ']'
                     label = gtk.Label(text)
                     box = boxify(label, color=color, ebuild=ebuild, arch=myarch, text=text)
                     if text.startswith("M"):
@@ -358,10 +368,11 @@ class Summary(gtk.TextView):
         
         # added by Tommy
         hardmasked = package.get_hard_masked()
-        keyword_unmasked = portagelib.get_keyword_unmasked_ebuilds(
-                            archlist=self.archlist, full_name=package.full_name)
-        #dprint(keyword_unmasked)
-
+        #keyword_unmasked = portagelib.get_keyword_unmasked_ebuilds(
+        #                    archlist=self.archlist, full_name=package.full_name)
+        keyword_unmasked = portagelib.get_user_config('package.keywords', name=package.full_name)
+        package_unmasked = portagelib.get_user_config('package.unmask', name=package.full_name)
+        
         best = portagelib.best(installed + nonmasked)
         #dprint("SUMMARY: best = %s" %best)
         if best == "": # all versions are masked and the package is not installed
@@ -519,6 +530,15 @@ class Summary(gtk.TextView):
             if '~' in eventbox.text:
                 self.popup_menuitems["add-keyword"].show()
             else: self.popup_menuitems["add-keyword"].hide()
+            if '(+)' in eventbox.text:
+                self.popup_menuitems["remove-keyword"].show()
+            else: self.popup_menuitems["remove-keyword"].hide()
+            if 'M' in eventbox.text:
+                self.popup_menuitems["package-unmask"].show()
+            else: self.popup_menuitems["package-unmask"].hide()
+            if '[' in eventbox.text:
+                self.popup_menuitems["un-package-unmask"].show()
+            else: self.popup_menuitems["un-package-unmask"].hide()
             if eventbox.ebuild in self.installed:
                 self.popup_menuitems["unmerge"].show()
                 self.popup_menuitems["emerge"].hide()
@@ -589,17 +609,34 @@ class Summary(gtk.TextView):
         else:
             self.dispatch("unmerge", self.selected_ebuild)
     
-    def add_keyword(self, menuitem_widget): # implement me
+    def add_keyword(self, menuitem_widget):
         arch = "~" + portagelib.get_arch()
-        #name = get_treeview_selection(self, 2).full_name
-        #string = name + " " + arch + "\n"
-        #dprint("VIEWS: Package view add_keyword(); %s" %string)
-        #keywordsfile = open(USER_CONFIG_PATH + "/package.keywords", "a")
-        #keywordsfile.write(string)
-        #keywordsfile.close()
-        #self.mainwindow_callback("refresh")
-
+        ebuild = self.selected_ebuild
+        portagelib.set_user_config('package.keywords', ebuild=ebuild, add=arch)
+        self.update_package_info(self.package)
     
-
-
+    def remove_keyword(self, menuitem_widget):
+        arch = "~" + portagelib.get_arch()
+        ebuild = self.selected_ebuild
+        portagelib.set_user_config('package.keywords', ebuild=ebuild, remove=arch)
+        self.update_package_info(self.package)
+    
+    def package_unmask(self, menuitem_widget):
+        ebuild = "=" + self.selected_ebuild
+        portagelib.set_user_config('package.unmask', add=ebuild)
+        # reset package info
+        self.package.best_ebuild = None
+        self.package.latest_ebuild = None
+        # reload view
+        self.update_package_info(self.package)
+    
+    def un_package_unmask(self, menuitem_widget):
+        ebuild = "=" + self.selected_ebuild
+        portagelib.set_user_config('package.unmask', remove=ebuild)
+        # reset package info
+        self.package.best_ebuild = None
+        self.package.latest_ebuild = None
+        # reload view
+        self.update_package_info(self.package)
+    
 
