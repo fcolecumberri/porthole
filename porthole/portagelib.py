@@ -210,35 +210,35 @@ def xmatch(*args, **kwargs):
     """
     return portage.portdb.xmatch(*args, **kwargs)
 
-def get_keyword_unmasked_ebuilds(arch=None, full_name='', archlist=None):
-    """Return a list of ebuilds unmasked by package.keywords.
-    If 'arch': returns a list of ebuilds.
-    Elif 'archlist': returns a dictionary with dict[arch] = list of ebuilds for arch in archlist.
-    Else returns a dictionary with dict[arch] = list of ebuilds for all architectures.
-    If 'full_name' is given, ebuilds are only given for that package.
-    """
-    keywordsfile = open('/'.join([portage_const.USER_CONFIG_PATH, 'package.keywords']), 'r')
-    keywordslines = keywordsfile.readlines()
-    keywordsfile.close()
-    package_keywords = [line.split() for line in keywordslines]
-    # e.g. [['gnome-base/control-center', '~x86'], ['app-portage/porthole', '~x86', '~amd64']]
-    if arch: archlist = [arch]
-    if not archlist: archlist = get_archlist()
-    dict = {}
-    for item in archlist:
-        list = [element[0]
-            for element in package_keywords
-            if (('~' + item) in element
-                and full_name in element[0])]
-        ebuild_list = []
-        for entry in list:
-            matching_ebuilds = xmatch('match-all', entry)
-            for ebuild in matching_ebuilds:
-                if ebuild not in ebuild_list:
-                    ebuild_list.append(ebuild)
-        dict[item] = ebuild_list
-    if arch: return dict[item]
-    else: return dict
+##def get_keyword_unmasked_ebuilds(arch=None, full_name='', archlist=None):
+##    """Return a list of ebuilds unmasked by package.keywords.
+##    If 'arch': returns a list of ebuilds.
+##    Elif 'archlist': returns a dictionary with dict[arch] = list of ebuilds for arch in archlist.
+##    Else returns a dictionary with dict[arch] = list of ebuilds for all architectures.
+##    If 'full_name' is given, ebuilds are only given for that package.
+##    """
+##    keywordsfile = open('/'.join([portage_const.USER_CONFIG_PATH, 'package.keywords']), 'r')
+##    keywordslines = keywordsfile.readlines()
+##    keywordsfile.close()
+##    package_keywords = [line.split() for line in keywordslines]
+##    # e.g. [['gnome-base/control-center', '~x86'], ['app-portage/porthole', '~x86', '~amd64']]
+##    if arch: archlist = [arch]
+##    if not archlist: archlist = get_archlist()
+##    dict = {}
+##    for item in archlist:
+##        list = [element[0]
+##            for element in package_keywords
+##            if (('~' + item) in element
+##                and full_name in element[0])]
+##        ebuild_list = []
+##        for entry in list:
+##            matching_ebuilds = xmatch('match-all', entry)
+##            for ebuild in matching_ebuilds:
+##                if ebuild not in ebuild_list:
+##                    ebuild_list.append(ebuild)
+##        dict[item] = ebuild_list
+##    if arch: return dict[item]
+##    else: return dict
 
 def get_user_config(file, name=None, ebuild=None):
     """
@@ -341,11 +341,18 @@ def set_user_config(file, name='', ebuild='', add=[], remove=[]):
             for flag in add:
                 if flag not in line:
                     line.append(flag)
+            if not line[1:]: # if we've removed everything and added nothing
+                config[config.index(line)] = []
         elif line[0] in remove:
             config[config.index(line)] = []
     if not done:
         if name != '=': # package.use/keywords: name or ebuild given
-            config.append([name] + add)
+            if add:
+                config.append([name] + add)
+            elif ebuild:
+                # Probably tried to modify by ebuild but was listed by package.
+                # Do a pass with the package name just in case
+                return set_user_config(file, name=get_full_name(ebuild), remove=remove)
         else: # package.mask/unmask: list of names to add
             config.extend([[item] for item in add])
         done = True
@@ -361,6 +368,7 @@ def set_user_config(file, name='', ebuild='', add=[], remove=[]):
     configfile = open(filename, 'w')
     configfile.write(configtext)
     configfile.close()
+    reload_portage() # this is slow, but otherwise portage doesn't notice the change
     return True
 
 def get_make_conf(want_linelist=False, savecopy=False):
@@ -389,9 +397,14 @@ def get_make_conf(want_linelist=False, savecopy=False):
         if strippedline.startswith('#'):
             linelist.append([strippedline])
         elif '=' in strippedline:
-            splitline = strippedline.split('=')
-            linelist.append([splitline[0]])
-            linelist[-1].append(''.join(splitline[1:])) # might have been another '='
+            splitline = strippedline.split('=', 1)
+            if '"' in splitline[0] or "'" in splitline[0]:
+                dprint(" * PORTAGELIB: get_make_conf(): couldn't handle line %s" % line)
+                linelist.append([strippedline])
+            else:
+                linelist.append([splitline])
+            #linelist.append([splitline[0]])
+            #linelist[-1].append('='.join(splitline[1:])) # might have been another '='
         else:
             dprint(" * PORTAGELIB: get_make_conf(): couldn't handle line %s" % line)
             linelist.append([strippedline])
@@ -466,6 +479,7 @@ def set_make_conf(property, add=[], remove=[], replace=''):
     file = open(portage_const.MAKE_CONF_FILE, 'w')
     file.write(make_conf)
     file.close()
+    reload_portage() # this is slow, but otherwise portage doesn't notice the change
     return True
 
 def get_version(ebuild):
@@ -765,7 +779,7 @@ class Package:
                         if n not in hardmasked: hardmasked.append(n)
             except KeyError:
                 pass
-            self.hard_masked_nocheck = hardmasked
+            self.hard_masked_nocheck = hardmasked[:]
             try:
                 for x in portage.portdb.mysettings.punmaskdict[str(self.full_name)]:
                     m = portage.portdb.xmatch("match-all",x)
@@ -774,7 +788,8 @@ class Package:
             except KeyError:
                 pass
             self.hard_masked = hardmasked
-        return check_unmask and self.hard_masked or self.hard_masked_nocheck
+        if check_unmask: return self.hard_masked
+        else: return self.hard_masked_nocheck
         
 
     def is_upgradable(self):
