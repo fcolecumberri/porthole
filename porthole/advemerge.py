@@ -46,6 +46,7 @@ class AdvancedEmergeDialog:
         self.emerge_unmerge = "emerge"
         self.is_root = is_root()
         self.package_use_flags = portagelib.get_user_config('package.use', package.full_name)
+        self.current_verInfo = None
         
         # Parse glade file
         self.gladefile = prefs.DATA_PATH + "advemerge.glade"
@@ -64,8 +65,12 @@ class AdvancedEmergeDialog:
                      "on_cbUsePkg_clicked" : self.usepkg_check,
                      "on_cbUsePkgOnly_clicked" : self.usepkgonly_check,
                      "on_cmbVersion_changed" : self.version_changed,
-                     "on_cmbEmerge_changed" : self.emerge_changed,}
-
+                     "on_cmbEmerge_changed" : self.emerge_changed,
+                     "on_btnPkgUse_clicked" : self.on_package_use_commit,
+                     "on_btnMakeConf_clicked" : self.on_make_conf_commit,
+                     "on_btnPkgKeywords_clicked" : self.on_package_keywords_commit,
+        }
+        
         self.wtree.signal_autoconnect(callbacks)
         self.window = self.wtree.get_widget("adv_emerge_dialog")
         self.use_flags_frame = self.wtree.get_widget("frameUseFlags")
@@ -77,6 +82,14 @@ class AdvancedEmergeDialog:
         style = self.keywords_frame.get_style().copy()
         self.bgcolor = style.bg[gtk.STATE_NORMAL]
         self.command_textview.modify_base(gtk.STATE_NORMAL, self.bgcolor)
+        
+        self.btnMakeConf = self.wtree.get_widget("btnMakeConf")
+        self.btnPkgUse = self.wtree.get_widget("btnPkgUse")
+        self.btnPkgKeywords = self.wtree.get_widget("btnPkgKeywords")
+        if not self.is_root:
+            self.btnMakeConf.hide()
+            self.btnPkgUse.hide()
+            self.btnPkgKeywords.hide()
         
         # Connect option toggles to on_toggled
         for checkbutton in self.wtree.get_widget("table2").get_children():
@@ -196,7 +209,7 @@ class AdvancedEmergeDialog:
         model = self.combobox.get_model()
         sel_ver = model.get_value(iter, 0)
         if len(sel_ver) > 2:
-            verInfo = self.get_verInfo(sel_ver)
+            verInfo = self.current_verInfo = self.get_verInfo(sel_ver)
             # Reset use flags
             self.build_use_flag_widget(verInfo["use_flags"], verInfo["name"])
             # Reset keywords
@@ -261,11 +274,126 @@ class AdvancedEmergeDialog:
     def on_toggled(self, widget):
         self.display_emerge_command()
         return False
-
+    
+    def on_package_use_commit(self, button_widget):
+        dprint("ADVEMERGE: on_package_use_commit()")
+        use_flags = self.get_use_flags()
+        if not use_flags: return
+        addlist = use_flags.split()
+        removelist = []
+        for item in addlist: # get opposite of flags
+            if item.startswith('-'):
+                removelist.append(item[1:])
+            else:
+                removelist.append('-' + item)
+        okay = portagelib.set_user_config( \
+                'package.use', name=self.package.full_name,
+                add=addlist, remove=removelist)
+        verInfo = self.current_verInfo
+        ebuild = verInfo["name"]
+        if okay:
+            if self.package.properties.has_key(ebuild):
+                # Remove properties object so everything's recalculated
+                del self.package.properties[ebuild]
+            self.reload()
+            #self.version_changed(None)
+        else:
+            dprint("ADVEMERGE: on_package_use_commit(): Error...")
+    
+    def on_make_conf_commit(self, button_widget):
+        dprint("ADVEMERGE: on_make_conf_commit()")
+        use_flags = self.get_use_flags()
+        if not use_flags: return
+        addlist = use_flags.split()
+        removelist = []
+        for item in addlist: # get opposite of flags
+            if item.startswith('-'):
+                removelist.append(item[1:])
+            else:
+                removelist.append('-' + item)
+        mcokay = portagelib.set_make_conf('USE', add=addlist, remove=removelist)
+        puokay = portagelib.set_user_config( \
+                'package.use', name=self.package.full_name, remove=removelist)
+        verInfo = self.current_verInfo
+        ebuild = verInfo["name"]
+        if mcokay and puokay:
+            if self.package.properties.has_key(ebuild):
+                # Remove properties object so everything's recalculated
+                del self.package.properties[ebuild]
+            portagelib.reset_use_flags()
+            self.reload()
+        else:
+            if not mcokay:
+                dprint("ADVEMERGE: on_make_conf_commit(): Error with make.conf")
+            if not puokay:
+                dprint("ADVEMERGE: on_make_conf_commit(): Error with package.use")
+    
+    def on_package_keywords_commit(self, button_widget):
+        dprint("ADVEMERGE: on_package_keywords_commit()")
+        keyword = self.get_keyword()
+        if not keyword: return
+        addlist = [keyword]
+        if keyword.startswith("-"):
+            removelist = [keyword[1:]]
+        else:
+            removelist = ["-" + keyword]
+        verInfo = self.current_verInfo
+        ebuild = verInfo["name"]
+        okay = portagelib.set_user_config( \
+            'package.keywords', ebuild=ebuild, add=addlist, remove=removelist)
+        if okay:
+            if self.package.properties.has_key(ebuild):
+                # Remove properties object so everything's recalculated
+                del self.package.properties[ebuild]
+            self.reload()
+        else:
+            dprint("ADVEMERGE: on_package_keywords_commit(): Error...")
+    
     #------------------------------------------
     # Support function definitions start here
     #------------------------------------------
 
+    def reload(self):
+        """ Reload package info """
+        self.system_use_flags = portagelib.SystemUseFlags
+        self.package_use_flags = portagelib.get_user_config('package.use', self.package.full_name)
+        
+        self.current_verInfo = None
+        self.get_versions()
+        
+        oldindex = self.combobox.get_active()
+        
+        # Rebuild version liststore
+        self.comboList = gtk.ListStore(str)
+        index = 0
+        for x in range(len(self.verList)):
+            ver = self.verList[x]
+            info = ver["number"]
+            slot = ver["slot"]
+            if slot != '0':
+                info += ''.join(['   [', _('Slot:%s') % slot, ']'])
+            if not ver["available"]:
+                info += _('   {unavailable}')
+            elif not ver["stable"]:
+                info += _('   (unstable)')
+            if ver["hard_masked"]:
+                info += _('   [MASKED]')
+            if ver["best"]:
+                if ver["best_downgrades"]:
+                    info += _('   (recommended) (downgrade)')
+                else:
+                    info += _('   (recommended)')
+                index = x
+            if ver["installed"]:
+                info += _('   [installed]')
+            
+            self.comboList.append([info])
+        
+        self.combobox.set_model(self.comboList)
+        self.combobox.set_active(oldindex)
+        
+        self.display_emerge_command()
+    
     def get_versions(self):
         """ Build a dictionary of all versions for this package
             with an info list for each version
@@ -340,12 +468,26 @@ class AdvancedEmergeDialog:
         for item in self.kwList:
             keyword = item[1]
             if item[0].get_active():
+                verInfo = self.current_verInfo
+                if keyword == None: # i.e. "None" is selected
+                    # check to see if the ebuild is keyword unmasked,
+                    if verInfo["stable"] and self.arch not in verInfo["keywords"]:
+                        # if so: re-mask it (for use with package.keywords button)
+                        return "-~" + self.arch
+                    keyword = ''
+                if verInfo["stable"]: return ''
                 return keyword.strip()
         return ''
 
 
-    def get_use_flags(self, ebuild):
+    def get_use_flags(self, ebuild=None):
         """ Get use flags selected by user """
+        if not ebuild:
+            iter = self.combobox.get_active_iter()
+            model = self.combobox.get_model()
+            sel_ver = model.get_value(iter, 0)
+            verInfo = self.get_verInfo(sel_ver)
+            ebuild = verInfo["name"]
         #flags = ''
         flaglist = []
         if self.package_use_flags.has_key(ebuild):
@@ -412,11 +554,19 @@ class AdvancedEmergeDialog:
         use_flags = self.get_use_flags(verInfo["name"])
         if len(use_flags) > 0:
             use_flags = "USE='" + use_flags + "' "
+            self.btnPkgUse.set_sensitive(True)
+            self.btnMakeConf.set_sensitive(True)
+        else:
+            self.btnPkgUse.set_sensitive(False)
+            self.btnMakeConf.set_sensitive(False)
         
         # Build accept keyword string
         accept_keyword = self.get_keyword()
         if len(accept_keyword) > 0:
             accept_keyword = "ACCEPT_KEYWORDS='" + accept_keyword + "' "
+            self.btnPkgKeywords.set_sensitive(True)
+        else:
+            self.btnPkgKeywords.set_sensitive(False)
         
         # Build emerge or unmerge base command
         if (self.is_root or self.wtree.get_widget("cbPretend").get_active()):
@@ -454,6 +604,8 @@ class AdvancedEmergeDialog:
             use flags
         """
         UseFlagFrame = self.wtree.get_widget("frameUseFlags")
+        button_make_conf = self.wtree.get_widget("button_make_conf")
+        button_package_use = self.wtree.get_widget("button_package_use")
         # If frame has any children, remove them
         child = UseFlagFrame.child
         if child != None:
@@ -461,8 +613,13 @@ class AdvancedEmergeDialog:
         # If no use flags, hide the frame
         if not use_flags:
             UseFlagFrame.hide()
+            self.btnMakeConf.hide()
+            self.btnPkgUse.hide()
         else:
             UseFlagFrame.show()
+            if self.is_root:
+                self.btnMakeConf.show()
+                self.btnPkgUse.show()
         # Build table to hold checkboxes
         size = len(use_flags)
         maxcol = 4  # = number of columns - 1 = index of last column
@@ -553,11 +710,13 @@ class AdvancedEmergeDialog:
         col = 0
         row = 0
         button = gtk.RadioButton(None, _('None'))
+        self.kwList.append([button, None])
         rbGroup = button
         table.attach(button, col, col+1, row, row+1)
         button.show()
         col += 1
         button_added = False
+        clickable_button = False
         for keyword in keywords:
             if keyword[0] == '~':
                 if self.prefs.advemerge.enable_all_keywords or (keyword[1:] == self.arch):
@@ -568,6 +727,10 @@ class AdvancedEmergeDialog:
                     button.connect("toggled", self.on_toggled)
                     button.show()
                     button_added = True
+                    clickable_button = True
+                    if keyword[1:] == self.arch and self.current_verInfo["stable"]:
+                        # i.e. package has been keyword unmasked already
+                        button.set_active(True)
             else:
                 if self.prefs.advemerge.enable_all_keywords or (keyword == self.arch):
                     label = gtk.Label(keyword)
@@ -581,5 +744,13 @@ class AdvancedEmergeDialog:
                 if col > maxcol:
                     col = 0
                     row += 1
-        # Display the entire table
-        table.show()
+        if clickable_button:
+            # Display the entire table
+            table.show()
+            KeywordsFrame.show()
+            if self.is_root:
+                self.btnPkgKeywords.show()
+        else:
+            KeywordsFrame.hide()
+            self.btnPkgKeywords.hide()
+
