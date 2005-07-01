@@ -613,12 +613,20 @@ class Summary(gtk.TextView):
         arch = "~" + portagelib.get_arch()
         ebuild = self.selected_ebuild
         portagelib.set_user_config('package.keywords', ebuild=ebuild, add=arch)
+        # reset package info
+        self.package.best_ebuild = None
+        self.package.latest_ebuild = None
+        # reload view
         self.update_package_info(self.package)
     
     def remove_keyword(self, menuitem_widget):
         arch = "~" + portagelib.get_arch()
         ebuild = self.selected_ebuild
         portagelib.set_user_config('package.keywords', ebuild=ebuild, remove=arch)
+        # reset package info
+        self.package.best_ebuild = None
+        self.package.latest_ebuild = None
+        # reload view
         self.update_package_info(self.package)
     
     def package_unmask(self, menuitem_widget):
