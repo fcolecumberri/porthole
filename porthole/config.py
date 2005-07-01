@@ -79,7 +79,7 @@ class ConfigDialog:
         """ Build lists of widgets and equivalent prefs """
         self.tagnamelist = ['command', 'emerge', 'error', 'info', 'caution',
             'warning', 'note', 'linenumber', 'default']
-        
+        self.viewoptions = ['downgradable_fg', 'upgradable_fg', 'normal_fg', 'normal_bg']
     
     def set_widget_values(self):
         """ Set widget attributes based on prefs """
@@ -106,7 +106,14 @@ class ConfigDialog:
                     widget.set_color(gtk.gdk.color_parse(color))
                 else:
                     widget.set_color(default_bg)
-        
+        for name in self.viewoptions:
+            color = getattr(self.prefs.views, name)
+            widget = self.wtree.get_widget(name)
+            if widget:
+                if color:
+                    widget.set_color(gtk.gdk.color_parse(color))
+                else:
+                    widget.set_color(default_fg)
     
     def apply_widget_values(self):
         """ Set prefs from widget values """

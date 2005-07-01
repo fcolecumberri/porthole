@@ -76,10 +76,10 @@ def get_icon_for_upgrade_package(package, prefs):
     #  find out if it can be upgraded
     if package.is_upgradable() == 1:  # 1 for only upgrades (no downgrades)
         icon = gtk.STOCK_GO_UP
-        color = prefs.world_upgradable_color
+        color = prefs.upgradable_fg
     else: # it's a downgrade
         icon = gtk.STOCK_GO_DOWN
-        color = prefs.world_downgradable_color
+        color = prefs.downgradable_fg
     return icon, color      
 
 def is_root():
@@ -207,8 +207,8 @@ class EmergeOptions:
 ##class ViewOptions:
 ##    """ Holds foreground colors for a package name"""
 ##    def __init__(self):
-##        self.world_upgradable_color = ''
-##        self.world_downgradable_color = ''
+##        self.upgradable_fg = ''
+##        self.downgradable_fg = ''
 ##
 ##class GlobalPreferences:
 ##    """Holds some global variables"""
@@ -382,8 +382,10 @@ class PortholePreferences:
             setattr(self.advemerge, option, value)
         
         viewoptions = [ \
-            ['world_downgradable_color', 'red'],
-            ['world_upgradable_color', ''] # green?
+            ['downgradable_fg', '#FA0000'],
+            ['upgradable_fg', '#000000'], # green?
+            ['normal_fg','#000000'],
+            ['normal_bg','#FFFFFF']
         ]
         #self.views = ViewOptions()
         self.views = OptionsClass()
@@ -508,8 +510,8 @@ class PortholePreferences:
         dom.additem('/emerge/options/upgradeonly', self.emerge.upgradeonly)
         dom.additem('/emerge/options/nospinner', self.emerge.nospinner)
         dom.additem('/advemerge/enable_all_keywords', self.advemerge.enable_all_keywords)
-        dom.additem('/views/world_upgradable_color', self.views.world_upgradable_color)
-        dom.additem('/views/world_downgradable_color', self.views.world_downgradable_color)
+        dom.additem('/views/upgradable_fg', self.views.upgradable_fg)
+        dom.additem('/views/downgradable_fg', self.views.downgradable_fg)
         dom.additem('/summary/showtable', self.summary.showtable)
         dom.additem('/summary/showkeywords', self.summary.showkeywords)
         dom.additem('/summary/showinstalled', self.summary.showinstalled)
