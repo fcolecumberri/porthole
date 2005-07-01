@@ -517,6 +517,7 @@ class PackageView(CommonTreeView):
         model = self.get_model()
         model.clear()
         names = portagelib.sort(packages.keys())
+        path = None
         for name in names:
             # go through each package
             iter = model.insert_before(None, None)
@@ -533,9 +534,11 @@ class PackageView(CommonTreeView):
             if locate_name:
                 if name == locate_name:
                     path = model.get_path(iter)
-                    if path:
+                    #if path:
                         # use callback function to store the path
-                        self.mainwindow_callback("set path", path)
+                        #self.mainwindow_callback("set path", path)
+        if path:
+            self.set_cursor(path)
         dprint("VIEWS: starting info_thread")
         self.infothread_die = False
         self.get_model().set_sort_column_id(0, gtk.SORT_ASCENDING)

@@ -205,6 +205,9 @@ class MainWindow:
         self.current_category = None
         self.current_package_name = None
         self.current_package_path = None
+        self.current_search = None
+        self.current_search_package_name = None
+        self.current_upgrade_package_name = None
         # set if we are root or not
         self.is_root = is_root()
         if self.prefs.main.show_nag_dialog:
@@ -407,7 +410,13 @@ class MainWindow:
         elif action == "set path":
             # save the path to the package that matched the name passed
             # to populate() in PackageView... (?)
-            self.current_package_path = arg # arg = path
+            index = self.widget["view_filter"].get_history()
+            if index in [SHOW_INSTALLED, SHOW_ALL]:
+                self.current_package_path = arg # arg = path
+            elif index == SHOW_SEARCH:
+                self.current_search_package_path = arg
+            elif index == SHOW_UPGRADE:
+                self.current_upgrade_package_path = arg
         elif action == "package changed":
             self.package_changed(arg)
         elif action == "refresh":
@@ -531,10 +540,11 @@ class MainWindow:
                 if self.reload:
                     # reset _last_selected so it thinks this package is new again
                     self.package_view._last_selected = None
-                    if self.current_package_cursor != None and self.current_package_cursor[0]: # should fix a type error in set_cursor; from pycrash report
+                    if self.current_search_package_cursor != None \
+                            and self.current_search_package_cursor[0]: # should fix a type error in set_cursor; from pycrash report
                         # re-select the package
-                        self.package_view.set_cursor(self.current_package_cursor[0],
-                                                     self.current_package_cursor[1])
+                        self.package_view.set_cursor(self.current_search_package_cursor[0],
+                                                     self.current_search_package_cursor[1])
             elif self.reload and (self.widget["view_filter"].get_history() == SHOW_ALL or \
                                   self.widget["view_filter"].get_history() == SHOW_INSTALLED):
                 #dprint("MAINWINDOW: update_db_read()... self.reload=True ALL or INSTALLED view")
@@ -933,14 +943,16 @@ class MainWindow:
             self.category_view.populate(self.search_history.keys())
             iter = self.category_view.model.get_iter_first()
             while iter != None:
-                if self.category_view.model.get_value( iter, 1 ) == search_term:
+                if self.category_view.model.get_value(iter, 1) == search_term:
                     selection = self.category_view.get_selection()
-                    selection.select_iter( iter )
+                    selection.select_iter(iter)
                     break
-                iter = self.category_view.model.iter_next( iter )
-            self.category_changed( search_term )
+                iter = self.category_view.model.iter_next(iter)
+            if count == 1: # then select it
+                self.current_search_package_name = package_list.keys()[0]
+            self.category_view.last_category = search_term
+            self.category_changed(search_term)
 
-                
     def help_contents(self, widget):
         """Show the help file contents."""
         load_web_page('file://' + self.prefs.DATA_PATH + 'help/index.html')
@@ -951,7 +963,10 @@ class MainWindow:
 
     def refresh(self):
         """Refresh PackageView"""
-        self.category_changed(self.current_category)
+        if mode == SHOW_SEARCH:
+            self.category_changed(self.current_search)
+        else:
+            self.category_changed(self.current_category)
 
     def category_changed(self, category):
         """Catch when the user changes categories."""
@@ -967,8 +982,12 @@ class MainWindow:
             self.current_package_cursor = None
         #dprint("Category cursor = " +str(self.current_category_cursor))
         #dprint(self.current_category_cursor[0][1])
+        self.clear_notebook()
         if mode == SHOW_SEARCH:
             packages = self.search_history[category]
+            if len(packages) == 1: # then select it
+                self.current_search_package_name = packages.values()[0].get_name()
+            self.package_view.populate(packages, self.current_search_package_name)
         elif not category or self.current_category_cursor[0][1] == None:
             #dprint("MAINWINDOW: category_changed(); category=False or self.current_category_cursor[0][1]=None")
             packages = None
@@ -980,13 +999,12 @@ class MainWindow:
             self.package_view.clear()
         elif mode == SHOW_ALL:
             packages = self.db.categories[category]
+            self.package_view.populate(packages, self.current_package_name)
         elif mode == SHOW_INSTALLED:
             packages = self.db.installed[category]
+            self.package_view.populate(packages, self.current_package_name)
         else:
             raise Exception("The programmer is stupid.");
-        self.package_view.populate(packages, self.current_package_name)
-        #self.package_view.populate(packages)
-        self.clear_notebook()
 
     def package_changed(self, package):
         """Catch when the user changes packages."""
@@ -998,9 +1016,19 @@ class MainWindow:
             self.current_package_path = self.current_package_cursor[0]
             return
         # log the new package for db reloads
-        self.current_package_name = package.get_name()
-        self.current_package_cursor = self.package_view.get_cursor()
-        self.current_package_path = self.current_package_cursor[0]
+        index = self.widget["view_filter"].get_history()
+        if index in [SHOW_INSTALLED, SHOW_ALL]:
+            self.current_package_name = package.get_name()
+            self.current_package_cursor = self.package_view.get_cursor()
+            self.current_package_path = self.current_package_cursor[0]
+        elif index == SHOW_SEARCH:
+            self.current_search_package_name = package.get_name()
+            self.current_search_package_cursor = self.package_view.get_cursor()
+            self.current_search_package_path = self.current_search_package_cursor[0]
+        elif index == SHOW_UPGRADE:
+            self.current_upgrade_package_name = package.get_name()
+            self.current_upgrade_package_cursor = self.package_view.get_cursor()
+            self.current_upgrade_package_path = self.current_upgrade_package_cursor[0]
         #dprint("Package name= %s, cursor = " %str(self.current_package_name))
         #dprint(self.current_package_cursor)
         # the notebook must be sensitive before anything is displayed
@@ -1065,7 +1093,7 @@ class MainWindow:
         dprint("MAINWINDOW: view_filter_changed(); index = %d" %index)
         self.update_statusbar(index)
         cat_scroll = self.wtree.get_widget("category_scrolled_window")
-        self.category_view.set_search( False )
+        self.category_view.set_search(False)
         if index in (SHOW_INSTALLED, SHOW_ALL):
             cat_scroll.show();
             self.category_view.populate( \
@@ -1075,64 +1103,22 @@ class MainWindow:
             self.package_view._init_view()
             self.package_view.clear()
             cat = self.current_category
-            dprint("MAINWINDOW: view_filter_changed(): current category '%s'" % cat)
-            if "-" in str(cat):
-                model = self.category_view.get_model()
-                # find path of category
-                catmaj, catmin = cat.split("-")
-                iter = model.get_iter_first()
-                catpath = None
-                #dprint("catmaj, catmin = %s, %s" % (catmaj, catmin))
-                while iter:
-                    #dprint("value at iter %s: %s" % (iter, model.get_value(iter, 0)))
-                    if catmaj == model.get_value(iter, 0):
-                        kids = model.iter_n_children(iter)
-                        while kids: # this will count backwards, but hey so what
-                            kiditer = model.iter_nth_child(iter, kids - 1)
-                            if catmin == model.get_value(kiditer, 0):
-                                catpath = model.get_path(kiditer)
-                                break
-                            kids -= 1
-                        if catpath: break
-                    iter = model.iter_next(iter)
-                dprint(catpath)
-                if catpath:
-                    self.category_view.expand_to_path(catpath)
-                    self.category_view.last_category = None # so it thinks it's changed
-                    self.category_view.set_cursor(catpath)
-                    #self.category_view._clicked(self.category_view)
-                    # now reselect whatever package we had selected
-                    packname = self.current_package_name
-                    model = self.package_view.get_model()
-                    iter = model.get_iter_first()
-                    path = None
-                    while iter:
-                        #dprint("value at iter %s: %s" % (iter, model.get_value(iter, 0)))
-                        if model.get_value(iter, 0) == packname:
-                            path = model.get_path(iter)
-                            self.package_view._last_selected = None
-                            self.package_view.set_cursor(path)
-                            break
-                        iter = model.iter_next(iter)
-                    if not path:
-                        self.clear_notebook()
-                else:
-                    dprint("MAINWINDOW: view_filter_changed(): no category path found")
-                    self.clear_notebook()
-                self.last_view_setting = index
-                return
+            pack = self.current_package_name
+            self.select_category_package(cat, pack, index)
         elif index == SHOW_SEARCH:
             self.category_view.set_search(True)
             if not self.search_loaded:
                 self.set_package_actions_sensitive(False, None)
                 self.category_view.populate(self.search_history.keys())
-                #self.package_view.size = 0
                 self.package_search(None)
                 self.search_loaded = True
             self.category_view.populate(self.search_history.keys())
             cat_scroll.show();
             dprint("MAIN: Showing search results")
             self.package_view.set_view(self.package_view.SEARCH_RESULTS)
+            cat = self.current_search
+            pack = self.current_search_package_name
+            self.select_category_package(cat, pack, index)
         elif index == SHOW_UPGRADE:
             dprint("MAINWINDOW: view_filter_changed(); upgrade selected")
             cat_scroll.hide();
@@ -1148,7 +1134,7 @@ class MainWindow:
                 #self.package_view.set_view(self.package_view.UPGRADABLE)
                 self.summary.update_package_info(None)
         # clear the notebook tabs
-        self.clear_notebook()
+        #self.clear_notebook()
         #if self.last_view_setting != index:
         dprint("MAINWINDOW: view_filter_changed(); last_view_setting changed")
         self.last_view_setting = index
@@ -1156,7 +1142,60 @@ class MainWindow:
         #self.category_view.last_category = None
         #self.current_category_cursor = None
         #self.current_package_cursor = None
-            
+    
+    def select_category_package(self, cat, pack, index):
+        dprint("MAINWINDOW: select_category_package(): %s / %s" % (cat, pack))
+        model = self.category_view.get_model()
+        iter = model.get_iter_first()
+        catpath = None
+        if index in [SHOW_INSTALLED, SHOW_ALL] and cat and '-' in cat:
+            # find path of category
+            catmaj, catmin = cat.split("-")
+            #dprint("catmaj, catmin = %s, %s" % (catmaj, catmin))
+            while iter:
+                #dprint("value at iter %s: %s" % (iter, model.get_value(iter, 0)))
+                if catmaj == model.get_value(iter, 0):
+                    kids = model.iter_n_children(iter)
+                    while kids: # this will count backwards, but hey so what
+                        kiditer = model.iter_nth_child(iter, kids - 1)
+                        if catmin == model.get_value(kiditer, 0):
+                            catpath = model.get_path(kiditer)
+                            break
+                        kids -= 1
+                    if catpath: break
+                iter = model.iter_next(iter)
+        elif index == SHOW_SEARCH:
+            while iter:
+                if cat == model.get_value(iter, 0):
+                    catpath = model.get_path(iter)
+                    break
+                iter = model.iter_next(iter)
+        elif index == SHOW_UPGRADE:
+            catpath = 'Sure, why not?'
+        else: dprint("MAINWINDOW: select_category_package(): bad index or category?")
+        if catpath:
+            if index != SHOW_UPGRADE:
+                self.category_view.expand_to_path(catpath)
+                self.category_view.last_category = None # so it thinks it's changed
+                self.category_view.set_cursor(catpath)
+            # now reselect whatever package we had selected
+            model = self.package_view.get_model()
+            iter = model.get_iter_first()
+            path = None
+            while iter:
+                #dprint("value at iter %s: %s" % (iter, model.get_value(iter, 0)))
+                if model.get_value(iter, 0) == pack:
+                    path = model.get_path(iter)
+                    self.package_view._last_selected = None
+                    self.package_view.set_cursor(path)
+                    break
+                iter = model.iter_next(iter)
+            if not path:
+                dprint("MAINWINDOW: select_category_package(): no package found")
+                self.clear_notebook()
+        else:
+            dprint("MAINWINDOW: select_category_package(): no category path found")
+            self.clear_notebook()
 
     def load_upgrades_list(self):
         # upgrades are not loaded, create dialog and load them
