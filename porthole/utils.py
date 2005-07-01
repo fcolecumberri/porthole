@@ -93,6 +93,7 @@ def read_access():
     # Note: you don't have to be a member of portage to read the database,
     # but portage caching will not work
     portage = 250  # is portage guaranteed to be 250?
+    # answer: portage.portage_gid
     try: portage = grp.getgrnam("portage")[2]
     except: pass
     return write_access() or (portage in (os.getgroups() + [os.getegid()]))
@@ -441,10 +442,10 @@ class PortholePreferences:
                         ["archlist", ["alpha", "amd64", "arm", "hppa", "ia64", "mips",
                                         "ppc", "ppc64", "s390", "sparc", "x86"]],
                         ["Sync", "emerge sync"],
-                        ["Sync_label", "Sync"],
+                        ["Sync_label", _("Sync")],
                         #                use the form " [sync-command, sync-label],
-                        ["Sync_methods", [['emerge sync', 'Sync'], ['emerge webrsync', 'WebRsync'],
-                                            ['#user defined', 'Uknown Sync']]],
+                        ["Sync_methods", [['emerge sync', _('Sync')], ['emerge webrsync', _('WebRsync')],
+                                            ['#user defined', _('Unknown Sync')]]],
         ]
         
         self.globals = OptionsClass()
