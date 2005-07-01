@@ -23,13 +23,13 @@
 
 import gtk
 from utils import dprint
+from loaders import load_web_page
 
 class ConfigDialog:
     """Class to display a GUI for configuring Porthole"""
 
     def __init__(self, prefs):
         """ Initialize Config GUI """
-        # Preserve passed parameters
         self.prefs = prefs
         
         # Parse glade file
@@ -44,6 +44,11 @@ class ConfigDialog:
         self.wtree.signal_autoconnect(callbacks)
         self.window = self.wtree.get_widget("config")
         
+        # build list of widgets and equivalent prefs
+        self.build_widget_lists()
+        
+        # set widget values to values in prefs
+        self.set_widget_values()
 
     #-----------------------------------------------
     # GUI Callback function definitions start here
@@ -53,10 +58,12 @@ class ConfigDialog:
         """ Parse dialog response (ok, cancel, apply or help clicked) """
         dprint("CONFIG: on_config_response(): response_id '%s'" % response_id)
         if response_id == gtk.RESPONSE_OK:
+            self.apply_widget_values()
             self.window.destroy()
         elif response_id == gtk.RESPONSE_CANCEL:
             self.window.destroy()
         elif response_id == gtk.RESPONSE_APPLY:
+            self.apply_widget_values()
             pass
         elif response_id == gtk.RESPONSE_HELP:
             #Display help file with web browser
@@ -67,4 +74,43 @@ class ConfigDialog:
     #------------------------------------------
     # Support function definitions start here
     #------------------------------------------
+
+    def build_widget_lists(self):
+        """ Build lists of widgets and equivalent prefs """
+        self.tagnamelist = ['command', 'emerge', 'error', 'info', 'caution',
+            'warning', 'note', 'linenumber', 'default']
+        
+    
+    def set_widget_values(self):
+        """ Set widget attributes based on prefs """
+        # Terminal Color Tags
+        default = self.prefs.TAG_DICT['default']
+        attributes = gtk.TextView().get_default_attributes()
+        if default[0]: default_fg = gtk.gdk.color_parse(default[0])
+        else: default_fg = attributes.fg_color
+        if default[1]:  default_bg = gtk.gdk.color_parse(default[1])
+        else:  default_bg = attributes.bg_color
+        
+        for name in self.tagnamelist:
+            color = self.prefs.TAG_DICT[name][0] # fg
+            widget = self.wtree.get_widget(name + '_fg')
+            if widget:
+                if color:
+                    widget.set_color(gtk.gdk.color_parse(color))
+                else:
+                    widget.set_color(default_fg)
+            color = self.prefs.TAG_DICT[name][1] # bg
+            widget = self.wtree.get_widget(name + '_bg')
+            if widget:
+                if color:
+                    widget.set_color(gtk.gdk.color_parse(color))
+                else:
+                    widget.set_color(default_bg)
+        
+    
+    def apply_widget_values(self):
+        """ Set prefs from widget values """
+        pass
+    
+
 
