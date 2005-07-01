@@ -80,9 +80,28 @@ class ConfigDialog:
         self.tagnamelist = ['command', 'emerge', 'error', 'info', 'caution',
             'warning', 'note', 'linenumber', 'default']
         self.viewoptions = ['downgradable_fg', 'upgradable_fg', 'normal_fg', 'normal_bg']
+        self.checkboxes = [
+            ['summary', 'showtable'],
+            ['summary', 'showkeywords'],
+            ['summary', 'showavailable'],
+            ['summary', 'showinstalled'],
+            ['summary', 'showlongdesc'],
+            ['summary', 'showuseflags'],
+            ['summary', 'showlicense'],
+            ['summary', 'showurl'],
+            ['emerge', 'pretend'],
+            ['emerge', 'verbose'],
+            ['emerge', 'nospinner'],
+            ['emerge', 'fetch'],
+            ['emerge', 'upgradeonly'],
+            ['global', 'enable_archlist'],
+        ]
+        self.syncmethods = self.prefs.globals.Sync_methods
+        
     
     def set_widget_values(self):
         """ Set widget attributes based on prefs """
+        
         # Terminal Color Tags
         default = self.prefs.TAG_DICT['default']
         attributes = gtk.TextView().get_default_attributes()
@@ -106,6 +125,8 @@ class ConfigDialog:
                     widget.set_color(gtk.gdk.color_parse(color))
                 else:
                     widget.set_color(default_bg)
+        
+        # View Colours
         for name in self.viewoptions:
             color = getattr(self.prefs.views, name)
             widget = self.wtree.get_widget(name)
@@ -114,6 +135,31 @@ class ConfigDialog:
                     widget.set_color(gtk.gdk.color_parse(color))
                 else:
                     widget.set_color(default_fg)
+        
+        # Checkboxes:
+        for category, name in self.checkboxes:
+            widget = self.wtree.get_widget('_'.join([category, name]))
+            if widget:
+                active = getattr(getattr(self.prefs, category), name)
+                widget.set_active(active)
+        
+        # Sync combobox
+        store = gtk.ListStore(str)
+        widget = self.wtree.get_widget('sync_combobox')
+        tempiter = None
+        if widget:
+            for command, label in self.syncmethods:
+                tempiter = store.append([command])
+                if command == self.prefs.globals.Sync:
+                    iter = tempiter
+            widget.set_model(store)
+            cell = gtk.CellRendererText()
+            widget.pack_start(cell, True)
+            widget.add_attribute(cell, 'text', 0)
+            if tempiter:
+                widget.set_active_iter(iter)
+        
+        
     
     def apply_widget_values(self):
         """ Set prefs from widget values """
