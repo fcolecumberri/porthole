@@ -368,7 +368,11 @@ def set_user_config(file, name='', ebuild='', add=[], remove=[]):
     configfile = open(filename, 'w')
     configfile.write(configtext)
     configfile.close()
-    reload_portage() # this is slow, but otherwise portage doesn't notice the change
+    # This is slow, but otherwise portage doesn't notice the change.
+    reload_portage()
+    # Note: could perhaps just update portage.settings.
+    # portage.settings.pmaskdict, punmaskdict, pkeywordsdict, pusedict
+    # or portage.portdb.mysettings ?
     return True
 
 def get_make_conf(want_linelist=False, savecopy=False):
@@ -402,7 +406,7 @@ def get_make_conf(want_linelist=False, savecopy=False):
                 dprint(" * PORTAGELIB: get_make_conf(): couldn't handle line %s" % line)
                 linelist.append([strippedline])
             else:
-                linelist.append([splitline])
+                linelist.append(splitline)
             #linelist.append([splitline[0]])
             #linelist[-1].append('='.join(splitline[1:])) # might have been another '='
         else:
@@ -479,7 +483,10 @@ def set_make_conf(property, add=[], remove=[], replace=''):
     file = open(portage_const.MAKE_CONF_FILE, 'w')
     file.write(make_conf)
     file.close()
-    reload_portage() # this is slow, but otherwise portage doesn't notice the change
+    # This is slow, but otherwise portage doesn't notice the change
+    reload_portage()
+    # Note: could perhaps just update portage.settings (or portage.portdb.mysettings ?)
+    # portage.settings.mygcfg ??   portage.portdb.configdict['conf'] ??
     return True
 
 def get_version(ebuild):
