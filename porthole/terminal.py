@@ -52,6 +52,7 @@
 # import external [system] modules
 import pygtk; pygtk.require('2.0')
 import gtk, gtk.glade, gobject
+import pango
 import signal, os, pty, threading, time, sre, portagelib
 import datetime, pango, errno, string
 from dispatcher import Dispatcher
@@ -124,8 +125,23 @@ class ProcessManager:
         # NOTE: for ease of maintenance, all tabs have every tag
         #       defined for use.  Currently the code determines
         #       when & where to use the tags
-        for key in self.prefs.TAG_DICT:
-            for process_tab in [TAB_PROCESS, TAB_WARNING, TAB_CAUTION, TAB_INFO]:
+        attributes = gtk.TextView().get_default_attributes()
+        default_fg = attributes.fg_color
+        default_bg = attributes.bg_color
+        default_weight = attributes.font.get_weight()
+        default_font = attributes.font.to_string()
+        for process_tab in [TAB_PROCESS, TAB_WARNING, TAB_CAUTION, TAB_INFO]:
+            bounds = self.term.buffer[process_tab].get_bounds()
+            self.term.buffer[process_tab].remove_all_tags(*bounds)
+            if process_tab == TAB_PROCESS or self.prefs.terminal.all_tabs_use_custom_colors:
+                fg, bg, weight = self.prefs.TAG_DICT['default']
+                font = self.prefs.terminal.font
+            else:
+                fg = default_fg
+                bg = default_bg
+                weight = default_weight
+                font = default_font
+            for key in self.prefs.TAG_DICT:
                 text_tag = self.prefs.TAG_DICT[key] 
                 argdict = {}
                 if text_tag[0]:
@@ -134,6 +150,12 @@ class ProcessManager:
                     argdict["background"] = text_tag[1]
                 if text_tag[2]:
                     argdict["weight"] = text_tag[2]
+                if key == 'default':
+                    argdict = {} # already set as default for textview
+                tag_table = self.term.buffer[process_tab].get_tag_table()
+                foundtag = tag_table.lookup(key)
+                if foundtag:
+                    tag_table.remove(foundtag)
                 self.term.buffer[process_tab].create_tag(key, **argdict)
         # shell format codes. Values defined with other tags in prefs.
         self.esc_seq_dict = { \
@@ -166,11 +188,37 @@ class ProcessManager:
         """ Show the process window """
         if hasattr(self, 'window'):
             dprint("TERMINAL: show_window(): window attribute already set... attempting show")
-            # clear text buffer and emerge queue, hide tabs then show
+            # clear text buffer and emerge queue, hide tabs
             self.clear_buffer(None)
             self.queue_model.clear()
             for tab in [TAB_WARNING, TAB_CAUTION, TAB_INFO, TAB_QUEUE]:
                 self.hide_tab(tab)
+            # re-set base values for textviews
+            attributes = gtk.TextView().get_default_attributes()
+            default_fg = attributes.fg_color
+            default_bg = attributes.bg_color
+            default_weight = attributes.font.get_weight()
+            default_font = attributes.font.to_string()
+            self.term.last_text = [] # re-set last-text
+            widget_labels = ["process_text", "warnings_text", "cautions_text", "info_text"]
+            for x in widget_labels:
+                self.term.last_text.append('\n')
+                view = self.wtree.get_widget(x)
+                if x == "process_text" or self.prefs.terminal.all_tabs_use_custom_colors:
+                    fg, bg, weight = self.prefs.TAG_DICT['default']
+                    if bg: view.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse(bg))
+                    else: view.modify_base(gtk.STATE_NORMAL, default_bg)
+                    if fg: view.modify_text(gtk.STATE_NORMAL, gtk.gdk.color_parse(fg))
+                    else: view.modify_text(gtk.STATE_NORMAL, default_bg)
+                    font = self.prefs.terminal.font
+                    view.modify_font(pango.FontDescription(font or default_font))
+                else:
+                    view.modify_base(gtk.STATE_NORMAL, default_bg)
+                    view.modify_text(gtk.STATE_NORMAL, default_fg)
+                    view.modify_font(pango.FontDescription(default_font))
+            # re-set text tags
+            self.set_tags()
+            # show window
             self.window.show()
             self.window_visible = True
             dprint("TERMINAL: show_window(): returning")
@@ -225,12 +273,10 @@ class ProcessManager:
             self.term.last_text += ['\n']
             if x == "process_text" or self.prefs.terminal.all_tabs_use_custom_colors:
                 fg, bg, weight = self.prefs.TAG_DICT['default']
-                if bg != '':
-                    self.term.view[-1].modify_base(gtk.STATE_NORMAL, \
-                        gtk.gdk.color_parse(bg))
-                if fg != '':
-                    self.term.view[-1].modify_text(gtk.STATE_NORMAL, \
-                        gtk.gdk.color_parse(fg))
+                font = self.prefs.terminal.font
+                if bg: view.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse(bg))
+                if fg: view.modify_text(gtk.STATE_NORMAL, gtk.gdk.color_parse(fg))
+                if font: view.modify_font(pango.FontDescription(font))
         widget_labels = ["scrolledwindow2", "scrolledwindow8", "scrolledwindow7",
                          "scrolledwindow5", "scrolledwindow4"]
         for x in widget_labels:
@@ -496,9 +542,8 @@ class ProcessManager:
     def add_process(self, package_name, command_string, callback):
         """ Add a process to the queue """
         # Prevent conflicts while changing process queue
+        dprint("TERMINAL: add_process; Semaphore acquire")
         self.Semaphore.acquire()
-        dprint("TERMINAL: add_process; Semaphore acquired")
-
         # if it's already in the queue, don't add it!
         for data in self.process_list:
             if package_name == data[0]:
@@ -1086,8 +1131,8 @@ class ProcessManager:
         window title changes and cursor position requests
         """
         #dprint("TERMINAL: parse_escape_sequence(): parsing '%s'" % sequence)
-        if sequence.startswith("[") and sequence.endswith("m")\
-            and sequence != "[A[73G [34;01m": # <== right justify the" [OK]"
+        if sequence.startswith("[") and sequence.endswith("m"):
+            #and sequence != "[A[73G [34;01m": # <== right justify the" [OK]"
             if ";" in sequence:
                 terms = sequence[1:-1].split(";")
             else:
@@ -1099,7 +1144,7 @@ class ProcessManager:
                 try:
                     item = int(item)
                 except:
-                    dprint("TERMINAL: parse_escape_sequence(); failed to convert item:%s to an integer" %item)
+                    dprint("TERMINAL: parse_escape_sequence(); failed to convert item '%s' to an integer" % item)
                     return False
                 if 0 <= item <= 1:
                     weight_tagname = self.esc_seq_dict[item]
@@ -1129,7 +1174,7 @@ class ProcessManager:
             self.set_statusbar(sequence)
             return True
         else:
-            # note: the "[A' then "[-7G" used to display "[ ok ]" on the
+            # note: the "[A" then "[-7G" used to display "[ ok ]" on the
             # right hand side of patching lines is currently unsupported.
             dprint("TERMINAL: parse_escape_sequence(): unsupported escape sequence '%s'" % sequence)
             return False
@@ -1539,27 +1584,27 @@ class ProcessManager:
                 if curr_estimate != None:
                     total += curr_estimate
                 else:
-                    self.append(TAB_PROCESS,
+                    self.append(TAB_PROCESS, _(
                             "*** Unfortunately, you don't have enough " +
-                            "logged information about the listed packages, " +
-                            "so I can't calculate estimated build times " +
-                            "accurately.\n", 'note')
+                            "logged information about the listed packages " +
+                            "to calculate estimated build times " +
+                            "accurately.\n"), 'note')
                     return None
-            self.append(TAB_PROCESS,
+            self.append(TAB_PROCESS, _(
                         "*** Based on the build history of these packages " +
                         "on your system, I can estimate that emerging them " +
                         "usually takes, on average, " + 
-                        "%d days, %d hrs, %d mins, and %d secs.\n" %
-                        (total.seconds // (24 * 3600),\
-                         (total.seconds % (24 * 3600)) // 3600,\
-                         ((total.seconds % (24 * 3600))  % 3600) //  60,\
-                         ((total.seconds % (24 * 3600))  % 3600) %  60), 'note')
-            self.append(TAB_PROCESS,
+                        "%(days)d days, %(hours)d hrs, %(minutes)d mins, and %(seconds)d secs.\n") %
+                        {'days': total.seconds // (24 * 3600),\
+                         'hours': (total.seconds % (24 * 3600)) // 3600,\
+                         'minutes': ((total.seconds % (24 * 3600))  % 3600) //  60,\
+                         'seconds': ((total.seconds % (24 * 3600))  % 3600) %  60}, 'note')
+            self.append(TAB_PROCESS, _(
                         "*** Note: If you have a lot of programs running on " +
                         "your system while porthole is emerging packages, " +
                         "or if you have changed your hardware since the " +
-                        "last time you built some of these packages, the " +
-                        "estimates I calculate may be inaccurate.\n", 'note')
+                        "last time you built some of these packages, this " +
+                        "estimate may be inaccurate.\n"), 'note')
 
     def set_save_buffer(self):
         """Sets the save info for the notebook tab's visible buffer"""
@@ -1927,6 +1972,7 @@ class ProcessOutputReader(threading.Thread):
                         if e.args[0] == 5: # 5 = i/o error
                             dprint("TERMINAL: ProcessOutputReader: process finished, closing")
                             os.close(self.fd)
+                            dprint("TERMINAL: ProcessOutputReader: closed okay")
                         else:
                             # maybe the process died?
                             dprint("TERMINAL: ProcessOutputReader: .fd OSError: %s" % e)
