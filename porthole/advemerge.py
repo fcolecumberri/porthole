@@ -719,7 +719,7 @@ class AdvancedEmergeDialog:
         clickable_button = False
         for keyword in keywords:
             if keyword[0] == '~':
-                if self.prefs.advemerge.enable_all_keywords or (keyword[1:] == self.arch):
+                if self.prefs.globals.enable_all_keywords or (keyword[1:] == self.arch):
                     button = gtk.RadioButton(rbGroup, keyword)
                     self.kwList.append([button, keyword])
                     table.attach(button, col, col+1, row, row+1)
@@ -732,7 +732,7 @@ class AdvancedEmergeDialog:
                         # i.e. package has been keyword unmasked already
                         button.set_active(True)
             else:
-                if self.prefs.advemerge.enable_all_keywords or (keyword == self.arch):
+                if self.prefs.globals.enable_all_keywords or (keyword == self.arch):
                     label = gtk.Label(keyword)
                     label.set_alignment(.05, .5)
                     table.attach(label, col, col+1, row, row+1)
