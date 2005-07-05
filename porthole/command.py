@@ -31,7 +31,7 @@ from gettext import gettext as _
 class RunDialog:
     """Class to hold run dialog and functionality."""
 
-    def __init__(self, prefs, call_back):
+    def __init__(self, prefs, call_back, run_anyway=False):
         # setup glade
         self.gladefile = prefs.DATA_PATH + prefs.use_gladefile
         self.wtree = gtk.glade.XML(self.gladefile, "run_dialog")
@@ -45,6 +45,7 @@ class RunDialog:
         self.command = None
         self.call_back = call_back
         self.prefs = prefs
+        self.run_anyway = run_anyway
         if self.prefs:
             #dprint("COMMAND: self.prefs == True")
             self.history = self.prefs.run_dialog.history
@@ -84,7 +85,7 @@ class RunDialog:
         self.command = self.entry.get_text()
         if self.command:
             #dprint("COMMAND: activated: %s" %self.command)
-            self.call_back(_("command line entry"), self.command)
+            self.call_back(_("command line entry"), self.command, self.run_anyway)
             self.history_add()
         self.cancel(None)
         
@@ -93,7 +94,7 @@ class RunDialog:
         self.command = self.entry.get_text()
         if self.command:
             #dprint("COMMAND: execute: %s" %self.command)
-            self.call_back(_("command line entry"), self.command)
+            self.call_back(_("command line entry"), self.command, self.run_anyway)
             self.history_add()
         self.cancel(None)
 

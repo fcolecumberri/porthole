@@ -607,9 +607,10 @@ class MainWindow:
         dprint("MAINWINDOW: db_save_variables(); new average load time = %d cycles" %self.prefs.dbtime)
 
 
-    def setup_command(self, package_name, command):
+    def setup_command(self, package_name, command, run_anyway=False):
         """Setup the command to run or not"""
         if (self.is_root
+                or run_anyway
                 or (self.prefs.emerge.pretend and command[:11] != self.prefs.globals.Sync)
                 or command.startswith("sudo")):
             if self.prefs.emerge.pretend or utils.pretend_check(command) or utils.help_check(command)\
@@ -827,10 +828,10 @@ class MainWindow:
             #self.upgrades_loaded_callback = self.upgrade_packages
             if not utils.is_root() and utils.can_sudo() \
                     and not self.prefs.emerge.pretend:
-                self.setup_command('world', 'sudo -p "Password: " emerge ' +
+                self.setup_command('world', 'sudo -p "Password: " emerge --upgrade' +
                         self.prefs.emerge.get_string() + 'world')
             else:
-                self.setup_command('world', "emerge " +
+                self.setup_command('world', "emerge --upgrade" +
                         self.prefs.emerge.get_string() + 'world')
         else:
             # load the upgrades view to select which packages
@@ -1367,7 +1368,7 @@ class MainWindow:
         """ Run a custom command in the terminal window """
         #dprint("MAINWINDOW: entering custom_run")
         #dprint(self.prefs.run_dialog.history)
-        get_command = RunDialog(self.prefs, self.setup_command)
+        get_command = RunDialog(self.prefs, self.setup_command, run_anyway=True)
 
     def re_init_portage(self, *widget):
         """re-initializes the imported portage modules in order to see changines in any config files
