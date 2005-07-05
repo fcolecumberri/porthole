@@ -98,6 +98,13 @@ def read_access():
     except: pass
     return write_access() or (portage in (os.getgroups() + [os.getegid()]))
 
+sudo_x_ok = os.access('/usr/bin/sudo', os.X_OK)
+
+def can_sudo():
+    """ return True if /usr/bin/sudo exists and is executable """
+    return sudo_x_ok
+    #return False # for testing
+
 def get_treeview_selection( treeview, num = None):
         """Get the value of whatever is selected in a treeview,
         num is the column, if num is nothing, the iter is returned"""
@@ -274,6 +281,7 @@ class PortholePreferences:
             ['height', 350],
             ['width_verbose', 500],
             ['all_tabs_use_custom_colors', False],
+            ['font', None]
         ]
         
         history = ["",
@@ -368,9 +376,9 @@ class PortholePreferences:
                 pass # defaults set in EmergeOptions class
         
         advemergeoptions = [
-            ['enable_all_keywords', False],
             ['showuseflags', True],
             ['showkeywords', True],
+            ['showconfigbuttons', False],
             #['archlist', []],
         ]
         #self.advemerge = AdvEmergeOptions()
@@ -439,6 +447,7 @@ class PortholePreferences:
         globaloptions = [
                         ["LANG", 'en'],
                         ["enable_archlist", True],
+                        ['enable_all_keywords', False],
                         ["archlist", ["alpha", "amd64", "arm", "hppa", "ia64", "mips",
                                         "ppc", "ppc64", "s390", "sparc", "x86"]],
                         ["Sync", "emerge sync"],
@@ -494,6 +503,9 @@ class PortholePreferences:
         dom.additem('/window/terminal/width', self.terminal.width)
         dom.additem('/window/terminal/height', self.terminal.height)
         dom.additem('/window/terminal/width_verbose', self.terminal.width_verbose)
+        dom.additem('/window/terminal/font', self.terminal.font)
+        dom.additem('/window/terminal/all_tabs_use_custom_colors', \
+            self.terminal.all_tabs_use_custom_colors)
         # generate tag keys from dictionary
         for key in self.TAG_DICT:
             format_list = self.TAG_DICT[key] 
@@ -510,7 +522,9 @@ class PortholePreferences:
         dom.additem('/emerge/options/verbose', self.emerge.verbose)
         dom.additem('/emerge/options/upgradeonly', self.emerge.upgradeonly)
         dom.additem('/emerge/options/nospinner', self.emerge.nospinner)
-        dom.additem('/advemerge/enable_all_keywords', self.advemerge.enable_all_keywords)
+        dom.additem('/advemerge/showuseflags', self.advemerge.showuseflags)
+        dom.additem('/advemerge/showkeywords', self.advemerge.showkeywords)
+        dom.additem('/advemerge/showconfigbuttons', self.advemerge.showconfigbuttons)
         dom.additem('/views/upgradable_fg', self.views.upgradable_fg)
         dom.additem('/views/downgradable_fg', self.views.downgradable_fg)
         dom.additem('/summary/showtable', self.summary.showtable)
@@ -528,6 +542,7 @@ class PortholePreferences:
         dom.additem('/plugins/path_list', self.plugins.path_list)
         dom.additem('/globals/LANG', self.globals.LANG)
         dom.additem('/globals/enable_archlist', self.globals.enable_archlist)
+        dom.additem('/globals/enable_all_keywords', self.globals.enable_all_keywords)
         dom.additem('/globals/archlist', self.globals.archlist)
         dom.additem('/globals/Sync', self.globals.Sync)
         dom.additem('/globals/Sync_label', self.globals.Sync_label)
