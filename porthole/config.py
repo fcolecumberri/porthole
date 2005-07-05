@@ -39,6 +39,8 @@ class ConfigDialog:
         # register callbacks
         callbacks = {
             "on_config_response" : self.on_config_response,
+            "on_color_set" : self.on_color_set,
+            "on_color_clicked" : self.on_color_clicked,
         }
         
         self.wtree.signal_autoconnect(callbacks)
@@ -64,12 +66,55 @@ class ConfigDialog:
             self.window.destroy()
         elif response_id == gtk.RESPONSE_APPLY:
             self.apply_widget_values()
-            pass
         elif response_id == gtk.RESPONSE_HELP:
             #Display help file with web browser
             load_web_page('file://' + self.prefs.DATA_PATH + 'help/config.html')
         else:
             pass
+    
+    def on_color_clicked(self, button_widget, event):
+        """ Make sure colour dialog doesn't show alpha choice """
+        dprint("CONFIG: on_color_clicked()")
+        if event.button == 1: # primary mouse button
+            button_widget.set_use_alpha(False)
+            return False # continue to build colour selection dialog
+        if event.button == 3: # secondary mouse button
+            if button_widget.get_alpha() > 40000:
+                button_widget.set_alpha(32767)
+                button_widget.set_use_alpha(True)
+                name = button_widget.get_property('name')
+                if name == 'default_fg':
+                    button_widget.set_color(self.default_textview_fg)
+                elif name == 'default_bg':
+                    button_widget.set_color(self.default_textview_bg)
+                else:
+                    ext = name[-3:]
+                    color = self.wtree.get_widget('default' + ext).get_color()
+                    button_widget.set_color(color)
+                self.on_color_set(button_widget)
+                return True
+            else:
+                button_widget.set_alpha(65535)
+                button_widget.set_use_alpha(False)
+                self.on_color_set(button_widget)
+                return True
+    
+    def on_color_set(self, button_widget):
+        dprint("CONFIG: on_color_set()")
+        # if button is default-button: change colour in all buttons using default.
+        color = button_widget.get_color()
+        ext = None
+        if button_widget.get_property('name') == 'default_fg':
+            ext = "fg"
+        elif button_widget.get_property('name') == 'default_bg':
+            ext = "bg"
+        if not ext or not hasattr(self, 'tagnamelist'):
+            return
+        for name in self.tagnamelist:
+            widget = self.wtree.get_widget('_'.join([name, ext]))
+            if widget:
+                if widget.get_alpha() < 40000:
+                    widget.set_color(color)
 
     #------------------------------------------
     # Support function definitions start here
@@ -79,6 +124,8 @@ class ConfigDialog:
         """ Build lists of widgets and equivalent prefs """
         self.tagnamelist = ['command', 'emerge', 'error', 'info', 'caution',
             'warning', 'note', 'linenumber', 'default']
+        self.xtermtaglist = ['black', 'red', 'green', 'yellow', 'blue',
+            'magenta', 'cyan', 'white']
         self.viewoptions = ['downgradable_fg', 'upgradable_fg', 'normal_fg', 'normal_bg']
         self.checkboxes = [
             ['summary', 'showtable'],
@@ -95,6 +142,7 @@ class ConfigDialog:
             ['emerge', 'fetch'],
             ['emerge', 'upgradeonly'],
             ['global', 'enable_archlist'],
+            ['global', 'enable_all_keywords'],
         ]
         self.syncmethods = self.prefs.globals.Sync_methods
         
@@ -105,10 +153,12 @@ class ConfigDialog:
         # Terminal Color Tags
         default = self.prefs.TAG_DICT['default']
         attributes = gtk.TextView().get_default_attributes()
+        self.default_textview_fg = attributes.fg_color
+        self.default_textview_bg = attributes.bg_color
         if default[0]: default_fg = gtk.gdk.color_parse(default[0])
-        else: default_fg = attributes.fg_color
-        if default[1]:  default_bg = gtk.gdk.color_parse(default[1])
-        else:  default_bg = attributes.bg_color
+        else: default_fg = self.default_textview_fg
+        if default[1]: default_bg = gtk.gdk.color_parse(default[1])
+        else: default_bg = self.default_textview_bg
         
         for name in self.tagnamelist:
             color = self.prefs.TAG_DICT[name][0] # fg
@@ -118,6 +168,8 @@ class ConfigDialog:
                     widget.set_color(gtk.gdk.color_parse(color))
                 else:
                     widget.set_color(default_fg)
+                    widget.set_alpha(32767) # to show it's using the default value
+                    widget.set_use_alpha(True)
             color = self.prefs.TAG_DICT[name][1] # bg
             widget = self.wtree.get_widget(name + '_bg')
             if widget:
@@ -125,6 +177,26 @@ class ConfigDialog:
                     widget.set_color(gtk.gdk.color_parse(color))
                 else:
                     widget.set_color(default_bg)
+                    widget.set_alpha(32767) # to show it's using the default value
+                    widget.set_use_alpha(True)
+        
+        # Terminal Font:
+        widget = self.wtree.get_widget('fontselection1')
+        if widget:
+            self.fontselection1 = widget.get_font_name()
+            if self.prefs.terminal.font:
+                widget.set_font_name(self.prefs.terminal.font)
+        
+        # Emerge output colours:
+        for name in self.xtermtaglist:
+            color = self.prefs.TAG_DICT['fg_' + name]
+            widget = self.wtree.get_widget(name)
+            if widget:
+                if color:
+                    widget.set_color(gtk.gdk.color_parse(color))
+                else: # this should never happen, but just in case...
+                    widget.set_color(gtk.gdk.color_parse(name)) 
+            # note: just use same color changes for fg and bg?
         
         # View Colours
         for name in self.viewoptions:
@@ -159,11 +231,82 @@ class ConfigDialog:
             if tempiter:
                 widget.set_active_iter(iter)
         
-        
     
     def apply_widget_values(self):
         """ Set prefs from widget values """
-        pass
+        # Terminal Color Tags
+        for name in self.tagnamelist:
+            widget = self.wtree.get_widget(name + '_fg')
+            if widget:
+                color = widget.get_color()
+                alpha = widget.get_alpha()
+                #dprint("CONFIG: '%s_fg': previous value: '%s'" % (name, self.prefs.TAG_DICT[name][0]))
+                if alpha > 40000: # colour set
+                    #dprint("CONFIG: setting to '%s'" % self.get_color_spec(color))
+                    self.prefs.TAG_DICT[name][0] = self.get_color_spec(color)
+                else: # use default
+                    #dprint("CONFIG: setting to ''")
+                    self.prefs.TAG_DICT[name][0] = ''
+            widget = self.wtree.get_widget(name + '_bg')
+            if widget:
+                color = widget.get_color()
+                alpha = widget.get_alpha()
+                #dprint("CONFIG: '%s_bg': previous value: '%s'" % (name, self.prefs.TAG_DICT[name][1]))
+                if alpha > 40000:
+                    #dprint("CONFIG: setting to '%s'" % self.get_color_spec(color))
+                    self.prefs.TAG_DICT[name][1] = self.get_color_spec(color)
+                else:
+                    #dprint("CONFIG: setting to ''")
+                    self.prefs.TAG_DICT[name][1] = ''
+        
+        # Terminal Font:
+        widget = self.wtree.get_widget('fontselection1')
+        if widget and self.fontselection1 != widget.get_font_name():
+            self.prefs.terminal.font = widget.get_font_name()
+        
+        # Emerge output colours:
+        for name in self.xtermtaglist:
+            widget = self.wtree.get_widget(name)
+            if widget:
+                color = widget.get_color()
+                self.prefs.TAG_DICT['fg_' + name] = self.get_color_spec(color)
+            # note: just use same color changes for fg and bg?
+        
+        # View Colours
+        for name in self.viewoptions:
+            widget = self.wtree.get_widget(name)
+            if widget:
+                color = widget.get_color()
+                alpha = widget.get_alpha()
+                if alpha:
+                    setattr(self.prefs.views, name, self.get_color_spec(color))
+                else:
+                    setattr(self.prefs.views, name, '')
+        
+        # Checkboxes:
+        for category, name in self.checkboxes:
+            widget = self.wtree.get_widget('_'.join([category, name]))
+            if widget:
+                active = widget.get_active()
+                setattr(getattr(self.prefs, category), name, active)
+        
+        # Sync combobox
+        widget = self.wtree.get_widget('sync_combobox')
+        if widget:
+            model = widget.get_model()
+            iter = widget.get_active_iter()
+            sync_command = model.get_value(iter, 0)
+            for command, label in self.syncmethods:
+                if command == sync_command:
+                    self.prefs.globals.Sync = command
+                    self.prefs.globals.Sync_label = label
+                    break
+    
+    def get_color_spec(self, color):
+        red = hex(color.red)[2:].zfill(4)
+        green = hex(color.green)[2:].zfill(4)
+        blue = hex(color.blue)[2:].zfill(4)
+        return '#' + red + green + blue
     
 
 
