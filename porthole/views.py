@@ -25,9 +25,10 @@ import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, gobject, pango
 import portagelib
 import threading
+import utils
 
 from depends import DependsTree
-from utils import get_treeview_selection, get_icon_for_package, dprint, is_root
+from utils import dprint
 from portagelib import World
 from gettext import gettext as _
 
@@ -389,11 +390,11 @@ class PackageView(CommonTreeView):
 
     def add_keyword(self, widget):
         arch = "~" + portagelib.get_arch()
-        name = get_treeview_selection(self, 2).full_name
+        name = utils.get_treeview_selection(self, 2).full_name
         string = name + " " + arch + "\n"
         dprint("VIEWS: Package view add_keyword(); %s" %string)
         portagelib.set_user_config('package.keywords', name=name, add=arch)
-        package = get_treeview_selection(self,2)
+        package = utils.get_treeview_selection(self,2)
         package.best_ebuild = package.get_latest_ebuild()
         self.mainwindow_callback("refresh")
 
@@ -419,7 +420,7 @@ class PackageView(CommonTreeView):
         """ Handles treeview clicks """
         dprint("VIEWS: Package view _clicked() signal caught")
         # get the selection
-        package = get_treeview_selection(treeview, 2)
+        package = utils.get_treeview_selection(treeview, 2)
         #dprint("VIEWS: package = %s" % package.full_name)
         if not package and not self.toggle:
             self.mainwindow_callback("package changed", None)
@@ -450,7 +451,7 @@ class PackageView(CommonTreeView):
 
         #pop up menu if was rmb-click
         if self.dopopup:
-            if is_root():
+            if utils.is_root():
                 if package.get_best_ebuild() != package.get_latest_ebuild(): # i.e. no ~arch keyword
                     self.popup_menuitems["add-keyword"].show()
                 else: self.popup_menuitems["add-keyword"].hide()
@@ -476,7 +477,7 @@ class PackageView(CommonTreeView):
                 self.popup_menuitems["add-keyword"].hide()
                 installed = package.get_installed()
                 havebest = False
-                if installed:
+                if installed and utils.can_sudo():
                     self.popup_menuitems["sudo-unmerge"].show()
                     if package.get_best_ebuild() in installed:
                         havebest = True
@@ -486,7 +487,10 @@ class PackageView(CommonTreeView):
                     self.popup_menuitems["sudo-emerge"].hide()
                     self.popup_menuitems["pretend-emerge"].hide()
                 else:
-                    self.popup_menuitems["sudo-emerge"].show()
+                    if utils.can_sudo():
+                        self.popup_menuitems["sudo-emerge"].show()
+                    else:
+                        self.popup_menuitems["sudo-emerge"].hide()
                     self.popup_menuitems["pretend-emerge"].show()
             self.popup_menu.popup(None, None, None, self.event.button, self.event.time)
             self.dopopup = False
@@ -526,7 +530,7 @@ class PackageView(CommonTreeView):
             model.set_value(iter, 0, name)
             model.set_value(iter, 5, '') # foreground text color
             # get an icon for the package
-            icon = get_icon_for_package(packages[name])
+            icon = utils.get_icon_for_package(packages[name])
             model.set_value(iter, 3,
                 self.render_icon(icon,
                                  size = gtk.ICON_SIZE_MENU,
@@ -663,7 +667,7 @@ class CategoryView(CommonTreeView):
 
     def _clicked(self, treeview, *args):
         """ Handle treeview clicks """
-        #category = get_treeview_selection(treeview, 1)
+        #category = utils.get_treeview_selection(treeview, 1)
         model, iter = treeview.get_selection().get_selected()
         if iter: category = model.get_value(iter, 1)
         else: category = self.last_category
