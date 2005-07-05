@@ -27,14 +27,13 @@ import threading, re #, types
 import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, gtk.glade, gobject, pango
 import portagelib, os, string
+import utils
 from portagelib import World
 from dispatcher import Dispatcher
 
 from gettext import gettext as _
 from about import AboutDialog
-from utils import get_icon_for_package, get_icon_for_upgrade_package, is_root, dprint, \
-     get_treeview_selection, YesNoDialog, SingleButtonDialog, environment, \
-     pretend_check, help_check, info_check #,  get_world
+from utils import dprint
 #from process import ProcessWindow  # no longer used in favour of terminal and would need updating to be used
 from summary import Summary
 from terminal import ProcessManager
@@ -209,7 +208,7 @@ class MainWindow:
         self.current_search_package_name = None
         self.current_upgrade_package_name = None
         # set if we are root or not
-        self.is_root = is_root()
+        self.is_root = utils.is_root()
         if self.prefs.main.show_nag_dialog:
             # let the user know if he can emerge or not
             self.check_for_root()
@@ -220,7 +219,7 @@ class MainWindow:
         # This should be set in the glade file, but doesn't seem to work ?
         self.toolbar_expander.set_expand(True)
         # create and start our process manager
-        self.process_manager = ProcessManager(environment(), self.prefs, self.config, False)
+        self.process_manager = ProcessManager(utils.environment(), self.prefs, self.config, False)
         # Search History
         self.search_history = {}
         self.setup_plugins()
@@ -468,7 +467,7 @@ class MainWindow:
     def check_for_root(self, *args):
         """figure out if the user can emerge or not..."""
         if not self.is_root:
-            self.no_root_dialog = SingleButtonDialog(_("No root privileges"),
+            self.no_root_dialog = utils.SingleButtonDialog(_("No root privileges"),
                             self.mainwindow,
                             _("In order to access all the features of Porthole,\n"
                             "please run it with root privileges."),
@@ -487,7 +486,6 @@ class MainWindow:
         statusbar2.pop(0)
         statusbar2.push(0, string)
 
-    #def update_db_read(self, dummy, args): # extra args for dispatcher callback
     def update_db_read(self, args): # extra args for dispatcher callback
         """Update the statusbar according to the number of packages read."""
         #dprint("MAINWINDOW: update_db_read()")
@@ -614,8 +612,8 @@ class MainWindow:
         if (self.is_root
                 or (self.prefs.emerge.pretend and command[:11] != self.prefs.globals.Sync)
                 or command.startswith("sudo")):
-            if self.prefs.emerge.pretend or pretend_check(command) or help_check(command)\
-                or info_check(command):
+            if self.prefs.emerge.pretend or utils.pretend_check(command) or utils.help_check(command)\
+                or utils.info_check(command):
                 # temp set callback for testing
                 callback = self.sync_callback #lambda: None  # a function that does nothing
             elif package_name == "Sync Portage Tree":
@@ -626,11 +624,12 @@ class MainWindow:
             #ProcessWindow(command, env, self.prefs, callback)
             self.process_manager.add_process(package_name, command, callback)
         else:
-            dprint("MAINWINDOW: Sorry, you aren't root! -> " + command)
-            self.sorry_dialog = SingleButtonDialog(_("You are not root!"),
-                    self.mainwindow,
-                    _("Please run Porthole as root to emerge packages!"),
-                    None, "_Ok")
+            dprint("MAINWINDOW: Must be root user to run command '%s' " % command)
+            #self.sorry_dialog = utils.SingleButtonDialog(_("You are not root!"),
+            #        self.mainwindow,
+            #        _("Please run Porthole as root to emerge packages!"),
+            #        None, "_Ok")
+            self.check_for_root() # displays not root dialog
             return False
         return True
    
@@ -671,8 +670,9 @@ class MainWindow:
 
     def emerge_package(self, widget, sudo=False):
         """Emerge the currently selected package."""
-        package = get_treeview_selection(self.package_view, 2)
-        if sudo:
+        package = utils.get_treeview_selection(self.package_view, 2)
+        if (sudo or (not utils.is_root() and utils.can_sudo())) \
+                and not self.prefs.emerge.pretend:
             self.setup_command(package.get_name(), 'sudo -p "Password: " emerge' +
                 self.prefs.emerge.get_string() + package.full_name)
         else:
@@ -681,7 +681,7 @@ class MainWindow:
 
     def adv_emerge_package(self, widget):
         """Advanced emerge of the currently selected package."""
-        package = get_treeview_selection(self.package_view, 2)
+        package = utils.get_treeview_selection(self.package_view, 2)
         # Activate the advanced emerge dialog window
         dialog = AdvancedEmergeDialog(self.prefs, package, self.setup_command)
 
@@ -726,8 +726,9 @@ class MainWindow:
 
     def unmerge_package(self, widget, sudo=False):
         """Unmerge the currently selected package."""
-        package = get_treeview_selection(self.package_view, 2)
-        if sudo:
+        package = utils.get_treeview_selection(self.package_view, 2)
+        if (sudo or (not utils.is_root() and utils.can_sudo())) \
+                and not self.prefs.emerge.pretend:
             self.setup_command(package.get_name(), 'sudo -p "Password: " emerge unmerge' +
                     self.prefs.emerge.get_string() + package.full_name)
         else:
@@ -741,7 +742,12 @@ class MainWindow:
             sync += " --verbose"
         if self.prefs.emerge.nospinner:
             sync += " --nospinner "
-        self.setup_command("Sync Portage Tree", sync)
+        if utils.is_root():
+            self.setup_command("Sync Portage Tree", sync)
+        elif utils.can_sudo():
+            self.setup_command("Sync Portage Tree", 'sudo -p "Password: " ' + sync)
+        else:
+            self.check_for_root()
 
     def on_cancel_btn(self, widget):
         """cancel button callback function"""
@@ -797,7 +803,7 @@ class MainWindow:
                     return
         else:
             dprint("MAIN: Upgrades not loaded; upgrade world?")
-            self.upgrades_loaded_dialog = YesNoDialog(_("Upgrade requested"),
+            self.upgrades_loaded_dialog = utils.YesNoDialog(_("Upgrade requested"),
                     self.mainwindow,
                     _("Do you want to upgrade all packages in your world file?"),
                      self.upgrades_loaded_dialog_response)
@@ -817,8 +823,15 @@ class MainWindow:
     def upgrades_loaded_dialog_response(self, widget, response):
         """ Get and parse user's response """
         if response == 0: # Yes was selected; upgrade all
-            self.load_upgrades_list()
-            self.upgrades_loaded_callback = self.upgrade_packages
+            #self.load_upgrades_list()
+            #self.upgrades_loaded_callback = self.upgrade_packages
+            if not utils.is_root() and utils.can_sudo() \
+                    and not self.prefs.emerge.pretend:
+                self.setup_command('world', 'sudo -p "Password: " emerge ' +
+                        self.prefs.emerge.get_string() + 'world')
+            else:
+                self.setup_command('world', "emerge " +
+                        self.prefs.emerge.get_string() + 'world')
         else:
             # load the upgrades view to select which packages
             self.widget["view_filter"].set_history(SHOW_UPGRADE)
@@ -827,7 +840,7 @@ class MainWindow:
 
     def load_descriptions_list(self):
         """ Load a list of all descriptions for searching """
-        self.desc_dialog = SingleButtonDialog(_("Please Wait!"),
+        self.desc_dialog = utils.SingleButtonDialog(_("Please Wait!"),
                 self.mainwindow,
                 _("Loading package descriptions..."),
                 self.desc_dialog_response, "_Cancel", True)
@@ -927,7 +940,7 @@ class MainWindow:
                     search_results.set_value(iter, 9, data.get_properties().description )
 
                     # set the icon depending on the status of the package
-                    icon = get_icon_for_package(data)
+                    icon = utils.get_icon_for_package(data)
                     view = self.package_view
                     search_results.set_value(
                         iter, 3,
@@ -985,9 +998,12 @@ class MainWindow:
         self.clear_notebook()
         if mode == SHOW_SEARCH:
             packages = self.search_history[category]
-            if len(packages) == 1: # then select it
-                self.current_search_package_name = packages.values()[0].get_name()
-            self.package_view.populate(packages, self.current_search_package_name)
+            #if len(packages) == 1: # then select it
+            #    self.current_search_package_name = packages.values()[0].get_name()
+            #self.package_view.populate(packages, self.current_search_package_name)
+            # if search was a package name, select that one
+            # (searching for 'python' for example would benefit)
+            self.package_view.populate(packages, category)
         elif not category or self.current_category_cursor[0][1] == None:
             #dprint("MAINWINDOW: category_changed(); category=False or self.current_category_cursor[0][1]=None")
             packages = None
@@ -1059,7 +1075,7 @@ class MainWindow:
 
     def notebook_changed(self, widget, pointer, index):
         """Catch when the user changes the notebook"""
-        package = get_treeview_selection(self.package_view, 2)
+        package = utils.get_treeview_selection(self.package_view, 2)
         if index == 1:
             if not self.deps_filled:
                 # fill the deps view!
@@ -1094,6 +1110,7 @@ class MainWindow:
         self.update_statusbar(index)
         cat_scroll = self.wtree.get_widget("category_scrolled_window")
         self.category_view.set_search(False)
+        self.clear_notebook()
         if index in (SHOW_INSTALLED, SHOW_ALL):
             cat_scroll.show();
             self.category_view.populate( \
@@ -1343,7 +1360,7 @@ class MainWindow:
 
     def open_log(self, widget):
         """ Open a log of a previous emerge in a new terminal window """
-        newterm = ProcessManager(environment(), self.prefs, self.config, True)
+        newterm = ProcessManager(utils.environment(), self.prefs, self.config, True)
         newterm.do_open(widget)
 
     def custom_run(self, widget):
