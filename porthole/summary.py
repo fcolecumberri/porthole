@@ -24,7 +24,8 @@
 import gtk, pango
 import portagelib
 import string, re
-from utils import dprint, is_root
+import utils
+from utils import dprint
 from loaders import load_web_page
 from version_sort import ver_sort
 from gettext import gettext as _
@@ -35,7 +36,8 @@ class Summary(gtk.TextView):
         """ Initialize object """
         gtk.TextView.__init__(self)
         # get the preferences we need
-        self.Sprefs = prefs.summary
+        #self.Sprefs = prefs.summary
+        self.prefs = prefs
         self.enable_archlist = prefs.globals.enable_archlist
         self.archlist = prefs.globals.archlist
         self.dispatch = dispatcher
@@ -230,7 +232,7 @@ class Summary(gtk.TextView):
                 archlist = self.archlist
             else:
                 archlist = [myarch]
-            if True:    # Just for testing, until we have a preferences dialog.
+            if self.prefs.globals.enable_all_keywords:
                 rows = 1 + len(ebuilds)
                 cols = 1 + len(archlist)
                 table = gtk.Table(rows, cols)
@@ -316,7 +318,7 @@ class Summary(gtk.TextView):
                         text = '[' + text.replace('M', '') + ']'
                     label = gtk.Label(text)
                     box = boxify(label, color=color, ebuild=ebuild, arch=myarch, text=text)
-                    if text.startswith("M"):
+                    if 'M' in text or '[' in text:
                         self.tooltips.set_tip(box, portagelib.get_masking_reason(ebuild))
                     table.attach(box, x, x+1, 1, 2)
             table.set_row_spacings(1)
@@ -418,14 +420,14 @@ class Summary(gtk.TextView):
             nl(2)
 
         # Metadata long description(s), if available
-        if metadata and metadata.longdescription and self.Sprefs.showlongdesc:
+        if metadata and metadata.longdescription and self.prefs.summary.showlongdesc:
             append("Long Description: ", "property")
             append(metadata.longdescription, "description")
             nl(2)
         
         # Insert homepage(s), if any
         x = 0
-        if homepages and self.Sprefs.showurl:
+        if homepages and self.prefs.summary.showurl:
             for homepage in homepages:
                 if x > 0:
                     append( ', ')
@@ -435,10 +437,10 @@ class Summary(gtk.TextView):
         
         # display a table of architectures and support / stability
         # like on packages.gentoo.org :)
-        if self.Sprefs.showtable: create_ebuild_table(versions)
+        if self.prefs.summary.showtable: create_ebuild_table(versions)
         
         # Installed version(s)
-        if self.Sprefs.showinstalled:
+        if self.prefs.summary.showinstalled:
             if installed:
                 append(_("Installed versions:\n"), "property")
                 show_vnums(installed)
@@ -448,7 +450,7 @@ class Summary(gtk.TextView):
                 nl(2)
         
         # Remaining versions
-        if versions and self.Sprefs.showavailable:
+        if versions and self.prefs.summary.showavailable:
             append(_("Available versions for %s:\n") % self.myarch, "property")
             show_vnums(versions)
             nl(2)        
@@ -458,7 +460,7 @@ class Summary(gtk.TextView):
         nl(2)
 
         # Use flags
-        if use_flags and self.Sprefs.showuseflags:
+        if use_flags and self.prefs.summary.showuseflags:
             append(_("Use flags: "), "property")
             first_flag = True
             for flag in use_flags:
@@ -474,7 +476,7 @@ class Summary(gtk.TextView):
             nl(2)
 
         # Keywords
-        if keywords and self.Sprefs.showkeywords:
+        if keywords and self.prefs.summary.showkeywords:
             append(_("Keywords: "), "property")
             first_keyword = True
             for keyword in keywords:
@@ -486,7 +488,7 @@ class Summary(gtk.TextView):
             nl(2)
 
         # License
-        if licenses and self.Sprefs.showlicense:
+        if licenses and self.prefs.summary.showlicense:
             append(_("License: "), "property")
             _licenses = licenses.split()
             x = 0
@@ -526,7 +528,7 @@ class Summary(gtk.TextView):
     def do_table_popup(self, eventbox, event):
         self.selected_ebuild = eventbox.ebuild
         self.selected_arch = eventbox.arch
-        if is_root():
+        if utils.is_root():
             if '~' in eventbox.text:
                 self.popup_menuitems["add-keyword"].show()
             else: self.popup_menuitems["add-keyword"].hide()
@@ -553,13 +555,22 @@ class Summary(gtk.TextView):
             self.popup_menuitems["emerge"].hide()
             self.popup_menuitems["unmerge"].hide()
             self.popup_menuitems["add-keyword"].hide()
+            self.popup_menuitems["remove-keyword"].hide()
+            self.popup_menuitems["package-unmask"].hide()
+            self.popup_menuitems["un-package-unmask"].hide()
             if eventbox.ebuild in self.installed:
-                self.popup_menuitems["sudo-unmerge"].show()
+                if utils.can_sudo():
+                    self.popup_menuitems["sudo-unmerge"].show()
+                else:
+                    self.popup_menuitems["sudo-unmerge"].hide()
                 self.popup_menuitems["sudo-emerge"].hide()
                 self.popup_menuitems["pretend-emerge"].hide()
             else:
                 self.popup_menuitems["sudo-unmerge"].hide()
-                self.popup_menuitems["sudo-emerge"].show()
+                if utils.can_sudo():
+                    self.popup_menuitems["sudo-emerge"].show()
+                else:
+                    self.popup_menuitems["sudo-emerge"].hide()
                 self.popup_menuitems["pretend-emerge"].show()
         self.popup_menu.popup(None, None, None, event.button, event.time)
         # de-select the table cell. Would be nice to leave it selected,
