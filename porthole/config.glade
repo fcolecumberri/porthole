@@ -208,7 +208,7 @@
 			  <child>
 			    <widget class="GtkLabel" id="label6">
 			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">&lt;b&gt;Arch List&lt;/b&gt; for display's &amp; options</property>
+			      <property name="label" translatable="yes">&lt;b&gt;Arch List&lt;/b&gt; for display's &amp;amp; options</property>
 			      <property name="use_underline">False</property>
 			      <property name="use_markup">True</property>
 			      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -394,7 +394,7 @@
 			  </child>
 
 			  <child>
-			    <widget class="GtkComboBox" id="combobox2">
+			    <widget class="GtkComboBox" id="sync_combobox">
 			      <property name="visible">True</property>
 			      <property name="add_tearoffs">False</property>
 			      <property name="focus_on_click">True</property>
@@ -1067,7 +1067,7 @@
 		  <property name="column_spacing">0</property>
 
 		  <child>
-		    <widget class="GtkCheckButton" id="checkbutton1">
+		    <widget class="GtkCheckButton" id="summary_showlongdesc">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">Long Descriptions</property>
@@ -1089,7 +1089,7 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkCheckButton" id="checkbutton2">
+		    <widget class="GtkCheckButton" id="summary_showurl">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">Homepage URL's</property>
@@ -1155,7 +1155,7 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkCheckButton" id="checkbutton5">
+		    <widget class="GtkCheckButton" id="summary_showinstalled">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">Installed list</property>
@@ -1796,13 +1796,126 @@
 		      <property name="right_padding">0</property>
 
 		      <child>
-			<widget class="GtkVBox" id="vbox3">
+			<widget class="GtkTable" id="table8">
 			  <property name="visible">True</property>
+			  <property name="n_rows">3</property>
+			  <property name="n_columns">3</property>
 			  <property name="homogeneous">False</property>
-			  <property name="spacing">0</property>
+			  <property name="row_spacing">0</property>
+			  <property name="column_spacing">0</property>
 
 			  <child>
-			    <widget class="GtkCheckButton" id="checkbutton22">
+			    <widget class="GtkCheckButton" id="emerge_pretend">
+			      <property name="visible">True</property>
+			      <property name="can_focus">True</property>
+			      <property name="label" translatable="yes">pretend</property>
+			      <property name="use_underline">True</property>
+			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <property name="focus_on_click">True</property>
+			      <property name="active">False</property>
+			      <property name="inconsistent">False</property>
+			      <property name="draw_indicator">True</property>
+			    </widget>
+			    <packing>
+			      <property name="left_attach">0</property>
+			      <property name="right_attach">1</property>
+			      <property name="top_attach">0</property>
+			      <property name="bottom_attach">1</property>
+			      <property name="x_options">expand|shrink|fill</property>
+			      <property name="y_options"></property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkCheckButton" id="emerge_verbose">
+			      <property name="visible">True</property>
+			      <property name="can_focus">True</property>
+			      <property name="label" translatable="yes">verbose</property>
+			      <property name="use_underline">True</property>
+			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <property name="focus_on_click">True</property>
+			      <property name="active">False</property>
+			      <property name="inconsistent">False</property>
+			      <property name="draw_indicator">True</property>
+			    </widget>
+			    <packing>
+			      <property name="left_attach">1</property>
+			      <property name="right_attach">2</property>
+			      <property name="top_attach">0</property>
+			      <property name="bottom_attach">1</property>
+			      <property name="x_options">expand|shrink|fill</property>
+			      <property name="y_options"></property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkCheckButton" id="emerge_nospinner">
+			      <property name="visible">True</property>
+			      <property name="can_focus">True</property>
+			      <property name="label" translatable="yes">nospinner</property>
+			      <property name="use_underline">True</property>
+			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <property name="focus_on_click">True</property>
+			      <property name="active">False</property>
+			      <property name="inconsistent">False</property>
+			      <property name="draw_indicator">True</property>
+			    </widget>
+			    <packing>
+			      <property name="left_attach">2</property>
+			      <property name="right_attach">3</property>
+			      <property name="top_attach">0</property>
+			      <property name="bottom_attach">1</property>
+			      <property name="x_options">expand|shrink|fill</property>
+			      <property name="y_options"></property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkCheckButton" id="emerge_upgradeonly">
+			      <property name="visible">True</property>
+			      <property name="can_focus">True</property>
+			      <property name="label" translatable="yes">upgradeonly</property>
+			      <property name="use_underline">True</property>
+			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <property name="focus_on_click">True</property>
+			      <property name="active">False</property>
+			      <property name="inconsistent">False</property>
+			      <property name="draw_indicator">True</property>
+			    </widget>
+			    <packing>
+			      <property name="left_attach">0</property>
+			      <property name="right_attach">1</property>
+			      <property name="top_attach">1</property>
+			      <property name="bottom_attach">2</property>
+			      <property name="x_options">expand|shrink|fill</property>
+			      <property name="y_options"></property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkCheckButton" id="emerge_fetch">
+			      <property name="visible">True</property>
+			      <property name="can_focus">True</property>
+			      <property name="label" translatable="yes">fetch</property>
+			      <property name="use_underline">True</property>
+			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <property name="focus_on_click">True</property>
+			      <property name="active">False</property>
+			      <property name="inconsistent">False</property>
+			      <property name="draw_indicator">True</property>
+			    </widget>
+			    <packing>
+			      <property name="left_attach">1</property>
+			      <property name="right_attach">2</property>
+			      <property name="top_attach">1</property>
+			      <property name="bottom_attach">2</property>
+			      <property name="x_options">expand|shrink|fill</property>
+			      <property name="y_options"></property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkCheckButton" id="checkbutton33">
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
 			      <property name="label" translatable="yes">checkbutton22</property>
@@ -1814,17 +1927,20 @@
 			      <property name="draw_indicator">True</property>
 			    </widget>
 			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">False</property>
-			      <property name="fill">False</property>
+			      <property name="left_attach">2</property>
+			      <property name="right_attach">3</property>
+			      <property name="top_attach">1</property>
+			      <property name="bottom_attach">2</property>
+			      <property name="x_options">expand|shrink|fill</property>
+			      <property name="y_options"></property>
 			    </packing>
 			  </child>
 
 			  <child>
-			    <widget class="GtkRadioButton" id="radiobutton10">
+			    <widget class="GtkCheckButton" id="checkbutton36">
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
-			      <property name="label" translatable="yes">radiobutton10</property>
+			      <property name="label" translatable="yes">checkbutton22</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
 			      <property name="focus_on_click">True</property>
@@ -1833,17 +1949,20 @@
 			      <property name="draw_indicator">True</property>
 			    </widget>
 			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">False</property>
-			      <property name="fill">False</property>
+			      <property name="left_attach">2</property>
+			      <property name="right_attach">3</property>
+			      <property name="top_attach">2</property>
+			      <property name="bottom_attach">3</property>
+			      <property name="x_options">expand|shrink|fill</property>
+			      <property name="y_options"></property>
 			    </packing>
 			  </child>
 
 			  <child>
-			    <widget class="GtkRadioButton" id="radiobutton11">
+			    <widget class="GtkCheckButton" id="checkbutton35">
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
-			      <property name="label" translatable="yes">radiobutton11</property>
+			      <property name="label" translatable="yes">checkbutton22</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
 			      <property name="focus_on_click">True</property>
@@ -1852,9 +1971,34 @@
 			      <property name="draw_indicator">True</property>
 			    </widget>
 			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">False</property>
-			      <property name="fill">False</property>
+			      <property name="left_attach">1</property>
+			      <property name="right_attach">2</property>
+			      <property name="top_attach">2</property>
+			      <property name="bottom_attach">3</property>
+			      <property name="x_options">expand|shrink|fill</property>
+			      <property name="y_options"></property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkCheckButton" id="checkbutton34">
+			      <property name="visible">True</property>
+			      <property name="can_focus">True</property>
+			      <property name="label" translatable="yes">checkbutton22</property>
+			      <property name="use_underline">True</property>
+			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <property name="focus_on_click">True</property>
+			      <property name="active">False</property>
+			      <property name="inconsistent">False</property>
+			      <property name="draw_indicator">True</property>
+			    </widget>
+			    <packing>
+			      <property name="left_attach">0</property>
+			      <property name="right_attach">1</property>
+			      <property name="top_attach">2</property>
+			      <property name="bottom_attach">3</property>
+			      <property name="x_options">expand|shrink|fill</property>
+			      <property name="y_options"></property>
 			    </packing>
 			  </child>
 			</widget>
@@ -2457,6 +2601,7 @@ you wish to be pre-typed</property>
 		      <property name="use_alpha">False</property>
 		      <property name="focus_on_click">True</property>
 		      <signal name="color_set" handler="on_color_set" last_modification_time="Thu, 30 Jun 2005 14:29:10 GMT"/>
+		      <signal name="button_press_event" handler="on_color_clicked" last_modification_time="Mon, 04 Jul 2005 08:06:56 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
@@ -2475,6 +2620,7 @@ you wish to be pre-typed</property>
 		      <property name="use_alpha">False</property>
 		      <property name="focus_on_click">True</property>
 		      <signal name="color_set" handler="on_color_set" last_modification_time="Thu, 30 Jun 2005 14:29:39 GMT"/>
+		      <signal name="button_press_event" handler="on_color_clicked" last_modification_time="Mon, 04 Jul 2005 08:26:53 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
@@ -2493,6 +2639,7 @@ you wish to be pre-typed</property>
 		      <property name="use_alpha">False</property>
 		      <property name="focus_on_click">True</property>
 		      <signal name="color_set" handler="on_error_fg_color_set" last_modification_time="Thu, 30 Jun 2005 01:31:51 GMT"/>
+		      <signal name="button_press_event" handler="on_color_clicked" last_modification_time="Mon, 04 Jul 2005 08:27:18 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
@@ -2511,6 +2658,7 @@ you wish to be pre-typed</property>
 		      <property name="use_alpha">False</property>
 		      <property name="focus_on_click">True</property>
 		      <signal name="color_set" handler="on_color_set" last_modification_time="Fri, 01 Jul 2005 01:52:01 GMT"/>
+		      <signal name="button_press_event" handler="on_color_clicked" last_modification_time="Mon, 04 Jul 2005 08:27:43 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
@@ -2529,6 +2677,7 @@ you wish to be pre-typed</property>
 		      <property name="use_alpha">False</property>
 		      <property name="focus_on_click">True</property>
 		      <signal name="color_set" handler="on_color_set" last_modification_time="Thu, 30 Jun 2005 14:29:30 GMT"/>
+		      <signal name="button_press_event" handler="on_color_clicked" last_modification_time="Mon, 04 Jul 2005 08:07:06 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">2</property>
@@ -2547,6 +2696,7 @@ you wish to be pre-typed</property>
 		      <property name="use_alpha">False</property>
 		      <property name="focus_on_click">True</property>
 		      <signal name="color_set" handler="on_emerge_bg_color_set" last_modification_time="Thu, 30 Jun 2005 01:31:35 GMT"/>
+		      <signal name="button_press_event" handler="on_color_clicked" last_modification_time="Mon, 04 Jul 2005 08:27:10 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">2</property>
@@ -2565,6 +2715,7 @@ you wish to be pre-typed</property>
 		      <property name="use_alpha">False</property>
 		      <property name="focus_on_click">True</property>
 		      <signal name="color_set" handler="on_color_set" last_modification_time="Thu, 30 Jun 2005 14:30:29 GMT"/>
+		      <signal name="button_press_event" handler="on_color_clicked" last_modification_time="Mon, 04 Jul 2005 08:27:34 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">2</property>
@@ -2583,6 +2734,7 @@ you wish to be pre-typed</property>
 		      <property name="use_alpha">False</property>
 		      <property name="focus_on_click">True</property>
 		      <signal name="color_set" handler="on_color_set" last_modification_time="Fri, 01 Jul 2005 01:52:58 GMT"/>
+		      <signal name="button_press_event" handler="on_color_clicked" last_modification_time="Mon, 04 Jul 2005 08:27:51 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">2</property>
@@ -2830,6 +2982,7 @@ you wish to be pre-typed</property>
 		      <property name="use_alpha">False</property>
 		      <property name="focus_on_click">True</property>
 		      <signal name="color_set" handler="on_color_set" last_modification_time="Fri, 01 Jul 2005 01:53:20 GMT"/>
+		      <signal name="button_press_event" handler="on_color_clicked" last_modification_time="Mon, 04 Jul 2005 08:27:59 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
@@ -2848,6 +3001,7 @@ you wish to be pre-typed</property>
 		      <property name="use_alpha">False</property>
 		      <property name="focus_on_click">True</property>
 		      <signal name="color_set" handler="on_color_set" last_modification_time="Fri, 01 Jul 2005 01:54:03 GMT"/>
+		      <signal name="button_press_event" handler="on_color_clicked" last_modification_time="Mon, 04 Jul 2005 08:28:14 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
@@ -2866,6 +3020,7 @@ you wish to be pre-typed</property>
 		      <property name="use_alpha">False</property>
 		      <property name="focus_on_click">True</property>
 		      <signal name="color_set" handler="on_color_set" last_modification_time="Fri, 01 Jul 2005 01:55:10 GMT"/>
+		      <signal name="button_press_event" handler="on_color_clicked" last_modification_time="Mon, 04 Jul 2005 08:28:29 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
@@ -2884,6 +3039,7 @@ you wish to be pre-typed</property>
 		      <property name="use_alpha">False</property>
 		      <property name="focus_on_click">True</property>
 		      <signal name="color_set" handler="on_color_set" last_modification_time="Fri, 01 Jul 2005 01:53:41 GMT"/>
+		      <signal name="button_press_event" handler="on_color_clicked" last_modification_time="Mon, 04 Jul 2005 08:28:06 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">2</property>
@@ -2902,6 +3058,7 @@ you wish to be pre-typed</property>
 		      <property name="use_alpha">False</property>
 		      <property name="focus_on_click">True</property>
 		      <signal name="color_set" handler="on_color_set" last_modification_time="Fri, 01 Jul 2005 01:54:40 GMT"/>
+		      <signal name="button_press_event" handler="on_color_clicked" last_modification_time="Mon, 04 Jul 2005 08:28:21 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">2</property>
@@ -2920,6 +3077,7 @@ you wish to be pre-typed</property>
 		      <property name="use_alpha">False</property>
 		      <property name="focus_on_click">True</property>
 		      <signal name="color_set" handler="on_color_set" last_modification_time="Fri, 01 Jul 2005 01:55:28 GMT"/>
+		      <signal name="button_press_event" handler="on_color_clicked" last_modification_time="Mon, 04 Jul 2005 08:28:37 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">2</property>
@@ -2938,6 +3096,7 @@ you wish to be pre-typed</property>
 		      <property name="use_alpha">False</property>
 		      <property name="focus_on_click">True</property>
 		      <signal name="color_set" handler="on_color_set" last_modification_time="Fri, 01 Jul 2005 01:59:00 GMT"/>
+		      <signal name="button_press_event" handler="on_color_clicked" last_modification_time="Mon, 04 Jul 2005 08:28:50 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">2</property>
@@ -2986,6 +3145,7 @@ you wish to be pre-typed</property>
 		      <property name="use_alpha">False</property>
 		      <property name="focus_on_click">True</property>
 		      <signal name="color_set" handler="on_color_set" last_modification_time="Fri, 01 Jul 2005 01:55:10 GMT"/>
+		      <signal name="button_press_event" handler="on_color_clicked" last_modification_time="Mon, 04 Jul 2005 08:28:43 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
@@ -3027,12 +3187,13 @@ you wish to be pre-typed</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkColorButton" id="colorbutton37">
+		    <widget class="GtkColorButton" id="default_fg">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="use_alpha">False</property>
 		      <property name="focus_on_click">True</property>
 		      <signal name="color_set" handler="on_color_set" last_modification_time="Thu, 30 Jun 2005 14:29:10 GMT"/>
+		      <signal name="button_press_event" handler="on_color_clicked" last_modification_time="Mon, 04 Jul 2005 07:56:39 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
@@ -3045,12 +3206,13 @@ you wish to be pre-typed</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkColorButton" id="colorbutton38">
+		    <widget class="GtkColorButton" id="default_bg">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="use_alpha">False</property>
 		      <property name="focus_on_click">True</property>
 		      <signal name="color_set" handler="on_color_set" last_modification_time="Thu, 30 Jun 2005 14:29:10 GMT"/>
+		      <signal name="button_press_event" handler="on_color_clicked" last_modification_time="Mon, 04 Jul 2005 07:56:49 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">2</property>
