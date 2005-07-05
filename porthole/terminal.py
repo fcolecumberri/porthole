@@ -125,22 +125,9 @@ class ProcessManager:
         # NOTE: for ease of maintenance, all tabs have every tag
         #       defined for use.  Currently the code determines
         #       when & where to use the tags
-        attributes = gtk.TextView().get_default_attributes()
-        default_fg = attributes.fg_color
-        default_bg = attributes.bg_color
-        default_weight = attributes.font.get_weight()
-        default_font = attributes.font.to_string()
         for process_tab in [TAB_PROCESS, TAB_WARNING, TAB_CAUTION, TAB_INFO]:
             bounds = self.term.buffer[process_tab].get_bounds()
             self.term.buffer[process_tab].remove_all_tags(*bounds)
-            if process_tab == TAB_PROCESS or self.prefs.terminal.all_tabs_use_custom_colors:
-                fg, bg, weight = self.prefs.TAG_DICT['default']
-                font = self.prefs.terminal.font
-            else:
-                fg = default_fg
-                bg = default_bg
-                weight = default_weight
-                font = default_font
             for key in self.prefs.TAG_DICT:
                 text_tag = self.prefs.TAG_DICT[key] 
                 argdict = {}
@@ -206,11 +193,11 @@ class ProcessManager:
                 view = self.wtree.get_widget(x)
                 if x == "process_text" or self.prefs.terminal.all_tabs_use_custom_colors:
                     fg, bg, weight = self.prefs.TAG_DICT['default']
+                    font = self.prefs.terminal.font
                     if bg: view.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse(bg))
                     else: view.modify_base(gtk.STATE_NORMAL, default_bg)
                     if fg: view.modify_text(gtk.STATE_NORMAL, gtk.gdk.color_parse(fg))
-                    else: view.modify_text(gtk.STATE_NORMAL, default_bg)
-                    font = self.prefs.terminal.font
+                    else: view.modify_text(gtk.STATE_NORMAL, default_fg)
                     view.modify_font(pango.FontDescription(font or default_font))
                 else:
                     view.modify_base(gtk.STATE_NORMAL, default_bg)
