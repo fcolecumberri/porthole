@@ -625,14 +625,22 @@ class AdvancedEmergeDialog:
         maxcol = 4  # = number of columns - 1 = index of last column
         maxrow = (size - 1) / (maxcol + 1)  # = number of rows - 1
         # resize the table if it's taller than it is wide
-        if maxrow > maxcol:
-            maxcol = int( (size) ** 0.5 ) # = rounddown(sqrt(size))
-            maxrow = (size - 1) / (maxcol + 1)
+        #if maxrow > maxcol:
+        #    maxcol = int( (size) ** 0.5 ) # = rounddown(sqrt(size))
+        #    maxrow = (size - 1) / (maxcol + 1)
         table = gtk.Table(maxrow+1, maxcol+1, True)
-        UseFlagFrame.add(table)
-
+        if maxrow + 1 >= 6: # perhaps have this number configurable?
+            # perhaps add window based on size (in pixels) of table somehow...
+            scrolledwindow = gtk.ScrolledWindow()
+            scrolledwindow.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+            UseFlagFrame.add(scrolledwindow)
+            scrolledwindow.add_with_viewport(table)
+            scrolledwindow.set_size_request(1, 100) # min height of 100 pixels
+        else:
+            UseFlagFrame.add(table)
+        
         self.ufList = []
-
+        
         # Iterate through use flags collection, create checkboxes
         # and attach to table
         col = 0
@@ -678,10 +686,11 @@ class AdvancedEmergeDialog:
             if col > maxcol:
                 col = 0
                 row += 1
-
+        
         # Display the entire table
-        table.show()
-
+        #table.show()
+        UseFlagFrame.show_all()
+        
 
     def build_keywords_widget(self, keywords):
         """ Create a table layout and populate it with 
