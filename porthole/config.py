@@ -187,16 +187,22 @@ class ConfigDialog:
             if self.prefs.terminal.font:
                 widget.set_font_name(self.prefs.terminal.font)
         
-        # Emerge output colours:
+        # Default XTerm colours:
         for name in self.xtermtaglist:
-            color = self.prefs.TAG_DICT['fg_' + name]
-            widget = self.wtree.get_widget(name)
+            color = self.prefs.TAG_DICT['fg_' + name][0]
+            widget = self.wtree.get_widget('fg_' + name)
             if widget:
                 if color:
                     widget.set_color(gtk.gdk.color_parse(color))
                 else: # this should never happen, but just in case...
-                    widget.set_color(gtk.gdk.color_parse(name)) 
-            # note: just use same color changes for fg and bg?
+                    widget.set_color(gtk.gdk.color_parse(name))
+            color = self.prefs.TAG_DICT['bg_' + name][1]
+            widget = self.wtree.get_widget('bg_' + name)
+            if widget:
+                if color:
+                    widget.set_color(gtk.gdk.color_parse(color))
+                else: # this should never happen, but just in case...
+                    widget.set_color(gtk.gdk.color_parse(name))
         
         # View Colours
         for name in self.viewoptions:
@@ -264,13 +270,20 @@ class ConfigDialog:
         if widget and self.fontselection1 != widget.get_font_name():
             self.prefs.terminal.font = widget.get_font_name()
         
-        # Emerge output colours:
+        # Default XTerm colours:
         for name in self.xtermtaglist:
-            widget = self.wtree.get_widget(name)
+            widget = self.wtree.get_widget('fg_' + name)
             if widget:
                 color = widget.get_color()
-                self.prefs.TAG_DICT['fg_' + name] = self.get_color_spec(color)
-            # note: just use same color changes for fg and bg?
+                if color:
+                    self.prefs.TAG_DICT['fg_' + name][0] = self.get_color_spec(color)
+            widget = self.wtree.get_widget('bg_' + name)
+            if widget:
+                color = widget.get_color()
+                if color:
+                    self.prefs.TAG_DICT['bg_' + name][1] = self.get_color_spec(color)
+                else: # this should never happen, but just in case...
+                    widget.set_color(gtk.gdk.color_parse(name))
         
         # View Colours
         for name in self.viewoptions:
