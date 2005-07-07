@@ -49,5 +49,15 @@
     <emerge>^&gt;&gt;&gt; emerge [^/]</emerge>
     <ebuild>^\d+\s+\[ebuild.*</ebuild>
     <merged>merged.$</merged>
+    <needaction py_type="list" item_count="6">
+      <needaction-1>^ \* .*emerge</needaction-1>
+      <needaction-2>^ \* .*echo</needaction-2>
+      <needaction-3>^ \* .*-update</needaction-3>
+      <needaction-4>^ \* .*revdep-rebuild</needaction-4>
+      <needaction-5>^ \* .*modprobe</needaction-5>
+      <needaction-6>^ \* .*IMPORTANT</needaction-6>
+    </needaction>
+    <notneedaction py_type="list" item_count="0">
+    </notneedaction>
   </re_filters>
 </portholeconfig>

@@ -908,7 +908,8 @@ class ProcessManager:
                             self.parse_escape_sequence(self.escape_seq)
                             self.escape_seq = ''
                     elif self.escape_seq.startswith(']'):
-                        if ord(char) == 7 or self.escape_seq.endswith('\x1b\\'):
+                        if ord(char) == 7 or self.escape_seq.endswith('\x1b\\') \
+                                or char == ';':
                             self.catch_seq = False
                             self.parse_escape_sequence(self.escape_seq)
                             self.escape_seq = ''
@@ -968,6 +969,13 @@ class ProcessManager:
                                 if self.callback_armed:
                                     self.do_callback()
                                     self.callback_armed = False
+                        
+                        elif self.config.isAction(self.line_buffer):
+                            if not self.term.tab_showing[TAB_INFO]:
+                                self.show_tab(TAB_INFO)
+                                self.term.buffer[TAB_INFO].set_modified(True)
+                            tag = 'caution'
+                            self.append(TAB_INFO, self.line_buffer, tag)
                         
                         #elif self.config.isInfo(self.process_buffer):
                         elif self.config.isInfo(self.line_buffer):

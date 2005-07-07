@@ -453,7 +453,7 @@ class PortholePreferences:
                         ["Sync", "emerge sync"],
                         ["Sync_label", _("Sync")],
                         #                use the form " [sync-command, sync-label],
-                        ["Sync_methods", [['emerge sync', _('Sync')], ['emerge webrsync', _('WebRsync')],
+                        ["Sync_methods", [['emerge sync', _('Sync')], ['emerge-webrsync', _('WebRsync')],
                                             ['#user defined', _('Unknown Sync')]]],
         ]
         
@@ -559,7 +559,7 @@ class PortholeConfiguration:
         # Handle all the regular expressions.  They will be compiled
         # within this object for the sake of efficiency.
         
-        filterlist = ['info', 'warning', 'error', 'caution']
+        filterlist = ['info', 'warning', 'error', 'caution', 'needaction']
         for filter in filterlist:
             patternlist = dom.getitem(''.join(['/re_filters/',filter])) # e.g. '/re_filters/info'
             attrname = ''.join([filter, '_re_list'])
@@ -599,7 +599,7 @@ class PortholeConfiguration:
         return False
 
     def isCaution(self, teststring):
-        ''' Parse string, return true if belongs in info tab '''
+        ''' Parse string, return true if matches caution regexp '''
         for regexp in self.caution_re_list:
             if regexp.match(teststring):
                 for regexpi in self.caution_re_notlist:
@@ -625,7 +625,18 @@ class PortholeConfiguration:
     def isMerged(self, teststring):
         ''' Parse string, return true if it is the merged line '''
         return self.merged_re.search(teststring) != None
-
+    def isAction(self, teststring):
+        '''
+        Returns True if teststring matches the pre-set criteria for notification of an
+        action the user is recommended to take, such as etc-update or revdep-rebuild.
+        '''
+        for regexp in self.needaction_re_list:
+            if regexp.match(teststring):
+                for regexpi in self.needaction_re_notlist:
+                    if regexpi.match(teststring):
+                        return False    # excluded, no match
+                return True
+        return False
 
 class BadLogFile(Exception):
     """ Raised when we encounter errors parsing the log file."""
