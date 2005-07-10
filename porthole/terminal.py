@@ -554,7 +554,7 @@ class ProcessManager:
                         else:
                             message = _("The package you selected is already in the emerge queue!")
                             SingleButtonDialog(_("Error Adding Package To Queue!"), None,
-                                           message, None, "Ok")
+                                           message, None, _("OK"))
                             # Clear semaphore, we're done
                             self.Semaphore.release()
                             dprint("TERMINAL: add_process; Semaphore released")
@@ -908,8 +908,7 @@ class ProcessManager:
                             self.parse_escape_sequence(self.escape_seq)
                             self.escape_seq = ''
                     elif self.escape_seq.startswith(']'):
-                        if ord(char) == 7 or self.escape_seq.endswith('\x1b\\') \
-                                or char == ';':
+                        if ord(char) == 7 or self.escape_seq.endswith('\x1b\\'):
                             self.catch_seq = False
                             self.parse_escape_sequence(self.escape_seq)
                             self.escape_seq = ''
@@ -933,7 +932,7 @@ class ProcessManager:
                     # this is used when portage prints ">>> Updating Portage Cache"
                     # it uses backspaces to update the number. So on each update
                     # we display the old value (better than waiting for \n)
-                    # (it's also used for the spinner)
+                    # (it's also used for the spinner and some other stuff)
                     if self.lastchar != '\b': # i.e. starting to delete old value
                         if not self.b_flag: # initial display
                             self.append(TAB_PROCESS, self.line_buffer)
@@ -1160,7 +1159,8 @@ class ProcessManager:
                 self.current_tagnames = ['default']
             #dprint("TERMINAL: parse_escape_sequence(): tagnames are %s" % self.current_tagnames)
             return True
-        elif sequence.startswith("]2;") and ord(sequence[-1]) == 7:
+        elif sequence[:3] in ["]2;", "]0;", "]1;"] and ord(sequence[-1]) == 7:
+            # note: 2 = window title, 1 = icon name, 0 = window title and icon name
             sequence = sequence[3:-1]
             self.set_statusbar(sequence)
             return True
