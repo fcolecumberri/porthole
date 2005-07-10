@@ -210,36 +210,6 @@ def xmatch(*args, **kwargs):
     """
     return portage.portdb.xmatch(*args, **kwargs)
 
-##def get_keyword_unmasked_ebuilds(arch=None, full_name='', archlist=None):
-##    """Return a list of ebuilds unmasked by package.keywords.
-##    If 'arch': returns a list of ebuilds.
-##    Elif 'archlist': returns a dictionary with dict[arch] = list of ebuilds for arch in archlist.
-##    Else returns a dictionary with dict[arch] = list of ebuilds for all architectures.
-##    If 'full_name' is given, ebuilds are only given for that package.
-##    """
-##    keywordsfile = open('/'.join([portage_const.USER_CONFIG_PATH, 'package.keywords']), 'r')
-##    keywordslines = keywordsfile.readlines()
-##    keywordsfile.close()
-##    package_keywords = [line.split() for line in keywordslines]
-##    # e.g. [['gnome-base/control-center', '~x86'], ['app-portage/porthole', '~x86', '~amd64']]
-##    if arch: archlist = [arch]
-##    if not archlist: archlist = get_archlist()
-##    dict = {}
-##    for item in archlist:
-##        list = [element[0]
-##            for element in package_keywords
-##            if (('~' + item) in element
-##                and full_name in element[0])]
-##        ebuild_list = []
-##        for entry in list:
-##            matching_ebuilds = xmatch('match-all', entry)
-##            for ebuild in matching_ebuilds:
-##                if ebuild not in ebuild_list:
-##                    ebuild_list.append(ebuild)
-##        dict[item] = ebuild_list
-##    if arch: return dict[item]
-##    else: return dict
-
 def get_user_config(file, name=None, ebuild=None):
     """
     Function for parsing package.use, package.mask, package.unmask
@@ -559,16 +529,12 @@ class Properties:
         self.__dict = dict
         
     def __getattr__(self, name):
-        #try: return self.__dict[name].decode('ascii')  # return unicode
-        #except: return u""  # always return something
         try: return self.__dict[name]
         except: return ''
         
     def get_slot(self):
-        """Return slot number as an integer."""
-        #try: return int(self.slot)
-        #except ValueError: return 0   # ?
-        return self.slot # not always integer
+        """Return ebuild slot"""
+        return self.slot
 
     def get_keywords(self):
         """Returns a list of strings."""
@@ -691,13 +657,7 @@ class Package:
     def get_latest_ebuild(self, include_masked = False):
         """Return latest ebuild of a package"""
         # Note: this is slow, see get_versions()
-        # removed by Tommy:
-        #~ if self.latest_ebuild == None:
-            #~ criterion = include_masked and 'match-all' or 'match-visible'
-            #~ self.latest_ebuild = portage.best(self.get_versions(include_masked))
-        #~ return self.latest_ebuild
-        # added by Tommy:
-        # changed to not return hard-masked packages by default, unless in package.unmask
+        # Note: doesn't return hard-masked packages by default, unless in package.unmask
         # unstable packages however ARE returned. To return the best version for a system,
         # taking into account keywords and masking, use get_best_ebuild().
         if include_masked:
@@ -725,7 +685,6 @@ class Package:
 
     def get_size(self):
         if self.size == None:
-            #self.size = get_size( self.get_latest_ebuild() )
             ebuild = self.get_default_ebuild()
             if ebuild: self.size = get_size(ebuild)
             else: self.size = ''
@@ -864,9 +823,6 @@ class Database:
             self.installed[category][name].update_info()
 
 
-
-# this has to be here because we get recursive imports if it's up top.
-#from readers import CommonReader
 class DatabaseReader(threading.Thread):
     """Builds the database in a separate thread."""
 
@@ -925,22 +881,22 @@ class DatabaseReader(threading.Thread):
                 count = 0
             category, name = entry.split('/')
             # why does getallnodes() return timestamps?
-            if name == 'timestamp.x' or name.endswith("tbz2") or name == "metadata.xml":  
+            if name == 'timestamp.x' or name.endswith("tbz2") or name == "metadata.xml":
                 continue
             count += 1
             data = Package(entry)
             if self.cancelled: self.done = True; return
             #self.db.categories.setdefault(category, {})[name] = data;
-            # look out for segfaults 
+            # look out for segfaults
             if category not in self.db.categories:
                 self.db.categories[category] = {}
                 #dprint("added category %s" % str(category))
             self.db.categories[category][name] = data;
-            if entry in self.installed_list: 
-                if category not in self.db.installed: 
-                    self.db.installed[category] = {} 
-                    #dprint("added category %s to installed" % str(category)) 
-                self.db.installed[category][name] = data; 
+            if entry in self.installed_list:
+                if category not in self.db.installed:
+                    self.db.installed[category] = {}
+                    #dprint("added category %s to installed" % str(category))
+                self.db.installed[category][name] = data;
                 self.db.installed_count += 1
             self.db.list.append((name, data))
         self.nodecount += count
