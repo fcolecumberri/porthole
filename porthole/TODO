@@ -2,7 +2,7 @@
 |                          TODO list for Porthole:                             |
 --------------------------------------------------------------------------------
 
- * Preferences Dialog:
+ / (In Progress) Preferences Dialog:
       sync options (e.g. websync)
       default emerge options (e.g. verbose)
       archlist option (for advemerge and summary view)
@@ -11,7 +11,7 @@
       use flag options ? 
       mirrors, proxies ?
 
- * Add right-click menu to summary view.
+ + (Done) Add right-click menu to summary view.
    Refine Package View right-click menu.
 
  * Allow multiple packages to be selected, then emerge in one line
@@ -20,9 +20,7 @@
 
  + (Done) Select All / None in upgradable view (RFE [939337])
 
- * Update statusbar to indicate that a search is taking place
-
- * Fix upgradable dependencies column (doesn't expand on first click)
+ + (Done) Fix upgradable dependencies column (doesn't expand on first click)
    (This column might not be necessary if a "deep" option is available)
    (see below)
 
@@ -43,7 +41,7 @@
 
  + (Done) Reap zombie emerge processes (bug [1081506, 1119366])
 
- * Ability to unmerge certain version (e.g. only one slot) (bug [1082297]) using
+ + (Done) Ability to unmerge certain version (e.g. only one slot) (bug [1082297]) using
    advemerge window. Could perhaps include this in summary view also.
 
  * Ability to save an emerge list and perform the emerge at a later date
@@ -90,15 +88,17 @@
 
  ? Advanced search criteria (masking, architectures, use flags)
 
+ ? Thread the search function
+
  ? Possible "newuse" and "system" filters for upgrade list ?
 
  ? Somehow prompt to add packages to package.keywords if the user tries to
    merge a masked package (bug [1107532]). Check dependencies also.
 
- ? Ability to sort the PackageView by clicking on the headers of columns
+ + (Done) Ability to sort the PackageView by clicking on the headers of columns
    (e.g. sort by size)
 
- (Done) Something to show if we have run porthole as root or not (icon?).
+ + (Done) Something to show if we have run porthole as root or not (icon?).
    This will not be necessary when some sort of sudo functionality is
    worked out. (RFE [1181795, ?])
 
