@@ -593,7 +593,11 @@ def get_properties(ebuild):
     """Get all ebuild variables in one chunk."""
     ebuild = str(ebuild) #just in case
     if portage.portdb.cpv_exists(ebuild): # if in portage tree
-        return Properties(dict(zip(keys, portage.portdb.aux_get(ebuild, portage.auxdbkeys))))
+        try:
+            return Properties(dict(zip(keys, portage.portdb.aux_get(ebuild, portage.auxdbkeys))))
+        except IOError, e: # Sync being performed may delete files
+            dprint(" * PORTAGELIB: get_properties(): IOError: %s" % e)
+            return Properties()
     else:
         vartree = portage.db['/']['vartree']
         if vartree.dbapi.cpv_exists(ebuild): # elif in installed pkg tree
