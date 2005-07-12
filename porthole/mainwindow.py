@@ -28,7 +28,8 @@ import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, gtk.glade, gobject, pango
 import portagelib, os, string
 import utils
-from portagelib import World
+#from portagelib import World
+World = portagelib.World
 from dispatcher import Dispatcher
 
 from gettext import gettext as _
@@ -87,6 +88,7 @@ class MainWindow:
         preferences.use_gladefile, self.new_toolbar_API = check_glade()
         # setup prefs
         self.prefs = preferences
+        self.prefs.myarch = portagelib.get_arch()
         self.config = config
         # setup glade
         self.gladefile = self.prefs.DATA_PATH + self.prefs.use_gladefile
