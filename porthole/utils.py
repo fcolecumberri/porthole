@@ -69,17 +69,17 @@ def get_icon_for_package(package):
         icon = '' # gtk.STOCK_NO
     return icon       
 
-def get_icon_for_upgrade_package(package, prefs):
+def get_icon_for_upgrade_package(package, view_prefs):
     """Return an icon and foreground text color for a package"""
     if not package:
         return '', 'blue'
     #  find out if it can be upgraded
     if package.is_upgradable() == 1:  # 1 for only upgrades (no downgrades)
         icon = gtk.STOCK_GO_UP
-        color = prefs.upgradable_fg
+        color = view_prefs.upgradable_fg
     else: # it's a downgrade
         icon = gtk.STOCK_GO_DOWN
-        color = prefs.downgradable_fg
+        color = view_prefs.downgradable_fg
     return icon, color      
 
 def is_root():
@@ -195,34 +195,6 @@ class EmergeOptions:
         if self.nospinner: opt_string += '--nospinner '
         return opt_string
 
-##class AdvEmergeOptions:
-##    """ Holds common advanced emerge options """
-##    def __init__(self):
-##        # let's get some saved values in here!
-##        self.enable_all_keywords = False
-##
-##class PluginOptions:
-##    """ Holds preferences for plugins """
-##    def __init__(self):
-##        self.path_list = [os.getcwd()]
-##
-##class WindowPreferences:
-##    """ Holds preferences for a window """
-##    def __init__(self, width = 0, height = 0):
-##        self.width = width      # width
-##        self.height = height    # height
-##
-##class ViewOptions:
-##    """ Holds foreground colors for a package name"""
-##    def __init__(self):
-##        self.upgradable_fg = ''
-##        self.downgradable_fg = ''
-##
-##class GlobalPreferences:
-##    """Holds some global variables"""
-##    def __init__(self):
-##        self.LANG = None
-
 class OptionsClass:
     """Blank class to hold options"""
     pass
@@ -303,7 +275,6 @@ class PortholePreferences:
         ]
         
         for window_name in preflist.keys():
-            #setattr(self, window_name, WindowPreferences()) # create self.main etc
             setattr(self, window_name, OptionsClass()) # construct self.main etc.
             for pref_name, default_value in preflist[window_name]:
                 try:
@@ -379,9 +350,7 @@ class PortholePreferences:
             ['showuseflags', True],
             ['showkeywords', True],
             ['showconfigbuttons', False],
-            #['archlist', []],
         ]
-        #self.advemerge = AdvEmergeOptions()
         self.advemerge = OptionsClass()
         for option, default in advemergeoptions:
             try:
@@ -396,7 +365,6 @@ class PortholePreferences:
             ['normal_fg','#000000'],
             ['normal_bg','#FFFFFF']
         ]
-        #self.views = ViewOptions()
         self.views = OptionsClass()
         for option, default in viewoptions:
             try:
@@ -477,7 +445,7 @@ class PortholePreferences:
             list = os.listdir(dir)
             for entry in list:
                 if entry != 'CVS': # skip the CVS directory.
-                    entry = '/'.join([dir, entry]) # get full path
+                    entry = os.path.join(dir, entry) # get full path
                     if os.path.isdir(entry):
                         self.plugins.path_list.append(entry)
 
