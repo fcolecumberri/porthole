@@ -46,6 +46,9 @@ class ConfigDialog:
         self.wtree.signal_autoconnect(callbacks)
         self.window = self.wtree.get_widget("config")
         
+        # Hide widgets which haven't been implemented yet
+        self.hide_widgets()
+        
         # build list of widgets and equivalent prefs
         self.build_widget_lists()
         
@@ -120,6 +123,10 @@ class ConfigDialog:
     # Support function definitions start here
     #------------------------------------------
 
+    def hide_widgets(self):
+        # hide unimplemented widgets here
+        return
+    
     def build_widget_lists(self):
         """ Build lists of widgets and equivalent prefs """
         self.tagnamelist = ['command', 'emerge', 'error', 'info', 'caution',
@@ -145,7 +152,6 @@ class ConfigDialog:
             ['global', 'enable_all_keywords'],
         ]
         self.syncmethods = self.prefs.globals.Sync_methods
-        
     
     def set_widget_values(self):
         """ Set widget attributes based on prefs """
@@ -181,11 +187,11 @@ class ConfigDialog:
                     widget.set_use_alpha(True)
         
         # Terminal Font:
-        widget = self.wtree.get_widget('fontselection1')
+        widget = self.wtree.get_widget('terminal_font')
         if widget:
-            self.fontselection1 = widget.get_font_name()
             if self.prefs.terminal.font:
                 widget.set_font_name(self.prefs.terminal.font)
+            self.terminal_font = widget.get_font_name()
         
         # Default XTerm colours:
         for name in self.xtermtaglist:
@@ -227,9 +233,10 @@ class ConfigDialog:
         tempiter = None
         if widget:
             for command, label in self.syncmethods:
-                tempiter = store.append([command])
-                if command == self.prefs.globals.Sync:
-                    iter = tempiter
+                if not command.startswith('#'):
+                    tempiter = store.append([command])
+                    if command == self.prefs.globals.Sync:
+                        iter = tempiter
             widget.set_model(store)
             cell = gtk.CellRendererText()
             widget.pack_start(cell, True)
@@ -237,6 +244,16 @@ class ConfigDialog:
             if tempiter:
                 widget.set_active_iter(iter)
         
+        # Custom Command History
+        for x in [1, 2, 3, 4, 5]:
+            widget = self.wtree.get_widget('history' + str(x))
+            if widget:
+                pref = self.prefs.run_dialog.history[x]
+                widget.set_text(pref)
+        
+        # Display current CPU architecture
+        widget = self.wtree.get_widget('current_arch')
+        widget.set_label(self.prefs.myarch)
     
     def apply_widget_values(self):
         """ Set prefs from widget values """
@@ -266,8 +283,8 @@ class ConfigDialog:
                     self.prefs.TAG_DICT[name][1] = ''
         
         # Terminal Font:
-        widget = self.wtree.get_widget('fontselection1')
-        if widget and self.fontselection1 != widget.get_font_name():
+        widget = self.wtree.get_widget('terminal_font')
+        if widget and self.terminal_font != widget.get_font_name():
             self.prefs.terminal.font = widget.get_font_name()
         
         # Default XTerm colours:
@@ -314,6 +331,15 @@ class ConfigDialog:
                     self.prefs.globals.Sync = command
                     self.prefs.globals.Sync_label = label
                     break
+        
+        # Custom Command History
+        for x in [1, 2, 3, 4, 5]:
+            widget = self.wtree.get_widget('history' + str(x))
+            if widget:
+                text = widget.get_text()
+                if text != self.prefs.run_dialog.history[x]:
+                    self.prefs.run_dialog.history[x] = text
+        
     
     def get_color_spec(self, color):
         red = hex(color.red)[2:].zfill(4)

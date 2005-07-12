@@ -135,7 +135,7 @@
 			  <child>
 			    <widget class="GtkLabel" id="label9">
 			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">Current arch : </property>
+			      <property name="label" translatable="yes">Current CPU architecture : </property>
 			      <property name="use_underline">False</property>
 			      <property name="use_markup">False</property>
 			      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -685,7 +685,7 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkFontButton" id="fontbutton1">
+			<widget class="GtkFontButton" id="main_font">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="show_style">True</property>
@@ -749,7 +749,7 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkColorButton" id="upgradeable_fg">
+			<widget class="GtkColorButton" id="upgradable_fg">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="use_alpha">False</property>
@@ -769,7 +769,7 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkColorButton" id="downgrable_fg">
+			<widget class="GtkColorButton" id="downgradable_fg">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="use_alpha">False</property>
@@ -2346,7 +2346,7 @@
 			  </child>
 
 			  <child>
-			    <widget class="GtkEntry" id="entry3">
+			    <widget class="GtkEntry" id="history1">
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
 			      <property name="editable">True</property>
@@ -2367,7 +2367,7 @@
 			  </child>
 
 			  <child>
-			    <widget class="GtkEntry" id="entry4">
+			    <widget class="GtkEntry" id="history2">
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
 			      <property name="editable">True</property>
@@ -2388,7 +2388,7 @@
 			  </child>
 
 			  <child>
-			    <widget class="GtkEntry" id="entry5">
+			    <widget class="GtkEntry" id="history3">
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
 			      <property name="editable">True</property>
@@ -2409,7 +2409,7 @@
 			  </child>
 
 			  <child>
-			    <widget class="GtkEntry" id="entry6">
+			    <widget class="GtkEntry" id="history4">
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
 			      <property name="editable">True</property>
@@ -2430,7 +2430,7 @@
 			  </child>
 
 			  <child>
-			    <widget class="GtkEntry" id="entry7">
+			    <widget class="GtkEntry" id="history5">
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
 			      <property name="editable">True</property>
@@ -3377,7 +3377,7 @@ you wish to be pre-typed</property>
 		      <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 		      <child>
-			<widget class="GtkTextView" id="textview1">
+			<widget class="GtkTextView" id="terminal_sample_1">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="editable">True</property>
@@ -3406,7 +3406,7 @@ you wish to be pre-typed</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkFontButton" id="fontbutton2">
+		    <widget class="GtkFontButton" id="terminal_font">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="show_style">True</property>
@@ -4182,7 +4182,7 @@ you wish to be pre-typed</property>
 		      <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 		      <child>
-			<widget class="GtkTextView" id="textview2">
+			<widget class="GtkTextView" id="terminal_sample_2">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="editable">True</property>
