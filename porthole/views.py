@@ -151,6 +151,8 @@ class PackageView(CommonTreeView):
     def __init__(self):
         """ Initialize """
         self.info_thread = None
+        self.info_iter = None
+        self.model = None
         self.current_view = None
         # initialize the treeview
         CommonTreeView.__init__(self)
@@ -260,16 +262,18 @@ class PackageView(CommonTreeView):
         """ Set the treeview column """
         # stop info_thread if running
         self.infothread_die = "Please"
-        if self.info_thread:
-            if self.info_thread.isAlive():
-                dprint("VIEWS: Waiting for info_thread to die")
-                gtk.threads_leave()
-                self.info_thread.join()
-                #gtk.threads_enter()
-                dprint("VIEWS: infothread seems to have finished!")
-            self.enable_column_sort()
-            del self.info_thread
-            self.info_thread = None
+        self.model = None
+        self.iter = None
+##        if self.info_thread:
+##            if self.info_thread.isAlive():
+##                dprint("VIEWS: Waiting for info_thread to die")
+##                gtk.threads_leave()
+##                self.info_thread.join()
+##                #gtk.threads_enter()
+##                dprint("VIEWS: infothread seems to have finished!")
+##            self.enable_column_sort()
+##            del self.info_thread
+##            self.info_thread = None
         # clear the columns
         self._checkbox_column.clear()
         self._column.clear()
@@ -505,16 +509,18 @@ class PackageView(CommonTreeView):
         dprint("VIEWS: PackageView.populate(); Threading info: %s" %str(threading.enumerate()) )
         # ask info_thread to die, if alive
         self.infothread_die = "Please"
-        if self.info_thread:
-            if self.info_thread.isAlive():
-                dprint("VIEWS: Waiting for info_thread to die")
-                gtk.threads_leave()
-                self.info_thread.join()
-                #gtk.threads_enter()
-                dprint("VIEWS: infothread seems to have finished!")
-            self.enable_column_sort()
-            del self.info_thread
-            self.info_thread = None
+        self.model = None
+        self.iter = None
+##        if self.info_thread:
+##            if self.info_thread.isAlive():
+##                dprint("VIEWS: Waiting for info_thread to die")
+##                gtk.threads_leave()
+##                self.info_thread.join()
+##                #gtk.threads_enter()
+##                dprint("VIEWS: infothread seems to have finished!")
+##            self.enable_column_sort()
+##            del self.info_thread
+##            self.info_thread = None
         if locate_name:
             dprint("VIEWS: Selecting " + str(locate_name))
         # get the right model
@@ -547,19 +553,27 @@ class PackageView(CommonTreeView):
         self.infothread_die = False
         self.get_model().set_sort_column_id(0, gtk.SORT_ASCENDING)
         self.disable_column_sort()
-        self.info_thread = threading.Thread(target = self.populate_info)
-        self.info_thread.setDaemon(True)
-        self.info_thread.start()
+        self.model = self.get_model()
+        self.iter = model.get_iter_first()
+        gobject.idle_add(self.populate_info)
+##        self.info_thread = threading.Thread(target = self.populate_info)
+##        self.info_thread.setDaemon(True)
+##        self.info_thread.start()
  
     def populate_info(self):
         """ Populate the current view with package info"""
-        gtk.threads_enter()
-        model = self.get_model()
-        iter = model.get_iter_first()
-        gtk.threads_leave()
-        while iter and not (self.infothread_die):
+        if self.infothread_die:
+            return False # will not be called again
+        #gtk.threads_enter()
+        #model = self.get_model()
+        #iter = model.get_iter_first()
+        model = self.model
+        iter = self.iter
+        #gtk.threads_leave()
+        #while iter and not (self.infothread_die):
+        if iter:
             try:
-                gtk.threads_enter()
+                #gtk.threads_enter()
                 package = model.get_value(iter, 2)
                 latest_installed = package.get_latest_installed()
                 best_ebuild = package.get_best_ebuild()
@@ -579,18 +593,22 @@ class PackageView(CommonTreeView):
                     model.set_value(iter, 9, package.get_properties().description) # Description
                 except:
                     dprint("VIEWS populate_info(): Failed to get item description for '%s'" % package.full_name)
-                iter = model.iter_next(iter)
-                gtk.threads_leave()
+                self.iter = model.iter_next(iter)
+                #gtk.threads_leave()
             except Exception, e:
-                dprint("VIEWS: populate_info(); Thread 'package_info' hit exception '%s'. Skipping..." % str(e))
-                iter = model.iter_next(iter)
-                gtk.threads_leave()
-        if not (self.infothread_die):
-            gtk.threads_enter()
+                dprint("VIEWS: populate_info(): Stopping due to exception '%s'" % e)
+                #self.iter = model.iter_next(iter)
+                return False # will not be called again
+                #gtk.threads_leave()
+            return True # will be called again
+        #if not self.infothread_die:
+        else: # reached last iter
+            #gtk.threads_enter()
             self.queue_draw()
             self.enable_column_sort()
-            gtk.threads_leave()
-        dprint("VIEWS: populate_info(); Package info populated")
+            dprint("VIEWS: populate_info(); Package info populated")
+            return False # will not be called again
+            #gtk.threads_leave()
 
     def deselect_all(self, widget):
         """upgrades view deselect all packages callback"""
