@@ -724,29 +724,22 @@ class ProcessManager:
             # We're finished, release semaphore
             self.Semaphore.release()
             dprint("TERMINAL: kill_process; Semaphore released")
+            dprint("TERMINAL: leaving kill_process")
             return True
-        #~ if widget or confirm:
-            #~ self.confirm = False
-        if self.kill():
-            # We're finished, release semaphore
-            self.Semaphore.release()
-            dprint("TERMINAL: kill_process; Semaphore released")
-            return True
+        self.kill()
         if self.log_mode:
             dprint("LOG: set statusbar -- log killed")
             self.set_statusbar(_("***Log Process Killed!"))
         else:
-            # set the queue icon to killed
-            iter = self.process_list[0][2]
-            self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_CANCEL))
-            # set the resume buttons to sensitive
-            self.set_resume(True)
-
-        dprint("TERMINAL: leaving kill_process")
+            self.Semaphore.release()
+            dprint("TERMINAL: kill_process; Semaphore released")
+            self.was_killed()
+            return True
 
         # We're finished, release semaphore
         self.Semaphore.release()
         dprint("TERMINAL: kill_process; Semaphore released")
+        dprint("TERMINAL: leaving kill_process")
         return True
 
     def kill(self):
@@ -785,6 +778,22 @@ class ProcessManager:
                 self.Semaphore.acquire()
         dprint("TERMINAL: leaving kill()")
         return True
+
+    def was_killed(self):
+        self.Semaphore.acquire()
+        dprint("TERMINAL: was_killed(); Semaphore acquired")
+        dprint("TERMINAL: was_killed(); setting queue icon")
+            # set the queue icon to killed
+        iter = self.process_list[0][2]
+        self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_CANCEL))
+        dprint("TERMINAL: was_killed(); setting resume to sensitive")
+        # We're finished, release semaphore
+        self.Semaphore.release()
+        dprint("TERMINAL: was_killed(); Semaphore released")
+        # set the resume buttons to sensitive
+        self.set_resume(True)
+        dprint("TERMINAL: leaving was_killed()")
+
 
     def confirm_delete(self, widget = None, *event):
         if self.allow_delete:
@@ -1219,6 +1228,10 @@ class ProcessManager:
         """
         #dprint("TERMINAL: on_pty_keypress(): string %s" % event.string)
         self.write_to_term(event.string)
+        if event.string == "\003":
+            dprint("TERMINAL: on_pty_keypress(): cntl-c detected")
+            # set the resume sensitive & set the queue icon to killed
+            self.was_killed()
     
     def write_to_term(self, text=''):
         """Forward text to the terminal process. Very low tech."""
@@ -1369,12 +1382,14 @@ class ProcessManager:
                 self.skip_first_menu.set_sensitive(False)
             self.resume_menu.set_sensitive(True)
             # check if there are more queue entries to process
+            dprint("TERMINAL: set_resume(); aquiring Semaphore")
             self.Semaphore.acquire()
             if len(self.process_list)> 1:
                 self.skip_queue_menu.set_sensitive(True)
             else:
                 self.skip_queue_menu.set_sensitive(False)
             self.Semaphore.release()
+            dprint("TERMINAL: set_resume(); Semaphore released")
         else:
             self.resume_menu.set_sensitive(False)
     
