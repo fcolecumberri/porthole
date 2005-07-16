@@ -171,8 +171,26 @@ class ProcessManager:
             49 : None,
         }
 
+    def reset_buffer_update(self):
+        # clear process output buffer
+        self.process_buffer = ''
+        self.line_buffer = ''
+        # set some persistent variables for text capture
+        self.catch_seq = False
+        self.escape_seq = "" # to catch the escape sequence in
+        self.first_cr = True  # first time cr is detected for a line
+        self.overwrite_till_nl = False  # overwrite until after a '\n' detected for this line
+        self.resume_line = None
+        self.lastchar = ''
+        self.cr_flag = False
+        self.b_flag = False
+        self.force_buffer_write = True
+
     def show_window(self):
         """ Show the process window """
+        
+        self.reset_buffer_update()
+        
         if hasattr(self, 'window'):
             dprint("TERMINAL: show_window(): window attribute already set... attempting show")
             # clear text buffer and emerge queue, hide tabs
@@ -203,11 +221,14 @@ class ProcessManager:
                     view.modify_base(gtk.STATE_NORMAL, default_bg)
                     view.modify_text(gtk.STATE_NORMAL, default_fg)
                     view.modify_font(pango.FontDescription(default_font))
+            # re-set misc. stuff
+            self.command_start = None
             # re-set text tags
             self.set_tags()
             # show window
             self.window.show()
             self.window_visible = True
+            #gobject.timeout_add(100, self.update)
             dprint("TERMINAL: show_window(): returning")
             return True
         # load the glade file
@@ -280,19 +301,6 @@ class ProcessManager:
         self.term.view[TAB_WARNING].connect("button_release_event", self.button_event)
         # catch clicks to the queue tree
         self.queue_tree.connect("cursor-changed", self.queue_clicked)
-        # process output buffer
-        self.process_buffer = ''
-        self.line_buffer = ''
-        # set some persistent variables for text capture
-        self.catch_seq = False
-        self.escape_seq = "" # to catch the escape sequence in
-        self.first_cr = True  # first time cr is detected for a line
-        self.overwrite_till_nl = False  # overwrite until after a '\n' detected for this line
-        self.resume_line = None
-        self.lastchar = ''
-        self.cr_flag = False
-        self.b_flag = False
-        self.force_buffer_write = True
         # setup the queue treeview
         column = gtk.TreeViewColumn(_("Packages to be merged      "))
         pixbuf = gtk.CellRendererPixbuf()
@@ -531,53 +539,65 @@ class ProcessManager:
         # Prevent conflicts while changing process queue
         dprint("TERMINAL: add_process; Semaphore acquire")
         self.Semaphore.acquire()
-        # if it's already in the queue, don't add it!
-        for data in self.process_list:
-            if package_name == data[0]:
-                if command_string == data[1]:
+        # if the last process was killed, check if it's the same thing
+        resume = None
+        if self.killed:
+            if (package_name == self.process_list[0][0] and
+                    command_string == self.process_list[0][1]):
+                dprint("TERMINAL: add_process: showing resume dialog")
+                # The process has been killed, so help the user out a bit
+                message = _("The package you selected is already in the emerge queue,\n" \
+                          "but it has been killed. Would you like to resume the emerge?")
+                result = self.resume_dialog(message)
+                if result == gtk.RESPONSE_ACCEPT: # Execute
+                    resume = ""
+                elif result == gtk.RESPONSE_YES: # Resume
+                    resume = " --resume"
+                else: # Cancel
+                    # Clear semaphore, we're done
+                    self.Semaphore.release()
+                    dprint("TERMINAL: add_process; Semaphore released")
+                    return False
+            #self.process_list.pop(0) # remove killed entry
+            self.process_list[0][1] += resume
+        if resume is None:
+            # check if the package is already in the emerge queue
+            for data in self.process_list:
+                if package_name == data[0] and command_string == data[1]:
                     # Let the user know it's already in the list
                     if data == self.process_list[0]:
-                        if self.killed:
-                            # The process has been killed, so help the user out a bit
-                            message = _("The package you selected is already in the emerge queue,\n" \
-                                      "but it has been killed. Would you like to resume the emerge?")
-                            result = self.resume_dialog(message)
-                            if result == gtk.RESPONSE_ACCEPT: # Execute
-                                break
-                            elif result == gtk.RESPONSE_YES: # Resume
-                                self.resume_normal(None)
-                            else: # Cancel
-                                # Clear semaphore, we're done
-                                self.Semaphore.release()
-                                dprint("TERMINAL: add_process; Semaphore released")
-                                return False
-                        else:
-                            message = _("The package you selected is already in the emerge queue!")
-                            SingleButtonDialog(_("Error Adding Package To Queue!"), None,
-                                           message, None, _("OK"))
-                            # Clear semaphore, we're done
-                            self.Semaphore.release()
-                            dprint("TERMINAL: add_process; Semaphore released")
-                            return
-                # remove process from list
-                dprint(self.process_list)
-                dprint(data)
-                self.process_list = self.process_list[1:]
-
-        # show the window if it isn't yet
+                        message = _("The package you selected is already in the emerge queue!")
+                        SingleButtonDialog(_("Error Adding Package To Queue!"), None,
+                                       message, None, _("OK"))
+                        # Clear semaphore, we're done
+                        self.Semaphore.release()
+                        dprint("TERMINAL: add_process; Semaphore released")
+                        return
+        
+        # show the window if it isn't visible
         if not self.window_visible:
             self.show_window()
-        # add to the queue
-        iter = self.queue_model.insert_before(None, None)
-        self.queue_model.set_value(iter, 0, None)
-        self.queue_model.set_value(iter, 1, str(package_name))
-        self.queue_model.set_value(iter, 2, str(command_string))
-        # add to our process list
-        self.process_list.append((package_name, command_string,
-                                                iter, callback))
-
-        if len(self.process_list) == 2:
-            # if this is the 2nd process in the list
+            # clear process list, too
+            if self.reader.process_running:
+                dprint("*** TERMINAL: add_process: There should be NO process running here!")
+                dprint("*** TERMINAL: add_process: Dangerous things may happen after this point!")
+            if resume is not None:
+                self.process_list = self.process_list[:1]
+            else:
+                self.process_list = []
+        if not self.window_visible or resume is None:
+            # add to the queue tab
+            iter = self.queue_model.insert_before(None, None)
+            self.queue_model.set_value(iter, 0, None)
+            self.queue_model.set_value(iter, 1, str(package_name))
+            self.queue_model.set_value(iter, 2, str(command_string))
+        if resume is None:
+            # add to the process list only if not resuming
+            self.process_list.append([package_name, command_string,
+                                                    iter, callback])
+        
+        if len(self.process_list) >= 2:
+            # if there are 2 or more processes in the list,
             # show the queue tab!
             if not self.term.tab_showing[TAB_QUEUE]:
                 self.show_tab(TAB_QUEUE)
@@ -587,12 +607,14 @@ class ProcessManager:
         dprint("TERMINAL: add_process; Semaphore released")
         # if no process is running, let's start one!
         if not self.reader.process_running:
-            if self.resume_available:
-                self.start_queue(True)
-                dprint("TERMINAL: add_process; self.resume_available")
-            else:
-                # pending processes, run the next one in the list
-                self.start_queue(False)
+            self.start_queue(False)
+        #    if self.resume_available and resume is None:
+        #        self.start_queue(True)
+        #        dprint("TERMINAL: add_process; self.resume_available")
+        #    else:
+        #        # pending processes, run the next one in the list
+        #        self.start_queue(False)
+        #    self.resume_available = False
 
 
     def _run(self, command_string, iter = None):
@@ -622,16 +644,20 @@ class ProcessManager:
         if iter:
             self.queue_model.set_value(iter, 0, 
                              self.render_icon(gtk.STOCK_EXECUTE))
-        # set process_running so the reader thread reads it's output
-        self.reader.process_running = True
         # show a message that the process is starting
         self.append_all("*** " + command_string + " ***\n", True, 'command')
         self.set_statusbar("*** " + command_string + " ***")
         # pty.fork() creates a new process group
         if self.reader.fd:
-            dprint("TERMINAL: self.reader already has fd, closing")
-            os.close(self.reader.fd)
-            del self.reader.fd
+            if os.isatty(self.reader.fd):
+                dprint("TERMINAL: self.reader already has fd, closing")
+                os.close(self.reader.fd)
+            else:
+                dprint("TERMINAL: self.reader has fd but seems to be already closed.")
+                try:
+                    os.close(self.reader.fd)
+                except OSError, e:
+                    dprint("TERMINAL: error closing self.reader.fd: %s" % e)
         self.pid, self.reader.fd = pty.fork()
         if self.pid == pty.CHILD:  # child
             try:
@@ -647,8 +673,9 @@ class ProcessManager:
                 #print e
                 os._exit(1)
         else:
+            # set process_running so the reader thread reads it's output
+            self.reader.process_running = True
             dprint("TERMINAL: pty process id: %s ******" % self.pid)
-
 
     def menu_quit(self, widget):
         """ hide the window when the close button is pressed """
@@ -738,10 +765,11 @@ class ProcessManager:
         if self.pid and not self.killed:
             try:
                 if self.reader.fd:
-                    os.write(self.reader.fd, "\003")
-                    dprint("TERMINAL: cntrl-C sent to process")
+                    os.write(self.reader.fd, "\x03")
+                    dprint("TERMINAL: ctrl-C sent to process")
                     self.resume_available = True
                     # make sure the thread notices
+                    os.kill(self.pid, signal.SIGKILL)
                     #os.close(self.reader.fd)
                 else: # just in case there is anything left
                     # negative pid kills process group
@@ -752,7 +780,9 @@ class ProcessManager:
             self.killed = True
             if self.term.tab_showing[TAB_QUEUE]:
                 # update the queue tree
+                self.Semaphore.release()
                 self.queue_clicked(self.queue_tree)
+                self.Semaphore.acquire()
         dprint("TERMINAL: leaving kill()")
         return True
 
@@ -789,6 +819,7 @@ class ProcessManager:
                     break
                 dprint("TERMINAL: OSError %s" % e)
                 break
+        dprint("TERMINAL: done cleaning up emerge processes")
         return retval
 
 
@@ -804,7 +835,11 @@ class ProcessManager:
         #dprint(self.term.current_tab)
         line_number = self.term.buffer[TAB_PROCESS].get_line_count() 
         iter = self.term.buffer[num].get_iter_at_line(line_number)
-        iter.set_line_offset(7)
+        if iter.get_chars_in_line() >= 7:
+            iter.set_line_offset(7)
+        else:
+            dprint("*** TERMINAL: overwrite: less than 7 chars in line... no linenumber???")
+            iter.set_line_offset(0)
         end = iter.copy()
         end.forward_line()
         self.term.buffer[num].delete(iter, end)
@@ -859,13 +894,17 @@ class ProcessManager:
         """ Indicates that text in the buffer should be displayed immediately. """
         #dprint("TERMINAL: force_buffer_write_timer(): setting True")
         self.force_buffer_write = True
+        return False # don't repeat call
 
     def update(self):
         """ Add text to the buffer """
         # stores line of text in buffer
         # if the string is locked, we'll get it on the next round
         #cr_flag = False   # Carriage Return flag
-        if not self.window_visible or self.reader.string_locked:
+        if self.reader.string_locked:
+            return True
+        if not self.window_visible:
+            self.reader.string = ''
             return True
         # lock the string
         self.reader.string_locked = True
@@ -1241,12 +1280,15 @@ class ProcessManager:
             m = os.waitpid(self.pid, 0) # wait for any child processes to finish
             dprint("TERMINAL: process %s finished, status %s" % m)
         except OSError, e:
-            dprint("TERMINAL: OSError %s" % e)
+            if not e.args[0] == 10: # 10 = no process to kill
+                dprint("TERMINAL: OSError %s" % e)
         # if the last process was killed, stop until the user does something
         if self.killed:
             # display message that process has been killed
             self.append_all(KILLED_STRING,True)
             self.set_statusbar(KILLED_STRING[:-1])
+            self.reader.string = ''
+            self.reset_buffer_update()
             # Clear semaphore, we're done
             self.Semaphore.release()
             dprint("TERMINAL: process_done; Semaphore released")
@@ -1363,18 +1405,18 @@ class ProcessManager:
         if skip_first:
             dprint("         ==> skipping killed process")
             self.resume_available = False
-            # try to get a callback
-            callback = self.process_list[0][3]
-            # if there is a callback set, call it
-            if callback:
-                callback()
+##            # try to get a callback
+##            callback = self.process_list[0][3]
+##            # if there is a callback set, call it
+##            if callback:
+##                callback()
             if self.term.tab_showing[TAB_QUEUE]:
                 self.Semaphore.release()
                 # update the queue tree wait for it to return, it might prevent crashes
                 result = self.queue_clicked(self.queue_tree)
                 self.Semaphore.acquire()
-                # remove process from list
-                self.process_list = self.process_list[1:]
+            # remove process from list
+            self.process_list = self.process_list[1:]
         # check for pending processes, and run them
         #dprint(self.process_list)
         if len(self.process_list):
@@ -1390,9 +1432,6 @@ class ProcessManager:
         self.Semaphore.release()
         dprint("TERMINAL: start_queue(); finished... returning")
         return
-
-
-
 
     def copy_selected(self, widget):
         """ Copy selected text to clipboard """
@@ -1949,7 +1988,7 @@ class ProcessOutputReader(threading.Thread):
         self.f = None
         # string to store input from process
         self.string = ""
-        # lock to prevent loosing characters from simultaneous accesses
+        # lock to prevent losing characters from simultaneous accesses
         self.string_locked = False
         self.die = False
 
@@ -1966,8 +2005,13 @@ class ProcessOutputReader(threading.Thread):
                     except OSError, e:
                         if e.args[0] == 5: # 5 = i/o error
                             dprint("TERMINAL: ProcessOutputReader: process finished, closing")
-                            os.close(self.fd)
-                            dprint("TERMINAL: ProcessOutputReader: closed okay")
+                            try:
+                                dprint("TERMINAL: is self.fd a tty? '%s'" % os.isatty(self.fd))
+                                os.close(self.fd)
+                                dprint("TERMINAL: ProcessOutputReader: closed okay")
+                            except Exception, e:
+                                # probably already closed
+                                dprint("TERMINAL: ProcessOutputReader: couldn't close self.fd. exception: %s" % e)
                         else:
                             # maybe the process died?
                             dprint("TERMINAL: ProcessOutputReader: .fd OSError: %s" % e)
