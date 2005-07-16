@@ -830,10 +830,10 @@ class MainWindow:
             #self.upgrades_loaded_callback = self.upgrade_packages
             if not utils.is_root() and utils.can_sudo() \
                     and not self.prefs.emerge.pretend:
-                self.setup_command('world', 'sudo -p "Password: " emerge --upgrade' +
+                self.setup_command('world', 'sudo -p "Password: " emerge --update' +
                         self.prefs.emerge.get_string() + 'world')
             else:
-                self.setup_command('world', "emerge --upgrade" +
+                self.setup_command('world', "emerge --update" +
                         self.prefs.emerge.get_string() + 'world')
         else:
             # load the upgrades view to select which packages

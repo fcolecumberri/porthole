@@ -151,7 +151,7 @@ class PackageView(CommonTreeView):
     def __init__(self):
         """ Initialize """
         self.info_thread = None
-        self.info_iter = None
+        self.iter = None
         self.model = None
         self.current_view = None
         # initialize the treeview
