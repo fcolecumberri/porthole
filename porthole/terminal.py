@@ -1232,6 +1232,7 @@ class ProcessManager:
             dprint("TERMINAL: on_pty_keypress(): cntl-c detected")
             # set the resume sensitive & set the queue icon to killed
             self.was_killed()
+            self.killed = True
     
     def write_to_term(self, text=''):
         """Forward text to the terminal process. Very low tech."""
