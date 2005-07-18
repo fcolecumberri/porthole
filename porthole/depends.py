@@ -42,6 +42,7 @@ class DependAtom:
         if self.type == 'DEP': return self.name
         elif self.type == 'BLOCKER': return ''.join(['!', self.name])
         elif self.type == 'OPTION': prefix = '||'
+        elif self.type == 'GROUP': prefix = ''
         elif self.type == 'USING': prefix = ''.join([self.useflag, '?'])
         elif self.type == 'NOTUSING': prefix = ''.join(['!', self.useflag, '?'])
         else: return ''
@@ -54,7 +55,8 @@ class DependAtom:
     def __eq__(self, test_atom): # "atomA == atomB" <==> "atomA.__eq__(atomB)"
         """Returns True if the test_atom is equivalent to self
         (used by the statement "atomA == atomB")"""
-        if (self.type != test_atom.type
+        if (not isinstance(test_atom, DependAtom)
+                or self.type != test_atom.type
                 or self.name != test_atom.name
                 or self.useflag != test_atom.useflag
                 or self.children != test_atom.children): # children will recurse
@@ -74,6 +76,11 @@ class DependAtom:
             for child in self.children:
                 a = child.is_satisfied(use_flags)
                 if a: satisfied.append(a)
+            return satisfied
+        elif self.type == 'GROUP': # 0 if not satisfied, 1 if satisfied
+            satisfied = 1
+            for child in self.children:
+                if not child.is_satisfied(use_flags): satisfied = 0
             return satisfied
         elif self.type == 'USING': # -1 if not using, 0 if not satisfied, 1 if satisfied
             if self.useflag in use_flags:
@@ -242,15 +249,13 @@ class DependsTree(gtk.TreeStore):
                 if atom.type == 'USING':
                     text = _("Using %s") % atom.useflag
                     if satisfied == -1: icon = gtk.STOCK_REMOVE # -1 ==> irrelevant
-                    else:
-                        add_kids = -1 # add kids but don't expand unsatisfied deps
-                        add_satisfied = 1
+                    add_kids = -1 # add kids but don't expand unsatisfied deps
+                    add_satisfied = 1
                 elif atom.type == 'NOTUSING':
                     text = _("Not Using %s") % atom.useflag
                     if satisfied == -1: icon = gtk.STOCK_REMOVE # -1 ==> irrelevant
-                    else:
-                        add_kids = -1 # add kids but don't expand unsatisfied deps
-                        add_satisfied = 1
+                    add_kids = -1 # add kids but don't expand unsatisfied deps
+                    add_satisfied = 1
                 elif atom.type == 'DEP':
                     text = atom.name
                 elif atom.type == 'BLOCKER':
@@ -258,6 +263,10 @@ class DependsTree(gtk.TreeStore):
                     if not satisfied: icon = gtk.STOCK_DIALOG_WARNING
                 elif atom.type == 'OPTION':
                     text = _("Any of:")
+                    add_kids = -1 # add kids but don't expand unsatisfied deps
+                    add_satisfied = 1
+                elif atom.type == 'GROUP':
+                    text = _("All of:")
                     add_kids = -1 # add kids but don't expand unsatisfied deps
                     add_satisfied = 1
                 
@@ -309,12 +318,15 @@ class DependsTree(gtk.TreeStore):
                 depends_list.pop(0)
                 item = depends_list[0]
             if item.startswith("("):
+                if temp_atom is None: # two '(' in a row. Need to create temp_atom
+                    temp_atom = DependAtom(parent)
+                    temp_atom.type = 'GROUP'
                 if item != "(":
                     depends_list[0] = item[1:]
                 else:
                     depends_list.pop(0)
                 temp_atom.children = self.atomize_depends_list(depends_list, temp_atom)
-                if not filter(lambda a: temp_atom == a, [a for a in atomized_list]):
+                if not filter(lambda a: temp_atom == a, atomized_list):
                 # i.e. if temp_atom is not any atom in atomized_list.
                 # This is checked by calling DependAtom.__eq__().
                     atomized_list.append(temp_atom)
@@ -326,6 +338,9 @@ class DependsTree(gtk.TreeStore):
                     depends_list.pop(0)
                 return atomized_list
             else: # hopefully a nicely formatted dependency
+                if filter(lambda a: a in item, ['(', '|', ')', '?']):
+                    dprint(" *** DEPENDS: atomize_depends_list: ILLEGAL ITEM!!! " + \
+                        "Please report this to the authorities. (item = %s)" % item)
                 temp_atom = DependAtom(parent)
                 if item.startswith("!"):
                     temp_atom.type = "BLOCKER"
@@ -333,7 +348,7 @@ class DependsTree(gtk.TreeStore):
                 else:
                     temp_atom.type = "DEP"
                     temp_atom.name = item
-                if not filter(lambda a: temp_atom == a, [a for a in atomized_list]):
+                if not filter(lambda a: temp_atom == a, atomized_list):
                 # i.e. if temp_atom is not any atom in atomized_list.
                 # This is checked by calling DependsAtom.__eq__().
                     atomized_list.append(temp_atom)
