@@ -141,7 +141,7 @@ class MainWindow:
         self.category_view.register_callback(self.category_changed)
         result = self.wtree.get_widget("category_scrolled_window").add(self.category_view)
         # setup the package treeview
-        self.package_view = PackageView()
+        self.package_view = PackageView(self.prefs)
         #self.package_view.register_callbacks(self.package_changed, None, self.pkg_path_callback)
         self.package_view.register_callbacks(self.packageview_callback)
         result = self.wtree.get_widget("package_scrolled_window").add(self.package_view)

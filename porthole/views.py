@@ -148,8 +148,9 @@ def PackageModel():
 
 class PackageView(CommonTreeView):
     """ Self contained treeview of packages """
-    def __init__(self):
+    def __init__(self, prefs):
         """ Initialize """
+        self.prefs = prefs
         self.info_thread = None
         self.iter = None
         self.model = None
@@ -195,6 +196,7 @@ class PackageView(CommonTreeView):
         # setup the treecolumn
         self._column = gtk.TreeViewColumn(_("Packages"))
         self._column.set_resizable(True)
+        self._column.set_min_width(10)
         self.append_column(self._column)
         self._column.set_sort_column_id(0)
         # add checkbox column
@@ -205,25 +207,29 @@ class PackageView(CommonTreeView):
         self._installed_column = gtk.TreeViewColumn(_("Installed"))
         self.append_column(self._installed_column)
         self._installed_column.set_resizable(True)
-        self._installed_column.set_expand(False)
+        self._installed_column.set_min_width(10)
+        #self._installed_column.set_expand(False)
         self._installed_column.set_sort_column_id(7)
         # Setup the Latest Column
         self._latest_column = gtk.TreeViewColumn(_("Recommended"))
         self.append_column(self._latest_column)
         self._latest_column.set_resizable(True)
-        self._latest_column.set_expand(False)
+        self._latest_column.set_min_width(10)
+        #self._latest_column.set_expand(False)
         self._latest_column.set_sort_column_id(8)
         # setup the packagesize column
         self._size_column = gtk.TreeViewColumn(_("Download Size"))
         self.append_column(self._size_column)
         self._size_column.set_resizable(True)
-        self._size_column.set_expand(False)
+        self._size_column.set_min_width(10)
+        #self._size_column.set_expand(False)
         self._size_column.set_sort_column_id(6)
         # setup the Description column
         self._desc_column = gtk.TreeViewColumn(_("Description"))
         self.append_column(self._desc_column)
-        self._desc_column.set_resizable(True)
-        self._desc_column.set_expand(False)
+        self._desc_column.set_resizable(False)
+        self._desc_column.set_min_width(10)
+        self._desc_column.set_expand(True)
         
         self.clickable_columns = [
             self._column,
@@ -302,32 +308,36 @@ class PackageView(CommonTreeView):
         # add the text renderer
         text = gtk.CellRendererText()
         self._column.pack_start(text, expand = True)
-        #self._column.add_attribute(text, "text", 0)
-        self._column.set_cell_data_func(text, self.render_name, None)
+        self._column.add_attribute(text, "text", 0)
+        self._column.set_cell_data_func(text, self.cell_data_func, None)
         text_size = gtk.CellRendererText()
         text_installed = gtk.CellRendererText()
         text_latest = gtk.CellRendererText()
         self._size_column.pack_start(text_size, expand = False)
         self._size_column.add_attribute(text_size, "text", 6)
+        self._size_column.set_cell_data_func(text_size, self.cell_data_func, None)
         self._installed_column.pack_start(text_installed, expand = False)
-        self._latest_column.pack_start(text_latest, expand = False)
         self._installed_column.add_attribute(text_installed, "text", 7)
+        self._installed_column.set_cell_data_func(text_installed, self.cell_data_func, None)
+        self._latest_column.pack_start(text_latest, expand = False)
         self._latest_column.add_attribute(text_latest, "text", 8)
-        self._latest_column.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
-        self._installed_column.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
-        self._size_column.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
+        self._latest_column.set_cell_data_func(text_latest, self.cell_data_func, None)
+        #self._latest_column.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
+        #self._installed_column.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
+        #self._size_column.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
         text_desc = gtk.CellRendererText()
         self._desc_column.pack_start(text_desc, expand=False)
         self._desc_column.add_attribute(text_desc, 'text', 9)
-        self._desc_column.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
+        self._desc_column.set_cell_data_func(text_desc, self.cell_data_func, None)
+        #self._desc_column.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
 
         # set the last selected to nothing
         self._last_selected = None
 
-    def render_name(self, column, renderer, model, iter, data):
+    def cell_data_func(self, column, renderer, model, iter, data):
             """function to render the package name according
                to whether it is in the world file or not"""
-            full_name = model.get_value(iter, 0)
+            #full_name = model.get_value(iter, 0)
             color = model.get_value(iter, 5)
             if model.get_value(iter, 4):
                 renderer.set_property("weight", pango.WEIGHT_BOLD)
@@ -341,7 +351,7 @@ class PackageView(CommonTreeView):
             else:
                 renderer.set_property("foreground-set", False)
                 #renderer.set_property("background-set", False)
-            renderer.set_property("text", full_name)
+            #renderer.set_property("text", full_name)
 
     def _set_model(self):
         """ Set the correct treemodel for the current view """
@@ -382,15 +392,18 @@ class PackageView(CommonTreeView):
         pathinfo = treeview.get_path_at_pos(int(event.x), int(event.y))
         if pathinfo == None:
             self.dopopup = False
+            return True
         else:
             path, col, cellx, celly = pathinfo
-            treeview.set_cursor(path, col, 0) # Note: sets off _clicked again
+            dprint(pathinfo)
+            #treeview.set_cursor(path, col, 0) # Note: sets off _clicked again
         return False
 
     def on_toggled(self, widget, path):
         self.toggle = path
         dprint("VIEWS: Toggle activated at path '%s'" % path)
-        return False # will continue to _clicked() event
+        self.set_cursor(path) # sets off _clicked
+        return True
 
     def add_keyword(self, widget):
         arch = "~" + portagelib.get_arch()
@@ -506,7 +519,7 @@ class PackageView(CommonTreeView):
         if not packages:
             return
         dprint("VIEWS: Populating package view")
-        dprint("VIEWS: PackageView.populate(); Threading info: %s" %str(threading.enumerate()) )
+        dprint("VIEWS: PackageView.populate(); Threading info: %s" %str(threading.enumerate()))
         # ask info_thread to die, if alive
         self.infothread_die = "Please"
         self.model = None
@@ -534,7 +547,13 @@ class PackageView(CommonTreeView):
             model.set_value(iter, 2, packages[name])
             model.set_value(iter, 4, (packages[name].in_world))
             model.set_value(iter, 0, name)
-            model.set_value(iter, 5, '') # foreground text color
+            upgradable = packages[name].is_upgradable()
+            if upgradable == 1: # portage wants to upgrade
+                model.set_value(iter, 5, self.prefs.views.upgradable_fg)
+            elif upgradable == -1: # portage wants to downgrade
+                model.set_value(iter, 5, self.prefs.views.downgradable_fg)
+            else:
+                model.set_value(iter, 5, '')
             # get an icon for the package
             icon = utils.get_icon_for_package(packages[name])
             model.set_value(iter, 3,

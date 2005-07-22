@@ -224,7 +224,7 @@ def get_user_config(file, name=None, ebuild=None):
     For package.use/keywords, a list of applicable flags is returned.
     For package.mask/unmask, a list containing the matching lines is returned.
     """
-    dprint("PORTAGELIB: get_user_config()")
+    dprint("PORTAGELIB: get_user_config('%s')" % file)
     maskfiles = ['package.mask', 'package.unmask']
     otherfiles = ['package.use', 'package.keywords']
     package_files = otherfiles + maskfiles

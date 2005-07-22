@@ -495,6 +495,8 @@ class PortholePreferences:
         dom.additem('/advemerge/showconfigbuttons', self.advemerge.showconfigbuttons)
         dom.additem('/views/upgradable_fg', self.views.upgradable_fg)
         dom.additem('/views/downgradable_fg', self.views.downgradable_fg)
+        dom.additem('/views/normal_fg', self.views.normal_fg)
+        dom.additem('/views/normal_bg', self.views.normal_bg)
         dom.additem('/summary/showtable', self.summary.showtable)
         dom.additem('/summary/showkeywords', self.summary.showkeywords)
         dom.additem('/summary/showinstalled', self.summary.showinstalled)
