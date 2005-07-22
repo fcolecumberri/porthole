@@ -558,8 +558,8 @@ class ProcessManager:
                     self.Semaphore.release()
                     dprint("TERMINAL: add_process; Semaphore released")
                     return False
-            #self.process_list.pop(0) # remove killed entry
-            self.process_list[0][1] += resume
+                #self.process_list.pop(0) # remove killed entry
+                self.process_list[0][1] += resume
         if resume is None:
             # check if the package is already in the emerge queue
             for data in self.process_list:
