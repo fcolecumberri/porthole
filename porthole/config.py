@@ -253,9 +253,15 @@ class ConfigDialog:
         # Checkboxes:
         for category, name in self.checkboxes:
             widget = self.wtree.get_widget('_'.join([category, name]))
+            dprint("CONFIG: set_widget_values(); Checkboxes: widget = %s" %('_'.join([category, name])))
             if widget:
                 active = getattr(getattr(self.prefs, category), name)
+                dprint(active)
+                if active == []:
+                    active = False
                 widget.set_active(active)
+            else:
+                dprint("CONFIG: set_widget_values(); Checkboxes: widget = %s not found!" %('_'.join([category, name])))
         
         # Sync combobox
         store = gtk.ListStore(str)
