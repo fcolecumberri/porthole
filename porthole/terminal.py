@@ -537,8 +537,8 @@ class ProcessManager:
     def add_process(self, package_name, command_string, callback):
         """ Add a process to the queue """
         # Prevent conflicts while changing process queue
-        dprint("TERMINAL: add_process; Semaphore acquire")
-        self.Semaphore.acquire()
+        #dprint("TERMINAL: add_process; Semaphore acquire")
+        #self.Semaphore.acquire()
         # if the last process was killed, check if it's the same thing
         resume = None
         if self.killed:
@@ -555,8 +555,8 @@ class ProcessManager:
                     resume = " --resume"
                 else: # Cancel
                     # Clear semaphore, we're done
-                    self.Semaphore.release()
-                    dprint("TERMINAL: add_process; Semaphore released")
+                    #self.Semaphore.release()
+                    #dprint("TERMINAL: add_process; Semaphore released")
                     return False
                 #self.process_list.pop(0) # remove killed entry
                 self.process_list[0][1] += resume
@@ -570,8 +570,8 @@ class ProcessManager:
                         SingleButtonDialog(_("Error Adding Package To Queue!"), None,
                                        message, None, _("OK"))
                         # Clear semaphore, we're done
-                        self.Semaphore.release()
-                        dprint("TERMINAL: add_process; Semaphore released")
+                        #self.Semaphore.release()
+                        #dprint("TERMINAL: add_process; Semaphore released")
                         return
         
         # show the window if it isn't visible
@@ -603,8 +603,8 @@ class ProcessManager:
                 self.show_tab(TAB_QUEUE)
                 self.queue_menu.set_sensitive(True)
         # Clear semaphore, we're done
-        self.Semaphore.release()
-        dprint("TERMINAL: add_process; Semaphore released")
+        #self.Semaphore.release()
+        #dprint("TERMINAL: add_process; Semaphore released")
         # if no process is running, let's start one!
         if not self.reader.process_running:
             self.start_queue(False)
@@ -691,9 +691,9 @@ class ProcessManager:
         # kill any running processes
         self.kill_process()
         # make sure to reset the process list
-        self.Semaphore.acquire()
+        #self.Semaphore.acquire()
         self.process_list = []
-        self.Semaphore.release()
+        #self.Semaphore.release()
         # the window is no longer showing
         self.window_visible = False
         self.wtree = None
@@ -716,14 +716,14 @@ class ProcessManager:
     def kill_process(self, widget = None, confirm = False):
         """ Kill currently running process """
         # Prevent conflicts while changing process queue
-        self.Semaphore.acquire()
-        dprint("TERMINAL: kill_process; Semaphore acquired")
+        #self.Semaphore.acquire()
+        #dprint("TERMINAL: kill_process; Semaphore acquired")
 
         if not self.reader.process_running and not self.file_input:
             dprint("TERMINAL: No running process to kill!")
             # We're finished, release semaphore
-            self.Semaphore.release()
-            dprint("TERMINAL: kill_process; Semaphore released")
+            #self.Semaphore.release()
+            #dprint("TERMINAL: kill_process; Semaphore released")
             dprint("TERMINAL: leaving kill_process")
             return True
         self.kill()
@@ -731,14 +731,14 @@ class ProcessManager:
             dprint("LOG: set statusbar -- log killed")
             self.set_statusbar(_("***Log Process Killed!"))
         else:
-            self.Semaphore.release()
-            dprint("TERMINAL: kill_process; Semaphore released")
+            #self.Semaphore.release()
+            #dprint("TERMINAL: kill_process; Semaphore released")
             self.was_killed()
             return True
 
         # We're finished, release semaphore
-        self.Semaphore.release()
-        dprint("TERMINAL: kill_process; Semaphore released")
+        #self.Semaphore.release()
+        #dprint("TERMINAL: kill_process; Semaphore released")
         dprint("TERMINAL: leaving kill_process")
         return True
 
@@ -773,23 +773,23 @@ class ProcessManager:
             self.killed = True
             if self.term.tab_showing[TAB_QUEUE]:
                 # update the queue tree
-                self.Semaphore.release()
+                #self.Semaphore.release()
                 self.queue_clicked(self.queue_tree)
-                self.Semaphore.acquire()
+                #self.Semaphore.acquire()
         dprint("TERMINAL: leaving kill()")
         return True
 
     def was_killed(self):
-        self.Semaphore.acquire()
-        dprint("TERMINAL: was_killed(); Semaphore acquired")
+        #self.Semaphore.acquire()
+        #dprint("TERMINAL: was_killed(); Semaphore acquired")
         dprint("TERMINAL: was_killed(); setting queue icon")
             # set the queue icon to killed
         iter = self.process_list[0][2]
         self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_CANCEL))
         dprint("TERMINAL: was_killed(); setting resume to sensitive")
         # We're finished, release semaphore
-        self.Semaphore.release()
-        dprint("TERMINAL: was_killed(); Semaphore released")
+        #self.Semaphore.release()
+        #dprint("TERMINAL: was_killed(); Semaphore released")
         # set the resume buttons to sensitive
         self.set_resume(True)
         dprint("TERMINAL: leaving was_killed()")
@@ -1281,8 +1281,8 @@ class ProcessManager:
         """ Remove the finished process from the queue, and
         start the next one if there are any more to be run"""
         # Prevent conflicts while changing process queue
-        self.Semaphore.acquire()
-        dprint("TERMINAL: process_done(): Semaphore acquired")
+        #self.Semaphore.acquire()
+        #dprint("TERMINAL: process_done(): Semaphore acquired")
         dprint("TERMINAL: process_done(): process id: %s" % os.getpid())
         dprint("TERMINAL: process_done(): process group id: %s" % os.getpgrp())
         dprint("TERMINAL: process_done(): parent process id: %s" % os.getppid())
@@ -1304,8 +1304,8 @@ class ProcessManager:
             self.reader.string = ''
             self.reset_buffer_update()
             # Clear semaphore, we're done
-            self.Semaphore.release()
-            dprint("TERMINAL: process_done; Semaphore released")
+            #self.Semaphore.release()
+            #dprint("TERMINAL: process_done; Semaphore released")
             return
             
         # If the user did an emerge --pretend, we print out
@@ -1332,8 +1332,8 @@ class ProcessManager:
         self.process_list = self.process_list[1:]
         self.task_completed = True
         # We're finished, release semaphore
-        self.Semaphore.release()
-        dprint("TERMINAL: process_done; Semaphore released")
+        #self.Semaphore.release()
+        #dprint("TERMINAL: process_done; Semaphore released")
         # check for pending processes, and run them
         self.start_queue(False)
         if self.term.tab_showing[TAB_QUEUE]:
@@ -1383,41 +1383,41 @@ class ProcessManager:
                 self.skip_first_menu.set_sensitive(False)
             self.resume_menu.set_sensitive(True)
             # check if there are more queue entries to process
-            dprint("TERMINAL: set_resume(); aquiring Semaphore")
-            self.Semaphore.acquire()
+            #dprint("TERMINAL: set_resume(); aquiring Semaphore")
+            #self.Semaphore.acquire()
             if len(self.process_list)> 1:
                 self.skip_queue_menu.set_sensitive(True)
             else:
                 self.skip_queue_menu.set_sensitive(False)
-            self.Semaphore.release()
-            dprint("TERMINAL: set_resume(); Semaphore released")
+            #self.Semaphore.release()
+            #dprint("TERMINAL: set_resume(); Semaphore released")
         else:
             self.resume_menu.set_sensitive(False)
     
     def resume_normal(self, widget):
         """ Resume killed process """
-        self.Semaphore.acquire()
+        #self.Semaphore.acquire()
         # pass the normal command along with --resume
         name, command, iter, callback = self.process_list[0]
         command += " --resume"
         self._run(command, iter)
-        self.Semaphore.release()
+        #self.Semaphore.release()
 
     def resume_skip_first(self, widget):
         """ Resume killed process, skipping first package """
-        self.Semaphore.acquire()
+        #self.Semaphore.acquire()
         # pass the normal command along with --resume --skipfirst
         name, command, iter, callback = self.process_list[0]
         command += " --resume --skipfirst"
         self._run(command, iter)
-        self.Semaphore.release()
+        #self.Semaphore.release()
 
     # skip_first needs to be true for the menu callback
     def start_queue(self, skip_first = True):
         """skips the first item in the process_list"""
         dprint("TERMINAL: start_queue()")
         # Prevent conflicts while changing process queue
-        self.Semaphore.acquire()
+        #self.Semaphore.acquire()
         if skip_first:
             dprint("         ==> skipping killed process")
             self.resume_available = False
@@ -1427,10 +1427,10 @@ class ProcessManager:
 ##            if callback:
 ##                callback()
             if self.term.tab_showing[TAB_QUEUE]:
-                self.Semaphore.release()
+                #self.Semaphore.release()
                 # update the queue tree wait for it to return, it might prevent crashes
                 result = self.queue_clicked(self.queue_tree)
-                self.Semaphore.acquire()
+                #self.Semaphore.acquire()
             # remove process from list
             self.process_list = self.process_list[1:]
         # check for pending processes, and run them
@@ -1445,7 +1445,7 @@ class ProcessManager:
             self.save_as_menu.set_sensitive(True)
             self.open_menu.set_sensitive(True)
         # We're finished, release semaphore
-        self.Semaphore.release()
+        #self.Semaphore.release()
         dprint("TERMINAL: start_queue(); finished... returning")
         return
 
@@ -1470,8 +1470,8 @@ class ProcessManager:
             direction is either 1 [down] or -1 [up] """
         dprint("TERMINAL: Switching queue items.")
         # Prevent conflicts while changing process queue
-        self.Semaphore.acquire()
-        dprint("TERMINAL: queue_items_switch; Semaphore acquired")
+        #self.Semaphore.acquire()
+        #dprint("TERMINAL: queue_items_switch; Semaphore acquired")
 
         # get the selected iter
         iter = get_treeview_selection(self.queue_tree)
@@ -1509,8 +1509,8 @@ class ProcessManager:
             dprint("TERMINAL: cannot move first or last item")
 
         # We're done, release semaphore
-        self.Semaphore.release()
-        dprint("TERMINAL: queue_items_switch; Semaphore released")
+        #self.Semaphore.release()
+        #dprint("TERMINAL: queue_items_switch; Semaphore released")
         result = self.queue_clicked(self.queue_tree)
 
     def move_queue_item_up(self, widget):
@@ -1524,8 +1524,8 @@ class ProcessManager:
     def remove_queue_item(self, widget):
         """ Remove the selected item from the queue """
         # Prevent conflicts while changing process queue
-        self.Semaphore.acquire()
-        dprint("TERMINAL: remove_queue_item; Semaphore acquired")
+        #self.Semaphore.acquire()
+        #dprint("TERMINAL: remove_queue_item; Semaphore acquired")
 
         # get the selected iter
         iter = get_treeview_selection(self.queue_tree)
@@ -1540,14 +1540,14 @@ class ProcessManager:
         self.queue_model.remove(iter)
 
         # We're done, release semaphore
-        self.Semaphore.release()
-        dprint("TERMINAL: remove_queue_item; Semaphore released")
+        #self.Semaphore.release()
+        #dprint("TERMINAL: remove_queue_item; Semaphore released")
 
     def queue_clicked(self, widget):
         """Handle clicks to the queue treeview"""
         dprint("TERMINAL: queue_clicked()")
         # Prevent conflicts while changing process queue
-        self.Semaphore.acquire()
+        #self.Semaphore.acquire()
         # get the selected iter
         iter = get_treeview_selection(self.queue_tree)
         # get its path
@@ -1557,8 +1557,8 @@ class ProcessManager:
             dprint("TERMINAL: Couldn't get queue view treeiter path, " \
                    "there is probably nothing selected.")
             # We're finished, release semaphore
-            self.Semaphore.release()
-            dprint("TERMINAL: queue_clicked(); finished... returning")
+            #self.Semaphore.release()
+            #dprint("TERMINAL: queue_clicked(); finished... returning")
             return False
         # if the item is not in the process list
         # don't make the controls sensitive and return
@@ -1576,7 +1576,7 @@ class ProcessManager:
             else:
                 self.queue_remove.set_sensitive(True)
             # We're finished, release semaphore
-            self.Semaphore.release()
+            #self.Semaphore.release()
             dprint("TERMINAL: queue_clicked(); finished... returning")
             return True
         # if we reach here it's still in the process list
@@ -1598,8 +1598,8 @@ class ProcessManager:
             self.move_up.set_sensitive(True)
             self.move_down.set_sensitive(True)
         # We're finished, release semaphore
-        self.Semaphore.release()
-        dprint("TERMINAL: queue_clicked(); finished... returning")
+        #self.Semaphore.release()
+        #dprint("TERMINAL: queue_clicked(); finished... returning")
         return True
 
     def estimate_build_time(self):
