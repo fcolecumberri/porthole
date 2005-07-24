@@ -24,6 +24,7 @@
 import gtk
 from utils import dprint
 from loaders import load_web_page
+import portagelib
 
 class ConfigDialog:
     """Class to display a GUI for configuring Porthole"""
@@ -294,6 +295,9 @@ class ConfigDialog:
             if command:
                 widget.set_text(command)
         
+        # build the arch list widget
+        self.build_archlist_widget()
+        
     
     def apply_widget_values(self):
         """ Set prefs from widget values """
@@ -386,6 +390,7 @@ class ConfigDialog:
             text = widget.get_text()
             if text:
                 self.prefs.globals.custom_browser_command = text
+        
 
 
     def get_color_spec(self, color):
@@ -400,6 +405,7 @@ class ConfigDialog:
             checkbox widgets representing the available
             keywords
         """
+        dprint("CONFIG: build_archlist_widget()")
         KeywordsFrame = self.wtree.get_widget("archlist_frame")
 
         # If frame has any children, remove them
@@ -407,11 +413,11 @@ class ConfigDialog:
         if child != None:
             KeywordsFrame.remove(child)
 
-        keywords = portagelib.get_archlist
+        keywords = portagelib.get_archlist()
         
         # Build table to hold radiobuttons
-        size = len(archlist)
-        maxcol = 5
+        size = len(keywords)
+        maxcol = 3
         maxrow = size / maxcol - 1
         if maxrow < 1:
             maxrow = 1
@@ -432,7 +438,7 @@ class ConfigDialog:
             button.show()
             button_added = True
             clickable_button = True
-                button.set_active(keyword in self.prefs.globals.archlist)
+            button.set_active(keyword in self.prefs.globals.archlist)
             # Increment col & row counters
             if button_added:
                 col += 1
@@ -444,7 +450,8 @@ class ConfigDialog:
             table.show()
             KeywordsFrame.show()
         else:
-            KeywordsFrame.hide()
-            self.btnPkgKeywords.hide()
+            KeywordsFrame.set_sensitive(False)
+        dprint("CONFIG: build_archlist_widget(); widget build completed")
+        
 
 
