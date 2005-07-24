@@ -174,7 +174,14 @@ class SingleButtonDialog(CommonDialog):
             self.progbar.show()
             self.vbox.add(self.progbar)
 
-class EmergeOptions:
+class OptionsClass:
+    """Blank class to hold options"""
+    
+    def __repr__(self):
+        """Return options as a string"""
+        return self.__dict__.__repr__()
+
+class EmergeOptions(OptionsClass):
     """ Holds common emerge options """
     def __init__(self):
         # let's get some saved values in here!
@@ -194,10 +201,6 @@ class EmergeOptions:
         #if self.upgradeonly: opt_string += '--upgradeonly '
         if self.nospinner: opt_string += '--nospinner '
         return opt_string
-
-class OptionsClass:
-    """Blank class to hold options"""
-    pass
 
 class PortholePreferences:
     """ Holds all of Porthole's user configurable preferences """
@@ -294,7 +297,7 @@ class PortholePreferences:
         
         taglist = [ \
             ['default','','',400],
-            ['caution','','#ff14b4',400],  # [name, default forecolor, backcolor, fontweight]
+            ['caution','','#c040b0',400],  # [name, default forecolor, backcolor, fontweight]
             ['command','#ffffff','#000080',700],
             ['emerge','','#90ee90',700],
             ['error','#faf0e6','#ff0000',700],
@@ -361,7 +364,7 @@ class PortholePreferences:
         
         viewoptions = [ \
             ['downgradable_fg', '#FA0000'],
-            ['upgradable_fg', '#000000'], # green?
+            ['upgradable_fg', '#0000FF'],
             ['normal_fg','#000000'],
             ['normal_bg','#FFFFFF']
         ]
@@ -412,17 +415,20 @@ class PortholePreferences:
         
         self.plugins = OptionsClass()
         
-        globaloptions = [
-                        ["LANG", 'en'],
-                        ["enable_archlist", True],
-                        ['enable_all_keywords', False],
-                        ["archlist", ["alpha", "amd64", "arm", "hppa", "ia64", "mips",
-                                        "ppc", "ppc64", "s390", "sparc", "x86"]],
-                        ["Sync", "emerge sync"],
-                        ["Sync_label", _("Sync")],
-                        #                use the form " [sync-command, sync-label],
-                        ["Sync_methods", [['emerge sync', _('Sync')], ['emerge-webrsync', _('WebRsync')],
-                                            ['#user defined', _('Unknown Sync')]]],
+        globaloptions = [ \
+            ['LANG', 'en'],
+            ['enable_archlist', False],
+            ['enable_all_keywords', False],
+            ["archlist", ["alpha", "amd64", "arm", "hppa", "ia64", "mips",
+                            "ppc", "ppc64", "s390", "sparc", "x86"]],
+            ["Sync", "emerge sync"],
+            ["Sync_label", _("Sync")],
+            #                use the form " [sync-command, sync-label],
+            ["Sync_methods", [['emerge sync', _('Sync')],
+                              ['emerge-webrsync', _('WebRsync')],
+                              ['#user defined', _('Unknown Sync')]]],
+            ['custom_browser_command', 'firefox %s'],
+            ['use_custom_browser', False],
         ]
         
         self.globals = OptionsClass()
@@ -517,9 +523,14 @@ class PortholePreferences:
         dom.additem('/globals/Sync', self.globals.Sync)
         dom.additem('/globals/Sync_label', self.globals.Sync_label)
         dom.additem('/globals/Sync_methods', self.globals.Sync_methods)
+        dom.additem('/globals/custom_browser_command', self.globals.custom_browser_command)
+        dom.additem('/globals/use_custom_browser', self.globals.use_custom_browser)
         dom.save(self.__PFILE)
         del dom   # no longer needed, release memory
-
+    
+    def __repr__(self): # used by print statement
+        """Return a string representation of the preferences"""
+        return self.__dict__.__repr__()
 
 class PortholeConfiguration:
     """ Holds all of Porthole's developer configurable settings """
