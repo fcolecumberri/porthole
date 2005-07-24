@@ -179,6 +179,7 @@
 			      <property name="padding">0</property>
 			      <property name="expand">False</property>
 			      <property name="fill">False</property>
+			      <property name="pack_type">GTK_PACK_END</property>
 			    </packing>
 			  </child>
 			</widget>
@@ -194,7 +195,7 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkCheckButton" id="checkbutton11">
+			<widget class="GtkCheckButton" id="globals_enable_archlist">
 			  <property name="border_width">5</property>
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
@@ -217,7 +218,7 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkHBox" id="hbox2">
+			<widget class="GtkHBox" id="lang_box">
 			  <property name="border_width">5</property>
 			  <property name="visible">True</property>
 			  <property name="homogeneous">False</property>
@@ -355,10 +356,10 @@
 				  <property name="spacing">0</property>
 
 				  <child>
-				    <widget class="GtkRadioButton" id="radiobutton10">
+				    <widget class="GtkRadioButton" id="use_default_browser">
 				      <property name="visible">True</property>
 				      <property name="can_focus">True</property>
-				      <property name="label" translatable="yes">Use system defaults</property>
+				      <property name="label" translatable="yes">Use Default</property>
 				      <property name="use_underline">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
 				      <property name="focus_on_click">True</property>
@@ -374,17 +375,17 @@
 				  </child>
 
 				  <child>
-				    <widget class="GtkRadioButton" id="radiobutton11">
+				    <widget class="GtkRadioButton" id="globals_use_custom_browser">
 				      <property name="visible">True</property>
 				      <property name="can_focus">True</property>
-				      <property name="label" translatable="yes">Use Custom Browser/Editor</property>
+				      <property name="label" translatable="yes">Use Custom Browser</property>
 				      <property name="use_underline">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
 				      <property name="focus_on_click">True</property>
 				      <property name="active">False</property>
 				      <property name="inconsistent">False</property>
 				      <property name="draw_indicator">True</property>
-				      <property name="group">radiobutton10</property>
+				      <property name="group">use_default_browser</property>
 				    </widget>
 				    <packing>
 				      <property name="padding">0</property>
@@ -432,7 +433,7 @@
 				      </child>
 
 				      <child>
-					<widget class="GtkLabel" id="label12">
+					<widget class="GtkLabel" id="label_custom_editor">
 					  <property name="visible">True</property>
 					  <property name="label" translatable="yes"> Editor : </property>
 					  <property name="use_underline">False</property>
@@ -460,7 +461,7 @@
 				      </child>
 
 				      <child>
-					<widget class="GtkEntry" id="entry1">
+					<widget class="GtkEntry" id="custom_browser_command">
 					  <property name="visible">True</property>
 					  <property name="can_focus">True</property>
 					  <property name="editable">True</property>
@@ -481,7 +482,7 @@
 				      </child>
 
 				      <child>
-					<widget class="GtkEntry" id="entry2">
+					<widget class="GtkEntry" id="custom_editor_command">
 					  <property name="visible">True</property>
 					  <property name="can_focus">True</property>
 					  <property name="editable">True</property>
@@ -515,7 +516,7 @@
 			  <child>
 			    <widget class="GtkLabel" id="label60">
 			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">&lt;b&gt;Browser / Editor Options&lt;/b&gt;</property>
+			      <property name="label" translatable="yes">&lt;b&gt;Web Browser Options&lt;/b&gt;</property>
 			      <property name="use_underline">False</property>
 			      <property name="use_markup">True</property>
 			      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -554,21 +555,7 @@
 			  <property name="shadow_type">GTK_SHADOW_IN</property>
 
 			  <child>
-			    <widget class="GtkAlignment" id="alignment1">
-			      <property name="visible">True</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xscale">1</property>
-			      <property name="yscale">1</property>
-			      <property name="top_padding">0</property>
-			      <property name="bottom_padding">0</property>
-			      <property name="left_padding">12</property>
-			      <property name="right_padding">0</property>
-
-			      <child>
-				<placeholder/>
-			      </child>
-			    </widget>
+			    <placeholder/>
 			  </child>
 
 			  <child>
@@ -636,7 +623,7 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkNotebook" id="notebook2">
+	    <widget class="GtkNotebook" id="main_window_notebook">
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
 	      <property name="show_tabs">True</property>
@@ -653,7 +640,7 @@
 		  <property name="spacing">0</property>
 
 		  <child>
-		    <widget class="GtkHBox" id="hbox9">
+		    <widget class="GtkHBox" id="main_font_box">
 		      <property name="border_width">5</property>
 		      <property name="visible">True</property>
 		      <property name="homogeneous">False</property>
@@ -1081,7 +1068,7 @@
 	      </child>
 
 	      <child>
-		<widget class="GtkTable" id="table5">
+		<widget class="GtkTable" id="category_view_tab">
 		  <property name="border_width">5</property>
 		  <property name="visible">True</property>
 		  <property name="n_rows">3</property>
@@ -1326,7 +1313,7 @@
 	      </child>
 
 	      <child>
-		<widget class="GtkTable" id="table6">
+		<widget class="GtkTable" id="package_view_tab">
 		  <property name="border_width">5</property>
 		  <property name="visible">True</property>
 		  <property name="n_rows">6</property>
@@ -1598,7 +1585,7 @@
 	      </child>
 
 	      <child>
-		<widget class="GtkTable" id="table2">
+		<widget class="GtkTable" id="summary_view_tab">
 		  <property name="border_width">5</property>
 		  <property name="visible">True</property>
 		  <property name="n_rows">6</property>
@@ -1633,7 +1620,7 @@
 		    <widget class="GtkCheckButton" id="summary_showurl">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">Homepage URL's</property>
+		      <property name="label" translatable="yes">Homepage URL</property>
 		      <property name="use_underline">True</property>
 		      <property name="relief">GTK_RELIEF_NORMAL</property>
 		      <property name="focus_on_click">True</property>
@@ -1652,7 +1639,7 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkCheckButton" id="checkbutton3">
+		    <widget class="GtkCheckButton" id="summary_showtable">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">Arch-list/Version table</property>
@@ -1674,7 +1661,7 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkCheckButton" id="checkbutton4">
+		    <widget class="GtkCheckButton" id="summary_showuseflags">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">USE Flags</property>
@@ -1718,7 +1705,7 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkCheckButton" id="checkbutton6">
+		    <widget class="GtkCheckButton" id="summary_showavailable">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">Available Versions</property>
@@ -1740,10 +1727,10 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkCheckButton" id="checkbutton7">
+		    <widget class="GtkCheckButton" id="summary_showlicense">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">License's</property>
+		      <property name="label" translatable="yes">License</property>
 		      <property name="use_underline">True</property>
 		      <property name="relief">GTK_RELIEF_NORMAL</property>
 		      <property name="focus_on_click">True</property>
@@ -1762,13 +1749,14 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkCheckButton" id="checkbutton8">
+		    <widget class="GtkCheckButton" id="summary_showkeywords">
+		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">checkbutton8</property>
+		      <property name="label" translatable="yes">Keywords</property>
 		      <property name="use_underline">True</property>
 		      <property name="relief">GTK_RELIEF_NORMAL</property>
 		      <property name="focus_on_click">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="inconsistent">False</property>
 		      <property name="draw_indicator">True</property>
 		    </widget>
@@ -2601,7 +2589,7 @@ you wish to be pre-typed</property>
 	  </child>
 
 	  <child>
-	    <widget class="GtkNotebook" id="notebook3">
+	    <widget class="GtkNotebook" id="terminal_notebook">
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
 	      <property name="show_tabs">True</property>
@@ -2974,7 +2962,7 @@ you wish to be pre-typed</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkLabel" id="label28">
+		    <widget class="GtkLabel" id="sample_label_1">
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Sample Window</property>
 		      <property name="use_underline">False</property>
@@ -3367,7 +3355,7 @@ you wish to be pre-typed</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkScrolledWindow" id="scrolledwindow2">
+		    <widget class="GtkScrolledWindow" id="sample_scrolled_window_1">
 		      <property name="width_request">100</property>
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
@@ -3411,8 +3399,8 @@ you wish to be pre-typed</property>
 		      <property name="can_focus">True</property>
 		      <property name="show_style">True</property>
 		      <property name="show_size">True</property>
-		      <property name="use_font">False</property>
-		      <property name="use_size">False</property>
+		      <property name="use_font">True</property>
+		      <property name="use_size">True</property>
 		      <property name="focus_on_click">True</property>
 		    </widget>
 		    <packing>
@@ -3846,7 +3834,7 @@ you wish to be pre-typed</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkLabel" id="label69">
+		    <widget class="GtkLabel" id="sample_label_2">
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Sample Window</property>
 		      <property name="use_underline">False</property>
@@ -4172,7 +4160,7 @@ you wish to be pre-typed</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkScrolledWindow" id="scrolledwindow4">
+		    <widget class="GtkScrolledWindow" id="sample_scrolled_window_2">
 		      <property name="width_request">100</property>
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
@@ -4240,7 +4228,7 @@ you wish to be pre-typed</property>
 	      </child>
 
 	      <child>
-		<widget class="GtkVBox" id="vbox2">
+		<widget class="GtkVBox" id="filter_tab">
 		  <property name="visible">True</property>
 		  <property name="homogeneous">False</property>
 		  <property name="spacing">0</property>
