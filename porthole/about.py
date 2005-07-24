@@ -30,6 +30,7 @@ class AboutDialog:
     """Class to hold about dialog and functionality."""
 
     def __init__(self, prefs):
+        self.prefs = prefs
         # setup glade
         self.gladefile = prefs.DATA_PATH + prefs.use_gladefile
         self.wtree = gtk.glade.XML(self.gladefile, "about_dialog")
@@ -47,4 +48,4 @@ class AboutDialog:
 
     def homepage_clicked(self, widget):
         """Open Porthole's Homepage!"""
-        load_web_page("http://porthole.sourceforge.net")
+        load_web_page("http://porthole.sourceforge.net", self.prefs)

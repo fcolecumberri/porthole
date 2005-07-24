@@ -104,7 +104,7 @@ class RunDialog:
         
     def help(self, widget):
         """ Display help file with web browser """
-        load_web_page('file://' + self.prefs.DATA_PATH + 'help/custcmd.html')
+        load_web_page('file://' + self.prefs.DATA_PATH + 'help/custcmd.html', self.prefs)
 
 
     def on_size_request(self, window, gbox):

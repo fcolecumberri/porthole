@@ -125,7 +125,7 @@ class Summary(gtk.TextView):
     def on_url_event(self, tag, widget, event, iter):
         """ Catch when the user clicks the URL """
         if event.type == gtk.gdk.BUTTON_RELEASE:
-            load_web_page(tag.get_property("name"))
+            load_web_page(tag.get_property("name"), self.prefs)
 
     def on_mouse_motion(self, widget, event, data = None):
         # we need to call get_pointer, or we won't get any more events
@@ -453,12 +453,12 @@ class Summary(gtk.TextView):
         if versions and self.prefs.summary.showavailable:
             append(_("Available versions for %s:\n") % self.myarch, "property")
             show_vnums(versions)
-            nl(2)        
-
+            nl(2)
+        
         append("Properties for version: ", "property")
         append(portagelib.get_version(ebuild))
         nl(2)
-
+        
         # Use flags
         if use_flags and self.prefs.summary.showuseflags:
             append(_("Use flags: "), "property")
@@ -509,12 +509,12 @@ class Summary(gtk.TextView):
             dprint("SUMMARY: Strange event type got passed to on_button_press() callback...")
             dprint(event.type)
         if event.button == 3: # secondary mouse button
-            self.do_popup()
-            return True
+            return self.do_popup()
         else: return False
     
     def do_popup(self):
         dprint("SUMMARY: do_popup(): pop!")
+        return False
     
     def on_table_clicked(self, eventbox, event):
         dprint("SUMMARY: EventBox clicked")

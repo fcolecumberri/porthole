@@ -197,7 +197,7 @@ class AdvancedEmergeDialog:
 
     def help_clicked(self, widget):
         """ Display help file with web browser """
-        load_web_page('file://' + self.prefs.DATA_PATH + 'help/advemerge.html')
+        load_web_page('file://' + self.prefs.DATA_PATH + 'help/advemerge.html', self.prefs)
 
 
 

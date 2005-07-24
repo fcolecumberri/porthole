@@ -971,7 +971,7 @@ class MainWindow:
 
     def help_contents(self, widget):
         """Show the help file contents."""
-        load_web_page('file://' + self.prefs.DATA_PATH + 'help/index.html')
+        load_web_page('file://' + self.prefs.DATA_PATH + 'help/index.html', self.prefs)
 
     def about(self, widget):
         """Show about dialog."""

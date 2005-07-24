@@ -116,34 +116,44 @@ def load_installed_files(window, view, package):
             view.set_text(_("No data currently available.\n" \
                             "The package may not be installed"))
 
-def load_web_page(name):
+def load_web_page(name, prefs):
     """Try to load a web page in the default browser"""
     dprint("LOADERS: load_web_page(); starting browser thread")
-    browser = web_page(name)
+    browser = web_page(name, prefs)
     browser.start()
     return
 
 class web_page(threading.Thread):
     """Try to load a web page in the default browser"""
-    def __init__(self, name):
+    def __init__(self, name, prefs):
         dprint("LOADERS: web_page.__init__()")
         threading.Thread.__init__(self)
         self.name = name
+        self.prefs = prefs
         self.setDaemon(1)  # quit even if this thread is still running
 
     def run(self):
         dprint("LOADERS: web_page.run()")
         if self.name == '' or self.name == None:
             return
-        try:
-            gnome.url_show(self.name)
-        except:
-            dprint("LOADERS: Gnome failed trying to open: %s" %self.name)
+        if self.prefs.globals.use_custom_browser:
+            command = self.prefs.globals.custom_browser_command
+            if '%s' not in command: command += ' %s'
+            browser = webbrowser.GenericBrowser(command)
             try:
-                webbrowser.open(self.name)
+                browser.open(self.name)
             except:
-                dprint("LOADERS: webbrowser failed trying to open: %s  -- giving up" %self.name)
-                pass
+                dprint("LOADERS: failed to open '%s' with browser command '%s'" % (self.name, command))
+        else:
+            try:
+                gnome.url_show(self.name)
+            except:
+                dprint("LOADERS: Gnome failed trying to open: %s" %self.name)
+                try:
+                    webbrowser.open(self.name)
+                except:
+                    dprint("LOADERS: webbrowser failed trying to open: %s  -- giving up" %self.name)
+                    pass
         dprint("LOADERS: Browser call_completed for: %s" %self.name)
 
 
