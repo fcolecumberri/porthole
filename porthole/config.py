@@ -71,7 +71,7 @@ class ConfigDialog:
             self.apply_widget_values()
         elif response_id == gtk.RESPONSE_HELP:
             #Display help file with web browser
-            load_web_page('file://' + self.prefs.DATA_PATH + 'help/config.html')
+            load_web_page('file://' + self.prefs.DATA_PATH + 'help/config.html', self.prefs)
         else:
             pass
     
@@ -124,7 +124,32 @@ class ConfigDialog:
     #------------------------------------------
 
     def hide_widgets(self):
-        # hide unimplemented widgets here
+        # hide unimplemented widgets
+        hidelist = [ # widget names
+            'label_custom_editor',
+            'custom_editor_command',
+            'main_font_box',
+            'lang_box',
+            'sample_scrolled_window_1',
+            'sample_label_1',
+            'sample_scrolled_window_2',
+            'sample_label_2',
+        ]
+        for name in hidelist:
+            widget = self.wtree.get_widget(name)
+            if widget:
+                widget.hide_all()
+        # hide unimplemented notebook tabs
+        removelist = [ # [notebook, tab to remove]
+            ['terminal_notebook', 'filter_tab'],
+            ['main_window_notebook', 'category_view_tab'],
+            ['main_window_notebook', 'package_view_tab'],
+        ]
+        for notebook, tab in removelist:
+            notewidget = self.wtree.get_widget(notebook)
+            tabwidget = self.wtree.get_widget(tab)
+            tabnum = notewidget.page_num(tabwidget)
+            notewidget.remove_page(tabnum)
         return
     
     def build_widget_lists(self):
@@ -148,13 +173,18 @@ class ConfigDialog:
             ['emerge', 'nospinner'],
             ['emerge', 'fetch'],
             ['emerge', 'upgradeonly'],
-            ['global', 'enable_archlist'],
-            ['global', 'enable_all_keywords'],
+            ['globals', 'enable_archlist'],
+            ['globals', 'enable_all_keywords'],
+            ['globals', 'use_custom_browser'],
         ]
         self.syncmethods = self.prefs.globals.Sync_methods
     
     def set_widget_values(self):
         """ Set widget attributes based on prefs """
+        
+        # Display current CPU architecture
+        widget = self.wtree.get_widget('current_arch')
+        widget.set_label(self.prefs.myarch)
         
         # Terminal Color Tags
         default = self.prefs.TAG_DICT['default']
@@ -251,9 +281,13 @@ class ConfigDialog:
                 pref = self.prefs.run_dialog.history[x]
                 widget.set_text(pref)
         
-        # Display current CPU architecture
-        widget = self.wtree.get_widget('current_arch')
-        widget.set_label(self.prefs.myarch)
+        # custom browser command
+        widget = self.wtree.get_widget('custom_browser_command')
+        if widget:
+            command = self.prefs.globals.custom_browser_command
+            if command:
+                widget.set_text(command)
+        
     
     def apply_widget_values(self):
         """ Set prefs from widget values """
@@ -339,6 +373,13 @@ class ConfigDialog:
                 text = widget.get_text()
                 if text != self.prefs.run_dialog.history[x]:
                     self.prefs.run_dialog.history[x] = text
+        
+        # custom browser command
+        widget = self.wtree.get_widget('custom_browser_command')
+        if widget:
+            text = widget.get_text()
+            if text:
+                self.prefs.globals.custom_browser_command = text
         
     
     def get_color_spec(self, color):
