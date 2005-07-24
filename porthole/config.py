@@ -386,13 +386,65 @@ class ConfigDialog:
             text = widget.get_text()
             if text:
                 self.prefs.globals.custom_browser_command = text
-        
-    
+
+
     def get_color_spec(self, color):
         red = hex(color.red)[2:].zfill(4)
         green = hex(color.green)[2:].zfill(4)
         blue = hex(color.blue)[2:].zfill(4)
         return '#' + red + green + blue
-    
+
+
+    def build_archlist_widget(self):
+        """ Create a table layout and populate it with 
+            checkbox widgets representing the available
+            keywords
+        """
+        KeywordsFrame = self.wtree.get_widget("archlist_frame")
+
+        # If frame has any children, remove them
+        child = KeywordsFrame.child
+        if child != None:
+            KeywordsFrame.remove(child)
+
+        keywords = portagelib.get_archlist
+        
+        # Build table to hold radiobuttons
+        size = len(archlist)
+        maxcol = 5
+        maxrow = size / maxcol - 1
+        if maxrow < 1:
+            maxrow = 1
+        table = gtk.Table(maxrow, maxcol-1, True)
+        KeywordsFrame.add(table)
+        self.kwList = []
+
+        # Iterate through use flags collection, create 
+        # checkboxes and attach to table
+        col = 0
+        row = 0
+        button_added = False
+        clickable_button = False
+        for keyword in keywords:
+            button = gtk.CheckButton(keyword)
+            self.kwList.append([button, keyword])
+            table.attach(button, col, col+1, row, row+1)
+            button.show()
+            button_added = True
+            clickable_button = True
+                button.set_active(keyword in self.prefs.globals.archlist)
+            # Increment col & row counters
+            if button_added:
+                col += 1
+                if col > maxcol:
+                    col = 0
+                    row += 1
+        if clickable_button:
+            # Display the entire table
+            table.show()
+            KeywordsFrame.show()
+        else:
+            KeywordsFrame.hide()
+            self.btnPkgKeywords.hide()
 
 
