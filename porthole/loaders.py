@@ -30,6 +30,7 @@ import portagelib
 from utils import dprint
 from gettext import gettext as _
 
+
 # if using gnome, see if we can import it
 try:
     import gnome
@@ -38,12 +39,16 @@ try:
     except: # try the depricated module
         import gnome.vfs
 except ImportError:
-    # no gnome module, use the standard webbrowser module
-    try:
-        import webbrowser
-    except ImportError:
-        print >>stderr, ('Module "webbrowser" not found. '
-                     'You will not be able to open web pages.')
+    # no gnome module
+    print >>stderr, ('Module "gnome" not found. '
+                     'You will not be able to use gnome to open web pages.')
+    
+# get thestandard webbrowser module
+try:
+    import webbrowser
+except ImportError:
+    print >>stderr, ('Module "webbrowser" not found. '
+                     'You may not be able to open web pages.')
 
 # File types dictionary used for logic & loading
 Textfile_type = {"changelog": "/ChangeLog", "best_ebuild": ".ebuild", "version_ebuild": ".ebuild"}
