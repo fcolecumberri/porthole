@@ -230,12 +230,13 @@ class MainWindow:
     def setup_plugins(self):
         #Plugin-related statements
         self.needs_plugin_menu = False
-        dprint("MAIN; setup_plugins(): path_list %s" % self.prefs.plugins.path_list)
+        #dprint("MAIN; setup_plugins(): path_list %s" % self.prefs.plugins.path_list)
+        dprint("MAIN: setup_plugins: plugin path: %s" % self.prefs.PLUGIN_DIR)
         self.plugin_root_menu = gtk.MenuItem("Active Plugins")
         self.plugin_menu = gtk.Menu()
         self.plugin_root_menu.set_submenu(self.plugin_menu)
         self.wtree.get_widget("menubar").append(self.plugin_root_menu)
-        self.plugin_manager = PluginManager( self.prefs.plugins.path_list, self )
+        self.plugin_manager = PluginManager(self.prefs.PLUGIN_DIR, self)
         self.plugin_package_tabs = {}
 
 

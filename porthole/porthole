@@ -165,7 +165,8 @@ if __name__ == "__main__":
     prefs.APP = APP
     prefs.i18n_DIR = i18n_DIR
     prefs.RUN_LOCAL = RUN_LOCAL
-    prefs.init_plugins()
+    #prefs.init_plugins()
+    prefs.PLUGIN_DIR = DATA_PATH + 'plugins'
     # load config info
     config = _utils.PortholeConfiguration(DATA_PATH)
     prefs.use_gladefile = "not assigned"

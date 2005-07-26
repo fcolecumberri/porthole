@@ -444,6 +444,7 @@ class PortholePreferences:
         del dom   # no longer needed, release memory
 
     def init_plugins(self):
+        # note: this is no longer necessary and should be removed in the future!
         self.PLUGIN_DIRS = [self.DATA_PATH + 'plugins'] # could add more dirs later
         self.plugins.path_list = []
         # search for sub-dirs
@@ -452,7 +453,8 @@ class PortholePreferences:
             for entry in list:
                 if entry != 'CVS': # skip the CVS directory.
                     entry = os.path.join(dir, entry) # get full path
-                    if os.path.isdir(entry):
+                    if os.path.isdir(entry) and \
+                            os.access(os.path.join(entry, "__init__.py"), os.R_OK):
                         self.plugins.path_list.append(entry)
 
     def save(self):
@@ -528,7 +530,7 @@ class PortholePreferences:
         dom.save(self.__PFILE)
         del dom   # no longer needed, release memory
     
-    def __repr__(self): # used by print statement
+    def __repr__(self): # used by print statement (and pycrash)
         """Return a string representation of the preferences"""
         return self.__dict__.__repr__()
 

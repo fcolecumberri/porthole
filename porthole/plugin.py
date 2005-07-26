@@ -7,21 +7,31 @@ from utils import dprint
 
 class PluginManager:
     """Handles all of our plugins"""
-    def __init__(self, path_list, porthole_instance):
+    def __init__(self, plugin_dir, porthole_instance):
         #Scan through the contents of the directories
         #Load any plugins it sees
-        self.path_list = path_list
+        #self.path_list = path_list
         self.porthole_instance = porthole_instance
         self.plugins = []
-        for directory in path_list:
-            if directory == "cwd":
-                directory = os.getcwd()
-            os.chdir(directory)
-            possible_plugins = glob("*_pplug.py")
-            for i in possible_plugins:
-                new_pp = Plugin(i[:-3], directory, self)
-                if new_pp.valid:
-                    self.plugins.append(new_pp)
+        plugin_list = []
+        list = os.listdir(plugin_dir)
+        for entry in list:
+            if os.path.isdir(os.path.join(plugin_dir, entry)):
+                if os.access(os.path.join(plugin_dir, entry, '__init__.py'), os.R_OK):
+                    plugin_list.append(entry)
+        os.chdir(plugin_dir)
+        for entry in plugin_list:
+            new_plugin = Plugin(entry, plugin_dir, self)
+            self.plugins.append(new_plugin)
+##        for directory in path_list:
+##            if directory == "cwd":
+##                directory = os.getcwd()
+##            os.chdir(directory)
+##            possible_plugins = glob("*_pplug.py")
+##            for i in possible_plugins:
+##                new_pp = Plugin(i[:-3], directory, self)
+##                if new_pp.valid:
+##                    self.plugins.append(new_pp)
         self.event_all("load", self)
 
     def event_all(self, event, *args):
@@ -72,16 +82,19 @@ class Plugin:
     def initialize_plugin(self):
         try:
             os.chdir(self.path)
+            dprint("PLUGIN: initialize_plugin: cwd: %s" % os.getcwd())
             #find_results = imp.find_module(self.name, self.path)
             #self.module = imp.load_module(self.name, *find_results)
-            self.module = __import__('/'.join([self.path, self.name]))
+            #self.module = __import__('/'.join([self.path, self.name]))
+            plugin_name = '.'.join(['plugins', self.name])
+            self.module = __import__(plugin_name, [], [], ['not empty'])
             self.valid = True
         except ImportError, e:
             dprint("PLUGIN; initialize_plugin(): ImportError '%s'" % e)
             dprint("PLUGIN; initialize_plugin(): Error loading plugin '%s' in %s" % (self.name, self.path))
             self.valid = False
             return False
-        find_results[0].close()
+        #find_results[0].close()
 
         self.event_table = self.module.event_table
         self.desc = self.module.desc
