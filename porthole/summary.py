@@ -228,11 +228,9 @@ class Summary(gtk.TextView):
                     modified = True
             if modified: ebuilds = ver_sort(ebuilds) # otherwise already sorted
             
-            if self.enable_archlist:
-                archlist = self.archlist
-            else:
-                archlist = [myarch]
-            if self.prefs.globals.enable_all_keywords:
+            if self.prefs.globals.enable_archlist:
+                dprint("SUMMARY: create_ebuild_table: creating archlist enabled table")
+                archlist = self.prefs.globals.archlist
                 rows = 1 + len(ebuilds)
                 cols = 1 + len(archlist)
                 table = gtk.Table(rows, cols)
@@ -280,6 +278,8 @@ class Summary(gtk.TextView):
                             self.tooltips.set_tip(box, portagelib.get_masking_reason(ebuild))
                         table.attach(box, x, x+1, y, y+1)
             else:
+                dprint("SUMMARY: create_ebuild_table: creating single arch table")
+                archlist = [myarch]
                 rows = 2
                 cols = 1 + len(ebuilds)
                 table = gtk.Table(rows, cols)
