@@ -517,7 +517,7 @@ class PortholePreferences:
         #dprint("UTILS: save(); self.dbtime = %d" %self.dbtime)
         dom.additem('/database/dbtime', self.dbtime)
         dom.additem('/database/dbtotals', self.dbtotals)
-        dom.additem('/plugins/path_list', self.plugins.path_list)
+        #dom.additem('/plugins/path_list', self.plugins.path_list)
         dom.additem('/globals/LANG', self.globals.LANG)
         dom.additem('/globals/enable_archlist', self.globals.enable_archlist)
         dom.additem('/globals/enable_all_keywords', self.globals.enable_all_keywords)
