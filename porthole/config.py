@@ -42,11 +42,13 @@ class ConfigDialog:
             "on_config_response" : self.on_config_response,
             "on_color_set" : self.on_color_set,
             "on_color_clicked" : self.on_color_clicked,
+            "on_enable_archlist_toggled" : self.toggle_archlist,
         }
         
-        self.wtree.signal_autoconnect(callbacks)
         self.window = self.wtree.get_widget("config")
-        
+        self.KeywordsFrame = self.wtree.get_widget("archlist_frame")
+        self.wtree.signal_autoconnect(callbacks)
+       
         # Hide widgets which haven't been implemented yet
         self.hide_widgets()
         
@@ -360,10 +362,23 @@ class ConfigDialog:
         
         # Checkboxes:
         for category, name in self.checkboxes:
+            dprint("CONFIG: apply_widget_values(); name = %s" %name)
             widget = self.wtree.get_widget('_'.join([category, name]))
             if widget:
+                #dprint("CONFIG: apply_widget_values(); name = %s widget found" %name)
                 active = widget.get_active()
                 setattr(getattr(self.prefs, category), name, active)
+                if name == 'enable_archlist' and active:
+                    archlist = []
+                    keyword = ''
+                    for item in self.kwList:
+                        keyword = item[1]
+                        if item[0].get_active():
+                            dprint(item[1])
+                            archlist.append(keyword)
+                    dprint("CONFIG: new archlist = %s" %str(archlist))
+                    self.prefs.globals.archlist = archlist[:]
+            
         
         # Sync combobox
         widget = self.wtree.get_widget('sync_combobox')
@@ -405,12 +420,11 @@ class ConfigDialog:
             keywords
         """
         dprint("CONFIG: build_archlist_widget()")
-        KeywordsFrame = self.wtree.get_widget("archlist_frame")
-        
+
         # If frame has any children, remove them
-        child = KeywordsFrame.child
+        child = self.KeywordsFrame.child
         if child != None:
-            KeywordsFrame.remove(child)
+            self.KeywordsFrame.remove(child)
 
         keywords = portagelib.get_archlist()
         
@@ -421,7 +435,7 @@ class ConfigDialog:
         if maxrow < 1:
             maxrow = 1
         table = gtk.Table(maxrow, maxcol-1, True)
-        KeywordsFrame.add(table)
+        self.KeywordsFrame.add(table)
         self.kwList = []
 
         # Iterate through use flags collection, create 
@@ -447,10 +461,16 @@ class ConfigDialog:
         if clickable_button:
             # Display the entire table
             table.show()
-            KeywordsFrame.show()
+            self.KeywordsFrame.show()
+            self.KeywordsFrame.set_sensitive(self.prefs.globals.enable_archlist)
         else:
-            KeywordsFrame.set_sensitive(False)
+            self.KeywordsFrame.set_sensitive(False)
         dprint("CONFIG: build_archlist_widget(); widget build completed")
         
-
+    def toggle_archlist(self, widget):
+        """Toggles the archlist frame sensitivity
+        """
+        dprint("CONFIG: toggle_archlist(); signal caught")
+        self.KeywordsFrame.set_sensitive(widget.get_active())
+        self.prefs.globals.enable_all_keywords = widget.get_active()
 
