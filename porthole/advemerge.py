@@ -618,8 +618,11 @@ class AdvancedEmergeDialog:
         else:
             UseFlagFrame.show()
             if self.is_root:
-                self.btnMakeConf.show()
                 self.btnPkgUse.show()
+                if self.prefs.advemerge.show_make_conf_button:
+                    self.btnMakeConf.show()
+                else:
+                    self.btnMakeConf.hide()
         # Build table to hold checkboxes
         size = len(use_flags)
         maxcol = 4  # = number of columns - 1 = index of last column
@@ -688,8 +691,8 @@ class AdvancedEmergeDialog:
                 row += 1
         
         # Display the entire table
-        #table.show()
-        UseFlagFrame.show_all()
+        table.show()
+        #UseFlagFrame.show_all()
         
 
     def build_keywords_widget(self, keywords):

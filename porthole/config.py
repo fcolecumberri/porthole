@@ -177,6 +177,7 @@ class ConfigDialog:
             ['globals', 'enable_archlist'],
             ['globals', 'enable_all_keywords'],
             ['globals', 'use_custom_browser'],
+            ['advemerge', 'show_make_conf_button'],
         ]
         self.syncmethods = self.prefs.globals.Sync_methods
     
@@ -392,14 +393,12 @@ class ConfigDialog:
                 self.prefs.globals.custom_browser_command = text
         
 
-
     def get_color_spec(self, color):
         red = hex(color.red)[2:].zfill(4)
         green = hex(color.green)[2:].zfill(4)
         blue = hex(color.blue)[2:].zfill(4)
         return '#' + red + green + blue
-
-
+    
     def build_archlist_widget(self):
         """ Create a table layout and populate it with 
             checkbox widgets representing the available
@@ -407,7 +406,7 @@ class ConfigDialog:
         """
         dprint("CONFIG: build_archlist_widget()")
         KeywordsFrame = self.wtree.get_widget("archlist_frame")
-
+        
         # If frame has any children, remove them
         child = KeywordsFrame.child
         if child != None:

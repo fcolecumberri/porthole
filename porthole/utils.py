@@ -352,7 +352,7 @@ class PortholePreferences:
         advemergeoptions = [
             ['showuseflags', True],
             ['showkeywords', True],
-            ['showconfigbuttons', False],
+            ['show_make_conf_button', False],
         ]
         self.advemerge = OptionsClass()
         for option, default in advemergeoptions:
@@ -498,7 +498,7 @@ class PortholePreferences:
         dom.additem('/emerge/options/nospinner', self.emerge.nospinner)
         dom.additem('/advemerge/showuseflags', self.advemerge.showuseflags)
         dom.additem('/advemerge/showkeywords', self.advemerge.showkeywords)
-        dom.additem('/advemerge/showconfigbuttons', self.advemerge.showconfigbuttons)
+        dom.additem('/advemerge/show_make_conf_button', self.advemerge.show_make_conf_button)
         dom.additem('/views/upgradable_fg', self.views.upgradable_fg)
         dom.additem('/views/downgradable_fg', self.views.downgradable_fg)
         dom.additem('/views/normal_fg', self.views.normal_fg)
