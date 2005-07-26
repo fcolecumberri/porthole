@@ -33,7 +33,10 @@ from gettext import gettext as _
 # if using gnome, see if we can import it
 try:
     import gnome
-    import gnome.vfs
+    try:
+        import gnomevfs
+    except: # try the depricated module
+        import gnome.vfs
 except ImportError:
     # no gnome module, use the standard webbrowser module
     try:
