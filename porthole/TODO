@@ -56,7 +56,8 @@
  * Reinstate tree view with dependencies branching from world packages
    in upgradable view
 
- * Fix webbrowser choice, add "copy link" option in summary (bug [908237])
+ + (Added webbrowser choice in prefs)
+   Fix webbrowser choice, add "copy link" option in summary (bug [908237])
    Porthole needs to do more work to open the default browser.
 
  + (Done) Go back to selected category / package when changing views.
