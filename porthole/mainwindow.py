@@ -731,7 +731,7 @@ class MainWindow:
     def unmerge_package(self, widget, sudo=False):
         """Unmerge the currently selected package."""
         package = utils.get_treeview_selection(self.package_view, 2)
-        if (sudo or (not utils.is_root() and utils.can_sudo())) \
+        if (sudo or (not self.is_root and utils.can_sudo())) \
                 and not self.prefs.emerge.pretend:
             self.setup_command(package.get_name(), 'sudo -p "Password: " emerge unmerge' +
                     self.prefs.emerge.get_string() + package.full_name)
@@ -794,15 +794,19 @@ class MainWindow:
             self.up_model = self.package_view.upgrade_model
             # read the upgrade tree into a list of packages to upgrade
             self.up_model.foreach(self.tree_node_to_list)
+            if self.is_root:
+                emerge_cmd = "emerge --noreplace"
+            elif utils.can_sudo() and not self.prefs.emerge.pretend:
+                emerge_cmd = "sudo emerge --noreplace"
             #dprint(self.packages_list)
             #dprint(self.keyorder)
             for key in self.keyorder:
                 if not self.packages_list[key]:
                         dprint("MAINWINDOW: upgrade_packages(); dependancy selected: " + key)
-                        if not self.setup_command(key, "emerge --oneshot --noreplace" +
+                        if not self.setup_command(key, emerge_cmd +" --oneshot" +
                                 self.prefs.emerge.get_string() + key[:]): #use the full name
                             return
-                elif not self.setup_command(key, "emerge --noreplace" +
+                elif not self.setup_command(key, emerge_cmd +
                                 self.prefs.emerge.get_string() + ' ' + key[:]): #use the full name
                     return
         else:
