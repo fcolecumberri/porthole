@@ -444,13 +444,13 @@ class PortholePreferences:
             for option, value in New_prefs:
                 setattr(self, option, value)
         
-        # note: this is no longer necessary and should be removed in the future!
         self.PLUGIN_DIR = self.DATA_PATH + 'plugins/' # could add more dirs later
         dprint("UTILS: PortholePreferences; PLUGIN_DIR = %s" %self.PLUGIN_DIR)
 
         # All prefs now loaded or defaulted
         del dom   # no longer needed, release memory
 
+    # note: this is no longer necessary and should be removed in the future!
     def init_plugins(self):
         self.plugins.path_list = []
         # search for sub-dirs
