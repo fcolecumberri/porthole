@@ -98,6 +98,8 @@ if __name__ == "__main__":
     try:
         opts, args = getopt(argv[1:], 'lvdh', ["local", "version", "debug",
                                               "help"])
+        print opts
+        print args
     except GetoptError, e:
         print >>stderr, e.msg
         exit(1)
@@ -124,7 +126,8 @@ if __name__ == "__main__":
             from porthole.mainwindow import MainWindow
             i18n_DIR = DATA_PATH + 'i18n'
         except:
-            print "NO installed porthole modules found!   Please run with the --local flag"
+            print "*** NO installed porthole modules found!\n*** Please run it from a local directory with the --local flag\n",\
+                "*** Or fix the python path so that it includes porthole's modules"
 
     for opt, arg in opts:
         if opt in ("-v", "--version"):
@@ -160,13 +163,18 @@ if __name__ == "__main__":
     myicon = gtk.gdk.pixbuf_new_from_file(DATA_PATH + "pixmaps/porthole-icon.png")
     gtk.window_set_default_icon_list(myicon)
     # load prefs
-    prefs = _utils.PortholePreferences()
-    prefs.DATA_PATH = DATA_PATH
-    prefs.APP = APP
-    prefs.i18n_DIR = i18n_DIR
-    prefs.RUN_LOCAL = RUN_LOCAL
-    #prefs.init_plugins()
-    prefs.PLUGIN_DIR = DATA_PATH + 'plugins'
+    prefs_additions = [
+        ["DATA_PATH",DATA_PATH],
+        ["APP",APP],
+        ["i18n_DIR",i18n_DIR],
+        ["RUN_LOCAL",RUN_LOCAL]
+    ]
+    prefs = _utils.PortholePreferences(prefs_additions)
+    #prefs.DATA_PATH = DATA_PATH
+    #prefs.APP = APP
+    #prefs.i18n_DIR = i18n_DIR
+    #prefs.RUN_LOCAL = RUN_LOCAL
+    prefs.init_plugins()
     # load config info
     config = _utils.PortholeConfiguration(DATA_PATH)
     prefs.use_gladefile = "not assigned"

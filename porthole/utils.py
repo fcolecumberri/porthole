@@ -204,7 +204,7 @@ class EmergeOptions(OptionsClass):
 
 class PortholePreferences:
     """ Holds all of Porthole's user configurable preferences """
-    def __init__(self):
+    def __init__(self, New_prefs):
 
         # establish path & name of user prefs file
 
@@ -439,23 +439,29 @@ class PortholePreferences:
                 value = default
             setattr(self.globals, option, value)
             dprint("UTILS: PortholePreferences; setting globals.%s = %s" %(option, str(value)))
+        
+        if New_prefs:
+            for option, value in New_prefs:
+                setattr(self, option, value)
+        
+        # note: this is no longer necessary and should be removed in the future!
+        self.PLUGIN_DIR = self.DATA_PATH + 'plugins/' # could add more dirs later
+        dprint("UTILS: PortholePreferences; PLUGIN_DIR = %s" %self.PLUGIN_DIR)
 
         # All prefs now loaded or defaulted
         del dom   # no longer needed, release memory
 
     def init_plugins(self):
-        # note: this is no longer necessary and should be removed in the future!
-        self.PLUGIN_DIRS = [self.DATA_PATH + 'plugins'] # could add more dirs later
         self.plugins.path_list = []
         # search for sub-dirs
-        for dir in self.PLUGIN_DIRS:
-            list = os.listdir(dir)
-            for entry in list:
-                if entry != 'CVS': # skip the CVS directory.
-                    entry = os.path.join(dir, entry) # get full path
-                    if os.path.isdir(entry) and \
-                            os.access(os.path.join(entry, "__init__.py"), os.R_OK):
-                        self.plugins.path_list.append(entry)
+        #for dir in self.PLUGIN_DIR:
+        list = os.listdir(self.PLUGIN_DIR)
+        for entry in list:
+            if entry != 'CVS': # skip the CVS directory.
+                entry = os.path.join(self.PLUGIN_DIR, entry) # get full path
+                if os.path.isdir(entry) and \
+                        os.access(os.path.join(entry, "__init__.py"), os.R_OK):
+                    self.plugins.path_list.append(entry)
 
     def save(self):
         """ Save preferences """
