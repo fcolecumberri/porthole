@@ -28,10 +28,8 @@
 #
 
 import gtk,os,shutil,pty
-from gtk import TRUE,FALSE
-from   string import *
+from string import *
 import re
-
 
 class UseInfo:
     def __init__( self ):
@@ -204,8 +202,8 @@ class Use_App( gtk.Window ):
             textbuffer = textview.get_buffer()
             textbuffer.set_text( use_vars[use] )
             
-            hbox.pack_start( button, expand=FALSE, fill=FALSE, padding=1 )
-            hbox.pack_start( textview, expand=TRUE, fill=TRUE, padding=1 )
+            hbox.pack_start( button, expand=False, fill=False, padding=1 )
+            hbox.pack_start( textview, expand=True, fill=True, padding=1 )
 
             self.use_checks[use] = button
             vbox.add( hbox )
@@ -214,7 +212,7 @@ class Use_App( gtk.Window ):
         for use in defaults:
             if self.use_checks.has_key( use ):
                 button = self.use_checks[use]
-                button.set_active( TRUE )
+                button.set_active( True )
             else:
                 print "Use variable '" + use + "' not found in use.desc!"
 
@@ -226,12 +224,12 @@ class Use_App( gtk.Window ):
             if self.use_checks.has_key( use ):
                 button = self.use_checks[use]
                 if remove_me:
-                    button.set_active( FALSE )
+                    button.set_active( False )
                 else:
-                    button.set_active( TRUE )
+                    button.set_active( True )
 
         scroll.add_with_viewport(vbox)
-        self.vbox.pack_start( scroll, expand=TRUE, fill=TRUE, padding=1 )
+        self.vbox.pack_start( scroll, expand=True, fill=True, padding=1 )
 
     def create_buttons( self ):
         hbox = gtk.HBox(1)
@@ -245,7 +243,7 @@ class Use_App( gtk.Window ):
         button.connect( "clicked", self.destroy_cb )
         hbox.add( button )
 
-        self.vbox.pack_start( hbox, expand=FALSE, fill=FALSE, padding=1 )
+        self.vbox.pack_start( hbox, expand=False, fill=False, padding=1 )
 
     def create_display_buttons( self ):
         hbox = gtk.HBox(1)
@@ -256,7 +254,7 @@ class Use_App( gtk.Window ):
         button = gtk.Button( "No" )
         button.connect( "clicked", self.display_box_destroy_cb )
         hbox.add( button )
-        self.db_vbox.pack_start( hbox, expand=FALSE, fill=FALSE, padding=1 )
+        self.db_vbox.pack_start( hbox, expand=False, fill=False, padding=1 )
 
     def dump_cb( self, *args ):
         requested = []

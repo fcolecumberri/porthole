@@ -108,8 +108,12 @@ class Plugin:
             self.event("enable")
 
     def event(self, event, *args):
-        dprint("Event: " + event + ", Plugin: " + self.name)
-        return self.event_table[event](*args)
+        dprint("PLUGIN: Event: " + event + ", Plugin: " + self.name)
+        a = self.event_table[event](*args)
+        if not a:
+            dprint("PLUGIN: event: recieved '%s' as response...")
+        return a
+        #return self.event_table[event](*args)
 
 class PluginGUI(gtk.Window):
     """Class to implement plugin architecture."""
