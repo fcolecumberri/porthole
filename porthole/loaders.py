@@ -40,15 +40,18 @@ try:
         import gnome.vfs
 except ImportError:
     # no gnome module
-    print >>stderr, ('Module "gnome" not found. '
-                     'You will not be able to use gnome to open web pages.')
+    #print >>stderr, ('Module "gnome" not found. '
+    #                 'You will not be able to use gnome to open web pages.')
+    dprint('LOADERS: Module "gnome" not found. '
+           'You will not be able to use gnome to open web pages.')
     
-# get thestandard webbrowser module
+# get the standard webbrowser module
 try:
     import webbrowser
 except ImportError:
-    print >>stderr, ('Module "webbrowser" not found. '
-                     'You may not be able to open web pages.')
+    #print >>stderr, ('Module "webbrowser" not found. '
+    #                 'You may not be able to open web pages.')
+    dprint(' * LOADERS: Module "webbrowser" not found. You may not be able to open web pages.')
 
 # File types dictionary used for logic & loading
 Textfile_type = {"changelog": "/ChangeLog", "best_ebuild": ".ebuild", "version_ebuild": ".ebuild"}
