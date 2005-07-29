@@ -50,7 +50,7 @@ if not os.access(LOG_FILE_DIR, os.F_OK):
 from thread import *
 from sys import argv, exit, stderr
 import pygtk; pygtk.require("2.0") # make sure we have the right version
-import gtk, time
+import gtk, time, pwd
 from getopt import getopt, GetoptError
 import locale, gettext
 from gettext import gettext as _
@@ -64,7 +64,7 @@ try:
     class MyCrash(HTMLPyCrash):
         #def onExit(self):
         def onExceptionRaised(self, time):
-            save_file = LOG_FILE_DIR + "/crash.html"
+            save_file = LOG_FILE_DIR + "/crash_" + pwd.getpwuid(os.getuid())[0] + ".html"
             # saveToFile does not yet return a result: feature request submitted
             self.saveToFile(save_file)
             err = "*** PORTHOLE: Crash detected! ***\nPlease submit a bug report including\n"
@@ -152,7 +152,7 @@ if __name__ == "__main__":
 
     if pycrash_found == True:
         _utils.dprint("pycrash module initializing")
-        _utils.dprint("If a crash occurs check the " + LOG_FILE_DIR + "/crash.html file and post it to porthole bugs")
+        _utils.dprint("If a crash occurs check the " + LOG_FILE_DIR + "/crash_" + pwd.getpwuid(os.getuid())[0] + ".html file and post it to porthole bugs")
         p = MyCrash({'AppName': 'Porthole', 'Version': version, 'SendTo': 'porthole bugs'})
         p.enable() #New in PyCrash-0.4pre2
     # make sure gtk lets threads run
