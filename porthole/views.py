@@ -238,6 +238,9 @@ class PackageView(CommonTreeView):
             self._size_column,
         ]
         
+        # make it easier to read across columns
+        self.set_rules_hint(True)
+        
         # setup the treemodels
         self.upgrade_model = PackageModel()
         self.package_model = PackageModel()
