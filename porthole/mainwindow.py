@@ -239,7 +239,6 @@ class MainWindow:
         self.plugin_manager = PluginManager(self.prefs.PLUGIN_DIR, self)
         self.plugin_package_tabs = {}
 
-
     def init_data(self):
         # set things we can't do unless a package is selected to not sensitive
         self.set_package_actions_sensitive(False)
@@ -531,6 +530,8 @@ class MainWindow:
             dprint("MAINWINDOW: setting menubar,toolbar,etc to sensitive...")
             for x in ["menubar","toolbar","view_filter","search_entry","btn_search","view_refresh"]:
                 self.wtree.get_widget(x).set_sensitive(True)
+            if not self.plugin_manager.plugins: # no plugins
+                self.wtree.get_widget("plugin_settings").set_sensitive(False)
             # make sure we search again if we reloaded!
             if self.widget["view_filter"].get_history() == SHOW_SEARCH:
                 #dprint("MAINWINDOW: update_db_read()... Search view")
