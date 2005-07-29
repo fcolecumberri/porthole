@@ -1124,6 +1124,14 @@ class ProcessManager:
     
     def do_password_popup(self):
         """ Pops up a dialog asking for the users password """
+        if hasattr(self, 'password'): # have already entered password, forward it
+            if self.reader.fd:
+                try:
+                    os.write(self.reader.fd, self.password + '\n')
+                except OSError:
+                    dprint(" * TERMINAL: forward_password(): Error forwarding password!")
+                self.append(TAB_PROCESS, '********')
+            return
         dialog = gtk.Dialog("Password Required",
                             self.window,
                             gtk.DIALOG_MODAL & gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -1164,8 +1172,8 @@ class ProcessManager:
                 os.write(self.reader.fd, password + '\n')
             except OSError:
                 dprint(" * TERMINAL: forward_password(): Error forwarding password!")
-        del password
-        self.append(TAB_PROCESS, '********')
+            self.password = password
+            self.append(TAB_PROCESS, '********')
         entrydialog.response(1)
     
     def parse_escape_sequence(self, sequence = "[39;49;00m"):
@@ -1296,6 +1304,9 @@ class ProcessManager:
         except OSError, e:
             if not e.args[0] == 10: # 10 = no process to kill
                 dprint("TERMINAL: OSError %s" % e)
+        # remove stored password
+        if hasattr(self, 'password'):
+            del self.password
         # if the last process was killed, stop until the user does something
         if self.killed:
             # display message that process has been killed
