@@ -7,10 +7,12 @@ from utils import dprint
 
 class PluginManager:
     """Handles all of our plugins"""
-    def __init__(self, plugin_dir, porthole_instance):
+    def __init__(self, prefs, porthole_instance, ):
         #Scan through the contents of the directories
         #Load any plugins it sees
         #self.path_list = path_list
+        self.prefs = prefs
+        plugin_dir = self.prefs.PLUGIN_DIR
         self.porthole_instance = porthole_instance
         self.plugins = []
         plugin_list = []
@@ -23,20 +25,15 @@ class PluginManager:
         for entry in plugin_list:
             new_plugin = Plugin(entry, plugin_dir, self)
             self.plugins.append(new_plugin)
-##        for directory in path_list:
-##            if directory == "cwd":
-##                directory = os.getcwd()
-##            os.chdir(directory)
-##            possible_plugins = glob("*_pplug.py")
-##            for i in possible_plugins:
-##                new_pp = Plugin(i[:-3], directory, self)
-##                if new_pp.valid:
-##                    self.plugins.append(new_pp)
         self.event_all("load", self)
 
     def event_all(self, event, *args):
         for i in self.plugins:
             i.event(event, *args)
+            #We should really check our prefs here to see if they should automatically be enabled.
+            i.enabled = i.name in self.prefs.plugins.active_list
+            if i.enabled:
+                i.event("enable")
 
     def plugin_list(self):
         return self.plugins
@@ -148,7 +145,6 @@ class PluginGUI(gtk.Window):
         self.liststore = gtk.ListStore(bool, str)
         self.plugin_view.set_model(self.liststore)
         for i in self.plugin_manager.plugin_list(): 
-            #We should really check our prefs here to see if they should automatically be enabled.
             self.liststore.append([i.enabled, i.name])
         cb_column = gtk.TreeViewColumn()
         text_column = gtk.TreeViewColumn()
@@ -182,6 +178,13 @@ class PluginGUI(gtk.Window):
         changed_plugin = self.plugin_manager.get_plugin(*changed_plugin_name)
         changed_plugin.toggle_enabled()
         treemodel.set(row, 0, changed_plugin.enabled)
+        if changed_plugin.enabled:
+            if changed_plugin.name not in self.prefs.plugins.active_list:
+                self.prefs.plugins.active_list.append(changed_plugin.name)
+        else:
+            if changed_plugin.name in self.prefs.plugins.active_list:
+                index = self.prefs.plugins.active_list.index(changed_plugin.name)
+                self.prefs.plugins.active_list = self.prefs.plugins.active_list[:index-1] + self.prefs.plugins.active_list[index+1:]
 
     def sel_changed(self, selection, *args):
         treemodel, row = selection.get_selected()

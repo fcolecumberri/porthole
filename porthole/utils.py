@@ -444,24 +444,20 @@ class PortholePreferences:
             for option, value in New_prefs:
                 setattr(self, option, value)
         
+        
         self.PLUGIN_DIR = self.DATA_PATH + 'plugins/' # could add more dirs later
         dprint("UTILS: PortholePreferences; PLUGIN_DIR = %s" %self.PLUGIN_DIR)
+        self.plugins = OptionsClass()
+        try:
+            option = "active_list"
+            value = dom.getitem(''.join(['/plugins/', option]))
+        except XMLManagerError:
+            value = []
+        setattr(self.plugins, option, value)
+        dprint("UTILS: PortholePreferences; setting plugins.%s = %s" %(option, str(value)))
 
         # All prefs now loaded or defaulted
         del dom   # no longer needed, release memory
-
-    # note: this is no longer necessary and should be removed in the future!
-    def init_plugins(self):
-        self.plugins.path_list = []
-        # search for sub-dirs
-        #for dir in self.PLUGIN_DIR:
-        list = os.listdir(self.PLUGIN_DIR)
-        for entry in list:
-            if entry != 'CVS': # skip the CVS directory.
-                entry = os.path.join(self.PLUGIN_DIR, entry) # get full path
-                if os.path.isdir(entry) and \
-                        os.access(os.path.join(entry, "__init__.py"), os.R_OK):
-                    self.plugins.path_list.append(entry)
 
     def save(self):
         """ Save preferences """
@@ -533,6 +529,7 @@ class PortholePreferences:
         dom.additem('/globals/Sync_methods', self.globals.Sync_methods)
         dom.additem('/globals/custom_browser_command', self.globals.custom_browser_command)
         dom.additem('/globals/use_custom_browser', self.globals.use_custom_browser)
+        dom.additem('/plugins/active_list', self.plugins.active_list)
         dom.save(self.__PFILE)
         del dom   # no longer needed, release memory
     

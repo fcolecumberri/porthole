@@ -236,7 +236,7 @@ class MainWindow:
         self.plugin_menu = gtk.Menu()
         self.plugin_root_menu.set_submenu(self.plugin_menu)
         self.wtree.get_widget("menubar").append(self.plugin_root_menu)
-        self.plugin_manager = PluginManager(self.prefs.PLUGIN_DIR, self)
+        self.plugin_manager = PluginManager(self.prefs, self)
         self.plugin_package_tabs = {}
 
     def init_data(self):
