@@ -29,7 +29,8 @@ from sterminal import SimpleTerminal
 
 app = None
 manager = None
-menuitem = False
+menuitem1 = False
+menuitem2 = False
 plugin_name = "PROFUSE: __init__; "
 desc = _("Edit USE Variables settings using the Profuse editor")
 command = "profuse"
@@ -38,6 +39,7 @@ enabled = False
 ## The next variable should be set to False if the porthole preferences are not needed
 #need_prefs = False
 need_prefs = True ## then plugin.py will push them here during initialzation
+prefs = None
 
 def new_instance(my_manager):
     global  manager, initialized
@@ -56,7 +58,7 @@ def destroy_instance( ):
     return True
     
 def enable_plugin():
-    global menuitem, enabled, initialized
+    global menuitem1, menuitem2, enabled, initialized
     if initialized == False:
         dprint(plugin_name + " enable_plugin: not initialized!")
         return False
