@@ -429,14 +429,17 @@ class PortholePreferences:
                               ['#user defined', _('Unknown Sync')]]],
             ['custom_browser_command', 'firefox %s'],
             ['use_custom_browser', False],
+            ['su', 'gksu'],
         ]
         
         self.globals = OptionsClass()
         for option, default in globaloptions:
             try:
                 value = dom.getitem(''.join(['/globals/', option]))
+                dprint(str(value))
             except XMLManagerError:
                 value = default
+                dprint("DEFAULT VALUE: %s = %s" %(option,str(value)))
             setattr(self.globals, option, value)
             dprint("UTILS: PortholePreferences; setting globals.%s = %s" %(option, str(value)))
         
@@ -529,6 +532,7 @@ class PortholePreferences:
         dom.additem('/globals/Sync_methods', self.globals.Sync_methods)
         dom.additem('/globals/custom_browser_command', self.globals.custom_browser_command)
         dom.additem('/globals/use_custom_browser', self.globals.use_custom_browser)
+        dom.additem('/globals/su', self.globals.su)
         dom.additem('/plugins/active_list', self.plugins.active_list)
         dom.save(self.__PFILE)
         del dom   # no longer needed, release memory
