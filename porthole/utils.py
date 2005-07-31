@@ -204,7 +204,7 @@ class EmergeOptions(OptionsClass):
 
 class PortholePreferences:
     """ Holds all of Porthole's user configurable preferences """
-    def __init__(self, New_prefs):
+    def __init__(self, New_prefs = None):
 
         # establish path & name of user prefs file
 
