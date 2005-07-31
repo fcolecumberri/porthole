@@ -798,7 +798,7 @@ class MainWindow:
             if self.is_root:
                 emerge_cmd = "emerge --noreplace"
             elif utils.can_sudo() and not self.prefs.emerge.pretend:
-                emerge_cmd = "sudo emerge --noreplace"
+                emerge_cmd = 'sudo -p "Password: " emerge --noreplace'
             #dprint(self.packages_list)
             #dprint(self.keyorder)
             for key in self.keyorder:
