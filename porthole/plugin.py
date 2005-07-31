@@ -79,22 +79,27 @@ class Plugin:
     def initialize_plugin(self):
         try:
             os.chdir(self.path)
-            dprint("PLUGIN: initialize_plugin: cwd: %s" % os.getcwd())
+            dprint("PLUGIN: initialize_plugin: cwd: %s !!!!!!!!!!!!!!!!!" % os.getcwd())
             #find_results = imp.find_module(self.name, self.path)
             #self.module = imp.load_module(self.name, *find_results)
             #self.module = __import__('/'.join([self.path, self.name]))
             plugin_name = '.'.join(['plugins', self.name])
+            dprint(plugin_name)
+            #
             self.module = __import__(plugin_name, [], [], ['not empty'])
+            dprint(self.module)
             self.valid = True
         except ImportError, e:
             dprint("PLUGIN; initialize_plugin(): ImportError '%s'" % e)
             dprint("PLUGIN; initialize_plugin(): Error loading plugin '%s' in %s" % (self.name, self.path))
             self.valid = False
             return False
-        #find_results[0].close()
-
+        dprint("PLUGIN: initialize_plugin(); !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         self.event_table = self.module.event_table
         self.desc = self.module.desc
+        if self.module.need_prefs:
+            # push the prefs to the new module
+            self.module.prefs = self.manager.prefs
 
     def toggle_enabled(self):
         if self.enabled == True:
