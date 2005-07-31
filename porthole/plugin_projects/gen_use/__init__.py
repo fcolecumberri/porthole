@@ -13,6 +13,9 @@ menuitem = False
 desc = "Generates USE Variables"
 initialized = False
 enabled = False
+# The next variable should be set to False if the porthole preferences are not needed
+need_prefs = False
+#need_prefs = True
 
 def new_instance(my_manager):
     global gui_output, stand_alone, manager, initialized
