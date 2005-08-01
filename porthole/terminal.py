@@ -56,6 +56,7 @@ import pango
 import signal, os, pty, threading, time, sre, portagelib
 import datetime, pango, errno, string
 from dispatcher import Dispatcher
+from process_reader import ProcessOutputReader
 
 if __name__ == "__main__":
     # setup our path so we can load our custom modules
@@ -1140,10 +1141,15 @@ class ProcessManager:
         #dialog.set_has_separator(False)
         dialog.set_border_width(10)
         command = self.process_list[0][1]
-        if command.startswith('sudo -p "Password: " '):
+        if command.startswith('sudo '):
             command = command[21:]
-        label = gtk.Label(_("Sudo requires your password to perform the command:\n'%s'")
+            label = gtk.Label(_("'sudo -p Password: ' requires your user password to perform the command:\n'%s'")
                             % command)
+        elif command.startswith('su -c '):
+            command = command[6:]
+            label = gtk.Label(_("'su' requires the root password to perform the command:\n'%s'")
+                            % command)
+
         dialog.vbox.pack_start(label)
         label.show()
         hbox = gtk.HBox()
@@ -1999,89 +2005,6 @@ class terminal_notebook:
         return self.vadjustment[self.current_tab].get_value()
 
 
-class ProcessOutputReader(threading.Thread):
-    """ Reads output from processes """
-    def __init__(self, dispatcher):
-        """ Initialize """
-        threading.Thread.__init__(self)
-        # set callback
-        self.dispatcher = dispatcher
-        self.setDaemon(1)  # quit even if this thread is still running
-        self.process_running = False
-        # initialize only, self.fd set by ProcessManager._run()
-        self.fd = None
-        # initialize only, both set by Processmanager.fill_buffer()
-        self.file_input = False
-        self.f = None
-        # string to store input from process
-        self.string = ""
-        # lock to prevent losing characters from simultaneous accesses
-        self.string_locked = False
-        self.die = False
-
-    def run(self):
-        """ Watch for process output """
-        dprint("TERMINAL: ProcessOutputReader(); process id = %d" %os.getpid())
-        char = None
-        while not self.die:
-            if self.process_running or self.file_input:
-                # get the output and pass it to self.callback()
-                if self.process_running and (self.fd != None):
-                    try:
-                        char = os.read(self.fd, 1)
-                    except OSError, e:
-                        if e.args[0] == 5: # 5 = i/o error
-                            dprint("TERMINAL: ProcessOutputReader: process finished, closing")
-                            try:
-                                dprint("TERMINAL: is self.fd a tty? '%s'" % os.isatty(self.fd))
-                                os.close(self.fd)
-                                dprint("TERMINAL: ProcessOutputReader: closed okay")
-                            except Exception, e:
-                                # probably already closed
-                                dprint("TERMINAL: ProcessOutputReader: couldn't close self.fd. exception: %s" % e)
-                        else:
-                            # maybe the process died?
-                            dprint("TERMINAL: ProcessOutputReader: .fd OSError: %s" % e)
-                        char = None
-                elif self.file_input:
-                    try:
-                        # keep read(number) small so as to not cripple the 
-                        # system reading large files.  even 2 can hinder gui response
-                        char = self.f.read(1)
-                    except OSError, e:
-                        dprint("TERMINAL: ProcessOutputReader: .f OSError: %s" % e)
-                        # maybe the process died?
-                        char = None
-                if char:
-                    # if the string is currently being accessed
-                    while(self.string_locked):
-                        # wait 50 ms and check again
-                        time.sleep(0.05)
-                    # lock the string
-                    self.string_locked = True
-                    # add the character to the string
-                    self.string += char
-                    # unlock the string
-                    self.string_locked = False
-                else:
-                    # clean up, process is terminated
-                    self.process_running = False
-                    while self.string != "":
-                        #dprint("TERMINAL ProcessOutputReader: waiting for update to finish")
-                        # wait for update_callback to finish
-                        time.sleep(.5)
-                    if self.file_input:
-                        self.file_input = False
-                    else:
-                        gtk.threads_enter()
-                        self.dispatcher()
-                        gtk.threads_leave()
-            else:
-                # sleep for .5 seconds before we check again
-                if time:
-                    time.sleep(.5)
-
-
 if __name__ == "__main__":
 
     def callback():
@@ -2121,7 +2044,13 @@ if __name__ == "__main__":
     myicon = gtk.gdk.pixbuf_new_from_file("pixmaps/porthole-icon.png")
     gtk.window_set_default_icon_list(myicon)
     # load prefs
-    prefs = utils.PortholePreferences()
+    prefs_additions = [
+        ["DATA_PATH",DATA_PATH],
+        ["APP",None],
+        ["i18n_DIR",None],
+        ["RUN_LOCAL",None]
+    ]
+    prefs = utils.PortholePreferences(prefs_additions)
     env = utils.environment()
     # to test the above classes when run standalone
     test = ProcessManager(env, prefs)
