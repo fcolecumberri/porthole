@@ -27,8 +27,9 @@ setup( \
              "help/search.html", "help/summarytab.png", "help/sync.html",
              "help/termrefs.html", "help/termwindow.html", "help/termwindow.png", "help/toc.html",
              "help/unmerge.html", "help/update.html", "help/warningtab.png"]),
-        (datadir,["advemerge.glade", "porthole.glade", "configuration.xml"]),
-        (datadir + "locale", []),
-        ("share/applications", ["porthole.desktop"])
+        (datadir, ["advemerge.glade", "porthole.glade", "config.glade", "configuration.xml"]),
+        (datadir + "i18n", ["i18n/messages.pot"]),
+        ("share/applications", ["porthole.desktop"]),
+        (datadir + "plugins", ["plugins/__init__.py"])
     ]
 )
