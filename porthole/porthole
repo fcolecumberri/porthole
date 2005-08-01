@@ -4,7 +4,8 @@
     Porthole
     A graphical frontend to Portage
 
-    Copyright (C) 2003 - 2004 Fredrik Arnerup and Daniel G. Taylor
+    Copyright (C) 2003 - 2005 Fredrik Arnerup and Daniel G. Taylor,
+    Brian Dolbec, William F. Wheeler, Brian Bockelman, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -124,7 +125,8 @@ if __name__ == "__main__":
             DATA_PATH = "/usr/share/porthole/"
             from porthole import utils as _utils
             from porthole.mainwindow import MainWindow
-            i18n_DIR = DATA_PATH + 'i18n'
+            #i18n_DIR = DATA_PATH + 'i18n'
+            i18n_DIR = "/usr/share/locale/"
         except:
             print "*** NO installed porthole modules found!\n*** Please run it from a local directory with the --local flag\n",\
                 "*** Or fix the python path so that it includes porthole's modules"
