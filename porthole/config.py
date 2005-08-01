@@ -297,6 +297,13 @@ class ConfigDialog:
             command = self.prefs.globals.custom_browser_command
             if command:
                 widget.set_text(command)
+                
+        # gui su client command
+        widget = self.wtree.get_widget('su_client')
+        if widget:
+            command = self.prefs.globals.su
+            if command:
+                widget.set_text(command)
         
         # build the arch list widget
         self.build_archlist_widget()
@@ -406,6 +413,13 @@ class ConfigDialog:
             text = widget.get_text()
             if text:
                 self.prefs.globals.custom_browser_command = text
+        
+        # gui su client command
+        widget = self.wtree.get_widget('su_client')
+        if widget:
+            text = widget.get_text()
+            if text:
+                self.prefs.globals.su = text
         
 
     def get_color_spec(self, color):
