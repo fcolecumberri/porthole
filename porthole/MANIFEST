@@ -44,7 +44,7 @@ help/changelog.png
 help/custcmd.html
 help/custcmd.png
 help/customize.html
-help/dependancies.png
+help/dependencies.png
 help/index.html
 help/install.html
 help/installedfiles.png
@@ -63,4 +63,3 @@ help/unmerge.html
 help/update.html
 help/warningtab.png
 i18n/messages.pot
-
