@@ -1,3 +1,61 @@
+0.5.0:
+
+     * Added columns to package list view, displaying installed version, recommended version,
+        download size, and short package description for all packages in list.
+
+     * Added plugin interface
+
+     * Added preliminary right-click menus to package list and package summary
+
+     * Added select-all, de-select-all options to right-click menu for upgradable view
+       (RFE [939337])
+
+     * Added code to interact with user config files such as package.keywords and make.conf.
+       Added options to add or remove ebuilds or packages from certain config files in
+       package list right-click, package summary right-click, and advemerge dialog.
+       Added option to update use flags to make.conf or package.use in advemerge dialog.
+
+     * Added preliminary sudo functionality
+
+     * Added Configuration GUI
+
+     * Modified Main Window GUI
+
+     * Added command preview to advemerge dialog
+
+     * Added version table to summary (like on packages.gentoo.org)
+
+     * Improved calculation and display of dependancies
+
+     * Added colour to terminal window for emerge output. Also added user-settable font
+       and fixed display of "updating portage cache" percentage.
+
+     * Set to forward keyboard input to the terminal process if it's in focus.
+
+     * Improved handling of masked packages. In the advemerge dialog, the recommended
+       version is selected by default, and Porthole no longer indicates packages for which
+       all higher versions are masked as upgradable.
+
+     * Added emerge-webrsync functionality
+
+     * Added scrollable window to advemerge dialog for high numbers of use flags
+
+     * Set colour and font weight of info in package list depending on installed / upgradable status
+
+     * Set to highlight items that may require user action in the terminal summary tab
+
+     * Added custom web-browser choice
+
+     * Set to properly clean up emerge processes when finished (bug [1081506, 1119366])
+
+     * Set to remember selected category / package after changing views or reloading db
+
+     * Allowed sorting of package list by installed / recommended / size columns.
+
+     * Added icon to indicate if the user has not run Porthole as root (RFE [1181795])
+
+     * Set to remember main window maximized state
+
 
 0.4.0:
      * Added the date & time of the last sync to the "Sync" button tooltip

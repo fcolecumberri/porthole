@@ -9,17 +9,25 @@ about.py
 advemerge.glade
 advemerge.py
 command.py
+config.glade
+config.py
 configuration.xml
 depends.py
+dispatcher.py
+loaders.py
 mainwindow.py
 metadata.py
+plugin.py
 portagelib.py
 porthole
 porthole.desktop
 porthole.glade
 porthole.svg
+process_reader.py
+readers.py
 setup.cfg
 setup.py
+sterminal.py
 summary.py
 terminal.py
 utils.py
@@ -29,6 +37,7 @@ views.py
 xmlmgr.py
 pixmaps/porthole-about.png
 pixmaps/porthole-icon.png
+plugins/__init__.py
 help/advemerge.html
 help/advemerge.png
 help/changelog.png
@@ -53,8 +62,5 @@ help/toc.html
 help/unmerge.html
 help/update.html
 help/warningtab.png
+i18n/messages.pot
 
-
-
- 
-       
