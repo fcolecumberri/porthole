@@ -436,7 +436,6 @@ class PortholePreferences:
         for option, default in globaloptions:
             try:
                 value = dom.getitem(''.join(['/globals/', option]))
-                dprint(str(value))
             except XMLManagerError:
                 value = default
                 dprint("DEFAULT VALUE: %s = %s" %(option,str(value)))
