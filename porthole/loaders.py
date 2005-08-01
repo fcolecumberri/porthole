@@ -4,8 +4,8 @@
     Porthole loader functions
     The main interface the user will interact with
 
-    Copyright (C) 2003 - 2004 Fredrik Arnerup, Brian Dolbec, 
-    Daniel G. Taylor and Wm. F. Wheeler
+    Copyright (C) 2003 - 2005 Fredrik Arnerup, Brian Dolbec, 
+    Daniel G. Taylor, Wm. F. Wheeler, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

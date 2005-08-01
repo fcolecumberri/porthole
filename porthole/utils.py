@@ -4,8 +4,8 @@
     Porthole Utils Package
     Holds common functions for Porthole
 
-    Copyright (C) 2003 - 2004 Fredrik Arnerup and Daniel G. Taylor
-                              Brian Dolbec and Wm. F. Wheeler
+    Copyright (C) 2003 - 2005 Fredrik Arnerup, Daniel G. Taylor
+    Brian Dolbec, Wm. F. Wheeler, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

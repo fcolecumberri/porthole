@@ -4,8 +4,8 @@
     Porthole  ProcessOutputReader Class
     It watches a processes output and records it for another process to use
 
-    Copyright (C) 2003 - 2004 Fredrik Arnerup, Daniel G. Taylor,
-    Brian Dolbec
+    Copyright (C) 2003 - 2005 Fredrik Arnerup, Daniel G. Taylor,
+    Brian Dolbec, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
