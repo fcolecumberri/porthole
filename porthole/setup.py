@@ -10,8 +10,10 @@ setup( \
     version = p_version,
     description = "GTK+ frontend to Portage",
     author = "Fredrik Arnerup, Daniel G. Taylor, Brian Dolbec, William F. Wheeler",
-    author_email = ("farnerup@users.sourceforge.net", "dgt84@users.sourceforge.net",
-                  "dol-sen@users.sourceforge.net", "tiredoldcoder@users.sourceforge.net"),
+#    author_email = ("farnerup@users.sourceforge.net", "dgt84@users.sourceforge.net",
+#                  "dol-sen@users.sourceforge.net", "tiredoldcoder@users.sourceforge.net"),
+    author_email = "farnerup@users.sourceforge.net, dgt84@users.sourceforge.net, " \
+                   "dol-sen@users.sourceforge.net, tiredoldcoder@users.sourceforge.net",
     url = "http://porthole.sourceforge.net",
     packages = ['porthole'],
     package_dir = {'porthole':''},
