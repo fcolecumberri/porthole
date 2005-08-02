@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-07-30 15:35+1200\n"
+"POT-Creation-Date: 2005-08-02 22:10+1200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -54,7 +54,7 @@ msgstr ""
 msgid "Unsupported use flag"
 msgstr ""
 
-#: advemerge.py:724 depends.py:388
+#: advemerge.py:724 depends.py:389
 msgid "None"
 msgstr ""
 
@@ -62,29 +62,29 @@ msgstr ""
 msgid "command line entry"
 msgstr ""
 
-#: depends.py:121 depends.py:149 depends.py:150
+#: depends.py:122 depends.py:150 depends.py:151
 msgid "Using "
 msgstr ""
 
-#: depends.py:124 depends.py:152 depends.py:153
+#: depends.py:125 depends.py:153 depends.py:154
 msgid "Not Using "
 msgstr ""
 
-#: depends.py:250
+#: depends.py:251
 #, python-format
 msgid "Using %s"
 msgstr ""
 
-#: depends.py:255
+#: depends.py:256
 #, python-format
 msgid "Not Using %s"
 msgstr ""
 
-#: depends.py:265
+#: depends.py:266
 msgid "Any of:"
 msgstr ""
 
-#: depends.py:269
+#: depends.py:270
 msgid "All of:"
 msgstr ""
 
@@ -112,7 +112,7 @@ msgid ""
 "\n"
 msgstr ""
 
-#: loaders.py:124 summary.py:449
+#: loaders.py:124 summary.py:450
 msgid "Not installed"
 msgstr ""
 
@@ -248,269 +248,276 @@ msgstr ""
 msgid "Upgradable dependencies:"
 msgstr ""
 
-#: summary.py:71
+#: summary.py:72
 msgid "Emerge this ebuild"
 msgstr ""
 
-#: summary.py:73
+#: summary.py:74
 msgid "Pretend Emerge this ebuild"
 msgstr ""
 
-#: summary.py:75
+#: summary.py:76
 msgid "Sudo Emerge this ebuild"
 msgstr ""
 
-#: summary.py:77
+#: summary.py:78
 msgid "Unmerge this ebuild"
 msgstr ""
 
-#: summary.py:79
+#: summary.py:80
 msgid "Sudo Unmerge this ebuild"
 msgstr ""
 
-#: summary.py:81
+#: summary.py:82
 #, python-format
 msgid "Add %s to package.keywords (for this ebuild only)"
 msgstr ""
 
-#: summary.py:83
+#: summary.py:84
 #, python-format
 msgid "Remove %s from package.keywords"
 msgstr ""
 
-#: summary.py:85
+#: summary.py:86
 msgid "Unmask this ebuild"
 msgstr ""
 
-#: summary.py:87
+#: summary.py:88
 msgid "Remask this ebuild"
 msgstr ""
 
-#: summary.py:195
+#: summary.py:196
 #, python-format
 msgid "\tSlot %s: "
 msgstr ""
 
-#: summary.py:445
+#: summary.py:446
 msgid "Installed versions:\n"
 msgstr ""
 
-#: summary.py:454
+#: summary.py:455
 #, python-format
 msgid "Available versions for %s:\n"
 msgstr ""
 
-#: summary.py:464
+#: summary.py:465
 msgid "Use flags: "
 msgstr ""
 
-#: summary.py:480
+#: summary.py:481
 msgid "Keywords: "
 msgstr ""
 
-#: summary.py:492
+#: summary.py:493
 msgid "License: "
 msgstr ""
 
-#: terminal.py:85
+#: terminal.py:86
 msgid "*** process killed ***\n"
 msgstr ""
 
-#: terminal.py:86
+#: terminal.py:87
 msgid "*** process completed ***\n"
 msgstr ""
 
-#: terminal.py:88 porthole.glade.h:39
+#: terminal.py:89 porthole.glade.h:40
 msgid "Process"
 msgstr ""
 
-#: terminal.py:88
+#: terminal.py:89
 msgid "Warnings"
 msgstr ""
 
-#: terminal.py:88
+#: terminal.py:89
 msgid "Cautions"
 msgstr ""
 
-#: terminal.py:88 porthole.glade.h:52
+#: terminal.py:89 porthole.glade.h:53
 msgid "Summary"
 msgstr ""
 
-#: terminal.py:88
+#: terminal.py:89
 msgid "Emerge queue"
 msgstr ""
 
-#: terminal.py:96
+#: terminal.py:97
 msgid "Porthole Log Viewer"
 msgstr ""
 
-#: terminal.py:98
+#: terminal.py:99
 msgid "Porthole-Terminal"
 msgstr ""
 
-#: terminal.py:305
+#: terminal.py:306
 msgid "Packages to be merged      "
 msgstr ""
 
-#: terminal.py:549
+#: terminal.py:550
 msgid ""
 "The package you selected is already in the emerge queue,\n"
 "but it has been killed. Would you like to resume the emerge?"
 msgstr ""
 
-#: terminal.py:569
+#: terminal.py:570
 msgid "The package you selected is already in the emerge queue!"
 msgstr ""
 
-#: terminal.py:570
+#: terminal.py:571
 msgid "Error Adding Package To Queue!"
 msgstr ""
 
-#: terminal.py:571
+#: terminal.py:572
 msgid "OK"
 msgstr ""
 
-#: terminal.py:732
+#: terminal.py:733
 msgid "***Log Process Killed!"
 msgstr ""
 
-#: terminal.py:805
+#: terminal.py:806
 msgid "Confirm: Kill the Running Process"
 msgstr ""
 
-#: terminal.py:1118
+#: terminal.py:1119
 #, python-format
 msgid "*** Log loading complete : %s"
 msgstr ""
 
-#: terminal.py:1130
+#: terminal.py:1139
 msgid "_Cancel"
 msgstr ""
 
-#: terminal.py:1137
+#: terminal.py:1146
 #, python-format
 msgid ""
-"Sudo requires your password to perform the command:\n"
+"'sudo -p Password: ' requires your user password to perform the command:\n"
 "'%s'"
 msgstr ""
 
-#: terminal.py:1142
+#: terminal.py:1150
+#, python-format
+msgid ""
+"'su' requires the root password to perform the command:\n"
+"'%s'"
+msgstr ""
+
+#: terminal.py:1156
 msgid "Password: "
 msgstr ""
 
-#: terminal.py:1267
+#: terminal.py:1281
 #, python-format
 msgid "*** Total warnings count for merge = %d \n"
 msgstr ""
 
-#: terminal.py:1273
+#: terminal.py:1287
 #, python-format
 msgid "*** Total cautions count for merge = %d \n"
 msgstr ""
 
-#: terminal.py:1638
+#: terminal.py:1655
 msgid "*** Unfortunately, you don't have enough "
 msgstr ""
 
-#: terminal.py:1639
+#: terminal.py:1656
 msgid "logged information about the listed packages "
 msgstr ""
 
-#: terminal.py:1640
+#: terminal.py:1657
 msgid "to calculate estimated build times "
 msgstr ""
 
-#: terminal.py:1641
+#: terminal.py:1658
 msgid "accurately.\n"
 msgstr ""
 
-#: terminal.py:1644
+#: terminal.py:1661
 msgid "*** Based on the build history of these packages "
 msgstr ""
 
-#: terminal.py:1645
+#: terminal.py:1662
 msgid "on your system, I can estimate that emerging them "
 msgstr ""
 
-#: terminal.py:1646
+#: terminal.py:1663
 msgid "usually takes, on average, "
 msgstr ""
 
-#: terminal.py:1647
+#: terminal.py:1664
 #, python-format
 msgid "%(days)d days, %(hours)d hrs, %(minutes)d mins, and %(seconds)d secs.\n"
 msgstr ""
 
-#: terminal.py:1653
+#: terminal.py:1670
 msgid "*** Note: If you have a lot of programs running on "
 msgstr ""
 
-#: terminal.py:1654
+#: terminal.py:1671
 msgid "your system while porthole is emerging packages, "
 msgstr ""
 
-#: terminal.py:1655
+#: terminal.py:1672
 msgid "or if you have changed your hardware since the "
 msgstr ""
 
-#: terminal.py:1656
+#: terminal.py:1673
 msgid "last time you built some of these packages, this "
 msgstr ""
 
-#: terminal.py:1657
+#: terminal.py:1674
 msgid "estimate may be inaccurate.\n"
 msgstr ""
 
-#: terminal.py:1675
+#: terminal.py:1692
 msgid "*** Unknown File Loading error"
 msgstr ""
 
-#: terminal.py:1679
+#: terminal.py:1696
 msgid "*** File Loading... Processing..."
 msgstr ""
 
-#: terminal.py:1688 terminal.py:1692
+#: terminal.py:1705 terminal.py:1709
 msgid ": Open log File"
 msgstr ""
 
-#: terminal.py:1733
+#: terminal.py:1750
 #, python-format
 msgid "Ovewrite existing file '%s'?"
 msgstr ""
 
-#: terminal.py:1796
+#: terminal.py:1813
 #, python-format
 msgid "*** Loading File : %s"
 msgstr ""
 
-#: terminal.py:1800
+#: terminal.py:1817
 #, python-format
 msgid "Cannot open file '%s': %s"
 msgstr ""
 
-#: terminal.py:1825
+#: terminal.py:1842
 #, python-format
 msgid "Cannot back up '%s' to '%s': %s"
 msgstr ""
 
-#: terminal.py:1836
+#: terminal.py:1853
 #, python-format
 msgid "*** saving file: %s"
 msgstr ""
 
-#: terminal.py:1869
+#: terminal.py:1886
 #, python-format
 msgid ""
 "Can't restore backup file '%s' to '%s': %s\n"
 "Backup left as '%s'"
 msgstr ""
 
-#: terminal.py:1877
+#: terminal.py:1894
 #, python-format
 msgid "*** File saved : %s"
 msgstr ""
 
-#: terminal.py:1887
+#: terminal.py:1904
 #, python-format
 msgid "Save log to '%s'?"
 msgstr ""
@@ -545,64 +552,68 @@ msgid ""
 "log file."
 msgstr ""
 
-#: views.py:169 config.glade.h:30
+#: views.py:170 config.glade.h:30
 msgid "Emerge"
 msgstr ""
 
-#: views.py:171
+#: views.py:172
 msgid "Pretend Emerge"
 msgstr ""
 
-#: views.py:173
+#: views.py:174
 msgid "Sudo Emerge"
 msgstr ""
 
-#: views.py:175
+#: views.py:176
 msgid "Unmerge"
 msgstr ""
 
-#: views.py:177
+#: views.py:178
 msgid "Sudo Unmerge"
 msgstr ""
 
-#: views.py:179
+#: views.py:180
 #, python-format
 msgid "Append with %s to package.keywords"
 msgstr ""
 
-#: views.py:181
+#: views.py:182
 msgid "De-Select all"
 msgstr ""
 
-#: views.py:183
+#: views.py:184
 msgid "Select all"
 msgstr ""
 
-#: views.py:197
+#: views.py:198
 msgid "Packages"
 msgstr ""
 
-#: views.py:207 config.glade.h:42
+#: views.py:208 config.glade.h:44
 msgid "Installed"
 msgstr ""
 
-#: views.py:214 config.glade.h:62
+#: views.py:215 config.glade.h:64
 msgid "Recommended"
 msgstr ""
 
-#: views.py:221 config.glade.h:27
+#: views.py:222 config.glade.h:27
 msgid "Download Size"
 msgstr ""
 
-#: views.py:228 config.glade.h:25
+#: views.py:229 config.glade.h:25
 msgid "Description"
 msgstr ""
 
-#: views.py:677
+#: views.py:681 views.py:702
 msgid "Categories"
 msgstr ""
 
-#: views.py:761 views.py:778 porthole.glade.h:17
+#: views.py:700
+msgid "Search History"
+msgstr ""
+
+#: views.py:765 views.py:782 porthole.glade.h:18
 msgid "Dependencies"
 msgstr ""
 
@@ -830,7 +841,7 @@ msgstr ""
 msgid "noreplace"
 msgstr ""
 
-#: advemerge.glade.h:40 config.glade.h:99
+#: advemerge.glade.h:40 config.glade.h:101
 msgid "nospinner"
 msgstr ""
 
@@ -842,7 +853,7 @@ msgstr ""
 msgid "onlydeps"
 msgstr ""
 
-#: advemerge.glade.h:43 config.glade.h:100
+#: advemerge.glade.h:43 config.glade.h:102
 msgid "pretend"
 msgstr ""
 
@@ -854,7 +865,7 @@ msgstr ""
 msgid "update"
 msgstr ""
 
-#: advemerge.glade.h:46 config.glade.h:111
+#: advemerge.glade.h:46 config.glade.h:113
 msgid "upgradeonly"
 msgstr ""
 
@@ -866,7 +877,7 @@ msgstr ""
 msgid "usepkgonly"
 msgstr ""
 
-#: advemerge.glade.h:49 config.glade.h:112
+#: advemerge.glade.h:49 config.glade.h:114
 msgid "verbose"
 msgstr ""
 
@@ -991,298 +1002,306 @@ msgid "Enable make.conf modification"
 msgstr ""
 
 #: config.glade.h:33
-msgid "Error"
+msgid "Enter the command for a GUI su client eg. 'gksu' or 'gnomesu'"
 msgstr ""
 
 #: config.glade.h:34
-msgid "Filters"
+msgid "Error"
 msgstr ""
 
 #: config.glade.h:35
-msgid "Font & Colors"
+msgid "Filters"
 msgstr ""
 
 #: config.glade.h:36
-msgid "Font :"
+msgid "Font & Colors"
 msgstr ""
 
 #: config.glade.h:37
-msgid "Foreground"
+msgid "Font :"
 msgstr ""
 
 #: config.glade.h:38
-msgid "Global"
+msgid "Foreground"
 msgstr ""
 
 #: config.glade.h:39
-msgid "Green"
+msgid "GUI su client :"
 msgstr ""
 
 #: config.glade.h:40
-msgid "Homepage URL"
+msgid "Global"
 msgstr ""
 
 #: config.glade.h:41
-msgid "Info"
+msgid "Green"
+msgstr ""
+
+#: config.glade.h:42
+msgid "Homepage URL"
 msgstr ""
 
 #: config.glade.h:43
-msgid "Installed list"
-msgstr ""
-
-#: config.glade.h:44
-msgid "Keywords"
+msgid "Info"
 msgstr ""
 
 #: config.glade.h:45
-msgid "LANG = "
+msgid "Installed list"
 msgstr ""
 
 #: config.glade.h:46
-msgid "License"
+msgid "Keywords"
 msgstr ""
 
 #: config.glade.h:47
-msgid "Line Number"
+msgid "LANG = "
 msgstr ""
 
 #: config.glade.h:48
-msgid "Long Descriptions"
+msgid "License"
 msgstr ""
 
 #: config.glade.h:49
-msgid "Magenta"
+msgid "Line Number"
 msgstr ""
 
 #: config.glade.h:50
-msgid "Main Window"
+msgid "Long Descriptions"
 msgstr ""
 
 #: config.glade.h:51
-msgid "More Colours"
+msgid "Magenta"
 msgstr ""
 
 #: config.glade.h:52
-msgid "Move"
+msgid "Main Window"
 msgstr ""
 
 #: config.glade.h:53
-msgid "Move the selected filter expression to a different filter group"
+msgid "More Colours"
 msgstr ""
 
 #: config.glade.h:54
-msgid "Normal"
+msgid "Move"
 msgstr ""
 
 #: config.glade.h:55
-msgid "Normal Font Colour"
+msgid "Move the selected filter expression to a different filter group"
 msgstr ""
 
 #: config.glade.h:56
-msgid "Note"
+msgid "Normal"
 msgstr ""
 
 #: config.glade.h:57
-msgid "Package View"
+msgid "Normal Font Colour"
 msgstr ""
 
 #: config.glade.h:58
+msgid "Note"
+msgstr ""
+
+#: config.glade.h:59
+msgid "Package View"
+msgstr ""
+
+#: config.glade.h:60
 msgid ""
 "Please enter the persistent history commands\n"
 "you wish to be pre-typed"
 msgstr ""
 
-#: config.glade.h:60
+#: config.glade.h:62
 msgid "Please select the Font colours desired"
 msgstr ""
 
-#: config.glade.h:61
+#: config.glade.h:63
 msgid "Porthole Configuration"
 msgstr ""
 
-#: config.glade.h:63
+#: config.glade.h:65
 msgid "Red"
 msgstr ""
 
-#: config.glade.h:64
+#: config.glade.h:66
 msgid "Reset the filters to the defaults"
 msgstr ""
 
-#: config.glade.h:65
+#: config.glade.h:67
 msgid "Sample Window"
 msgstr ""
 
-#: config.glade.h:66
+#: config.glade.h:68
 msgid "Save the filters to disk"
 msgstr ""
 
-#: config.glade.h:67
+#: config.glade.h:69
 msgid "Summary View"
 msgstr ""
 
-#: config.glade.h:68
+#: config.glade.h:70
 msgid "Sync method "
 msgstr ""
 
-#: config.glade.h:69
+#: config.glade.h:71
 msgid "Tag"
 msgstr ""
 
-#: config.glade.h:70
+#: config.glade.h:72
 msgid "Terminal"
 msgstr ""
 
-#: config.glade.h:71
+#: config.glade.h:73
 msgid "Text Font & Colours"
 msgstr ""
 
-#: config.glade.h:72
+#: config.glade.h:74
 msgid "These colours are used by Porthole for highlighting"
 msgstr ""
 
-#: config.glade.h:73
+#: config.glade.h:75
 msgid "These colours are used by emerge for coloured output"
 msgstr ""
 
-#: config.glade.h:74
+#: config.glade.h:76
 msgid "USE Flags"
 msgstr ""
 
-#: config.glade.h:75
+#: config.glade.h:77
 msgid "Upgradable Colour"
 msgstr ""
 
-#: config.glade.h:76
+#: config.glade.h:78
 msgid "Use Custom Browser"
 msgstr ""
 
-#: config.glade.h:77
+#: config.glade.h:79
 msgid "Use Default"
 msgstr ""
 
-#: config.glade.h:78
+#: config.glade.h:80
 msgid "Use Flag set +"
 msgstr ""
 
-#: config.glade.h:79
+#: config.glade.h:81
 msgid "Use Flag set -"
 msgstr ""
 
-#: config.glade.h:80
+#: config.glade.h:82
 msgid ""
 "WARNING! Make sure you back up your make.conf file (usually /etc/make.conf) "
 "before enabling this option!"
 msgstr ""
 
-#: config.glade.h:81
+#: config.glade.h:83
 msgid "Warning"
 msgstr ""
 
-#: config.glade.h:82
+#: config.glade.h:84
 msgid "White"
 msgstr ""
 
-#: config.glade.h:83
+#: config.glade.h:85
 msgid "Yellow"
 msgstr ""
 
-#: config.glade.h:84
+#: config.glade.h:86
 msgid "checkbutton10"
 msgstr ""
 
-#: config.glade.h:85
+#: config.glade.h:87
 msgid "checkbutton16"
 msgstr ""
 
-#: config.glade.h:86
+#: config.glade.h:88
 msgid "checkbutton17"
 msgstr ""
 
-#: config.glade.h:87
+#: config.glade.h:89
 msgid "checkbutton18"
 msgstr ""
 
-#: config.glade.h:88
+#: config.glade.h:90
 msgid "checkbutton19"
 msgstr ""
 
-#: config.glade.h:89
+#: config.glade.h:91
 msgid "checkbutton20"
 msgstr ""
 
-#: config.glade.h:90
+#: config.glade.h:92
 msgid "checkbutton21"
 msgstr ""
 
-#: config.glade.h:91
+#: config.glade.h:93
 msgid "checkbutton22"
 msgstr ""
 
-#: config.glade.h:92
+#: config.glade.h:94
 msgid "checkbutton9"
 msgstr ""
 
-#: config.glade.h:93
+#: config.glade.h:95
 msgid "command 1:"
 msgstr ""
 
-#: config.glade.h:94
+#: config.glade.h:96
 msgid "command 2:"
 msgstr ""
 
-#: config.glade.h:95
+#: config.glade.h:97
 msgid "command 3:"
 msgstr ""
 
-#: config.glade.h:96
+#: config.glade.h:98
 msgid "command 4:"
 msgstr ""
 
-#: config.glade.h:97
+#: config.glade.h:99
 msgid "command 5:"
 msgstr ""
 
-#: config.glade.h:98
+#: config.glade.h:100
 msgid "fetch"
 msgstr ""
 
-#: config.glade.h:101
+#: config.glade.h:103
 msgid "profile"
 msgstr ""
 
-#: config.glade.h:102
+#: config.glade.h:104
 msgid "radiobutton1"
 msgstr ""
 
-#: config.glade.h:103
+#: config.glade.h:105
 msgid "radiobutton2"
 msgstr ""
 
-#: config.glade.h:104
+#: config.glade.h:106
 msgid "radiobutton3"
 msgstr ""
 
-#: config.glade.h:105
+#: config.glade.h:107
 msgid "radiobutton4"
 msgstr ""
 
-#: config.glade.h:106
+#: config.glade.h:108
 msgid "radiobutton5"
 msgstr ""
 
-#: config.glade.h:107
+#: config.glade.h:109
 msgid "radiobutton6"
 msgstr ""
 
-#: config.glade.h:108
+#: config.glade.h:110
 msgid "radiobutton7"
 msgstr ""
 
-#: config.glade.h:109
+#: config.glade.h:111
 msgid "radiobutton8"
 msgstr ""
 
-#: config.glade.h:110
+#: config.glade.h:112
 msgid "radiobutton9"
 msgstr ""
 
@@ -1303,296 +1322,297 @@ msgid ""
 "A GTK+ frontend to Portage\n"
 "\n"
 "Developed by Fredrik Arnerup, Brian Dolbec,\n"
-"Daniel G. Taylor, and Wm. F. Wheeler\n"
-"Copyright (C) 2003 - 2004"
-msgstr ""
-
-#: porthole.glade.h:9
-msgid "A_bout"
+"Daniel G. Taylor, Wm. F. Wheeler,\n"
+"Brian Bockelman and Tommy Iorns\n"
+"Copyright (C) 2003 - 2005"
 msgstr ""
 
 #: porthole.glade.h:10
-msgid "A_dv Emerge"
+msgid "A_bout"
 msgstr ""
 
 #: porthole.glade.h:11
-msgid "About"
+msgid "A_dv Emerge"
 msgstr ""
 
 #: porthole.glade.h:12
-msgid "Advanced Emerge Package"
+msgid "About"
 msgstr ""
 
 #: porthole.glade.h:13
-msgid "All Packages"
+msgid "Advanced Emerge Package"
 msgstr ""
 
 #: porthole.glade.h:14
-msgid "C_lear"
+msgid "All Packages"
 msgstr ""
 
 #: porthole.glade.h:15
-msgid "Cautions "
+msgid "C_lear"
 msgstr ""
 
 #: porthole.glade.h:16
+msgid "Cautions "
+msgstr ""
+
+#: porthole.glade.h:17
 msgid "Changelog"
 msgstr ""
 
-#: porthole.glade.h:18
+#: porthole.glade.h:19
 msgid "E_merge"
 msgstr ""
 
-#: porthole.glade.h:19
+#: porthole.glade.h:20
 msgid "E_merge Package"
 msgstr ""
 
-#: porthole.glade.h:20
+#: porthole.glade.h:21
 msgid "Ebuild"
 msgstr ""
 
-#: porthole.glade.h:21
+#: porthole.glade.h:22
 msgid "Emerge Package"
 msgstr ""
 
-#: porthole.glade.h:22
+#: porthole.glade.h:23
 msgid "Emerge Queue"
 msgstr ""
 
-#: porthole.glade.h:23
+#: porthole.glade.h:24
 msgid ""
 "In order to access all the features of Porthole, please run it with root "
 "privileges."
 msgstr ""
 
-#: porthole.glade.h:24
+#: porthole.glade.h:25
 msgid "Information "
 msgstr ""
 
-#: porthole.glade.h:25
+#: porthole.glade.h:26
 msgid "Installed Packages"
 msgstr ""
 
-#: porthole.glade.h:26
+#: porthole.glade.h:27
 msgid "Installed files"
 msgstr ""
 
-#: porthole.glade.h:27
+#: porthole.glade.h:28
 msgid "Kill"
 msgstr ""
 
-#: porthole.glade.h:28
+#: porthole.glade.h:29
 msgid "Main process text"
 msgstr ""
 
-#: porthole.glade.h:29
+#: porthole.glade.h:30
 msgid "Move _Down"
 msgstr ""
 
-#: porthole.glade.h:30
+#: porthole.glade.h:31
 msgid "Move _Up"
 msgstr ""
 
-#: porthole.glade.h:31
+#: porthole.glade.h:32
 msgid "Not Root"
 msgstr ""
 
-#: porthole.glade.h:32
+#: porthole.glade.h:33
 msgid "Only _Fetch"
 msgstr ""
 
-#: porthole.glade.h:33
+#: porthole.glade.h:34
 msgid "Open Emerge _Log"
 msgstr ""
 
-#: porthole.glade.h:34
+#: porthole.glade.h:35
 msgid "Please Enter Command to Execute"
 msgstr ""
 
-#: porthole.glade.h:35
+#: porthole.glade.h:36
 msgid "Plugin Settings"
 msgstr ""
 
-#: porthole.glade.h:36
+#: porthole.glade.h:37
 msgid "Plugin _Settings"
 msgstr ""
 
-#: porthole.glade.h:37
+#: porthole.glade.h:38
 msgid "Porthole"
 msgstr ""
 
-#: porthole.glade.h:38
+#: porthole.glade.h:39
 msgid "Porthole Terminal"
 msgstr ""
 
-#: porthole.glade.h:40
+#: porthole.glade.h:41
 msgid "Quit"
 msgstr ""
 
-#: porthole.glade.h:41
+#: porthole.glade.h:42
 msgid "RUN :"
 msgstr ""
 
-#: porthole.glade.h:42
+#: porthole.glade.h:43
 msgid "R_eload Database"
 msgstr ""
 
-#: porthole.glade.h:43
+#: porthole.glade.h:44
 msgid "Re-Initialize _Portage"
 msgstr ""
 
-#: porthole.glade.h:44
+#: porthole.glade.h:45
 msgid "Refresh the Current View"
 msgstr ""
 
-#: porthole.glade.h:45
+#: porthole.glade.h:46
 msgid "S_ync"
 msgstr ""
 
-#: porthole.glade.h:46
+#: porthole.glade.h:47
 msgid "S_ync Tree"
 msgstr ""
 
-#: porthole.glade.h:47
+#: porthole.glade.h:48
 msgid "Save Log _As"
 msgstr ""
 
-#: porthole.glade.h:48
+#: porthole.glade.h:49
 msgid "Save _Log"
 msgstr ""
 
-#: porthole.glade.h:49
+#: porthole.glade.h:50
 msgid "Search Results"
 msgstr ""
 
-#: porthole.glade.h:50
+#: porthole.glade.h:51
 msgid "Search _Descriptions"
 msgstr ""
 
-#: porthole.glade.h:51
+#: porthole.glade.h:52
 msgid "Skip _Queue Entry"
 msgstr ""
 
-#: porthole.glade.h:53
+#: porthole.glade.h:54
 msgid "U_nmerge"
 msgstr ""
 
-#: porthole.glade.h:54
+#: porthole.glade.h:55
 msgid "U_nmerge Package"
 msgstr ""
 
-#: porthole.glade.h:55
+#: porthole.glade.h:56
 msgid "Unmerge Package"
 msgstr ""
 
-#: porthole.glade.h:56
+#: porthole.glade.h:57
 msgid "Upgradable Packages"
 msgstr ""
 
-#: porthole.glade.h:57
+#: porthole.glade.h:58
 msgid "Upgrade packages to newest versions"
 msgstr ""
 
-#: porthole.glade.h:58
+#: porthole.glade.h:59
 msgid "Warnings! "
 msgstr ""
 
-#: porthole.glade.h:59
+#: porthole.glade.h:60
 msgid "_Actions"
 msgstr ""
 
-#: porthole.glade.h:60
+#: porthole.glade.h:61
 msgid "_Advanced Emerge Package"
 msgstr ""
 
-#: porthole.glade.h:61
+#: porthole.glade.h:62
 msgid "_Close Window"
 msgstr ""
 
-#: porthole.glade.h:62
+#: porthole.glade.h:63
 msgid "_Configure Porthole"
 msgstr ""
 
-#: porthole.glade.h:63
+#: porthole.glade.h:64
 msgid "_Contents"
 msgstr ""
 
-#: porthole.glade.h:64
+#: porthole.glade.h:65
 msgid "_Copy"
 msgstr ""
 
-#: porthole.glade.h:65
+#: porthole.glade.h:66
 msgid "_Edit"
 msgstr ""
 
-#: porthole.glade.h:66
+#: porthole.glade.h:67
 msgid "_Help"
 msgstr ""
 
-#: porthole.glade.h:67
+#: porthole.glade.h:68
 msgid "_Homepage"
 msgstr ""
 
-#: porthole.glade.h:68
+#: porthole.glade.h:69
 msgid "_Kill Process"
 msgstr ""
 
-#: porthole.glade.h:69
+#: porthole.glade.h:70
 msgid "_Normal"
 msgstr ""
 
-#: porthole.glade.h:70
+#: porthole.glade.h:71
 msgid "_Open Log"
 msgstr ""
 
-#: porthole.glade.h:71
+#: porthole.glade.h:72
 msgid "_Pretend"
 msgstr ""
 
-#: porthole.glade.h:72
+#: porthole.glade.h:73
 msgid "_Process"
 msgstr ""
 
-#: porthole.glade.h:73
+#: porthole.glade.h:74
 msgid "_Queue"
 msgstr ""
 
-#: porthole.glade.h:74
+#: porthole.glade.h:75
 msgid "_Remove"
 msgstr ""
 
-#: porthole.glade.h:75
+#: porthole.glade.h:76
 msgid "_Resume"
 msgstr ""
 
-#: porthole.glade.h:76
+#: porthole.glade.h:77
 msgid "_Run Custom Command"
 msgstr ""
 
-#: porthole.glade.h:77
+#: porthole.glade.h:78
 msgid "_Settings"
 msgstr ""
 
-#: porthole.glade.h:78
+#: porthole.glade.h:79
 msgid "_Skip First Package"
 msgstr ""
 
-#: porthole.glade.h:79
+#: porthole.glade.h:80
 msgid "_Upgrade"
 msgstr ""
 
-#: porthole.glade.h:80
+#: porthole.glade.h:81
 msgid "_Upgrade Packages"
 msgstr ""
 
-#: porthole.glade.h:81
+#: porthole.glade.h:82
 msgid "_Upgrades Only"
 msgstr ""
 
-#: porthole.glade.h:82
+#: porthole.glade.h:83
 msgid "_Verbose"
 msgstr ""
 
-#: porthole.glade.h:83
+#: porthole.glade.h:84
 msgid "_View:"
 msgstr ""

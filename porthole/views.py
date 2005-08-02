@@ -697,9 +697,9 @@ class CategoryView(CommonTreeView):
     def set_search( self, option ):
         self.search_cat = option
         if option == True:
-            self.cat_column.set_title("Search History")
+            self.cat_column.set_title(_("Search History"))
         elif option == False:
-            self.cat_column.set_title("Categories")
+            self.cat_column.set_title(_("Categories"))
 
 
     def register_callback(self, category_changed = None):
