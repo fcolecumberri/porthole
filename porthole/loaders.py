@@ -134,6 +134,24 @@ def load_web_page(name, prefs):
     browser.start()
     return
 
+def load_help_page(name, prefs):
+    """Load a locale-specific help page with the default browser."""
+    dprint("LOADERS: load_help_page: %s" % name)
+    lc = prefs.globals.LANG
+    if not lc: lc = "en"
+    helpdir = os.path.join(prefs.DATA_PATH, 'help')
+    if os.access(os.path.join(helpdir, lc, name), os.R_OK):
+        pagename = "file://" + os.path.join(helpdir, lc, name)
+    elif os.access(os.path.join(helpdir, lc.split('_')[0], name), os.R_OK):
+        pagename = "file://" + os.path.join(helpdir, lc.split('_')[0], name)
+    elif os.access(os.path.join(helpdir, "en", name), os.R_OK):
+        pagename = "file://" + os.path.join(helpdir, "en", name)
+    else:
+        dprint(" * LOADERS: failed to find help file '%s' with LANG='%s'!" %
+            (name, prefs.globals.LANG))
+        return False
+    load_web_page(pagename, prefs)
+
 class web_page(threading.Thread):
     """Try to load a web page in the default browser"""
     def __init__(self, name, prefs):
