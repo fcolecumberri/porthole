@@ -4,6 +4,7 @@ MANIFEST
 NEWS
 README
 TODO
+__init__.py
 setup.cfg
 about.py
 advemerge.glade
