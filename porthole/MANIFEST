@@ -64,3 +64,5 @@ help/unmerge.html
 help/update.html
 help/warningtab.png
 i18n/messages.pot
+i18n/vi.po
+i18n/vi/LC_MESSAGES/porthole.mo
