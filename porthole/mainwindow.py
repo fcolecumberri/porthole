@@ -620,7 +620,8 @@ class MainWindow:
             if self.prefs.emerge.pretend or utils.pretend_check(command) or utils.help_check(command)\
                 or utils.info_check(command):
                 # temp set callback for testing
-                callback = self.sync_callback #lambda: None  # a function that does nothing
+                #callback = self.sync_callback
+                callback = lambda: None  # a function that does nothing
             elif package_name == "Sync Portage Tree":
                 callback = self.sync_callback #self.init_data
             else:
@@ -795,10 +796,14 @@ class MainWindow:
             self.up_model = self.package_view.upgrade_model
             # read the upgrade tree into a list of packages to upgrade
             self.up_model.foreach(self.tree_node_to_list)
-            if self.is_root:
+            if self.is_root or self.prefs.emerge.pretend:
                 emerge_cmd = "emerge --noreplace"
-            elif utils.can_sudo() and not self.prefs.emerge.pretend:
+            elif utils.can_sudo():
                 emerge_cmd = 'sudo -p "Password: " emerge --noreplace'
+            else: # can't sudo, not root
+                # display not root dialog and return.
+                self.check_for_root()
+                return
             #dprint(self.packages_list)
             #dprint(self.keyorder)
             for key in self.keyorder:
