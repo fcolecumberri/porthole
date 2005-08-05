@@ -1126,13 +1126,17 @@ class ProcessManager:
     def do_password_popup(self):
         """ Pops up a dialog asking for the users password """
         if hasattr(self, 'password'): # have already entered password, forward it
+            dprint("TERMINAL: do_password_popup: forwarding previously-entered password to sudo")
             if self.reader.fd:
                 try:
                     os.write(self.reader.fd, self.password + '\n')
                 except OSError:
                     dprint(" * TERMINAL: forward_password(): Error forwarding password!")
                 self.append(TAB_PROCESS, '********')
+            else:
+                dprint("TERMINAL: do_password_popup: reader has no open file descriptor, skipping")
             return
+        dprint("TERMINAL: do_password_popup: asking for user's password")
         dialog = gtk.Dialog("Password Required",
                             self.window,
                             gtk.DIALOG_MODAL & gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -1310,9 +1314,6 @@ class ProcessManager:
         except OSError, e:
             if not e.args[0] == 10: # 10 = no process to kill
                 dprint("TERMINAL: OSError %s" % e)
-        # remove stored password
-        if hasattr(self, 'password'):
-            del self.password
         # if the last process was killed, stop until the user does something
         if self.killed:
             # display message that process has been killed
@@ -1320,6 +1321,9 @@ class ProcessManager:
             self.set_statusbar(KILLED_STRING[:-1])
             self.reader.string = ''
             self.reset_buffer_update()
+            # remove stored password
+            if hasattr(self, 'password'):
+                del self.password
             # Clear semaphore, we're done
             #self.Semaphore.release()
             #dprint("TERMINAL: process_done; Semaphore released")
@@ -1457,10 +1461,15 @@ class ProcessManager:
                     self.process_list[0][0] + "]")
             self.task_completed = False
             self._run(self.process_list[0][1], self.process_list[0][2])
-        else: # re-activate the open/save menu items
+        else:
+            dprint("TERMINAL: start_queue: all processes finished!")
+            # re-activate the open/save menu items
             self.save_menu.set_sensitive(True)
             self.save_as_menu.set_sensitive(True)
             self.open_menu.set_sensitive(True)
+            # remove stored password
+            if hasattr(self, 'password'):
+                del self.password
         # We're finished, release semaphore
         #self.Semaphore.release()
         dprint("TERMINAL: start_queue(); finished... returning")
