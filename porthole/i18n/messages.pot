@@ -8,13 +8,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-08-02 22:10+1200\n"
+"POT-Creation-Date: 2005-08-06 02:06+1200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: about.py:42
+#, python-format
+msgid "About Porthole %s"
+msgstr ""
 
 #: advemerge.py:78
 #, python-format
@@ -128,6 +133,10 @@ msgid ""
 " The last sync was done:\n"
 msgstr ""
 
+#: mainwindow.py:235
+msgid "Active Plugins"
+msgstr ""
+
 #: mainwindow.py:278
 msgid "Loading database"
 msgstr ""
@@ -168,60 +177,60 @@ msgstr ""
 msgid "%(base)s: Populating tree"
 msgstr ""
 
-#: mainwindow.py:815
+#: mainwindow.py:820
 msgid "Upgrade requested"
 msgstr ""
 
-#: mainwindow.py:817
+#: mainwindow.py:822
 msgid "Do you want to upgrade all packages in your world file?"
 msgstr ""
 
-#: mainwindow.py:852
+#: mainwindow.py:857
 msgid "Please Wait!"
 msgstr ""
 
-#: mainwindow.py:854
+#: mainwindow.py:859
 msgid "Loading package descriptions..."
 msgstr ""
 
-#: mainwindow.py:903
+#: mainwindow.py:907
 #, python-format
 msgid "Searching descriptions for %s"
 msgstr ""
 
-#: mainwindow.py:905
+#: mainwindow.py:909
 #, python-format
 msgid "Searching for %s"
 msgstr ""
 
-#: mainwindow.py:1228
+#: mainwindow.py:1232
 msgid "Searching for upgradable packages..."
 msgstr ""
 
-#: mainwindow.py:1287
+#: mainwindow.py:1291
 msgid "Building Package List"
 msgstr ""
 
-#: mainwindow.py:1298
+#: mainwindow.py:1302
 msgid "Done: "
 msgstr ""
 
-#: mainwindow.py:1311 mainwindow.py:1317
+#: mainwindow.py:1315 mainwindow.py:1321
 #, python-format
 msgid "%(pack)d packages in %(cat)d categories"
 msgstr ""
 
-#: mainwindow.py:1320
+#: mainwindow.py:1324
 #, python-format
 msgid "%d matches found"
 msgstr ""
 
-#: mainwindow.py:1326
+#: mainwindow.py:1330
 #, python-format
 msgid "%(world)d world, %(deps)d dependencies"
 msgstr ""
 
-#: mainwindow.py:1413
+#: mainwindow.py:1417
 msgid "Confirm: Kill the Running Process in the Terminal"
 msgstr ""
 
@@ -383,141 +392,141 @@ msgstr ""
 msgid "*** Log loading complete : %s"
 msgstr ""
 
-#: terminal.py:1139
+#: terminal.py:1143
 msgid "_Cancel"
 msgstr ""
 
-#: terminal.py:1146
+#: terminal.py:1150
 #, python-format
 msgid ""
 "'sudo -p Password: ' requires your user password to perform the command:\n"
 "'%s'"
 msgstr ""
 
-#: terminal.py:1150
+#: terminal.py:1154
 #, python-format
 msgid ""
 "'su' requires the root password to perform the command:\n"
 "'%s'"
 msgstr ""
 
-#: terminal.py:1156
+#: terminal.py:1160
 msgid "Password: "
 msgstr ""
 
-#: terminal.py:1281
+#: terminal.py:1285
 #, python-format
 msgid "*** Total warnings count for merge = %d \n"
 msgstr ""
 
-#: terminal.py:1287
+#: terminal.py:1291
 #, python-format
 msgid "*** Total cautions count for merge = %d \n"
 msgstr ""
 
-#: terminal.py:1655
+#: terminal.py:1667
 msgid "*** Unfortunately, you don't have enough "
 msgstr ""
 
-#: terminal.py:1656
+#: terminal.py:1668
 msgid "logged information about the listed packages "
 msgstr ""
 
-#: terminal.py:1657
+#: terminal.py:1669
 msgid "to calculate estimated build times "
 msgstr ""
 
-#: terminal.py:1658
+#: terminal.py:1670
 msgid "accurately.\n"
 msgstr ""
 
-#: terminal.py:1661
+#: terminal.py:1674
 msgid "*** Based on the build history of these packages "
 msgstr ""
 
-#: terminal.py:1662
+#: terminal.py:1675
 msgid "on your system, I can estimate that emerging them "
 msgstr ""
 
-#: terminal.py:1663
+#: terminal.py:1676
 msgid "usually takes, on average, "
 msgstr ""
 
-#: terminal.py:1664
+#: terminal.py:1677
 #, python-format
 msgid "%(days)d days, %(hours)d hrs, %(minutes)d mins, and %(seconds)d secs.\n"
 msgstr ""
 
-#: terminal.py:1670
+#: terminal.py:1684
 msgid "*** Note: If you have a lot of programs running on "
 msgstr ""
 
-#: terminal.py:1671
+#: terminal.py:1685
 msgid "your system while porthole is emerging packages, "
 msgstr ""
 
-#: terminal.py:1672
+#: terminal.py:1686
 msgid "or if you have changed your hardware since the "
 msgstr ""
 
-#: terminal.py:1673
+#: terminal.py:1687
 msgid "last time you built some of these packages, this "
 msgstr ""
 
-#: terminal.py:1674
+#: terminal.py:1688
 msgid "estimate may be inaccurate.\n"
 msgstr ""
 
-#: terminal.py:1692
+#: terminal.py:1706
 msgid "*** Unknown File Loading error"
 msgstr ""
 
-#: terminal.py:1696
+#: terminal.py:1710
 msgid "*** File Loading... Processing..."
 msgstr ""
 
-#: terminal.py:1705 terminal.py:1709
+#: terminal.py:1719 terminal.py:1723
 msgid ": Open log File"
 msgstr ""
 
-#: terminal.py:1750
+#: terminal.py:1764
 #, python-format
 msgid "Ovewrite existing file '%s'?"
 msgstr ""
 
-#: terminal.py:1813
+#: terminal.py:1827
 #, python-format
 msgid "*** Loading File : %s"
 msgstr ""
 
-#: terminal.py:1817
+#: terminal.py:1831
 #, python-format
 msgid "Cannot open file '%s': %s"
 msgstr ""
 
-#: terminal.py:1842
+#: terminal.py:1856
 #, python-format
 msgid "Cannot back up '%s' to '%s': %s"
 msgstr ""
 
-#: terminal.py:1853
+#: terminal.py:1867
 #, python-format
 msgid "*** saving file: %s"
 msgstr ""
 
-#: terminal.py:1886
+#: terminal.py:1900
 #, python-format
 msgid ""
 "Can't restore backup file '%s' to '%s': %s\n"
 "Backup left as '%s'"
 msgstr ""
 
-#: terminal.py:1894
+#: terminal.py:1908
 #, python-format
 msgid "*** File saved : %s"
 msgstr ""
 
-#: terminal.py:1904
+#: terminal.py:1918
 #, python-format
 msgid "Save log to '%s'?"
 msgstr ""
