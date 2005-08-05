@@ -896,9 +896,8 @@ class MainWindow:
         if tmp_search_term:
             # change view and statusbar so user knows it's searching.
             # This won't actually do anything unless we thread the search.
-            self.widget["view_filter"].set_history(SHOW_SEARCH)
             self.search_loaded = True # or else v_f_c() tries to call package_search again
-            self.view_filter_changed(self.widget["view_filter"])
+            self.widget["view_filter"].set_history(SHOW_SEARCH)
             if self.prefs.main.search_desc:
                 self.set_statusbar2(_("Searching descriptions for %s") % tmp_search_term)
             else:
