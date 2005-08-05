@@ -125,8 +125,8 @@ if __name__ == "__main__":
             DATA_PATH = "/usr/share/porthole/"
             from porthole import utils as _utils
             from porthole.mainwindow import MainWindow
-            #i18n_DIR = DATA_PATH + 'i18n'
-            i18n_DIR = "/usr/share/locale/"
+            i18n_DIR = DATA_PATH + 'i18n'
+            #i18n_DIR = "/usr/share/locale/"
         except:
             print "*** NO installed porthole modules found!\n*** Please run it from a local directory with the --local flag\n",\
                 "*** Or fix the python path so that it includes porthole's modules"
