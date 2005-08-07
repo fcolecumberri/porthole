@@ -1660,30 +1660,26 @@ class ProcessManager:
                 if curr_estimate != None:
                     total += curr_estimate
                 else:
-                    # IMPORTANT: REPLACE "+"s with "\"s after porthole 0.5.0 release!
-                    # The "+"s are unnecessary and make for badly formatted .po files.
                     self.append(TAB_PROCESS, _(
-                            "*** Unfortunately, you don't have enough " +
-                            "logged information about the listed packages " +
-                            "to calculate estimated build times " +
+                            "*** Unfortunately, you don't have enough " \
+                            "logged information about the listed packages " \
+                            "to calculate estimated build times " \
                             "accurately.\n"), 'note')
                     return None
-            # IMPORTANT: REPLACE "+"'s with "\"'s after porthole 0.5.0 release!
             self.append(TAB_PROCESS, _(
-                        "*** Based on the build history of these packages " +
-                        "on your system, I can estimate that emerging them " +
-                        "usually takes, on average, " + 
+                        "*** Based on the build history of these packages " \
+                        "on your system, I can estimate that emerging them " \
+                        "usually takes, on average, " \
                         "%(days)d days, %(hours)d hrs, %(minutes)d mins, and %(seconds)d secs.\n") %
                         {'days': total.seconds // (24 * 3600),\
                          'hours': (total.seconds % (24 * 3600)) // 3600,\
                          'minutes': ((total.seconds % (24 * 3600))  % 3600) //  60,\
                          'seconds': ((total.seconds % (24 * 3600))  % 3600) %  60}, 'note')
-            # IMPORTANT: REPLACE "+"'s with "\"'s after porthole 0.5.0 release!
             self.append(TAB_PROCESS, _(
-                        "*** Note: If you have a lot of programs running on " +
-                        "your system while porthole is emerging packages, " +
-                        "or if you have changed your hardware since the " +
-                        "last time you built some of these packages, this " +
+                        "*** Note: If you have a lot of programs running on " \
+                        "your system while porthole is emerging packages, " \
+                        "or if you have changed your hardware since the " \
+                        "last time you built some of these packages, this " \
                         "estimate may be inaccurate.\n"), 'note')
 
     def set_save_buffer(self):
