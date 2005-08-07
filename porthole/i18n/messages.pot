@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-08-06 02:06+1200\n"
+"POT-Creation-Date: 2005-08-07 18:31+1200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -245,11 +245,11 @@ msgid ""
 "Are you sure this is a Gentoo system?"
 msgstr ""
 
-#: portagelib.py:521
+#: portagelib.py:527
 msgid "No masking reason given"
 msgstr ""
 
-#: portagelib.py:725
+#: portagelib.py:731
 msgid "No ebuild found."
 msgstr ""
 
@@ -424,109 +424,78 @@ msgstr ""
 msgid "*** Total cautions count for merge = %d \n"
 msgstr ""
 
-#: terminal.py:1667
-msgid "*** Unfortunately, you don't have enough "
-msgstr ""
-
-#: terminal.py:1668
-msgid "logged information about the listed packages "
-msgstr ""
-
-#: terminal.py:1669
-msgid "to calculate estimated build times "
+#: terminal.py:1664
+msgid ""
+"*** Unfortunately, you don't have enough logged information about the listed "
+"packages to calculate estimated build times accurately.\n"
 msgstr ""
 
 #: terminal.py:1670
-msgid "accurately.\n"
-msgstr ""
-
-#: terminal.py:1674
-msgid "*** Based on the build history of these packages "
-msgstr ""
-
-#: terminal.py:1675
-msgid "on your system, I can estimate that emerging them "
-msgstr ""
-
-#: terminal.py:1676
-msgid "usually takes, on average, "
-msgstr ""
-
-#: terminal.py:1677
 #, python-format
-msgid "%(days)d days, %(hours)d hrs, %(minutes)d mins, and %(seconds)d secs.\n"
+msgid ""
+"*** Based on the build history of these packages on your system, I can "
+"estimate that emerging them usually takes, on average, %(days)d days, %"
+"(hours)d hrs, %(minutes)d mins, and %(seconds)d secs.\n"
 msgstr ""
 
-#: terminal.py:1684
-msgid "*** Note: If you have a lot of programs running on "
+#: terminal.py:1679
+msgid ""
+"*** Note: If you have a lot of programs running on your system while "
+"porthole is emerging packages, or if you have changed your hardware since "
+"the last time you built some of these packages, this estimate may be "
+"inaccurate.\n"
 msgstr ""
 
-#: terminal.py:1685
-msgid "your system while porthole is emerging packages, "
-msgstr ""
-
-#: terminal.py:1686
-msgid "or if you have changed your hardware since the "
-msgstr ""
-
-#: terminal.py:1687
-msgid "last time you built some of these packages, this "
-msgstr ""
-
-#: terminal.py:1688
-msgid "estimate may be inaccurate.\n"
-msgstr ""
-
-#: terminal.py:1706
+#: terminal.py:1701
 msgid "*** Unknown File Loading error"
 msgstr ""
 
-#: terminal.py:1710
+#: terminal.py:1705
 msgid "*** File Loading... Processing..."
 msgstr ""
 
-#: terminal.py:1719 terminal.py:1723
+#: terminal.py:1714 terminal.py:1718
 msgid ": Open log File"
 msgstr ""
 
-#: terminal.py:1764
+#: terminal.py:1759
 #, python-format
 msgid "Ovewrite existing file '%s'?"
 msgstr ""
 
-#: terminal.py:1827
+#: terminal.py:1822
 #, python-format
 msgid "*** Loading File : %s"
 msgstr ""
 
-#: terminal.py:1831
+#: terminal.py:1826
 #, python-format
 msgid "Cannot open file '%s': %s"
 msgstr ""
 
-#: terminal.py:1856
+#: terminal.py:1851
 #, python-format
 msgid "Cannot back up '%s' to '%s': %s"
 msgstr ""
 
-#: terminal.py:1867
+#: terminal.py:1862
 #, python-format
 msgid "*** saving file: %s"
 msgstr ""
 
-#: terminal.py:1900
+#: terminal.py:1895
 #, python-format
 msgid ""
 "Can't restore backup file '%s' to '%s': %s\n"
 "Backup left as '%s'"
 msgstr ""
 
-#: terminal.py:1908
+#: terminal.py:1903
 #, python-format
 msgid "*** File saved : %s"
 msgstr ""
 
-#: terminal.py:1918
+#: terminal.py:1913
 #, python-format
 msgid "Save log to '%s'?"
 msgstr ""
@@ -543,19 +512,15 @@ msgstr ""
 msgid "Loading"
 msgstr ""
 
-#: utils.py:425 utils.py:427
+#: utils.py:425 utils.py:446
 msgid "Sync"
 msgstr ""
 
-#: utils.py:428
+#: utils.py:447
 msgid "WebRsync"
 msgstr ""
 
-#: utils.py:429
-msgid "Unknown Sync"
-msgstr ""
-
-#: utils.py:686
+#: utils.py:695
 msgid ""
 "Error reading emerge log file.  Check file permissions, or check for corrupt "
 "log file."
