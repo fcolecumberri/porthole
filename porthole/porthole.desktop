@@ -1,14 +1,18 @@
 [Desktop Entry]
 Encoding=UTF-8
+
 Name=The Porthole Portage Frontend
 Name[de]=Die Porthole Portage Oberfläche
 Name[fr]=L'application graphique pour Portage
 #Name[<lang>]=
+
 Comment=Use a GTK-based frontend to the Gentoo package management system
-Comment[de]=Eine GTK-basierende Oberfläche zum Gentoo package management system
+Comment[de]=Benutzen Sie eine GTK-basierende Oberfläche für das Paketmanagement von Gentoo
 Comment[fr]=Une appli graphique GTK pour le système de gestion de packetages de Gentoo
 #Comment[<lang>]=
-Icon=/usr/share/porthole/pixmaps/porthole-icon.png
+
+Icon=porthole-icon.png
 Exec=porthole
+StartupNotify=true
 Type=Application
 Categories=Application;System;
