@@ -424,9 +424,10 @@ class PortholePreferences:
             ["Sync", "emerge sync"],
             ["Sync_label", _("Sync")],
             #                use the form " [sync-command, sync-label],
-            ["Sync_methods", [['emerge sync', _('Sync')],
-                              ['emerge-webrsync', _('WebRsync')],
-                              ['#user defined', _('Unknown Sync')]]],
+            # note: this is now hard-coded below
+            #["Sync_methods", [['emerge sync', _('Sync')],
+            #                  ['emerge-webrsync', _('WebRsync')],
+            #                  ['#user defined', _('Unknown Sync')]]],
             ['custom_browser_command', 'firefox %s'],
             ['use_custom_browser', False],
             ['su', 'gksu'],
@@ -441,6 +442,14 @@ class PortholePreferences:
                 dprint("DEFAULT VALUE: %s = %s" %(option,str(value)))
             setattr(self.globals, option, value)
             dprint("UTILS: PortholePreferences; setting globals.%s = %s" %(option, str(value)))
+        
+        self.globals.Sync_methods = [['emerge sync', _('Sync')],
+                                     ['emerge-webrsync', _('WebRsync')]]
+        
+        # fix sync_label if translation changed
+        for method in self.globals.Sync_methods:
+            if method[0] == self.globals.Sync:
+                self.globals.Sync_label = method[1]
         
         if New_prefs:
             for option, value in New_prefs:
@@ -528,7 +537,7 @@ class PortholePreferences:
         dom.additem('/globals/archlist', self.globals.archlist)
         dom.additem('/globals/Sync', self.globals.Sync)
         dom.additem('/globals/Sync_label', self.globals.Sync_label)
-        dom.additem('/globals/Sync_methods', self.globals.Sync_methods)
+        #dom.additem('/globals/Sync_methods', self.globals.Sync_methods)
         dom.additem('/globals/custom_browser_command', self.globals.custom_browser_command)
         dom.additem('/globals/use_custom_browser', self.globals.use_custom_browser)
         dom.additem('/globals/su', self.globals.su)
