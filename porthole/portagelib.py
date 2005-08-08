@@ -244,7 +244,7 @@ def get_user_config(file, name=None, ebuild=None):
     if ebuild is not None:
         result = []
         for line in config:
-            if line[0]:
+            if line and line[0]:
                 if line[0].startswith('#'):
                     continue
                 match = xmatch('match-list', line[0], mylist=[ebuildname])
@@ -255,7 +255,7 @@ def get_user_config(file, name=None, ebuild=None):
     if name:
         target = xmatch('match-all', name)
         for line in config:
-            if line[0]:
+            if line and line[0]:
                 if line[0].startswith('#'):
                     continue
                 ebuilds = xmatch('match-all', line[0])
@@ -264,7 +264,7 @@ def get_user_config(file, name=None, ebuild=None):
                         dict[ebuild] = line[1:]
     else:
         for line in config:
-            if line[0]:
+            if line and line[0]:
                 if line[0].startswith('#'):
                     continue
                 ebuilds = xmatch('match-all', line[0])
