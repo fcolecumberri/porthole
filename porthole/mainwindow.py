@@ -932,7 +932,8 @@ class MainWindow:
                                searchstrings):
                     count += 1
                     iter = search_results.insert_before(None, None)
-                    search_results.set_value(iter, 0, name)
+                    #search_results.set_value(iter, 0, name)
+                    search_results.set_value(iter, 0, data.full_name)
                     search_results.set_value(iter, 2, data)
                     search_results.set_value(iter, 5, '')
                     #dprint("MAINWINDOW: package_search; found: %s, in_world=%d" %(data.full_name,data.in_world))
@@ -960,8 +961,10 @@ class MainWindow:
                         view.render_icon(icon,
                                          size = gtk.ICON_SIZE_MENU,
                                          detail = None))
-                    package_list[name] = data
+                    #package_list[name] = data
+                    package_list[data.full_name] = data
             search_results.size = count  # store number of matches
+            dprint("MAINWINDOW: package_search: found %s entries" % count)
             # in case the search view was already active
             self.update_statusbar(SHOW_SEARCH)
             self.search_history[search_term] = package_list

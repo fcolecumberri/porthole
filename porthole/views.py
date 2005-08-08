@@ -545,6 +545,7 @@ class PackageView(CommonTreeView):
         model.clear()
         names = portagelib.sort(packages.keys())
         path = None
+        locate_count = 0
         for name in names:
             # go through each package
             iter = model.insert_before(None, None)
@@ -565,12 +566,13 @@ class PackageView(CommonTreeView):
                                  size = gtk.ICON_SIZE_MENU,
                                  detail = None))
             if locate_name:
-                if name == locate_name:
+                if name.split('/')[-1] == locate_name:
+                    locate_count += 1
                     path = model.get_path(iter)
                     #if path:
                         # use callback function to store the path
                         #self.mainwindow_callback("set path", path)
-        if path:
+        if locate_count == 1: # found unique exact result - select it
             self.set_cursor(path)
         dprint("VIEWS: starting info_thread")
         self.infothread_die = False
