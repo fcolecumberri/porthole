@@ -309,6 +309,7 @@ def set_user_config(file, name='', ebuild='', add=[], remove=[]):
     done = False
     # Check if there is already a line to append to
     for line in config:
+        if not line: continue
         if line[0] == name:
             done = True
             for flag in remove:
@@ -379,14 +380,14 @@ def get_make_conf(want_linelist=False, savecopy=False):
         elif '=' in strippedline:
             splitline = strippedline.split('=', 1)
             if '"' in splitline[0] or "'" in splitline[0]:
-                dprint(" * PORTAGELIB: get_make_conf(): couldn't handle line %s" % line)
+                dprint(" * PORTAGELIB: get_make_conf(): couldn't handle line '%s'. Ignoring" % line)
                 linelist.append([strippedline])
             else:
                 linelist.append(splitline)
             #linelist.append([splitline[0]])
             #linelist[-1].append('='.join(splitline[1:])) # might have been another '='
         else:
-            dprint(" * PORTAGELIB: get_make_conf(): couldn't handle line %s" % line)
+            dprint(" * PORTAGELIB: get_make_conf(): couldn't handle line '%s'. Ignoring" % line)
             linelist.append([strippedline])
     dict = {}
     for line in linelist:
