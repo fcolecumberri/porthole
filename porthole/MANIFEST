@@ -15,10 +15,12 @@ config.py
 configuration.xml
 depends.py
 dispatcher.py
+dopot.sh
 loaders.py
 mainwindow.py
 metadata.py
 plugin.py
+pocompile.sh
 portagelib.py
 porthole
 porthole.desktop
@@ -64,5 +66,8 @@ help/unmerge.html
 help/update.html
 help/warningtab.png
 i18n/messages.pot
+i18n/de_DE.po
 i18n/vi.po
-i18n/vi/LC_MESSAGES/porthole.mo
+i18n/ru.po
+i18n/pl.po
+i18n/fr_FR.po
