@@ -29,10 +29,14 @@ setup( \
              "help/search.html", "help/summarytab.png", "help/sync.html",
              "help/termrefs.html", "help/termwindow.html", "help/termwindow.png", "help/toc.html",
              "help/unmerge.html", "help/update.html", "help/warningtab.png"]),
-        (datadir, ["advemerge.glade", "porthole.glade", "config.glade", "configuration.xml"]),
-        (datadir + "i18n", ["i18n/messages.pot", "i18n/vi.po"]),
-        (datadir + "i18n/vi/LC_MESSAGES", ["i18n/vi/LC_MESSAGES/porthole.mo"]),
+        (datadir,
+            ["advemerge.glade", "porthole.glade", "config.glade", "configuration.xml",
+             "dopot.sh", "pocompile.sh"]),
+        (datadir + "i18n",
+            ["i18n/messages.pot", "i18n/vi.po", "i18n/fr_FR.po", "i18n/de_DE.po",
+             "i18n/pl.po", "i18n/ru.po"]),
         ("share/applications", ["porthole.desktop"]),
+        ("share/pixmaps", ["pixmaps/porthole-icon.png"]),
         (datadir + "plugins", ["plugins/__init__.py"])
     ]
 )
