@@ -54,15 +54,15 @@ def get_world():
             world = file.read().split()
             file.close()
         except:
-            dprint("UTILS: get_world(); Failure to locate file: '/var/lib/portage/world'")
-            dprint("UTILS: get_world(); Trying '/var/cache/edb/world'")
+            dprint("PORTAGELIB: get_world(); Failure to locate file: '/var/lib/portage/world'")
+            dprint("PORTAGELIB: get_world(); Trying '/var/cache/edb/world'")
             try:
                 file = open("/var/cache/edb/world", "r")
                 world = file.read().split()
                 file.close()
                 dprint("OK")
             except:
-                dprint("MAINWINDOW: UpgradableReader(); Failed to locate the world file")
+                dprint("PORTAGELIB: get_world(); Failed to locate the world file")
         return world
 
 World = get_world()
