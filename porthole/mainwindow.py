@@ -616,16 +616,30 @@ class MainWindow:
         if (self.is_root
                 or run_anyway
                 or (self.prefs.emerge.pretend and command[:11] != self.prefs.globals.Sync)
-                or command.startswith("sudo")):
-            if self.prefs.emerge.pretend or utils.pretend_check(command) or utils.help_check(command)\
-                or utils.info_check(command):
+                or command.startswith("sudo ")):
+            if command.startswith('sudo -p "Password: "'):
+                dprint('MAINWINDOW: setup_command(); removing \'sudo -p "Password: "\' for pretend_check')
+                is_pretend = utils.pretend_check(command[21:])
+            else:
+                is_pretend = utils.pretend_check(command)
+            dprint("MAINWINDOW: setup_command(); emerge.pretend = %s, pretend_check = %s, help_check = %s, info_check = %s"\
+                    %(str(self.prefs.emerge.pretend), str(is_pretend), str(utils.help_check(command)),\
+                        str(utils.info_check(command))))
+            if (self.prefs.emerge.pretend
+                    or is_pretend
+                    or utils.help_check(command)
+                    or utils.info_check(command)):
                 # temp set callback for testing
                 #callback = self.sync_callback
                 callback = lambda: None  # a function that does nothing
+                dprint("MAINWINDOW: setup_command(); callback set to lambda: None")
             elif package_name == "Sync Portage Tree":
                 callback = self.sync_callback #self.init_data
+                dprint("MAINWINDOW: setup_command(); callback set to self.sync_callback")
             else:
+                #dprint("MAINWINDOW: setup_command(); setting callback()")
                 callback = self.reload_db
+                dprint("MAINWINDOW: setup_command(); callback set to self.reload_db")
                 #callback = self.package_update
             #ProcessWindow(command, env, self.prefs, callback)
             self.process_manager.add_process(package_name, command, callback)
