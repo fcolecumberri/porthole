@@ -791,10 +791,10 @@ class MainWindow:
         if gparamspec.name == "position":
             # bugfix for hpane jump bug. Now why does this happen?
             # it seems we need to reset the hpane the first time this gets called...
-            if self.hpane_bug:
-                self.hpane.set_position(self.prefs.main.hpane)
-                self.hpane_bug = False
-                return True
+            #if self.hpane_bug:
+                #self.hpane.set_position(self.prefs.main.hpane)
+                #self.hpane_bug = False
+                #return True
             # save hpane, vpane positions
             self.prefs.main.hpane = hpanepos = self.hpane.get_position()
             self.prefs.main.vpane = vpanepos = self.vpane.get_position()
