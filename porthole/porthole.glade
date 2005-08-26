@@ -840,7 +840,7 @@
 	    </widget>
 	    <packing>
 	      <property name="shrink">False</property>
-	      <property name="resize">True</property>
+	      <property name="resize">False</property>
 	    </packing>
 	  </child>
 
@@ -2528,7 +2528,7 @@ Copyright (C) 2003 - 2005</property>
 	<packing>
 	  <property name="padding">0</property>
 	  <property name="expand">True</property>
-	  <property name="fill">True</property>
+	  <property name="fill">False</property>
 	</packing>
       </child>
     </widget>
