@@ -86,10 +86,10 @@ class AdvancedEmergeDialog:
         self.btnMakeConf = self.wtree.get_widget("btnMakeConf")
         self.btnPkgUse = self.wtree.get_widget("btnPkgUse")
         self.btnPkgKeywords = self.wtree.get_widget("btnPkgKeywords")
-        if not self.is_root:
-            self.btnMakeConf.hide()
-            self.btnPkgUse.hide()
-            self.btnPkgKeywords.hide()
+        #~ if not self.is_root:
+            #~ self.btnMakeConf.hide()
+            #~ self.btnPkgUse.hide()
+            #~ self.btnPkgKeywords.hide()
         
         # Connect option toggles to on_toggled
         for checkbutton in self.wtree.get_widget("table2").get_children():
@@ -286,7 +286,7 @@ class AdvancedEmergeDialog:
                 removelist.append(item[1:])
             else:
                 removelist.append('-' + item)
-        okay = portagelib.set_user_config( \
+        okay = portagelib.set_user_config( self.prefs,\
                 'package.use', name=self.package.full_name,
                 add=addlist, remove=removelist)
         verInfo = self.current_verInfo
