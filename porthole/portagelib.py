@@ -22,12 +22,14 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 """
 
-from utils import dprint, dsave
+from utils import dprint, dsave, is_root
 from sys import exit
 import os
 import string
 from string import digits, zfill
 from gettext import gettext as _
+from sterminal import SimpleTerminal
+from dispatcher import Dispatcher
 import version_sort
 
 try:
@@ -39,9 +41,9 @@ except ImportError:
 
 import threading
 
-# not sure if segfaults are gtk.threads_enter() / _leave() related
-# so...
-#import gtk
+if is_root: # then import some modules and run it directly
+    import set_config
+
 
 from metadata import parse_metadata
 
@@ -74,6 +76,7 @@ def reload_world():
 
 
 def reload_portage():
+    dprint('PORTAGELIB: reloading portage')
     reload(portage)
 
 def get_use_flag_dict():
@@ -272,7 +275,7 @@ def get_user_config(file, name=None, ebuild=None):
                     dict[ebuild] = line[1:]
     return dict
 
-def set_user_config(file, name='', ebuild='', add=[], remove=[]):
+def set_user_config(prefs, file, name='', ebuild='', add=[], remove=[]):
     """
     Adds <name> or '=' + <ebuild> to <file> with flags <add>.
     If an existing entry is found, items in <remove> are removed and <add> is added.
@@ -281,76 +284,116 @@ def set_user_config(file, name='', ebuild='', add=[], remove=[]):
     remove are removed, and items in <add> are added as new lines.
     """
     dprint("PORTAGELIB: set_user_config()")
-    if isinstance(add, basestring):
-        add = [add]
-    if isinstance(remove, basestring):
-        remove = [remove]
+    command = ''
     maskfiles = ['package.mask', 'package.unmask']
     otherfiles = ['package.use', 'package.keywords']
     package_files = otherfiles + maskfiles
     if file not in package_files:
-        dprint(" * PORTAGELIB: get_user_config(): unsupported config file '%s'" % file)
+        dprint(" * PORTAGELIB: set_user_config(); unsupported config file '%s'" % file)
         return False
     config_path = portage_const.USER_CONFIG_PATH
     if not os.access(config_path, os.W_OK):
-        dprint(" * PORTAGELIB: get_user_config(): no write access to '%s'. " \
-              "Perhaps the user is not root?" % config_path)
-        return False
-    filename = '/'.join([config_path, file])
-    if os.access(filename, os.F_OK): # if file exists
-        configfile = open(filename, 'r')
-        configlines = configfile.readlines()
-        configfile.close()
+        command = (prefs.globals.su + ' "python ' + prefs.DATA_PATH + 'set_config.py -d -f %s ' %file)
+        if name != '':
+            command = (command + '-n %s ' %name)
+        if ebuild != '':
+            command = (command + '-e %s ' %ebuild)
+        if add != []:
+            command = (command + '-a %s ' %("'"+string.join(add,' ') +"'"))
+        if remove != []:
+            command = (command + '-r %s' %("'"+string.join(remove,' ') +"'"))
+        command = command + '"'
+        dprint(" * PORTAGELIB: set_user_config(); command = %s" %command )
+        app = SimpleTerminal(command, False, Dispatcher(reload_portage))
+        app._run()
     else:
-        configlines = ['']
-    config = [line.split() for line in configlines]
-    if not name:
-        name = '=' + ebuild
-    done = False
-    # Check if there is already a line to append to
-    for line in config:
-        if not line: continue
-        if line[0] == name:
-            done = True
-            for flag in remove:
-                if flag in line:
-                    line.remove(flag)
-            for flag in add:
-                if flag not in line:
-                    line.append(flag)
-            if not line[1:]: # if we've removed everything and added nothing
-                config[config.index(line)] = []
-        elif line[0] in remove:
-            config[config.index(line)] = []
-    if not done:
-        if name != '=': # package.use/keywords: name or ebuild given
-            if add:
-                config.append([name] + add)
-            elif ebuild:
-                # Probably tried to modify by ebuild but was listed by package.
-                # Do a pass with the package name just in case
-                return set_user_config(file, name=get_full_name(ebuild), remove=remove)
-        else: # package.mask/unmask: list of names to add
-            config.extend([[item] for item in add])
-        done = True
-    # remove blank lines
-    while [] in config:
-        config.remove([])
-    while [''] in config:
-        config.remove([''])
-    # add one blank line to end (so we end with a \n)
-    config.append([''])
-    configlines = [' '.join(line) for line in config]
-    configtext = '\n'.join(configlines)
-    configfile = open(filename, 'w')
-    configfile.write(configtext)
-    configfile.close()
+        set_config.set_user_config(file, name, ebuild, add, remove)
     # This is slow, but otherwise portage doesn't notice the change.
-    reload_portage()
+    #reload_portage()
     # Note: could perhaps just update portage.settings.
     # portage.settings.pmaskdict, punmaskdict, pkeywordsdict, pusedict
     # or portage.portdb.mysettings ?
     return True
+
+#~ def set_user_config(file, name='', ebuild='', add=[], remove=[]):
+    #~ """
+    #~ Adds <name> or '=' + <ebuild> to <file> with flags <add>.
+    #~ If an existing entry is found, items in <remove> are removed and <add> is added.
+    
+    #~ If <name> and <ebuild> are not given then lines starting with something in
+    #~ remove are removed, and items in <add> are added as new lines.
+    #~ """
+    #~ dprint("PORTAGELIB: set_user_config()")
+    #~ if isinstance(add, basestring):
+        #~ add = [add]
+    #~ if isinstance(remove, basestring):
+        #~ remove = [remove]
+    #~ maskfiles = ['package.mask', 'package.unmask']
+    #~ otherfiles = ['package.use', 'package.keywords']
+    #~ package_files = otherfiles + maskfiles
+    #~ if file not in package_files:
+        #~ dprint(" * PORTAGELIB: get_user_config(): unsupported config file '%s'" % file)
+        #~ return False
+    #~ config_path = portage_const.USER_CONFIG_PATH
+    #~ if not os.access(config_path, os.W_OK):
+        #~ dprint(" * PORTAGELIB: get_user_config(): no write access to '%s'. " \
+              #~ "Perhaps the user is not root?" % config_path)
+        #~ return False
+    #~ filename = '/'.join([config_path, file])
+    #~ if os.access(filename, os.F_OK): # if file exists
+        #~ configfile = open(filename, 'r')
+        #~ configlines = configfile.readlines()
+        #~ configfile.close()
+    #~ else:
+        #~ configlines = ['']
+    #~ config = [line.split() for line in configlines]
+    #~ if not name:
+        #~ name = '=' + ebuild
+    #~ done = False
+    #~ # Check if there is already a line to append to
+    #~ for line in config:
+        #~ if not line: continue
+        #~ if line[0] == name:
+            #~ done = True
+            #~ for flag in remove:
+                #~ if flag in line:
+                    #~ line.remove(flag)
+            #~ for flag in add:
+                #~ if flag not in line:
+                    #~ line.append(flag)
+            #~ if not line[1:]: # if we've removed everything and added nothing
+                #~ config[config.index(line)] = []
+        #~ elif line[0] in remove:
+            #~ config[config.index(line)] = []
+    #~ if not done:
+        #~ if name != '=': # package.use/keywords: name or ebuild given
+            #~ if add:
+                #~ config.append([name] + add)
+            #~ elif ebuild:
+                #~ # Probably tried to modify by ebuild but was listed by package.
+                #~ # Do a pass with the package name just in case
+                #~ return set_user_config(file, name=get_full_name(ebuild), remove=remove)
+        #~ else: # package.mask/unmask: list of names to add
+            #~ config.extend([[item] for item in add])
+        #~ done = True
+    #~ # remove blank lines
+    #~ while [] in config:
+        #~ config.remove([])
+    #~ while [''] in config:
+        #~ config.remove([''])
+    #~ # add one blank line to end (so we end with a \n)
+    #~ config.append([''])
+    #~ configlines = [' '.join(line) for line in config]
+    #~ configtext = '\n'.join(configlines)
+    #~ configfile = open(filename, 'w')
+    #~ configfile.write(configtext)
+    #~ configfile.close()
+    #~ # This is slow, but otherwise portage doesn't notice the change.
+    #~ reload_portage()
+    #~ # Note: could perhaps just update portage.settings.
+    #~ # portage.settings.pmaskdict, punmaskdict, pkeywordsdict, pusedict
+    #~ # or portage.portdb.mysettings ?
+    #~ return True
 
 def get_make_conf(want_linelist=False, savecopy=False):
     """
