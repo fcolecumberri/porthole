@@ -196,7 +196,9 @@ class ProcessManager:
             dprint("TERMINAL: show_window(): window attribute already set... attempting show")
             # clear text buffer and emerge queue, hide tabs
             self.clear_buffer(None)
+            dprint("TERMINAL: show_window(): buffers cleared... clearing queue model...")
             self.queue_model.clear()
+            dprint("TERMINAL: show_window(): queue model cleared")
             for tab in [TAB_WARNING, TAB_CAUTION, TAB_INFO, TAB_QUEUE]:
                 self.hide_tab(tab)
             # re-set base values for textviews
@@ -1326,7 +1328,7 @@ class ProcessManager:
                 del self.password
             # Clear semaphore, we're done
             #self.Semaphore.release()
-            #dprint("TERMINAL: process_done; Semaphore released")
+            dprint("TERMINAL: process_done; self.killed = True, returning")
             return
             
         # If the user did an emerge --pretend, we print out
@@ -1366,9 +1368,11 @@ class ProcessManager:
         try:
             callback = self.process_list[0][3]
         except:
+            dprint("TERMINAL: do_callback(); Failed to get a callback for %s" %self.process_list[0][0])
             callback = None
         # if there is a callback set, call it
         if callback:
+            dprint("TERMINAL: do_callback(); Calling callback()")
             callback()
             # callback(self.callback_package)
 
