@@ -275,7 +275,7 @@ def get_user_config(file, name=None, ebuild=None):
                     dict[ebuild] = line[1:]
     return dict
 
-def set_user_config(prefs, file, name='', ebuild='', add=[], remove=[]):
+def set_user_config(prefs, file, name='', ebuild='', add='', remove=''):
     """
     Adds <name> or '=' + <ebuild> to <file> with flags <add>.
     If an existing entry is found, items in <remove> are removed and <add> is added.
@@ -291,6 +291,10 @@ def set_user_config(prefs, file, name='', ebuild='', add=[], remove=[]):
     if file not in package_files:
         dprint(" * PORTAGELIB: set_user_config(); unsupported config file '%s'" % file)
         return False
+    if isinstance(add, list):
+        add = ' '.join(add)
+    if isinstance(remove, list):
+        remove = ' '.join(remove)
     config_path = portage_const.USER_CONFIG_PATH
     if not os.access(config_path, os.W_OK):
         command = (prefs.globals.su + ' "python ' + prefs.DATA_PATH + 'set_config.py -d -f %s ' %file)
@@ -298,10 +302,10 @@ def set_user_config(prefs, file, name='', ebuild='', add=[], remove=[]):
             command = (command + '-n %s ' %name)
         if ebuild != '':
             command = (command + '-e %s ' %ebuild)
-        if add != []:
-            command = (command + '-a %s ' %("'"+string.join(add,' ') +"'"))
-        if remove != []:
-            command = (command + '-r %s' %("'"+string.join(remove,' ') +"'"))
+        if add != '':
+            command = (command + '-a %s ' %("'" + add + "'"))
+        if remove != '':
+            command = (command + '-r %s' %("'" + remove + "'"))
         command = command + '"'
         dprint(" * PORTAGELIB: set_user_config(); command = %s" %command )
         app = SimpleTerminal(command, False, Dispatcher(reload_portage))
