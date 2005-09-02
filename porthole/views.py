@@ -775,7 +775,7 @@ class DependsView(CommonTreeView):
         # setup the model
         self.model = DependsTree()
         dprint("VIEWS: Depends view initialized")
-        return self
+        #return self
 
     def fill_depends_tree(self, treeview, package):
         """ Fill the dependency tree with dependencies """
