@@ -1006,6 +1006,7 @@ class MainWindow:
 
     def refresh(self):
         """Refresh PackageView"""
+        mode = self.widget["view_filter"].get_history()
         if mode == SHOW_SEARCH:
             self.category_changed(self.current_search)
         else:
