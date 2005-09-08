@@ -28,6 +28,7 @@ porthole.glade
 porthole.svg
 process_reader.py
 readers.py
+set_config.py
 setup.cfg
 setup.py
 sterminal.py
