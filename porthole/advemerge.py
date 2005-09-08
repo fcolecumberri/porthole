@@ -288,17 +288,17 @@ class AdvancedEmergeDialog:
                 removelist.append('-' + item)
         okay = portagelib.set_user_config( self.prefs,\
                 'package.use', name=self.package.full_name,
-                add=addlist, remove=removelist)
-        verInfo = self.current_verInfo
-        ebuild = verInfo["name"]
-        if okay:
-            if self.package.properties.has_key(ebuild):
-                # Remove properties object so everything's recalculated
-                del self.package.properties[ebuild]
-            self.reload()
-            #self.version_changed(None)
-        else:
-            dprint("ADVEMERGE: on_package_use_commit(): Error...")
+                add=addlist, remove=removelist, callback=self.reload )
+##        verInfo = self.current_verInfo
+##        ebuild = verInfo["name"]
+##        if okay:
+##            if self.package.properties.has_key(ebuild):
+##                # Remove properties object so everything's recalculated
+##                del self.package.properties[ebuild]
+##            self.reload()
+##            #self.version_changed(None)
+##        else:
+##            dprint("ADVEMERGE: on_package_use_commit(): Error...")
     
     def on_make_conf_commit(self, button_widget):
         dprint("ADVEMERGE: on_make_conf_commit()")
@@ -355,8 +355,12 @@ class AdvancedEmergeDialog:
 
     def reload(self):
         """ Reload package info """
+        # This is the callback for changes to portage config files, so we need to reload portage
+        portagelib.reload_portage
+        
         self.system_use_flags = portagelib.SystemUseFlags
         self.package_use_flags = portagelib.get_user_config('package.use', self.package.full_name)
+        #dprint(self.package_use_flags)
         
         self.current_verInfo = None
         self.get_versions()
@@ -497,14 +501,26 @@ class AdvancedEmergeDialog:
         for child in self.ufList:
             #flag = child[1][1:]
             flag = child[1]
+            if flag in ebuild_use_flags and '-' + flag in ebuild_use_flags:
+                # check to see which comes last (this will be the applicable one)
+                ebuild_use_flags.reverse()
+                if ebuild_use_flags.index(flag) < ebuild_use_flags.index('-' + flag):
+                    flag_active = True
+                else:
+                    flag_active = False
+                ebuild_use_flags.reverse()
+            elif flag in ebuild_use_flags:
+                flag_active = True
+            else:
+                flag_active = False
             if child[0].get_active():
                 #if child[1][0] == '-':
-                if flag not in ebuild_use_flags:
+                if not flag_active:
                     #flags += flag + ' '
                     flaglist.append(flag)
             else:
                 #if child[1][0] == '+':
-                if flag in ebuild_use_flags:
+                if flag_active:
                     #flags += '-' + flag + ' '
                     flaglist.append('-' + flag)
         flags = ' '.join(flaglist)
@@ -653,23 +669,36 @@ class AdvancedEmergeDialog:
         else:
             ebuild_use_flags = self.system_use_flags
         for flag in use_flags:
-            #button = gtk.CheckButton(flag)
-            if flag in ebuild_use_flags:
-                # Display system level flags with a +
-                #button = gtk.CheckButton('+' + flag)
-                button = gtk.CheckButton(flag)
-                # By default they are set "on"
-                button.set_active(True)
-                #self.ufList.append([button, '+' + flag])
-                self.ufList.append([button, flag])
+            if flag in ebuild_use_flags and '-' + flag in ebuild_use_flags:
+                # check to see which comes last (this will be the applicable one)
+                ebuild_use_flags.reverse()
+                if ebuild_use_flags.index(flag) < ebuild_use_flags.index('-' + flag):
+                    flag_active = True
+                else:
+                    flag_active = False
+                ebuild_use_flags.reverse()
+            elif flag in ebuild_use_flags:
+                flag_active = True
             else:
-                # Display unset flags with a -
-                #button = gtk.CheckButton('-' + flag)
-                button = gtk.CheckButton(flag)
-                # By default they are set "off"
-                button.set_active(False)
-                #self.ufList.append([button, '-' + flag])
-                self.ufList.append([button, flag])
+                flag_active = False
+            button = gtk.CheckButton(flag)
+            button.set_active(flag_active)
+            self.ufList.append([button, flag])
+##            if flag in ebuild_use_flags:
+##                # Display system level flags with a +
+##                #button = gtk.CheckButton('+' + flag)
+##                if "-" + flag in package_use_flags: # nullified by package.use
+##                    button.set_active(False)
+##                else:
+##                    button.set_active(True)
+##                #self.ufList.append([button, '+' + flag])
+##                self.ufList.append([button, flag])
+##            else:
+##                # Display unset flags with a -
+##                #button = gtk.CheckButton('-' + flag)
+##                button.set_active(False)
+##                #self.ufList.append([button, '-' + flag])
+##                self.ufList.append([button, flag])
 
             # Add tooltip, attach button to table and show it off
             # Use lower case flag, since that is how it is stored
