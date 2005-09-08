@@ -456,7 +456,7 @@ class Summary(gtk.TextView):
             show_vnums(versions)
             nl(2)
         
-        append("Properties for version: ", "property")
+        append(_("Properties for version: "), "property")
         append(portagelib.get_version(ebuild))
         nl(2)
         
