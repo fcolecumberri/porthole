@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-08-07 18:31+1200\n"
+"POT-Creation-Date: 2005-09-08 23:58+1200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,40 +26,40 @@ msgstr ""
 msgid "Advanced Emerge Settings for %s"
 msgstr ""
 
-#: advemerge.py:124 advemerge.py:374
+#: advemerge.py:124 advemerge.py:378
 #, python-format
 msgid "Slot:%s"
 msgstr ""
 
-#: advemerge.py:126 advemerge.py:376
+#: advemerge.py:126 advemerge.py:380
 msgid "   {unavailable}"
 msgstr ""
 
-#: advemerge.py:128 advemerge.py:378
+#: advemerge.py:128 advemerge.py:382
 msgid "   (unstable)"
 msgstr ""
 
-#: advemerge.py:130 advemerge.py:380
+#: advemerge.py:130 advemerge.py:384
 msgid "   [MASKED]"
 msgstr ""
 
-#: advemerge.py:133 advemerge.py:383
+#: advemerge.py:133 advemerge.py:387
 msgid "   (recommended) (downgrade)"
 msgstr ""
 
-#: advemerge.py:135 advemerge.py:385
+#: advemerge.py:135 advemerge.py:389
 msgid "   (recommended)"
 msgstr ""
 
-#: advemerge.py:138 advemerge.py:388
+#: advemerge.py:138 advemerge.py:392
 msgid "   [installed]"
 msgstr ""
 
-#: advemerge.py:682
+#: advemerge.py:711
 msgid "Unsupported use flag"
 msgstr ""
 
-#: advemerge.py:724 depends.py:389
+#: advemerge.py:753 depends.py:389
 msgid "None"
 msgstr ""
 
@@ -177,60 +177,60 @@ msgstr ""
 msgid "%(base)s: Populating tree"
 msgstr ""
 
-#: mainwindow.py:820
+#: mainwindow.py:834
 msgid "Upgrade requested"
 msgstr ""
 
-#: mainwindow.py:822
+#: mainwindow.py:836
 msgid "Do you want to upgrade all packages in your world file?"
 msgstr ""
 
-#: mainwindow.py:857
+#: mainwindow.py:871
 msgid "Please Wait!"
 msgstr ""
 
-#: mainwindow.py:859
+#: mainwindow.py:873
 msgid "Loading package descriptions..."
 msgstr ""
 
-#: mainwindow.py:907
+#: mainwindow.py:921
 #, python-format
 msgid "Searching descriptions for %s"
 msgstr ""
 
-#: mainwindow.py:909
+#: mainwindow.py:923
 #, python-format
 msgid "Searching for %s"
 msgstr ""
 
-#: mainwindow.py:1232
+#: mainwindow.py:1250
 msgid "Searching for upgradable packages..."
 msgstr ""
 
-#: mainwindow.py:1291
+#: mainwindow.py:1309
 msgid "Building Package List"
 msgstr ""
 
-#: mainwindow.py:1302
+#: mainwindow.py:1320
 msgid "Done: "
 msgstr ""
 
-#: mainwindow.py:1315 mainwindow.py:1321
+#: mainwindow.py:1333 mainwindow.py:1339
 #, python-format
 msgid "%(pack)d packages in %(cat)d categories"
 msgstr ""
 
-#: mainwindow.py:1324
+#: mainwindow.py:1342
 #, python-format
 msgid "%d matches found"
 msgstr ""
 
-#: mainwindow.py:1330
+#: mainwindow.py:1348
 #, python-format
 msgid "%(world)d world, %(deps)d dependencies"
 msgstr ""
 
-#: mainwindow.py:1417
+#: mainwindow.py:1435
 msgid "Confirm: Kill the Running Process in the Terminal"
 msgstr ""
 
@@ -239,17 +239,17 @@ msgstr ""
 msgid "Metadata file \"%s\" does not exist."
 msgstr ""
 
-#: portagelib.py:37
+#: portagelib.py:39 set_config.py:34
 msgid ""
 "Could not find portage module.\n"
 "Are you sure this is a Gentoo system?"
 msgstr ""
 
-#: portagelib.py:527
+#: portagelib.py:576
 msgid "No masking reason given"
 msgstr ""
 
-#: portagelib.py:731
+#: portagelib.py:780
 msgid "No ebuild found."
 msgstr ""
 
@@ -309,15 +309,15 @@ msgstr ""
 msgid "Available versions for %s:\n"
 msgstr ""
 
-#: summary.py:465
+#: summary.py:470
 msgid "Use flags: "
 msgstr ""
 
-#: summary.py:481
+#: summary.py:500
 msgid "Keywords: "
 msgstr ""
 
-#: summary.py:493
+#: summary.py:512
 msgid "License: "
 msgstr ""
 
@@ -357,80 +357,80 @@ msgstr ""
 msgid "Porthole-Terminal"
 msgstr ""
 
-#: terminal.py:306
+#: terminal.py:308
 msgid "Packages to be merged      "
 msgstr ""
 
-#: terminal.py:550
+#: terminal.py:552
 msgid ""
 "The package you selected is already in the emerge queue,\n"
 "but it has been killed. Would you like to resume the emerge?"
 msgstr ""
 
-#: terminal.py:570
+#: terminal.py:572
 msgid "The package you selected is already in the emerge queue!"
 msgstr ""
 
-#: terminal.py:571
+#: terminal.py:573
 msgid "Error Adding Package To Queue!"
 msgstr ""
 
-#: terminal.py:572
+#: terminal.py:574
 msgid "OK"
 msgstr ""
 
-#: terminal.py:733
+#: terminal.py:735
 msgid "***Log Process Killed!"
 msgstr ""
 
-#: terminal.py:806
+#: terminal.py:808
 msgid "Confirm: Kill the Running Process"
 msgstr ""
 
-#: terminal.py:1119
+#: terminal.py:1121
 #, python-format
 msgid "*** Log loading complete : %s"
 msgstr ""
 
-#: terminal.py:1143
+#: terminal.py:1145
 msgid "_Cancel"
 msgstr ""
 
-#: terminal.py:1150
+#: terminal.py:1152
 #, python-format
 msgid ""
 "'sudo -p Password: ' requires your user password to perform the command:\n"
 "'%s'"
 msgstr ""
 
-#: terminal.py:1154
+#: terminal.py:1156
 #, python-format
 msgid ""
 "'su' requires the root password to perform the command:\n"
 "'%s'"
 msgstr ""
 
-#: terminal.py:1160
+#: terminal.py:1162
 msgid "Password: "
 msgstr ""
 
-#: terminal.py:1285
+#: terminal.py:1287
 #, python-format
 msgid "*** Total warnings count for merge = %d \n"
 msgstr ""
 
-#: terminal.py:1291
+#: terminal.py:1293
 #, python-format
 msgid "*** Total cautions count for merge = %d \n"
 msgstr ""
 
-#: terminal.py:1664
+#: terminal.py:1668
 msgid ""
 "*** Unfortunately, you don't have enough logged information about the listed "
 "packages to calculate estimated build times accurately.\n"
 msgstr ""
 
-#: terminal.py:1670
+#: terminal.py:1674
 #, python-format
 msgid ""
 "*** Based on the build history of these packages on your system, I can "
@@ -438,7 +438,7 @@ msgid ""
 "(hours)d hrs, %(minutes)d mins, and %(seconds)d secs.\n"
 msgstr ""
 
-#: terminal.py:1679
+#: terminal.py:1683
 msgid ""
 "*** Note: If you have a lot of programs running on your system while "
 "porthole is emerging packages, or if you have changed your hardware since "
@@ -446,56 +446,56 @@ msgid ""
 "inaccurate.\n"
 msgstr ""
 
-#: terminal.py:1701
+#: terminal.py:1705
 msgid "*** Unknown File Loading error"
 msgstr ""
 
-#: terminal.py:1705
+#: terminal.py:1709
 msgid "*** File Loading... Processing..."
 msgstr ""
 
-#: terminal.py:1714 terminal.py:1718
+#: terminal.py:1718 terminal.py:1722
 msgid ": Open log File"
 msgstr ""
 
-#: terminal.py:1759
+#: terminal.py:1763
 #, python-format
 msgid "Ovewrite existing file '%s'?"
 msgstr ""
 
-#: terminal.py:1822
+#: terminal.py:1826
 #, python-format
 msgid "*** Loading File : %s"
 msgstr ""
 
-#: terminal.py:1826
+#: terminal.py:1830
 #, python-format
 msgid "Cannot open file '%s': %s"
 msgstr ""
 
-#: terminal.py:1851
+#: terminal.py:1855
 #, python-format
 msgid "Cannot back up '%s' to '%s': %s"
 msgstr ""
 
-#: terminal.py:1862
+#: terminal.py:1866
 #, python-format
 msgid "*** saving file: %s"
 msgstr ""
 
-#: terminal.py:1895
+#: terminal.py:1899
 #, python-format
 msgid ""
 "Can't restore backup file '%s' to '%s': %s\n"
 "Backup left as '%s'"
 msgstr ""
 
-#: terminal.py:1903
+#: terminal.py:1907
 #, python-format
 msgid "*** File saved : %s"
 msgstr ""
 
-#: terminal.py:1913
+#: terminal.py:1917
 #, python-format
 msgid "Save log to '%s'?"
 msgstr ""
@@ -579,15 +579,15 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#: views.py:681 views.py:702
+#: views.py:683 views.py:704
 msgid "Categories"
 msgstr ""
 
-#: views.py:700
+#: views.py:702
 msgid "Search History"
 msgstr ""
 
-#: views.py:765 views.py:782 porthole.glade.h:18
+#: views.py:767 views.py:784 porthole.glade.h:18
 msgid "Dependencies"
 msgstr ""
 
