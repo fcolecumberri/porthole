@@ -39,43 +39,43 @@ class SimpleTerminal:
         self.command = command
         self.pid = None
         # create the process reader
-        self.reader = ProcessOutputReader(Dispatcher(self.cleanup))
+        self.reader = ProcessOutputReader(Dispatcher(self.cleanup), 'STERMINAL CHILD: ')
         self.reader.record_output = need_output
         self.callback = callback
         # start the reader
         self.reader.start()
-
+    
     def _run(self):
-	dprint("STERMINAL: run_app()")
-	env = utils.environment()
-	# next section probably not needed since this will usually be run one time only
-	if self.reader.fd:
-		if os.isatty(self.reader.fd):
-			dprint("STERMINAL: self.reader already has fd, closing")
-			os.close(self.reader.fd)
-		else:
-			dprint("STERMINAL: self.reader has fd but seems to be already closed.")
-			try:
-				os.close(self.reader.fd)
-			except OSError, e:
-				dprint("STERMINAL: error closing self.reader.fd: %s" % e)
-	
-	self.pid, self.reader.fd = pty.fork()
-	if self.pid == pty.CHILD:  # child
-		try:
-			# run the command
-			shell = "/bin/sh"
-			os.execve(shell, [shell, '-c', self.command],
-				env)
-		except Exception, e:
-			dprint("STERMINAL: Error in child" + e)
-			os._exit(1)
-	else:
-		# set process_running so the reader thread reads it's output
-		self.reader.process_running = True
-		dprint("STERMINAL: pty process id: %s ******" % self.pid)
-	return
-
+        dprint("STERMINAL: run_app()")
+        env = utils.environment()
+        # next section probably not needed since this will usually be run one time only
+        if self.reader.fd:
+            if os.isatty(self.reader.fd):
+                dprint("STERMINAL: self.reader already has fd, closing")
+                os.close(self.reader.fd)
+            else:
+                dprint("STERMINAL: self.reader has fd but seems to be already closed.")
+                try:
+                    os.close(self.reader.fd)
+                except OSError, e:
+                    dprint("STERMINAL: error closing self.reader.fd: %s" % e)
+        
+        self.pid, self.reader.fd = pty.fork()
+        if self.pid == pty.CHILD:  # child
+            try:
+                # run the command
+                shell = "/bin/sh"
+                os.execve(shell, [shell, '-c', self.command],
+                    env)
+            except Exception, e:
+                dprint("STERMINAL: Error in child" + e)
+                os._exit(1)
+        else:
+            # set process_running so the reader thread reads it's output
+            self.reader.process_running = True
+            dprint("STERMINAL: pty process id: %s ******" % self.pid)
+        return
+    
     def cleanup(self):
         # reset to None, so next one starts properly
         self.reader.fd = None
