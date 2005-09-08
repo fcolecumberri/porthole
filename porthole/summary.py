@@ -460,17 +460,36 @@ class Summary(gtk.TextView):
         append(portagelib.get_version(ebuild))
         nl(2)
         
+        # Check package.use to see if it applies to this ebuild at all
+        package_use_flags = portagelib.get_user_config('package.use', ebuild=ebuild)
+        dprint(package_use_flags)
+        ebuild_use_flags = system_use_flags + package_use_flags
+        
         # Use flags
         if use_flags and self.prefs.summary.showuseflags:
             append(_("Use flags: "), "property")
             first_flag = True
             for flag in use_flags:
+                # Check to see if flag applies:
+                if flag in ebuild_use_flags and '-' + flag in ebuild_use_flags:
+                    # check to see which comes last (this will be the applicable one)
+                    ebuild_use_flags.reverse()
+                    if ebuild_use_flags.index(flag) < ebuild_use_flags.index('-' + flag):
+                        flag_active = True
+                    else:
+                        flag_active = False
+                    ebuild_use_flags.reverse()
+                elif flag in ebuild_use_flags:
+                    flag_active = True
+                else:
+                    flag_active = False
+                
                 if not first_flag:
                     append(", ", "value")
                 else:
                     first_flag = False
                 # Added +/- for color impaired folks
-                if flag in system_use_flags:
+                if flag_active:
                     append('+' + flag,"useset")
                 else:
                     append('-' + flag,"useunset")
