@@ -250,7 +250,7 @@ def get_user_config(file, name=None, ebuild=None):
             if line and line[0]:
                 if line[0].startswith('#'):
                     continue
-                match = xmatch('match-list', line[0], mylist=[ebuildname])
+                match = xmatch('match-list', line[0], mylist=[ebuild])
                 if match:
                     if file in maskfiles: result.extend(line[0]) # package.mask/unmask
                     else: result.extend(line[1:]) # package.use/keywords
@@ -275,7 +275,7 @@ def get_user_config(file, name=None, ebuild=None):
                     dict[ebuild] = line[1:]
     return dict
 
-def set_user_config(prefs, file, name='', ebuild='', add='', remove=''):
+def set_user_config(prefs, file, name='', ebuild='', add='', remove='', callback=None):
     """
     Adds <name> or '=' + <ebuild> to <file> with flags <add>.
     If an existing entry is found, items in <remove> are removed and <add> is added.
@@ -308,7 +308,8 @@ def set_user_config(prefs, file, name='', ebuild='', add='', remove=''):
             command = (command + '-r %s' %("'" + remove + "'"))
         command = command + '"'
         dprint(" * PORTAGELIB: set_user_config(); command = %s" %command )
-        app = SimpleTerminal(command, False, Dispatcher(reload_portage))
+        if not callback: callback = reload_portage
+        app = SimpleTerminal(command, False, Dispatcher(callback))
         app._run()
     else:
         set_config.set_user_config(file, name, ebuild, add, remove)
