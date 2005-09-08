@@ -29,7 +29,7 @@ from utils import dprint
 
 class ProcessOutputReader(threading.Thread):
     """ Reads output from processes """
-    def __init__(self, dispatcher):
+    def __init__(self, dispatcher, dprint_output = ''):
         """ Initialize """
         threading.Thread.__init__(self)
         # set callback
@@ -46,6 +46,8 @@ class ProcessOutputReader(threading.Thread):
         # lock to prevent losing characters from simultaneous accesses
         self.string_locked = False
         self.record_output = True
+        self.dprint_output = dprint_output
+        self.dprint_string = ''
         self.die = False
 
     def run(self):
@@ -93,6 +95,11 @@ class ProcessOutputReader(threading.Thread):
                         self.string += char
                         # unlock the string
                         self.string_locked = False
+                    if self.dprint_output:
+                       self.dprint_string += char
+                       if char == '\n':
+                           dprint(self.dprint_output + self.dprint_string[:-1])
+                           self.dprint_string = ''
                 else:
                     # clean up, process is terminated
                     self.process_running = False
