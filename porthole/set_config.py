@@ -52,12 +52,12 @@ def set_user_config(file, name='', ebuild='', add=[], remove=[]):
     If <name> and <ebuild> are not given then lines starting with something in
     remove are removed, and items in <add> are added as new lines.
     """
-    dprint("SET_CONFIG: set_user_config()")
+    dprint("SET_CONFIG: set_user_config(): '%s'" % file)
     maskfiles = ['package.mask', 'package.unmask']
     otherfiles = ['package.use', 'package.keywords']
     package_files = otherfiles + maskfiles
     if file not in package_files:
-        dprint(" * SET_CONFIG: get_user_config(): unsupported config file '%s'" % file)
+        dprint(" * SET_CONFIG: unsupported config file '%s'" % file)
         return False
     config_path = portage_const.USER_CONFIG_PATH
     if not os.access(config_path, os.W_OK):
@@ -80,27 +80,34 @@ def set_user_config(file, name='', ebuild='', add=[], remove=[]):
         if not line: continue
         if line[0] == name:
             done = True
+            dprint("SET_CONFIG: found line for '%s'" % name)
             for flag in remove:
                 # just in case there are multiple entries for the same flag
-                while flag in line: 
+                while flag in line:
                     line.remove(flag)
+                    dprint("SET_CONFIG: removed '%s' from line" % flag)
             for flag in add:
                 if flag not in line:
                     line.append(flag)
+                    dprint("SET_CONFIG: added '%s' to line" % flag)
             if not line[1:]: # if we've removed everything and added nothing
                 config[config.index(line)] = []
         elif line[0] in remove:
             config[config.index(line)] = []
+            dprint("SET_CONFIG: removed line '%s'" % ' '.join(line))
     if not done:
         if name != '=': # package.use/keywords: name or ebuild given
             if add:
                 config.append([name] + add)
+                dprint("SET_CONFIG: added line '%s'" % ' '.join(config[-1]))
             elif ebuild:
                 # Probably tried to modify by ebuild but was listed by package.
                 # Do a pass with the package name just in case
+                dprint("SET_CONFIG: couldn't find '%s', trying '%s' in stead" % (ebuild, get_full_name(ebuild)))
                 return set_user_config(file, name=get_full_name(ebuild), remove=remove)
         else: # package.mask/unmask: list of names to add
             config.extend([[item] for item in add])
+            dprint("SET_CONFIG: added %d lines to %s" % (len(add), file))
         done = True
     # remove blank lines
     while [] in config:
