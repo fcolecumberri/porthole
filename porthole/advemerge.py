@@ -30,6 +30,7 @@ import utils
 from utils import dprint, is_root
 from version_sort import ver_sort
 from loaders import load_web_page
+from dispatcher import Dispatcher
 from gettext import gettext as _
 
 class AdvancedEmergeDialog:
@@ -289,16 +290,6 @@ class AdvancedEmergeDialog:
         okay = portagelib.set_user_config( self.prefs,\
                 'package.use', name=self.package.full_name,
                 add=addlist, remove=removelist, callback=self.reload )
-##        verInfo = self.current_verInfo
-##        ebuild = verInfo["name"]
-##        if okay:
-##            if self.package.properties.has_key(ebuild):
-##                # Remove properties object so everything's recalculated
-##                del self.package.properties[ebuild]
-##            self.reload()
-##            #self.version_changed(None)
-##        else:
-##            dprint("ADVEMERGE: on_package_use_commit(): Error...")
     
     def on_make_conf_commit(self, button_widget):
         dprint("ADVEMERGE: on_make_conf_commit()")
@@ -311,22 +302,12 @@ class AdvancedEmergeDialog:
                 removelist.append(item[1:])
             else:
                 removelist.append('-' + item)
-        mcokay = portagelib.set_make_conf('USE', add=addlist, remove=removelist)
-        puokay = portagelib.set_user_config( \
-                'package.use', name=self.package.full_name, remove=removelist)
-        verInfo = self.current_verInfo
-        ebuild = verInfo["name"]
-        if mcokay and puokay:
-            if self.package.properties.has_key(ebuild):
-                # Remove properties object so everything's recalculated
-                del self.package.properties[ebuild]
-            portagelib.reset_use_flags()
-            self.reload()
-        else:
-            if not mcokay:
-                dprint("ADVEMERGE: on_make_conf_commit(): Error with make.conf")
-            if not puokay:
-                dprint("ADVEMERGE: on_make_conf_commit(): Error with package.use")
+        # set_user_config must be performed after set_make_conf has finished or we get problems.
+        # we need to set package.use in case the flag was set there originally!
+        package_use_callback = Dispatcher( portagelib.set_user_config, self.prefs, \
+                'package.use', self.package.full_name, '', '', removelist, self.reload )
+        portagelib.set_make_conf( self.prefs, \
+            'USE', add=addlist, remove=removelist, callback=package_use_callback )
     
     def on_package_keywords_commit(self, button_widget):
         dprint("ADVEMERGE: on_package_keywords_commit()")
@@ -339,15 +320,8 @@ class AdvancedEmergeDialog:
             removelist = ["-" + keyword]
         verInfo = self.current_verInfo
         ebuild = verInfo["name"]
-        okay = portagelib.set_user_config( \
-            'package.keywords', ebuild=ebuild, add=addlist, remove=removelist)
-        if okay:
-            if self.package.properties.has_key(ebuild):
-                # Remove properties object so everything's recalculated
-                del self.package.properties[ebuild]
-            self.reload()
-        else:
-            dprint("ADVEMERGE: on_package_keywords_commit(): Error...")
+        okay = portagelib.set_user_config( self.prefs, \
+            'package.keywords', ebuild=ebuild, add=addlist, remove=removelist, callback=self.reload)
     
     #------------------------------------------
     # Support function definitions start here
@@ -356,7 +330,15 @@ class AdvancedEmergeDialog:
     def reload(self):
         """ Reload package info """
         # This is the callback for changes to portage config files, so we need to reload portage
-        portagelib.reload_portage
+        portagelib.reload_portage()
+        portagelib.reset_use_flags()
+        
+        # Also delete properties for the current ebuild so they are refreshed
+        verInfo = self.current_verInfo
+        ebuild = verInfo["name"]
+        if self.package.properties.has_key(ebuild):
+            # Remove properties object so everything's recalculated
+            del self.package.properties[ebuild]
         
         self.system_use_flags = portagelib.SystemUseFlags
         self.package_use_flags = portagelib.get_user_config('package.use', self.package.full_name)
