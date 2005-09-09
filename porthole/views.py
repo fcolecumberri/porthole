@@ -274,16 +274,6 @@ class PackageView(CommonTreeView):
         self.infothread_die = "Please"
         self.model = None
         self.iter = None
-##        if self.info_thread:
-##            if self.info_thread.isAlive():
-##                dprint("VIEWS: Waiting for info_thread to die")
-##                gtk.threads_leave()
-##                self.info_thread.join()
-##                #gtk.threads_enter()
-##                dprint("VIEWS: infothread seems to have finished!")
-##            self.enable_column_sort()
-##            del self.info_thread
-##            self.info_thread = None
         # clear the columns
         self._checkbox_column.clear()
         self._column.clear()
@@ -528,16 +518,6 @@ class PackageView(CommonTreeView):
         self.infothread_die = "Please"
         self.model = None
         self.iter = None
-##        if self.info_thread:
-##            if self.info_thread.isAlive():
-##                dprint("VIEWS: Waiting for info_thread to die")
-##                gtk.threads_leave()
-##                self.info_thread.join()
-##                #gtk.threads_enter()
-##                dprint("VIEWS: infothread seems to have finished!")
-##            self.enable_column_sort()
-##            del self.info_thread
-##            self.info_thread = None
         if locate_name:
             dprint("VIEWS: Selecting " + str(locate_name))
         # get the right model
@@ -581,9 +561,6 @@ class PackageView(CommonTreeView):
         self.model = self.get_model()
         self.iter = model.get_iter_first()
         gobject.idle_add(self.populate_info)
-##        self.info_thread = threading.Thread(target = self.populate_info)
-##        self.info_thread.setDaemon(True)
-##        self.info_thread.start()
  
     def populate_info(self):
         """ Populate the current view with package info"""
