@@ -186,13 +186,13 @@ def set_make_conf(property, add=[], remove=[], replace=''):
     e.g. set_make_conf('ACCEPT_KEYWORDS', remove='ACCEPT_KEYWORDS')
     e.g. set_make_conf('PORTAGE_NICENESS', replace='15')
     """
-    dprint("PORTAGELIB: set_make_conf()")
+    dprint("SET_CONFIG: set_make_conf()")
     dict, linelist = get_make_conf(True)
     if not dict.has_key(property):
-        dprint("PORTAGELIB: set_make_conf(): dict does not have key '%s'. Creating..." % property)
+        dprint("SET_CONFIG: set_make_conf(): dict does not have key '%s'. Creating..." % property)
         dict[property] = ''
     if not os.access(portage_const.MAKE_CONF_FILE, os.W_OK):
-        dprint(" * PORTAGELIB: set_make_conf(): no write access to '%s'. " \
+        dprint(" * SET_CONFIG: set_make_conf(): no write access to '%s'. " \
               "Perhaps the user is not root?" % portage_const.MAKE_CONF_FILE)
         return False
     propline = dict[property]
@@ -201,12 +201,15 @@ def set_make_conf(property, add=[], remove=[], replace=''):
         for element in remove:
             while element in splitline:
                 splitline.remove(element)
+                dprint("SET_CONFIG: removed '%s' from %s" % (element, property))
     if add:
         for element in add:
             if element not in splitline:
                 splitline.append(element)
+                dprint("SET_CONFIG: added '%s' to %s" % (element, property))
     if replace:
         splitline = [replace]
+        dprint("SET_CONFIG: setting %s to '%s'" % (property, replace))
     joinedline = ' '.join(splitline)
     # Now write to make.conf, keeping comments, unparsed lines and line order intact
     done = False
@@ -214,6 +217,7 @@ def set_make_conf(property, add=[], remove=[], replace=''):
         if line[0].strip() == property:
             if line[0] in remove:
                 linelist.remove(line)
+                dprint("SET_CONFIG: removed '%s'" % property)
             else:
                 line[1] = '"' + joinedline + '"'
             done = True
@@ -221,6 +225,7 @@ def set_make_conf(property, add=[], remove=[], replace=''):
         while linelist and len(linelist[-1]) == 1 and linelist[-1][0].strip() == '': # blank line
             linelist.pop(-1)
         linelist.append([property, '"' + joinedline + '"'])
+        dprint("SET_CONFIG: appended property '%s'" % property)
         linelist.append(['']) # blank line
     joinedlist = ['='.join(line) for line in linelist]
     make_conf = '\n'.join(joinedlist)
