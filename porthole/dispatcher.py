@@ -8,9 +8,10 @@ from select import select
 class Dispatcher:
     """Send signals from a thread to another thread through a pipe
     in a thread-safe manner"""
-    def __init__(self, callback, args=None):
-        self.callback = callback
+    def __init__(self, callback_func, *args, **kwargs):
+        self.callback = callback_func
         self.callback_args = args
+        self.callback_kwargs = kwargs
         self.continue_io_watch = True
         self.queue = Queue.Queue(0) # thread safe queue
         self.pipe_r, self.pipe_w = os.pipe()
@@ -24,9 +25,10 @@ class Dispatcher:
     
     def on_data(self, source, cb_condition):
         if select([self.pipe_r],[],[], 0)[0] and os.read(self.pipe_r,1):
-            if self.callback_args is not None:
-                self.callback(self.callback_args, *self.queue.get())
+            if self.callback_args:
+                args = self.callback_args + self.queue.get()
+                self.callback(*args, **self.callback_kwargs)
             else:
-                self.callback(*self.queue.get())
+                self.callback(*self.queue.get(), **self.callback_kwargs)
         return self.continue_io_watch
 
