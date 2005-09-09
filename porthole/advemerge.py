@@ -36,12 +36,13 @@ from gettext import gettext as _
 class AdvancedEmergeDialog:
     """Class to perform advanced emerge dialog functionality."""
 
-    def __init__(self, prefs, package, setup_command):
+    def __init__(self, prefs, package, setup_command, re_init_portage):
         """ Initialize Advanced Emerge Dialog window """
         # Preserve passed parameters
         self.prefs = prefs
         self.package = package
         self.setup_command = setup_command
+        self.re_init_portage = re_init_portage
         self.arch = portagelib.get_arch()
         self.system_use_flags = portagelib.SystemUseFlags
         self.emerge_unmerge = "emerge"
@@ -330,8 +331,9 @@ class AdvancedEmergeDialog:
     def reload(self):
         """ Reload package info """
         # This is the callback for changes to portage config files, so we need to reload portage
-        portagelib.reload_portage()
-        portagelib.reset_use_flags()
+        #portagelib.reload_portage()
+        #portagelib.reset_use_flags()
+        self.re_init_portage()
         
         # Also delete properties for the current ebuild so they are refreshed
         verInfo = self.current_verInfo

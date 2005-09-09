@@ -703,7 +703,8 @@ class MainWindow:
         """Advanced emerge of the currently selected package."""
         package = utils.get_treeview_selection(self.package_view, 2)
         # Activate the advanced emerge dialog window
-        dialog = AdvancedEmergeDialog(self.prefs, package, self.setup_command)
+        # re_init_portage callback is for when package.use etc. are modified
+        dialog = AdvancedEmergeDialog(self.prefs, package, self.setup_command, self.re_init_portage)
 
     def new_plugin_package_tab( self, name, callback, widget ):
         notebook = self.wtree.get_widget("notebook")
@@ -1406,12 +1407,13 @@ class MainWindow:
         e.g. /etc/make.conf USE flags changed"""
         portagelib.reload_portage()
         portagelib.reset_use_flags()
-        if  self.current_package_cursor != None and self.current_package_cursor[0]: # should fix a type error in set_cursor; from pycrash report
-            # reset _last_selected so it thinks this package is new again
-            self.package_view._last_selected = None
-            # re-select the package
-            self.package_view.set_cursor(self.current_package_cursor[0],
-            self.current_package_cursor[1])
+##        if  self.current_package_cursor != None and self.current_package_cursor[0]: # should fix a type error in set_cursor; from pycrash report
+##            # reset _last_selected so it thinks this package is new again
+##            self.package_view._last_selected = None
+##            # re-select the package
+##            self.package_view.set_cursor(self.current_package_cursor[0],
+##            self.current_package_cursor[1])
+        self.view_filter_changed(self.widget["view_filter"])
 
     def quit(self, widget):
         if not self.confirm_delete():
