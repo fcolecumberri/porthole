@@ -643,7 +643,7 @@ class Summary(gtk.TextView):
     def add_keyword(self, menuitem_widget):
         arch = "~" + portagelib.get_arch()
         ebuild = self.selected_ebuild
-        portagelib.set_user_config('package.keywords', ebuild=ebuild, add=arch)
+        portagelib.set_user_config(self.prefs, 'package.keywords', ebuild=ebuild, add=arch)
         # reset package info
         self.package.best_ebuild = None
         self.package.latest_ebuild = None
@@ -653,7 +653,7 @@ class Summary(gtk.TextView):
     def remove_keyword(self, menuitem_widget):
         arch = "~" + portagelib.get_arch()
         ebuild = self.selected_ebuild
-        portagelib.set_user_config('package.keywords', ebuild=ebuild, remove=arch)
+        portagelib.set_user_config(self.prefs, 'package.keywords', ebuild=ebuild, remove=arch)
         # reset package info
         self.package.best_ebuild = None
         self.package.latest_ebuild = None
@@ -662,7 +662,7 @@ class Summary(gtk.TextView):
     
     def package_unmask(self, menuitem_widget):
         ebuild = "=" + self.selected_ebuild
-        portagelib.set_user_config('package.unmask', add=ebuild)
+        portagelib.set_user_config(self.prefs, 'package.unmask', add=ebuild)
         # reset package info
         self.package.best_ebuild = None
         self.package.latest_ebuild = None
@@ -671,7 +671,7 @@ class Summary(gtk.TextView):
     
     def un_package_unmask(self, menuitem_widget):
         ebuild = "=" + self.selected_ebuild
-        portagelib.set_user_config('package.unmask', remove=ebuild)
+        portagelib.set_user_config(self.prefs, 'package.unmask', remove=ebuild)
         # reset package info
         self.package.best_ebuild = None
         self.package.latest_ebuild = None

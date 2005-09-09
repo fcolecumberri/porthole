@@ -414,7 +414,7 @@ class PackageView(CommonTreeView):
         name = utils.get_treeview_selection(self, 2).full_name
         string = name + " " + arch + "\n"
         dprint("VIEWS: Package view add_keyword(); %s" %string)
-        portagelib.set_user_config('package.keywords', name=name, add=arch)
+        portagelib.set_user_config(self.prefs, 'package.keywords', name=name, add=arch)
         package = utils.get_treeview_selection(self,2)
         package.best_ebuild = package.get_latest_ebuild()
         self.mainwindow_callback("refresh")
