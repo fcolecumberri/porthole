@@ -1160,7 +1160,8 @@ class MainWindow:
                 self.category_view.populate(self.search_history.keys())
                 self.package_search(None)
                 self.search_loaded = True
-            self.category_view.populate(self.search_history.keys())
+            else:
+                self.category_view.populate(self.search_history.keys())
             cat_scroll.show();
             dprint("MAIN: Showing search results")
             self.package_view.set_view(self.package_view.SEARCH_RESULTS)
@@ -1232,7 +1233,7 @@ class MainWindow:
             path = None
             while iter:
                 #dprint("value at iter %s: %s" % (iter, model.get_value(iter, 0)))
-                if model.get_value(iter, 0) == pack:
+                if model.get_value(iter, 0).split('/')[-1] == pack:
                     path = model.get_path(iter)
                     self.package_view._last_selected = None
                     self.package_view.set_cursor(path)
