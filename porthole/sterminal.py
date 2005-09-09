@@ -35,11 +35,11 @@ from process_reader import ProcessOutputReader
 class SimpleTerminal:
     """Porthole's simple terminal to run a command without an interface
     """
-    def __init__(self, command, need_output, callback = None):
+    def __init__(self, command, need_output,  dprint_output='', callback=None):
         self.command = command
         self.pid = None
         # create the process reader
-        self.reader = ProcessOutputReader(Dispatcher(self.cleanup), 'STERMINAL CHILD: ')
+        self.reader = ProcessOutputReader(Dispatcher(self.cleanup), dprint_output)
         self.reader.record_output = need_output
         self.callback = callback
         # start the reader
