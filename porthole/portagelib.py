@@ -309,10 +309,14 @@ def set_user_config(prefs, file, name='', ebuild='', add='', remove='', callback
         command = command + '"'
         dprint(" * PORTAGELIB: set_user_config(); command = %s" %command )
         if not callback: callback = reload_portage
-        app = SimpleTerminal(command, False, Dispatcher(callback))
+        app = SimpleTerminal(command, False, dprint_output='SET_USER_CONFIG CHILD APP: ', callback=Dispatcher(callback))
         app._run()
     else:
+        add = add.split()
+        remove = remove.split()
         set_config.set_user_config(file, name, ebuild, add, remove)
+        if callback: callback()
+        else: reload_portage()
     # This is slow, but otherwise portage doesn't notice the change.
     #reload_portage()
     # Note: could perhaps just update portage.settings.
@@ -445,7 +449,7 @@ def get_make_conf(want_linelist=False, savecopy=False):
         return dict, linelist
     return dict
 
-def set_make_conf(property, add=[], remove=[], replace=''):
+def set_make_conf(prefs, property, add='', remove='', replace='', callback=None):
     """
     Sets a variable in make.conf.
     If remove: removes elements of <remove> from variable string.
@@ -459,60 +463,96 @@ def set_make_conf(property, add=[], remove=[], replace=''):
     e.g. set_make_conf('PORTAGE_NICENESS', replace='15')
     """
     dprint("PORTAGELIB: set_make_conf()")
-    if isinstance(add, basestring):
-        add = [add]
-    if isinstance(remove, basestring):
-        remove = [remove]
+    command = ''
+    file = 'make.conf'
+    if isinstance(add, list):
+        add = ' '.join(add)
+    if isinstance(remove, list):
+        remove = ' '.join(remove)
     if isinstance(replace, list):
         replace = ' '.join(replace)
-    dict, linelist = get_make_conf(True)
-    if not dict.has_key(property):
-        dprint("PORTAGELIB: set_make_conf(): dict does not have key '%s'. Creating..." % property)
-        dict[property] = ''
+    config_path = portage_const.USER_CONFIG_PATH
     if not os.access(portage_const.MAKE_CONF_FILE, os.W_OK):
-        dprint(" * PORTAGELIB: get_user_config(): no write access to '%s'. " \
-              "Perhaps the user is not root?" % portage_const.MAKE_CONF_FILE)
-        return False
-    propline = dict[property]
-    splitline = propline.split()
-    if remove:
-        for element in remove:
-            while element in splitline:
-                splitline.remove(element)
-    if add:
-        for element in add:
-            if element not in splitline:
-                splitline.append(element)
-    if replace:
-        splitline = [replace]
-    joinedline = ' '.join(splitline)
-    # Now write to make.conf, keeping comments, unparsed lines and line order intact
-    done = False
-    for line in linelist:
-        if line[0].strip() == property:
-            if line[0] in remove:
-                linelist.remove(line)
-            else:
-                line[1] = '"' + joinedline + '"'
-            done = True
-    if not done:
-        while linelist and len(linelist[-1]) == 1 and linelist[-1][0].strip() == '': # blank line
-            linelist.pop(-1)
-        linelist.append([property, '"' + joinedline + '"'])
-        linelist.append(['']) # blank line
-    joinedlist = ['='.join(line) for line in linelist]
-    make_conf = '\n'.join(joinedlist)
-    if not make_conf.endswith('\n'):
-        make_conf += '\n'
-    get_make_conf(savecopy=True) # just saves a copy with ".bak" on the end
-    file = open(portage_const.MAKE_CONF_FILE, 'w')
-    file.write(make_conf)
-    file.close()
-    # This is slow, but otherwise portage doesn't notice the change
-    reload_portage()
-    # Note: could perhaps just update portage.settings (or portage.portdb.mysettings ?)
-    # portage.settings.mygcfg ??   portage.portdb.configdict['conf'] ??
+        command = (prefs.globals.su + ' "python ' + prefs.DATA_PATH + 'set_config.py -d -f %s ' %file)
+        command = (command + '-p %s ' % property)
+        if add != '':
+            command = (command + '-a %s ' %("'" + add + "'"))
+        if remove != '':
+            command = (command + '-r %s' %("'" + remove + "'"))
+        command = command + '"'
+        dprint(" * PORTAGELIB: set_make_conf(); command = %s" %command )
+        if not callback: callback = reload_portage
+        app = SimpleTerminal(command, False, dprint_output='SET_MAKE_CONF CHILD APP: ', callback=Dispatcher(callback))
+        app._run()
+    else:
+        add = add.split()
+        remove = remove.split()
+        set_config.set_make_conf(property, add, remove, replace)
+        if callback: callback()
+        else: reload_portage()
+    # This is slow, but otherwise portage doesn't notice the change.
+    #reload_portage()
+    # Note: could perhaps just update portage.settings.
+    # portage.settings.pmaskdict, punmaskdict, pkeywordsdict, pusedict
+    # or portage.portdb.mysettings ?
     return True
+
+
+##    dprint("PORTAGELIB: set_make_conf()")
+##    if isinstance(add, basestring):
+##        add = [add]
+##    if isinstance(remove, basestring):
+##        remove = [remove]
+##    if isinstance(replace, list):
+##        replace = ' '.join(replace)
+##    dict, linelist = get_make_conf(True)
+##    if not dict.has_key(property):
+##        dprint("PORTAGELIB: set_make_conf(): dict does not have key '%s'. Creating..." % property)
+##        dict[property] = ''
+##    if not os.access(portage_const.MAKE_CONF_FILE, os.W_OK):
+##        dprint(" * PORTAGELIB: get_user_config(): no write access to '%s'. " \
+##              "Perhaps the user is not root?" % portage_const.MAKE_CONF_FILE)
+##        return False
+##    propline = dict[property]
+##    splitline = propline.split()
+##    if remove:
+##        for element in remove:
+##            while element in splitline:
+##                splitline.remove(element)
+##    if add:
+##        for element in add:
+##            if element not in splitline:
+##                splitline.append(element)
+##    if replace:
+##        splitline = [replace]
+##    joinedline = ' '.join(splitline)
+##    # Now write to make.conf, keeping comments, unparsed lines and line order intact
+##    done = False
+##    for line in linelist:
+##        if line[0].strip() == property:
+##            if line[0] in remove:
+##                linelist.remove(line)
+##            else:
+##                line[1] = '"' + joinedline + '"'
+##            done = True
+##    if not done:
+##        while linelist and len(linelist[-1]) == 1 and linelist[-1][0].strip() == '': # blank line
+##            linelist.pop(-1)
+##        linelist.append([property, '"' + joinedline + '"'])
+##        linelist.append(['']) # blank line
+##    joinedlist = ['='.join(line) for line in linelist]
+##    make_conf = '\n'.join(joinedlist)
+##    if not make_conf.endswith('\n'):
+##        make_conf += '\n'
+##    get_make_conf(savecopy=True) # just saves a copy with ".bak" on the end
+##    file = open(portage_const.MAKE_CONF_FILE, 'w')
+##    file.write(make_conf)
+##    file.close()
+##    # This is slow, but otherwise portage doesn't notice the change
+##    reload_portage()
+##    # Note: could perhaps just update portage.settings (or portage.portdb.mysettings ?)
+##    # portage.settings.mygcfg ??   portage.portdb.configdict['conf'] ??
+##    return True
 
 def get_version(ebuild):
     """Extract version number from ebuild name"""

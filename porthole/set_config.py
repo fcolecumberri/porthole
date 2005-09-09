@@ -128,6 +128,114 @@ def set_user_config(file, name='', ebuild='', add=[], remove=[]):
     # or portage.portdb.mysettings ?
     return True
 
+def get_make_conf(want_linelist=False, savecopy=False):
+    """
+    Parses /etc/make.conf into a dictionary of items with
+    dict[setting] = properties string
+    
+    If want_linelist is True, the list of lines read from make.conf will also
+    be returned.
+    
+    If savecopy is true, a copy of make.conf is saved in make.conf.bak.
+    """
+    dprint("PORTAGELIB: get_make_conf()")
+    file = open(portage_const.MAKE_CONF_FILE, 'r')
+    if savecopy:
+        file2 = open(portage_const.MAKE_CONF_FILE + '.bak', 'w')
+        file2.write(file.read())
+        file.close()
+        file2.close()
+        return True
+    lines = file.readlines()
+    file.close()
+    linelist = []
+    for line in lines:
+        strippedline = line.strip()
+        if strippedline.startswith('#'):
+            linelist.append([strippedline])
+        elif '=' in strippedline:
+            splitline = strippedline.split('=', 1)
+            if '"' in splitline[0] or "'" in splitline[0]:
+                dprint(" * PORTAGELIB: get_make_conf(): couldn't handle line '%s'. Ignoring" % line)
+                linelist.append([strippedline])
+            else:
+                linelist.append(splitline)
+            #linelist.append([splitline[0]])
+            #linelist[-1].append('='.join(splitline[1:])) # might have been another '='
+        else:
+            dprint(" * PORTAGELIB: get_make_conf(): couldn't handle line '%s'. Ignoring" % line)
+            linelist.append([strippedline])
+    dict = {}
+    for line in linelist:
+        if len(line) == 2:
+            dict[line[0]] = line[1].strip('"') # line[1] should be of form '"settings"'
+    if want_linelist:
+        return dict, linelist
+    return dict
+
+def set_make_conf(property, add=[], remove=[], replace=''):
+    """
+    Sets a variable in make.conf.
+    If remove: removes elements of <remove> from variable string.
+    If add: adds elements of <add> to variable string.
+    If replace: replaces entire variable string with <replace>.
+    
+    if remove contains the variable name, the whole variable is removed.
+    
+    e.g. set_make_conf('USE', add=['gtk', 'gtk2'], remove=['-gtk', '-gtk2'])
+    e.g. set_make_conf('ACCEPT_KEYWORDS', remove='ACCEPT_KEYWORDS')
+    e.g. set_make_conf('PORTAGE_NICENESS', replace='15')
+    """
+    dprint("PORTAGELIB: set_make_conf()")
+    dict, linelist = get_make_conf(True)
+    if not dict.has_key(property):
+        dprint("PORTAGELIB: set_make_conf(): dict does not have key '%s'. Creating..." % property)
+        dict[property] = ''
+    if not os.access(portage_const.MAKE_CONF_FILE, os.W_OK):
+        dprint(" * PORTAGELIB: set_make_conf(): no write access to '%s'. " \
+              "Perhaps the user is not root?" % portage_const.MAKE_CONF_FILE)
+        return False
+    propline = dict[property]
+    splitline = propline.split()
+    if remove:
+        for element in remove:
+            while element in splitline:
+                splitline.remove(element)
+    if add:
+        for element in add:
+            if element not in splitline:
+                splitline.append(element)
+    if replace:
+        splitline = [replace]
+    joinedline = ' '.join(splitline)
+    # Now write to make.conf, keeping comments, unparsed lines and line order intact
+    done = False
+    for line in linelist:
+        if line[0].strip() == property:
+            if line[0] in remove:
+                linelist.remove(line)
+            else:
+                line[1] = '"' + joinedline + '"'
+            done = True
+    if not done:
+        while linelist and len(linelist[-1]) == 1 and linelist[-1][0].strip() == '': # blank line
+            linelist.pop(-1)
+        linelist.append([property, '"' + joinedline + '"'])
+        linelist.append(['']) # blank line
+    joinedlist = ['='.join(line) for line in linelist]
+    make_conf = '\n'.join(joinedlist)
+    if not make_conf.endswith('\n'):
+        make_conf += '\n'
+    get_make_conf(savecopy=True) # just saves a copy with ".bak" on the end
+    file = open(portage_const.MAKE_CONF_FILE, 'w')
+    file.write(make_conf)
+    file.close()
+    # This is slow, but otherwise portage doesn't notice the change
+    #reload_portage()
+    # Note: could perhaps just update portage.settings (or portage.portdb.mysettings ?)
+    # portage.settings.mygcfg ??   portage.portdb.configdict['conf'] ??
+    return True
+
 
 if __name__ == "__main__":
 
@@ -137,7 +245,7 @@ if __name__ == "__main__":
     from getopt import getopt, GetoptError
 
     try:
-        opts, args = getopt(argv[1:], "lvdf:n:e:a:r:", ["local", "version", "debug"])
+        opts, args = getopt(argv[1:], "lvdf:n:e:a:r:p:R:", ["local", "version", "debug"])
     except GetoptError, e:
         print >>stderr, e.msg
         exit(1)
@@ -147,6 +255,8 @@ if __name__ == "__main__":
     ebuild = ""
     add = []
     remove = []
+    property = ''
+    replace = ''
 
     for opt, arg in opts:
         print opt, arg
@@ -175,5 +285,16 @@ if __name__ == "__main__":
         elif opt in ('-r'):
             remove = arg.split()
             dprint("remove = %s" %str(remove))
-
-    set_user_config(file, name, ebuild, add, remove)
+        elif opt in ('-p'):
+            property = arg
+            dprint("property = %s" % str(property))
+        elif opt in ('-R'):
+            replace = arg
+            dprint("replace = %s" % str(replace))
+    
+    if file in ['package.use', 'package.keywords', 'package.mask', 'package.unmask']:
+        set_user_config(file, name, ebuild, add, remove)
+    elif file in ['make.conf']:
+        set_make_conf(property, add, remove, replace)
+    else:
+        print(" * SET_CONFIG: filename '%s' not supported!" % file)
