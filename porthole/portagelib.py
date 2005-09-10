@@ -816,7 +816,7 @@ class Package:
         if specific_ebuild == None:
             ebuild = self.get_default_ebuild()
             if not ebuild:
-                dprint("PORTAGELIB; get_properties(): No ebuild found!")
+                dprint("PORTAGELIB; get_properties(): No ebuild found for %s!" % self.full_name)
                 raise Exception(_('No ebuild found.'))
         else:
             #dprint("PORTAGELIB get_properties(): Using specific ebuild")
@@ -980,7 +980,9 @@ class DatabaseReader(threading.Thread):
                 count = 0
             category, name = entry.split('/')
             # why does getallnodes() return timestamps?
-            if name == 'timestamp.x' or name.endswith("tbz2") or name == "metadata.xml":
+            if (name.endswith('tbz2') or \
+                    name.startswith('.') or \
+                    name in ['timestamp.x', 'metadata.xml', 'CVS'] ):
                 continue
             count += 1
             data = Package(entry)
