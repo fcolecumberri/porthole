@@ -25,17 +25,16 @@
 APP = 'porthole'
 
 # setup our path so we can load our custom modules
-from sys import path
-#path.append('/usr/lib/porthole')
+import sys
 
 # Add path to portage module if 
 # missing from path (ref bug # 924100)
 
 PORTAGE_MOD_PATH = '/usr/lib/portage/pym'
-try:
-    path.index(PORTAGE_MOD_PATH) 
-except ValueError:
-    path.append(PORTAGE_MOD_PATH)
+if PORTAGE_MOD_PATH not in sys.path:
+    sys.path.append(PORTAGE_MOD_PATH)
+while '/usr/bin' in sys.path: # this gets added when we run /usr/bin/porthole
+    sys.path.remove('/usr/bin')
 
 LOG_FILE_DIR = "/var/log/porthole"
 
@@ -48,10 +47,11 @@ if not os.access(LOG_FILE_DIR, os.F_OK):
     except OSError, (errnum, errmsg):
         print "Failed to create %s:" % LOG_FILE_DIR, errmsg
 
-from thread import *
-from sys import argv, exit, stderr
+#from thread import *
 import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, time, pwd
+while '/usr/bin' in sys.path: # and now importing gtk re-adds it! Grrrr, rude
+    sys.path.remove('/usr/bin')
 from getopt import getopt, GetoptError
 import locale, gettext
 from gettext import gettext as _
@@ -63,7 +63,6 @@ try:
     from pycrash.utils import *
     pycrash_found = True
     class MyCrash(HTMLPyCrash):
-        #def onExit(self):
         def onExceptionRaised(self, time):
             save_file = LOG_FILE_DIR + "/crash_" + pwd.getpwuid(os.getuid())[0] + ".html"
             # saveToFile does not yet return a result: feature request submitted
@@ -97,13 +96,13 @@ def usage():
 
 if __name__ == "__main__":
     try:
-        opts, args = getopt(argv[1:], 'lvdh', ["local", "version", "debug",
+        opts, args = getopt(sys.argv[1:], 'lvdh', ["local", "version", "debug",
                                               "help"])
-        print opts
-        print args
+        #print opts
+        #print args
     except GetoptError, e:
-        print >>stderr, e.msg
-        exit(1)
+        print >> sys.stderr, e.msg
+        sys.exit(1)
     # run thru the options and set the DATA_PATH & imported modules properly
     # bug ==> any porthole script can be used to load both --local and installed modules
     RUN_LOCAL = False
@@ -127,15 +126,22 @@ if __name__ == "__main__":
             from porthole.mainwindow import MainWindow
             i18n_DIR = DATA_PATH + 'i18n'
             #i18n_DIR = "/usr/share/locale/"
-        except:
-            print "*** NO installed porthole modules found!\n*** Please run it from a local directory with the --local flag\n",\
-                "*** Or fix the python path so that it includes porthole's modules"
+        except ImportError, e:
+            print "*** Error loading porthole modules!\n*** If you are running a", \
+                "local (not installed in site-packages) version, please use the '--local'", \
+                "or '-l' flag.\n", \
+                "*** Otherwise, verify that porthole was installed correctly and", \
+                "that python's path includes the site-packages directory.\n"
+            print "Your sys.path: %s\n" % sys.path
+            print "Your sys.version: %s\n" % sys.version
+            print "Original exception was: ImportError: %s\n" % e
+            sys.exit()
 
     for opt, arg in opts:
         if opt in ("-v", "--version"):
             # print version info
             print "Porthole " + version
-            exit(0)
+            sys.exit(0)
         elif opt in ("-d", "--debug"):
             _utils.debug = True
             _utils.dprint("Debug printing is enabled")
@@ -143,7 +149,7 @@ if __name__ == "__main__":
                 print("*** PYCRASH MODULE NOT FOUND ***\n*** For best debug info Please emerge >= dev-python/pycrash-0.4pre3 ***")
         elif opt in ("-h", "--help"):
             usage()
-            exit()
+            sys.exit()
  
     locale.setlocale (locale.LC_ALL, '')
     gettext.bindtextdomain (APP, i18n_DIR)
@@ -172,19 +178,12 @@ if __name__ == "__main__":
         ["RUN_LOCAL",RUN_LOCAL]
     ]
     prefs = _utils.PortholePreferences(prefs_additions)
-    #prefs.DATA_PATH = DATA_PATH
-    #prefs.APP = APP
-    #prefs.i18n_DIR = i18n_DIR
-    #prefs.RUN_LOCAL = RUN_LOCAL
-    #prefs.init_plugins()
     # load config info
     config = _utils.PortholeConfiguration(DATA_PATH)
     prefs.use_gladefile = "not assigned"
     # create the main window
     myapp = MainWindow(prefs, config)
     # start the program loop
-    #gtk.threads_enter()
-    gtk.main() # gtk.mainloop() depricated
-    #gtk.threads_leave()
+    gtk.main()
     # save the prefs to disk for next time
     prefs.save()
