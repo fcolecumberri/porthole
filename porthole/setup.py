@@ -10,8 +10,6 @@ setup( \
     version = p_version,
     description = "GTK+ frontend to Portage",
     author = "Fredrik Arnerup, Daniel G. Taylor, Brian Dolbec, William F. Wheeler",
-#    author_email = ("farnerup@users.sourceforge.net", "dgt84@users.sourceforge.net",
-#                  "dol-sen@users.sourceforge.net", "tiredoldcoder@users.sourceforge.net"),
     author_email = "farnerup@users.sourceforge.net, dgt84@users.sourceforge.net, " \
                    "dol-sen@users.sourceforge.net, tiredoldcoder@users.sourceforge.net",
     url = "http://porthole.sourceforge.net",
@@ -34,7 +32,7 @@ setup( \
              "dopot.sh", "pocompile.sh"]),
         (datadir + "i18n",
             ["i18n/messages.pot", "i18n/vi.po", "i18n/fr_FR.po", "i18n/de_DE.po",
-             "i18n/pl.po", "i18n/ru.po"]),
+             "i18n/pl.po", "i18n/ru.po", "i18n/TRANSLATING"]),
         ("share/applications", ["porthole.desktop"]),
         ("share/pixmaps", ["pixmaps/porthole-icon.png"]),
         (datadir + "plugins", ["plugins/__init__.py"])
