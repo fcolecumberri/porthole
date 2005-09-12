@@ -331,6 +331,7 @@ class DependsTree(gtk.TreeStore):
                 # i.e. if temp_atom is not any atom in atomized_list.
                 # This is checked by calling DependAtom.__eq__().
                     atomized_list.append(temp_atom)
+                temp_atom = None
                 continue
             elif item.startswith(")"):
                 if item != ")":
