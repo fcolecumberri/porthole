@@ -603,6 +603,7 @@ class AdvancedEmergeDialog:
             checkbox widgets representing the available
             use flags
         """
+        dprint("ADVEMERGE: build_use_flag_widget()")
         UseFlagFrame = self.wtree.get_widget("frameUseFlags")
         button_make_conf = self.wtree.get_widget("button_make_conf")
         button_package_use = self.wtree.get_widget("button_package_use")
@@ -617,12 +618,12 @@ class AdvancedEmergeDialog:
             self.btnPkgUse.hide()
         else:
             UseFlagFrame.show()
-            if self.is_root:
-                self.btnPkgUse.show()
-                if self.prefs.advemerge.show_make_conf_button:
-                    self.btnMakeConf.show()
-                else:
-                    self.btnMakeConf.hide()
+            #if self.is_root: # don't need - should work for non-root now
+            self.btnPkgUse.show()
+            if self.prefs.advemerge.show_make_conf_button:
+                self.btnMakeConf.show()
+            else:
+                self.btnMakeConf.hide()
         # Build table to hold checkboxes
         size = len(use_flags)
         maxcol = 4  # = number of columns - 1 = index of last column
@@ -639,6 +640,7 @@ class AdvancedEmergeDialog:
             UseFlagFrame.add(scrolledwindow)
             scrolledwindow.add_with_viewport(table)
             scrolledwindow.set_size_request(1, 100) # min height of 100 pixels
+            scrolledwindow.show()
         else:
             UseFlagFrame.add(table)
         
@@ -773,8 +775,9 @@ class AdvancedEmergeDialog:
             # Display the entire table
             table.show()
             KeywordsFrame.show()
-            if self.is_root:
-                self.btnPkgKeywords.show()
+            #if self.is_root:
+            #    self.btnPkgKeywords.show()
+            self.btnPkgKeywords.show()
         else:
             KeywordsFrame.hide()
             self.btnPkgKeywords.hide()
