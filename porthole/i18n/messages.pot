@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-09-08 23:58+1200\n"
+"POT-Creation-Date: 2005-09-10 19:14+1200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,45 +21,45 @@ msgstr ""
 msgid "About Porthole %s"
 msgstr ""
 
-#: advemerge.py:78
+#: advemerge.py:80
 #, python-format
 msgid "Advanced Emerge Settings for %s"
 msgstr ""
 
-#: advemerge.py:124 advemerge.py:378
+#: advemerge.py:126 advemerge.py:362
 #, python-format
 msgid "Slot:%s"
 msgstr ""
 
-#: advemerge.py:126 advemerge.py:380
+#: advemerge.py:128 advemerge.py:364
 msgid "   {unavailable}"
 msgstr ""
 
-#: advemerge.py:128 advemerge.py:382
+#: advemerge.py:130 advemerge.py:366
 msgid "   (unstable)"
 msgstr ""
 
-#: advemerge.py:130 advemerge.py:384
+#: advemerge.py:132 advemerge.py:368
 msgid "   [MASKED]"
 msgstr ""
 
-#: advemerge.py:133 advemerge.py:387
+#: advemerge.py:135 advemerge.py:371
 msgid "   (recommended) (downgrade)"
 msgstr ""
 
-#: advemerge.py:135 advemerge.py:389
+#: advemerge.py:137 advemerge.py:373
 msgid "   (recommended)"
 msgstr ""
 
-#: advemerge.py:138 advemerge.py:392
+#: advemerge.py:140 advemerge.py:376
 msgid "   [installed]"
 msgstr ""
 
-#: advemerge.py:711
+#: advemerge.py:695
 msgid "Unsupported use flag"
 msgstr ""
 
-#: advemerge.py:753 depends.py:389
+#: advemerge.py:737 depends.py:389
 msgid "None"
 msgstr ""
 
@@ -177,60 +177,60 @@ msgstr ""
 msgid "%(base)s: Populating tree"
 msgstr ""
 
-#: mainwindow.py:834
+#: mainwindow.py:835
 msgid "Upgrade requested"
 msgstr ""
 
-#: mainwindow.py:836
+#: mainwindow.py:837
 msgid "Do you want to upgrade all packages in your world file?"
 msgstr ""
 
-#: mainwindow.py:871
+#: mainwindow.py:872
 msgid "Please Wait!"
 msgstr ""
 
-#: mainwindow.py:873
+#: mainwindow.py:874
 msgid "Loading package descriptions..."
 msgstr ""
 
-#: mainwindow.py:921
+#: mainwindow.py:922
 #, python-format
 msgid "Searching descriptions for %s"
 msgstr ""
 
-#: mainwindow.py:923
+#: mainwindow.py:924
 #, python-format
 msgid "Searching for %s"
 msgstr ""
 
-#: mainwindow.py:1250
+#: mainwindow.py:1252
 msgid "Searching for upgradable packages..."
 msgstr ""
 
-#: mainwindow.py:1309
+#: mainwindow.py:1311
 msgid "Building Package List"
 msgstr ""
 
-#: mainwindow.py:1320
+#: mainwindow.py:1322
 msgid "Done: "
 msgstr ""
 
-#: mainwindow.py:1333 mainwindow.py:1339
+#: mainwindow.py:1335 mainwindow.py:1341
 #, python-format
 msgid "%(pack)d packages in %(cat)d categories"
 msgstr ""
 
-#: mainwindow.py:1342
+#: mainwindow.py:1344
 #, python-format
 msgid "%d matches found"
 msgstr ""
 
-#: mainwindow.py:1348
+#: mainwindow.py:1350
 #, python-format
 msgid "%(world)d world, %(deps)d dependencies"
 msgstr ""
 
-#: mainwindow.py:1435
+#: mainwindow.py:1438
 msgid "Confirm: Kill the Running Process in the Terminal"
 msgstr ""
 
@@ -245,11 +245,11 @@ msgid ""
 "Are you sure this is a Gentoo system?"
 msgstr ""
 
-#: portagelib.py:576
+#: portagelib.py:616
 msgid "No masking reason given"
 msgstr ""
 
-#: portagelib.py:780
+#: portagelib.py:820
 msgid "No ebuild found."
 msgstr ""
 
@@ -307,6 +307,10 @@ msgstr ""
 #: summary.py:455
 #, python-format
 msgid "Available versions for %s:\n"
+msgstr ""
+
+#: summary.py:459
+msgid "Properties for version: "
 msgstr ""
 
 #: summary.py:470
@@ -579,15 +583,15 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#: views.py:683 views.py:704
+#: views.py:660 views.py:681
 msgid "Categories"
 msgstr ""
 
-#: views.py:702
+#: views.py:679
 msgid "Search History"
 msgstr ""
 
-#: views.py:767 views.py:784 porthole.glade.h:18
+#: views.py:744 views.py:761 porthole.glade.h:18
 msgid "Dependencies"
 msgstr ""
 
