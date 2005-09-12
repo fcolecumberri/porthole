@@ -58,12 +58,19 @@
 #
 ###############################################################################
 
+import sys
+
 try:
     from xml.dom.minidom import parse, getDOMImplementation
+except Exception, e:
+    print >> sys.stderr, "*** Error loading xml.dom.minidom. Original exception was: %s" % e
+try:
     from xml.dom.ext import PrettyPrint
-except:
-    print >>stderr,  "Error importing modules from /dev-python/pyxml!"
-    print >>stderr, "check that the package is installed or re-emerge package to correct the error"
+except Exception, e:
+    print >> sys.stderr, "*** Error importing module 'ext' from /dev-python/pyxml!"
+    print >> sys.stderr, "*** check that the package is installed or re-emerge package to correct the error"
+    print >> sys.stderr, "*** Also note that if you are using python 2.4, porthole requires >=pyxml-0.8.4."
+    print >> sys.stderr, "*** Original exception was: %s" % e
 
 class XMLManagerError(Exception):
    """XML Manager Error exception class"""
