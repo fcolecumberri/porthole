@@ -43,6 +43,7 @@ class ConfigDialog:
             "on_color_set" : self.on_color_set,
             "on_color_clicked" : self.on_color_clicked,
             "on_enable_archlist_toggled" : self.toggle_archlist,
+            "on_globals_use_custom_browser_toggled" : self.toggle_browser_table,
         }
         
         self.window = self.wtree.get_widget("config")
@@ -297,6 +298,8 @@ class ConfigDialog:
             command = self.prefs.globals.custom_browser_command
             if command:
                 widget.set_text(command)
+            if not self.prefs.globals.use_custom_browser:
+                self.wtree.get_widget('custom_browser_table').set_sensitive(False)
                 
         # gui su client command
         widget = self.wtree.get_widget('su_client')
@@ -487,4 +490,11 @@ class ConfigDialog:
         dprint("CONFIG: toggle_archlist(); signal caught")
         self.KeywordsFrame.set_sensitive(widget.get_active())
         self.prefs.globals.enable_all_keywords = widget.get_active()
+
+    def toggle_browser_table(self, widget):
+        """Toggles custom browser command sensitivity
+        """
+        dprint("CONFIG: toggle_browser_table()")
+        self.wtree.get_widget('custom_browser_table').set_sensitive(widget.get_active())
+
 
