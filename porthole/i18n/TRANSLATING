@@ -4,7 +4,26 @@
 
 
 The recommended way to translate Porthole into another language is to use
-"poedit" (app-i18n/poedit).
+"Poedit" (app-i18n/poedit). However you might want to try out either
+KBabel (kde-base/kbabel) or Gtranslator (app-text/gtranslator).
+
+
+Important notes about placeholders:
+==================================
+
+The translatable strings in the messages.pot catalogue and the <lang>.po files
+are partially in Python's string format, partially in GTK's. The following items
+should be included in translated strings as placeholders for names or figures:
+
+"%s" : string placeholder
+"%d" : number placeholder
+"%(days)d" : placeholder named "days", do not translate the name
+pretty much anything starting with "%"
+
+In addition, for items in Porthole's menus, the underscore (_) is used to
+indicate that the next character will be used as the accellerator key. When the
+user presses "CTRL" + this key, it will perform the menuitem's action. These are
+not required, but if you use them the characters chosen must all be different.
 
 
 To update an incomplete translation:
