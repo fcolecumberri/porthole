@@ -23,7 +23,7 @@
 
 
 
-from sys import exit
+import sys
 import os
 import string
 
@@ -31,7 +31,7 @@ try:
     #import portage
     import portage_const
 except ImportError:
-    exit(_('Could not find portage module.\n'
+    sys.exit(_('Could not find portage module.\n'
          'Are you sure this is a Gentoo system?'))
 
 debug = False
@@ -42,7 +42,7 @@ version = 1.0
 def dprint(message):
     """Print debug message if debug is true."""
     if debug:
-        print >>stderr, message
+        print >> sys.stderr, message
 
 def set_user_config(file, name='', ebuild='', add=[], remove=[]):
     """
@@ -103,6 +103,7 @@ def set_user_config(file, name='', ebuild='', add=[], remove=[]):
             elif ebuild:
                 # Probably tried to modify by ebuild but was listed by package.
                 # Do a pass with the package name just in case
+                from portagelib import get_full_name
                 dprint("SET_CONFIG: couldn't find '%s', trying '%s' in stead" % (ebuild, get_full_name(ebuild)))
                 return set_user_config(file, name=get_full_name(ebuild), remove=remove)
         else: # package.mask/unmask: list of names to add
