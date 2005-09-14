@@ -548,7 +548,8 @@ class Summary(gtk.TextView):
     def do_table_popup(self, eventbox, event):
         self.selected_ebuild = eventbox.ebuild
         self.selected_arch = eventbox.arch
-        if utils.is_root():
+        # moved these from is_root bit as we can sudo them now
+        if utils.is_root() or utils.can_gksu():
             if '~' in eventbox.text:
                 self.popup_menuitems["add-keyword"].show()
             else: self.popup_menuitems["add-keyword"].hide()
@@ -561,6 +562,24 @@ class Summary(gtk.TextView):
             if '[' in eventbox.text:
                 self.popup_menuitems["un-package-unmask"].show()
             else: self.popup_menuitems["un-package-unmask"].hide()
+        else:
+            self.popup_menuitems["add-keyword"].hide()
+            self.popup_menuitems["remove-keyword"].hide()
+            self.popup_menuitems["package-unmask"].hide()
+            self.popup_menuitems["un-package-unmask"].hide()
+        if utils.is_root():
+            #if '~' in eventbox.text:
+            #    self.popup_menuitems["add-keyword"].show()
+            #else: self.popup_menuitems["add-keyword"].hide()
+            #if '(+)' in eventbox.text:
+            #    self.popup_menuitems["remove-keyword"].show()
+            #else: self.popup_menuitems["remove-keyword"].hide()
+            #if 'M' in eventbox.text:
+            #    self.popup_menuitems["package-unmask"].show()
+            #else: self.popup_menuitems["package-unmask"].hide()
+            #if '[' in eventbox.text:
+            #    self.popup_menuitems["un-package-unmask"].show()
+            #else: self.popup_menuitems["un-package-unmask"].hide()
             if eventbox.ebuild in self.installed:
                 self.popup_menuitems["unmerge"].show()
                 self.popup_menuitems["emerge"].hide()
@@ -574,10 +593,10 @@ class Summary(gtk.TextView):
         else:
             self.popup_menuitems["emerge"].hide()
             self.popup_menuitems["unmerge"].hide()
-            self.popup_menuitems["add-keyword"].hide()
-            self.popup_menuitems["remove-keyword"].hide()
-            self.popup_menuitems["package-unmask"].hide()
-            self.popup_menuitems["un-package-unmask"].hide()
+            #self.popup_menuitems["add-keyword"].hide()
+            #self.popup_menuitems["remove-keyword"].hide()
+            #self.popup_menuitems["package-unmask"].hide()
+            #self.popup_menuitems["un-package-unmask"].hide()
             if eventbox.ebuild in self.installed:
                 if utils.can_sudo():
                     self.popup_menuitems["sudo-unmerge"].show()
@@ -640,42 +659,29 @@ class Summary(gtk.TextView):
         else:
             self.dispatch("unmerge", self.selected_ebuild)
     
-    def add_keyword(self, menuitem_widget):
-        arch = "~" + portagelib.get_arch()
-        ebuild = self.selected_ebuild
-        portagelib.set_user_config(self.prefs, 'package.keywords', ebuild=ebuild, add=arch)
+    def update_callback(self):
         # reset package info
         self.package.best_ebuild = None
         self.package.latest_ebuild = None
         # reload view
         self.update_package_info(self.package)
+    
+    def add_keyword(self, menuitem_widget):
+        arch = "~" + portagelib.get_arch()
+        ebuild = self.selected_ebuild
+        portagelib.set_user_config(self.prefs, 'package.keywords', ebuild=ebuild, add=arch, callback=self.update_callback)
     
     def remove_keyword(self, menuitem_widget):
         arch = "~" + portagelib.get_arch()
         ebuild = self.selected_ebuild
-        portagelib.set_user_config(self.prefs, 'package.keywords', ebuild=ebuild, remove=arch)
-        # reset package info
-        self.package.best_ebuild = None
-        self.package.latest_ebuild = None
-        # reload view
-        self.update_package_info(self.package)
+        portagelib.set_user_config(self.prefs, 'package.keywords', ebuild=ebuild, remove=arch, callback=self.update_callback)
     
     def package_unmask(self, menuitem_widget):
         ebuild = "=" + self.selected_ebuild
-        portagelib.set_user_config(self.prefs, 'package.unmask', add=ebuild)
-        # reset package info
-        self.package.best_ebuild = None
-        self.package.latest_ebuild = None
-        # reload view
-        self.update_package_info(self.package)
+        portagelib.set_user_config(self.prefs, 'package.unmask', add=ebuild, callback=self.update_callback)
     
     def un_package_unmask(self, menuitem_widget):
         ebuild = "=" + self.selected_ebuild
-        portagelib.set_user_config(self.prefs, 'package.unmask', remove=ebuild)
-        # reset package info
-        self.package.best_ebuild = None
-        self.package.latest_ebuild = None
-        # reload view
-        self.update_package_info(self.package)
+        portagelib.set_user_config(self.prefs, 'package.unmask', remove=ebuild, callback=self.update_callback)
     
 

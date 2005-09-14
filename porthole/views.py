@@ -404,10 +404,12 @@ class PackageView(CommonTreeView):
         name = utils.get_treeview_selection(self, 2).full_name
         string = name + " " + arch + "\n"
         dprint("VIEWS: Package view add_keyword(); %s" %string)
-        portagelib.set_user_config(self.prefs, 'package.keywords', name=name, add=arch)
-        package = utils.get_treeview_selection(self,2)
-        package.best_ebuild = package.get_latest_ebuild()
-        self.mainwindow_callback("refresh")
+        def callback():
+            self.mainwindow_callback("refresh")
+        portagelib.set_user_config(self.prefs, 'package.keywords', name=name, add=arch, callback=callback)
+        #package = utils.get_treeview_selection(self,2)
+        #package.best_ebuild = package.get_latest_ebuild()
+        #self.mainwindow_callback("refresh")
 
     def emerge(self, widget, pretend=None, sudo=None):
         emergestring = 'emerge'
@@ -485,7 +487,11 @@ class PackageView(CommonTreeView):
             else:
                 self.popup_menuitems["emerge"].hide()
                 self.popup_menuitems["unmerge"].hide()
-                self.popup_menuitems["add-keyword"].hide()
+                if utils.can_gksu() and \
+                        (package.get_best_ebuild() != package.get_latest_ebuild()):
+                    self.popup_menuitems["add-keyword"].show()
+                else:
+                    self.popup_menuitems["add-keyword"].hide()
                 installed = package.get_installed()
                 havebest = False
                 if installed and utils.can_sudo():
