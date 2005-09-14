@@ -27,7 +27,7 @@ import gtk
 import gtk.glade
 import portagelib
 import utils
-from utils import dprint, is_root
+from utils import dprint
 from version_sort import ver_sort
 from loaders import load_web_page
 from dispatcher import Dispatcher
@@ -46,7 +46,7 @@ class AdvancedEmergeDialog:
         self.arch = portagelib.get_arch()
         self.system_use_flags = portagelib.SystemUseFlags
         self.emerge_unmerge = "emerge"
-        self.is_root = is_root()
+        self.is_root = utils.is_root()
         self.package_use_flags = portagelib.get_user_config('package.use', package.full_name)
         self.current_verInfo = None
         
@@ -88,10 +88,10 @@ class AdvancedEmergeDialog:
         self.btnMakeConf = self.wtree.get_widget("btnMakeConf")
         self.btnPkgUse = self.wtree.get_widget("btnPkgUse")
         self.btnPkgKeywords = self.wtree.get_widget("btnPkgKeywords")
-        #~ if not self.is_root:
-            #~ self.btnMakeConf.hide()
-            #~ self.btnPkgUse.hide()
-            #~ self.btnPkgKeywords.hide()
+        if not (self.is_root or utils.can_gksu()):
+            self.btnMakeConf.hide()
+            self.btnPkgUse.hide()
+            self.btnPkgKeywords.hide()
         
         # Connect option toggles to on_toggled
         for checkbutton in self.wtree.get_widget("table2").get_children():
@@ -200,8 +200,6 @@ class AdvancedEmergeDialog:
     def help_clicked(self, widget):
         """ Display help file with web browser """
         load_web_page('file://' + self.prefs.DATA_PATH + 'help/advemerge.html', self.prefs)
-
-
 
     def version_changed(self, widget):
         """ Version has changed, update the dialog window """
@@ -449,7 +447,6 @@ class AdvancedEmergeDialog:
             verInfo = "?"
         return verInfo
 
-
     def get_keyword(self):
         """ Get keyword selected by user """
         keyword = ''
@@ -460,13 +457,13 @@ class AdvancedEmergeDialog:
                 if keyword == None: # i.e. "None" is selected
                     # check to see if the ebuild is keyword unmasked,
                     if verInfo["stable"] and self.arch not in verInfo["keywords"]:
-                        # if so: re-mask it (for use with package.keywords button)
+                        # i.e. "~arch" is in keywords, not "arch" => must be unmasked
+                        # so: re-mask it (for use with package.keywords button)
                         return "-~" + self.arch
                     keyword = ''
                 if verInfo["stable"]: return ''
                 return keyword.strip()
         return ''
-
 
     def get_use_flags(self, ebuild=None):
         """ Get use flags selected by user """
@@ -618,12 +615,12 @@ class AdvancedEmergeDialog:
             self.btnPkgUse.hide()
         else:
             UseFlagFrame.show()
-            #if self.is_root: # don't need - should work for non-root now
-            self.btnPkgUse.show()
-            if self.prefs.advemerge.show_make_conf_button:
-                self.btnMakeConf.show()
-            else:
-                self.btnMakeConf.hide()
+            if self.is_root or utils.can_gksu():
+                self.btnPkgUse.show()
+                if self.prefs.advemerge.show_make_conf_button:
+                    self.btnMakeConf.show()
+                else:
+                    self.btnMakeConf.hide()
         # Build table to hold checkboxes
         size = len(use_flags)
         maxcol = 4  # = number of columns - 1 = index of last column
@@ -746,7 +743,9 @@ class AdvancedEmergeDialog:
         clickable_button = False
         for keyword in keywords:
             if keyword[0] == '~':
-                if self.prefs.globals.enable_all_keywords or (keyword[1:] == self.arch):
+                if (keyword[1:] == self.arch) or \
+                        (self.prefs.globals.enable_archlist and 
+                            (keyword[1:] in self.prefs.globals.archlist)):
                     button = gtk.RadioButton(rbGroup, keyword)
                     self.kwList.append([button, keyword])
                     table.attach(button, col, col+1, row, row+1)
@@ -759,7 +758,9 @@ class AdvancedEmergeDialog:
                         # i.e. package has been keyword unmasked already
                         button.set_active(True)
             else:
-                if self.prefs.globals.enable_all_keywords or (keyword == self.arch):
+                if (keyword == self.arch) or \
+                        (self.prefs.globals.enable_archlist and 
+                            (keyword in self.prefs.globals.archlist)):
                     label = gtk.Label(keyword)
                     label.set_alignment(.05, .5)
                     table.attach(label, col, col+1, row, row+1)
@@ -775,9 +776,8 @@ class AdvancedEmergeDialog:
             # Display the entire table
             table.show()
             KeywordsFrame.show()
-            #if self.is_root:
-            #    self.btnPkgKeywords.show()
-            self.btnPkgKeywords.show()
+            if self.is_root or utils.can_gksu():
+                self.btnPkgKeywords.show()
         else:
             KeywordsFrame.hide()
             self.btnPkgKeywords.hide()
