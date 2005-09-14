@@ -174,7 +174,7 @@ class Summary(gtk.TextView):
             """ Append a x new lines to the buffer """ 
             append("\n"*x)
 
-        def show_vnums(ebuilds):
+        def show_vnums(ebuilds, show_all=False):
             spam = []
             oldslot = -1
             first_ebuild = True
@@ -183,7 +183,7 @@ class Summary(gtk.TextView):
                 tag = "value" 
                 version = portagelib.get_version(ebuild)
                 keys = package.get_properties(ebuild).get_keywords()
-                if self.myarch not in keys and ''.join(['~',self.myarch]) not in keys:
+                if not show_all and self.myarch not in keys and ''.join(['~',self.myarch]) not in keys:
                     # we won't display the ebuild if it's not available to us
                     continue
                 slot = portagelib.get_property(ebuild, "SLOT")
@@ -444,7 +444,7 @@ class Summary(gtk.TextView):
         if self.prefs.summary.showinstalled:
             if installed:
                 append(_("Installed versions:\n"), "property")
-                show_vnums(installed)
+                show_vnums(installed, show_all=True)
                 nl(2)
             else:
                 append(_("Not installed"), "property")
