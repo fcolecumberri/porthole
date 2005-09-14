@@ -105,6 +105,24 @@ def can_sudo():
     return sudo_x_ok
     #return False # for testing
 
+gksudo_x_ok = os.access('/usr/bin/gksudo', os.X_OK)
+gksu_x_ok = os.access('/usr/bin/gksu', os.X_OK)
+gnomesu_x_ok = os.access('/usr/bin/gnomesu', os.X_OK)
+kdesu_x_ok = os.access('/usr/bin/kdesu', os.X_OK)
+
+def can_gksu(specific=None):
+    if not specific:
+        return gksudo_x_ok or gksu_x_ok or gnomesu_x_ok or kdesu_x_ok
+    if specific == 'gksudo':
+        return gksudo_x_ok
+    if specific == 'gksu':
+        return gksu_x_ok
+    if specific == 'gnomesu':
+        return gnomesu_x_ok
+    if specific == 'kdesu':
+        return kdesu_x_ok
+    return None
+
 def get_treeview_selection( treeview, num = None):
         """Get the value of whatever is selected in a treeview,
         num is the column, if num is nothing, the iter is returned"""
@@ -430,7 +448,7 @@ class PortholePreferences:
             #                  ['#user defined', _('Unknown Sync')]]],
             ['custom_browser_command', 'firefox %s'],
             ['use_custom_browser', False],
-            ['su', 'gksu'],
+            ['su', 'gksudo -g'], # -g tells gksu not to steal mouse / keyboard focus. Panics sometimes otherwise.
         ]
         
         self.globals = OptionsClass()
@@ -442,6 +460,17 @@ class PortholePreferences:
                 dprint("DEFAULT VALUE: %s = %s" %(option,str(value)))
             setattr(self.globals, option, value)
             dprint("UTILS: PortholePreferences; setting globals.%s = %s" %(option, str(value)))
+        
+        if can_gksu(self.globals.su.split(' ')[0]) == False:
+            # If the current su option is not valid, try some others.
+            if can_gksu('gksudo'):
+                self.globals.su = 'gksudo -g'
+            elif can_gksu('gksu'):
+                self.globals.su = 'gksu -g'
+            elif can_gksu('gnomesu'):
+                self.globals.su = 'gnomesu'
+            elif can_gksu('kdesu'):
+                self.globals.su = 'kdesu'
         
         self.globals.Sync_methods = [['emerge sync', _('Sync')],
                                      ['emerge-webrsync', _('WebRsync')]]
