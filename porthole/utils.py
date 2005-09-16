@@ -375,7 +375,7 @@ class PortholePreferences:
         self.advemerge = OptionsClass()
         for option, default in advemergeoptions:
             try:
-                value = dom.getitem(''.join(['/advemerge/options/', option]))
+                value = dom.getitem(''.join(['/advemerge/', option]))
             except XMLManagerError:
                 value = default
             setattr(self.advemerge, option, value)
