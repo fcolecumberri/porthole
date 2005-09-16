@@ -110,17 +110,14 @@ class AdvancedEmergeDialog:
         self.tooltips = gtk.Tooltips()
       
         # Build version combo list
-        #self.combo = self.wtree.get_widget("cmbVersion")
         self.get_versions()
         
         # Build a formatted combo list from the versioninfo list 
-        #comboList = []
         self.comboList = gtk.ListStore(str)
         index = 0
         for x in range(len(self.verList)):
             ver = self.verList[x]
             info = ver["number"]
-            #info += '   [Slot:' + str(ver["slot"]) + ']'
             slot = ver["slot"]
             if slot != '0':
                 info += ''.join(['   [', _('Slot:%s') % slot, ']'])
@@ -148,7 +145,6 @@ class AdvancedEmergeDialog:
         self.combobox.pack_start(cell, True)
         self.combobox.add_attribute(cell, 'text', 0)
         self.combobox.set_active(index) # select "recommended" ebuild by default
-        #self.combobox.connect("changed",self.version_changed) # register callback
         
         # emerge / unmerge combobox:
         self.emerge_combolist = gtk.ListStore(str)
@@ -203,7 +199,6 @@ class AdvancedEmergeDialog:
 
     def version_changed(self, widget):
         """ Version has changed, update the dialog window """
-        #sel_ver = self.combo.entry.get_text()
         dprint("ADVEMERGE: changing version")
         iter = self.combobox.get_active_iter()
         model = self.combobox.get_model()
@@ -329,8 +324,6 @@ class AdvancedEmergeDialog:
     def reload(self):
         """ Reload package info """
         # This is the callback for changes to portage config files, so we need to reload portage
-        #portagelib.reload_portage()
-        #portagelib.reset_use_flags()
         self.re_init_portage()
         
         # Also delete properties for the current ebuild so they are refreshed
@@ -473,14 +466,12 @@ class AdvancedEmergeDialog:
             sel_ver = model.get_value(iter, 0)
             verInfo = self.get_verInfo(sel_ver)
             ebuild = verInfo["name"]
-        #flags = ''
         flaglist = []
         if self.package_use_flags.has_key(ebuild):
             ebuild_use_flags = self.system_use_flags + self.package_use_flags[ebuild]
         else:
             ebuild_use_flags = self.system_use_flags
         for child in self.ufList:
-            #flag = child[1][1:]
             flag = child[1]
             if flag in ebuild_use_flags and '-' + flag in ebuild_use_flags:
                 # check to see which comes last (this will be the applicable one)
@@ -495,18 +486,13 @@ class AdvancedEmergeDialog:
             else:
                 flag_active = False
             if child[0].get_active():
-                #if child[1][0] == '-':
                 if not flag_active:
-                    #flags += flag + ' '
                     flaglist.append(flag)
             else:
-                #if child[1][0] == '+':
                 if flag_active:
-                    #flags += '-' + flag + ' '
                     flaglist.append('-' + flag)
         flags = ' '.join(flaglist)
         return flags
-
 
     def get_options(self):
         """ Create keyword list from option checkboxes """
@@ -539,7 +525,6 @@ class AdvancedEmergeDialog:
 
     def get_command(self):
         # Get selected version from combo list
-        #sel_ver = self.combo.entry.get_text()
         iter = self.combobox.get_active_iter()
         model = self.combobox.get_model()
         sel_ver = model.get_value(iter, 0)
@@ -580,7 +565,6 @@ class AdvancedEmergeDialog:
         command = ''.join([ \
             use_flags,
             accept_keyword,
-            #self.emerge_unmerge,
             emerge_unmerge,
             self.get_options(),
             '=',
@@ -626,9 +610,6 @@ class AdvancedEmergeDialog:
         maxcol = 4  # = number of columns - 1 = index of last column
         maxrow = (size - 1) / (maxcol + 1)  # = number of rows - 1
         # resize the table if it's taller than it is wide
-        #if maxrow > maxcol:
-        #    maxcol = int( (size) ** 0.5 ) # = rounddown(sqrt(size))
-        #    maxrow = (size - 1) / (maxcol + 1)
         table = gtk.Table(maxrow+1, maxcol+1, True)
         if maxrow + 1 >= 6: # perhaps have this number configurable?
             # perhaps add window based on size (in pixels) of table somehow...
@@ -667,21 +648,6 @@ class AdvancedEmergeDialog:
             button = gtk.CheckButton(flag)
             button.set_active(flag_active)
             self.ufList.append([button, flag])
-##            if flag in ebuild_use_flags:
-##                # Display system level flags with a +
-##                #button = gtk.CheckButton('+' + flag)
-##                if "-" + flag in package_use_flags: # nullified by package.use
-##                    button.set_active(False)
-##                else:
-##                    button.set_active(True)
-##                #self.ufList.append([button, '+' + flag])
-##                self.ufList.append([button, flag])
-##            else:
-##                # Display unset flags with a -
-##                #button = gtk.CheckButton('-' + flag)
-##                button.set_active(False)
-##                #self.ufList.append([button, '-' + flag])
-##                self.ufList.append([button, flag])
 
             # Add tooltip, attach button to table and show it off
             # Use lower case flag, since that is how it is stored
@@ -704,8 +670,6 @@ class AdvancedEmergeDialog:
         
         # Display the entire table
         table.show()
-        #UseFlagFrame.show_all()
-        
 
     def build_keywords_widget(self, keywords):
         """ Create a table layout and populate it with 
