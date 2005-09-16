@@ -297,16 +297,16 @@ def set_user_config(prefs, file, name='', ebuild='', add='', remove='', callback
         remove = ' '.join(remove)
     config_path = portage_const.USER_CONFIG_PATH
     if not os.access(config_path, os.W_OK):
-        command = (prefs.globals.su + ' "python ' + prefs.DATA_PATH + 'set_config.py -d -f %s ' %file)
+        commandlist = [prefs.globals.su, '"python', prefs.DATA_PATH + 'set_config.py -d -f %s' %file]
         if name != '':
-            command = (command + '-n %s ' %name)
+            commandlist.append('-n %s' %name)
         if ebuild != '':
-            command = (command + '-e %s ' %ebuild)
+            commandlist.append('-e %s' %ebuild)
         if add != '':
-            command = (command + '-a %s ' %("'" + add + "'"))
+            commandlist.append('-a %s' %("'" + add + "'"))
         if remove != '':
-            command = (command + '-r %s' %("'" + remove + "'"))
-        command = command + '"'
+            commandlist.append('-r %s' %("'" + remove + "'"))
+        command = ' '.join(commandlist) + '"'
         dprint(" * PORTAGELIB: set_user_config(); command = %s" %command )
         if not callback: callback = reload_portage
         app = SimpleTerminal(command, False, dprint_output='SET_USER_CONFIG CHILD APP: ', callback=Dispatcher(callback))
@@ -720,7 +720,6 @@ class Package:
         self.category = None
         self.properties = {}
         self.upgradable = None
-        self.latest_ebuild = None
 
         self.latest_installed = None
         self.size = None
