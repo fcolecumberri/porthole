@@ -150,7 +150,7 @@ class MainWindow:
         result = self.wtree.get_widget("dependencies_scrolled_window").add(self.deps_view)
         # summary view
         scroller = self.wtree.get_widget("summary_text_scrolled_window");
-        self.summary = Summary(self.prefs, Dispatcher(self.summary_callback))
+        self.summary = Summary(self.prefs, Dispatcher(self.summary_callback), self.re_init_portage)
         result = scroller.add(self.summary)
         self.summary.show()
         # how should we setup our saved menus?
@@ -393,9 +393,11 @@ class MainWindow:
 
     def packageview_callback(self, action = None, arg = None):
         old_pretend_value = self.prefs.emerge.pretend
+        old_verbose_value = self.prefs.emerge.verbose
         if action.startswith("emerge"):
             if "pretend" in action:
                 self.prefs.emerge.pretend = True
+                self.prefs.emerge.verbose = True
             else:
                 self.prefs.emerge.pretend = False
             if "sudo" in action:
@@ -425,6 +427,7 @@ class MainWindow:
         else:
             dprint("MAINWINDOW package_view callback: unknown action '%s'" % str(action))
         self.prefs.emerge.pretend = old_pretend_value
+        self.prefs.emerge.verbose = old_verbose_value
 
     def summary_callback(self, action = None, arg = None):
         dprint("MAINWINDOW: summary_callback(): called")
