@@ -33,11 +33,11 @@ from gettext import gettext as _
 
 class Summary(gtk.TextView):
     """ Class to manage display and contents of package info tab """
-    def __init__(self, prefs, dispatcher):
+    def __init__(self, prefs, dispatcher, re_init_portage):
         """ Initialize object """
         gtk.TextView.__init__(self)
+        self.re_init_portage = re_init_portage
         # get the preferences we need
-        #self.Sprefs = prefs.summary
         self.prefs = prefs
         self.enable_archlist = prefs.globals.enable_archlist
         self.archlist = prefs.globals.archlist
@@ -665,6 +665,7 @@ class Summary(gtk.TextView):
         self.package.latest_ebuild = None
         # reload view
         self.update_package_info(self.package)
+        self.re_init_portage()
     
     def add_keyword(self, menuitem_widget):
         arch = "~" + portagelib.get_arch()
