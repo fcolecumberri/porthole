@@ -120,6 +120,7 @@ class ProcessManager:
         self.filename = None
         self.untitled_serial = -1
         self.allow_delete = False
+        self.clipboard = gtk.Clipboard()
 
     def set_tags(self):
         """ set the text formatting tags from prefs object """
@@ -1481,6 +1482,7 @@ class ProcessManager:
 
     def copy_selected(self, widget):
         """ Copy selected text to clipboard """
+        self.term.buffer[self.term.current_tab].copy_clipboard(self.clipboard)
         pass
 
     def clear_buffer(self, widget):
