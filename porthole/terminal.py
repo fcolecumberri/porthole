@@ -1182,9 +1182,12 @@ class ProcessManager:
         dprint("TERMINAL: do_password_popup(): result %s" % result)
         dialog.destroy()
         if result == gtk.RESPONSE_CANCEL:
-            self.write_to_term('\x03') # control-C
+            self.kill_process()
+            #self.write_to_term('\x03') # control-C
             self.append(TAB_PROCESS, '^C')
-    
+            # reset resume to false since emerge had not been called yet
+            self.set_resume(False)
+
     def forward_password(self, entrywidget, entrydialog):
         """ Callback to pass a password to the terminal process """
         password = entrywidget.get_text()
