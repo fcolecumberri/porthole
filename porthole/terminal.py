@@ -546,6 +546,7 @@ class ProcessManager:
         # if the last process was killed, check if it's the same thing
         resume = None
         if self.killed:
+            dprint("TERMINAL: add_process: self.killed is true")
             if (package_name == self.process_list[0][0] and
                     command_string == self.process_list[0][1]):
                 dprint("TERMINAL: add_process: showing resume dialog")
@@ -564,7 +565,14 @@ class ProcessManager:
                     return False
                 #self.process_list.pop(0) # remove killed entry
                 self.process_list[0][1] += resume
+            else: # clean up the killed process
+                dprint("TERMINAL: add_process; removing killed process from the list")
+                self.process_list = self.process_list[1:]
+                self.resume_available = False
+                self.set_resume(False)
+        
         if resume is None:
+            dprint("TERMINAL: add_process: resume is None")
             # check if the package is already in the emerge queue
             for data in self.process_list:
                 if package_name == data[0] and command_string == data[1]:
@@ -766,7 +774,7 @@ class ProcessManager:
                     dprint("TERMINAL: ctrl-C sent to process")
                     self.resume_available = True
                     # make sure the thread notices
-                    os.kill(self.pid, signal.SIGKILL)
+                    #os.kill(self.pid, signal.SIGKILL)
                     #os.close(self.reader.fd)
                 else: # just in case there is anything left
                     # negative pid kills process group
