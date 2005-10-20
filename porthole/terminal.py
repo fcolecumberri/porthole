@@ -193,7 +193,9 @@ class ProcessManager:
         
         self.reset_buffer_update()
         
-        if hasattr(self, 'window'):
+        if not hasattr(self, 'window'):
+            return self.create_window()
+        else:
             dprint("TERMINAL: show_window(): window attribute already set... attempting show")
             # clear text buffer and emerge queue, hide tabs
             self.clear_buffer(None)
@@ -235,6 +237,10 @@ class ProcessManager:
             #gobject.timeout_add(100, self.update)
             dprint("TERMINAL: show_window(): returning")
             return True
+    
+    def create_window(self):
+        """ Create and display the Process Window """
+        
         # load the glade file
         self.wtree = gtk.glade.XML(self.prefs.DATA_PATH + self.prefs.use_gladefile,
                                    "process_window", self.prefs.APP)
