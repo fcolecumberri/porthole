@@ -1632,6 +1632,7 @@ Copyright (C) 2003 - 2005</property>
 
 		      <child>
 			<widget class="GtkImageMenuItem" id="copy2">
+			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">_Copy</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_copy" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
@@ -1653,6 +1654,7 @@ Copyright (C) 2003 - 2005</property>
 
 		      <child>
 			<widget class="GtkMenuItem" id="separator10">
+			  <property name="visible">True</property>
 			</widget>
 		      </child>
 
