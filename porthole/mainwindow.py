@@ -618,8 +618,9 @@ class MainWindow:
         """Setup the command to run or not"""
         if (self.is_root
                 or run_anyway
-                or (self.prefs.emerge.pretend and command[:11] != self.prefs.globals.Sync)
-                or command.startswith("sudo ")):
+                or (self.prefs.emerge.pretend and not command.startswith(self.prefs.globals.Sync))
+                or command.startswith("sudo ")
+                or utils.pretend_check(command)):
             if command.startswith('sudo -p "Password: "'):
                 dprint('MAINWINDOW: setup_command(); removing \'sudo -p "Password: "\' for pretend_check')
                 is_pretend = utils.pretend_check(command[21:])
