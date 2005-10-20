@@ -303,9 +303,13 @@ def set_user_config(prefs, file, name='', ebuild='', add='', remove='', callback
         if ebuild != '':
             commandlist.append('-e %s' %ebuild)
         if add != '':
-            commandlist.append('-a %s' %("'" + add + "'"))
+            items = add.split()
+            for item in items:
+                commandlist.append('-a %s' % item)
         if remove != '':
-            commandlist.append('-r %s' %("'" + remove + "'"))
+            items = remove.split()
+            for item in items:
+                commandlist.append('-r %s' % item)
         command = ' '.join(commandlist) + '"'
         dprint(" * PORTAGELIB: set_user_config(); command = %s" %command )
         if not callback: callback = reload_portage

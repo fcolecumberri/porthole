@@ -42,7 +42,7 @@ version = 1.0
 def dprint(message):
     """Print debug message if debug is true."""
     if debug:
-        print >> sys.stderr, message
+        print message
 
 def set_user_config(file, name='', ebuild='', add=[], remove=[]):
     """
@@ -265,13 +265,13 @@ if __name__ == "__main__":
     replace = ''
 
     for opt, arg in opts:
-        print opt, arg
+        dprint(str(opt) + ' ' + str(arg))
         if opt in ('-l', "--local"):
             # running a local version (i.e. not installed in /usr/*)
             DATA_PATH = os.getcwd() + "/"
         elif opt in ('-v', "--version"):
             # print version info
-            print "set_config.py " + str(version)
+            dprint("set_config.py " + str(version))
             exit(0)
         elif opt in ('-d', "--debug"):
             debug = True
@@ -286,11 +286,11 @@ if __name__ == "__main__":
             ebuild = arg
             dprint("ebuild = %s" %ebuild)
         elif opt in ('-a'):
-            add = arg.split()
-            dprint("add list = %s" %str(add))
+            add.append(arg)
+            dprint("add list = %s" % str(add))
         elif opt in ('-r'):
-            remove = arg.split()
-            dprint("remove = %s" %str(remove))
+            remove.append(arg)
+            dprint("remove = %s" % str(remove))
         elif opt in ('-p'):
             property = arg
             dprint("property = %s" % str(property))
