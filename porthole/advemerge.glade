@@ -314,7 +314,7 @@
 		  <child>
 		    <widget class="GtkCheckButton" id="cbNoSpinner">
 		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Skips the packages specified on the command-line that have already been installed.  Without this option, any packages, ebuilds, or deps you specify on on the command-line *will* cause Portage to remerge the package, even if it is already installed.  Note that Portage will not remerge dependencies by default.</property>
+		      <property name="tooltip" translatable="yes">Disables the spinner regardless of terminal type.   ie.  Turns off the spinner normally displayed to indicate that portage is busy doing something and not frozen.</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">nospinner</property>
 		      <property name="use_underline">True</property>
