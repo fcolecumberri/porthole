@@ -553,7 +553,7 @@ class ProcessManager:
         resume = None
         if self.killed:
             dprint("TERMINAL: add_process: self.killed is true")
-            if (package_name == self.process_list[0][0] and
+            if len(self.process_list) and (package_name == self.process_list[0][0] and
                     command_string == self.process_list[0][1]):
                 dprint("TERMINAL: add_process: showing resume dialog")
                 # The process has been killed, so help the user out a bit
@@ -573,7 +573,8 @@ class ProcessManager:
                 self.process_list[0][1] += resume
             else: # clean up the killed process
                 dprint("TERMINAL: add_process; removing killed process from the list")
-                self.process_list = self.process_list[1:]
+                if len(self.process_list):
+                    self.process_list = self.process_list[1:]
                 self.resume_available = False
                 self.set_resume(False)
         
@@ -789,6 +790,7 @@ class ProcessManager:
                 dprint("TERMINAL: kill(), OSError %s" % e)
                 pass
             self.killed = True
+            self.task_completed = True
             if self.term.tab_showing[TAB_QUEUE]:
                 # update the queue tree
                 #self.Semaphore.release()
@@ -1586,7 +1588,14 @@ class ProcessManager:
                 self.process_list = self.process_list[:pos] + \
                                     self.process_list[pos + 1:]
                 break
-        self.queue_model.remove(iter)
+        if iter:
+            self.queue_model.remove(iter)
+        # check if there is a change to be made
+        if not len(self.process_list)> 1:
+            # just in case it was set True
+            self.skip_queue_menu.set_sensitive(False)
+
+
 
         # We're done, release semaphore
         #self.Semaphore.release()
