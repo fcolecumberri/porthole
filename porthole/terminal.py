@@ -111,6 +111,9 @@ class ProcessManager:
         self.callback_armed = False
         # process list to store pending processes
         self.process_list = []
+        # id number for storing in the queue
+        self.process_id = 0
+        self.killed_id = None
         # the window is not visible until a process is added
         self.window_visible = False
         self.task_completed = True
@@ -193,9 +196,7 @@ class ProcessManager:
         
         self.reset_buffer_update()
         
-        if not hasattr(self, 'window'):
-            return self.create_window()
-        else:
+        if hasattr(self, 'window'):
             dprint("TERMINAL: show_window(): window attribute already set... attempting show")
             # clear text buffer and emerge queue, hide tabs
             self.clear_buffer(None)
@@ -237,10 +238,6 @@ class ProcessManager:
             #gobject.timeout_add(100, self.update)
             dprint("TERMINAL: show_window(): returning")
             return True
-    
-    def create_window(self):
-        """ Create and display the Process Window """
-        
         # load the glade file
         self.wtree = gtk.glade.XML(self.prefs.DATA_PATH + self.prefs.use_gladefile,
                                    "process_window", self.prefs.APP)
@@ -570,12 +567,16 @@ class ProcessManager:
                     #dprint("TERMINAL: add_process; Semaphore released")
                     return False
                 #self.process_list.pop(0) # remove killed entry
-                self.process_list[0][1] += resume
+                # add resume to the command only if it's queue id matches.
+                # this allows Resume to restart the queue if the killed process was removed from the queue
+                if self.killed_id == self.process_list[0][4]:
+                    self.process_list[0][1] += resume
             else: # clean up the killed process
                 dprint("TERMINAL: add_process; removing killed process from the list")
                 if len(self.process_list):
                     self.process_list = self.process_list[1:]
                 self.resume_available = False
+                self.killed_id = None
                 self.set_resume(False)
         
         if resume is None:
@@ -612,8 +613,9 @@ class ProcessManager:
             self.queue_model.set_value(iter, 2, str(command_string))
         if resume is None:
             # add to the process list only if not resuming
+            self.process_id += 1
             self.process_list.append([package_name, command_string,
-                                                    iter, callback])
+                                                    iter, callback, self.process_id])
         
         if len(self.process_list) >= 2:
             # if there are 2 or more processes in the list,
@@ -807,6 +809,7 @@ class ProcessManager:
         iter = self.process_list[0][2]
         self.queue_model.set_value(iter, 0, self.render_icon(gtk.STOCK_CANCEL))
         dprint("TERMINAL: was_killed(); setting resume to sensitive")
+        self.killed_id = self.process_list[0][4]
         # We're finished, release semaphore
         #self.Semaphore.release()
         #dprint("TERMINAL: was_killed(); Semaphore released")
@@ -1443,8 +1446,11 @@ class ProcessManager:
         """ Resume killed process """
         #self.Semaphore.acquire()
         # pass the normal command along with --resume
-        name, command, iter, callback = self.process_list[0]
-        command += " --resume"
+        name, command, iter, callback, id = self.process_list[0]
+        # add resume to the command only if it's queue id matches.
+        # this allows Resume to restart the queue if the killed process was removed from the queue
+        if self.killed_id == id:
+            command += " --resume"
         self._run(command, iter)
         #self.Semaphore.release()
 
@@ -1809,14 +1815,15 @@ class ProcessManager:
         """sets the starting directory for file selection"""
         if not self.directory:
             # no directory was specified, so we are making one up
-            dprint("LOG: directory not specified, setting to ~/.porthole/logs")
-            self.directory = get_user_home_dir()
-            if os.access(self.directory + "/.porthole", os.F_OK):
-                if not os.access(self.directory + "/.porthole/logs", os.F_OK):
-                    dprint("LOG: Creating logs directory in " + self.directory +
-                           "/.porthole/logs")
-                    os.mkdir(self.directory + "/.porthole/logs")
-                self.directory += "/.porthole/logs/"
+            dprint("LOG: directory not specified, setting to default: %s" %self.prefs.LOG_FILE_DIR)
+            self.directory = self.prefs.LOG_FILE_DIR
+            ##self.directory = get_user_home_dir()
+            ##if os.access(self.directory + "/.porthole", os.F_OK):
+            ##    if not os.access(self.directory + "/.porthole/logs", os.F_OK):
+            ##        dprint("LOG: Creating logs directory in " + self.directory +
+            ##               "/.porthole/logs")
+            ##        os.mkdir(self.directory + "/.porthole/logs")
+            ##    self.directory += "/.porthole/logs/"
                 #os.chdir(self.directory)
  
     def pretty_name(self):
