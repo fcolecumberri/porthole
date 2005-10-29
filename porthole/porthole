@@ -128,10 +128,11 @@ if __name__ == "__main__":
             #i18n_DIR = "/usr/share/locale/"
         except ImportError, e:
             print "*** Error loading porthole modules!\n*** If you are running a", \
-                "local (not installed in site-packages) version, please use the '--local'", \
+                "local (not installed in python's site-packages) version, please use the '--local'", \
                 "or '-l' flag.\n", \
                 "*** Otherwise, verify that porthole was installed correctly and", \
-                "that python's path includes the site-packages directory.\n"
+                "that python's path includes the site-packages directory.\n",\
+                "If you have recently updated python, then run 'python-updater'\n"
             print "Your sys.path: %s\n" % sys.path
             print "Your sys.version: %s\n" % sys.version
             print "Original exception was: ImportError: %s\n" % e
@@ -175,7 +176,8 @@ if __name__ == "__main__":
         ["DATA_PATH",DATA_PATH],
         ["APP",APP],
         ["i18n_DIR",i18n_DIR],
-        ["RUN_LOCAL",RUN_LOCAL]
+        ["RUN_LOCAL",RUN_LOCAL],
+        ["LOG_FILE_DIR",LOG_FILE_DIR]
     ]
     prefs = _utils.PortholePreferences(prefs_additions)
     # load config info
