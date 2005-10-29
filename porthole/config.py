@@ -178,7 +178,7 @@ class ConfigDialog:
             ['emerge', 'fetch'],
             ['emerge', 'upgradeonly'],
             ['globals', 'enable_archlist'],
-            ['globals', 'enable_all_keywords'],
+            ##['globals', 'enable_all_keywords'],
             ['globals', 'use_custom_browser'],
             ['advemerge', 'show_make_conf_button'],
         ]
@@ -489,7 +489,7 @@ class ConfigDialog:
         """
         dprint("CONFIG: toggle_archlist(); signal caught")
         self.KeywordsFrame.set_sensitive(widget.get_active())
-        self.prefs.globals.enable_all_keywords = widget.get_active()
+        self.prefs.globals.enable_archlist = widget.get_active()
 
     def toggle_browser_table(self, widget):
         """Toggles custom browser command sensitivity

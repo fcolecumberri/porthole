@@ -436,7 +436,7 @@ class PortholePreferences:
         globaloptions = [ \
             ['LANG', 'en'],
             ['enable_archlist', False],
-            ['enable_all_keywords', False],
+            ##['enable_all_keywords', False],
             ["archlist", ["alpha", "amd64", "arm", "hppa", "ia64", "mips",
                             "ppc", "ppc64", "s390", "sparc", "x86"]],
             ["Sync", "emerge sync"],
@@ -562,7 +562,7 @@ class PortholePreferences:
         #dom.additem('/plugins/path_list', self.plugins.path_list)
         dom.additem('/globals/LANG', self.globals.LANG)
         dom.additem('/globals/enable_archlist', self.globals.enable_archlist)
-        dom.additem('/globals/enable_all_keywords', self.globals.enable_all_keywords)
+        ##dom.additem('/globals/enable_all_keywords', self.globals.enable_all_keywords)
         dom.additem('/globals/archlist', self.globals.archlist)
         dom.additem('/globals/Sync', self.globals.Sync)
         dom.additem('/globals/Sync_label', self.globals.Sync_label)
