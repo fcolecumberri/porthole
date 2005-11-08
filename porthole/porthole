@@ -33,6 +33,8 @@ import sys
 PORTAGE_MOD_PATH = '/usr/lib/portage/pym'
 if PORTAGE_MOD_PATH not in sys.path:
     sys.path.append(PORTAGE_MOD_PATH)
+while '' in sys.path: # we don't need the cwd in the path
+    sys.path.remove('')
 while '/usr/bin' in sys.path: # this gets added when we run /usr/bin/porthole
     sys.path.remove('/usr/bin')
 
