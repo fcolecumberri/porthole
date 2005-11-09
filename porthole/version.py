@@ -1,1 +1,1 @@
-version = "CVS-develpment"
+version = "0.5.0"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-09-10 19:14+1200\n"
+"POT-Creation-Date: 2005-11-09 00:08-0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,40 +26,40 @@ msgstr ""
 msgid "Advanced Emerge Settings for %s"
 msgstr ""
 
-#: advemerge.py:126 advemerge.py:362
+#: advemerge.py:123 advemerge.py:353
 #, python-format
 msgid "Slot:%s"
 msgstr ""
 
-#: advemerge.py:128 advemerge.py:364
+#: advemerge.py:125 advemerge.py:355
 msgid "   {unavailable}"
 msgstr ""
 
-#: advemerge.py:130 advemerge.py:366
+#: advemerge.py:127 advemerge.py:357
 msgid "   (unstable)"
 msgstr ""
 
-#: advemerge.py:132 advemerge.py:368
+#: advemerge.py:129 advemerge.py:359
 msgid "   [MASKED]"
 msgstr ""
 
-#: advemerge.py:135 advemerge.py:371
+#: advemerge.py:132 advemerge.py:362
 msgid "   (recommended) (downgrade)"
 msgstr ""
 
-#: advemerge.py:137 advemerge.py:373
+#: advemerge.py:134 advemerge.py:364
 msgid "   (recommended)"
 msgstr ""
 
-#: advemerge.py:140 advemerge.py:376
+#: advemerge.py:137 advemerge.py:367
 msgid "   [installed]"
 msgstr ""
 
-#: advemerge.py:695
+#: advemerge.py:660
 msgid "Unsupported use flag"
 msgstr ""
 
-#: advemerge.py:737 depends.py:389
+#: advemerge.py:700 depends.py:390
 msgid "None"
 msgstr ""
 
@@ -153,84 +153,84 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
-#: mainwindow.py:472
+#: mainwindow.py:475
 msgid "No root privileges"
 msgstr ""
 
-#: mainwindow.py:474
+#: mainwindow.py:477
 msgid ""
 "In order to access all the features of Porthole,\n"
 "please run it with root privileges."
 msgstr ""
 
-#: mainwindow.py:477
+#: mainwindow.py:480
 msgid "_Ok"
 msgstr ""
 
-#: mainwindow.py:499
+#: mainwindow.py:502
 #, python-format
 msgid "%(base)s: %(count)i packages read"
 msgstr ""
 
-#: mainwindow.py:528
+#: mainwindow.py:531
 #, python-format
 msgid "%(base)s: Populating tree"
 msgstr ""
 
-#: mainwindow.py:835
+#: mainwindow.py:839
 msgid "Upgrade requested"
 msgstr ""
 
-#: mainwindow.py:837
+#: mainwindow.py:841
 msgid "Do you want to upgrade all packages in your world file?"
 msgstr ""
 
-#: mainwindow.py:872
+#: mainwindow.py:876
 msgid "Please Wait!"
 msgstr ""
 
-#: mainwindow.py:874
+#: mainwindow.py:878
 msgid "Loading package descriptions..."
 msgstr ""
 
-#: mainwindow.py:922
+#: mainwindow.py:926
 #, python-format
 msgid "Searching descriptions for %s"
 msgstr ""
 
-#: mainwindow.py:924
+#: mainwindow.py:928
 #, python-format
 msgid "Searching for %s"
 msgstr ""
 
-#: mainwindow.py:1252
+#: mainwindow.py:1256
 msgid "Searching for upgradable packages..."
 msgstr ""
 
-#: mainwindow.py:1311
+#: mainwindow.py:1315
 msgid "Building Package List"
 msgstr ""
 
-#: mainwindow.py:1322
+#: mainwindow.py:1326
 msgid "Done: "
 msgstr ""
 
-#: mainwindow.py:1335 mainwindow.py:1341
+#: mainwindow.py:1339 mainwindow.py:1345
 #, python-format
 msgid "%(pack)d packages in %(cat)d categories"
 msgstr ""
 
-#: mainwindow.py:1344
+#: mainwindow.py:1348
 #, python-format
 msgid "%d matches found"
 msgstr ""
 
-#: mainwindow.py:1350
+#: mainwindow.py:1354
 #, python-format
 msgid "%(world)d world, %(deps)d dependencies"
 msgstr ""
 
-#: mainwindow.py:1438
+#: mainwindow.py:1442
 msgid "Confirm: Kill the Running Process in the Terminal"
 msgstr ""
 
@@ -245,11 +245,11 @@ msgid ""
 "Are you sure this is a Gentoo system?"
 msgstr ""
 
-#: portagelib.py:616
+#: portagelib.py:620
 msgid "No masking reason given"
 msgstr ""
 
-#: portagelib.py:820
+#: portagelib.py:823
 msgid "No ebuild found."
 msgstr ""
 
@@ -361,80 +361,80 @@ msgstr ""
 msgid "Porthole-Terminal"
 msgstr ""
 
-#: terminal.py:308
+#: terminal.py:312
 msgid "Packages to be merged      "
 msgstr ""
 
-#: terminal.py:552
+#: terminal.py:557
 msgid ""
 "The package you selected is already in the emerge queue,\n"
 "but it has been killed. Would you like to resume the emerge?"
 msgstr ""
 
-#: terminal.py:572
+#: terminal.py:589
 msgid "The package you selected is already in the emerge queue!"
 msgstr ""
 
-#: terminal.py:573
+#: terminal.py:590
 msgid "Error Adding Package To Queue!"
 msgstr ""
 
-#: terminal.py:574
+#: terminal.py:591
 msgid "OK"
 msgstr ""
 
-#: terminal.py:735
+#: terminal.py:753
 msgid "***Log Process Killed!"
 msgstr ""
 
-#: terminal.py:808
+#: terminal.py:828
 msgid "Confirm: Kill the Running Process"
 msgstr ""
 
-#: terminal.py:1121
+#: terminal.py:1141
 #, python-format
 msgid "*** Log loading complete : %s"
 msgstr ""
 
-#: terminal.py:1145
+#: terminal.py:1165
 msgid "_Cancel"
 msgstr ""
 
-#: terminal.py:1152
+#: terminal.py:1172
 #, python-format
 msgid ""
 "'sudo -p Password: ' requires your user password to perform the command:\n"
 "'%s'"
 msgstr ""
 
-#: terminal.py:1156
+#: terminal.py:1176
 #, python-format
 msgid ""
 "'su' requires the root password to perform the command:\n"
 "'%s'"
 msgstr ""
 
-#: terminal.py:1162
+#: terminal.py:1182
 msgid "Password: "
 msgstr ""
 
-#: terminal.py:1287
+#: terminal.py:1310
 #, python-format
 msgid "*** Total warnings count for merge = %d \n"
 msgstr ""
 
-#: terminal.py:1293
+#: terminal.py:1316
 #, python-format
 msgid "*** Total cautions count for merge = %d \n"
 msgstr ""
 
-#: terminal.py:1668
+#: terminal.py:1702
 msgid ""
 "*** Unfortunately, you don't have enough logged information about the listed "
 "packages to calculate estimated build times accurately.\n"
 msgstr ""
 
-#: terminal.py:1674
+#: terminal.py:1708
 #, python-format
 msgid ""
 "*** Based on the build history of these packages on your system, I can "
@@ -442,7 +442,7 @@ msgid ""
 "(hours)d hrs, %(minutes)d mins, and %(seconds)d secs.\n"
 msgstr ""
 
-#: terminal.py:1683
+#: terminal.py:1717
 msgid ""
 "*** Note: If you have a lot of programs running on your system while "
 "porthole is emerging packages, or if you have changed your hardware since "
@@ -450,81 +450,81 @@ msgid ""
 "inaccurate.\n"
 msgstr ""
 
-#: terminal.py:1705
+#: terminal.py:1739
 msgid "*** Unknown File Loading error"
 msgstr ""
 
-#: terminal.py:1709
+#: terminal.py:1743
 msgid "*** File Loading... Processing..."
 msgstr ""
 
-#: terminal.py:1718 terminal.py:1722
+#: terminal.py:1752 terminal.py:1756
 msgid ": Open log File"
 msgstr ""
 
-#: terminal.py:1763
+#: terminal.py:1797
 #, python-format
 msgid "Ovewrite existing file '%s'?"
 msgstr ""
 
-#: terminal.py:1826
+#: terminal.py:1861
 #, python-format
 msgid "*** Loading File : %s"
 msgstr ""
 
-#: terminal.py:1830
+#: terminal.py:1865
 #, python-format
 msgid "Cannot open file '%s': %s"
 msgstr ""
 
-#: terminal.py:1855
+#: terminal.py:1890
 #, python-format
 msgid "Cannot back up '%s' to '%s': %s"
 msgstr ""
 
-#: terminal.py:1866
+#: terminal.py:1901
 #, python-format
 msgid "*** saving file: %s"
 msgstr ""
 
-#: terminal.py:1899
+#: terminal.py:1934
 #, python-format
 msgid ""
 "Can't restore backup file '%s' to '%s': %s\n"
 "Backup left as '%s'"
 msgstr ""
 
-#: terminal.py:1907
+#: terminal.py:1942
 #, python-format
 msgid "*** File saved : %s"
 msgstr ""
 
-#: terminal.py:1917
+#: terminal.py:1952
 #, python-format
 msgid "Save log to '%s'?"
 msgstr ""
 
-#: utils.py:160
+#: utils.py:178
 msgid "_Yes"
 msgstr ""
 
-#: utils.py:162
+#: utils.py:180
 msgid "_No"
 msgstr ""
 
-#: utils.py:173
+#: utils.py:191
 msgid "Loading"
 msgstr ""
 
-#: utils.py:425 utils.py:446
+#: utils.py:443 utils.py:475
 msgid "Sync"
 msgstr ""
 
-#: utils.py:447
+#: utils.py:476
 msgid "WebRsync"
 msgstr ""
 
-#: utils.py:695
+#: utils.py:724
 msgid ""
 "Error reading emerge log file.  Check file permissions, or check for corrupt "
 "log file."
@@ -583,15 +583,15 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#: views.py:660 views.py:681
+#: views.py:666 views.py:687
 msgid "Categories"
 msgstr ""
 
-#: views.py:679
+#: views.py:685
 msgid "Search History"
 msgstr ""
 
-#: views.py:744 views.py:761 porthole.glade.h:18
+#: views.py:750 views.py:767 porthole.glade.h:18
 msgid "Dependencies"
 msgstr ""
 
@@ -654,11 +654,18 @@ msgstr ""
 
 #: advemerge.glade.h:11
 msgid ""
+"Disables the spinner regardless of terminal type.   ie.  Turns off the "
+"spinner normally displayed to indicate that portage is busy doing something "
+"and not frozen."
+msgstr ""
+
+#: advemerge.glade.h:12
+msgid ""
 "Emerge as normal, but do not add the packages to the world profile for later "
 "updating."
 msgstr ""
 
-#: advemerge.glade.h:12
+#: advemerge.glade.h:13
 msgid ""
 "Instead of actually performing the merge, simply display what *would* have "
 "been installed if pretend weren't used.  Using pretend is strongly "
@@ -667,35 +674,35 @@ msgid ""
 "already installed package."
 msgstr ""
 
-#: advemerge.glade.h:13
+#: advemerge.glade.h:14
 msgid ""
 "Instead of doing any package building, just perform fetches for all packages "
 "(the main package as well as  all  dependencies.)"
 msgstr ""
 
-#: advemerge.glade.h:14
+#: advemerge.glade.h:15
 msgid "Keyword to accept"
 msgstr ""
 
-#: advemerge.glade.h:15
+#: advemerge.glade.h:16
 msgid ""
 "Merges specified packages without merging  any  dependencies.  Note that the "
 "build may fail if the dependencies aren't satisfied."
 msgstr ""
 
-#: advemerge.glade.h:16
+#: advemerge.glade.h:17
 msgid ""
 "Only merge (or pretend to  merge) the dependencies of the packages "
 "specified, not the packages themselves."
 msgstr ""
 
-#: advemerge.glade.h:17
+#: advemerge.glade.h:18
 msgid ""
 "Results may vary, but the general outcome is a reduced or condensed output "
 "from portage's displays."
 msgstr ""
 
-#: advemerge.glade.h:18
+#: advemerge.glade.h:19
 msgid ""
 "Skips the packages specified on the command-line that have already been "
 "installed.  Without this option, any packages, ebuilds, or deps you specify "
@@ -704,14 +711,14 @@ msgid ""
 "default."
 msgstr ""
 
-#: advemerge.glade.h:19
+#: advemerge.glade.h:20
 msgid ""
 "Tell emerge to run in verbose mode.  Currently this flag causes emerge to "
 "print out GNU info errors, if any, and to show the USE flags that will be "
 "used for each package when pretending."
 msgstr ""
 
-#: advemerge.glade.h:20
+#: advemerge.glade.h:21
 msgid ""
 "Tells emerge to build binary packages for  all  ebuilds  processed  in "
 "addition to actually merging the packages.  Useful for maintainers or if you "
@@ -721,14 +728,14 @@ msgid ""
 "creates a tbz2 from the live filesystem."
 msgstr ""
 
-#: advemerge.glade.h:21
+#: advemerge.glade.h:22
 msgid ""
 "Tells emerge to run the emerge command in debug mode.  In this mode the bash "
 "build environment will run with the -x option, causing it to output verbose "
 "debug information to stdout.  Debug is great for finding bash syntax errors."
 msgstr ""
 
-#: advemerge.glade.h:22
+#: advemerge.glade.h:23
 msgid ""
 "Tells emerge to use binary packages (from $PKGDIR) if they are available, "
 "thus possibly avoiding some time-consuming compiles.  This option is useful "
@@ -737,19 +744,19 @@ msgid ""
 "satisfy dependencies."
 msgstr ""
 
-#: advemerge.glade.h:23
+#: advemerge.glade.h:24
 msgid "Update make.conf"
 msgstr ""
 
-#: advemerge.glade.h:24
+#: advemerge.glade.h:25
 msgid "Update package.keywords"
 msgstr ""
 
-#: advemerge.glade.h:25
+#: advemerge.glade.h:26
 msgid "Update package.use"
 msgstr ""
 
-#: advemerge.glade.h:26
+#: advemerge.glade.h:27
 msgid ""
 "Updates packages to the most recent version available.  Note that update "
 "does not have full functionality yet.  It will not automatically update "
@@ -757,17 +764,17 @@ msgid ""
 "file."
 msgstr ""
 
-#: advemerge.glade.h:27
+#: advemerge.glade.h:28
 msgid ""
 "Updates packages, but excludes updates that would result in a lower version "
 "of the package being installed.  SLOTs are considered at a basic level."
 msgstr ""
 
-#: advemerge.glade.h:28
+#: advemerge.glade.h:29
 msgid "Use Flags"
 msgstr ""
 
-#: advemerge.glade.h:29
+#: advemerge.glade.h:30
 msgid ""
 "Virtually tweaks the tree of installed packages to only contain glibc; this "
 "is great to use together with pretend.  This allows developers to get a "
@@ -775,7 +782,7 @@ msgid ""
 "enables complete trees to be rebuilt using the latest libraries."
 msgstr ""
 
-#: advemerge.glade.h:30
+#: advemerge.glade.h:31
 msgid ""
 "When used in conjunction with update, this flag forces emerge to consider "
 "the entire dependency tree of packages, instead of checking only the "
@@ -783,83 +790,83 @@ msgid ""
 "in libraries that are not directly listed in the dependencies of a package."
 msgstr ""
 
-#: advemerge.glade.h:31
+#: advemerge.glade.h:32
 msgid "buildpkg"
 msgstr ""
 
-#: advemerge.glade.h:32
+#: advemerge.glade.h:33
 msgid "buildpkgonly"
 msgstr ""
 
-#: advemerge.glade.h:33
+#: advemerge.glade.h:34
 msgid "debug"
 msgstr ""
 
-#: advemerge.glade.h:34
+#: advemerge.glade.h:35
 msgid "deep"
 msgstr ""
 
-#: advemerge.glade.h:35
+#: advemerge.glade.h:36
 msgid "emptytree"
 msgstr ""
 
-#: advemerge.glade.h:36
+#: advemerge.glade.h:37
 msgid "fetchonly"
 msgstr ""
 
-#: advemerge.glade.h:37
+#: advemerge.glade.h:38
 msgid "noconfmem"
 msgstr ""
 
-#: advemerge.glade.h:38
+#: advemerge.glade.h:39
 msgid "nodeps"
 msgstr ""
 
-#: advemerge.glade.h:39
+#: advemerge.glade.h:40
 msgid "noreplace"
 msgstr ""
 
-#: advemerge.glade.h:40 config.glade.h:101
+#: advemerge.glade.h:41 config.glade.h:101
 msgid "nospinner"
 msgstr ""
 
-#: advemerge.glade.h:41
+#: advemerge.glade.h:42
 msgid "oneshot"
 msgstr ""
 
-#: advemerge.glade.h:42
+#: advemerge.glade.h:43
 msgid "onlydeps"
 msgstr ""
 
-#: advemerge.glade.h:43 config.glade.h:102
+#: advemerge.glade.h:44 config.glade.h:102
 msgid "pretend"
 msgstr ""
 
-#: advemerge.glade.h:44
+#: advemerge.glade.h:45
 msgid "quiet"
 msgstr ""
 
-#: advemerge.glade.h:45
+#: advemerge.glade.h:46
 msgid "update"
 msgstr ""
 
-#: advemerge.glade.h:46 config.glade.h:113
+#: advemerge.glade.h:47 config.glade.h:113
 msgid "upgradeonly"
 msgstr ""
 
-#: advemerge.glade.h:47
+#: advemerge.glade.h:48
 msgid "usepkg"
 msgstr ""
 
-#: advemerge.glade.h:48
+#: advemerge.glade.h:49
 msgid "usepkgonly"
 msgstr ""
 
-#: advemerge.glade.h:49 config.glade.h:114
+#: advemerge.glade.h:50 config.glade.h:114
 msgid "verbose"
 msgstr ""
 
-#: advemerge.glade.h:50
+#: advemerge.glade.h:51
 msgid "version"
 msgstr ""
 
