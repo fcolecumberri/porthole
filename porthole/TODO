@@ -2,6 +2,9 @@
 |                          TODO list for Porthole:                             |
 --------------------------------------------------------------------------------
 
+ * add dependency info to dependency tab, such as keyword status, use flags status
+
+
  / (In Progress) Preferences Dialog:
       sync options (e.g. websync)
       default emerge options (e.g. verbose)
@@ -85,13 +88,14 @@
    This could help for fast description searching (RFE [998428]), and would
    make Porthole a lot faster in general, but has the potential for lots
    of problems with discrepancies between Porthole and portage...
-   perhaps use python fam interface.
+   perhaps use python fam interface.  Fam is being replaced by gamin which
+   comes with a python interface.
 
  ? Advanced search criteria (masking, architectures, use flags)
 
  ? Thread the search function
 
- ? Possible "newuse" and "system" filters for upgrade list ?
+ ? Possible "newuse", "system", "tool chain" filters for upgrade list ?
 
  ? Somehow prompt to add packages to package.keywords if the user tries to
    merge a masked package (bug [1107532]). Check dependencies also.
@@ -151,7 +155,7 @@ Features for future consideration
   if right-click brought up the standard Nautilus context menu.
 
 (see above) Adding su ability inside porthole.  gksu now has the new API with  separate Libs for a gtk+ widget and core lib.
-   It does not yet have a python interface.  I have been looking at using swig to create the python interface to the libs.
+   It now has a python interface included in the gnome-python-extras package.
 
 - Adding chroot ability to the terminal and mainwindow database.  This would allow porthole to
   be used for some install purposes.  Or help in using porthole to do remote work.
