@@ -847,7 +847,7 @@ class MainWindow:
         if model.get_value(iter, 1):
             name = model.get_value(iter, 0)
             dprint("MAINWINDOW; tree_node_to_list(): name '%s'" % name)
-            if name not in self.keyorder:
+            if name not in self.keyorder and name <> _("Upgradable dependencies:"):
                 self.packages_list[name] = model.get_value(iter, 4) # model.get_value(iter, 2), name]
                 self.keyorder = [name] + self.keyorder 
         return False
