@@ -2,7 +2,12 @@
 |                          TODO list for Porthole:                             |
 --------------------------------------------------------------------------------
 
- * add dependency info to dependency tab, such as keyword status, use flags status
+ * Add a Depricated packges/versions view, scan /var/db/pkg/ for installed packages no
+   longer in the portage tree and add them to the Installed list and the depricated list.
+
+
+ * add dependency info to dependency tab, such as keyword status, use flags status,
+      and the ability to set package.* files
 
 
  / (In Progress) Preferences Dialog:
@@ -136,7 +141,7 @@ Release 0.4.?
 (in progress) begin adding right click menus for many areas
 - Make the package versions and use flags mouse & right click sensitive to bring up context sensitive
   menus for changing use flag status or displaying properties for different ebuilds, etc.
-(in progress) Change the masked pversion display to indicate keyword masked/hard masked or /etc/portage.* listed
+(in progress) Change the masked version display to indicate keyword masked/hard masked or /etc/portage.* listed
 
 Release 0.5
 - integrate portages new API into porthole replacing portaglib (when ready)
@@ -147,8 +152,6 @@ Release 0.5
 ==================================
 Features for future consideration
 ==================================
-
-- show dependacy use flags for a package as well as it's own 
 
 - Make the package file list a filesystem tree, or a list of files.
   Double-clicking should open the file or folder in Nautilus.  It would be neat 
