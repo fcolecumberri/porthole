@@ -5,11 +5,11 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: porthole-0.5.0\n"
+"Project-Id-Version: Porthole-0.5.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2005-07-30 15:35+1200\n"
-"PO-Revision-Date: 2005-11-09 00:18-0800\n"
-"Last-Translator: lkjhkjhkjh <hjgjhg@uyhgjhg.nhgt>\n"
+"PO-Revision-Date: 2005-11-16 22:14-0800\n"
+"Last-Translator: memoi2001 <memoi2001@libertysurf.fr>\n"
 "Language-Team:  <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -18,9 +18,9 @@ msgstr ""
 "X-Poedit-Country: FRANCE\n"
 
 #: about.py:42
-#, fuzzy, python-format
+#, python-format
 msgid "About Porthole %s"
-msgstr "Porthole"
+msgstr "Porthole %s"
 
 #: advemerge.py:80
 #, python-format
@@ -159,7 +159,7 @@ msgstr ""
 
 #: mainwindow.py:235
 msgid "Active Plugins"
-msgstr ""
+msgstr "Plugins Actifs"
 
 #: mainwindow.py:278
 msgid "Loading database"
@@ -210,6 +210,11 @@ msgstr "Mise-a-jour demandé"
 #: mainwindow.py:841
 msgid "Do you want to upgrade all packages in your world file?"
 msgstr "Voulez vous mettre a jour tous les packetages dans votre fichier world?"
+
+#: mainwindow.py:850
+#: readers.py:102
+msgid "Upgradable dependencies:"
+msgstr "dependances qui peuvent etre mis-a-jour:"
 
 #: mainwindow.py:876
 msgid "Please Wait!"
@@ -283,10 +288,6 @@ msgstr "Aucune raison donné pour le masque"
 msgid "No ebuild found."
 msgstr "Aucun eBuild trouvé"
 
-#: readers.py:102
-msgid "Upgradable dependencies:"
-msgstr "dependances qui peuvent etre mis-a-jour:"
-
 #: summary.py:72
 msgid "Emerge this ebuild"
 msgstr "Emerger cet eBuild"
@@ -341,7 +342,7 @@ msgstr "Versions disponibles pour %s:\n"
 
 #: summary.py:459
 msgid "Properties for version: "
-msgstr ""
+msgstr "Propriétés pour la version"
 
 #: summary.py:470
 msgid "Use flags: "
@@ -435,21 +436,21 @@ msgid "_Cancel"
 msgstr "_Annuler"
 
 #: terminal.py:1172
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "'sudo -p Password: ' requires your user password to perform the command:\n"
 "'%s'"
 msgstr ""
-"Sudo a besoin du mot de passe pour executer la commande;\n"
+"'Sudo a besoin du mot de passe pour executer la commande;\n"
 "'%s'"
 
 #: terminal.py:1176
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "'su' requires the root password to perform the command:\n"
 "'%s'"
 msgstr ""
-"Sudo a besoin du mot de passe pour executer la commande;\n"
+"'su' a besoin du mot de passe pour executer la commande;\n"
 "'%s'"
 
 #: terminal.py:1182
@@ -468,16 +469,16 @@ msgstr "*** Total de mise en garde pour merge = %d \n"
 
 #: terminal.py:1702
 msgid "*** Unfortunately, you don't have enough logged information about the listed packages to calculate estimated build times accurately.\n"
-msgstr ""
+msgstr "*** Malheureusement, vous n'avez pas assez d'information enregistré pour faire une estimation precise du temps de compilation.\n"
 
 #: terminal.py:1708
 #, python-format
 msgid "*** Based on the build history of these packages on your system, I can estimate that emerging them usually takes, on average, %(days)d days, %(hours)d hrs, %(minutes)d mins, and %(seconds)d secs.\n"
-msgstr ""
+msgstr "*** basé sur l'historique de ces packages sur votre system, Je peux estimer que les emerger prends, en moyenne, %(days)d jours, %(hours)d heures, %(minutes)d minutes, et %(seconds)d secondes.\n"
 
 #: terminal.py:1717
 msgid "*** Note: If you have a lot of programs running on your system while porthole is emerging packages, or if you have changed your hardware since the last time you built some of these packages, this estimate may be inaccurate.\n"
-msgstr ""
+msgstr "*** Remarque: si vous avez beaucoup de programmes lancés sur votre systeme pendant que Porthole emerge des packetages, ou si vous avez changé votre materiel depuis la derniere compilation de certains de ces packetages, cette estimation peut etre imprecise.\n"
 
 #: terminal.py:1739
 msgid "*** Unknown File Loading error"
@@ -625,7 +626,6 @@ msgid "Categories"
 msgstr "Categories"
 
 #: views.py:685
-#, fuzzy
 msgid "Search History"
 msgstr "Resultats de la Recherche"
 
@@ -677,7 +677,7 @@ msgstr "Crée des packetages binaire de tout les ebuild sans les merger. ceci so
 
 #: advemerge.glade.h:11
 msgid "Disables the spinner regardless of terminal type.   ie.  Turns off the spinner normally displayed to indicate that portage is busy doing something and not frozen."
-msgstr ""
+msgstr "Desactive le spinner en ingorant le type du terminal. cf. Desactive le spinner normallement affiché pour indiquer que portage est occupé a faire quelque chose et pas gelé."
 
 #: advemerge.glade.h:12
 msgid "Emerge as normal, but do not add the packages to the world profile for later updating."
@@ -853,7 +853,7 @@ msgstr "<b>Dilogue d'options avancé d'emerge</b>"
 
 #: config.glade.h:3
 msgid "<b>Arch List</b> for display's &amp; options"
-msgstr ""
+msgstr "<b>List d'Architectures</b> pour options d'affichage de &amp;"
 
 #: config.glade.h:4
 msgid "<b>Emerge options</b>"
@@ -961,7 +961,7 @@ msgstr "Autoriser la modification du make.conf"
 
 #: config.glade.h:33
 msgid "Enter the command for a GUI su client eg. 'gksu' or 'gnomesu'"
-msgstr ""
+msgstr "Entrez la commande pour un client graphique su, eg: 'gksu' ou 'gnomesu'"
 
 #: config.glade.h:34
 msgid "Error"
@@ -985,7 +985,7 @@ msgstr "Premier plan"
 
 #: config.glade.h:39
 msgid "GUI su client :"
-msgstr ""
+msgstr "Client graphique SU:"
 
 #: config.glade.h:40
 msgid "Global"
@@ -1105,7 +1105,7 @@ msgstr "Methode de sychronisation"
 
 #: config.glade.h:71
 msgid "Tag"
-msgstr ""
+msgstr "Tag"
 
 #: config.glade.h:72
 msgid "Terminal"
@@ -1165,59 +1165,59 @@ msgstr "Jaune"
 
 #: config.glade.h:86
 msgid "checkbutton10"
-msgstr "checkbutton10"
+msgstr "optionbouton10"
 
 #: config.glade.h:87
 msgid "checkbutton16"
-msgstr "checkbutton16"
+msgstr "optionbouton16"
 
 #: config.glade.h:88
 msgid "checkbutton17"
-msgstr "checkbutton17"
+msgstr "optionbouton17"
 
 #: config.glade.h:89
 msgid "checkbutton18"
-msgstr "checkbutton18"
+msgstr "optionbouton18"
 
 #: config.glade.h:90
 msgid "checkbutton19"
-msgstr "checkbutton19"
+msgstr "optionbouton19"
 
 #: config.glade.h:91
 msgid "checkbutton20"
-msgstr "checkbutton20"
+msgstr "optionbouton20"
 
 #: config.glade.h:92
 msgid "checkbutton21"
-msgstr "checkbutton21"
+msgstr "optionbouton21"
 
 #: config.glade.h:93
 msgid "checkbutton22"
-msgstr "checkbutton22"
+msgstr "optionbouton22"
 
 #: config.glade.h:94
 msgid "checkbutton9"
-msgstr "checkbutton9"
+msgstr "optionbouton9"
 
 #: config.glade.h:95
 msgid "command 1:"
-msgstr "command 1:"
+msgstr "commande 1:"
 
 #: config.glade.h:96
 msgid "command 2:"
-msgstr "command 2:"
+msgstr "commande 2:"
 
 #: config.glade.h:97
 msgid "command 3:"
-msgstr "command 3:"
+msgstr "commande 3:"
 
 #: config.glade.h:98
 msgid "command 4:"
-msgstr "command 4:"
+msgstr "commande 4:"
 
 #: config.glade.h:99
 msgid "command 5:"
-msgstr "command 5:"
+msgstr "commande 5:"
 
 #: config.glade.h:100
 msgid "fetch"
@@ -1229,39 +1229,39 @@ msgstr "profile"
 
 #: config.glade.h:104
 msgid "radiobutton1"
-msgstr "radiobutton1"
+msgstr "boutonradio1"
 
 #: config.glade.h:105
 msgid "radiobutton2"
-msgstr "radiobutton2"
+msgstr "boutonradio2"
 
 #: config.glade.h:106
 msgid "radiobutton3"
-msgstr "radiobutton3"
+msgstr "boutonradio3"
 
 #: config.glade.h:107
 msgid "radiobutton4"
-msgstr "radiobutton4"
+msgstr "boutonradio4"
 
 #: config.glade.h:108
 msgid "radiobutton5"
-msgstr "radiobutton5"
+msgstr "boutonradio5"
 
 #: config.glade.h:109
 msgid "radiobutton6"
-msgstr "radiobutton6"
+msgstr "boutonradio6"
 
 #: config.glade.h:110
 msgid "radiobutton7"
-msgstr "radiobutton7"
+msgstr "boutonradio7"
 
 #: config.glade.h:111
 msgid "radiobutton8"
-msgstr "radiobutton8"
+msgstr "boutonradio8"
 
 #: config.glade.h:112
 msgid "radiobutton9"
-msgstr "radiobutton9"
+msgstr "boutonradio9"
 
 #: porthole.glade.h:1
 msgid "<b>Plugin Description</b>"
@@ -1276,7 +1276,6 @@ msgid "<b>Plugin Options</b>"
 msgstr "<b>Options des Plugins</b>"
 
 #: porthole.glade.h:4
-#, fuzzy
 msgid ""
 "A GTK+ frontend to Portage\n"
 "\n"
@@ -1288,8 +1287,9 @@ msgstr ""
 "Une aplication graphique pour Portage\n"
 "\n"
 "Devellopé par Fredrik Arnerup, Brian Dolbec,\n"
-"Daniel G. Taylor, et Wm. F. Wheeler\n"
-"Copyright (C) 2003 - 2004"
+"Daniel G. Taylor, Wm. F. Wheeler,\n"
+"Brian Bockelman and Tommy Iorns\n"
+"Copyright (C) 2003 - 2005"
 
 #: porthole.glade.h:10
 msgid "A_bout"
