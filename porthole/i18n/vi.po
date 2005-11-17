@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2005-07-30 15:35+1200\n"
 "PO-Revision-Date: 2005-11-09 00:28-0800\n"
-"Last-Translator: lkjhkjhkjh <hjgjhg@uyhgjhg.nhgt>\n"
+"Last-Translator: pclouds <pclouds@gmail.com>\n"
 "Language-Team: Vietnamese\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -19,7 +19,7 @@ msgstr ""
 #: about.py:42
 #, python-format
 msgid "About Porthole %s"
-msgstr "Porthole %s"
+msgstr "Giới thiệu Porthole %s"
 
 #: advemerge.py:80
 #, python-format
@@ -158,7 +158,7 @@ msgstr ""
 
 #: mainwindow.py:235
 msgid "Active Plugins"
-msgstr ""
+msgstr "Plugin hoạt động"
 
 #: mainwindow.py:278
 msgid "Loading database"
@@ -340,7 +340,7 @@ msgstr "Phiên bản %s hiện có:\n"
 
 #: summary.py:459
 msgid "Properties for version: "
-msgstr ""
+msgstr "Thuộc tính phiên bản: "
 
 #: summary.py:470
 msgid "Use flags: "
@@ -434,21 +434,21 @@ msgid "_Cancel"
 msgstr "_Hủy bỏ"
 
 #: terminal.py:1172
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "'sudo -p Password: ' requires your user password to perform the command:\n"
 "'%s'"
 msgstr ""
-"Sudo cần mật mã để thực hiện lệnh:\n"
+"'sudo -p mật_mã: ' cần mật mã để thực hiện lệnh:\n"
 "'%s'"
 
 #: terminal.py:1176
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "'su' requires the root password to perform the command:\n"
 "'%s'"
 msgstr ""
-"Sudo cần mật mã để thực hiện lệnh:\n"
+"'su' cần mật mã để thực hiện lệnh:\n"
 "'%s'"
 
 #: terminal.py:1182
@@ -467,16 +467,16 @@ msgstr "*** Tổng số chú ý cài đặt = %d \n"
 
 #: terminal.py:1702
 msgid "*** Unfortunately, you don't have enough logged information about the listed packages to calculate estimated build times accurately.\n"
-msgstr ""
+msgstr "*** Không may, bạn không có đủ thông tin cần thiết về gói này để ước lượng thời gian tạo một cách chính xác.\n"
 
 #: terminal.py:1708
 #, python-format
 msgid "*** Based on the build history of these packages on your system, I can estimate that emerging them usually takes, on average, %(days)d days, %(hours)d hrs, %(minutes)d mins, and %(seconds)d secs.\n"
-msgstr ""
+msgstr "*** Dựa trên lịch sử tạo những gói này trên hệ thống, có thể ước lượng thời gian cần dùng để tạo, tính trung bình, %(days)d ngày, %(hours)d giờ, %(minutes)d phút, %(seconds)d giây.\n"
 
 #: terminal.py:1717
 msgid "*** Note: If you have a lot of programs running on your system while porthole is emerging packages, or if you have changed your hardware since the last time you built some of these packages, this estimate may be inaccurate.\n"
-msgstr ""
+msgstr "*** Chú ý: Nếu bạn có nhiều chương trình cùng chạy trên hệ thống khi emerge, hoặc bạn thay đổi phần cứng tính từ lần tạo gói cuối cùng, ước lượng có thể sẽ không chính xác.\n"
 
 #: terminal.py:1739
 msgid "*** Unknown File Loading error"
@@ -571,7 +571,7 @@ msgstr "Giả cài đặt"
 
 #: views.py:174
 msgid "Sudo Emerge"
-msgstr "Emerge Sudo"
+msgstr "Cài đặt dùng Sudo"
 
 #: views.py:176
 msgid "Unmerge"
@@ -579,7 +579,7 @@ msgstr "Gỡ bỏ"
 
 #: views.py:178
 msgid "Sudo Unmerge"
-msgstr "Unmerge Sudo"
+msgstr "Gỡ bỏ dùng Sudo"
 
 #: views.py:180
 #, python-format
@@ -624,9 +624,8 @@ msgid "Categories"
 msgstr "Phân loại"
 
 #: views.py:685
-#, fuzzy
 msgid "Search History"
-msgstr "Kết quả tìm"
+msgstr "Lịch sử tìm"
 
 #: views.py:750
 #: views.py:767
@@ -676,7 +675,7 @@ msgstr "Tạo gói nhị phân cho mọi ebuild được xử lý mà không cà
 
 #: advemerge.glade.h:11
 msgid "Disables the spinner regardless of terminal type.   ie.  Turns off the spinner normally displayed to indicate that portage is busy doing something and not frozen."
-msgstr ""
+msgstr "Tắt spinner bất kể loại terminal. Vd, tắt spinner thường được hiển thị khi portage đang bận làm gì đó nhưng chưa bị treo."
 
 #: advemerge.glade.h:12
 msgid "Emerge as normal, but do not add the packages to the world profile for later updating."
@@ -960,7 +959,7 @@ msgstr "Cho phép thay đổi make.conf"
 
 #: config.glade.h:33
 msgid "Enter the command for a GUI su client eg. 'gksu' or 'gnomesu'"
-msgstr ""
+msgstr "Nhập vào lệnh GUI su client, vg 'gksu' hoặc 'gnomesu'"
 
 #: config.glade.h:34
 msgid "Error"
@@ -984,7 +983,7 @@ msgstr "Chữ"
 
 #: config.glade.h:39
 msgid "GUI su client :"
-msgstr ""
+msgstr "GUI su client :"
 
 #: config.glade.h:40
 msgid "Global"
@@ -1273,7 +1272,6 @@ msgid "<b>Plugin Options</b>"
 msgstr "<b>Tùy chọn Plugin</b>"
 
 #: porthole.glade.h:4
-#, fuzzy
 msgid ""
 "A GTK+ frontend to Portage\n"
 "\n"
@@ -1286,7 +1284,8 @@ msgstr ""
 "\n"
 "Phát triển bởi Fredrik Arnerup, Brian Dolbec,\n"
 "Daniel G. Taylor, và Wm. F. Wheeler\n"
-"Copyright (C) 2003 - 2004"
+"Brian Bockelman và Tommy Iorns\n"
+"Copyright (C) 2003 - 2005"
 
 #: porthole.glade.h:10
 msgid "A_bout"
