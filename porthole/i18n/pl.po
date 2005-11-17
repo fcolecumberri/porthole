@@ -8,15 +8,14 @@ msgstr ""
 "Project-Id-Version: Porthole-0.5.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2005-07-30 15:35+1200\n"
-"PO-Revision-Date: 2005-11-09 00:22-0800\n"
-"Last-Translator: lkjhkjhkjh <hjgjhg@uyhgjhg.nhgt>\n"
-"Language-Team: Translators <LL@li.org>\n"
+"PO-Revision-Date: 2005-11-16 23:12-0800\n"
+"Last-Translator: Riklaunim\n"
+"Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-Language: Polish\n"
 "X-Poedit-Country: POLAND\n"
-"X-Poedit-SourceCharset: utf-8\n"
 
 #: about.py:42
 #, python-format
@@ -160,7 +159,7 @@ msgstr ""
 
 #: mainwindow.py:235
 msgid "Active Plugins"
-msgstr ""
+msgstr "Aktywne Wtyczki"
 
 #: mainwindow.py:278
 msgid "Loading database"
@@ -211,6 +210,11 @@ msgstr "RzÄdanie aktualizacji"
 #: mainwindow.py:841
 msgid "Do you want to upgrade all packages in your world file?"
 msgstr "Czy zaktualizowaÄ wszystkie pakiety w pliku world"
+
+#: mainwindow.py:850
+#: readers.py:102
+msgid "Upgradable dependencies:"
+msgstr "ZaleÅ¼noÅci do aktualizacji"
 
 #: mainwindow.py:876
 msgid "Please Wait!"
@@ -284,10 +288,6 @@ msgstr "Nie podano powodu maskowania"
 msgid "No ebuild found."
 msgstr "Nie znaleziono ebuilda"
 
-#: readers.py:102
-msgid "Upgradable dependencies:"
-msgstr "ZaleÅ¼noÅci do aktualizacji"
-
 #: summary.py:72
 msgid "Emerge this ebuild"
 msgstr "Zainstaluj tego ebuilda"
@@ -342,7 +342,7 @@ msgstr "DostÄpne wersje dla %s:\n"
 
 #: summary.py:459
 msgid "Properties for version: "
-msgstr ""
+msgstr "WÅaÅciwoÅci dla wersji: "
 
 #: summary.py:470
 msgid "Use flags: "
@@ -436,12 +436,12 @@ msgid "_Cancel"
 msgstr "_Anuluj"
 
 #: terminal.py:1172
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "'sudo -p Password: ' requires your user password to perform the command:\n"
 "'%s'"
 msgstr ""
-"Sudo wymaga twojego hasÅa by wykonaÄ operacjÄ:\n"
+"'Sudo' wymaga twojego hasÅa by wykonaÄ operacjÄ:\n"
 " '%s'"
 
 #: terminal.py:1176
@@ -469,16 +469,16 @@ msgstr "*** Suma uwag dla instalacji = %d \n"
 
 #: terminal.py:1702
 msgid "*** Unfortunately, you don't have enough logged information about the listed packages to calculate estimated build times accurately.\n"
-msgstr ""
+msgstr "*** Niestety nie masz doÅÄ informacji w logach by wyliczyÄ bardziej dokÅadny czas kompilacji.\n"
 
 #: terminal.py:1708
 #, python-format
 msgid "*** Based on the build history of these packages on your system, I can estimate that emerging them usually takes, on average, %(days)d days, %(hours)d hrs, %(minutes)d mins, and %(seconds)d secs.\n"
-msgstr ""
+msgstr "*** KorzystajÄc z logÃ³w mogÄ okreÅliÄ Åredni czas kompilacji danego pakietu - %(days)d dni, %(hours)d godzin, %(minutes)d minut i %(seconds)d sekund.\n"
 
 #: terminal.py:1717
 msgid "*** Note: If you have a lot of programs running on your system while porthole is emerging packages, or if you have changed your hardware since the last time you built some of these packages, this estimate may be inaccurate.\n"
-msgstr ""
+msgstr "*** Notka: DuÅ¼e obciÄÅ¼enie systemu przez inne aplikacje moÅ¼e wydÅuÅ¼yÄ czas kompilacji.\n"
 
 #: terminal.py:1739
 msgid "*** Unknown File Loading error"
@@ -677,7 +677,7 @@ msgstr "Tworzy pakiety binarne bez ich instalowania. Wszystkie zaleÅ¼noÅci 
 
 #: advemerge.glade.h:11
 msgid "Disables the spinner regardless of terminal type.   ie.  Turns off the spinner normally displayed to indicate that portage is busy doing something and not frozen."
-msgstr ""
+msgstr "WyÅÄcz krÄciÄÅka. Normalnie jest on wyÅwietlany jako wskaÅºnik Å¼e portage coÅ robi."
 
 #: advemerge.glade.h:12
 msgid "Emerge as normal, but do not add the packages to the world profile for later updating."
@@ -1161,7 +1161,7 @@ msgstr "BiaÅy"
 
 #: config.glade.h:85
 msgid "Yellow"
-msgstr "Å»Ã³Åty"
+msgstr "ÃÂ»Ã³Åty"
 
 #: config.glade.h:86
 msgid "checkbutton10"
@@ -1289,7 +1289,7 @@ msgstr ""
 "TwÃ³rcy: Fredrik Arnerup, Brian Dolbec,\n"
 "Daniel G. Taylor, and Wm. F. Wheeler\n"
 "Brian Bockelman and Tommy Iorns\n"
-"Copyright (C) 2003 - 2004"
+"Copyright (C) 2003 - 2005"
 
 #: porthole.glade.h:10
 msgid "A_bout"
