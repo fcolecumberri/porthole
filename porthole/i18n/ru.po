@@ -4,13 +4,12 @@ msgstr ""
 "Project-Id-Version: Porthole-0.50\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2005-08-07 18:31+1200\n"
-"PO-Revision-Date: 2005-11-09 00:26-0800\n"
+"PO-Revision-Date: 2005-11-22 11:52-0500\n"
 "Last-Translator: lkjhkjhkjh <hjgjhg@uyhgjhg.nhgt>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-Language: Russian\n"
+"Content-Transfer-Encoding: 8bit"
 
 #: about.py:42
 #, python-format
@@ -336,7 +335,7 @@ msgstr "Доступные версии для %s:\n"
 
 #: summary.py:459
 msgid "Properties for version: "
-msgstr ""
+msgstr "Показаны свойства версии: "
 
 #: summary.py:470
 msgid "Use flags: "
@@ -430,21 +429,21 @@ msgid "_Cancel"
 msgstr "Отмена"
 
 #: terminal.py:1172
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "'sudo -p Password: ' requires your user password to perform the command:\n"
 "'%s'"
 msgstr ""
-"Для выполнения команды необходимо ввести ваш пароль:\n"
+"'sudo -p Password: ' необходим ваш пароль для выполнения команды:\n"
 "'%s'"
 
 #: terminal.py:1176
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "'su' requires the root password to perform the command:\n"
 "'%s'"
 msgstr ""
-"Для выполнения команды необходимо ввести ваш пароль:\n"
+"'su' необходим пароль суперпользователя для выполнения команды:\n"
 "'%s'"
 
 #: terminal.py:1182
@@ -620,9 +619,8 @@ msgid "Categories"
 msgstr "Категории"
 
 #: views.py:685
-#, fuzzy
 msgid "Search History"
-msgstr "Результаты поиска"
+msgstr "Предыдущие запросы"
 
 #: views.py:750
 #: views.py:767
@@ -672,7 +670,7 @@ msgstr "Собрать указанные пакеты и создать бин�
 
 #: advemerge.glade.h:11
 msgid "Disables the spinner regardless of terminal type.   ie.  Turns off the spinner normally displayed to indicate that portage is busy doing something and not frozen."
-msgstr ""
+msgstr "Выключить анимированный индикатор занятости независимо от типа терминала. Обычно отображается для индикации того, что система portage занята, но не зависла."
 
 #: advemerge.glade.h:12
 msgid "Emerge as normal, but do not add the packages to the world profile for later updating."
