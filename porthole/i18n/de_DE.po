@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: Porthole 0.5.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2005-07-30 15:35+1200\n"
-"PO-Revision-Date: 2005-11-16 23:18-0800\n"
-"Last-Translator: \n"
+"PO-Revision-Date: 2005-11-28 22:05+0100\n"
+"Last-Translator: Timo Gurr <timo.gurr@gmail.com>\n"
 "Language-Team: Timo Gurr <timo.gurr@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -25,7 +25,7 @@ msgstr "Porthole %s"
 #: advemerge.py:80
 #, python-format
 msgid "Advanced Emerge Settings for %s"
-msgstr "Fortgeschrittene Emerge Einstellungen für %s"
+msgstr "Fortgeschrittene Emerge-Einstellungen für %s"
 
 #: advemerge.py:123
 #: advemerge.py:353
@@ -154,12 +154,12 @@ msgid ""
 " Synchronise Package Database \n"
 " The last sync was done:\n"
 msgstr ""
-" Synchronisiere Paketdatenbank \n"
+" Paketdatenbank synchronisieren \n"
 " Zuletzt synchronisiert:\n"
 
 #: mainwindow.py:235
 msgid "Active Plugins"
-msgstr ""
+msgstr "Aktive Plugins"
 
 #: mainwindow.py:278
 msgid "Loading database"
@@ -201,11 +201,11 @@ msgstr "%(base)s: %(count)i Pakete gelesen"
 #: mainwindow.py:531
 #, python-format
 msgid "%(base)s: Populating tree"
-msgstr "%(base)s: Tree bevölkern"
+msgstr "%(base)s: bevölkere Paketdatenbank"
 
 #: mainwindow.py:839
 msgid "Upgrade requested"
-msgstr "Aktualisierung angefordert"
+msgstr "Aktualisierung"
 
 #: mainwindow.py:841
 msgid "Do you want to upgrade all packages in your world file?"
@@ -338,15 +338,15 @@ msgstr "Installierte Versionen:\n"
 #: summary.py:455
 #, python-format
 msgid "Available versions for %s:\n"
-msgstr "Verfügbare Versionen von %s:\n"
+msgstr "Verfügbare Versionen für %s:\n"
 
 #: summary.py:459
 msgid "Properties for version: "
-msgstr ""
+msgstr "Eigenschaften der Version: "
 
 #: summary.py:470
 msgid "Use flags: "
-msgstr "USE-Flags:"
+msgstr "USE-Flags: "
 
 #: summary.py:500
 msgid "Keywords: "
@@ -354,7 +354,7 @@ msgstr "Keywords: "
 
 #: summary.py:512
 msgid "License: "
-msgstr "Lizenz:"
+msgstr "Lizenz: "
 
 #: terminal.py:86
 msgid "*** process killed ***\n"
@@ -384,11 +384,11 @@ msgstr "Zusammenfassung"
 
 #: terminal.py:89
 msgid "Emerge queue"
-msgstr "Emerge Warteschlange"
+msgstr "Emerge-Warteschlange"
 
 #: terminal.py:97
 msgid "Porthole Log Viewer"
-msgstr "Porthole Logbetrachter"
+msgstr "Porthole Log-Anzeige"
 
 #: terminal.py:99
 msgid "Porthole-Terminal"
@@ -420,7 +420,7 @@ msgstr "Ok"
 
 #: terminal.py:753
 msgid "***Log Process Killed!"
-msgstr "***Log Prozess abgebrochen!"
+msgstr "***Log-Prozess abgebrochen!"
 
 #: terminal.py:828
 msgid "Confirm: Kill the Running Process"
@@ -429,7 +429,7 @@ msgstr "Bestätigen: Den laufenden Prozess abbrechen"
 #: terminal.py:1141
 #, python-format
 msgid "*** Log loading complete : %s"
-msgstr "*** Log fertig geladen : %s"
+msgstr "*** Logdatei fertig geladen: %s"
 
 #: terminal.py:1165
 msgid "_Cancel"
@@ -460,7 +460,7 @@ msgstr "Passwort:"
 #: terminal.py:1310
 #, python-format
 msgid "*** Total warnings count for merge = %d \n"
-msgstr "*** Anzahl der Warnungen während Emerge = %d \n"
+msgstr "*** Anzahl der Warnungen während des Emerge-Vorgangs = %d \n"
 
 #: terminal.py:1316
 #, python-format
@@ -469,16 +469,16 @@ msgstr "*** Anzahl der Hinweise während Emerge = %d \n"
 
 #: terminal.py:1702
 msgid "*** Unfortunately, you don't have enough logged information about the listed packages to calculate estimated build times accurately.\n"
-msgstr ""
+msgstr "*** Leider haben Sie nicht genügend geloggte Informationen über die aufgeführten Pakete, um die geschätzte Kompilierzeit genau zu berechnen.\n"
 
 #: terminal.py:1708
 #, python-format
 msgid "*** Based on the build history of these packages on your system, I can estimate that emerging them usually takes, on average, %(days)d days, %(hours)d hrs, %(minutes)d mins, and %(seconds)d secs.\n"
-msgstr ""
+msgstr "*** Ausgehend von den Installationsprotokollen dieser Pakete auf Ihrem System, schätze ich, dass der \"Emerge\"-Vorgang etwa %(days)d Tage, %(hours)d Stunden, %(minutes)d Minuten und %(seconds)d Sekunden dauert.\n"
 
 #: terminal.py:1717
 msgid "*** Note: If you have a lot of programs running on your system while porthole is emerging packages, or if you have changed your hardware since the last time you built some of these packages, this estimate may be inaccurate.\n"
-msgstr ""
+msgstr "*** Anmerkung: Wenn Sie viele Programme auf Ihrem System laufen haben während Porthole Pakete installiert, oder wenn sich Ihre Hardware seit dem letzten \"Emerge\"-Vorgang eines dieser Pakete geändert hat, könnten die Angaben ungenau sein.\n"
 
 #: terminal.py:1739
 msgid "*** Unknown File Loading error"
@@ -535,7 +535,7 @@ msgstr "*** Datei gespeichert : %s"
 #: terminal.py:1952
 #, python-format
 msgid "Save log to '%s'?"
-msgstr "Speichere Log nach '%s'?"
+msgstr "Speichere Logdatei nach '%s'?"
 
 #: utils.py:178
 msgid "_Yes"
@@ -627,7 +627,7 @@ msgstr "Kategorien"
 
 #: views.py:685
 msgid "Search History"
-msgstr "Suchergebnisse"
+msgstr "Suchverlauf"
 
 #: views.py:750
 #: views.py:767
@@ -641,15 +641,15 @@ msgstr "<b>Vorschau des Kommandos</b>"
 
 #: advemerge.glade.h:2
 msgid "<b>Emerge Options</b>"
-msgstr "<b>Emergeoptionen</b>"
+msgstr "<b>Emerge-Optionen</b>"
 
 #: advemerge.glade.h:3
 msgid "<b>Package Options</b>"
-msgstr "<b>Paketoptionen</b>"
+msgstr "<b>Paket-Optionen</b>"
 
 #: advemerge.glade.h:4
 msgid "Add the selected keyword to your package.keywords file. Changes will affect THIS VERSION only."
-msgstr "Das ausgewählte keyword der package.keywords Datei hinzufügen. Die Änderungen betreffen nur DIESE VERSION."
+msgstr "Das ausgewählte Keyword der package.keywords Datei hinzufügen. Die Änderungen betreffen nur DIESE VERSION."
 
 #: advemerge.glade.h:5
 msgid "Behaves just as usepkg except that this will only emerge binary packages.  All the binary packages must be available at the time of dependency calculation or emerge will simply abort."
@@ -677,7 +677,7 @@ msgstr "Binärpakete für alle verarbeiteten Pakete erstellen, anstatt die Paket
 
 #: advemerge.glade.h:11
 msgid "Disables the spinner regardless of terminal type.   ie.  Turns off the spinner normally displayed to indicate that portage is busy doing something and not frozen."
-msgstr ""
+msgstr "Deaktiviert den \"Spinner\" ohne Rücksicht auf das verwendete Terminal. (Schaltet zum Beispiel den drehenden Backslash aus, welcher anzeigt, dass Portage beschäftigt ist und sich nicht aufgehängt hat.)"
 
 #: advemerge.glade.h:12
 msgid "Emerge as normal, but do not add the packages to the world profile for later updating."
@@ -697,7 +697,7 @@ msgstr "akzeptiertes Keyword"
 
 #: advemerge.glade.h:16
 msgid "Merges specified packages without merging  any  dependencies.  Note that the build may fail if the dependencies aren't satisfied."
-msgstr "Installiert das ausgewählte Paket ohne die Abhängigkeiten zu installieren. Bitte beachten Sie, dass das Paket nicht erfolgreich installiert werden könnte falls Abhängigkeiten fehlen."
+msgstr "Installiert das ausgewählte Paket ohne die Abhängigkeiten zu installieren. Bitte beachten Sie, dass das Paket nicht erfolgreich installiert werden könnte, falls Abhängigkeiten fehlen."
 
 #: advemerge.glade.h:17
 msgid "Only merge (or pretend to  merge) the dependencies of the packages specified, not the packages themselves."
@@ -849,7 +849,7 @@ msgstr " Editor : "
 
 #: config.glade.h:2
 msgid "<b>Advanced Emerge dialog options</b>"
-msgstr "<b>Fortgeschrittene Emerge Optionen</b>"
+msgstr "<b>Fortgeschrittene Emerge-Optionen</b>"
 
 #: config.glade.h:3
 msgid "<b>Arch List</b> for display's &amp; options"
@@ -961,7 +961,7 @@ msgstr "Geänderte make.conf übernehmen"
 
 #: config.glade.h:33
 msgid "Enter the command for a GUI su client eg. 'gksu' or 'gnomesu'"
-msgstr ""
+msgstr "Geben Sie den Befehl einer grafischen Oberfläche zu su ein (z.B. 'gksu' oder 'gnomesu')"
 
 #: config.glade.h:34
 msgid "Error"
@@ -977,7 +977,7 @@ msgstr "Schriftart & Farbe"
 
 #: config.glade.h:37
 msgid "Font :"
-msgstr "Schriftart :"
+msgstr "Schriftart:"
 
 #: config.glade.h:38
 msgid "Foreground"
@@ -985,7 +985,7 @@ msgstr "Vordergrund"
 
 #: config.glade.h:39
 msgid "GUI su client :"
-msgstr ""
+msgstr "Grafische su-Oberfläche:"
 
 #: config.glade.h:40
 msgid "Global"
@@ -1133,7 +1133,7 @@ msgstr "Aktualisierung verfügbar"
 
 #: config.glade.h:78
 msgid "Use Custom Browser"
-msgstr "Benutzerdefinierter Browser"
+msgstr "Benutzerdefinierter Web-Browser"
 
 #: config.glade.h:79
 msgid "Use Default"
@@ -1343,7 +1343,7 @@ msgstr "Paket installieren"
 
 #: porthole.glade.h:23
 msgid "Emerge Queue"
-msgstr "Emerge Warteschlange"
+msgstr "Emerge-Warteschlange"
 
 #: porthole.glade.h:24
 msgid "In order to access all the features of Porthole, please run it with root privileges."
@@ -1379,7 +1379,7 @@ msgstr "nach _oben"
 
 #: porthole.glade.h:32
 msgid "Not Root"
-msgstr "Kein Root"
+msgstr "Nicht Root"
 
 #: porthole.glade.h:33
 msgid "Only _Fetch"
@@ -1387,7 +1387,7 @@ msgstr "Nur _herunterladen (fetchonly)"
 
 #: porthole.glade.h:34
 msgid "Open Emerge _Log"
-msgstr "Emerge _Log öffnen"
+msgstr "Emerge-_Log öffnen"
 
 #: porthole.glade.h:35
 msgid "Please Enter Command to Execute"
@@ -1395,11 +1395,11 @@ msgstr "Bitte geben Sie den auszuführenden Befehl ein."
 
 #: porthole.glade.h:36
 msgid "Plugin Settings"
-msgstr "Plugin Einstellungen"
+msgstr "Plugin-Einstellungen"
 
 #: porthole.glade.h:37
 msgid "Plugin _Settings"
-msgstr "Plugin _Einstellungen"
+msgstr "Plugin-_Einstellungen"
 
 #: porthole.glade.h:38
 msgid "Porthole"
@@ -1415,7 +1415,7 @@ msgstr "Beenden"
 
 #: porthole.glade.h:42
 msgid "RUN :"
-msgstr "AUSFÜHREN :"
+msgstr "Ausführen:"
 
 #: porthole.glade.h:43
 msgid "R_eload Database"
@@ -1435,15 +1435,15 @@ msgstr "S_ynchronisieren"
 
 #: porthole.glade.h:47
 msgid "S_ync Tree"
-msgstr "Tree s_ynchronisieren"
+msgstr "Paketdatenbank s_ynchronisieren"
 
 #: porthole.glade.h:48
 msgid "Save Log _As"
-msgstr "Log speichern _als"
+msgstr "Logdatei speichern _als"
 
 #: porthole.glade.h:49
 msgid "Save _Log"
-msgstr "_Log speichern"
+msgstr "_Logdatei speichern"
 
 #: porthole.glade.h:50
 msgid "Search Results"
@@ -1527,7 +1527,7 @@ msgstr "_Normal"
 
 #: porthole.glade.h:71
 msgid "_Open Log"
-msgstr "_Log öffnen"
+msgstr "_Logdatei öffnen"
 
 #: porthole.glade.h:72
 msgid "_Pretend"
