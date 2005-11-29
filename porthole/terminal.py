@@ -82,10 +82,13 @@ TAB_QUEUE = 4
 # you won't be able to make it stick when text is added rapidly
 SLIDER_CLOSE_ENOUGH = 0.5 # of the page size
 
-# some contant strings that can be internationalized
+TABS = [TAB_PROCESS, TAB_WARNING, TAB_CAUTION, TAB_INFO, TAB_QUEUE]
+
+
+# some contant strings that can be internationalized except that gettext  or even dprint does not run at this point
+# we do however need to mark them here anyway so they are included for translation
 KILLED_STRING = _("*** process killed ***\n")
 TERMINATED_STRING = _("*** process completed ***\n")
-TABS = [TAB_PROCESS, TAB_WARNING, TAB_CAUTION, TAB_INFO, TAB_QUEUE]
 TAB_LABELS = [_("Process"), _("Warnings"), _("Cautions"), _("Summary"), _("Emerge queue")]
 
 class ProcessManager:
@@ -94,9 +97,10 @@ class ProcessManager:
         """ Initialize """
         dprint("TERMINAL: ProcessManager; process id = %d ****************" %os.getpid())
         if log_mode:
-            self.title = _("Porthole Log Viewer")
+            self.title = "Porthole Log Viewer"
         else:
-            self.title = _("Porthole-Terminal")
+            self.title = "Porthole-Terminal"
+            dprint(self.title)
         self.log_mode = log_mode
         self.Semaphore = threading.Semaphore()
         # copy the environment and preferences
@@ -345,6 +349,8 @@ class ProcessManager:
         self.command_start = None
         # used to skip a killed queue item if killed
         self.resume_available = False
+        # translate the title
+        self.title = _(self.title)
         # set the window title
         self.window.set_title(self.title)
         self.window.connect("window_state_event", self.new_window_state)
@@ -482,11 +488,11 @@ class ProcessManager:
         # set the icon, label, tab, and position of the tab
         if tab == TAB_WARNING:
             icon.set_from_stock(gtk.STOCK_DIALOG_WARNING, gtk.ICON_SIZE_MENU)
-            label, tab, pos = TAB_LABELS[TAB_WARNING], self.warning_tab, 1
+            label, tab, pos = _(TAB_LABELS[TAB_WARNING]), self.warning_tab, 1
             self.term.tab_showing[TAB_WARNING] = True
         elif tab == TAB_CAUTION:
             icon.set_from_stock(gtk.STOCK_DIALOG_WARNING, gtk.ICON_SIZE_MENU)
-            label, tab = TAB_LABELS[TAB_CAUTION], self.caution_tab
+            label, tab = _(TAB_LABELS[TAB_CAUTION]), self.caution_tab
             # quick hack to make it always show before info & queue tabs
             pos = self.notebook.page_num(self.info_tab)
             if pos == -1:
@@ -496,14 +502,14 @@ class ProcessManager:
             self.term.tab_showing[TAB_CAUTION] = True
         elif tab == TAB_INFO:
             icon.set_from_stock(gtk.STOCK_DIALOG_INFO, gtk.ICON_SIZE_MENU)
-            label, tab = TAB_LABELS[TAB_INFO], self.info_tab
+            label, tab = _(TAB_LABELS[TAB_INFO]), self.info_tab
             pos = self.notebook.page_num(self.queue_tab)
             # set to show before queue tab
             if pos == -1: pos = 3
             self.term.tab_showing[TAB_INFO] = True
         elif tab == TAB_QUEUE:
             icon.set_from_stock(gtk.STOCK_INDEX, gtk.ICON_SIZE_MENU)
-            label, tab, pos = TAB_LABELS[TAB_QUEUE], self.queue_tab, 4
+            label, tab, pos = _(TAB_LABELS[TAB_QUEUE]), self.queue_tab, 4
             self.term.tab_showing[TAB_QUEUE] = True
         # pack the icon and label onto the hbox
         hbox.pack_start(icon)
@@ -1342,8 +1348,9 @@ class ProcessManager:
         # if the last process was killed, stop until the user does something
         if self.killed:
             # display message that process has been killed
-            self.append_all(KILLED_STRING,True)
-            self.set_statusbar(KILLED_STRING[:-1])
+            killed_string = _(KILLED_STRING)
+            self.append_all(killed_string,True)
+            self.set_statusbar(killed_string[:-1])
             self.reader.string = ''
             self.reset_buffer_update()
             # remove stored password
@@ -1360,8 +1367,9 @@ class ProcessManager:
             self.estimate_build_time()
         self.finish_update()
         # display message that process finished
-        self.append_all(TERMINATED_STRING,True)
-        self.set_statusbar(TERMINATED_STRING[:-1])
+        terminaled_string = _(TERMINATED_STRING)
+        self.append_all(terminaled_string,True)
+        self.set_statusbar(terminaled_string[:-1])
         self.do_callback()
         self.callback_armed = False
         # set queue icon to done
