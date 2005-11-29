@@ -75,7 +75,7 @@ class ConfigDialog:
             self.apply_widget_values()
         elif response_id == gtk.RESPONSE_HELP:
             #Display help file with web browser
-            load_web_page('file://' + self.prefs.DATA_PATH + 'help/config.html', self.prefs)
+            load_web_page('file://' + self.prefs.DATA_PATH + 'help/customize.html', self.prefs)
         else:
             pass
     
