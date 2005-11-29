@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: Porthole-0.5.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2005-07-30 15:35+1200\n"
-"PO-Revision-Date: 2005-11-16 22:14-0800\n"
-"Last-Translator: memoi2001 <memoi2001@libertysurf.fr>\n"
+"PO-Revision-Date: 2005-11-24 23:22+0100\n"
+"Last-Translator: Arnaud Leroy <arnaudleroy@free.fr>\n"
 "Language-Team:  <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -25,7 +25,7 @@ msgstr "Porthole %s"
 #: advemerge.py:80
 #, python-format
 msgid "Advanced Emerge Settings for %s"
-msgstr "Paramatres avancés pour l'Emerge de %s"
+msgstr "Paramètres avancés pour l'Emerge de %s"
 
 #: advemerge.py:123
 #: advemerge.py:353
@@ -75,7 +75,7 @@ msgstr "Aucun"
 #: command.py:88
 #: command.py:97
 msgid "command line entry"
-msgstr "Entré de ligne de commande"
+msgstr "Entrée de ligne de commande"
 
 #: depends.py:122
 #: depends.py:150
@@ -87,7 +87,7 @@ msgstr "Utilisant"
 #: depends.py:153
 #: depends.py:154
 msgid "Not Using "
-msgstr "N'uilisant pas"
+msgstr "N'utilisant pas"
 
 #: depends.py:251
 #, python-format
@@ -97,7 +97,7 @@ msgstr "Utilisant %s"
 #: depends.py:256
 #, python-format
 msgid "Not Using %s"
-msgstr "N'uilisant pas %s"
+msgstr "N'utilisant pas %s"
 
 #: depends.py:266
 msgid "Any of:"
@@ -113,8 +113,8 @@ msgid ""
 "This %s has an encoding method unknown to porthole.\n"
 "Please report this to bugs.gentoo.org and porthole's bugtracker"
 msgstr ""
-"Ce %s utilise une methode de codage que Porthole ne connais pas.\n"
-"Veuillez preciser ceci sur bugs.gentoo.org et au bugtracker de Porthole"
+"Ce %s utilise une méthode de codage que Porthole ne connait pas.\n"
+"Merci de le signaler sur bugs.gentoo.org et au bugtracker de Porthole"
 
 #: loaders.py:102
 #, python-format
@@ -133,29 +133,29 @@ msgid ""
 "%i installed files:\n"
 "\n"
 msgstr ""
-"%i a installé les fichiers:\n"
+"%i fichiers installés:\n"
 "\n"
 
 #: loaders.py:124
 #: summary.py:450
 msgid "Not installed"
-msgstr "Pas installé"
+msgstr "Non installé"
 
 #: loaders.py:127
 msgid ""
 "No data currently available.\n"
 "The package may not be installed"
 msgstr ""
-"aucune donné actuellementdisponible.\n"
-"Le packetage n'est peut-etre pas installé"
+"Aucune donnée actuellement disponible.\n"
+"Le packetage n'est peut-être pas installé"
 
 #: mainwindow.py:177
 msgid ""
 " Synchronise Package Database \n"
 " The last sync was done:\n"
 msgstr ""
-"Sychronisez la Base-de-données \n"
-"La derniere sychronisation etait faite :\n"
+"Synchronise la Base de données. \n"
+"La dernière synchronisation date du :\n"
 
 #: mainwindow.py:235
 msgid "Active Plugins"
@@ -163,15 +163,15 @@ msgstr "Plugins Actifs"
 
 #: mainwindow.py:278
 msgid "Loading database"
-msgstr "Chargement de la Base-de-données"
+msgstr "Chargement de la Base de données"
 
 #: mainwindow.py:279
 msgid "Initializing database. Please wait..."
-msgstr "Initialisation de la base-de-donées. veuillez attendre..."
+msgstr "Initialisation de la base de données. Veuillez patienter..."
 
 #: mainwindow.py:327
 msgid "Reloading database"
-msgstr "Rechargement de la base-de-données"
+msgstr "Rechargement de la base de données"
 
 #: mainwindow.py:360
 msgid "Unknown"
@@ -179,15 +179,15 @@ msgstr "Inconnu"
 
 #: mainwindow.py:475
 msgid "No root privileges"
-msgstr "Pas de privilages root"
+msgstr "Pas de priviléges root"
 
 #: mainwindow.py:477
 msgid ""
 "In order to access all the features of Porthole,\n"
 "please run it with root privileges."
 msgstr ""
-"Afin d'acceder a toutes le fonctionnalités de porthole,\n"
-"Veuillez l'executer avec les privileges root."
+"Afin d'accéder à toutes les fonctionnalités de Porthole,\n"
+"veuillez l'exécuter avec les privileges root."
 
 #: mainwindow.py:480
 msgid "_Ok"
@@ -201,28 +201,23 @@ msgstr "%(base)s: %(count)i packetages lus"
 #: mainwindow.py:531
 #, python-format
 msgid "%(base)s: Populating tree"
-msgstr "%(base)s: Populating tree"
+msgstr "%(base)s: Génération de l'arbre"
 
 #: mainwindow.py:839
 msgid "Upgrade requested"
-msgstr "Mise-a-jour demandé"
+msgstr "Mise à jour demandée"
 
 #: mainwindow.py:841
 msgid "Do you want to upgrade all packages in your world file?"
-msgstr "Voulez vous mettre a jour tous les packetages dans votre fichier world?"
-
-#: mainwindow.py:850
-#: readers.py:102
-msgid "Upgradable dependencies:"
-msgstr "dependances qui peuvent etre mis-a-jour:"
+msgstr "Voulez-vous mettre à jour tous les packetages de votre fichier world?"
 
 #: mainwindow.py:876
 msgid "Please Wait!"
-msgstr "Veuillez attendre!"
+msgstr "Veuillez patienter!"
 
 #: mainwindow.py:878
 msgid "Loading package descriptions..."
-msgstr "Chargement des descriptions des packetages"
+msgstr "Chargement des descriptions des packetages..."
 
 #: mainwindow.py:926
 #, python-format
@@ -236,7 +231,7 @@ msgstr "Recherche de %s"
 
 #: mainwindow.py:1256
 msgid "Searching for upgradable packages..."
-msgstr "Recherche des packetages qui peuvent etre mises-a-jour"
+msgstr "Recherche des packetages qui peuvent être mis à jour..."
 
 #: mainwindow.py:1315
 msgid "Building Package List"
@@ -250,21 +245,21 @@ msgstr "Fait:"
 #: mainwindow.py:1345
 #, python-format
 msgid "%(pack)d packages in %(cat)d categories"
-msgstr "%(pack)d packetages dans %(cat)d categories"
+msgstr "%(pack)d packetages dans %(cat)d catégories"
 
 #: mainwindow.py:1348
 #, python-format
 msgid "%d matches found"
-msgstr "%d de correspondances trouvées"
+msgstr "%d correspondance(s) trouvée(s)"
 
 #: mainwindow.py:1354
 #, python-format
 msgid "%(world)d world, %(deps)d dependencies"
-msgstr "%(world)d world, %(deps)d dependences"
+msgstr "%(world)d world, %(deps)d dépendances"
 
 #: mainwindow.py:1442
 msgid "Confirm: Kill the Running Process in the Terminal"
-msgstr "Confirmez: Tuer le processus s'executant dans le Terminal"
+msgstr "Confirmez: Tuer le processus s'exécutant dans le Terminal"
 
 #: metadata.py:137
 #, python-format
@@ -278,35 +273,39 @@ msgid ""
 "Are you sure this is a Gentoo system?"
 msgstr ""
 "Impossible de trouver le module de Portage.\n"
-"Etes vous sur que ceci est un systeme Gentoo?"
+"Êtes-vous sûr que ceci est un système Gentoo?"
 
 #: portagelib.py:620
 msgid "No masking reason given"
-msgstr "Aucune raison donné pour le masque"
+msgstr "Aucune raison donnée pour le masque"
 
 #: portagelib.py:823
 msgid "No ebuild found."
-msgstr "Aucun eBuild trouvé"
+msgstr "Aucun ebuild trouvé."
+
+#: readers.py:102
+msgid "Upgradable dependencies:"
+msgstr "Dépendances qui peuvent être mises à jour:"
 
 #: summary.py:72
 msgid "Emerge this ebuild"
-msgstr "Emerger cet eBuild"
+msgstr "Emerger cet ebuild"
 
 #: summary.py:74
 msgid "Pretend Emerge this ebuild"
-msgstr "Simuler l'emerge de cet eBuild"
+msgstr "Simuler l'emerge de cet ebuild"
 
 #: summary.py:76
 msgid "Sudo Emerge this ebuild"
-msgstr "Emerge cet eBuild avec sudo"
+msgstr "Emerge cet ebuild avec sudo"
 
 #: summary.py:78
 msgid "Unmerge this ebuild"
-msgstr "Demerger cet ebuild"
+msgstr "Unmerger cet ebuild"
 
 #: summary.py:80
 msgid "Sudo Unmerge this ebuild"
-msgstr "Demerger cet ebuild avec sudo"
+msgstr "Unmerger cet ebuild avec sudo"
 
 #: summary.py:82
 #, python-format
@@ -320,7 +319,7 @@ msgstr "Enlever %s du fichier package.keywords "
 
 #: summary.py:86
 msgid "Unmask this ebuild"
-msgstr "Demasquer cet ebuild"
+msgstr "Démasquer cet ebuild"
 
 #: summary.py:88
 msgid "Remask this ebuild"
@@ -333,16 +332,16 @@ msgstr "\tSlot %s: "
 
 #: summary.py:446
 msgid "Installed versions:\n"
-msgstr "Versions installées:\n"
+msgstr "Version(s) installée(s):\n"
 
 #: summary.py:455
 #, python-format
 msgid "Available versions for %s:\n"
-msgstr "Versions disponibles pour %s:\n"
+msgstr "Version(s) disponible(s) pour %s:\n"
 
 #: summary.py:459
 msgid "Properties for version: "
-msgstr "Propriétés pour la version"
+msgstr "Propriétés de la version "
 
 #: summary.py:470
 msgid "Use flags: "
@@ -350,7 +349,7 @@ msgstr "Use flags: "
 
 #: summary.py:500
 msgid "Keywords: "
-msgstr "Mots clé:"
+msgstr "Mots clés:"
 
 #: summary.py:512
 msgid "License: "
@@ -362,7 +361,7 @@ msgstr "*** processus tué ***\n"
 
 #: terminal.py:87
 msgid "*** process completed ***\n"
-msgstr "*** processus completé ***\n"
+msgstr "*** processus complété ***\n"
 
 #: terminal.py:89
 #: porthole.glade.h:40
@@ -375,12 +374,12 @@ msgstr "Avertissements"
 
 #: terminal.py:89
 msgid "Cautions"
-msgstr "mises-en-garde"
+msgstr "Mises en garde"
 
 #: terminal.py:89
 #: porthole.glade.h:53
 msgid "Summary"
-msgstr "Sommaire"
+msgstr "Résumé"
 
 #: terminal.py:89
 msgid "Emerge queue"
@@ -396,23 +395,23 @@ msgstr "Terminal-Porthole"
 
 #: terminal.py:312
 msgid "Packages to be merged      "
-msgstr "Packetages a merger"
+msgstr "Packetages à merger"
 
 #: terminal.py:557
 msgid ""
 "The package you selected is already in the emerge queue,\n"
 "but it has been killed. Would you like to resume the emerge?"
 msgstr ""
-"Le packetage que vous avez selectionné est deja dans la file d'attente,\n"
-"mais il a été tué. Voulez vous reprendre l'emerge?"
+"Le packetage que vous avez selectionné est déjà dans la file d'attente,\n"
+"mais il a été tué. Voulez-vous reprendre l'emerge?"
 
 #: terminal.py:589
 msgid "The package you selected is already in the emerge queue!"
-msgstr "Le packetage que vous avez selectionné est deja dans la file d'attente!"
+msgstr "Le packetage que vous avez sélectionné est déjà dans la file d'attente!"
 
 #: terminal.py:590
 msgid "Error Adding Package To Queue!"
-msgstr "Erreur en ajoutant le packetage a la file-d'attente"
+msgstr "Erreur en ajoutant le packetage à la file d'attente!"
 
 #: terminal.py:591
 msgid "OK"
@@ -429,7 +428,7 @@ msgstr "Confirmez: Tuer le processus actuel"
 #: terminal.py:1141
 #, python-format
 msgid "*** Log loading complete : %s"
-msgstr "*** Chargement du log completé : %s"
+msgstr "*** Chargement du log terminé : %s"
 
 #: terminal.py:1165
 msgid "_Cancel"
@@ -441,7 +440,7 @@ msgid ""
 "'sudo -p Password: ' requires your user password to perform the command:\n"
 "'%s'"
 msgstr ""
-"'Sudo a besoin du mot de passe pour executer la commande;\n"
+"'Sudo a besoin du mot de passe pour exécuter la commande;\n"
 "'%s'"
 
 #: terminal.py:1176
@@ -450,7 +449,7 @@ msgid ""
 "'su' requires the root password to perform the command:\n"
 "'%s'"
 msgstr ""
-"'su' a besoin du mot de passe pour executer la commande;\n"
+"'su' a besoin du mot de passe pour exécuter la commande;\n"
 "'%s'"
 
 #: terminal.py:1182
@@ -465,24 +464,24 @@ msgstr "*** Total d'avertissements pour merge = %d \n"
 #: terminal.py:1316
 #, python-format
 msgid "*** Total cautions count for merge = %d \n"
-msgstr "*** Total de mise en garde pour merge = %d \n"
+msgstr "*** Total de mises en garde pour merge = %d \n"
 
 #: terminal.py:1702
 msgid "*** Unfortunately, you don't have enough logged information about the listed packages to calculate estimated build times accurately.\n"
-msgstr "*** Malheureusement, vous n'avez pas assez d'information enregistré pour faire une estimation precise du temps de compilation.\n"
+msgstr "*** Malheureusement, vous n'avez pas assez d'informations enregistrées pour faire une estimation précise du temps de compilation.\n"
 
 #: terminal.py:1708
 #, python-format
 msgid "*** Based on the build history of these packages on your system, I can estimate that emerging them usually takes, on average, %(days)d days, %(hours)d hrs, %(minutes)d mins, and %(seconds)d secs.\n"
-msgstr "*** basé sur l'historique de ces packages sur votre system, Je peux estimer que les emerger prends, en moyenne, %(days)d jours, %(hours)d heures, %(minutes)d minutes, et %(seconds)d secondes.\n"
+msgstr "*** Basé sur l'historique de ces packages sur votre système, je peux estimer que les emerge prendront, en moyenne, %(days)d jours, %(hours)d heures, %(minutes)d minutes, et %(seconds)d secondes.\n"
 
 #: terminal.py:1717
 msgid "*** Note: If you have a lot of programs running on your system while porthole is emerging packages, or if you have changed your hardware since the last time you built some of these packages, this estimate may be inaccurate.\n"
-msgstr "*** Remarque: si vous avez beaucoup de programmes lancés sur votre systeme pendant que Porthole emerge des packetages, ou si vous avez changé votre materiel depuis la derniere compilation de certains de ces packetages, cette estimation peut etre imprecise.\n"
+msgstr "*** Remarque: si vous avez beaucoup de programmes lancés sur votre système pendant que Porthole emerge des packetages, ou si vous avez changé votre matériel depuis la dernière compilation de certains de ces packetages, cette estimation peut être imprécise.\n"
 
 #: terminal.py:1739
 msgid "*** Unknown File Loading error"
-msgstr "*** Erreur inconnu de chargement de fichier"
+msgstr "*** Erreur inconnue de chargement de fichier"
 
 #: terminal.py:1743
 msgid "*** File Loading... Processing..."
@@ -506,7 +505,7 @@ msgstr "*** Chargement du fichier: %s"
 #: terminal.py:1865
 #, python-format
 msgid "Cannot open file '%s': %s"
-msgstr "impossible d'ouvrir '%s': %s"
+msgstr "Impossible d'ouvrir '%s': %s"
 
 #: terminal.py:1890
 #, python-format
@@ -524,18 +523,18 @@ msgid ""
 "Can't restore backup file '%s' to '%s': %s\n"
 "Backup left as '%s'"
 msgstr ""
-"Impossible de restaurer fichier de sauvegarde '%s' vers '%s': %s\n"
-"Sauvegarde laissé comme '%s'"
+"Impossible de restaurer le fichier de sauvegarde '%s' vers '%s': %s\n"
+"Sauvegarde laissée comme '%s'"
 
 #: terminal.py:1942
 #, python-format
 msgid "*** File saved : %s"
-msgstr "*** Ficher sauvé : %s"
+msgstr "*** Fichier sauvé : %s"
 
 #: terminal.py:1952
 #, python-format
 msgid "Save log to '%s'?"
-msgstr "Sauvegarder log a '%s'?"
+msgstr "Sauvegarder log à '%s'?"
 
 #: utils.py:178
 msgid "_Yes"
@@ -560,7 +559,7 @@ msgstr "WebRsync"
 
 #: utils.py:724
 msgid "Error reading emerge log file.  Check file permissions, or check for corrupt log file."
-msgstr "Erreur pendant la lecture du fichier log. Verifiez les permission sur ce fichier, or verifiez que ce fichier n'est pas corrompu"
+msgstr "Erreur pendant la lecture du fichier log. Verifiez les permissions sur ce fichier, ou verifiez que ce fichier n'est pas corrompu."
 
 #: views.py:170
 #: config.glade.h:30
@@ -569,32 +568,32 @@ msgstr "Emerge"
 
 #: views.py:172
 msgid "Pretend Emerge"
-msgstr "imulation d'Emerge"
+msgstr "Simulation d'Emerge"
 
 #: views.py:174
 msgid "Sudo Emerge"
-msgstr "Emerge avec sudo"
+msgstr "Emerger avec sudo"
 
 #: views.py:176
 msgid "Unmerge"
-msgstr "Demerge"
+msgstr "Unmerger"
 
 #: views.py:178
 msgid "Sudo Unmerge"
-msgstr "Demerge avec sudo"
+msgstr "Unmerger avec sudo"
 
 #: views.py:180
 #, python-format
 msgid "Append with %s to package.keywords"
-msgstr "Ajouter %s a la fin de package.keywords"
+msgstr "Ajouter %s à la fin de package.keywords"
 
 #: views.py:182
 msgid "De-Select all"
-msgstr "deselectionner tout"
+msgstr "Désélectionner tout"
 
 #: views.py:184
 msgid "Select all"
-msgstr "selectionner tout"
+msgstr "Sélectionner tout"
 
 #: views.py:198
 msgid "Packages"
@@ -613,7 +612,7 @@ msgstr "Recommandé"
 #: views.py:222
 #: config.glade.h:27
 msgid "Download Size"
-msgstr "Taille du telechargement"
+msgstr "Taille du téléchargement"
 
 #: views.py:229
 #: config.glade.h:25
@@ -623,21 +622,21 @@ msgstr "Description"
 #: views.py:666
 #: views.py:687
 msgid "Categories"
-msgstr "Categories"
+msgstr "Catégories"
 
 #: views.py:685
 msgid "Search History"
-msgstr "Resultats de la Recherche"
+msgstr "Résultats de la Recherche"
 
 #: views.py:750
 #: views.py:767
 #: porthole.glade.h:18
 msgid "Dependencies"
-msgstr "Dependances"
+msgstr "Dépendances"
 
 #: advemerge.glade.h:1
 msgid "<b>Command Preview</b>"
-msgstr "<b>Apercu de la commande</b>"
+msgstr "<b>Aperçu de la commande</b>"
 
 #: advemerge.glade.h:2
 msgid "<b>Emerge Options</b>"
@@ -649,103 +648,103 @@ msgstr "<b>Options des Packetages</b>"
 
 #: advemerge.glade.h:4
 msgid "Add the selected keyword to your package.keywords file. Changes will affect THIS VERSION only."
-msgstr "Ajouter le mot-clé a votre package.keywords. les changements vont affecter seulement CETTE VERSION."
+msgstr "Ajouter le mot-clé à votre package.keywords. Les changements vont affecter seulement CETTE VERSION."
 
 #: advemerge.glade.h:5
 msgid "Behaves just as usepkg except that this will only emerge binary packages.  All the binary packages must be available at the time of dependency calculation or emerge will simply abort."
-msgstr "Se comporte comme usepkg sauf que ceci va seulement emerger les packetages binaires. tout les packetages binaires doivent etre disponible au moment du calcul de dependance sinon emerge va s'arreter."
+msgstr "Se comporte comme usepkg sauf que ceci va seulement emerger les packetages binaires. Tous les packetages binaires doivent être disponibles au moment du calcul des dépendances sinon emerge va s'arrêter."
 
 #: advemerge.glade.h:6
 msgid "Causes portage to disregard merge records indicating that a config file inside of a CONFIG_PROTECT directory has been merged already.  Portage will normally merge those files only once to prevent the user from dealing with the same config multiple times.  This flag will cause the file to always be merged."
-msgstr "Dit a portage d'ingorer les enregistrements indiquant qu'un fichier config a deja ete mergé. "
+msgstr "Dit à Portage d'ignorer les enregistrements indiquant qu'un fichier config a déjà été mergé. "
 
 #: advemerge.glade.h:7
 msgid "Command Preview Window"
-msgstr "Fenetre d'apercu de commande"
+msgstr "Fenêtre d'aperçu de commande"
 
 #: advemerge.glade.h:8
 msgid "Commit Use Flag modifications to your make.conf file. Changes will affect ALL PACKAGES on your system."
-msgstr "Enregistrer les modifications du Use Flag dans votre make.conf. Les changements vont affecter TOUT LES PACKETAGES de votre systeme."
+msgstr "Enregistrer les modifications du Use Flag dans votre make.conf. Les changements vont affecter TOUS LES PACKETAGES de votre système."
 
 #: advemerge.glade.h:9
 msgid "Commit Use Flag modifications to your package.use file. Changes will affect THIS PACKAGE only."
-msgstr "Enregistrer les modifications du Use Flag dans votre make.conf. Les changements vont affecter CE PACKETAGE seulement."
+msgstr "Enregistrer les modifications des Use Flag dans votre make.conf. Les changements vont affecter CE PACKETAGE seulement."
 
 #: advemerge.glade.h:10
 msgid "Creates binary packages for  all  ebuilds  processed  without actually merging the packages.  This comes with the caveat that all build time dependencies must already be emerged on the system."
-msgstr "Crée des packetages binaire de tout les ebuild sans les merger. ceci sous-entend que toute les dependances doivent etre mergées."
+msgstr "Crée des packetages binaires de tous les ebuilds sans les merger. Ceci sous-entend que toutes les dépendances doivent être mergées."
 
 #: advemerge.glade.h:11
 msgid "Disables the spinner regardless of terminal type.   ie.  Turns off the spinner normally displayed to indicate that portage is busy doing something and not frozen."
-msgstr "Desactive le spinner en ingorant le type du terminal. cf. Desactive le spinner normallement affiché pour indiquer que portage est occupé a faire quelque chose et pas gelé."
+msgstr ""
 
 #: advemerge.glade.h:12
 msgid "Emerge as normal, but do not add the packages to the world profile for later updating."
-msgstr "Emerger comme d'habitude mais ne pas ajouter les packetages dans votre fichier world pour une mise a jour ulterieur"
+msgstr "Emerger comme d'habitude mais ne pas ajouter les packetages dans votre fichier world pour une mise à jour ultérieure."
 
 #: advemerge.glade.h:13
 msgid "Instead of actually performing the merge, simply display what *would* have been installed if pretend weren't used.  Using pretend is strongly recommended before installing an unfamiliar package.  In the printout, N = new, U = upgrading, R = replacing,  F = fetch restricted, B = blocked by an already installed package."
-msgstr "Au lieu de merger le packetages, afficher ce qui serai installé si l'option etait desactivé.L'usage de pretend est fortement conseillé avant d'installer un packetage inconnu.dans la sortie, N = nouveau, U = mise-a-jour, R = remplacement, F = prise du packetage limité, B = bloqué par un autre packetage"
+msgstr "Au lieu de merger les packetages, afficher ce qui serait installé si l'option était désactivée. L'usage de pretend est fortement conseillé avant d'installer un packetage inconnu. Dans la sortie, N = nouveau, U = mis à jour, R = remplacement, F = téléchargement manuel, B = bloqué par un autre packetage."
 
 #: advemerge.glade.h:14
 msgid "Instead of doing any package building, just perform fetches for all packages (the main package as well as  all  dependencies.)"
-msgstr "Au lieu de compiler les packetages, juste les telecharger (le packetage demandé et toute ses dependances)"
+msgstr "Au lieu de compiler les packetages, juste les télécharger (le packetage demandé et toutes ses dépendances.)"
 
 #: advemerge.glade.h:15
 msgid "Keyword to accept"
-msgstr "Mot clé a accepter"
+msgstr "Mot clé à accepter"
 
 #: advemerge.glade.h:16
 msgid "Merges specified packages without merging  any  dependencies.  Note that the build may fail if the dependencies aren't satisfied."
-msgstr "Merge le packetage specifié sans ses dependances. Remarque, la compilation peut echouer si toute les dependances ne sont pas assurés."
+msgstr "Merge les packetages spécifiés sans leurs dépendances. Remarquez que la compilation peut échouer si toutes les dépendances ne sont pas assurées."
 
 #: advemerge.glade.h:17
 msgid "Only merge (or pretend to  merge) the dependencies of the packages specified, not the packages themselves."
-msgstr "Merger seulement (ou simuler) les dependances sans merger le packetages lui meme."
+msgstr "Merger seulement (ou simuler) les dépendances sans merger les packetages eux-mêmes."
 
 #: advemerge.glade.h:18
 msgid "Results may vary, but the general outcome is a reduced or condensed output from portage's displays."
-msgstr "Les resultats peuvent varier, mais le resultat general est une sortie reduite ou condensé de l'affichage du portage"
+msgstr "Les résultats peuvent varier, mais le résultat général est une sortie réduite ou condensée de l'affichage de Portage."
 
 #: advemerge.glade.h:19
 msgid "Skips the packages specified on the command-line that have already been installed.  Without this option, any packages, ebuilds, or deps you specify on on the command-line *will* cause Portage to remerge the package, even if it is already installed.  Note that Portage will not remerge dependencies by default."
-msgstr "Saute les packetages specifiés dans la ligne de commande qui ont deja été installés. sans cette option, tout packetage specifié *va* causer au portage de re-emerger le packetage."
+msgstr "Saute les packetages spécifiés dans la ligne de commande qui ont déjà été installés. Sans cette option, tout packetage specifié *va* dire à Portage de re-emerger le packetage. Notez que Portage ne re-emergera pas les dépendances par défaut."
 
 #: advemerge.glade.h:20
 msgid "Tell emerge to run in verbose mode.  Currently this flag causes emerge to print out GNU info errors, if any, and to show the USE flags that will be used for each package when pretending."
-msgstr "dit a emerge d'utiliser le mode verbose. Cette option fait imprimer les erreurs GNU, et montre pour chaque packetage quels use flags ont etre utiliser lors d'une simulation."
+msgstr "Dit à emerge d'utiliser le mode verbeux. Cette option affiche les erreurs GNU, et montre pour chaque packetage quels use flags vont être utilisés lors d'une simulation."
 
 #: advemerge.glade.h:21
 msgid "Tells emerge to build binary packages for  all  ebuilds  processed  in addition to actually merging the packages.  Useful for maintainers or if you administrate multiple Gentoo  Linux systems  (build  once, emerge tbz2s everywhere).  The package will be created in the ${PKGDIR}/All directory.  An  alternative  for  already-merged  packages  is to use quickpkg which  creates a tbz2 from the live filesystem."
-msgstr "Dit a emerge de créer des packetages binaires pour tout ebuild compilé en plus de l'emerge en soi. utile pour les admin de plusieurs systemes gentoo (compiler une fois et emerger des tbz2 partout). Le packetage sera crée dans le repertoire ${PKGDIR}/all"
+msgstr "Dit à emerge de créer des packetages binaires pour tout ebuild compilé en plus de l'emerge en soi. Utile pour les admin de plusieurs systèmes Gentoo (compiler une fois et emerger des tbz2 partout). Le packetage sera créé dans le repertoire ${PKGDIR}/all. Une alternative pour les packetages déjà émergés est d'utiliser quickpkg qui va créer un tbz2."
 
 #: advemerge.glade.h:22
 msgid "Tells emerge to run the emerge command in debug mode.  In this mode the bash build environment will run with the -x option, causing it to output verbose debug information to stdout.  Debug is great for finding bash syntax errors."
-msgstr "Dit a emerge de lancer la command en mode debug. avec cette option, 'environement bash va s'executer avec l'option -x, causant le systeme a imprimer les informations de debuggage sur stdout."
+msgstr "Dit à emerge de lancer la commande en mode debug. Avec cette option, l'environnement bash va s'exécuter avec l'option -x, obligeant le système à afficher les informations de débogage sur stdout."
 
 #: advemerge.glade.h:23
 msgid "Tells emerge to use binary packages (from $PKGDIR) if they are available, thus possibly avoiding some time-consuming compiles.  This option is useful for CD installs; you  can export PKGDIR=/mnt/cdrom/packages and then use this option to have emerge \"pull\" binary packages from the CD in order to satisfy dependencies."
-msgstr "Dit a emerge d'utiliser les packetages binaire (venant de $PKGDIR) si ils sont disponibles, du coup d'eviter des compilation longues. cette option est utile pour les installes a partir d'un CD; vous pouvez exporter PKGDIR=/mnt/cdrom/packages et utiliser cette opption pour prendre les packetages du CD pour satisfaire les dependances."
+msgstr "Dit à emerge d'utiliser les packetages binaires (venant de $PKGDIR) s'ils sont disponibles, et donc d'éviter des compilations longues. Cette option est utile pour les installations à partir d'un CD; vous pouvez exporter PKGDIR=/mnt/cdrom/packages et utiliser cette option pour prendre les packetages du CD pour satisfaire les dépendances."
 
 #: advemerge.glade.h:24
 msgid "Update make.conf"
-msgstr "mise a jour du make.conf"
+msgstr "Mise à jour du make.conf"
 
 #: advemerge.glade.h:25
 msgid "Update package.keywords"
-msgstr "mise a jour du package.keywords"
+msgstr "Mise à jour du package.keywords"
 
 #: advemerge.glade.h:26
 msgid "Update package.use"
-msgstr "mise a jour du package.use"
+msgstr "Mise à jour du package.use"
 
 #: advemerge.glade.h:27
 msgid "Updates packages to the most recent version available.  Note that update does not have full functionality yet.  It will not automatically update dependencies of packages in the world file, unless they too are in the world file."
-msgstr "Mets-a-jour les packetages a la version la plus recente disponible."
+msgstr "Met à jour les packetages à la version disponible la plus récente."
 
 #: advemerge.glade.h:28
 msgid "Updates packages, but excludes updates that would result in a lower version of the package being installed.  SLOTs are considered at a basic level."
-msgstr "Mets-a-jour les packetages, mais evite toute mise-a-jour qui resulterais dans une version anterieur du packetage"
+msgstr "Met à jour les packetages, mais évite toutes mises à jour qui résulteraient d'une version antérieure du packetage."
 
 #: advemerge.glade.h:29
 msgid "Use Flags"
@@ -753,11 +752,11 @@ msgstr "Use Flags"
 
 #: advemerge.glade.h:30
 msgid "Virtually tweaks the tree of installed packages to only contain glibc; this is great to use together with pretend.  This allows developers to get a complete overview of the complete dependency tree of a package, and it enables complete trees to be rebuilt using the latest libraries."
-msgstr "Simule un vidage de l'arborescence des packetages installés pour ne contenir plus que glibc."
+msgstr "Simule un vidage de l'arborescence des packetages installés pour ne contenir plus que glibc; il est judicieux de l'utiliser avec pretend. Ceci permet aux développeurs d'avoir un aperçu complet de l'arbre de dépendances d'un packetage, et permet de tout reconstruire avec les dernières bibliothèques."
 
 #: advemerge.glade.h:31
 msgid "When used in conjunction with update, this flag forces emerge to consider the entire dependency tree of packages, instead of checking only the immediate dependencies of the packages.  As an example, this catches updates in libraries that are not directly listed in the dependencies of a package."
-msgstr "quand utilisé avec update, cette option force emerge a prendre en compte l'arborescence entiere, au lieu des dependances direct du packetage."
+msgstr "Quand utilisée avec update, cette option force emerge à prendre en compte l'arborescence entière, au lieu des dépendances directes du packetage."
 
 #: advemerge.glade.h:32
 msgid "buildpkg"
@@ -849,11 +848,11 @@ msgstr "Editeur:"
 
 #: config.glade.h:2
 msgid "<b>Advanced Emerge dialog options</b>"
-msgstr "<b>Dilogue d'options avancé d'emerge</b>"
+msgstr "<b>Dialogue d'options avancées d'Emerge</b>"
 
 #: config.glade.h:3
 msgid "<b>Arch List</b> for display's &amp; options"
-msgstr "<b>List d'Architectures</b> pour options d'affichage de &amp;"
+msgstr "<b>Liste d'Architectures</b> pour affichage &amp; options"
 
 #: config.glade.h:4
 msgid "<b>Emerge options</b>"
@@ -861,7 +860,7 @@ msgstr "<b>Options d'Emerge</b>"
 
 #: config.glade.h:5
 msgid "<b>Run Custom Command options</b>"
-msgstr "<b>Options de l'execution des commandes customisées</b>"
+msgstr "<b>Options de l'exécution des commandes customisées</b>"
 
 #: config.glade.h:6
 msgid "<b>Web Browser Options</b>"
@@ -873,15 +872,15 @@ msgstr "Ajouter nouveau"
 
 #: config.glade.h:8
 msgid "Add a new filter expression to the Selected Group"
-msgstr "Ajouter un nouveau filtre expression au groupe selectionné"
+msgstr "Ajouter un nouveau filtre expression au groupe sélectionné"
 
 #: config.glade.h:9
 msgid "Arch-list/Version table"
-msgstr "Arch-list/table des versions"
+msgstr "Architectures/Table des versions"
 
 #: config.glade.h:10
 msgid "Available Versions"
-msgstr "Versions disponibles"
+msgstr "Version(s) disponible(s)"
 
 #: config.glade.h:11
 msgid "Background"
@@ -889,7 +888,7 @@ msgstr "Fond"
 
 #: config.glade.h:12
 msgid "Background Colour"
-msgstr "Couelur de fond"
+msgstr "Couleur de fond"
 
 #: config.glade.h:13
 msgid "Black"
@@ -901,19 +900,19 @@ msgstr "Bleu"
 
 #: config.glade.h:15
 msgid "Browser : "
-msgstr "Browser : "
+msgstr "Navigateur : "
 
 #: config.glade.h:16
 msgid "Category View"
-msgstr "vue de categorie"
+msgstr "Vue par catégorie"
 
 #: config.glade.h:17
 msgid "Caution"
-msgstr "mise-en-garde"
+msgstr "Mise en garde"
 
 #: config.glade.h:18
 msgid "Check off all items you would like displayed"
-msgstr "Cocher toutes les otions que vous voulez afficher"
+msgstr "Cocher toutes les options que vous voulez afficher"
 
 #: config.glade.h:19
 msgid "Command"
@@ -921,7 +920,7 @@ msgstr "Commande"
 
 #: config.glade.h:20
 msgid "Current CPU architecture : "
-msgstr "Architecture CPU actuel:"
+msgstr "Architecture CPU actuelle:"
 
 #: config.glade.h:21
 msgid "Cyan"
@@ -929,7 +928,7 @@ msgstr "Cyan"
 
 #: config.glade.h:22
 msgid "Default"
-msgstr "Defaut"
+msgstr "Défaut"
 
 #: config.glade.h:23
 msgid "Delete"
@@ -937,23 +936,23 @@ msgstr "Effacer"
 
 #: config.glade.h:24
 msgid "Delete the selected filter expression"
-msgstr "Effacer le filtre expression selectionné"
+msgstr "Effacer le filtre expression sélectionné"
 
 #: config.glade.h:26
 msgid "Downgradable Colour"
-msgstr "Couleur downgradable"
+msgstr "Couleur des rétrogradés"
 
 #: config.glade.h:28
 msgid "Edit"
-msgstr "Edition"
+msgstr "Édition"
 
 #: config.glade.h:29
 msgid "Edit the selected filter expression"
-msgstr "Modifier l'expression filtre selectionné"
+msgstr "Modifier l'expression filtre sélectionnée"
 
 #: config.glade.h:31
 msgid "Enable arch-list"
-msgstr "autoriser l'arch-list"
+msgstr "Afficher la liste des architectures"
 
 #: config.glade.h:32
 msgid "Enable make.conf modification"
@@ -961,7 +960,7 @@ msgstr "Autoriser la modification du make.conf"
 
 #: config.glade.h:33
 msgid "Enter the command for a GUI su client eg. 'gksu' or 'gnomesu'"
-msgstr "Entrez la commande pour un client graphique su, eg: 'gksu' ou 'gnomesu'"
+msgstr "Entrez la commande pour un client graphique su, exemple: 'gksu' ou 'gnomesu'"
 
 #: config.glade.h:34
 msgid "Error"
@@ -973,11 +972,11 @@ msgstr "Filtres"
 
 #: config.glade.h:36
 msgid "Font & Colors"
-msgstr "Font & Couleurs"
+msgstr "Police & Couleurs"
 
 #: config.glade.h:37
 msgid "Font :"
-msgstr "Font :"
+msgstr "Police :"
 
 #: config.glade.h:38
 msgid "Foreground"
@@ -985,7 +984,7 @@ msgstr "Premier plan"
 
 #: config.glade.h:39
 msgid "GUI su client :"
-msgstr "Client graphique SU:"
+msgstr "Client graphique pour SU:"
 
 #: config.glade.h:40
 msgid "Global"
@@ -1005,11 +1004,11 @@ msgstr "Info"
 
 #: config.glade.h:45
 msgid "Installed list"
-msgstr "Liste installé"
+msgstr "Version(s) installée(s)"
 
 #: config.glade.h:46
 msgid "Keywords"
-msgstr "Mots-clé"
+msgstr "Mots-clés"
 
 #: config.glade.h:47
 msgid "LANG = "
@@ -1021,7 +1020,7 @@ msgstr "License"
 
 #: config.glade.h:49
 msgid "Line Number"
-msgstr "Numero de ligne"
+msgstr "Numéro de ligne"
 
 #: config.glade.h:50
 msgid "Long Descriptions"
@@ -1033,7 +1032,7 @@ msgstr "Magenta"
 
 #: config.glade.h:52
 msgid "Main Window"
-msgstr "Fenetre principale"
+msgstr "Fenêtre principale"
 
 #: config.glade.h:53
 msgid "More Colours"
@@ -1045,7 +1044,7 @@ msgstr "Deplacer"
 
 #: config.glade.h:55
 msgid "Move the selected filter expression to a different filter group"
-msgstr "Deplacer le filtre selectionné vers un groupe filtre different"
+msgstr "Deplacer le filtre sélectionné vers un groupe filtre différent"
 
 #: config.glade.h:56
 msgid "Normal"
@@ -1053,7 +1052,7 @@ msgstr "Normale"
 
 #: config.glade.h:57
 msgid "Normal Font Colour"
-msgstr "Couleur font normale"
+msgstr "Couleur police normale"
 
 #: config.glade.h:58
 msgid "Note"
@@ -1069,15 +1068,15 @@ msgid ""
 "you wish to be pre-typed"
 msgstr ""
 "Veuillez saisir les commandes persistantes\n"
-"que vous voulez pre-tapées"
+"que vous voulez prédéfinir"
 
 #: config.glade.h:62
 msgid "Please select the Font colours desired"
-msgstr "Veuillez choisir les couleurs desirées"
+msgstr "Veuillez choisir les couleurs désirées"
 
 #: config.glade.h:63
 msgid "Porthole Configuration"
-msgstr "Configuration de Prothole"
+msgstr "Configuration de Porthole"
 
 #: config.glade.h:65
 msgid "Red"
@@ -1085,11 +1084,11 @@ msgstr "Rouge"
 
 #: config.glade.h:66
 msgid "Reset the filters to the defaults"
-msgstr "Remplacer les filtres par les valeurs par defaut"
+msgstr "Remplacer les filtres par les valeurs par défaut"
 
 #: config.glade.h:67
 msgid "Sample Window"
-msgstr "Fenetre d'apercu"
+msgstr "Fenêtre d'aperçu"
 
 #: config.glade.h:68
 msgid "Save the filters to disk"
@@ -1097,11 +1096,11 @@ msgstr "Enregistrer les filtres sur le disque"
 
 #: config.glade.h:69
 msgid "Summary View"
-msgstr "Vue sommaire"
+msgstr "Vue résumée"
 
 #: config.glade.h:70
 msgid "Sync method "
-msgstr "Methode de sychronisation"
+msgstr "Méthode de synchronisation"
 
 #: config.glade.h:71
 msgid "Tag"
@@ -1113,15 +1112,15 @@ msgstr "Terminal"
 
 #: config.glade.h:73
 msgid "Text Font & Colours"
-msgstr "Font & couleurs du texte"
+msgstr "Polices & couleurs du texte"
 
 #: config.glade.h:74
 msgid "These colours are used by Porthole for highlighting"
-msgstr "Ces couleurs sont utilisés par Porthole pour le surlignage"
+msgstr "Ces couleurs sont utilisées par Porthole pour le surlignage"
 
 #: config.glade.h:75
 msgid "These colours are used by emerge for coloured output"
-msgstr "Ces couleurs sont utilisé par emerge pour l'affichage coloré"
+msgstr "Ces couleurs sont utilisées par emerge pour l'affichage coloré"
 
 #: config.glade.h:76
 msgid "USE Flags"
@@ -1129,27 +1128,27 @@ msgstr "USE Flags"
 
 #: config.glade.h:77
 msgid "Upgradable Colour"
-msgstr "couleur qui peut etre mis-a-jour"
+msgstr "Couleur pour les mises à jour"
 
 #: config.glade.h:78
 msgid "Use Custom Browser"
-msgstr "Utiliser browser customisé"
+msgstr "Utiliser navigateur spécial"
 
 #: config.glade.h:79
 msgid "Use Default"
-msgstr "Utiliser default"
+msgstr "Utiliser navigateur par défaut"
 
 #: config.glade.h:80
 msgid "Use Flag set +"
-msgstr "Use Flag mettre +"
+msgstr "Use Flag mis en +"
 
 #: config.glade.h:81
 msgid "Use Flag set -"
-msgstr "Use Flag mettre -"
+msgstr "Use Flag mis en -"
 
 #: config.glade.h:82
 msgid "WARNING! Make sure you back up your make.conf file (usually /etc/make.conf) before enabling this option!"
-msgstr "Attention! Faites une sauvegarde de votre fichier make.conf (habituellement /etc/make.conf) avant d'activer cete option!"
+msgstr "Attention! Faites une sauvegarde de votre fichier make.conf (habituellement /etc/make.conf) avant d'activer cette option!"
 
 #: config.glade.h:83
 msgid "Warning"
@@ -1157,7 +1156,7 @@ msgstr "Avertissement"
 
 #: config.glade.h:84
 msgid "White"
-msgstr "Blance"
+msgstr "Blanc"
 
 #: config.glade.h:85
 msgid "Yellow"
@@ -1221,7 +1220,7 @@ msgstr "commande 5:"
 
 #: config.glade.h:100
 msgid "fetch"
-msgstr "Prendre"
+msgstr "fetch"
 
 #: config.glade.h:103
 msgid "profile"
@@ -1284,9 +1283,9 @@ msgid ""
 "Brian Bockelman and Tommy Iorns\n"
 "Copyright (C) 2003 - 2005"
 msgstr ""
-"Une aplication graphique pour Portage\n"
+"Une application graphique en GTK+ pour Portage\n"
 "\n"
-"Devellopé par Fredrik Arnerup, Brian Dolbec,\n"
+"Dévellopée par Fredrik Arnerup, Brian Dolbec,\n"
 "Daniel G. Taylor, Wm. F. Wheeler,\n"
 "Brian Bockelman and Tommy Iorns\n"
 "Copyright (C) 2003 - 2005"
@@ -1329,7 +1328,7 @@ msgstr "E_merger"
 
 #: porthole.glade.h:20
 msgid "E_merge Package"
-msgstr "E_merger le Packatage"
+msgstr "E_merger le Packetage"
 
 #: porthole.glade.h:21
 msgid "Ebuild"
@@ -1337,7 +1336,7 @@ msgstr "Ebuild"
 
 #: porthole.glade.h:22
 msgid "Emerge Package"
-msgstr "Emerger le Packatage"
+msgstr "Emerge le Packetage"
 
 #: porthole.glade.h:23
 msgid "Emerge Queue"
@@ -1345,7 +1344,7 @@ msgstr "File d'attente Emerge"
 
 #: porthole.glade.h:24
 msgid "In order to access all the features of Porthole, please run it with root privileges."
-msgstr "Pour acceder a toutes les fonctionnalités de porthole, veuillez le lancer"
+msgstr "Pour accéder à toutes les fonctionnalités de Porthole, veuillez le lancer avec les privilèges root."
 
 #: porthole.glade.h:25
 msgid "Information "
@@ -1353,11 +1352,11 @@ msgstr "Information "
 
 #: porthole.glade.h:26
 msgid "Installed Packages"
-msgstr "Packetages Installés"
+msgstr "Packetages installés"
 
 #: porthole.glade.h:27
 msgid "Installed files"
-msgstr "Fichier Installés"
+msgstr "Fichiers installés"
 
 #: porthole.glade.h:28
 msgid "Kill"
@@ -1381,7 +1380,7 @@ msgstr "Pas Root"
 
 #: porthole.glade.h:33
 msgid "Only _Fetch"
-msgstr "_Prendre Seulement"
+msgstr "_Télécharge Seulement"
 
 #: porthole.glade.h:34
 msgid "Open Emerge _Log"
@@ -1389,15 +1388,15 @@ msgstr "Ouvrir le _Log d'Emerge"
 
 #: porthole.glade.h:35
 msgid "Please Enter Command to Execute"
-msgstr "Veuillez Entrer la Commande a Executer"
+msgstr "Veuillez Entrer la Commande à Exécuter"
 
 #: porthole.glade.h:36
 msgid "Plugin Settings"
-msgstr "Reglage des Plugins"
+msgstr "Réglage des Plugins"
 
 #: porthole.glade.h:37
 msgid "Plugin _Settings"
-msgstr "_Reglage des Plugins"
+msgstr "_Réglage des Plugins"
 
 #: porthole.glade.h:38
 msgid "Porthole"
@@ -1413,23 +1412,23 @@ msgstr "Quitter"
 
 #: porthole.glade.h:42
 msgid "RUN :"
-msgstr "Executer :"
+msgstr "Exécuter :"
 
 #: porthole.glade.h:43
 msgid "R_eload Database"
-msgstr "R_echarger la Base-de-données"
+msgstr "R_echarger la Base de données"
 
 #: porthole.glade.h:44
 msgid "Re-Initialize _Portage"
-msgstr "Re-initialiser le _Portage"
+msgstr "Re-initialiser _Portage"
 
 #: porthole.glade.h:45
 msgid "Refresh the Current View"
-msgstr "Rafraichir la Vue Actuel"
+msgstr "Rafraîchir la Vue Actuelle"
 
 #: porthole.glade.h:46
 msgid "S_ync"
-msgstr "S_ynchorinser"
+msgstr "S_ynchroniser"
 
 #: porthole.glade.h:47
 msgid "S_ync Tree"
@@ -1445,39 +1444,39 @@ msgstr "Enregistrer le _Log"
 
 #: porthole.glade.h:50
 msgid "Search Results"
-msgstr "Resultats de la Recherche"
+msgstr "Résultats de la Recherche"
 
 #: porthole.glade.h:51
 msgid "Search _Descriptions"
-msgstr "Rechercher dans les _Déscriptions"
+msgstr "Rechercher dans les _Descriptions"
 
 #: porthole.glade.h:52
 msgid "Skip _Queue Entry"
-msgstr "Sauter Entré de la _File d'attente"
+msgstr "Sauter cette entrée de la _File d'attente"
 
 #: porthole.glade.h:54
 msgid "U_nmerge"
-msgstr "D_emerger"
+msgstr "U_nmerge"
 
 #: porthole.glade.h:55
 msgid "U_nmerge Package"
-msgstr "D_emerger Packetage"
+msgstr "U_nmerge Packetage"
 
 #: porthole.glade.h:56
 msgid "Unmerge Package"
-msgstr "Demerger Packetage"
+msgstr "Unmerge le Packetage"
 
 #: porthole.glade.h:57
 msgid "Upgradable Packages"
-msgstr "Packetages qui peuvent etre mis-a-jour"
+msgstr "Packetages qui peuvent être mis à jour"
 
 #: porthole.glade.h:58
 msgid "Upgrade packages to newest versions"
-msgstr "Mise-a-jour des Packetages vers la version la plus recente"
+msgstr "Mise à jour des Packetages vers la version la plus récente"
 
 #: porthole.glade.h:59
 msgid "Warnings! "
-msgstr "Avertisements!"
+msgstr "Avertissements!"
 
 #: porthole.glade.h:60
 msgid "_Actions"
@@ -1489,7 +1488,7 @@ msgstr "_Emerge Avancé du Packetage"
 
 #: porthole.glade.h:62
 msgid "_Close Window"
-msgstr "_Fermer Fenetre"
+msgstr "_Fermer Fenêtre"
 
 #: porthole.glade.h:63
 msgid "_Configure Porthole"
@@ -1505,7 +1504,7 @@ msgstr "_Copier"
 
 #: porthole.glade.h:66
 msgid "_Edit"
-msgstr "_Edition"
+msgstr "_Édition"
 
 #: porthole.glade.h:67
 msgid "_Help"
@@ -1549,7 +1548,7 @@ msgstr "_Reprendre"
 
 #: porthole.glade.h:77
 msgid "_Run Custom Command"
-msgstr "_Executer command customisé"
+msgstr "_Exécuter commande personnalisée"
 
 #: porthole.glade.h:78
 msgid "_Settings"
@@ -1557,23 +1556,23 @@ msgstr "_Réglages"
 
 #: porthole.glade.h:79
 msgid "_Skip First Package"
-msgstr "_Sauter premier packetage"
+msgstr "_Sauter le premier packetage"
 
 #: porthole.glade.h:80
 msgid "_Upgrade"
-msgstr "_Mise-a-jour"
+msgstr "_Mise à jour"
 
 #: porthole.glade.h:81
 msgid "_Upgrade Packages"
-msgstr "_Mise-a-jour des packetages"
+msgstr "_Mise à jour des packetages"
 
 #: porthole.glade.h:82
 msgid "_Upgrades Only"
-msgstr "_Mises-a-jours uniquement"
+msgstr "_Mises à jour uniquement"
 
 #: porthole.glade.h:83
 msgid "_Verbose"
-msgstr "_Verbose"
+msgstr "_Verbeux"
 
 #: porthole.glade.h:84
 msgid "_View:"
