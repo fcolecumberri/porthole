@@ -19,6 +19,7 @@
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <signal name="size_request" handler="on_main_window_size_request" last_modification_time="Fri, 23 Jan 2004 00:50:13 GMT"/>
   <signal name="destroy" handler="on_main_window_destroy" last_modification_time="Fri, 23 Jan 2004 00:57:17 GMT"/>
 
@@ -32,6 +33,8 @@
 	<widget class="GtkMenuBar" id="menubar">
 	  <property name="visible">True</property>
 	  <property name="sensitive">False</property>
+	  <property name="pack_direction">GTK_PACK_DIRECTION_LTR</property>
+	  <property name="child_pack_direction">GTK_PACK_DIRECTION_LTR</property>
 
 	  <child>
 	    <widget class="GtkMenuItem" id="menuitem1">
@@ -1237,6 +1240,7 @@
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -1351,7 +1355,7 @@
       <child>
 	<widget class="GtkImage" id="image274">
 	  <property name="visible">True</property>
-	  <property name="pixbuf">porthole-about.png</property>
+	  <property name="pixbuf">pixmaps/porthole-about.png</property>
 	  <property name="xalign">0.5</property>
 	  <property name="yalign">0.5</property>
 	  <property name="xpad">0</property>
@@ -1413,6 +1417,7 @@ Copyright (C) 2003 - 2005</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <signal name="destroy" handler="on_process_window_destroy" last_modification_time="Sun, 22 Feb 2004 13:28:59 GMT"/>
 
   <child>
@@ -1430,6 +1435,8 @@ Copyright (C) 2003 - 2005</property>
 	  <child>
 	    <widget class="GtkMenuBar" id="menubar">
 	      <property name="visible">True</property>
+	      <property name="pack_direction">GTK_PACK_DIRECTION_LTR</property>
+	      <property name="child_pack_direction">GTK_PACK_DIRECTION_LTR</property>
 
 	      <child>
 		<widget class="GtkMenuItem" id="menuitem4">
@@ -1449,7 +1456,7 @@ Copyright (C) 2003 - 2005</property>
 			  <signal name="activate" handler="on_resume1_activate" last_modification_time="Thu, 19 Feb 2004 08:05:32 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image291">
+			    <widget class="GtkImage" id="image489">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-refresh</property>
 			      <property name="icon_size">1</property>
@@ -1461,7 +1468,7 @@ Copyright (C) 2003 - 2005</property>
 			  </child>
 
 			  <child>
-			    <widget class="GtkMenu" id="resume1_menu">
+			    <widget class="GtkMenu" id="resume_menu">
 
 			      <child>
 				<widget class="GtkMenuItem" id="normal1">
@@ -1482,7 +1489,7 @@ Copyright (C) 2003 - 2005</property>
 			      </child>
 
 			      <child>
-				<widget class="GtkMenuItem" id="separator6">
+				<widget class="GtkSeparatorMenuItem" id="separator6">
 				  <property name="visible">True</property>
 				</widget>
 			      </child>
@@ -1508,7 +1515,7 @@ Copyright (C) 2003 - 2005</property>
 			  <signal name="activate" handler="on_kill" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image292">
+			    <widget class="GtkImage" id="image490">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-cancel</property>
 			      <property name="icon_size">1</property>
@@ -1522,7 +1529,7 @@ Copyright (C) 2003 - 2005</property>
 		      </child>
 
 		      <child>
-			<widget class="GtkMenuItem" id="separator8">
+			<widget class="GtkSeparatorMenuItem" id="separator8">
 			  <property name="visible">True</property>
 			</widget>
 		      </child>
@@ -1535,7 +1542,7 @@ Copyright (C) 2003 - 2005</property>
 			  <signal name="activate" handler="on_save_log" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image293">
+			    <widget class="GtkImage" id="image491">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-save</property>
 			      <property name="icon_size">1</property>
@@ -1556,7 +1563,7 @@ Copyright (C) 2003 - 2005</property>
 			  <signal name="activate" handler="on_save_log_as" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image293">
+			    <widget class="GtkImage" id="image492">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-save-as</property>
 			      <property name="icon_size">1</property>
@@ -1577,7 +1584,7 @@ Copyright (C) 2003 - 2005</property>
 			  <signal name="activate" handler="on_open_log" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image293">
+			    <widget class="GtkImage" id="image493">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-open</property>
 			      <property name="icon_size">1</property>
@@ -1591,7 +1598,7 @@ Copyright (C) 2003 - 2005</property>
 		      </child>
 
 		      <child>
-			<widget class="GtkMenuItem" id="separator9">
+			<widget class="GtkSeparatorMenuItem" id="separator9">
 			  <property name="visible">True</property>
 			</widget>
 		      </child>
@@ -1604,7 +1611,7 @@ Copyright (C) 2003 - 2005</property>
 			  <signal name="activate" handler="on_quit" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image294">
+			    <widget class="GtkImage" id="image494">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-close</property>
 			      <property name="icon_size">1</property>
@@ -1639,7 +1646,7 @@ Copyright (C) 2003 - 2005</property>
 			  <accelerator key="C" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image295">
+			    <widget class="GtkImage" id="image495">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-copy</property>
 			      <property name="icon_size">1</property>
@@ -1653,7 +1660,7 @@ Copyright (C) 2003 - 2005</property>
 		      </child>
 
 		      <child>
-			<widget class="GtkMenuItem" id="separator10">
+			<widget class="GtkSeparatorMenuItem" id="separator10">
 			  <property name="visible">True</property>
 			</widget>
 		      </child>
@@ -1666,7 +1673,7 @@ Copyright (C) 2003 - 2005</property>
 			  <signal name="activate" handler="on_clear" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image296">
+			    <widget class="GtkImage" id="image496">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-clear</property>
 			      <property name="icon_size">1</property>
@@ -1694,6 +1701,83 @@ Copyright (C) 2003 - 2005</property>
 		    <widget class="GtkMenu" id="queue1_menu">
 
 		      <child>
+			<widget class="GtkSeparatorMenuItem" id="separator13">
+			  <property name="visible">True</property>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkImageMenuItem" id="pause">
+			  <property name="visible">True</property>
+			  <property name="tooltip" translatable="yes">Temporarily stop any remaining processes from starting</property>
+			  <property name="label" translatable="yes">Pause</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_pause_activate" last_modification_time="Thu, 08 Dec 2005 06:32:56 GMT"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image497">
+			      <property name="visible">True</property>
+			      <property name="stock">gtk-media-pause</property>
+			      <property name="icon_size">1</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkImageMenuItem" id="resume_queue">
+			  <property name="visible">True</property>
+			  <property name="tooltip" translatable="yes">Resume the queue processes remaining</property>
+			  <property name="label" translatable="yes">Resume</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_resume_queue_activate" last_modification_time="Thu, 08 Dec 2005 06:32:56 GMT"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image498">
+			      <property name="visible">True</property>
+			      <property name="stock">gtk-media-play</property>
+			      <property name="icon_size">1</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkImageMenuItem" id="timer">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Timer</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_timer_activate" last_modification_time="Fri, 09 Dec 2005 16:04:35 GMT"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image499">
+			      <property name="visible">True</property>
+			      <property name="stock">gtk-color-picker</property>
+			      <property name="icon_size">1</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkSeparatorMenuItem" id="separator14">
+			  <property name="visible">True</property>
+			</widget>
+		      </child>
+
+		      <child>
 			<widget class="GtkImageMenuItem" id="move_up1">
 			  <property name="visible">True</property>
 			  <property name="sensitive">False</property>
@@ -1702,7 +1786,7 @@ Copyright (C) 2003 - 2005</property>
 			  <signal name="activate" handler="on_move_up" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image297">
+			    <widget class="GtkImage" id="image500">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-go-up</property>
 			      <property name="icon_size">1</property>
@@ -1724,7 +1808,7 @@ Copyright (C) 2003 - 2005</property>
 			  <signal name="activate" handler="on_move_down" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image298">
+			    <widget class="GtkImage" id="image501">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-go-down</property>
 			      <property name="icon_size">1</property>
@@ -1738,7 +1822,51 @@ Copyright (C) 2003 - 2005</property>
 		      </child>
 
 		      <child>
-			<widget class="GtkMenuItem" id="separator11">
+			<widget class="GtkImageMenuItem" id="move_bottom">
+			  <property name="visible">True</property>
+			  <property name="tooltip" translatable="yes">Moves the selected process to the end of the queue</property>
+			  <property name="label" translatable="yes">Move Bottom</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_move_bottom_activate" last_modification_time="Thu, 08 Dec 2005 06:41:39 GMT"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image502">
+			      <property name="visible">True</property>
+			      <property name="stock">gtk-goto-bottom</property>
+			      <property name="icon_size">1</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkImageMenuItem" id="move_top">
+			  <property name="visible">True</property>
+			  <property name="tooltip" translatable="yes">Moves the selected process to start next</property>
+			  <property name="label" translatable="yes">Move Top</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_move_top_activate" last_modification_time="Thu, 08 Dec 2005 06:41:39 GMT"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image503">
+			      <property name="visible">True</property>
+			      <property name="stock">gtk-goto-top</property>
+			      <property name="icon_size">1</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkSeparatorMenuItem" id="separator11">
 			  <property name="visible">True</property>
 			</widget>
 		      </child>
@@ -1752,7 +1880,7 @@ Copyright (C) 2003 - 2005</property>
 			  <signal name="activate" handler="on_remove" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image299">
+			    <widget class="GtkImage" id="image504">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-delete</property>
 			      <property name="icon_size">1</property>
@@ -2351,14 +2479,110 @@ Copyright (C) 2003 - 2005</property>
       </child>
 
       <child>
-	<widget class="GtkStatusbar" id="statusbar">
+	<widget class="GtkHBox" id="hbox21">
 	  <property name="visible">True</property>
-	  <property name="has_resize_grip">True</property>
+	  <property name="homogeneous">False</property>
+	  <property name="spacing">0</property>
+
+	  <child>
+	    <widget class="GtkToggleButton" id="pause_button">
+	      <property name="visible">True</property>
+	      <property name="tooltip" translatable="yes">Pause any commands in the queue</property>
+	      <property name="can_focus">True</property>
+	      <property name="relief">GTK_RELIEF_NORMAL</property>
+	      <property name="focus_on_click">True</property>
+	      <property name="active">False</property>
+	      <property name="inconsistent">False</property>
+
+	      <child>
+		<widget class="GtkImage" id="image487">
+		  <property name="visible">True</property>
+		  <property name="stock">gtk-media-pause</property>
+		  <property name="icon_size">4</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		</widget>
+	      </child>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">False</property>
+	      <property name="fill">False</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkButton" id="play_button">
+	      <property name="visible">True</property>
+	      <property name="tooltip" translatable="yes">Run commands in the queue</property>
+	      <property name="can_focus">True</property>
+	      <property name="relief">GTK_RELIEF_NORMAL</property>
+	      <property name="focus_on_click">True</property>
+
+	      <child>
+		<widget class="GtkImage" id="image486">
+		  <property name="visible">True</property>
+		  <property name="stock">gtk-media-play</property>
+		  <property name="icon_size">4</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		</widget>
+	      </child>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">False</property>
+	      <property name="fill">False</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkButton" id="timer_button">
+	      <property name="visible">True</property>
+	      <property name="tooltip" translatable="yes">Set run times for commands in the queue</property>
+	      <property name="can_focus">True</property>
+	      <property name="relief">GTK_RELIEF_NORMAL</property>
+	      <property name="focus_on_click">True</property>
+
+	      <child>
+		<widget class="GtkImage" id="image488">
+		  <property name="visible">True</property>
+		  <property name="stock">gtk-color-picker</property>
+		  <property name="icon_size">4</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		</widget>
+	      </child>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">False</property>
+	      <property name="fill">False</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkStatusbar" id="statusbar">
+	      <property name="visible">True</property>
+	      <property name="has_resize_grip">True</property>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">True</property>
+	      <property name="fill">True</property>
+	    </packing>
+	  </child>
 	</widget>
 	<packing>
 	  <property name="padding">0</property>
 	  <property name="expand">False</property>
-	  <property name="fill">False</property>
+	  <property name="fill">True</property>
 	</packing>
       </child>
     </widget>
@@ -2379,6 +2603,7 @@ Copyright (C) 2003 - 2005</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -2553,6 +2778,7 @@ Copyright (C) 2003 - 2005</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
   <signal name="destroy" handler="on_plugin_dialog_destroy" last_modification_time="Sun, 05 Dec 2004 03:54:45 GMT"/>
 
