@@ -717,19 +717,20 @@ class CategoryView(CommonTreeView):
             self.populate_search(categories)
             return
         for cat in categories:
-            try: catmaj, catmin = cat.split("-")
-            except:
-                dprint(" * VIEWS: CategoryView.populate(): can't split '%s'." % cat)
-                continue # quick fix to bug posted on forums
-            if catmaj != last_catmaj:
-                cat_iter = self.model.insert_before(None, None)
-                self.model.set_value(cat_iter, 0, catmaj)
-                self.model.set_value(cat_iter, 1, None) # needed?
-                last_catmaj = catmaj
-            sub_cat_iter = self.model.insert_before(cat_iter, None)
-            self.model.set_value(sub_cat_iter, 0, catmin)
-            # store full category name in hidden field
-            self.model.set_value(sub_cat_iter, 1, cat)
+            if cat != 'virtual'
+                try: catmaj, catmin = cat.split("-")
+                except:
+                    dprint(" * VIEWS: CategoryView.populate(): can't split '%s'." % cat)
+                    continue # quick fix to bug posted on forums
+                if catmaj != last_catmaj:
+                    cat_iter = self.model.insert_before(None, None)
+                    self.model.set_value(cat_iter, 0, catmaj)
+                    self.model.set_value(cat_iter, 1, None) # needed?
+                    last_catmaj = catmaj
+                sub_cat_iter = self.model.insert_before(cat_iter, None)
+                self.model.set_value(sub_cat_iter, 0, catmin)
+                # store full category name in hidden field
+                self.model.set_value(sub_cat_iter, 1, cat)
 
     def populate_search( self, categories ):
         dprint("VIEWS: populating category view with search history")
