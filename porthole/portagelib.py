@@ -119,7 +119,7 @@ def get_use_flag_dict():
 ##
             dict[data[1].strip()] = ['local', data[0].strip(), item[index+3:]]
         except:
-            dprint("PORTAGELIB: get_use_flag_dict(); error in index??? daata[0].strip, item[index:]")
+            dprint("PORTAGELIB: get_use_flag_dict(); error in index??? data[0].strip, item[index:]")
             dprint(data[0].strip())
             dprint(item[index:])
     return dict
@@ -235,9 +235,13 @@ def get_user_config(file, name=None, ebuild=None):
         dprint(" * PORTAGELIB: get_user_config(): unsupported config file '%s'" % file)
         return None
     filename = '/'.join([portage_const.USER_CONFIG_PATH, file])
-    if not os.access(filename, os.R_OK):
-        dprint(" * PORTAGELIB: get_user_config(): no read access on '%s'?" % file)
-        return {}
+    if not os.access(filename, os.F_OK):
+        dprint(" * PORTAGELIB: get_user_config(): file does not exist: '%s'?" % file)
+        return None
+    else:
+        if not os.access(filename, os.R_OK):
+            dprint(" * PORTAGELIB: get_user_config(): no read access on '%s'?" % file)
+            return None
     configfile = open(filename, 'r')
     configlines = configfile.readlines()
     configfile.close()
@@ -766,6 +770,7 @@ class Package:
             return portage.best(self.get_versions())
         if self.latest_ebuild == None:
             vers = self.get_versions()
+            #dprint("PORTAGELIB: get_latest_ebuild; vers = %s" %str(vers)) 
             for m in self.get_hard_masked(check_unmask = True):
                 while m in vers:
                     vers.remove(m)
@@ -820,7 +825,7 @@ class Package:
             ebuild = self.get_default_ebuild()
             if not ebuild:
                 dprint("PORTAGELIB; get_properties(): No ebuild found for %s!" % self.full_name)
-                raise Exception(_('No ebuild found.'))
+                #raise Exception(_('No ebuild found.'))
         else:
             #dprint("PORTAGELIB get_properties(): Using specific ebuild")
             ebuild = specific_ebuild
@@ -833,7 +838,10 @@ class Package:
         """Returns all available ebuilds for the package"""
         # Note: this is slow, especially when include_masked is false
         criterion = include_masked and 'match-all' or 'match-visible'
-        return portage.portdb.xmatch(criterion, str(self.full_name))
+        #dprint("PORTAGELIb: get_versions(); criterion = %s, package = %s" %(str(criterion),self.full_name))
+        v = portage.portdb.xmatch(criterion, str(self.full_name))
+        #dprint("PORTAGELIb: get_versions(); v = %s" %str(v))
+        return  v #portage.portdb.xmatch(criterion, str(self.full_name))
 
     def get_hard_masked(self, check_unmask = False):
         """Returns all versions hard masked by package.mask.
