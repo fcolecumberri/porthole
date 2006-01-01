@@ -214,7 +214,7 @@ class Summary(gtk.TextView):
                 first_ebuild = False
                 spam += [version]  # now only used to track the need for a new slot
             if first_ebuild: # only still true if no ebuilds were acceptable
-                append('\tNone', 'value')
+                append(_('\tNone'), 'value')
             #append(", ".join(spam), "value")
             return
         
@@ -422,7 +422,7 @@ class Summary(gtk.TextView):
 
         # Metadata long description(s), if available
         if metadata and metadata.longdescription and self.prefs.summary.showlongdesc:
-            append("Long Description: ", "property")
+            append(_("Long Description: "), "property")
             append(metadata.longdescription, "description")
             nl(2)
         
@@ -462,9 +462,13 @@ class Summary(gtk.TextView):
         
         # Check package.use to see if it applies to this ebuild at all
         package_use_flags = portagelib.get_user_config('package.use', ebuild=ebuild)
-        dprint(package_use_flags)
-        ebuild_use_flags = system_use_flags + package_use_flags
-        
+        dprint("SUMARY: update_package_info(); package_use_flags = %s" %str(package_use_flags))
+        if package_use_flags != None and package_use_flags != []:
+            dprint("SUMARY: update_package_info(); adding package_use_flags to ebuild_use_flags")
+            ebuild_use_flags = system_use_flags + package_use_flags
+        else:
+            dprint("SUMARY: update_package_info(); adding only system_use_flags to ebuild_use_flags")
+            ebuild_use_flags = system_use_flags
         # Use flags
         if use_flags and self.prefs.summary.showuseflags:
             append(_("Use flags: "), "property")
