@@ -25,7 +25,7 @@
 import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, gobject, pango
 import portagelib
-import threading
+import threading, os
 import utils
 
 from depends import DependsTree
@@ -353,15 +353,19 @@ class PackageView(CommonTreeView):
             self.set_model(self.package_model)
             self.popup_menuitems["deselect_all"].hide()
             self.popup_menuitems["select_all"].hide()
+            self.enable_column_sort()
         elif self.current_view == self.SEARCH_RESULTS:
             self.set_model(self.search_model)
             self.popup_menuitems["deselect_all"].hide()
             self.popup_menuitems["select_all"].hide()
+            self.enable_column_sort()
         else:
             dprint("VIEWS: Package_view._set_model(); changing to upgrades view")
             self.set_model(self.upgrade_model)
             self.popup_menuitems["deselect_all"].show()
             self.popup_menuitems["select_all"].show()
+            dprint("VIEWS: _set_model(); disabling column sort")
+            self.enable_column_sort() #disable_column_sort()
 
     def register_callbacks(self, callback = None):
         """ Callback to MainWindow.
@@ -519,7 +523,7 @@ class PackageView(CommonTreeView):
         if not packages:
             return
         dprint("VIEWS: Populating package view")
-        dprint("VIEWS: PackageView.populate(); Threading info: %s" %str(threading.enumerate()))
+        dprint("VIEWS: PackageView.populate(); process_id = %s" %str(os.getpid()))
         # ask info_thread to die, if alive
         self.infothread_die = "Please"
         self.model = None
@@ -528,6 +532,7 @@ class PackageView(CommonTreeView):
             dprint("VIEWS: Selecting " + str(locate_name))
         # get the right model
         model = self.get_model()
+        self.disable_column_sort()
         model.clear()
         names = portagelib.sort(packages.keys())
         path = None
@@ -613,6 +618,7 @@ class PackageView(CommonTreeView):
         else: # reached last iter
             #gtk.threads_enter()
             self.queue_draw()
+            dprint("VIEWS: populate_info(); enabling column sort")
             self.enable_column_sort()
             dprint("VIEWS: populate_info(); Package info populated")
             return False # will not be called again
@@ -717,7 +723,7 @@ class CategoryView(CommonTreeView):
             self.populate_search(categories)
             return
         for cat in categories:
-            if cat != 'virtual'
+            if cat != 'virtual':
                 try: catmaj, catmin = cat.split("-")
                 except:
                     dprint(" * VIEWS: CategoryView.populate(): can't split '%s'." % cat)
