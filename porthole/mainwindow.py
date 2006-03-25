@@ -43,7 +43,7 @@ from depends import DependsTree
 from command import RunDialog
 from advemerge import AdvancedEmergeDialog
 from plugin import PluginGUI, PluginManager
-from readers import UpgradableReader, DescriptionReader
+from readers import UpgradableListReader, DescriptionReader
 from loaders import *
 from version_sort import ver_match
 import config
@@ -247,6 +247,7 @@ class MainWindow:
         self.upgrades_loaded = False
         # upgrade loading callback
         self.upgrades_loaded_callback = None
+        self.upgrades = {}
         self.current_package_cursor = None
         self.current_category_cursor = None
         # descriptions loaded?
@@ -304,8 +305,10 @@ class MainWindow:
         #self.ut_cancelled = False
         # upgrade loading callback
         self.upgrades_loaded_callback = None
+        self.upgrades = {}
         self.search_loaded = False
         self.current_package_path = None
+        self.current_search_package_cursor = None
         # test to reset portage
         #portagelib.reload_portage()
         portagelib.reload_world()
@@ -1021,9 +1024,12 @@ class MainWindow:
         """Catch when the user changes categories."""
         mode = self.widget["view_filter"].get_history()
         # log the new category for reloads
-        if mode != SHOW_SEARCH:
+        if mode != SHOW_SEARCH and mode != SHOW_UPGRADE:
             self.current_category = category
             self.current_category_cursor = self.category_view.get_cursor()
+        elif mode == SHOW_UPGRADE:
+            self.current_upgrade = category
+            self.current_upgrade_cursor = self.category_view.get_cursor()
         else:
             self.current_search = category
             self.current_search_cursor = self.category_view.get_cursor()
@@ -1040,6 +1046,9 @@ class MainWindow:
             # if search was a package name, select that one
             # (searching for 'python' for example would benefit)
             self.package_view.populate(packages, category)
+        elif mode == SHOW_UPGRADE:
+            packages = self.upgrades[category]
+            self.package_view.populate(packages, self.current_package_name)
         elif not category or self.current_category_cursor[0][1] == None:
             #dprint("MAINWINDOW: category_changed(); category=False or self.current_category_cursor[0][1]=None")
             packages = None
@@ -1056,12 +1065,12 @@ class MainWindow:
             packages = self.db.installed[category]
             self.package_view.populate(packages, self.current_package_name)
         else:
-            raise Exception("The programmer is stupid.");
+            raise Exception("The programmer is stupid. Unknown category_changed() mode");
 
     def package_changed(self, package):
         """Catch when the user changes packages."""
         dprint("MAINWINDOW: package_changed()")
-        if not package:
+        if not package or package.full_name == "None":
             self.clear_notebook()
             self.current_package_name = ''
             self.current_package_cursor = self.package_view.get_cursor()
@@ -1148,15 +1157,23 @@ class MainWindow:
         self.category_view.set_search(False)
         self.clear_notebook()
         if index in (SHOW_INSTALLED, SHOW_ALL):
-            cat_scroll.show();
-            self.category_view.populate( \
-                index == SHOW_ALL and self.db.categories.keys()
-                or self.db.installed.keys())
+            cat_scroll.show()
+            if index == SHOW_ALL:
+                items = self.db.categories.keys()
+                count = self.db.pkg_count
+            else:
+                items = self.db.installed.keys()
+                count = self.db.installed_pkg_count
+            self.category_view.populate(items, True, count)
+            dprint("MAINWINDOW: view_filter_changed(); reset package_view")
             self.package_view.set_view(self.package_view.PACKAGES)
+            dprint("MAINWINDOW: view_filter_changed(); init package_view")
             self.package_view._init_view()
-            self.package_view.clear()
+            #dprint("MAINWINDOW: view_filter_changed(); clear package_view")
+            #self.package_view.clear()
             cat = self.current_category
             pack = self.current_package_name
+            dprint("MAINWINDOW: view_filter_changed(); reselect category & package")
             self.select_category_package(cat, pack, index)
         elif index == SHOW_SEARCH:
             self.category_view.set_search(True)
@@ -1166,27 +1183,47 @@ class MainWindow:
                 self.package_search(None)
                 self.search_loaded = True
             else:
-                self.category_view.populate(self.search_history.keys())
+                self.category_view.populate(self.search_history.keys()) #, True, self.search_history.keys()))
             cat_scroll.show();
             dprint("MAIN: Showing search results")
             self.package_view.set_view(self.package_view.SEARCH_RESULTS)
             cat = self.current_search
             pack = self.current_search_package_name
             self.select_category_package(cat, pack, index)
+        #~ elif index == SHOW_UPGRADE:
+            #~ dprint("MAINWINDOW: view_filter_changed(); upgrade selected")
+            #~ cat_scroll.hide();
+            #~ self.package_view.set_view(self.package_view.UPGRADABLE)
+            #~ if not self.upgrades_loaded:
+                #~ dprint("MAINWINDOW: view_filter_changed(); calling load_upgrades_list ********************************")
+                #~ self.load_upgrades_list()
+                #~ self.package_view.clear()
+                #~ dprint("MAINWINDOW: view_filter_changed(); back from load_upgrades_list()")
+            #~ else:
+                #~ # already loaded, just show them!
+                #~ dprint("MAINWINDOW: view_filter_changed(); showing loaded upgrades")
+                #~ #self.package_view.set_view(self.package_view.UPGRADABLE)
+                #~ self.summary.update_package_info(None)
         elif index == SHOW_UPGRADE:
             dprint("MAINWINDOW: view_filter_changed(); upgrade selected")
-            cat_scroll.hide();
+            cat_scroll.show();
             self.package_view.set_view(self.package_view.UPGRADABLE)
             if not self.upgrades_loaded:
                 dprint("MAINWINDOW: view_filter_changed(); calling load_upgrades_list ********************************")
                 self.load_upgrades_list()
-                self.package_view.clear()
+                #self.package_view.clear()
+                self.category_view.clear()
                 dprint("MAINWINDOW: view_filter_changed(); back from load_upgrades_list()")
             else:
-                # already loaded, just show them!
-                dprint("MAINWINDOW: view_filter_changed(); showing loaded upgrades")
-                #self.package_view.set_view(self.package_view.UPGRADABLE)
-                self.summary.update_package_info(None)
+                self.category_view.populate(self.upgrades.keys(), False, self.upgrade_counts)
+                dprint("MAINWINDOW: view_filter_changed(); init package_view")
+                self.package_view._init_view()
+                #dprint("MAINWINDOW: view_filter_changed(); clear package_view")
+                #self.package_view.clear()
+                cat = self.current_category
+                pack = self.current_package_name
+                dprint("MAINWINDOW: view_filter_changed(); reselect category & package")
+                self.select_category_package(cat, pack, index)
         # clear the notebook tabs
         #self.clear_notebook()
         #if self.last_view_setting != index:
@@ -1252,8 +1289,9 @@ class MainWindow:
             self.clear_notebook()
 
     def load_upgrades_list(self):
+        self.ut_progress = 1
         # upgrades are not loaded, create dialog and load them
-        self.set_statusbar2(_("Searching for upgradable packages..."))
+        self.set_statusbar2(_("Generating 'system' packages list..."))
         # create upgrade thread for loading the upgrades
         #self.ut = UpgradableReader(Dispatcher(self.Update_upgrades, self.package_view, self.db.installed.items(),
         #                           self.prefs.emerge.upgradeonly, self.prefs.views ))
@@ -1261,7 +1299,7 @@ class MainWindow:
             dprint("MAINWINDOW: load_upgrades_list(); upgrades thread already running!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             return
         dprint("MAINWINDOW: load_upgrades_list(); starting upgrades thread")
-        self.ut = UpgradableReader(self.package_view, self.db.installed.items(),
+        self.ut = UpgradableListReader(self.db.installed.items(),
                                    self.prefs.emerge.upgradeonly, self.prefs.views )
         self.ut.start()
         self.ut_running = True
@@ -1286,6 +1324,8 @@ class MainWindow:
             self.ut.join()
             self.ut_running = False
             self.progress_done(True)
+            self.upgrades = self.ut.upgradables
+            self.upgrade_counts = self.ut.pkg_count
             if self.ut.cancelled:
                 return False
             self.upgrades_loaded = True
@@ -1299,11 +1339,21 @@ class MainWindow:
                     self.summary.update_package_info(None)
                     #self.wtree.get_widget("category_scrolled_window").hide()
             return False
+        elif self.ut.progress < 2:
+            # Still building system package list
+            pass
         else:
+            # stsatubar hack, should probably be converted to use a Dispatcher callback
+            if self.ut.progress >= 2 and self.ut_progress == 1:
+                self.set_statusbar2(_("Searching for upgradable packages..."))
+                self.ut_progress = 2
             if self.ut_running:
                 try:
                     if self.build_deps:
-                        fraction = (self.ut.world_count + self.ut.dep_count) / float(self.ut.upgrade_total)
+                        count = 0
+                        for key in self.ut.pkg_count:
+                            count += self.ut.pkg_count[key]
+                        fraction = count / float(self.ut.upgrade_total)
                         self.progressbar.set_text(str(int(fraction * 100)) + "%")
                         self.progressbar.set_fraction(fraction)
                     else:
@@ -1351,8 +1401,8 @@ class MainWindow:
             if not self.ut:
                 dprint("MAINWINDOW: attempt to update status bar with no upgrade thread assigned")
             else:
-                text = (_("%(world)d world, %(deps)d dependencies")
-                            % {'world':self.ut.world_count, 'deps':self.ut.dep_count})
+                text = '' #(_("%(world)d world, %(deps)d dependencies")
+                           # % {'world':self.ut.pkg_count["World"], 'deps':self.ut.pkg_count["Dependencies"]})
 
         self.set_statusbar2(self.status_root + text)
 

@@ -22,11 +22,13 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import threading, re, gtk, os
+import threading, re, gtk, os, cPickle, time
 import portagelib
 from views import DependsView, CommonTreeView
-from utils import get_icon_for_package, get_icon_for_upgrade_package, dprint
-
+from utils import get_icon_for_package, get_icon_for_upgrade_package, dprint, dsave
+from sterminal import SimpleTerminal
+from gettext import gettext as _
+from string import rstrip
 
 class CommonReader(threading.Thread):
     """ Common data reading class that works in a seperate thread """
@@ -45,6 +47,80 @@ class CommonReader(threading.Thread):
     def please_die(self):
         """ Tell the thread to die """
         self.cancelled = True
+
+class UpgradableListReader(CommonReader):
+    """ Read available upgrades and store them in a tuple """
+    def __init__(self, installed, upgrade_only, view_prefs):
+        """ Initialize """
+        CommonReader.__init__(self)
+        self.installed_items = installed
+        self.upgrade_only = upgrade_only
+        #self.world = []
+        self.view_prefs = view_prefs
+        # hack for statusbar updates
+        self.progress = 1
+        # beginnings of multiple listings for packages in priority order
+        # lists could be passed into the function and result in the following
+        # eg self.categories = ["Tool Chain", "System", "User list", "World", "Dependencies"]
+        self.cat_order = ["System", "User list1", "World", "Dependencies"]
+        self.categories = {"System":None, "World":"World", "User list1":None, "Dependencies":"Dependencies"}
+        self.upgradables = {}
+        self.pkg_count = {}
+        for key in self.categories:
+            self.upgradables[key] = {}
+            self.pkg_count[key] = 0
+        self.count = 0
+        # command lifted fom emwrap and emwrap.sh
+        self.system_cmd = "emerge -ep --nocolor --nospinner system | cut -s -f2 -d ']'| cut -f1 -d '[' | sed 's/^[ ]\+//' | sed 's/[ ].*$//'"
+
+ 
+    def run(self):
+        """fill upgrade tree"""
+        dprint("READERS: UpgradableListReader(); process id = %d *******************" %os.getpid())
+        self.get_system_list()
+        upgradeflag = self.upgrade_only and True or False
+        # find upgradable packages
+        for cat, packages in self.installed_items:
+            for name, package in packages.items():
+                self.count += 1
+                if self.cancelled: self.done = True; return
+                upgradable = package.is_upgradable()
+                # if upgradable: # is_upgradable() = 1 for upgrade, -1 for downgrade
+                if upgradable == 1 or (not self.upgrade_only and upgradable == -1):
+                    for key in self.cat_order:
+                        if package.in_list(self.categories[key]):
+                            self.upgradables[key][package.full_name] = package
+                            self.pkg_count[key] += 1
+                            break
+        self.upgrade_total = 0
+        for key in self.pkg_count:
+            self.upgrade_total += self.pkg_count[key]
+            if self.upgradables[key] == {}:
+                pkg = portagelib.Package("None")
+                self.upgradables[key]["None"] = pkg
+        # set the thread as finished
+        self.done = True
+        return
+
+    def get_system_list(self):
+        dprint("READERS: UpgradableListReader; getting system package list")
+        self.terminal = SimpleTerminal(self.system_cmd, need_output=True,  dprint_output='', callback=None)
+        self.terminal._run()
+        dprint("waiting...")
+        while self.terminal.reader.process_running:
+            time.sleep(0.10)
+        self.categories["System"] = self.make_list(self.terminal.reader.string)
+        self.progress = 2
+        dprint("READERS: UpgradableListReader; new system pkg list %s" %str(self.categories["System"]))
+
+    def make_list(self, string):
+        """parse terminal output and return a list"""
+        list1 = string.split('\n')
+        list2 = []
+        for pkg in list1:
+            list2.append(portagelib.get_full_name(rstrip(pkg,"\r")))
+        return list2
+        
 
 class UpgradableReader(CommonReader):
     """ Read available upgrades and store them in a treemodel """
@@ -93,21 +169,31 @@ class UpgradableReader(CommonReader):
         gtk.threads_enter()
         self.upgrade_view.remove_model()
         gtk.threads_leave()
+        world_list = []
         for full_name, package in installed_world:
             self.world_count += 1
             self.add_package(full_name, package, package.in_world)
+            world_list.append(full_name)
             if self.cancelled: self.done = True; return
+        dsave("world_upgrades",world_list)
+
             #self.check_deps(full_name, package)
         if installed_dep != []:
+            dep_list = []
             self.add_package(_("Upgradable dependencies:"), None, False, False)
             for full_name, package in installed_dep:
                 self.dep_count += 1
                 if self.cancelled: self.done = True; return
                 self.add_deps(full_name, package, package.in_world, False)
+                dep_list.append(full_name)
                 #self.check_deps(full_name, package)
+            dsave("deps_upgrades",dep_list)
         # restore upgrade model
         gtk.threads_enter()
         self.upgrade_view.restore_model()
+        #self.upgrade_view.get_model().set_sort_column_id(1, gtk.SORT_ASCENDING)
+        self.upgrade_view.get_model().set_sort_column_id(1000, gtk.SORT_ASCENDING)
+        #self.upgrade_view.disable_column_sort()
         gtk.threads_leave()
         # set the thread as finished
         self.done = True

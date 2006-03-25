@@ -142,9 +142,9 @@ def PackageModel():
         gobject.TYPE_STRING,        # 8: portage recommended version
         gobject.TYPE_STRING,        # 9: description
     )
-    store.set_sort_func(6, size_sort_func)
-    store.set_sort_func(8, latest_sort_func)
-    store.set_sort_func(7, installed_sort_func)
+    #store.set_sort_func(6, size_sort_func)
+    #store.set_sort_func(8, latest_sort_func)
+    #store.set_sort_func(7, installed_sort_func)
     return store
 
 class PackageView(CommonTreeView):
@@ -199,7 +199,7 @@ class PackageView(CommonTreeView):
         self._column.set_resizable(True)
         self._column.set_min_width(10)
         self.append_column(self._column)
-        self._column.set_sort_column_id(0)
+        #self._column.set_sort_column_id(0)
         # add checkbox column
         self._checkbox_column = gtk.TreeViewColumn()
         self._checkbox_column.set_resizable(False)
@@ -210,21 +210,21 @@ class PackageView(CommonTreeView):
         self._installed_column.set_resizable(True)
         self._installed_column.set_min_width(10)
         #self._installed_column.set_expand(False)
-        self._installed_column.set_sort_column_id(7)
+        #self._installed_column.set_sort_column_id(7)
         # Setup the Latest Column
         self._latest_column = gtk.TreeViewColumn(_("Recommended"))
         self.append_column(self._latest_column)
         self._latest_column.set_resizable(True)
         self._latest_column.set_min_width(10)
         #self._latest_column.set_expand(False)
-        self._latest_column.set_sort_column_id(8)
+        #self._latest_column.set_sort_column_id(8)
         # setup the packagesize column
         self._size_column = gtk.TreeViewColumn(_("Download Size"))
         self.append_column(self._size_column)
         self._size_column.set_resizable(True)
         self._size_column.set_min_width(10)
         #self._size_column.set_expand(False)
-        self._size_column.set_sort_column_id(6)
+        #self._size_column.set_sort_column_id(6)
         # setup the Description column
         self._desc_column = gtk.TreeViewColumn(_("Description"))
         self.append_column(self._desc_column)
@@ -350,22 +350,25 @@ class PackageView(CommonTreeView):
     def _set_model(self):
         """ Set the correct treemodel for the current view """
         if self.current_view == self.PACKAGES:
+            #self.remove_model()
             self.set_model(self.package_model)
             self.popup_menuitems["deselect_all"].hide()
             self.popup_menuitems["select_all"].hide()
-            self.enable_column_sort()
+            #self.enable_column_sort()
         elif self.current_view == self.SEARCH_RESULTS:
+            #self.remove_model()
             self.set_model(self.search_model)
             self.popup_menuitems["deselect_all"].hide()
             self.popup_menuitems["select_all"].hide()
-            self.enable_column_sort()
+            #self.enable_column_sort()
         else:
             dprint("VIEWS: Package_view._set_model(); changing to upgrades view")
+            #self.remove_model()
             self.set_model(self.upgrade_model)
             self.popup_menuitems["deselect_all"].show()
             self.popup_menuitems["select_all"].show()
-            dprint("VIEWS: _set_model(); disabling column sort")
-            self.enable_column_sort() #disable_column_sort()
+            #dprint("VIEWS: _set_model(); disabling column sort")
+            #self.enable_column_sort() #disable_column_sort()
 
     def register_callbacks(self, callback = None):
         """ Callback to MainWindow.
@@ -381,7 +384,7 @@ class PackageView(CommonTreeView):
         self.event = event # save the event so we can access it in _clicked()
         if event.type != gtk.gdk.BUTTON_PRESS:
             dprint("VIEWS: Strange event type got passed to on_button_press() callback...")
-            dprint(event.type)
+            dprint("VIEWS: event.type =  %s" %str(event.type))
         if event.button == 3: # secondary mouse button
             self.dopopup = True # indicate that the popup menu should be displayed.
         else:
@@ -393,7 +396,7 @@ class PackageView(CommonTreeView):
             return True
         else:
             path, col, cellx, celly = pathinfo
-            dprint(pathinfo)
+            dprint("VIEWS: pathinfo = %s" %str(pathinfo))
             #treeview.set_cursor(path, col, 0) # Note: sets off _clicked again
         return False
 
@@ -401,6 +404,7 @@ class PackageView(CommonTreeView):
         self.toggle = path
         dprint("VIEWS: Toggle activated at path '%s'" % path)
         self.set_cursor(path) # sets off _clicked
+        
         return True
 
     def add_keyword(self, widget):
@@ -439,22 +443,24 @@ class PackageView(CommonTreeView):
         # get the selection
         package = utils.get_treeview_selection(treeview, 2)
         #dprint("VIEWS: package = %s" % package.full_name)
-        if not package and not self.toggle:
+        if (not package and not self.toggle) or package.full_name == "None":
             self.mainwindow_callback("package changed", None)
             return False
-        if self.toggle != None: # for upgrade view
+        if self.toggle != None : # for upgrade view
             iter = self.get_model().get_iter(self.toggle)
+            #if self.upgrade_model.get_value(iter, 0) != "None":
             check = self.upgrade_model.get_value(iter, 1)
             check = not check
             self.upgrade_model.set_value(iter, 1, check)
-            if self.upgrade_model.get_value(iter, 2) == None:
-                dprint("VIEWS: _clicked(): Toggling all upgradable deps")
-                # package == None for "Upgradable Dependencies" row
-                # so select or deselect all deps
-                iter = self.upgrade_model.iter_children(iter)
-                while iter:
-                    self.upgrade_model.set_value(iter, 1, check)
-                    iter = self.upgrade_model.iter_next(iter)
+            package.is_checked = check
+            #~ if self.upgrade_model.get_value(iter, 2) == None:
+                #~ #dprint("VIEWS: _clicked(): Toggling all upgradable deps")
+                #~ # package == None for "Upgradable Dependencies" row
+                #~ # so select or deselect all deps
+                #~ iter = self.upgrade_model.iter_children(iter)
+                #~ while iter:
+                    #~ self.upgrade_model.set_value(iter, 1, check)
+                    #~ iter = self.upgrade_model.iter_next(iter)
             self.dopopup = False # don't popup menu if clicked on checkbox
             self.toggle = None
             return True # we've got it sorted
@@ -532,30 +538,34 @@ class PackageView(CommonTreeView):
             dprint("VIEWS: Selecting " + str(locate_name))
         # get the right model
         model = self.get_model()
-        self.disable_column_sort()
+        #self.disable_column_sort()
         model.clear()
         names = portagelib.sort(packages.keys())
         path = None
         locate_count = 0
         for name in names:
+            #dprint("VIEWS: PackageView.populate(); name = %s" %name)
             # go through each package
             iter = model.insert_before(None, None)
             model.set_value(iter, 2, packages[name])
-            model.set_value(iter, 4, (packages[name].in_world))
             model.set_value(iter, 0, name)
-            upgradable = packages[name].is_upgradable()
-            if upgradable == 1: # portage wants to upgrade
-                model.set_value(iter, 5, self.prefs.views.upgradable_fg)
-            elif upgradable == -1: # portage wants to downgrade
-                model.set_value(iter, 5, self.prefs.views.downgradable_fg)
-            else:
-                model.set_value(iter, 5, '')
-            # get an icon for the package
-            icon = utils.get_icon_for_package(packages[name])
-            model.set_value(iter, 3,
-                self.render_icon(icon,
-                                 size = gtk.ICON_SIZE_MENU,
-                                 detail = None))
+            upgradable = 0
+            if name != "None":
+                model.set_value(iter, 1, (packages[name].is_checked))
+                model.set_value(iter, 4, (packages[name].in_world))
+                upgradable = packages[name].is_upgradable()
+                if upgradable == 1: # portage wants to upgrade
+                    model.set_value(iter, 5, self.prefs.views.upgradable_fg)
+                elif upgradable == -1: # portage wants to downgrade
+                    model.set_value(iter, 5, self.prefs.views.downgradable_fg)
+                else:
+                    model.set_value(iter, 5, '')
+                # get an icon for the package
+                icon = utils.get_icon_for_package(packages[name])
+                model.set_value(iter, 3,
+                                self.render_icon(icon,
+                                size = gtk.ICON_SIZE_MENU,
+                                detail = None))
             if locate_name:
                 if name.split('/')[-1] == locate_name:
                     locate_count += 1
@@ -567,8 +577,8 @@ class PackageView(CommonTreeView):
             self.set_cursor(path)
         dprint("VIEWS: starting info_thread")
         self.infothread_die = False
-        self.get_model().set_sort_column_id(0, gtk.SORT_ASCENDING)
-        self.disable_column_sort()
+        #self.get_model().set_sort_column_id(0, gtk.SORT_ASCENDING)
+        #self.disable_column_sort()
         self.model = self.get_model()
         self.iter = model.get_iter_first()
         gobject.idle_add(self.populate_info)
@@ -584,7 +594,7 @@ class PackageView(CommonTreeView):
         iter = self.iter
         #gtk.threads_leave()
         #while iter and not (self.infothread_die):
-        if iter:
+        if iter and not model.get_value(iter, 0) == "None":
             try:
                 #gtk.threads_enter()
                 package = model.get_value(iter, 2)
@@ -618,8 +628,8 @@ class PackageView(CommonTreeView):
         else: # reached last iter
             #gtk.threads_enter()
             self.queue_draw()
-            dprint("VIEWS: populate_info(); enabling column sort")
-            self.enable_column_sort()
+            #dprint("VIEWS: populate_info(); enabling column sort")
+            #self.enable_column_sort()
             dprint("VIEWS: populate_info(); Package info populated")
             return False # will not be called again
             #gtk.threads_leave()
@@ -637,7 +647,9 @@ class PackageView(CommonTreeView):
         model.foreach(self.set_select, True)
 
     def set_select(self, model, path, iter, selected):
-        model.set_value(iter, 1, selected)
+        if model.get_value(iter, 0) != "None":
+            model.set_value(iter, 1, selected)
+            model.get_value(iter, 2).is_checked = selected
     
     def remove_model(self): # used by upgrade reader to speed up adding to the model
         self.temp_model = self.get_model()
@@ -673,9 +685,18 @@ class CategoryView(CommonTreeView):
                                     gtk.CellRendererText(),
                                     markup = 0)
         self.append_column(self.cat_column)
-        # setup the model
-        self.model = gtk.TreeStore(gobject.TYPE_STRING,
-                                   gobject.TYPE_STRING)
+        self.cat_column.set_visible(True)
+        self.cat_column.set_expand(False)
+        self.count_column = gtk.TreeViewColumn(_("Count"),
+                                    gtk.CellRendererText(),
+                                    markup = 2)
+        self.append_column(self.count_column)
+        self.count_column.set_visible(True)
+        self.count_column.set_expand(True)
+       # setup the model
+        self.model = gtk.TreeStore(gobject.TYPE_STRING, # 0 partial category name
+                                   gobject.TYPE_STRING, # 1 full category name
+                                   gobject.TYPE_STRING) # 2 pkg count, use string so it can be blank
         self.set_model(self.model)
         # connect to clicked event
         self.last_category = None
@@ -713,22 +734,33 @@ class CategoryView(CommonTreeView):
         # save current selection as last selected
         self.last_category = category
         
-    def populate(self, categories):
+    def populate(self, categories, _sort = True, counts = None):
         """Fill the category tree."""
         self.clear()
         dprint("VIEWS: Populating category view")
         last_catmaj = None
-        categories.sort()
+        if _sort:
+            categories.sort()
         if self.search_cat == True:
             self.populate_search(categories)
             return
         for cat in categories:
             if cat != 'virtual':
-                try: catmaj, catmin = cat.split("-")
+                try:
+                    catmaj, catmin = cat.split("-")
                 except:
-                    dprint(" * VIEWS: CategoryView.populate(): can't split '%s'." % cat)
+                    # if cat in ["System", "World", "Dependencies"]:
+                    iter = self.model.insert_before(None, None)
+                    self.model.set_value( iter, 0, cat )
+                    self.model.set_value( iter, 1, cat )
+                    if counts != None and counts[cat] != 0:
+                        #dprint("VIEWS: Counts: %s = %s" %(cat, str(counts[cat])))
+                        self.model.set_value( iter, 2, str(counts[cat]) )
+
+                    #else:
+                    #    dprint(" * VIEWS: CategoryView.populate(): can't split '%s'." % cat)
                     continue # quick fix to bug posted on forums
-                if catmaj != last_catmaj:
+                if catmaj and catmaj != last_catmaj:
                     cat_iter = self.model.insert_before(None, None)
                     self.model.set_value(cat_iter, 0, catmaj)
                     self.model.set_value(cat_iter, 1, None) # needed?
@@ -737,6 +769,9 @@ class CategoryView(CommonTreeView):
                 self.model.set_value(sub_cat_iter, 0, catmin)
                 # store full category name in hidden field
                 self.model.set_value(sub_cat_iter, 1, cat)
+                if counts != None and counts[cat] != 0:
+                    #dprint("VIEWS: Counts: %s = %s" %(cat, str(counts[cat])))
+                    self.model.set_value( sub_cat_iter, 2, str(counts[cat]) )
 
     def populate_search( self, categories ):
         dprint("VIEWS: populating category view with search history")

@@ -62,7 +62,7 @@ def get_world():
                 file = open("/var/cache/edb/world", "r")
                 world = file.read().split()
                 file.close()
-                dprint("OK")
+                dprint("PORTAGELIB: get_world(); OK")
             except:
                 dprint("PORTAGELIB: get_world(); Failed to locate the world file")
         return world
@@ -670,10 +670,9 @@ def get_size(ebuild):
     except SystemExit, e:
         raise # Needed else can't exit
     except Exception, e:
-        dprint( "PORTAGELIB: get_size Exception:"  )
-        dprint( e )
-        dprint( "ebuild: " + str(ebuild))
-        dprint( "mydigest: " + str(mydigest))
+        dprint( "PORTAGELIB: get_size; Exception: %s" %s  )
+        dprint( "PORTAGELIB: get_size; ebuild: " + str(ebuild))
+        dprint( "PORTAGELIB: get_size; mydigest: " + str(mydigest))
         mysum="[bad / blank digest]"
     return mysum
 
@@ -733,9 +732,30 @@ class Package:
         self.size = None
         self.digest_file = None
         self.in_world = full_name in World
+        self.is_checked = False
+
+    def in_list(self, list=None):
+        """returns True/False if the package is listed in the list"""
+        #dprint("Package.in_list: %s" %self.full_name)
+        #dprint("Package.in_list: %s" %str(list))
+        if self.full_name == "None":
+            return False
+        if list == "World":
+            return self.in_world
+        elif list == "Dependencies":
+            #  redundant I know, but this method leaves room for adding an "Orphaned"  listing next
+            return not self.in_world
+        elif list:
+            #dprint("Package.in_list: %s" %(self.full_name in list))
+            # insert routine for checking the if the package is in the specified list
+            return self.full_name in list
+        return False
+            
 
     def update_info(self):
         """Update the package info"""
+        if self.full_name == "None":
+            return
         self.latest_installed == None
         Installed_Semaphore.acquire()
         self.is_installed = full_name in installed  # true if installed
@@ -744,18 +764,24 @@ class Package:
 
     def get_installed(self):
         """Returns a list of all installed ebuilds."""
+        if self.full_name == "None":
+            return []
         if self.installed_ebuilds == None:
             self.installed_ebuilds = get_installed(self.full_name)
         return self.installed_ebuilds
     
     def get_name(self):
         """Return name portion of a package"""
+        if self.full_name == "None":
+            return self.full_name
         if self.name == None:
             self.name = get_name(self.full_name)
         return self.name
 
     def get_category(self):
         """Return category portion of a package"""
+        if self.full_name == "None":
+            return ''
         if self.category == None:
             self.category = get_category(self.full_name)
         return self.category
@@ -766,6 +792,8 @@ class Package:
         # Note: doesn't return hard-masked packages by default, unless in package.unmask
         # unstable packages however ARE returned. To return the best version for a system,
         # taking into account keywords and masking, use get_best_ebuild().
+        if self.full_name == "None":
+            return ''
         if include_masked:
             return portage.best(self.get_versions())
         if self.latest_ebuild == None:
@@ -780,17 +808,23 @@ class Package:
     def get_best_ebuild(self):
         """Return best visible ebuild (taking account of package.keywords, .mask and .unmask.
         If all ebuilds are masked for your architecture, returns ''."""
+        if self.full_name == "None":
+            return ''
         if self.best_ebuild == None:
             self.best_ebuild = portage.portdb.xmatch("bestmatch-visible",str(self.full_name)) # no unicode
         return self.best_ebuild
 
     def get_default_ebuild(self):
+        if self.full_name == "None":
+            return ''
         return (self.get_best_ebuild() or
                 self.get_latest_ebuild() or
                 self.get_latest_ebuild(include_masked = True) or
                 self.get_latest_installed())
 
     def get_size(self):
+        if self.full_name == "None":
+            return ''
         if self.size == None:
             ebuild = self.get_default_ebuild()
             if ebuild: self.size = get_size(ebuild)
@@ -798,11 +832,15 @@ class Package:
         return self.size
 
     def get_digest(self):
+        if self.full_name == "None":
+            return ''
         if self.digest_file == None:
             self.digest_file = get_digest( self.get_latest_ebuild() )
         return self.digest_file
 
     def get_latest_installed(self):
+        if self.full_name == "None":
+            return ''
         if self.latest_installed == None:
             installed_ebuilds = self.get_installed( )
             if len(installed_ebuilds) == 1:
@@ -815,12 +853,16 @@ class Package:
 
     def get_metadata(self):
         """Get a package's metadata, if there is any"""
+        if self.full_name == "None":
+            return ''
         return get_metadata(self.full_name)
 
     def get_properties(self, specific_ebuild = None):
         """ Returns properties of specific ebuild.
             If no ebuild specified, get latest ebuild. """
         #dprint("PORTAGELIB: Package:get_properties()")
+        if self.full_name == "None":
+            return ''
         if specific_ebuild == None:
             ebuild = self.get_default_ebuild()
             if not ebuild:
@@ -836,6 +878,8 @@ class Package:
 
     def get_versions(self, include_masked = True):
         """Returns all available ebuilds for the package"""
+        if self.full_name == "None":
+            return ''
         # Note: this is slow, especially when include_masked is false
         criterion = include_masked and 'match-all' or 'match-visible'
         #dprint("PORTAGELIb: get_versions(); criterion = %s, package = %s" %(str(criterion),self.full_name))
@@ -846,6 +890,8 @@ class Package:
     def get_hard_masked(self, check_unmask = False):
         """Returns all versions hard masked by package.mask.
         if check_unmask is True, it excludes packages in package.unmask"""
+        if self.full_name == "None":
+            return ''
         if self.hard_masked_nocheck == None:
             hardmasked = []
             try:
@@ -874,6 +920,8 @@ class Package:
         If portage wants to downgrade the package, returns -1.
         Else, returns 0.
         """
+        if self.full_name == "None":
+            return 0
         if self.upgradable == None:
             best = self.get_best_ebuild()
             installed = self.get_latest_installed()
@@ -908,6 +956,9 @@ class Database:
         self.installed = {}
         # keep track of the number of installed packages
         self.installed_count = 0
+        # the next 2 tuples hold pkg counts for each category
+        self.pkg_count = {}
+        self.installed_pkg_count = {}
         
     def get_package(self, full_name):
         """Get a Package object based on full name."""
@@ -1002,15 +1053,19 @@ class DatabaseReader(threading.Thread):
             # look out for segfaults
             if category not in self.db.categories:
                 self.db.categories[category] = {}
+                self.db.pkg_count[category] = 0
                 #dprint("added category %s" % str(category))
             self.db.categories[category][name] = data;
             if entry in self.installed_list:
                 if category not in self.db.installed:
                     self.db.installed[category] = {}
+                    self.db.installed_pkg_count[category] = 0
                     #dprint("added category %s to installed" % str(category))
-                self.db.installed[category][name] = data;
+                self.db.installed[category][name] = data
+                self.db.installed_pkg_count[category] += 1
                 self.db.installed_count += 1
             self.db.list.append((name, data))
+            self.db.pkg_count[category] += 1
         self.nodecount += count
         dprint("PORTAGELIB: read_db(); end of list build; sort is next")
         #dprint(self.db)
