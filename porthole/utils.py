@@ -439,7 +439,7 @@ class PortholePreferences:
             ##['enable_all_keywords', False],
             ["archlist", ["alpha", "amd64", "arm", "hppa", "ia64", "mips",
                             "ppc", "ppc64", "s390", "sparc", "x86"]],
-            ["Sync", "emerge sync"],
+            ["Sync", "emerge --sync"],
             ["Sync_label", _("Sync")],
             #                use the form " [sync-command, sync-label],
             # note: this is now hard-coded below
@@ -455,6 +455,8 @@ class PortholePreferences:
         for option, default in globaloptions:
             try:
                 value = dom.getitem(''.join(['/globals/', option]))
+                if value == "emerge sync": # upgrade from depricated action 'sync'
+                    value = default
             except XMLManagerError:
                 value = default
                 dprint("DEFAULT VALUE: %s = %s" %(option,str(value)))
@@ -472,7 +474,7 @@ class PortholePreferences:
             elif can_gksu('kdesu'):
                 self.globals.su = 'kdesu'
         
-        self.globals.Sync_methods = [['emerge sync', _('Sync')],
+        self.globals.Sync_methods = [['emerge --sync', _('Sync')],
                                      ['emerge-webrsync', _('WebRsync')]]
         
         # fix sync_label if translation changed
