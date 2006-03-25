@@ -46,7 +46,7 @@ class SimpleTerminal:
         self.reader.start()
     
     def _run(self):
-        dprint("STERMINAL: run_app()")
+        dprint("STERMINAL: run_app(); process id = %d *******************" %os.getpid())
         env = utils.environment()
         # next section probably not needed since this will usually be run one time only
         if self.reader.fd:
