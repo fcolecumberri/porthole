@@ -142,9 +142,9 @@ def PackageModel():
         gobject.TYPE_STRING,        # 8: portage recommended version
         gobject.TYPE_STRING,        # 9: description
     )
-    #store.set_sort_func(6, size_sort_func)
-    #store.set_sort_func(8, latest_sort_func)
-    #store.set_sort_func(7, installed_sort_func)
+    store.set_sort_func(6, size_sort_func)
+    store.set_sort_func(8, latest_sort_func)
+    store.set_sort_func(7, installed_sort_func)
     return store
 
 class PackageView(CommonTreeView):
@@ -199,7 +199,7 @@ class PackageView(CommonTreeView):
         self._column.set_resizable(True)
         self._column.set_min_width(10)
         self.append_column(self._column)
-        #self._column.set_sort_column_id(0)
+        self._column.set_sort_column_id(0)
         # add checkbox column
         self._checkbox_column = gtk.TreeViewColumn()
         self._checkbox_column.set_resizable(False)
@@ -210,21 +210,21 @@ class PackageView(CommonTreeView):
         self._installed_column.set_resizable(True)
         self._installed_column.set_min_width(10)
         #self._installed_column.set_expand(False)
-        #self._installed_column.set_sort_column_id(7)
+        self._installed_column.set_sort_column_id(7)
         # Setup the Latest Column
         self._latest_column = gtk.TreeViewColumn(_("Recommended"))
         self.append_column(self._latest_column)
         self._latest_column.set_resizable(True)
         self._latest_column.set_min_width(10)
         #self._latest_column.set_expand(False)
-        #self._latest_column.set_sort_column_id(8)
+        self._latest_column.set_sort_column_id(8)
         # setup the packagesize column
         self._size_column = gtk.TreeViewColumn(_("Download Size"))
         self.append_column(self._size_column)
         self._size_column.set_resizable(True)
         self._size_column.set_min_width(10)
         #self._size_column.set_expand(False)
-        #self._size_column.set_sort_column_id(6)
+        self._size_column.set_sort_column_id(6)
         # setup the Description column
         self._desc_column = gtk.TreeViewColumn(_("Description"))
         self.append_column(self._desc_column)
@@ -368,7 +368,7 @@ class PackageView(CommonTreeView):
             self.popup_menuitems["deselect_all"].show()
             self.popup_menuitems["select_all"].show()
             #dprint("VIEWS: _set_model(); disabling column sort")
-            #self.enable_column_sort() #disable_column_sort()
+        self.enable_column_sort() #disable_column_sort()
 
     def register_callbacks(self, callback = None):
         """ Callback to MainWindow.
@@ -527,6 +527,7 @@ class PackageView(CommonTreeView):
     def populate(self, packages, locate_name = None):
         """ Populate the current view with packages """
         if not packages:
+            self.get_model().clear()
             return
         dprint("VIEWS: Populating package view")
         dprint("VIEWS: PackageView.populate(); process_id = %s" %str(os.getpid()))
@@ -538,7 +539,7 @@ class PackageView(CommonTreeView):
             dprint("VIEWS: Selecting " + str(locate_name))
         # get the right model
         model = self.get_model()
-        #self.disable_column_sort()
+        self.disable_column_sort()
         model.clear()
         names = portagelib.sort(packages.keys())
         path = None
@@ -577,7 +578,7 @@ class PackageView(CommonTreeView):
             self.set_cursor(path)
         dprint("VIEWS: starting info_thread")
         self.infothread_die = False
-        #self.get_model().set_sort_column_id(0, gtk.SORT_ASCENDING)
+        self.get_model().set_sort_column_id(0, gtk.SORT_ASCENDING)
         #self.disable_column_sort()
         self.model = self.get_model()
         self.iter = model.get_iter_first()
@@ -629,7 +630,7 @@ class PackageView(CommonTreeView):
             #gtk.threads_enter()
             self.queue_draw()
             #dprint("VIEWS: populate_info(); enabling column sort")
-            #self.enable_column_sort()
+            self.enable_column_sort()
             dprint("VIEWS: populate_info(); Package info populated")
             return False # will not be called again
             #gtk.threads_leave()
@@ -686,13 +687,13 @@ class CategoryView(CommonTreeView):
                                     markup = 0)
         self.append_column(self.cat_column)
         self.cat_column.set_visible(True)
-        self.cat_column.set_expand(False)
-        self.count_column = gtk.TreeViewColumn(_("Count"),
+        self.cat_column.set_expand(True)
+        self.count_column = gtk.TreeViewColumn(_("# pkgs"),
                                     gtk.CellRendererText(),
                                     markup = 2)
         self.append_column(self.count_column)
         self.count_column.set_visible(True)
-        self.count_column.set_expand(True)
+        self.count_column.set_expand(False)
        # setup the model
         self.model = gtk.TreeStore(gobject.TYPE_STRING, # 0 partial category name
                                    gobject.TYPE_STRING, # 1 full category name
@@ -742,9 +743,10 @@ class CategoryView(CommonTreeView):
         if _sort:
             categories.sort()
         if self.search_cat == True:
-            self.populate_search(categories)
+            self.populate_search(categories, counts)
             return
         for cat in categories:
+            dprint(" VIEWS: CategoryView.populate(): cat: %s" %cat)
             if cat != 'virtual':
                 try:
                     catmaj, catmin = cat.split("-")
@@ -773,14 +775,15 @@ class CategoryView(CommonTreeView):
                     #dprint("VIEWS: Counts: %s = %s" %(cat, str(counts[cat])))
                     self.model.set_value( sub_cat_iter, 2, str(counts[cat]) )
 
-    def populate_search( self, categories ):
+    def populate_search( self, categories, counts ):
         dprint("VIEWS: populating category view with search history")
         for string in categories:
             iter = self.model.insert_before(None, None)
             self.model.set_value( iter, 0, string )
             self.model.set_value( iter, 1, string )
-
-
+            if counts != None: # and counts[string] != 0:
+                #dprint("VIEWS: Counts: %s = %s" %(cat, str(counts[string])))
+                self.model.set_value( iter, 2, str(counts[string]) )
 
 class DependsView(CommonTreeView):
     """ Store dependency information """

@@ -224,6 +224,7 @@ class MainWindow:
         self.process_manager = ProcessManager(utils.environment(), self.prefs, self.config, False)
         # Search History
         self.search_history = {}
+        self.search_history_counts = {}
         self.setup_plugins()
         dprint("MAIN: Showing main window")
 
@@ -912,7 +913,7 @@ class MainWindow:
                 self.desc_dialog.progbar.set_fraction(fraction)
         return True
 
-    def package_search(self, widget=None):
+    def package_search1(self, widget=None):
         """Search package db with a string and display results."""
         self.clear_notebook()
         if not self.desc_loaded and self.prefs.main.search_desc:
@@ -999,6 +1000,71 @@ class MainWindow:
                     selection.select_iter(iter)
                     break
                 iter = self.category_view.model.iter_next(iter)
+            if count == 1: # then select it
+                self.current_search_package_name = package_list.keys()[0]
+            self.category_view.last_category = search_term
+            self.category_changed(search_term)
+
+    def package_search(self, widget=None):
+        """Search package db with a string and display results."""
+        self.clear_notebook()
+        if not self.desc_loaded and self.prefs.main.search_desc:
+            self.load_descriptions_list()
+            return
+        tmp_search_term = self.wtree.get_widget("search_entry").get_text()
+        #dprint(tmp_search_term)
+        if tmp_search_term:
+            # change view and statusbar so user knows it's searching.
+            # This won't actually do anything unless we thread the search.
+            self.search_loaded = True # or else v_f_c() tries to call package_search again
+            self.widget["view_filter"].set_history(SHOW_SEARCH)
+            if self.prefs.main.search_desc:
+                self.set_statusbar2(_("Searching descriptions for %s") % tmp_search_term)
+            else:
+                self.set_statusbar2(_("Searching for %s") % tmp_search_term)
+            search_term = ''
+            Plus_exeption_count = 0
+            for char in tmp_search_term:
+                #dprint(char)
+                if char in EXCEPTION_LIST:# =="+":
+                    dprint("MAINWINDOW: package_search()  '%s' exception found" %char)
+                    char = "\\" + char
+                search_term += char 
+            dprint("MAINWINDOW: package_search() ===> escaped search_term = :%s" %search_term)
+            #switch to search view in the package_view
+            result = portagelib.Item
+            search_results = [] #self.package_view.search_model
+            #search_results.clear()
+            re_object = re.compile(search_term, re.I)
+            count = 0
+            package_list = {}
+            # no need to sort self.db.list; it is already sorted
+            for name, data in self.db.list:
+                searchstrings = [name]
+                if self.prefs.main.search_desc:
+                    desc = self.desc_db[name]
+                    searchstrings.append(desc)
+                if True in map(lambda s: bool(re_object.search(s)),
+                               searchstrings):
+                    count += 1
+                    #package_list[name] = data
+                    package_list[data.full_name] = data
+            #search_results.size = count  # store number of matches
+            dprint("MAINWINDOW: package_search: found %s entries for search_term: %s" %(count,search_term))
+            # in case the search view was already active
+            self.update_statusbar(SHOW_SEARCH)
+            self.search_history[search_term] = package_list
+            self.search_history_counts[search_term] = count
+            #Add the current search_results to the top of the category view
+            self.category_view.populate(self.search_history.keys(), True, self.search_history_counts)
+            iter = self.category_view.model.get_iter_first()
+            while iter != None:
+                if self.category_view.model.get_value(iter, 1) == search_term:
+                    selection = self.category_view.get_selection()
+                    selection.select_iter(iter)
+                    break
+                iter = self.category_view.model.iter_next(iter)
+            self.package_view.populate(package_list)
             if count == 1: # then select it
                 self.current_search_package_name = package_list.keys()[0]
             self.category_view.last_category = search_term
@@ -1179,11 +1245,11 @@ class MainWindow:
             self.category_view.set_search(True)
             if not self.search_loaded:
                 self.set_package_actions_sensitive(False, None)
-                self.category_view.populate(self.search_history.keys())
+                self.category_view.populate(self.search_history.keys(), True, self.search_history_counts)
                 self.package_search(None)
                 self.search_loaded = True
             else:
-                self.category_view.populate(self.search_history.keys()) #, True, self.search_history.keys()))
+                self.category_view.populate(self.search_history.keys(), True, self.search_history_counts)
             cat_scroll.show();
             dprint("MAIN: Showing search results")
             self.package_view.set_view(self.package_view.SEARCH_RESULTS)
@@ -1395,7 +1461,7 @@ class MainWindow:
                 text = (_("%(pack)d packages in %(cat)d categories") 
                         % {'pack':self.db.installed_count, 'cat':len(self.db.installed)})
         elif mode == SHOW_SEARCH:
-            text = (_("%d matches found") % self.package_view.search_model.size)
+            text = '' #(_("%d matches found") % self.package_view.search_model.size)
 
         elif mode == SHOW_UPGRADE:
             if not self.ut:
