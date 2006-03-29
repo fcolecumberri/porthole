@@ -43,13 +43,12 @@ from depends import DependsTree
 from command import RunDialog
 from advemerge import AdvancedEmergeDialog
 from plugin import PluginGUI, PluginManager
-from readers import UpgradableListReader, DescriptionReader
+from readers import UpgradableListReader, DescriptionReader, SearchReader
 from loaders import *
 from version_sort import ver_match
 import config
 
 
-EXCEPTION_LIST = ['.','^','$','*','+','?','(',')','\\','[',']','|','{','}']
 SHOW_ALL = 0
 SHOW_INSTALLED = 1
 SHOW_SEARCH = 2
@@ -253,6 +252,7 @@ class MainWindow:
         self.current_category_cursor = None
         # descriptions loaded?
         self.desc_loaded = False
+        self.desc_db = None
         self.search_loaded = False
         self.current_package_path = None
         # view filter setting
@@ -913,98 +913,6 @@ class MainWindow:
                 self.desc_dialog.progbar.set_fraction(fraction)
         return True
 
-    def package_search1(self, widget=None):
-        """Search package db with a string and display results."""
-        self.clear_notebook()
-        if not self.desc_loaded and self.prefs.main.search_desc:
-            self.load_descriptions_list()
-            return
-        tmp_search_term = self.wtree.get_widget("search_entry").get_text()
-        #dprint(tmp_search_term)
-        if tmp_search_term:
-            # change view and statusbar so user knows it's searching.
-            # This won't actually do anything unless we thread the search.
-            self.search_loaded = True # or else v_f_c() tries to call package_search again
-            self.widget["view_filter"].set_history(SHOW_SEARCH)
-            if self.prefs.main.search_desc:
-                self.set_statusbar2(_("Searching descriptions for %s") % tmp_search_term)
-            else:
-                self.set_statusbar2(_("Searching for %s") % tmp_search_term)
-            search_term = ''
-            Plus_exeption_count = 0
-            for char in tmp_search_term:
-                #dprint(char)
-                if char in EXCEPTION_LIST:# =="+":
-                    dprint("MAINWINDOW: package_search()  '%s' exception found" %char)
-                    char = "\\" + char
-                search_term += char 
-            dprint("MAINWINDOW: package_search() ===> escaped search_term = :%s" %search_term)
-            #switch to search view in the package_view
-            search_results = self.package_view.search_model
-            search_results.clear()
-            re_object = re.compile(search_term, re.I)
-            count = 0
-            package_list = {}
-            # no need to sort self.db.list; it is already sorted
-            for name, data in self.db.list:
-                searchstrings = [name]
-                if self.prefs.main.search_desc:
-                    desc = self.desc_db[name]
-                    searchstrings.append(desc)
-                if True in map(lambda s: bool(re_object.search(s)),
-                               searchstrings):
-                    count += 1
-                    iter = search_results.insert_before(None, None)
-                    #search_results.set_value(iter, 0, name)
-                    search_results.set_value(iter, 0, data.full_name)
-                    search_results.set_value(iter, 2, data)
-                    search_results.set_value(iter, 5, '')
-                    #dprint("MAINWINDOW: package_search; found: %s, in_world=%d" %(data.full_name,data.in_world))
-                    search_results.set_value(iter, 4, data.in_world)
-                    search_results.set_value(iter, 6, data.get_size())
-                    installed = data.get_latest_installed()
-                    latest = data.get_latest_ebuild()
-                    try:
-                        installed = portagelib.get_version( installed )
-                    except IndexError:
-                        installed = ""
-                    try:
-                        latest = portagelib.get_version( latest )
-                    except IndexError:
-                        latest = "Error"
-                    search_results.set_value(iter, 7, installed)
-                    search_results.set_value(iter, 8, latest)
-                    search_results.set_value(iter, 9, data.get_properties().description )
-
-                    # set the icon depending on the status of the package
-                    icon = utils.get_icon_for_package(data)
-                    view = self.package_view
-                    search_results.set_value(
-                        iter, 3,
-                        view.render_icon(icon,
-                                         size = gtk.ICON_SIZE_MENU,
-                                         detail = None))
-                    #package_list[name] = data
-                    package_list[data.full_name] = data
-            search_results.size = count  # store number of matches
-            dprint("MAINWINDOW: package_search: found %s entries" % count)
-            # in case the search view was already active
-            self.update_statusbar(SHOW_SEARCH)
-            self.search_history[search_term] = package_list
-            #Add the current search_results to the top of the category view
-            self.category_view.populate(self.search_history.keys())
-            iter = self.category_view.model.get_iter_first()
-            while iter != None:
-                if self.category_view.model.get_value(iter, 1) == search_term:
-                    selection = self.category_view.get_selection()
-                    selection.select_iter(iter)
-                    break
-                iter = self.category_view.model.iter_next(iter)
-            if count == 1: # then select it
-                self.current_search_package_name = package_list.keys()[0]
-            self.category_view.last_category = search_term
-            self.category_changed(search_term)
-
     def package_search(self, widget=None):
         """Search package db with a string and display results."""
         self.clear_notebook()
@@ -1022,40 +930,28 @@ class MainWindow:
                 self.set_statusbar2(_("Searching descriptions for %s") % tmp_search_term)
             else:
                 self.set_statusbar2(_("Searching for %s") % tmp_search_term)
-            search_term = ''
-            Plus_exeption_count = 0
-            for char in tmp_search_term:
-                #dprint(char)
-                if char in EXCEPTION_LIST:# =="+":
-                    dprint("MAINWINDOW: package_search()  '%s' exception found" %char)
-                    char = "\\" + char
-                search_term += char 
-            dprint("MAINWINDOW: package_search() ===> escaped search_term = :%s" %search_term)
-            #switch to search view in the package_view
-            result = portagelib.Item
-            search_results = [] #self.package_view.search_model
-            #search_results.clear()
-            re_object = re.compile(search_term, re.I)
-            count = 0
-            package_list = {}
-            # no need to sort self.db.list; it is already sorted
-            for name, data in self.db.list:
-                searchstrings = [name]
-                if self.prefs.main.search_desc:
-                    desc = self.desc_db[name]
-                    searchstrings.append(desc)
-                if True in map(lambda s: bool(re_object.search(s)),
-                               searchstrings):
-                    count += 1
-                    #package_list[name] = data
-                    package_list[data.full_name] = data
-            #search_results.size = count  # store number of matches
-            dprint("MAINWINDOW: package_search: found %s entries for search_term: %s" %(count,search_term))
+            # call the thread
+            self.search_thread = SearchReader(self.db.list, self.prefs.main.search_desc, tmp_search_term, self.desc_db, Dispatcher(self.search_done))
+            self.search_thread.start()
+        return
+            
+
+    # start of search callback
+    def search_done( self ):
+            """show the search results from the search thread"""
+            #if self.search_thread.done:
+            if not self.search_thread.cancelled:
+                # grab the list
+                package_list = self.search_thread.package_list
+                count = self.search_thread.pkg_count
+                search_term = self.search_thread.search_term
+                # kill off the thread
+                self.search_thread.join()
             # in case the search view was already active
             self.update_statusbar(SHOW_SEARCH)
             self.search_history[search_term] = package_list
             self.search_history_counts[search_term] = count
-            #Add the current search_results to the top of the category view
+            #Add the current search item & select it
             self.category_view.populate(self.search_history.keys(), True, self.search_history_counts)
             iter = self.category_view.model.get_iter_first()
             while iter != None:

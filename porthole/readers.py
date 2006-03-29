@@ -30,9 +30,12 @@ from sterminal import SimpleTerminal
 from gettext import gettext as _
 from string import rstrip
 
+EXCEPTION_LIST = ['.','^','$','*','+','?','(',')','\\','[',']','|','{','}']
+
+
 class CommonReader(threading.Thread):
     """ Common data reading class that works in a seperate thread """
-    def __init__(self):
+    def __init__( self ):
         """ Initialize """
         threading.Thread.__init__(self)
         # for keeping status
@@ -44,13 +47,13 @@ class CommonReader(threading.Thread):
         # quit even if thread is still running
         self.setDaemon(1)
 
-    def please_die(self):
+    def please_die( self ):
         """ Tell the thread to die """
         self.cancelled = True
 
 class UpgradableListReader(CommonReader):
     """ Read available upgrades and store them in a tuple """
-    def __init__(self, installed, upgrade_only, view_prefs):
+    def __init__( self, installed, upgrade_only, view_prefs ):
         """ Initialize """
         CommonReader.__init__(self)
         self.installed_items = installed
@@ -74,7 +77,7 @@ class UpgradableListReader(CommonReader):
         self.system_cmd = "emerge -ep --nocolor --nospinner system | cut -s -f2 -d ']'| cut -f1 -d '[' | sed 's/^[ ]\+//' | sed 's/[ ].*$//'"
 
  
-    def run(self):
+    def run( self ):
         """fill upgrade tree"""
         dprint("READERS: UpgradableListReader(); process id = %d *******************" %os.getpid())
         self.get_system_list()
@@ -102,11 +105,11 @@ class UpgradableListReader(CommonReader):
         self.done = True
         return
 
-    def get_system_list(self):
+    def get_system_list( self ):
         dprint("READERS: UpgradableListReader; getting system package list")
         self.terminal = SimpleTerminal(self.system_cmd, need_output=True,  dprint_output='', callback=None)
         self.terminal._run()
-        dprint("waiting...")
+        dprint("READERS: UpgradableListReader; waiting...")
         while self.terminal.reader.process_running:
             time.sleep(0.10)
         self.categories["System"] = self.make_list(self.terminal.reader.string)
@@ -120,273 +123,16 @@ class UpgradableListReader(CommonReader):
         for pkg in list1:
             list2.append(portagelib.get_full_name(rstrip(pkg,"\r")))
         return list2
-        
 
-class UpgradableReader(CommonReader):
-    """ Read available upgrades and store them in a treemodel """
-    def __init__(self, upgrade_view, installed, upgrade_only, view_prefs):
-        """ Initialize """
-        CommonReader.__init__(self)
-        self.upgrade_view = upgrade_view
-        # dummy view to get dependancy's from existing depends.py code
-        self.dep_view = DependsView()
-        #self.upgrade_results = upgrade_view.upgrade_model
-        self.upgrade_results = upgrade_view.get_model()
-        self.installed_items = installed
-        self.upgrade_only = upgrade_only
-        #self.world = []
-        self.view_prefs = view_prefs
-        self.upgradables = {}
-        self.world_count = 0
-        self.dep_count = 0
- 
-    def run(self):
-        """fill upgrade tree"""
-        dprint("READERS: UpgradableReader(); process id = %d *******************" %os.getpid())
-        self.upgrade_results.clear()    # clear the treemodel
-        installed_world = []
-        installed_dep = []
-        upgradeflag = self.upgrade_only and True or False
-        # find upgradable packages
-        for cat, packages in self.installed_items:
-            for name, package in packages.items():
-                self.count += 1
-                if self.cancelled: self.done = True; return
-                upgradable = package.is_upgradable()
-                if upgradable: # is_upgradable() = 1 for upgrade, -1 for downgrade
-                    if upgradable == 1 or not self.upgrade_only:
-                        if package.in_world:
-                            installed_world.append([package.full_name, package])
-                        else:
-                            installed_dep.append([package.full_name, package])
-                        self.upgradables[package.full_name] = package
-        installed_world = portagelib.sort(installed_world)
-        installed_dep = portagelib.sort(installed_dep)
-        self.upgrade_total = len(installed_world) + len(installed_dep)
-        self.world_count = 0
-        self.dep_count = 0
-        # show a temporary model while we add stuff to it (significant speedup)
-        gtk.threads_enter()
-        self.upgrade_view.remove_model()
-        gtk.threads_leave()
-        world_list = []
-        for full_name, package in installed_world:
-            self.world_count += 1
-            self.add_package(full_name, package, package.in_world)
-            world_list.append(full_name)
-            if self.cancelled: self.done = True; return
-        dsave("world_upgrades",world_list)
-
-            #self.check_deps(full_name, package)
-        if installed_dep != []:
-            dep_list = []
-            self.add_package(_("Upgradable dependencies:"), None, False, False)
-            for full_name, package in installed_dep:
-                self.dep_count += 1
-                if self.cancelled: self.done = True; return
-                self.add_deps(full_name, package, package.in_world, False)
-                dep_list.append(full_name)
-                #self.check_deps(full_name, package)
-            dsave("deps_upgrades",dep_list)
-        # restore upgrade model
-        gtk.threads_enter()
-        self.upgrade_view.restore_model()
-        #self.upgrade_view.get_model().set_sort_column_id(1, gtk.SORT_ASCENDING)
-        self.upgrade_view.get_model().set_sort_column_id(1000, gtk.SORT_ASCENDING)
-        #self.upgrade_view.disable_column_sort()
-        gtk.threads_leave()
-        # set the thread as finished
-        self.done = True
-
-    def check_deps(self, full_name, package):
-        """checks for and adds any upgradable dependencies to the tree"""
-        dprint("READERS: check_deps(); Checking dependencies...")
-        self.dep_view.clear()
-        self.dep_view.fill_depends_tree(self.dep_view, package)
-        self.model = self.dep_view.get_model()
-        iter = self.model.get_iter_first()
-        self.dep_list = []
-        self.deps_checked = []
-        self.get_upgrade_deps(iter, full_name)
-        #
-        # read the upgrade tree into a list of packages to upgrade
-        #self.model.foreach(self.tree_node_to_list)
-        if self.cancelled: self.done = True; return
-        if self.dep_list != []:
-            for f_name, pkg, blocker in self.dep_list:
-                if self.cancelled: self.done = True; return
-                self.add_deps(pkg.full_name, pkg, pkg.in_world, blocker)
-
-
-    def add_package(self, full_name, package, in_world, header_icon = False):
-        """Add a package to the upgrade TreeStore"""
-        self.parent = self.upgrade_results.insert_before(None, None)
-        self.upgrade_results.set_value(self.parent, 1, in_world)
-        self.upgrade_results.set_value(self.parent, 4, in_world)
-        self.upgrade_results.set_value(self.parent, 0, full_name)
-        self.upgrade_results.set_value(self.parent, 2, package)
-        # get an icon for the package
-        icon, color = get_icon_for_upgrade_package(package, self.view_prefs)
-        if header_icon:
-            icon = gtk.STOCK_SORT_ASCENDING
-        self.upgrade_results.set_value(self.parent, 5 , color)
-        self.upgrade_results.set_value(self.parent, 3, self.upgrade_view.render_icon(icon,
-                             size = gtk.ICON_SIZE_MENU,
-                             detail = None))
-        if package:
-            self.upgrade_results.set_value(self.parent, 6, package.get_size())
-            installed = package.get_latest_installed()
-            latest = package.get_best_ebuild()
-            try:
-                installed = installed = portagelib.get_version( installed )
-            except IndexError:
-                installed = ""
-            try:
-                latest = portagelib.get_version( latest )
-            except IndexError:
-                latest = "Error"
-            self.upgrade_results.set_value(self.parent, 7, installed)
-            self.upgrade_results.set_value(self.parent, 8, latest)
-            self.upgrade_results.set_value(self.parent, 9, package.get_properties().description )
-
-    def get_upgrade_deps(self, iter, parent_name):
-        list = []
-        while iter:
-                #dprint("READERS: get_upgrade_deps();processing iter: model.get_value(iter, 0) %s" %self.model.get_value(iter, 0))
-                blocker = False
-                ignore = False
-                version = None
-                package = self.model.get_value(iter, 2)
-                if package:
-                    full_name = package.full_name
-                    #dprint("READERS: get_upgrade_deps(); processing package: %s" %full_name)
-                    if full_name[0] == '!':
-                        blocker = True
-                    if full_name[0] == '=':
-                        require_version = True
-                    while full_name[0] in ['<','>','=','!']:
-                        full_name = full_name[1:]
-                    if full_name[-1] == '*':
-                        full_name = full_name[:-1]
-                    #dprint("READERS: get_upgrade_deps(); OPS cleaned; new full_name = %s" %full_name)
-                    full_name = str(full_name)
-                    name = full_name.split('/')
-                    if len(name) != 2:
-                        dprint("READERS: get_upgrade_deps(); dependancy name error for %s !!!!!!!!!!!!!!!!!!!!!!" %full_name)
-                        return
-                    if name[0] == 'virtual': # get a proper package name
-                        old_name = name[0]
-                        if name[1].count('-') or name[1].count('.'):
-                            full_name = portagelib.extract_package(full_name)
-                            dprint("READERS: get_upgrade_deps(); extracted virtual name = %s " %full_name)
-                        if portagelib.virtuals.has_key(full_name):
-                            full_name = portagelib.virtuals[full_name][0]
-                        else:
-                            dprint("READERS: get_upgrade_deps(); Key error for virtual name = %s " %full_name)
-                            break
-                        #dprint("READERS: get_upgrade_deps(); %s evaluated to %s" %(old_name+"/"+name[1], full_name))
-                        if blocker and full_name == parent_name:
-                            blocker = False
-                            ignore = True # Ignore the self blocking package
-                    elif name[1].count('-') or name[1].count('.'):
-                        full_name = portagelib.extract_package(full_name)
-                        if blocker and full_name <> None:
-                            version = portagelib.get_version(full_name)
-                    if full_name and not full_name in self.deps_checked:
-                        #if full_name:
-                        self.deps_checked.append(full_name)
-                        #dprint("READERS: get_upgrade_deps(); extracted dep name = %s" %full_name)
-                        if blocker:
-                            pkg = portagelib.Package(full_name)
-                            if pkg.get_installed():
-                                if version and version in pkg.get_installed():
-                                    self.dep_list += [(full_name, pkg, blocker)]
-                                else:
-                                    self.dep_list += [(full_name, pkg, blocker)]
-                        elif not ignore and self.upgradables.has_key(full_name): # or not self.model.get_value(iter, 3):
-                            pkg = portagelib.Package(full_name)
-                            if self.model.iter_has_child(iter):
-                                # check for dependency upgrades
-                                child_iter = self.model.iter_children(iter)
-                                self.get_upgrade_deps(child_iter, full_name)
-                            self.dep_list += [(full_name, pkg, blocker)]
-                    else: # Failed to extract the package name
-                            dprint("READERS: get_upgrade_deps(); failed to get extracted package ==> dep name = %s" %full_name)
-                else:
-                    #dprint(self.model.iter_has_child(iter))
-                    if self.model.iter_has_child(iter):
-                        # check for dependency upgrades
-                        child_iter = self.model.iter_children(iter)
-                        self.get_upgrade_deps(child_iter, parent_name)
-                    else:
-                        dprint("READERS: get_upgrade_deps(); !!!!!!!!!!!!!!!!!!!!!!!!!! package = None")
-                iter = self.model.iter_next(iter)
-        return
-
-    def tree_node_to_list(self, model, path, iter):
-        """callback function from gtk.TreeModel.foreach(),
-           used to add packages to an upgrades list"""
-        if model.get_value(iter, 2):
-                #dprint("processing iter: model.get_value(iter, 0) %s" %self.model.get_value(iter, 0))
-                package = self.model.get_value(iter, 2)
-                if package:
-                    full_name = package.full_name
-                    dprint("READERS: tree_node_to_list(); processesing package: %s" %full_name)
-                    while full_name[0] in ['<','>','=']:
-                        full_name = full_name[1:]
-                    #~ if full_name.split('/')[1].count('.'):
-                    full_name = portagelib.extract_package(full_name)
-                    if full_name:
-                        dprint("READERS: tree_node_to_list();extracted dep name = %s" %full_name)
-                        pkg = portagelib.Package(full_name)
-                        if (pkg.upgradable()):# or not self.model.get_value(iter, 3):
-                            self.dep_list += [(full_name, pkg)]
-        return False
-
-
-    def add_deps(self, full_name, package, in_world, blocker):
-        """Add all dependencies to the tree"""
-        #dprint("READERS: add_deps();  name = %s" %full_name)
-        child_iter = self.upgrade_results.insert_before(self.parent, None)
-        self.upgrade_results.set_value(child_iter, 1, in_world)
-        self.upgrade_results.set_value(child_iter, 4, in_world)
-        self.upgrade_results.set_value(child_iter, 0, full_name)
-        self.upgrade_results.set_value(child_iter, 2, package)
-        installed = package.get_latest_installed()
-        best = package.get_best_ebuild()
-        #dprint("READERS: add_deps(); installed = %s" % str(installed))
-        #dprint("READERS: add_deps(); best = %s" % str(best))
-        try:
-            if installed:
-                instver = portagelib.get_version(installed)
-        except IndexError:
-            dprint("READERS: add_deps(); Installed ??? : %s" % str(installed))
-            installed = ""
-        try:
-            if best:
-                bestver = portagelib.get_version(best)
-        except IndexError:
-            bestver = "Error"
-        self.upgrade_results.set_value(child_iter, 6, package.get_size())
-        self.upgrade_results.set_value(child_iter, 7, instver)
-        self.upgrade_results.set_value(child_iter, 8, bestver)
-        self.upgrade_results.set_value(child_iter, 9, package.get_properties().description )
-        if blocker:
-            icon, color = gtk.STOCK_STOP, 'red'
-        else:
-            icon, color = get_icon_for_upgrade_package(package, self.view_prefs) #gtk.STOCK_GO_UP
-        self.upgrade_results.set_value(child_iter, 5, color)
-        self.upgrade_results.set_value(child_iter, 3, self.upgrade_view.render_icon(icon,
-                                       size = gtk.ICON_SIZE_MENU, detail = None))
 
 class DescriptionReader(CommonReader):
     """ Read and store package descriptions for searching """
-    def __init__(self, packages):
+    def __init__( self, packages ):
         """ Initialize """
         CommonReader.__init__(self)
         self.packages = packages
 
-    def run(self):
+    def run( self ):
         """ Load all descriptions """
         dprint("READERS: DescriptionReader(); process id = %d *****************" %os.getpid())
         self.descriptions = {}
@@ -397,3 +143,54 @@ class DescriptionReader(CommonReader):
                 dprint("READERS: DescriptionReader(); No description for " + name)
             self.count += 1
         self.done = True
+
+
+class SearchReader(CommonReader):
+    """Create a list of matching packages to searh term"""
+    
+    def __init__( self, db_list, search_desc, tmp_search_term, desc_db = None, callback = None ):
+        """ Initialize """
+        CommonReader.__init__(self)
+        self.db_list = db_list
+        self.search_desc = search_desc
+        self.tmp_search_term = tmp_search_term
+        self.desc_db = desc_db
+        self.callback = callback
+        # hack for statusbar updates
+        self.progress = 1
+        self.package_list = {}
+        self.pkg_count = 0
+        self.count = 0
+    
+    
+    def run( self ):    
+            self.search_term = ''
+            Plus_exeption_count = 0
+            for char in self.tmp_search_term:
+                #dprint(char)
+                if char in EXCEPTION_LIST:# =="+":
+                    dprint("READERS: SearchReader();  '%s' exception found" %char)
+                    char = "\\" + char
+                self.search_term += char 
+            dprint("READERS: SearchReader(); ===> escaped search_term = :%s" %self.search_term)
+            re_object = re.compile(self.search_term, re.I)
+            # no need to sort self.db_list; it is already sorted
+            for name, data in self.db_list:
+                if self.cancelled: self.done = True; return
+                self.count += 1
+                searchstrings = [name]
+                if self.search_desc:
+                    desc = self.desc_db[name]
+                    searchstrings.append(desc)
+                if True in map(lambda s: bool(re_object.search(s)),
+                               searchstrings):
+                    self.pkg_count += 1
+                    #package_list[name] = data
+                    self.package_list[data.full_name] = data
+            dprint("READERS: SearchReader(); found %s entries for search_term: %s" %(self.pkg_count,self.search_term))
+            self.do_callback()
+
+    def do_callback(self):
+        if self.callback:
+            self.done = True
+            self.callback()
