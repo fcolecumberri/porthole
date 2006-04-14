@@ -699,6 +699,15 @@
 		      <signal name="activate" handler="on_upgradable_packages1_activate" last_modification_time="Sat, 06 Dec 2003 00:29:10 GMT"/>
 		    </widget>
 		  </child>
+
+		  <child>
+		    <widget class="GtkMenuItem" id="rebuild">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Rebuild System</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_rebuild_activate" last_modification_time="Wed, 29 Mar 2006 07:53:37 GMT"/>
+		    </widget>
+		  </child>
 		</widget>
 	      </child>
 	    </widget>
@@ -2550,9 +2559,10 @@ Copyright (C) 2003 - 2005</property>
 
 	      <child>
 		<widget class="GtkImage" id="image488">
+		  <property name="width_request">36</property>
+		  <property name="height_request">36</property>
 		  <property name="visible">True</property>
-		  <property name="stock">gtk-color-picker</property>
-		  <property name="icon_size">4</property>
+		  <property name="pixbuf">timer.png</property>
 		  <property name="xalign">0.5</property>
 		  <property name="yalign">0.5</property>
 		  <property name="xpad">0</property>
