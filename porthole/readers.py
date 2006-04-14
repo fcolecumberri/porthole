@@ -28,7 +28,6 @@ from views import DependsView, CommonTreeView
 from utils import get_icon_for_package, get_icon_for_upgrade_package, dprint, dsave
 from sterminal import SimpleTerminal
 from gettext import gettext as _
-from string import rstrip
 
 EXCEPTION_LIST = ['.','^','$','*','+','?','(',')','\\','[',']','|','{','}']
 
@@ -116,16 +115,21 @@ class UpgradableListReader(CommonReader):
         self.progress = 2
         dprint("READERS: UpgradableListReader; new system pkg list %s" %str(self.categories["System"]))
 
-    def make_list(self, string):
+    def make_list(self, from_string):
         """parse terminal output and return a list"""
-        list1 = string.split('\n')
+        list1 = from_string.split('\n')
         list2 = []
         for pkg in list1:
-            list2.append(portagelib.get_full_name(rstrip(pkg,"\r")))
+            list2.append(portagelib.get_full_name(pkg.rstrip("\r")))
         return list2
 
+    def get_sets( self):
+        """Get any package lists stored in the /etc/portage/sets directory
+           and add them to the categories list"""
+        
 
-class DescriptionReader(CommonReader):
+
+class DescriptionReader( CommonReader ):
     """ Read and store package descriptions for searching """
     def __init__( self, packages ):
         """ Initialize """
@@ -145,7 +149,7 @@ class DescriptionReader(CommonReader):
         self.done = True
 
 
-class SearchReader(CommonReader):
+class SearchReader( CommonReader ):
     """Create a list of matching packages to searh term"""
     
     def __init__( self, db_list, search_desc, tmp_search_term, desc_db = None, callback = None ):
@@ -163,7 +167,8 @@ class SearchReader(CommonReader):
         self.count = 0
     
     
-    def run( self ):    
+    def run( self ):
+            dprint("READERS: SearchReader(); process id = %d *****************" %os.getpid())
             self.search_term = ''
             Plus_exeption_count = 0
             for char in self.tmp_search_term:
