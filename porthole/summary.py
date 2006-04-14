@@ -267,7 +267,7 @@ class Summary(gtk.TextView):
                             color = "#ED9191"
                         if ebuild in installed and arch == myarch:
                             color = "#9090EE"
-                        if (keyword_unmasked.has_key(ebuild) and '~' in text and
+                        if (ebuild in keyword_unmasked and '~' in text and
                                     '~' + arch in keyword_unmasked[ebuild]):
                             # take account of package.keywords in text but leave colour unchanged
                             text = text.replace('~', '(+)')
@@ -311,7 +311,7 @@ class Summary(gtk.TextView):
                         color = "#ED9191"
                     if ebuild in installed:
                         color = "#9090EE"
-                    if (keyword_unmasked.has_key(ebuild) and '~' in text and
+                    if (ebuild in keyword_unmasked and '~' in text and
                                 '~' + myarch in keyword_unmasked[ebuild]):
                         # take account of package.keywords in text but leave colour unchanged
                         text = text.replace('~', '(+)')

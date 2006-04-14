@@ -189,7 +189,7 @@ def set_make_conf(property, add=[], remove=[], replace=''):
     """
     dprint("SET_CONFIG: set_make_conf()")
     dict, linelist = get_make_conf(True)
-    if not dict.has_key(property):
+    if not property in dict:
         dprint("SET_CONFIG: set_make_conf(): dict does not have key '%s'. Creating..." % property)
         dict[property] = ''
     if not os.access(portage_const.MAKE_CONF_FILE, os.W_OK):
