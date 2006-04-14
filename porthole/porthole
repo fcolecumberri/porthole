@@ -22,6 +22,11 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
+# proper way to enable threading.  Do this first before any other code
+import gobject
+gobject.threads_init()
+# now for the rest
+
 APP = 'porthole'
 
 # setup our path so we can load our custom modules
@@ -40,7 +45,7 @@ while '/usr/bin' in sys.path: # this gets added when we run /usr/bin/porthole
 
 LOG_FILE_DIR = "/var/log/porthole"
 
-import os, gobject
+import os
 # check if directory exists, if not create it
 if not os.access(LOG_FILE_DIR, os.F_OK):
     print LOG_FILE_DIR + " does not exist, creating..."
@@ -59,7 +64,8 @@ import locale, gettext
 from gettext import gettext as _
 
 # it is recommended to init threads right after importing gtk just in case
-gtk.threads_init()
+#gtk.threads_init()
+#gtk.gdk.threads_init()
 
 try:
     from pycrash.utils import *
@@ -168,7 +174,8 @@ if __name__ == "__main__":
         p.enable() #New in PyCrash-0.4pre2
     # make sure gtk lets threads run
     #os.putenv("PYGTK_USE_GIL_STATE_API", "True")
-    #gobject.threads_init()
+    gtk.gdk.threads_init()
+
     _utils.dprint("PORTHOLE: process id = %d ****************" %os.getpid())
     # setup our app icon
     myicon = gtk.gdk.pixbuf_new_from_file(DATA_PATH + "pixmaps/porthole-icon.png")
