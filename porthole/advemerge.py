@@ -329,10 +329,11 @@ class AdvancedEmergeDialog:
         # Also delete properties for the current ebuild so they are refreshed
         verInfo = self.current_verInfo
         ebuild = verInfo["name"]
-        if self.package.properties.has_key(ebuild):
-            # Remove properties object so everything's recalculated
-            del self.package.properties[ebuild]
-        
+        #~ if ebuild in self.package.properties:
+            #~ # Remove properties object so everything's recalculated
+            #~ del self.package.properties[ebuild]
+        # Remove properties object so everything's recalculated
+        self.package.properties.pop(ebuild, None)
         self.system_use_flags = portagelib.SystemUseFlags
         self.package_use_flags = portagelib.get_user_config('package.use', self.package.full_name)
         #dprint(self.package_use_flags)
@@ -467,7 +468,7 @@ class AdvancedEmergeDialog:
             verInfo = self.get_verInfo(sel_ver)
             ebuild = verInfo["name"]
         flaglist = []
-        if self.package_use_flags.has_key(ebuild):
+        if ebuild in self.package_use_flags: #.has_key(ebuild):
             ebuild_use_flags = self.system_use_flags + self.package_use_flags[ebuild]
         else:
             ebuild_use_flags = self.system_use_flags
@@ -628,7 +629,7 @@ class AdvancedEmergeDialog:
         # and attach to table
         col = 0
         row = 0
-        if self.package_use_flags.has_key(ebuild):
+        if ebuild in self.package_use_flags: #.has_key(ebuild):
             ebuild_use_flags = self.system_use_flags + self.package_use_flags[ebuild]
         else:
             ebuild_use_flags = self.system_use_flags
