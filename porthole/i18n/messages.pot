@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-11-09 00:08-0800\n"
+"POT-Creation-Date: 2005-11-15 08:28-0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -185,6 +185,10 @@ msgstr ""
 msgid "Do you want to upgrade all packages in your world file?"
 msgstr ""
 
+#: mainwindow.py:850 readers.py:102
+msgid "Upgradable dependencies:"
+msgstr ""
+
 #: mainwindow.py:876
 msgid "Please Wait!"
 msgstr ""
@@ -251,10 +255,6 @@ msgstr ""
 
 #: portagelib.py:823
 msgid "No ebuild found."
-msgstr ""
-
-#: readers.py:102
-msgid "Upgradable dependencies:"
 msgstr ""
 
 #: summary.py:72
