@@ -32,9 +32,8 @@ if __name__ == "__main__":
     from sys import argv, exit, stderr
     from getopt import getopt, GetoptError
 
-import re,string
+import re
 from utils import dprint
-from string import zfill
 import portagelib
 
 ############### new code ###############
@@ -69,8 +68,8 @@ def pad_ver(vlist):
     #dprint("VERSION_SORT: pad_ver(); checking maximum length value of version pattern") 
     for x in vlist:
         #dprint(x)
-        max_length = max(max_length, string.count(x, '.'))
-        suffix_count = max(suffix_count, string.count(x, "_"))
+        max_length = max(max_length, x.count('.'))
+        suffix_count = max(suffix_count, x.count("_"))
 
     #dprint("VERSION_SORT: pad_ver(); max_length = %d, suffix_count =%d" \
     #       %(max_length, suffix_count))
@@ -86,7 +85,7 @@ def pad_ver(vlist):
 
         # building lists of the version parts before the suffix
         # first part is simple
-        list1 = [zfill(match1.group(2), fill_size)]
+        list1 = [match1.group(2).zfill(fill_size)]
 
         # extend version numbers
         # this part would greatly benefit from a fixed-length version pattern
@@ -94,9 +93,9 @@ def pad_ver(vlist):
             vlist1 = match1.group(3)[1:].split(".")
             for i in range(0, max_length):
                 if len(vlist1) <= i or len(vlist1[i]) == 0:
-                    list1.append(zfill("0",fill_size))
+                    list1.append("0".zfill(fill_size))
                 else:
-                    list1.append(zfill(vlist1[i],fill_size))
+                    list1.append(vlist1[i].zfill(fill_size))
 
         # and now the final letter
         #dprint("VERSION_SORT: pad_ver(); final letter")
@@ -112,10 +111,10 @@ def pad_ver(vlist):
         for i in range(0, suffix_count):
             s1 = None
             if len(list1b) <= i:
-                s1 = str(suffix_value["p"]) + zfill(suffix_pad, suffix_length)
+                s1 = str(suffix_value["p"]) + suffix_pad.zfill(suffix_length)
             else:
                 slist = suffix_regexp.match(list1b[i]).groups()
-                s1 = str(suffix_value[slist[0]]) + zfill(slist[1], suffix_length)
+                s1 = str(suffix_value[slist[0]]) + slist[1].zfill(suffix_length)
             if s1:
                 #dprint("VERSION_SORT: pad_ver(); s1")
                 #dprint(s1)
@@ -125,9 +124,9 @@ def pad_ver(vlist):
         #dprint("VERSION_SORT: pad_ver(); revision part")
         r1 = None
         if match1.group(10):
-            r1 = 'r' + zfill(match1.group(10), fill_size)
+            r1 = 'r' + match1.group(10).zfill(fill_size)
         else:
-            r1 ='r' + zfill("0", fill_size)
+            r1 ='r' + "0".zfill(fill_size)
         if r1:
             list1 += [r1]
 

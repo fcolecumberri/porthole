@@ -54,7 +54,7 @@ import pygtk; pygtk.require('2.0')
 import gtk, gtk.glade, gobject
 import pango
 import signal, os, pty, threading, time, sre, portagelib
-import datetime, pango, errno, string
+import datetime, pango, errno
 from dispatcher import Dispatcher
 from process_reader import ProcessOutputReader
 
@@ -1418,10 +1418,10 @@ class ProcessManager:
     def extract_num(self, line):
         """extracts the number of packages from the 'emerge (x of y) cat/package
         for setting the resume menu entries"""
-        first = string.index(line, "(") + 1
-        last = string.index(line, ")")
-        num = string.split(line[first:last], " ")
-        return string.atoi(num[2]) - string.atoi(num[0])
+        first = line.index("(") + 1
+        last = line.index(")")
+        num = line[first:last].split()
+        return int(num[2]) - int(num[0])
 
     def set_resume(self, active):
         """sets the resume menu to the desired state,

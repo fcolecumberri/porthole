@@ -701,7 +701,8 @@ def estimate(package_name, log_file_name="/var/log/emerge.log"):
         for i in range(1, len(lines)):
             if start_pattern.match(lines[i]):
                 tokens = lines[i].split()
-                start_time = string.atof((tokens[0])[0:-1])               
+                #start_time = string.atof((tokens[0])[0:-1])               
+                start_time = float((tokens[0])[0:-1])               
                 for j in range(i+1, len(lines)):
                     if start_pattern.match(lines[j]):
                         # We found another start pattern before finding an 
@@ -712,7 +713,8 @@ def estimate(package_name, log_file_name="/var/log/emerge.log"):
                     if end_pattern.match(lines[j]):                 
                         # Looks like we found a matching end statement.
                         tokens = lines[j].split()
-                        end_time = string.atof((tokens[0])[0:-1])
+                        #end_time = string.atof((tokens[0])[0:-1])
+                        end_time = float((tokens[0])[0:-1])
                         emerge_count += 1
                         total_time = total_time +\
                                 (datetime.datetime.fromtimestamp(end_time) -
