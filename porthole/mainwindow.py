@@ -53,6 +53,7 @@ SHOW_ALL = 0
 SHOW_INSTALLED = 1
 SHOW_SEARCH = 2
 SHOW_UPGRADE = 3
+SHOW_REBUILD = 4
 ON = True
 OFF = False
 
@@ -208,6 +209,7 @@ class MainWindow:
         self.current_search = None
         self.current_search_package_name = None
         self.current_upgrade_package_name = None
+        self.current_upgrade_category = None
         # set if we are root or not
         self.is_root = utils.is_root()
         if self.prefs.main.show_nag_dialog:
@@ -305,8 +307,8 @@ class MainWindow:
         #self.upgrades_loaded = False
         #self.ut_cancelled = False
         # upgrade loading callback
-        self.upgrades_loaded_callback = None
-        self.upgrades = {}
+        #self.upgrades_loaded_callback = None
+        #self.upgrades = {}
         self.search_loaded = False
         self.current_package_path = None
         self.current_search_package_cursor = None
@@ -336,9 +338,10 @@ class MainWindow:
         """reload the package view"""
         if self.widget["view_filter"].get_history() == SHOW_UPGRADE:
             self.upgrades_loaded = False
+        else:
+            self.category_view.populate(self.db.categories.keys())
         self.package_view.clear()
         self.set_package_actions_sensitive(False, None)
-        self.category_view.populate(self.db.categories.keys())
         # update the views by calling view_filter_changed
         self.view_filter_changed(self.widget["view_filter"])
         #self.widget["view_refresh"].set_sensitive(False)
@@ -488,12 +491,12 @@ class MainWindow:
         self.no_root_dialog.destroy()
         self.prefs.main.show_nag_dialog = False
 
-    def set_statusbar2(self, string):
+    def set_statusbar2(self, to_string):
         """Update the statusbar without having to use push and pop."""
         #dprint("MAINWINDOW: set_statusbar2(); " + string)
         statusbar2 = self.wtree.get_widget("statusbar2")
         statusbar2.pop(0)
-        statusbar2.push(0, string)
+        statusbar2.push(0, to_string)
 
     def update_db_read(self, args): # extra args for dispatcher callback
         """Update the statusbar according to the number of packages read."""
@@ -986,11 +989,11 @@ class MainWindow:
         """Catch when the user changes categories."""
         mode = self.widget["view_filter"].get_history()
         # log the new category for reloads
-        if mode != SHOW_SEARCH and mode != SHOW_UPGRADE:
+        if mode not in [SHOW_SEARCH, SHOW_UPGRADE]:
             self.current_category = category
             self.current_category_cursor = self.category_view.get_cursor()
         elif mode == SHOW_UPGRADE:
-            self.current_upgrade = category
+            self.current_upgrade_category = category
             self.current_upgrade_cursor = self.category_view.get_cursor()
         else:
             self.current_search = category
@@ -1136,7 +1139,7 @@ class MainWindow:
             cat = self.current_category
             pack = self.current_package_name
             dprint("MAINWINDOW: view_filter_changed(); reselect category & package")
-            self.select_category_package(cat, pack, index)
+            #self.select_category_package(cat, pack, index)
         elif index == SHOW_SEARCH:
             self.category_view.set_search(True)
             if not self.search_loaded:
@@ -1151,21 +1154,7 @@ class MainWindow:
             self.package_view.set_view(self.package_view.SEARCH_RESULTS)
             cat = self.current_search
             pack = self.current_search_package_name
-            self.select_category_package(cat, pack, index)
-        #~ elif index == SHOW_UPGRADE:
-            #~ dprint("MAINWINDOW: view_filter_changed(); upgrade selected")
-            #~ cat_scroll.hide();
-            #~ self.package_view.set_view(self.package_view.UPGRADABLE)
-            #~ if not self.upgrades_loaded:
-                #~ dprint("MAINWINDOW: view_filter_changed(); calling load_upgrades_list ********************************")
-                #~ self.load_upgrades_list()
-                #~ self.package_view.clear()
-                #~ dprint("MAINWINDOW: view_filter_changed(); back from load_upgrades_list()")
-            #~ else:
-                #~ # already loaded, just show them!
-                #~ dprint("MAINWINDOW: view_filter_changed(); showing loaded upgrades")
-                #~ #self.package_view.set_view(self.package_view.UPGRADABLE)
-                #~ self.summary.update_package_info(None)
+            #self.select_category_package(cat, pack, index)
         elif index == SHOW_UPGRADE:
             dprint("MAINWINDOW: view_filter_changed(); upgrade selected")
             cat_scroll.show();
@@ -1178,14 +1167,18 @@ class MainWindow:
                 dprint("MAINWINDOW: view_filter_changed(); back from load_upgrades_list()")
             else:
                 self.category_view.populate(self.upgrades.keys(), False, self.upgrade_counts)
-                dprint("MAINWINDOW: view_filter_changed(); init package_view")
-                self.package_view._init_view()
-                #dprint("MAINWINDOW: view_filter_changed(); clear package_view")
-                #self.package_view.clear()
-                cat = self.current_category
-                pack = self.current_package_name
-                dprint("MAINWINDOW: view_filter_changed(); reselect category & package")
-                self.select_category_package(cat, pack, index)
+            self.package_view.set_view(self.package_view.UPGRADABLE)
+            dprint("MAINWINDOW: view_filter_changed(); init package_view")
+            self.package_view._init_view()
+            #dprint("MAINWINDOW: view_filter_changed(); clear package_view")
+            #self.package_view.clear()
+            cat = self.current_upgrade_category
+            pack = self.current_upgrade_package_name
+        elif index == SHOW_REBUILD:
+            dprint("MAINWINDOW: view_filter_changed(); Rebuild selected")
+            pass
+        dprint("MAINWINDOW: view_filter_changed(); reselect category & package")
+        self.select_category_package(cat, pack, index)
         # clear the notebook tabs
         #self.clear_notebook()
         #if self.last_view_setting != index:
@@ -1217,17 +1210,17 @@ class MainWindow:
                         kids -= 1
                     if catpath: break
                 iter = model.iter_next(iter)
-        elif index == SHOW_SEARCH:
+        elif index in [SHOW_SEARCH, SHOW_UPGRADE]:
             while iter:
                 if cat == model.get_value(iter, 0):
                     catpath = model.get_path(iter)
                     break
                 iter = model.iter_next(iter)
-        elif index == SHOW_UPGRADE:
-            catpath = 'Sure, why not?'
+        #elif index == SHOW_UPGRADE:
+        #    catpath = 'Sure, why not?'
         else: dprint("MAINWINDOW: select_category_package(): bad index or category?")
         if catpath:
-            if index != SHOW_UPGRADE:
+            if index: # != SHOW_UPGRADE:
                 self.category_view.expand_to_path(catpath)
                 self.category_view.last_category = None # so it thinks it's changed
                 self.category_view.set_cursor(catpath)
