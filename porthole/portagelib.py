@@ -25,8 +25,6 @@
 from utils import dprint, dsave, is_root
 from sys import exit
 import os
-import string
-from string import digits, zfill
 from gettext import gettext as _
 from sterminal import SimpleTerminal
 from dispatcher import Dispatcher
@@ -68,6 +66,43 @@ def get_world():
         return world
 
 World = get_world()
+
+def get_sets_list( filename ):
+    """Get the package list file and turn it into a tuple
+       attributes: pkgs[key = full_name] = [atoms, version]"""
+    pkgs = {}
+    try:
+        file = open( filename, "r")
+        list = file.read().split()
+        file.close()
+    except:
+        dprint("PORTAGELIB: get_sets_list(); Failure to locate file: %s" %filename)
+        return None
+    # split the atoms from the pkg name and any trailing attributes if any
+    for item in list:
+        parts = portagelib.split_atom_pkg(item)
+        pkgs[parts[0]] = parts[1:]
+    return pkgs
+
+def split_atom_pkg( pkg ):
+    """Extract [category/package, atoms, version] from some ebuild identifier"""
+    atoms = []
+    version = ''
+    if pkg.endswith("*"): pkg = pkg[:-1]
+    cplist = portage.catpkgsplit(pkg) or portage.catsplit(pkg)
+    if not cplist or len(cplist) < 2:
+        dprint("PORTAGELIB split_pkg(): issues with '%s'" % pkg)
+        return ['', '', '']
+    cp = cplist[0] + "/" + cplist[1]
+    while cp[0] in ["<",">","=","!","*"]:
+        atoms.append(cp[0])
+        cp = cp[1:]
+    if cplist:
+        version = cplist[2]
+        if cplist[3] != 'r0':
+            version += '-' + cplist[3]
+    return [str(cp), atoms.join(), version] # hmm ... unicode keeps appearing :(
+
 
 def reload_world():
     dprint("PORTAGELIB: reset_world();")
@@ -505,63 +540,6 @@ def set_make_conf(prefs, property, add='', remove='', replace='', callback=None)
     # or portage.portdb.mysettings ?
     return True
 
-
-##    dprint("PORTAGELIB: set_make_conf()")
-##    if isinstance(add, basestring):
-##        add = [add]
-##    if isinstance(remove, basestring):
-##        remove = [remove]
-##    if isinstance(replace, list):
-##        replace = ' '.join(replace)
-##    dict, linelist = get_make_conf(True)
-##    if not dict.has_key(property):
-##        dprint("PORTAGELIB: set_make_conf(): dict does not have key '%s'. Creating..." % property)
-##        dict[property] = ''
-##    if not os.access(portage_const.MAKE_CONF_FILE, os.W_OK):
-##        dprint(" * PORTAGELIB: get_user_config(): no write access to '%s'. " \
-##              "Perhaps the user is not root?" % portage_const.MAKE_CONF_FILE)
-##        return False
-##    propline = dict[property]
-##    splitline = propline.split()
-##    if remove:
-##        for element in remove:
-##            while element in splitline:
-##                splitline.remove(element)
-##    if add:
-##        for element in add:
-##            if element not in splitline:
-##                splitline.append(element)
-##    if replace:
-##        splitline = [replace]
-##    joinedline = ' '.join(splitline)
-##    # Now write to make.conf, keeping comments, unparsed lines and line order intact
-##    done = False
-##    for line in linelist:
-##        if line[0].strip() == property:
-##            if line[0] in remove:
-##                linelist.remove(line)
-##            else:
-##                line[1] = '"' + joinedline + '"'
-##            done = True
-##    if not done:
-##        while linelist and len(linelist[-1]) == 1 and linelist[-1][0].strip() == '': # blank line
-##            linelist.pop(-1)
-##        linelist.append([property, '"' + joinedline + '"'])
-##        linelist.append(['']) # blank line
-##    joinedlist = ['='.join(line) for line in linelist]
-##    make_conf = '\n'.join(joinedlist)
-##    if not make_conf.endswith('\n'):
-##        make_conf += '\n'
-##    get_make_conf(savecopy=True) # just saves a copy with ".bak" on the end
-##    file = open(portage_const.MAKE_CONF_FILE, 'w')
-##    file.write(make_conf)
-##    file.close()
-##    # This is slow, but otherwise portage doesn't notice the change
-##    reload_portage()
-##    # Note: could perhaps just update portage.settings (or portage.portdb.mysettings ?)
-##    # portage.settings.mygcfg ??   portage.portdb.configdict['conf'] ??
-##    return True
-
 def get_version(ebuild):
     """Extract version number from ebuild name"""
     result = ''
@@ -871,7 +849,7 @@ class Package:
         else:
             #dprint("PORTAGELIB get_properties(): Using specific ebuild")
             ebuild = specific_ebuild
-        if not self.properties.has_key(ebuild):
+        if not ebuild in self.properties:
             #dprint("portagelib: geting properties for '%s'" % str(ebuild))
             self.properties[ebuild] = get_properties(ebuild)
         return self.properties[ebuild]
@@ -936,7 +914,7 @@ class Package:
             elif better == installed:
                 self.upgradable = -1
         return self.upgradable
- 
+
 def sort(list):
     """sort in alphabetic instead of ASCIIbetic order"""
     dprint("PORTAGELIB: sort()")
@@ -1064,6 +1042,7 @@ class DatabaseReader(threading.Thread):
                 self.db.installed[category][name] = data
                 self.db.installed_pkg_count[category] += 1
                 self.db.installed_count += 1
+                #dprint("PORTAGELIB: read_db(); adding %s to db.list" %name)
             self.db.list.append((name, data))
             self.db.pkg_count[category] += 1
         self.nodecount += count
