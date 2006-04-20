@@ -67,20 +67,39 @@ def get_world():
 
 World = get_world()
 
+# And now for some code stolen from pkgcore :)
+# Copyright: 2005 Brian Harring <ferringb@gmail.com>
+# License: GPL2
+def iter_read_bash(bash_source):
+	"""read file honoring bash commenting rules.  Note that it's considered good behaviour to close filehandles, as such, 
+	either iterate fully through this, or use read_bash instead.
+	once the file object is no longer referenced, the handle will be closed, but be proactive instead of relying on the 
+	garbage collector."""
+	if isinstance(bash_source, basestring):
+		bash_source = open(bash_source, 'r')
+	for s in bash_source:
+		s=s.strip()
+		if s.startswith("#") or s == "":
+			continue
+		yield s
+	bash_source.close()
+
+def read_bash(bash_source):
+	return list(iter_read_bash(bash_source))
+# end of stolen code
+
 def get_sets_list( filename ):
     """Get the package list file and turn it into a tuple
        attributes: pkgs[key = full_name] = [atoms, version]"""
     pkgs = {}
     try:
-        file = open( filename, "r")
-        list = file.read().split()
-        file.close()
+        list = read_bash(filename)
     except:
         dprint("PORTAGELIB: get_sets_list(); Failure to locate file: %s" %filename)
         return None
     # split the atoms from the pkg name and any trailing attributes if any
     for item in list:
-        parts = portagelib.split_atom_pkg(item)
+        parts = split_atom_pkg(item)
         pkgs[parts[0]] = parts[1:]
     return pkgs
 
@@ -862,7 +881,7 @@ class Package:
         criterion = include_masked and 'match-all' or 'match-visible'
         #dprint("PORTAGELIb: get_versions(); criterion = %s, package = %s" %(str(criterion),self.full_name))
         v = portage.portdb.xmatch(criterion, str(self.full_name))
-        #dprint("PORTAGELIb: get_versions(); v = %s" %str(v))
+        dprint("PORTAGELIb: get_versions(); v = %s" %str(v))
         return  v #portage.portdb.xmatch(criterion, str(self.full_name))
 
     def get_hard_masked(self, check_unmask = False):
@@ -1018,7 +1037,10 @@ class DatabaseReader(threading.Thread):
                 self.callback({"nodecount": self.nodecount, "allnodes_length": self.allnodes_length,
                                 "done": self.done})
                 count = 0
+            #dprint("PORTAGELIB: entry = %s" %entry)
             category, name = entry.split('/')
+            if category in ["metadata", "distfiles", "eclass"]:
+                continue
             # why does getallnodes() return timestamps?
             if (name.endswith('tbz2') or \
                     name.startswith('.') or \
@@ -1045,8 +1067,10 @@ class DatabaseReader(threading.Thread):
                 #dprint("PORTAGELIB: read_db(); adding %s to db.list" %name)
             self.db.list.append((name, data))
             self.db.pkg_count[category] += 1
+        dprint("PKGCORE_LIB: read_db(); end of list build; count = %d nodecount = %d" %(count,self.nodecount))
         self.nodecount += count
-        dprint("PORTAGELIB: read_db(); end of list build; sort is next")
+        dprint("PKGCORE_LIB: read_db(); end of list build; final nodecount = %d categories = %d sort is next" \
+                %(self.nodecount, len(self.db.categories)))
         #dprint(self.db)
         self.db.list = self.sort(self.db.list)
         #dprint(self.db)
