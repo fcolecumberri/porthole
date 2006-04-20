@@ -25,9 +25,17 @@
 
 import gtk
 import gtk.glade
-import portagelib
 import utils
 from utils import dprint
+global PORTAGE
+# import the desired portage version
+PORTAGE = utils.PORTAGE
+#print PORTAGE
+if PORTAGE == "pkgcore_lib.py":
+    import pkgcore_lib as _portage_lib
+else:
+    import portagelib as _portage_lib
+print ("ADVEMERGE: PORTAGE = %s" %PORTAGE)
 from version_sort import ver_sort
 from loaders import load_web_page
 from dispatcher import Dispatcher
@@ -43,11 +51,11 @@ class AdvancedEmergeDialog:
         self.package = package
         self.setup_command = setup_command
         self.re_init_portage = re_init_portage
-        self.arch = portagelib.get_arch()
-        self.system_use_flags = portagelib.SystemUseFlags
+        self.arch = _portage_lib.get_arch()
+        self.system_use_flags = _portage_lib.SystemUseFlags
         self.emerge_unmerge = "emerge"
         self.is_root = utils.is_root()
-        self.package_use_flags = portagelib.get_user_config('package.use', package.full_name)
+        self.package_use_flags = _portage_lib.get_user_config('package.use', package.full_name)
         self.current_verInfo = None
         
         # Parse glade file
@@ -281,7 +289,7 @@ class AdvancedEmergeDialog:
                 removelist.append(item[1:])
             else:
                 removelist.append('-' + item)
-        okay = portagelib.set_user_config( self.prefs,\
+        okay = _portage_lib.set_user_config( self.prefs,\
                 'package.use', name=self.package.full_name,
                 add=addlist, remove=removelist, callback=self.reload )
     
@@ -298,9 +306,9 @@ class AdvancedEmergeDialog:
                 removelist.append('-' + item)
         # set_user_config must be performed after set_make_conf has finished or we get problems.
         # we need to set package.use in case the flag was set there originally!
-        package_use_callback = Dispatcher( portagelib.set_user_config, self.prefs, \
+        package_use_callback = Dispatcher( _portage_lib.set_user_config, self.prefs, \
                 'package.use', self.package.full_name, '', '', removelist, self.reload )
-        portagelib.set_make_conf( self.prefs, \
+        _portage_lib.set_make_conf( self.prefs, \
             'USE', add=addlist, remove=removelist, callback=package_use_callback )
     
     def on_package_keywords_commit(self, button_widget):
@@ -314,7 +322,7 @@ class AdvancedEmergeDialog:
             removelist = ["-" + keyword]
         verInfo = self.current_verInfo
         ebuild = verInfo["name"]
-        okay = portagelib.set_user_config( self.prefs, \
+        okay = _portage_lib.set_user_config( self.prefs, \
             'package.keywords', ebuild=ebuild, add=addlist, remove=removelist, callback=self.reload)
     
     #------------------------------------------
@@ -334,8 +342,8 @@ class AdvancedEmergeDialog:
             #~ del self.package.properties[ebuild]
         # Remove properties object so everything's recalculated
         self.package.properties.pop(ebuild, None)
-        self.system_use_flags = portagelib.SystemUseFlags
-        self.package_use_flags = portagelib.get_user_config('package.use', self.package.full_name)
+        self.system_use_flags = _portage_lib.SystemUseFlags
+        self.package_use_flags = _portage_lib.get_user_config('package.use', self.package.full_name)
         #dprint(self.package_use_flags)
         
         self.current_verInfo = None
@@ -413,10 +421,10 @@ class AdvancedEmergeDialog:
             info = {}
             props = self.package.get_properties(ebuild) 
             info["name"] = ebuild
-            info["number"] = portagelib.get_version(ebuild)
+            info["number"] = _portage_lib.get_version(ebuild)
             if ebuild == self.package.get_best_ebuild():
                 info["best"] = True
-                info["best_downgrades"] = ebuild not in portagelib.best(installed + [ebuild])
+                info["best_downgrades"] = ebuild not in _portage_lib.best(installed + [ebuild])
             else:
                 info["best"] = info["best_downgrades"] = False
             info["installed"] = ebuild in installed
@@ -656,7 +664,7 @@ class AdvancedEmergeDialog:
             # we'll trap the error
 
             try:
-                self.tooltips.set_tip(button, portagelib.UseFlagDict[flag.lower()][2])
+                self.tooltips.set_tip(button, _portage_lib.UseFlagDict[flag.lower()][2])
             except KeyError:
                 self.tooltips.set_tip(button, _('Unsupported use flag'))
             table.attach(button, col, col+1, row, row+1)

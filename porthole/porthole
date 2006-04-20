@@ -35,6 +35,8 @@ import sys
 # Add path to portage module if 
 # missing from path (ref bug # 924100)
 
+print sys.path
+
 PORTAGE_MOD_PATH = '/usr/lib/portage/pym'
 if PORTAGE_MOD_PATH not in sys.path:
     sys.path.append(PORTAGE_MOD_PATH)
@@ -44,6 +46,8 @@ while '/usr/bin' in sys.path: # this gets added when we run /usr/bin/porthole
     sys.path.remove('/usr/bin')
 
 LOG_FILE_DIR = "/var/log/porthole"
+global PORTAGE
+PORTAGE = "portagelib.py"
 
 import os
 # check if directory exists, if not create it
@@ -99,13 +103,13 @@ def usage():
     print "  -d, --debug" + tabs + "Output debugging information to stderr (terminal)"
     print "             " + tabs + "Also if PyCrash-0.4pre3 or newer is found it will use it"
     print "             " + tabs + "to try to save additional crash info to send in for debugging"
-
+    print "  -p, --pkgcore" + tabs + "Use the experimental pkgcore (aka portage-ng, portage-3) code"
 
 
 if __name__ == "__main__":
     try:
-        opts, args = getopt(sys.argv[1:], 'lvdh', ["local", "version", "debug",
-                                              "help"])
+        opts, args = getopt(sys.argv[1:], 'lvdhp', ["local", "version", "debug",
+                                              "help", "pkgcore"])
         #print opts
         #print args
     except GetoptError, e:
@@ -115,12 +119,17 @@ if __name__ == "__main__":
     # bug ==> any porthole script can be used to load both --local and installed modules
     RUN_LOCAL = False
     for opt, arg in opts:
+        if opt in ("-p", "--pkgcore"):
+            PORTAGE = "pkgcore_lib.py"
+    for opt, arg in opts:
         if opt in ("-l", "--local"):
             # running a local version (i.e. not installed in /usr/*)
             from os import getcwd
             DATA_PATH = getcwd() + "/"
             from version import version
             import utils as _utils
+            _utils.PORTAGE = PORTAGE
+            print "PORTHOLE: importing MainWindow"
             from mainwindow import MainWindow
             i18n_DIR = DATA_PATH + 'i18n'
             RUN_LOCAL = True
@@ -131,6 +140,8 @@ if __name__ == "__main__":
             # set data path for our glade and pixmap files
             DATA_PATH = "/usr/share/porthole/"
             from porthole import utils as _utils
+            _utils.PORTAGE = PORTAGE
+            print "PORTHOLE: importing MainWindow"
             from porthole.mainwindow import MainWindow
             i18n_DIR = DATA_PATH + 'i18n'
             #i18n_DIR = "/usr/share/locale/"
@@ -159,7 +170,7 @@ if __name__ == "__main__":
         elif opt in ("-h", "--help"):
             usage()
             sys.exit()
- 
+
     locale.setlocale (locale.LC_ALL, '')
     gettext.bindtextdomain (APP, i18n_DIR)
     gettext.textdomain (APP)

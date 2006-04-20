@@ -33,8 +33,17 @@ if __name__ == "__main__":
     from getopt import getopt, GetoptError
 
 import re
+import utils
 from utils import dprint
-import portagelib
+global PORTAGE
+# import the desired portage version
+PORTAGE = utils.PORTAGE
+print PORTAGE
+if PORTAGE == "pkgcore_lib.py":
+    import pkgcore_lib as _portage_lib
+else:
+    import portagelib as _portage_lib
+print ("VERSION_SORT: PORTAGE = %s" %PORTAGE)
 
 ############### new code ###############
 
@@ -49,8 +58,8 @@ fill_size = 3
 def pad_ver(vlist):
     """pads the version string so all number sequences are the same
        length for acurate sorting, borrowed & modified code from new portage vercmp()"""
-    #dprint("VERSION_SORT:  pad_ver();  vlist[]")
-    #dprint(vlist)
+    dprint("VERSION_SORT:  pad_ver();  vlist[]")
+    dprint(vlist)
     # short circuit for  list of 1
     #if len(vlist) == 1:
     #    return vlist
@@ -178,7 +187,7 @@ def get_versions_only(versions):
     vlist = []
     for v in versions:
         #dprint(v)
-        vlist += [portagelib.get_version(v)]
+        vlist += [_portage_lib.get_version(v)]
         #dprint(vlist)
     return vlist
 

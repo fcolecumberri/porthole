@@ -26,13 +26,25 @@
 import threading, re #, types
 import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, gtk.glade, gobject, pango
-import portagelib, os, string
-import utils
-#from portagelib import World
-World = portagelib.World
-from dispatcher import Dispatcher
-
+import os, sys
 from gettext import gettext as _
+
+import utils
+#print (sys.modules)
+global PORTAGE
+#print PORTAGE
+# import the desired portage version
+PORTAGE = utils.PORTAGE
+if PORTAGE == "pkgcore_lib.py":
+    import pkgcore_lib as _portage_lib
+else:
+    import portagelib as _portage_lib
+print ("MAINWINDOW: PORTAGE = %s" %PORTAGE)
+
+#from portagelib import World
+World = _portage_lib.World
+
+from dispatcher import Dispatcher
 from about import AboutDialog
 from utils import dprint
 #from process import ProcessWindow  # no longer used in favour of terminal and would need updating to be used
@@ -47,6 +59,7 @@ from readers import UpgradableListReader, DescriptionReader, SearchReader
 from loaders import *
 from version_sort import ver_match
 import config
+#from timeit import Timer
 
 
 SHOW_ALL = 0
@@ -63,7 +76,7 @@ def check_glade():
         porthole_gladefile = "porthole.glade"
         #return porthole_gladefile
         # determine glade version
-        versions = portagelib.get_installed("gnome-base/libglade")
+        versions = _portage_lib.get_installed("gnome-base/libglade")
         if versions:
             dprint("libglade: %s" % versions)
             old, new = ver_match(versions, ["2.0.1","2.4.9-r99"], ["2.5.0","2.99.99"])
@@ -77,7 +90,7 @@ def check_glade():
                 new_toolbar_API = True
         else:
             dprint("MAINWINDOW: No version list returned for libglade")
-            return None
+            return None, None
         dprint("MAINWINDOW: __init__(); glade file = %s" %porthole_gladefile)
         return porthole_gladefile, new_toolbar_API
 
@@ -88,7 +101,7 @@ class MainWindow:
         preferences.use_gladefile, self.new_toolbar_API = check_glade()
         # setup prefs
         self.prefs = preferences
-        self.prefs.myarch = portagelib.get_arch()
+        self.prefs.myarch = _portage_lib.get_arch()
         self.config = config
         # setup glade
         self.gladefile = self.prefs.DATA_PATH + self.prefs.use_gladefile
@@ -262,14 +275,14 @@ class MainWindow:
         # set notebook tabs to load new package info
         self.deps_filled = self.changelog_loaded = self.installed_loaded = self.ebuild_loaded = False
         # declare the database
-        self.db = portagelib.Database()#        self.db = None
+        self.db = _portage_lib.Database()#        self.db = None
         self.ut_running = False
         self.ut = None
         # load the db
         self.dbtime = 0
         dprint("MAINWINDOW: init_db(); starting self.db_thread")
-        #self.db_thread = portagelib.DatabaseReader()
-        self.db_thread = portagelib.DatabaseReader(Dispatcher(self.update_db_read))
+        #self.db_thread = _portage_lib.DatabaseReader()
+        self.db_thread = _portage_lib.DatabaseReader(Dispatcher(self.update_db_read))
         self.db_thread.start()
         self.db_thread_running = True
         self.reload = False
@@ -313,13 +326,13 @@ class MainWindow:
         self.current_package_path = None
         self.current_search_package_cursor = None
         # test to reset portage
-        #portagelib.reload_portage()
-        portagelib.reload_world()
+        #_portage_lib.reload_portage()
+        _portage_lib.reload_world()
         # load the db
         self.dbtime = 0
         dprint("MAINWINDOW: reload_db(); starting self.db_thread")
-        #self.db_thread = portagelib.DatabaseReader()
-        self.db_thread = portagelib.DatabaseReader(Dispatcher(self.update_db_read))
+        #self.db_thread = _portage_lib.DatabaseReader()
+        self.db_thread = _portage_lib.DatabaseReader(Dispatcher(self.update_db_read))
         self.db_thread.start()
         self.db_thread_running = True
         #test = 87/0  # used to test pycrash is functioning
@@ -351,7 +364,7 @@ class MainWindow:
         """callback function to update an individual package
             after a successfull emerge was detected"""
         # find the pkg in self.db
-        self.db.update(portagelib.extract_package(pkg))
+        self.db.update(_portage_lib.extract_package(pkg))
 
     def sync_callback(self):
         """re-initializes portage so it uses the new metadata cache
@@ -366,7 +379,7 @@ class MainWindow:
            the last portage tree sync"""
         self.last_sync = _("Unknown")
         try:
-            f = open(portagelib.portdir + "/metadata/timestamp")
+            f = open(_portage_lib.portdir + "/metadata/timestamp")
             data = f.read(); f.close()
             if data:
                 try:
@@ -441,35 +454,35 @@ class MainWindow:
         old_pretend_value = self.prefs.emerge.pretend
         if action.startswith("emerge"):
             ebuild = arg
-            cp = portagelib.pkgsplit(ebuild)[0]
+            cp = _portage_lib.pkgsplit(ebuild)[0]
             if "pretend" in action:
                 self.prefs.emerge.pretend = True
             else:
                 self.prefs.emerge.pretend = False
             if "sudo" in action:
                 self.setup_command( \
-                    portagelib.get_name(cp),
+                    _portage_lib.get_name(cp),
                     ''.join(['sudo -p "Password: " emerge',
                               self.prefs.emerge.get_string(), '=', ebuild])
                 )
             else:
                 self.setup_command( \
-                    portagelib.get_name(cp),
+                    _portage_lib.get_name(cp),
                     ''.join(["emerge", self.prefs.emerge.get_string(), '=', ebuild])
                 )
         elif action.startswith("unmerge"):
             ebuild = arg
-            cp = portagelib.pkgsplit(ebuild)[0]
+            cp = _portage_lib.pkgsplit(ebuild)[0]
             self.prefs.emerge.pretend = False
             if "sudo" in action:
                 self.setup_command( \
-                    portagelib.get_name(cp),
+                    _portage_lib.get_name(cp),
                     ''.join(['sudo -p "Password: " emerge unmerge',
                     self.prefs.emerge.get_string(), '=', ebuild])
                 )
             else:
                 self.setup_command(
-                    portagelib.get_name(cp),
+                    _portage_lib.get_name(cp),
                     ''.join(["emerge unmerge", self.prefs.emerge.get_string(), '=', ebuild])
                 )
         else:
@@ -1414,8 +1427,8 @@ class MainWindow:
     def re_init_portage(self, *widget):
         """re-initializes the imported portage modules in order to see changines in any config files
         e.g. /etc/make.conf USE flags changed"""
-        portagelib.reload_portage()
-        portagelib.reset_use_flags()
+        _portage_lib.reload_portage()
+        _portage_lib.reset_use_flags()
 ##        if  self.current_package_cursor != None and self.current_package_cursor[0]: # should fix a type error in set_cursor; from pycrash report
 ##            # reset _last_selected so it thinks this package is new again
 ##            self.package_view._last_selected = None

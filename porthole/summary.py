@@ -23,10 +23,19 @@
 '''
 
 import gtk, pango
-import portagelib
-import string, re
+import re
 import utils
 from utils import dprint
+global PORTAGE
+# import the desired portage version
+PORTAGE = utils.PORTAGE
+#print PORTAGE
+if PORTAGE == "pkgcore_lib.py":
+    import pkgcore_lib as _portage_lib
+else:
+    import portagelib as _portage_lib
+print ("SUMMARY: PORTAGE = %s" %PORTAGE)
+
 from loaders import load_web_page
 from version_sort import ver_sort
 from gettext import gettext as _
@@ -42,7 +51,7 @@ class Summary(gtk.TextView):
         self.enable_archlist = prefs.globals.enable_archlist
         self.archlist = prefs.globals.archlist
         self.dispatch = dispatcher
-        self.myarch = portagelib.get_arch()
+        self.myarch = _portage_lib.get_arch()
         self.tooltips = gtk.Tooltips()
         self.set_wrap_mode(gtk.WRAP_WORD)
         self.set_editable(False)
@@ -53,7 +62,7 @@ class Summary(gtk.TextView):
         tagtable = self.create_tag_table()
         self.buffer = gtk.TextBuffer(tagtable)
         self.set_buffer(self.buffer)
-        self.license_dir = "file://"+ portagelib.portdir + "/licenses/"
+        self.license_dir = "file://"+ _portage_lib.portdir + "/licenses/"
         self.package = None
 
         # Capture any mouse motion in this tab so we
@@ -66,7 +75,7 @@ class Summary(gtk.TextView):
         self.reset_cursor = 'Please'
         
         # create popup menu for rmb-click
-        arch = "~" + portagelib.get_arch()
+        arch = "~" + _portage_lib.get_arch()
         menu = gtk.Menu()
         menuitems = {}
         menuitems["emerge"] = gtk.MenuItem(_("Emerge this ebuild"))
@@ -181,12 +190,12 @@ class Summary(gtk.TextView):
             for ebuild in ebuilds:
                 # set the tag to the default
                 tag = "value" 
-                version = portagelib.get_version(ebuild)
+                version = _portage_lib.get_version(ebuild)
                 keys = package.get_properties(ebuild).get_keywords()
                 if not show_all and self.myarch not in keys and ''.join(['~',self.myarch]) not in keys:
                     # we won't display the ebuild if it's not available to us
                     continue
-                slot = portagelib.get_property(ebuild, "SLOT")
+                slot = _portage_lib.get_property(ebuild, "SLOT")
                 if not slot == oldslot:
                     if spam:
                         #append(", ".join(spam), "value")
@@ -245,7 +254,7 @@ class Summary(gtk.TextView):
                 y = len(ebuilds) + 1
                 for ebuild in ebuilds:
                     y -= 1
-                    version = portagelib.get_version(ebuild)
+                    version = _portage_lib.get_version(ebuild)
                     label = gtk.Label(str(version))
                     label.set_padding(3, 3)
                     table.attach(boxify(label, "#EEEEEE"), 0, 1, y, y+1)
@@ -276,7 +285,7 @@ class Summary(gtk.TextView):
                         label = gtk.Label(text)
                         box = boxify(label, color=color, ebuild=ebuild, arch=arch, text=text)
                         if "M" in text or "[" in text:
-                            self.tooltips.set_tip(box, portagelib.get_masking_reason(ebuild))
+                            self.tooltips.set_tip(box, _portage_lib.get_masking_reason(ebuild))
                         table.attach(box, x, x+1, y, y+1)
             else:
                 dprint("SUMMARY: create_ebuild_table: creating single arch table")
@@ -292,7 +301,7 @@ class Summary(gtk.TextView):
                 x = 0
                 for ebuild in ebuilds:
                     x += 1
-                    version = portagelib.get_version(ebuild)
+                    version = _portage_lib.get_version(ebuild)
                     label = gtk.Label(str(version))
                     label.set_padding(3, 3)
                     table.attach(boxify(label, "#EEEEEE"), x, x+1, 0, 1)
@@ -320,7 +329,7 @@ class Summary(gtk.TextView):
                     label = gtk.Label(text)
                     box = boxify(label, color=color, ebuild=ebuild, arch=myarch, text=text)
                     if 'M' in text or '[' in text:
-                        self.tooltips.set_tip(box, portagelib.get_masking_reason(ebuild))
+                        self.tooltips.set_tip(box, _portage_lib.get_masking_reason(ebuild))
                     table.attach(box, x, x+1, 1, 2)
             table.set_row_spacings(1)
             table.set_col_spacings(1)
@@ -366,17 +375,19 @@ class Summary(gtk.TextView):
         #dprint("SUMMARY: get package info")
         metadata = package.get_metadata()
         installed = self.installed = package.get_installed()
+        dprint("SUMMARY: installed = %s" %str(installed))
         versions = package.get_versions()
         nonmasked = package.get_versions(include_masked = False)
+        dprint("SUMMARY: nonmasked = %s" %str(nonmasked))
         
         # added by Tommy
         hardmasked = package.get_hard_masked()
-        #keyword_unmasked = portagelib.get_keyword_unmasked_ebuilds(
+        #keyword_unmasked = _portage_lib.get_keyword_unmasked_ebuilds(
         #                    archlist=self.archlist, full_name=package.full_name)
-        keyword_unmasked = portagelib.get_user_config('package.keywords', name=package.full_name)
-        package_unmasked = portagelib.get_user_config('package.unmask', name=package.full_name)
+        keyword_unmasked = _portage_lib.get_user_config('package.keywords', name=package.full_name)
+        package_unmasked = _portage_lib.get_user_config('package.unmask', name=package.full_name)
         
-        best = portagelib.best(installed + nonmasked)
+        best = _portage_lib.best(installed + nonmasked)
         #dprint("SUMMARY: best = %s" %best)
         if best == "": # all versions are masked and the package is not installed
             ebuild = package.get_latest_ebuild(True) # get latest masked version
@@ -402,7 +413,7 @@ class Summary(gtk.TextView):
         self.url_tags = []
 
         # Turn system use flags into a list
-        system_use_flags = portagelib.get_portage_environ("USE")
+        system_use_flags = _portage_lib.get_portage_environ("USE")
         if system_use_flags:
             system_use_flags = system_use_flags.split()
             #dprint("SUMMARY: system_use_flags = "+str(system_use_flags))
@@ -457,11 +468,11 @@ class Summary(gtk.TextView):
             nl(2)
         
         append(_("Properties for version: "), "property")
-        append(portagelib.get_version(ebuild))
+        append(_portage_lib.get_version(ebuild))
         nl(2)
         
         # Check package.use to see if it applies to this ebuild at all
-        package_use_flags = portagelib.get_user_config('package.use', ebuild=ebuild)
+        package_use_flags = _portage_lib.get_user_config('package.use', ebuild=ebuild)
         dprint("SUMARY: update_package_info(); package_use_flags = %s" %str(package_use_flags))
         if package_use_flags != None and package_use_flags != []:
             dprint("SUMARY: update_package_info(); adding package_use_flags to ebuild_use_flags")
@@ -672,21 +683,21 @@ class Summary(gtk.TextView):
         self.re_init_portage()
     
     def add_keyword(self, menuitem_widget):
-        arch = "~" + portagelib.get_arch()
+        arch = "~" + _portage_lib.get_arch()
         ebuild = self.selected_ebuild
-        portagelib.set_user_config(self.prefs, 'package.keywords', ebuild=ebuild, add=arch, callback=self.update_callback)
+        _portage_lib.set_user_config(self.prefs, 'package.keywords', ebuild=ebuild, add=arch, callback=self.update_callback)
     
     def remove_keyword(self, menuitem_widget):
-        arch = "~" + portagelib.get_arch()
+        arch = "~" + _portage_lib.get_arch()
         ebuild = self.selected_ebuild
-        portagelib.set_user_config(self.prefs, 'package.keywords', ebuild=ebuild, remove=arch, callback=self.update_callback)
+        _portage_lib.set_user_config(self.prefs, 'package.keywords', ebuild=ebuild, remove=arch, callback=self.update_callback)
     
     def package_unmask(self, menuitem_widget):
         ebuild = "=" + self.selected_ebuild
-        portagelib.set_user_config(self.prefs, 'package.unmask', add=ebuild, callback=self.update_callback)
+        _portage_lib.set_user_config(self.prefs, 'package.unmask', add=ebuild, callback=self.update_callback)
     
     def un_package_unmask(self, menuitem_widget):
         ebuild = "=" + self.selected_ebuild
-        portagelib.set_user_config(self.prefs, 'package.unmask', remove=ebuild, callback=self.update_callback)
+        _portage_lib.set_user_config(self.prefs, 'package.unmask', remove=ebuild, callback=self.update_callback)
     
 

@@ -25,7 +25,6 @@
 
 import sys
 import os
-import string
 
 try:
     #import portage

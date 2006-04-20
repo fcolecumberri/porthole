@@ -25,9 +25,18 @@
 import os, threading
 import errno
 import gtk
-import portagelib
-
+import utils
 from utils import dprint
+global PORTAGE
+# import the desired portage version
+PORTAGE = utils.PORTAGE
+#print PORTAGE
+if PORTAGE == "pkgcore_lib.py":
+    import pkgcore_lib as _portage_lib
+else:
+    import portagelib as _portage_lib
+print ("MAINWINDOW: PORTAGE = %s" %PORTAGE)
+
 from gettext import gettext as _
 
 
@@ -65,7 +74,7 @@ def load_textfile(view, package, mode, version = None):
                 versions = package.get_versions()
                 nonmasked = package.get_versions(include_masked = False)
                 if mode == "best_ebuild":
-                    best = portagelib.best(installed + nonmasked)
+                    best = _portage_lib.best(installed + nonmasked)
                     if best == "": # all versions are masked and the package is not installed
                         ebuild = package.get_latest_ebuild(True) # get latest masked version
                     else:
@@ -79,10 +88,10 @@ def load_textfile(view, package, mode, version = None):
                 package_file = "/" + package.full_name + Textfile_type[mode]
             try:
                 try:
-                    f = open(portagelib.portdir + package_file)
+                    f = open(_portage_lib.portdir + package_file)
                     data = f.read(); f.close()
                 except:
-                    f = open(portagelib.portdir_overlay + package_file)
+                    f = open(_portage_lib.portdir_overlay + package_file)
                     data = f.read(); f.close()
                 if data != None:
                     try:
@@ -116,7 +125,7 @@ def load_installed_files(window, view, package):
             window.set_sensitive(is_installed)
             if is_installed:
                 installed.sort()
-                installed_files = portagelib.get_installed_files(installed[-1])
+                installed_files = _portage_lib.get_installed_files(installed[-1])
                 view.set_text(
                     (_("%i installed files:\n\n") % len(installed_files))
                     + "\n".join(installed_files))

@@ -22,9 +22,18 @@
 '''
 
 import gtk
+import utils
 from utils import dprint
 from loaders import load_web_page
-import portagelib
+global PORTAGE
+# import the desired portage version
+PORTAGE = utils.PORTAGE
+#print PORTAGE
+if PORTAGE == "pkgcore_lib.py":
+    import pkgcore_lib as _portage_lib
+else:
+    import portagelib as _portage_lib
+print ("CONFIG: PORTAGE = %s" %PORTAGE)
 
 class ConfigDialog:
     """Class to display a GUI for configuring Porthole"""
@@ -443,7 +452,7 @@ class ConfigDialog:
         if child != None:
             self.KeywordsFrame.remove(child)
 
-        keywords = portagelib.get_archlist()
+        keywords = _portage_lib.get_archlist()
         
         # Build table to hold radiobuttons
         size = len(keywords)

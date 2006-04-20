@@ -24,13 +24,23 @@
 
 import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, gobject, pango
-import portagelib
 import threading, os
 import utils
 
+global PORTAGE
+# import the desired portage version
+PORTAGE = utils.PORTAGE
+#print PORTAGE
+if PORTAGE == "pkgcore_lib.py":
+    import pkgcore_lib as _portage_lib
+else:
+    import portagelib as _portage_lib
+print ("VIEWS: PORTAGE = %s" %PORTAGE)
+
+
 from depends import DependsTree
 from utils import dprint
-from portagelib import World
+#from _portage_lib import World
 from gettext import gettext as _
 
 from portage_const import USER_CONFIG_PATH
@@ -164,7 +174,7 @@ class PackageView(CommonTreeView):
         self.UPGRADABLE = 2
 
         # create popup menu for rmb-click
-        arch = "~" + portagelib.get_arch()
+        arch = "~" + _portage_lib.get_arch()
         menu = gtk.Menu()
         menuitems = {}
         menuitems["emerge"] = gtk.MenuItem(_("Emerge"))
@@ -408,13 +418,13 @@ class PackageView(CommonTreeView):
         return True
 
     def add_keyword(self, widget):
-        arch = "~" + portagelib.get_arch()
+        arch = "~" + _portage_lib.get_arch()
         name = utils.get_treeview_selection(self, 2).full_name
         string = name + " " + arch + "\n"
         dprint("VIEWS: Package view add_keyword(); %s" %string)
         def callback():
             self.mainwindow_callback("refresh")
-        portagelib.set_user_config(self.prefs, 'package.keywords', name=name, add=arch, callback=callback)
+        _portage_lib.set_user_config(self.prefs, 'package.keywords', name=name, add=arch, callback=callback)
         #package = utils.get_treeview_selection(self,2)
         #package.best_ebuild = package.get_latest_ebuild()
         #self.mainwindow_callback("refresh")
@@ -541,7 +551,7 @@ class PackageView(CommonTreeView):
         model = self.get_model()
         self.disable_column_sort()
         model.clear()
-        names = portagelib.sort(packages.keys())
+        names = _portage_lib.sort(packages.keys())
         path = None
         locate_count = 0
         for name in names:
@@ -599,18 +609,22 @@ class PackageView(CommonTreeView):
             try:
                 #gtk.threads_enter()
                 package = model.get_value(iter, 2)
+                dprint("VIEWS: populate_info(); getting latest_installed")
                 latest_installed = package.get_latest_installed()
+                dprint("VIEWS: populate_info(); latest_installed: %s, getting best_ebuild" %str(latest_installed))
                 best_ebuild = package.get_best_ebuild()
+                dprint("VIEWS: populate_info(); best_ebuild: %s, getting latest_ebuild" %str(best_ebuild))
                 latest_ebuild = package.get_latest_ebuild(include_masked = False)
+                dprint("VIEWS: populate_info(); latest_ebuild: %s" %str(latest_ebuild))
                 try:
                     model.set_value(iter, 6, package.get_size()) # Size
                 except:
                     dprint("VIEWS: populate_info(); Had issues getting size for '%s'" % str(package.full_name))
-                model.set_value(iter, 7, portagelib.get_version(latest_installed)) # installed
+                model.set_value(iter, 7, _portage_lib.get_version(latest_installed)) # installed
                 if best_ebuild:
-                    model.set_value(iter, 8, portagelib.get_version(best_ebuild)) #  recommended by portage
+                    model.set_value(iter, 8, _portage_lib.get_version(best_ebuild)) #  recommended by portage
                 elif latest_ebuild:
-                    model.set_value(iter, 8, "(" + portagelib.get_version(latest_ebuild) + ")") # latest
+                    model.set_value(iter, 8, "(" + _portage_lib.get_version(latest_ebuild) + ")") # latest
                 else:
                     model.set_value(iter, 8, "masked") # hard masked - don't display
                 try:
@@ -821,12 +835,12 @@ class DependsView(CommonTreeView):
             model.set_value(iter, 6, package.get_size())
             try:
                 installed = package.get_latest_installed()
-                installed = portagelib.get_version(installed)
+                installed = _portage_lib.get_version(installed)
             except IndexError:
                 installed = ""
             try:
                 latest = package.get_latest_ebuild()
-                latest = portagelib.get_version(latest)
+                latest = _portage_lib.get_version(latest)
             except IndexError, TypeError:
                 latest = "Error"
             model.set_value(iter, 7, installed)

@@ -23,9 +23,19 @@
 '''
 
 import threading, re, gtk, os, cPickle, time
-import portagelib
 from views import DependsView, CommonTreeView
+import utils
 from utils import get_icon_for_package, get_icon_for_upgrade_package, dprint, dsave
+global PORTAGE
+# import the desired portage version
+PORTAGE = utils.PORTAGE
+#print PORTAGE
+if PORTAGE == "pkgcore_lib.py":
+    import pkgcore_lib as _portage_lib
+else:
+    import portagelib as _portage_lib
+print ("READERS: PORTAGE = %s" %PORTAGE)
+
 from sterminal import SimpleTerminal
 from gettext import gettext as _
 
@@ -98,7 +108,7 @@ class UpgradableListReader(CommonReader):
         for key in self.pkg_count:
             self.upgrade_total += self.pkg_count[key]
             if self.upgradables[key] == {}:
-                pkg = portagelib.Package("None")
+                pkg = _portage_lib.Package("None")
                 self.upgradables[key]["None"] = pkg
         # set the thread as finished
         self.done = True
@@ -120,7 +130,7 @@ class UpgradableListReader(CommonReader):
         list1 = from_string.split('\n')
         list2 = []
         for pkg in list1:
-            list2.append(portagelib.get_full_name(pkg.rstrip("\r")))
+            list2.append(_portage_lib.get_full_name(pkg.rstrip("\r")))
         return list2
 
     def get_sets( self):
