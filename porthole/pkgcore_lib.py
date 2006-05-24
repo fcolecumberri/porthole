@@ -91,7 +91,7 @@ def get_world():
             world = file.read().split()
             file.close()
         except:
-            dprint("PKGCORE_LIB: get_world(); Failure to locate file: %s" %pkgcore.const.WORLD_FILE)
+            dprint("PKGCORE_LIB: get_world(); Failure to locate file: " + pkgcore.const.WORLD_FILE)
             dprint("PKGCORE_LIB: get_world(); Trying '/var/cache/edb/world'")
             try:
                 file = open("/var/cache/edb/world", "r")
@@ -111,7 +111,7 @@ def get_sets_list( filename ):
     try:
         set_list = pkgcore.util.file.read_bash(filename)
     except:
-        dprint("PKGCORE_LIB: get_sets_list(); Failure to locate/read file: %s" %filename)
+        dprint("PKGCORE_LIB: get_sets_list(); Failure to locate/read file: " + filename)
         return None
     # split the atoms from the pkg name and any trailing attributes if any
     for item in set_list:
@@ -151,6 +151,7 @@ def reload_portage():
     reload(pkgcore.const)
     reload(pkgcore.util.file.read_bash)
     reload(portage)
+    reload(portage_const)
 
 def get_use_flag_dict():
     """ Get all the use flags and return them as a dictionary 
@@ -257,7 +258,7 @@ def get_installed(package_name):
     result = []
     raw_list = VDB.match(atom(str(package_name)))
     for v in raw_list:
-        result.append('-'.join([package_name, v.fullver]))
+        result.append(package_name + '-' + v.fullver)
     return result
 
 def xmatch(*args, **kwargs):
@@ -294,7 +295,7 @@ def get_user_config(file, name=None, ebuild=None):
     if file not in package_files:
         dprint(" * PKGCORE_LIB: get_user_config(): unsupported config file '%s'" % file)
         return None
-    filename = '/'.join([portage_const.USER_CONFIG_PATH, file])
+    filename = portage_const.USER_CONFIG_PATH + '/' + file
     if not os.access(filename, os.F_OK):
         dprint(" * PKGCORE_LIB: get_user_config(): file does not exist: '%s'?" % file)
         return None
@@ -353,7 +354,7 @@ def set_user_config(prefs, file, name='', ebuild='', add='', remove='', callback
     otherfiles = ['package.use', 'package.keywords']
     package_files = otherfiles + maskfiles
     if file not in package_files:
-        dprint(" * PKGCORE_LIB: set_user_config(); unsupported config file '%s'" % file)
+        dprint(" * PKGCORE_LIB: set_user_config(); unsupported config file '" + file + "'")
         return False
     if isinstance(add, list):
         add = ' '.join(add)
@@ -363,19 +364,19 @@ def set_user_config(prefs, file, name='', ebuild='', add='', remove='', callback
     if not os.access(config_path, os.W_OK):
         commandlist = [prefs.globals.su, '"python', prefs.DATA_PATH + 'set_config.py -d -f %s' %file]
         if name != '':
-            commandlist.append('-n %s' %name)
+            commandlist.append('-n '+ name)
         if ebuild != '':
-            commandlist.append('-e %s' %ebuild)
+            commandlist.append('-e ' + ebuild)
         if add != '':
             items = add.split()
             for item in items:
-                commandlist.append('-a %s' % item)
+                commandlist.append('-a ' + item)
         if remove != '':
             items = remove.split()
             for item in items:
-                commandlist.append('-r %s' % item)
+                commandlist.append('-r ' + item)
         command = ' '.join(commandlist) + '"'
-        dprint(" * PKGCORE_LIB: set_user_config(); command = %s" %command )
+        dprint(" * PKGCORE_LIB: set_user_config(); command = "+ command )
         if not callback: callback = reload_portage
         app = SimpleTerminal(command, False, dprint_output='SET_USER_CONFIG CHILD APP: ', callback=Dispatcher(callback))
         app._run()
@@ -420,14 +421,14 @@ def get_make_conf(want_linelist=False, savecopy=False):
         elif '=' in strippedline:
             splitline = strippedline.split('=', 1)
             if '"' in splitline[0] or "'" in splitline[0]:
-                dprint(" * PKGCORE_LIB: get_make_conf(): couldn't handle line '%s'. Ignoring" % line)
+                dprint(" * PKGCORE_LIB: get_make_conf(): couldn't handle line '" + line +"'. Ignoring")
                 linelist.append([strippedline])
             else:
                 linelist.append(splitline)
             #linelist.append([splitline[0]])
             #linelist[-1].append('='.join(splitline[1:])) # might have been another '='
         else:
-            dprint(" * PKGCORE_LIB: get_make_conf(): couldn't handle line '%s'. Ignoring" % line)
+            dprint(" * PKGCORE_LIB: get_make_conf(): couldn't handle line '" + line +"'. Ignoring")
             linelist.append([strippedline])
     dict = {}
     for line in linelist:
@@ -461,14 +462,14 @@ def set_make_conf(prefs, property, add='', remove='', replace='', callback=None)
         replace = ' '.join(replace)
     config_path = portage_const.USER_CONFIG_PATH
     if not os.access(portage_const.MAKE_CONF_FILE, os.W_OK):
-        command = (prefs.globals.su + ' "python ' + prefs.DATA_PATH + 'set_config.py -d -f %s ' %file)
-        command = (command + '-p %s ' % property)
+        command = (''.join([prefs.globals.su, ' "python ', prefs.DATA_PATH, 'set_config.py -d -f ', file]))
+        command = command + '-p ' + property + ' '
         if add != '':
-            command = (command + '-a %s ' %("'" + add + "'"))
+            command = command + "-a '" + add + "' '"
         if remove != '':
-            command = (command + '-r %s' %("'" + remove + "'"))
+            command = command + "-r '" + remove + "'"
         command = command + '"'
-        dprint(" * PKGCORE_LIB: set_make_conf(); command = %s" %command )
+        dprint(" * PKGCORE_LIB: set_make_conf(); command = " + command )
         if not callback: callback = reload_portage
         app = SimpleTerminal(command, False, dprint_output='SET_MAKE_CONF CHILD APP: ', callback=Dispatcher(callback))
         app._run()
@@ -531,7 +532,7 @@ def get_property(ebuild, property):
 
 def best(versions):
     """returns the best version in the list"""
-    dprint("PKGCORE_LIB: best(); versions: %s" %str(versions))
+    dprint("PKGCORE_LIB: best(); versions: " + str(versions))
     return portage.best(versions)
     
 
@@ -595,7 +596,7 @@ def get_size(ebuild):
     except SystemExit, e:
         raise # Needed else can't exit
     except Exception, e:
-        dprint( "PKGCORE_LIB: get_size; Exception: %s" %s  )
+        dprint( "PKGCORE_LIB: get_size; Exception: " + e  )
         dprint( "PKGCORE_LIB: get_size; ebuild: " + str(ebuild))
         dprint( "PKGCORE_LIB: get_size; mydigest: " + str(mydigest))
         mysum="[bad / blank digest]"
@@ -613,7 +614,7 @@ def get_digest(ebuild):
     except SystemExit, e:
         raise # Needed else can't exit
     except Exception, e:
-        dprint("PKGCORE_LIB: get_digest(): Exception: %s" % e)
+        dprint("PKGCORE_LIB: get_digest(): Exception: " + e)
     return digest_file
 
 def get_properties(ebuild):
@@ -623,7 +624,7 @@ def get_properties(ebuild):
         try:
             return Properties(dict(zip(keys, portage.portdb.aux_get(ebuild, portage.auxdbkeys))))
         except IOError, e: # Sync being performed may delete files
-            dprint(" * PKGCORE_LIB: get_properties(): IOError: %s" % e)
+            dprint(" * PKGCORE_LIB: get_properties(): IOError: " + e)
             return Properties()
     else:
         vartree = portage.db['/']['vartree']
@@ -660,8 +661,8 @@ class Package:
         self.is_checked = False
         self.pkgcore_pkg = None
         
-    def get_pkgcore_pkg( self ):
-        self.pkgcore_pkg = TREE[self.full_name]
+    def get_pkgcore_pkg( self , version):
+        self.pkgcore_pkg = TREE[self.full_name + '-' + version]
 
     def in_list( self, list=None ):
         """returns True/False if the package is listed in the list"""
@@ -733,7 +734,7 @@ class Package:
             return portage.best(self.get_versions())
         if self.latest_ebuild == None:
             vers = self.get_versions()
-            #dprint("PKGCORE_LIB: get_latest_ebuild; vers = %s" %str(vers)) 
+            #dprint("PKGCORE_LIB: get_latest_ebuild; vers = " + str(vers)) 
             for m in self.get_hard_masked(check_unmask = True):
                 while m in vers:
                     vers.remove(m)
@@ -802,7 +803,7 @@ class Package:
         if specific_ebuild == None:
             ebuild = self.get_default_ebuild()
             if not ebuild:
-                dprint("PKGCORE_LIB; get_properties(): No ebuild found for %s!" % self.full_name)
+                dprint("PKGCORE_LIB; get_properties(): No ebuild found for " + self.full_name + "!")
                 #raise Exception(_('No ebuild found.'))
         else:
             #dprint("PKGCORE_LIB get_properties(): Using specific ebuild")
@@ -817,9 +818,9 @@ class Package:
         if self.full_name == "None":
             return ''
         vers = list(TREE.versions[self.full_name])
-        for x in xrange(vers):
-            vers[x] = "-".join([self.full_name, v])
-        dprint("PKGCORE_LIB: Package.get_versions() vers = %s" %str(vers))
+        for x in range(0,len(vers)):
+            vers[x] = self.full_name + '-' + vers[x]
+        dprint("PKGCORE_LIB: Package.get_versions() vers = " + str(vers))
         return vers
 
     def get_hard_masked(self, check_unmask = False):
@@ -951,13 +952,13 @@ class DatabaseReader(threading.Thread):
     def read_db(self):
         """Read portage's database and store it nicely"""
         global thread_id
-        dprint("PKGCORE_LIB: read_db(); process id = %d, thread_id = %d *****************" %(os.getpid(),thread_id))
-        dprint("PKGCORE_LIB: read_db(); Threading info: %s" %str(threading.enumerate()) )
+        dprint("PKGCORE_LIB: read_db(); process id = %d, thread_id = %d *****************" %(os.getpid(), thread_id))
+        dprint("PKGCORE_LIB: read_db(); Threading info: " + str(threading.enumerate()))
         # get installed list
         self.installed_list = list(VDB.packages)
         self.db.installed_count = len(self.installed_list)
         self.allnodes_length = len(RAW_TREE.packages)
-        dprint("PKGCORE_LIB: read_db() create internal porthole list; length=%d" %self.allnodes_length)
+        dprint("PKGCORE_LIB: read_db() create internal porthole list; length=" + str(self.allnodes_length))
         count = 0
         for category in RAW_TREE.categories:
             if self.cancelled: self.done = True; return
@@ -994,13 +995,13 @@ class DatabaseReader(threading.Thread):
                     self.db.installed_pkg_count[category] = 0
         #dprint("PKGCORE_LIB: read_db(); end of list build; count = %d nodecount = %d" %(count,self.nodecount))
         self.nodecount += count
-        dprint("PKGCORE_LIB: read_db(); end of list build; final nodecount = %d categories = %d sort is next" \
+        dprint("PKGCORE_LIB: read_db(); end of list build; final nodecount = %d, categories = %d, sort is next" \
                 %(self.nodecount, len(self.db.categories)))
         #dprint(self.db)
         self.db.list = self.sort(self.db.list)
         #dprint(self.db)
         dprint("PKGCORE_LIB: read_db(); end of sort, finished")
-        dprint("PKGCORE_LIB: read_db(); Threading info: %s" %str(threading.enumerate()) )
+        dprint("PKGCORE_LIB: read_db(); Threading info: " + str(threading.enumerate()) )
 
     def run(self):
         """The thread function."""
