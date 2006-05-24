@@ -49,7 +49,7 @@ from about import AboutDialog
 from utils import dprint
 #from process import ProcessWindow  # no longer used in favour of terminal and would need updating to be used
 from summary import Summary
-from terminal import ProcessManager
+from terminal.terminal import ProcessManager
 from views import CategoryView, PackageView, DependsView, CommonTreeView
 from depends import DependsTree
 from command import RunDialog
@@ -666,7 +666,7 @@ class MainWindow:
                 dprint("MAINWINDOW: setup_command(); callback set to self.reload_db")
                 #callback = self.package_update
             #ProcessWindow(command, env, self.prefs, callback)
-            self.process_manager.add_process(package_name, command, callback)
+            self.process_manager.add(package_name, command, callback)
         else:
             dprint("MAINWINDOW: Must be root user to run command '%s' " % command)
             #self.sorry_dialog = utils.SingleButtonDialog(_("You are not root!"),
@@ -1189,9 +1189,12 @@ class MainWindow:
             pack = self.current_upgrade_package_name
         elif index == SHOW_REBUILD:
             dprint("MAINWINDOW: view_filter_changed(); Rebuild selected")
+            cat = None #self.current_category
+            pack = None #self.current_package_name
             pass
         dprint("MAINWINDOW: view_filter_changed(); reselect category & package")
-        self.select_category_package(cat, pack, index)
+        if cat and pack:
+            self.select_category_package(cat, pack, index)
         # clear the notebook tabs
         #self.clear_notebook()
         #if self.last_view_setting != index:
@@ -1223,7 +1226,7 @@ class MainWindow:
                         kids -= 1
                     if catpath: break
                 iter = model.iter_next(iter)
-        elif index in [SHOW_SEARCH, SHOW_UPGRADE]:
+        elif index in [SHOW_SEARCH, SHOW_UPGRADE, SHOW_REBUILD]:
             while iter:
                 if cat == model.get_value(iter, 0):
                     catpath = model.get_path(iter)
