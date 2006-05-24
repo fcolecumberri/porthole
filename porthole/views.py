@@ -609,13 +609,13 @@ class PackageView(CommonTreeView):
             try:
                 #gtk.threads_enter()
                 package = model.get_value(iter, 2)
-                dprint("VIEWS: populate_info(); getting latest_installed")
+                #dprint("VIEWS: populate_info(); getting latest_installed")
                 latest_installed = package.get_latest_installed()
-                dprint("VIEWS: populate_info(); latest_installed: %s, getting best_ebuild" %str(latest_installed))
+                #dprint("VIEWS: populate_info(); latest_installed: %s, getting best_ebuild" %str(latest_installed))
                 best_ebuild = package.get_best_ebuild()
-                dprint("VIEWS: populate_info(); best_ebuild: %s, getting latest_ebuild" %str(best_ebuild))
+                #dprint("VIEWS: populate_info(); best_ebuild: %s, getting latest_ebuild" %str(best_ebuild))
                 latest_ebuild = package.get_latest_ebuild(include_masked = False)
-                dprint("VIEWS: populate_info(); latest_ebuild: %s" %str(latest_ebuild))
+                #dprint("VIEWS: populate_info(); latest_ebuild: %s" %str(latest_ebuild))
                 try:
                     model.set_value(iter, 6, package.get_size()) # Size
                 except:
