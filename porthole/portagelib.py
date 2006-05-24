@@ -23,7 +23,7 @@
 """
 
 from utils import dprint, dsave, is_root
-from sys import exit
+from sys import exit, stderr
 import os
 from gettext import gettext as _
 from sterminal import SimpleTerminal
@@ -33,6 +33,7 @@ import version_sort
 try:
     import portage
     import portage_const
+    print >>stderr, ("PORTAGELIB: portage version = " + portage.VERSION)
 except ImportError:
     exit(_('Could not find portage module.\n'
          'Are you sure this is a Gentoo system?'))
@@ -46,6 +47,13 @@ if is_root: # then import some modules and run it directly
 from metadata import parse_metadata
 
 thread_id = os.getpid()
+
+def reload_portage():
+    dprint('PORTAGELIB: reloading portage')
+    dprint("PORTAGELIB: old portage version = " + portage.VERSION)
+    reload(portage)
+    dprint("PORTAGELIB: new portage version = " + portage.VERSION)
+
 
 def get_world():
         world = []
@@ -128,10 +136,6 @@ def reload_world():
     global World
     World = get_world()
 
-
-def reload_portage():
-    dprint('PORTAGELIB: reloading portage')
-    reload(portage)
 
 def get_use_flag_dict():
     """ Get all the use flags and return them as a dictionary 
@@ -881,7 +885,7 @@ class Package:
         criterion = include_masked and 'match-all' or 'match-visible'
         #dprint("PORTAGELIb: get_versions(); criterion = %s, package = %s" %(str(criterion),self.full_name))
         v = portage.portdb.xmatch(criterion, str(self.full_name))
-        dprint("PORTAGELIb: get_versions(); v = %s" %str(v))
+        #dprint("PORTAGELIb: Package.get_versions(); v = %s" %str(v))
         return  v #portage.portdb.xmatch(criterion, str(self.full_name))
 
     def get_hard_masked(self, check_unmask = False):
