@@ -580,6 +580,24 @@
 	      </child>
 
 	      <child>
+		<widget class="GtkToolButton" id="btn_queue">
+		  <property name="visible">True</property>
+		  <property name="tooltip" translatable="yes">Set the terminal queue status, ie. Start, Pause, Timer</property>
+		  <property name="label" translatable="yes">Queue</property>
+		  <property name="use_underline">True</property>
+		  <property name="icon">pixmaps/porthole-clock-20x20.png</property>
+		  <property name="visible_horizontal">True</property>
+		  <property name="visible_vertical">True</property>
+		  <property name="is_important">False</property>
+		  <signal name="clicked" handler="on_btn_queue_clicked" last_modification_time="Sun, 07 May 2006 14:27:13 GMT"/>
+		</widget>
+		<packing>
+		  <property name="expand">False</property>
+		  <property name="homogeneous">True</property>
+		</packing>
+	      </child>
+
+	      <child>
 		<widget class="GtkSeparatorToolItem" id="toolbar_expander">
 		  <property name="visible">True</property>
 		  <property name="sensitive">False</property>
@@ -1364,7 +1382,7 @@
       <child>
 	<widget class="GtkImage" id="image274">
 	  <property name="visible">True</property>
-	  <property name="pixbuf">pixmaps/porthole-about.png</property>
+	  <property name="pixbuf">porthole-about.png</property>
 	  <property name="xalign">0.5</property>
 	  <property name="yalign">0.5</property>
 	  <property name="xpad">0</property>
@@ -1465,7 +1483,7 @@ Copyright (C) 2003 - 2005</property>
 			  <signal name="activate" handler="on_resume1_activate" last_modification_time="Thu, 19 Feb 2004 08:05:32 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image489">
+			    <widget class="GtkImage" id="image521">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-refresh</property>
 			      <property name="icon_size">1</property>
@@ -1524,7 +1542,7 @@ Copyright (C) 2003 - 2005</property>
 			  <signal name="activate" handler="on_kill" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image490">
+			    <widget class="GtkImage" id="image522">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-cancel</property>
 			      <property name="icon_size">1</property>
@@ -1551,7 +1569,7 @@ Copyright (C) 2003 - 2005</property>
 			  <signal name="activate" handler="on_save_log" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image491">
+			    <widget class="GtkImage" id="image523">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-save</property>
 			      <property name="icon_size">1</property>
@@ -1572,7 +1590,7 @@ Copyright (C) 2003 - 2005</property>
 			  <signal name="activate" handler="on_save_log_as" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image492">
+			    <widget class="GtkImage" id="image524">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-save-as</property>
 			      <property name="icon_size">1</property>
@@ -1593,7 +1611,7 @@ Copyright (C) 2003 - 2005</property>
 			  <signal name="activate" handler="on_open_log" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image493">
+			    <widget class="GtkImage" id="image525">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-open</property>
 			      <property name="icon_size">1</property>
@@ -1620,7 +1638,7 @@ Copyright (C) 2003 - 2005</property>
 			  <signal name="activate" handler="on_quit" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image494">
+			    <widget class="GtkImage" id="image526">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-close</property>
 			      <property name="icon_size">1</property>
@@ -1655,7 +1673,7 @@ Copyright (C) 2003 - 2005</property>
 			  <accelerator key="C" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image495">
+			    <widget class="GtkImage" id="image527">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-copy</property>
 			      <property name="icon_size">1</property>
@@ -1682,7 +1700,7 @@ Copyright (C) 2003 - 2005</property>
 			  <signal name="activate" handler="on_clear" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image496">
+			    <widget class="GtkImage" id="image528">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-clear</property>
 			      <property name="icon_size">1</property>
@@ -1724,7 +1742,7 @@ Copyright (C) 2003 - 2005</property>
 			  <signal name="activate" handler="on_pause_activate" last_modification_time="Thu, 08 Dec 2005 06:32:56 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image497">
+			    <widget class="GtkImage" id="image529">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-media-pause</property>
 			      <property name="icon_size">1</property>
@@ -1746,7 +1764,7 @@ Copyright (C) 2003 - 2005</property>
 			  <signal name="activate" handler="on_resume_queue_activate" last_modification_time="Thu, 08 Dec 2005 06:32:56 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image498">
+			    <widget class="GtkImage" id="image530">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-media-play</property>
 			      <property name="icon_size">1</property>
@@ -1767,10 +1785,9 @@ Copyright (C) 2003 - 2005</property>
 			  <signal name="activate" handler="on_timer_activate" last_modification_time="Fri, 09 Dec 2005 16:04:35 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image499">
+			    <widget class="GtkImage" id="image531">
 			      <property name="visible">True</property>
-			      <property name="stock">gtk-color-picker</property>
-			      <property name="icon_size">1</property>
+			      <property name="pixbuf">pixmaps/porthole-clock-20x20.png</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -1795,7 +1812,7 @@ Copyright (C) 2003 - 2005</property>
 			  <signal name="activate" handler="on_move_up" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image500">
+			    <widget class="GtkImage" id="image532">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-go-up</property>
 			      <property name="icon_size">1</property>
@@ -1817,7 +1834,7 @@ Copyright (C) 2003 - 2005</property>
 			  <signal name="activate" handler="on_move_down" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image501">
+			    <widget class="GtkImage" id="image533">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-go-down</property>
 			      <property name="icon_size">1</property>
@@ -1839,7 +1856,7 @@ Copyright (C) 2003 - 2005</property>
 			  <signal name="activate" handler="on_move_bottom_activate" last_modification_time="Thu, 08 Dec 2005 06:41:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image502">
+			    <widget class="GtkImage" id="image534">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-goto-bottom</property>
 			      <property name="icon_size">1</property>
@@ -1861,7 +1878,7 @@ Copyright (C) 2003 - 2005</property>
 			  <signal name="activate" handler="on_move_top_activate" last_modification_time="Thu, 08 Dec 2005 06:41:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image503">
+			    <widget class="GtkImage" id="image535">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-goto-top</property>
 			      <property name="icon_size">1</property>
@@ -1889,7 +1906,7 @@ Copyright (C) 2003 - 2005</property>
 			  <signal name="activate" handler="on_remove" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image504">
+			    <widget class="GtkImage" id="image536">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-delete</property>
 			      <property name="icon_size">1</property>
@@ -2502,6 +2519,7 @@ Copyright (C) 2003 - 2005</property>
 	      <property name="focus_on_click">True</property>
 	      <property name="active">False</property>
 	      <property name="inconsistent">False</property>
+	      <signal name="clicked" handler="on_pause_button_clicked" last_modification_time="Sat, 06 May 2006 05:30:28 GMT"/>
 
 	      <child>
 		<widget class="GtkImage" id="image487">
@@ -2523,12 +2541,13 @@ Copyright (C) 2003 - 2005</property>
 	  </child>
 
 	  <child>
-	    <widget class="GtkButton" id="play_button">
+	    <widget class="GtkButton" id="play_queue_button">
 	      <property name="visible">True</property>
 	      <property name="tooltip" translatable="yes">Run commands in the queue</property>
 	      <property name="can_focus">True</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>
 	      <property name="focus_on_click">True</property>
+	      <signal name="clicked" handler="on_play_queue_button_clicked" last_modification_time="Sat, 06 May 2006 05:29:35 GMT"/>
 
 	      <child>
 		<widget class="GtkImage" id="image486">
@@ -2558,11 +2577,9 @@ Copyright (C) 2003 - 2005</property>
 	      <property name="focus_on_click">True</property>
 
 	      <child>
-		<widget class="GtkImage" id="image488">
-		  <property name="width_request">36</property>
-		  <property name="height_request">36</property>
+		<widget class="GtkImage" id="image505">
 		  <property name="visible">True</property>
-		  <property name="pixbuf">timer.png</property>
+		  <property name="pixbuf">pixmaps/porthole-clock-20x20.png</property>
 		  <property name="xalign">0.5</property>
 		  <property name="yalign">0.5</property>
 		  <property name="xpad">0</property>
