@@ -613,7 +613,7 @@ class ProcessManager:
                         elif self.config.isAction(self.line_buffer):
                             if not self.term.tab_showing[TAB_INFO]:
                                 self.term.show_tab(TAB_INFO)
-                                self.term.buffer[TAB_INFO].set_modified(True)
+                                self.term.view_buffer[TAB_INFO].set_modified(True)
                             tag = 'caution'
                             self.term.append(TAB_INFO, self.line_buffer, tag)
                         
@@ -622,7 +622,7 @@ class ProcessManager:
                             # Info string has been found, show info tab if needed
                             if not self.term.tab_showing[TAB_INFO]:
                                 self.term.show_tab(TAB_INFO)
-                                self.term.buffer[TAB_INFO].set_modified(True)
+                                self.term.view_buffer[TAB_INFO].set_modified(True)
                             
                             # Check for fatal error
                             #if self.config.isError(self.process_buffer):
@@ -648,7 +648,7 @@ class ProcessManager:
                             # warning string has been found, show info tab if needed
                             if not self.term.tab_showing[TAB_WARNING]:
                                 self.term.show_tab(TAB_WARNING)
-                                self.term.buffer[TAB_WARNING].set_modified(True)
+                                self.term.view_buffer[TAB_WARNING].set_modified(True)
                             # insert the line into the info text buffer
                             tag = 'warning'
                             self.term.append(TAB_WARNING, self.line_buffer)
@@ -658,7 +658,7 @@ class ProcessManager:
                             # warning string has been found, show info tab if needed
                             if not self.term.tab_showing[TAB_CAUTION]:
                                 self.term.show_tab(TAB_CAUTION)
-                                self.term.buffer[TAB_CAUTION].set_modified(True)
+                                self.term.view_buffer[TAB_CAUTION].set_modified(True)
                             # insert the line into the info text buffer
                             tag = 'caution'
                             self.term.append(TAB_CAUTION, self.line_buffer)
@@ -706,7 +706,7 @@ class ProcessManager:
         #dprint("TERMINAL: update() checking file input/reader finished")
         if self.file_input and not self.reader.file_input: # reading file finished
             dprint("LOG: update()... end of file input... cleaning up")
-            self.term.buffer[TAB_PROCESS].set_modified(False)
+            self.term.view_buffer[TAB_PROCESS].set_modified(False)
             self.finish_update()
             self.set_statusbar(_("*** Log loading complete : %s") % self.filename)
             self.reader.f.close()
@@ -809,7 +809,7 @@ class ProcessManager:
         x = line.split("/")
         y = x[1].split(" ")
         name = y[0]
-        self.filename = name + "." + self.term.buffer_types[TAB_PROCESS]
+        self.filename = name + "." + self.term.view_buffer_types[TAB_PROCESS]
         dprint("TERMINAL: New ebuild detected, new filename: " + self.filename)
         return
 
@@ -827,13 +827,13 @@ class ProcessManager:
                         %self.warning_count, 'note')
             if not self.term.tab_showing[TAB_INFO]:
                 self.term.show_tab(TAB_INFO)
-                self.term.buffer[TAB_INFO].set_modified(True)
+                self.term.view_buffer[TAB_INFO].set_modified(True)
         if self.caution_count != 0:
             self.term.append(TAB_INFO, _("*** Total cautions count for merge = %d \n")\
                         %self.caution_count, 'note')
             if not self.term.tab_showing[TAB_INFO]:
                 self.term.show_tab(TAB_INFO)
-                self.term.buffer[TAB_INFO].set_modified(True)
+                self.term.view_buffer[TAB_INFO].set_modified(True)
         return
 
     def process_done(self, *args):
@@ -922,9 +922,9 @@ class ProcessManager:
 
     def estimate_build_time(self):
         """Estimates build times based on emerge --pretend output"""
-        start_iter = self.term.buffer[TAB_PROCESS].get_iter_at_mark(self.term.command_start)
-        output = self.term.buffer[TAB_PROCESS].get_text(start_iter,
-                                 self.term.buffer[TAB_PROCESS].get_end_iter(), False)
+        start_iter = self.term.view_buffer[TAB_PROCESS].get_iter_at_mark(self.term.command_start)
+        output = self.term.view_buffer[TAB_PROCESS].get_text(start_iter,
+                                 self.term.view_buffer[TAB_PROCESS].get_end_iter(), False)
         package_list = []
         total = datetime.timedelta()        
         for line in output.split("\n"):
@@ -978,8 +978,8 @@ class ProcessManager:
         """Sets the save info for the notebook tab's visible buffer"""
         dprint("TERMINAL: Entering set_save_buffer")
         self.buffer_num = self.term.current_tab
-        self.buffer_to_save = self.term.buffer[self.buffer_num]
-        self.buffer_type = self.term.buffer_types[self.buffer_num]
+        self.buffer_to_save = self.term.view_buffer[self.buffer_num]
+        self.buffer_type = self.term.view_buffer_types[self.buffer_num]
         dprint("TERMINAL: set_save_buffer: " + str(self.buffer_num) + " type: " + self.buffer_type)
         return (self.buffer_num != None)
 
@@ -1197,11 +1197,11 @@ class ProcessManager:
         dprint("LOG: Buffer saved, exiting")
         return result
 
-    def check_buffer_saved(self, buffer, save = False):
+    def check_buffer_saved(self, _buffer, save = False):
         """checks if buffer has been modified before saving again"""
         dprint("LOG: Entering check_buffer_saved")
         self.filename = self.pretty_name()
-        if buffer.get_modified():
+        if _buffer.get_modified():
             if save:
                 msg = _("Save log to '%s'?") % self.filename
                 dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,

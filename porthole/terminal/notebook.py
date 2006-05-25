@@ -45,8 +45,8 @@ class TerminalNotebook:
         self.prefs = prefs
         self.view = [] #[None, None, None, None]
         self.scrolled_window = [] #[None, None, None, None, None]
-        self.buffer = [] #[None, None, None, None]
-        self.buffer_types = {TAB_PROCESS:"log",
+        self.view_buffer = [] #[None, None, None, None]
+        self.view_buffer_types = {TAB_PROCESS:"log",
                                          TAB_WARNING:"warning",
                                          TAB_CAUTION:"caution",
                                          TAB_INFO:"summary",
@@ -75,8 +75,8 @@ class TerminalNotebook:
         # get the buffer & view widgets and assign them to their arrays
         widget_labels = ["process_text", "warnings_text", "cautions_text", "info_text"]
         for x in widget_labels:
-            buffer = self.wtree.get_widget(x).get_buffer()
-            self.buffer += [buffer]
+            buff = self.wtree.get_widget(x).get_buffer()
+            self.view_buffer += [buff]
             view = self.wtree.get_widget(x)
             self.view += [view]
             self.last_text += ['\n']
@@ -86,12 +86,14 @@ class TerminalNotebook:
                 if bg: view.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse(bg))
                 if fg: view.modify_text(gtk.STATE_NORMAL, gtk.gdk.color_parse(fg))
                 if font: view.modify_font(pango.FontDescription(font))
+        del buff
         widget_labels = ["scrolledwindow2", "scrolledwindow8", "scrolledwindow7",
                          "scrolledwindow5", "scrolledwindow4"]
         for x in widget_labels:
             window = self.wtree.get_widget(x)
             self.scrolled_window += [window]
-
+        del x
+        
         # Catch button events on info, caution & warning tabs
         # Following a double click on a line, bring that line
         # in the process window into focus near center screen
@@ -101,6 +103,8 @@ class TerminalNotebook:
         self.view[TAB_INFO].connect("button_release_event", self.button_event)
         self.view[TAB_CAUTION].connect("button_release_event", self.button_event)
         self.view[TAB_WARNING].connect("button_release_event", self.button_event)
+        # Initialize event widget source
+        self.event_src = None
 
         # Set formatting tags now that tabs are established
         self.current_tagnames = ['default']
@@ -119,7 +123,7 @@ class TerminalNotebook:
             self.vhandler_id += [id]
             #self.auto_scroll[x] = False  # already initialized to True
             # create autoscroll end marks to seek to &
-            end_mark = self.buffer[x].create_mark(("end_mark"+str(x)), self.buffer[x].get_end_iter(), False)
+            end_mark = self.view_buffer[x].create_mark(("end_mark"+str(x)), self.view_buffer[x].get_end_iter(), False)
             self.end_mark += [end_mark]
         #dprint("NOTEBOOK: __init__() -- self.vadjustment[]," +
         #       "self.vhandler_id[], self.autoscroll")
@@ -207,19 +211,19 @@ class TerminalNotebook:
 
     def copy_selected(self, *widget):
         """ Copy selected text to clipboard """
-        self.buffer[self.current_tab].copy_clipboard(self.clipboard)
+        self.view_buffer[self.current_tab].copy_clipboard(self.clipboard)
         pass
 
     def clear_buffers(self, *widget):
         """ Clear the text buffers """
-        self.buffer[TAB_PROCESS].set_text('')
-        self.buffer[TAB_WARNING].set_text('')
-        self.buffer[TAB_CAUTION].set_text('')
-        self.buffer[TAB_INFO].set_text('')
-        self.buffer[TAB_PROCESS].set_modified(False)
-        self.buffer[TAB_WARNING].set_modified(False)
-        self.buffer[TAB_CAUTION].set_modified(False)
-        self.buffer[TAB_INFO].set_modified(False)
+        self.view_buffer[TAB_PROCESS].set_text('')
+        self.view_buffer[TAB_WARNING].set_text('')
+        self.view_buffer[TAB_CAUTION].set_text('')
+        self.view_buffer[TAB_INFO].set_text('')
+        self.view_buffer[TAB_PROCESS].set_modified(False)
+        self.view_buffer[TAB_WARNING].set_modified(False)
+        self.view_buffer[TAB_CAUTION].set_modified(False)
+        self.view_buffer[TAB_INFO].set_modified(False)
 
     def button_event(self, widget, event):
         """ Catch button events.  When a dbl-click occurs save the widget
@@ -253,7 +257,7 @@ class TerminalNotebook:
                 # goes wrong!
                 line = int(iStart.get_text(iEnd)[0:6]) - 1 
                 # Get the iter based on the line number index
-                iter = self.buffer[TAB_PROCESS].get_iter_at_line_index(line,0)
+                iter = self.view_buffer[TAB_PROCESS].get_iter_at_line_index(line,0)
                 # Scroll to the line, try to position mid-screen
                 self.view[TAB_PROCESS].scroll_to_iter(iter, 0.0, True, 0, 0.5)
                 # Turn off auto scroll
@@ -291,8 +295,8 @@ class TerminalNotebook:
         #       defined for use.  Currently the code determines
         #       when & where to use the tags
         for process_tab in [TAB_PROCESS, TAB_WARNING, TAB_CAUTION, TAB_INFO]:
-            bounds = self.buffer[process_tab].get_bounds()
-            self.buffer[process_tab].remove_all_tags(*bounds)
+            bounds = self.view_buffer[process_tab].get_bounds()
+            self.view_buffer[process_tab].remove_all_tags(*bounds)
             for key in self.prefs.TAG_DICT:
                 text_tag = self.prefs.TAG_DICT[key] 
                 argdict = {}
@@ -304,11 +308,11 @@ class TerminalNotebook:
                     argdict["weight"] = text_tag[2]
                 if key == 'default':
                     argdict = {} # already set as default for textview
-                tag_table = self.buffer[process_tab].get_tag_table()
+                tag_table = self.view_buffer[process_tab].get_tag_table()
                 foundtag = tag_table.lookup(key)
                 if foundtag:
                     tag_table.remove(foundtag)
-                self.buffer[process_tab].create_tag(key, **argdict)
+                self.view_buffer[process_tab].create_tag(key, **argdict)
         # shell format codes. Values defined with other tags in prefs.
         self.esc_seq_dict = { \
             0  : 'default',
@@ -346,8 +350,8 @@ class TerminalNotebook:
         """
         #dprint("Notebook: overwrite() -- num= " + str(num))
         #dprint(self.current_tab)
-        line_number = self.buffer[TAB_PROCESS].get_line_count() 
-        iter = self.buffer[num].get_iter_at_line(line_number)
+        line_number = self.view_buffer[TAB_PROCESS].get_line_count() 
+        iter = self.view_buffer[num].get_iter_at_line(line_number)
         if iter.get_chars_in_line() >= 7:
             iter.set_line_offset(7)
         else:
@@ -355,11 +359,11 @@ class TerminalNotebook:
             iter.set_line_offset(0)
         end = iter.copy()
         end.forward_line()
-        self.buffer[num].delete(iter, end)
+        self.view_buffer[num].delete(iter, end)
         if tagname == None:
-           self.buffer[num].insert_with_tags_by_name(iter, text, *self.current_tagnames)
+           self.view_buffer[num].insert_with_tags_by_name(iter, text, *self.current_tagnames)
         else:
-           self.buffer[num].insert_with_tags_by_name(iter, text, tagname)
+           self.view_buffer[num].insert_with_tags_by_name(iter, text, tagname)
 
     def append(self, num, text, tagname = None):
         """ Append text to a text buffer.  Line numbering based on
@@ -371,17 +375,17 @@ class TerminalNotebook:
         """
         #dprint("Notebook: overwrite() -- num= " + str(num))
         #dprint(self.current_tab)
-        line_number = self.buffer[TAB_PROCESS].get_line_count() 
-        iter = self.buffer[num].get_end_iter()
+        line_number = self.view_buffer[TAB_PROCESS].get_line_count() 
+        iter = self.view_buffer[num].get_end_iter()
         lntext = str(line_number).zfill(6) + ' '
         if self.last_text[num].endswith('\n'):
-            self.buffer[num].insert_with_tags_by_name(iter, lntext, 'linenumber')
+            self.view_buffer[num].insert_with_tags_by_name(iter, lntext, 'linenumber')
         if tagname == None:
-            #self.buffer[num].insert(iter, text)
+            #self.view_buffer[num].insert(iter, text)
             #dprint("Notebook: append(): attempting to set text with tagnames " + str(self.current_tagnames))
-            self.buffer[num].insert_with_tags_by_name(iter, text, *self.current_tagnames)
+            self.view_buffer[num].insert_with_tags_by_name(iter, text, *self.current_tagnames)
         else:
-            self.buffer[num].insert_with_tags_by_name(iter, text, tagname)
+            self.view_buffer[num].insert_with_tags_by_name(iter, text, tagname)
         if self.auto_scroll[num] and num == self.current_tab:
             self.scroll_current_view()
         self.last_text[num] = text
@@ -453,11 +457,11 @@ class TerminalNotebook:
             return False
             
     def set_startmark( self ):
-		start_iter = self.buffer[TAB_PROCESS].get_end_iter()
+		start_iter = self.view_buffer[TAB_PROCESS].get_end_iter()
 		if self.command_start:
 			# move the start mark
-			self.buffer[TAB_PROCESS].move_mark_by_name("command_start",start_iter)
+			self.view_buffer[TAB_PROCESS].move_mark_by_name("command_start",start_iter)
 		else:
 			# create the mark
-			self.command_start = self.buffer[TAB_PROCESS].create_mark( \
+			self.command_start = self.view_buffer[TAB_PROCESS].create_mark( \
 				"command_start",start_iter, True)
