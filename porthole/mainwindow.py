@@ -1005,9 +1005,9 @@ class MainWindow:
         if mode not in [SHOW_SEARCH, SHOW_UPGRADE]:
             self.current_category = category
             self.current_category_cursor = self.category_view.get_cursor()
-        elif mode == SHOW_UPGRADE:
-            self.current_upgrade_category = category
-            self.current_upgrade_cursor = self.category_view.get_cursor()
+        #~ elif mode == SHOW_UPGRADE:
+            #~ self.current_upgrade_category = category
+            #~ self.current_upgrade_cursor = self.category_view.get_cursor()
         else:
             self.current_search = category
             self.current_search_cursor = self.category_view.get_cursor()
@@ -1175,7 +1175,7 @@ class MainWindow:
             if not self.upgrades_loaded:
                 dprint("MAINWINDOW: view_filter_changed(); calling load_upgrades_list ********************************")
                 self.load_upgrades_list()
-                #self.package_view.clear()
+                self.package_view.clear()
                 self.category_view.clear()
                 dprint("MAINWINDOW: view_filter_changed(); back from load_upgrades_list()")
             else:
