@@ -541,10 +541,13 @@ class Summary(gtk.TextView):
         return False
     
     def on_table_clicked(self, eventbox, event):
-        dprint("SUMMARY: EventBox clicked")
+        dprint("SUMMARY: EventBox clicked, button = " + str(event.button))
         #dprint(eventbox)
         #dprint(eventbox.get_parent())
-        #dprint([eventbox.ebuild, eventbox.arch, eventbox.text])
+        dprint([eventbox.ebuild, eventbox.arch, eventbox.text])
+        if event.button == 1 and eventbox.text == 'version': # left click
+            self.selected_ebuild = eventbox.ebuild
+            self.show_version(None)
         if event.button == 3: # secondary mouse button
             self.do_table_popup(eventbox, event)
         return True
