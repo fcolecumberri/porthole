@@ -91,13 +91,21 @@ def load_textfile(view, package, mode, version = None):
                 #dprint("LOADERS: load_textfile(): package file '%s'" % package_file)
             else:
                 package_file = "/" + package.full_name + Textfile_type[mode]
+                dprint("LOADERS: load_textfile(): package_file = " + package_file)
             try:
-                if _portage_lib.is_overlay(ebuild):
+                dprint("loaders:load_textfile(); try opening & reading the file")
+                if mode == "changelog":
+                    try:
+                        f = open(_portage_lib.portdir + package_file)
+                    except:
+                        f = open(_portage_lib.portdir_overlay + package_file)
+                elif _portage_lib.is_overlay(ebuild):
+                    dprint("LOADERS: load_textfile(); loading from an overlay")
                     f = open(_portage_lib.portdir_overlay + package_file)
-                    data = f.read(); f.close()
                 else:
+                    dprint("LOADERS: load_textfile(): loading from the portage tree")
                     f = open(_portage_lib.portdir + package_file)
-                    data = f.read(); f.close()
+                data = f.read(); f.close()
 
                 if data != None:
                     try:
