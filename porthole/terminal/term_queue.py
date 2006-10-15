@@ -99,6 +99,20 @@ class TerminalQueue:
         self.play_menu = self.wtree.get_widget("resume_queue")
         self.pause_btn = self.wtree.get_widget("pause_button")
         self.pause_menu = self.wtree.get_widget("pause")
+        dprint("TERM_QUEUE: Attempting to change the pause, paly button image colors")
+        """ Set up different colors for the pause & play buttons depending on it's state
+            gtk.STATE_NORMAL	State during normal operation.
+            gtk.STATE_ACTIVE	State of a currently active widget, such as a depressed button.
+            gtk.STATE_PRELIGHT	State indicating that the mouse pointer is over the widget and the widget will respond to mouse clicks.
+            gtk.STATE_SELECTED	State of a selected item, such the selected row in a list.
+            gtk.STATE_INSENSITIVE	State indicating that the widget is unresponsive to user actions.
+        """
+        self.pause_btn.modify_fg(gtk.STATE_INSENSITIVE, gtk.gdk.color_parse("#962A1C"))
+        self.pause_btn.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#DA311B"))
+        self.pause_btn.modify_fg(gtk.STATE_PRELIGHT, gtk.gdk.color_parse("#F65540"))
+        self.play_btn.modify_fg(gtk.STATE_INSENSITIVE, gtk.gdk.color_parse("#3C6E38"))
+        self.play_btn.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#4EBA44"))
+        self.play_btn.modify_fg(gtk.STATE_PRELIGHT, gtk.gdk.color_parse("#58F64A"))
         # catch clicks to the queue tree
         self.queue_tree.connect("cursor-changed", self.clicked)
         # setup the queue treeview
