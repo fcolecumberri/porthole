@@ -357,10 +357,10 @@ class DependsTree(gtk.TreeStore):
                 depends_list.pop(0)
         return atomized_list
     
-    def fill_depends_tree(self, treeview, package):
+    def fill_depends_tree(self, treeview, package, ebuild):
         """Fill the dependencies tree for a given ebuild"""
         #dprint("DEPENDS: Updating deps tree for " + package.get_name())
-        ebuild = package.get_default_ebuild()
+        #ebuild = package.get_default_ebuild()
         ##depends = portagelib.get_property(ebuild, "DEPEND").split()
         depends = (package.get_properties().depend.split() +
                    package.get_properties().rdepend.split())

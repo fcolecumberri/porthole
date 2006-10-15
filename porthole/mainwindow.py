@@ -274,6 +274,7 @@ class MainWindow:
         self.last_view_setting = None
         # set notebook tabs to load new package info
         self.deps_filled = self.changelog_loaded = self.installed_loaded = self.ebuild_loaded = False
+        self.ebuild_loaded_version = None
         # declare the database
         self.db = _portage_lib.Database()#        self.db = None
         self.ut_running = False
@@ -1078,9 +1079,11 @@ class MainWindow:
         cur_page = self.notebook.get_current_page()
         # reset notebook tabs to reload new package info
         self.deps_filled = self.changelog_loaded = self.installed_loaded = self.ebuild_loaded = False
+        self.ebuild_loaded_version = None
         if cur_page == 1:
-            self.deps_view.fill_depends_tree(self.deps_view, package)
+            self.deps_view.fill_depends_tree(self.deps_view, package, self.summary.ebuild)
             self.deps_filled = True
+            self.deps_version = self.summary.ebuild
         elif cur_page == 2:
             load_textfile(self.changelog, package, "changelog")
             self.changelog_loaded = True
@@ -1088,8 +1091,9 @@ class MainWindow:
             load_installed_files(self.installed_window, self.installed_files, package)
             self.installed_loaded = True
         elif cur_page == 4:
-            load_textfile(self.ebuild, package, "best_ebuild")
+            load_textfile(self.ebuild, package, "version_ebuild", self.summary.ebuild)
             self.ebuild_loaded = True
+            self.ebuild_loaded_version = self.summary.ebuild
         else:
             for i in self.plugin_package_tabs:
                 #Search through the plugins dictionary and select the correct one.
@@ -1100,10 +1104,11 @@ class MainWindow:
         """Catch when the user changes the notebook"""
         package = utils.get_treeview_selection(self.package_view, 2)
         if index == 1:
-            if not self.deps_filled:
+            if not self.deps_filled or self.deps_version != self.summary.ebuild:
                 # fill the deps view!
-                self.deps_view.fill_depends_tree(self.deps_view, package)
+                self.deps_view.fill_depends_tree(self.deps_view, package, self.summary.ebuild)
                 self.deps_filled = True
+                self.deps_version = self.summary.ebuild
         elif index == 2:
             if not self.changelog_loaded:
                 # fill in the change log
@@ -1115,15 +1120,17 @@ class MainWindow:
                 load_installed_files(self.installed_window, self.installed_files, package)
                 self.installed_loaded = True
         elif index == 4:
-            if not self.ebuild_loaded:
-                # load list of installed files
-                load_textfile(self.ebuild, package, "best_ebuild")
+            dprint("MAINWINDOW: notebook_changed(); self.summary.ebuild = " + str(self.summary.ebuild))
+            if not self.ebuild_loaded or self.ebuild_loaded_version != self.summary.ebuild:
+                #load_textfile(self.ebuild, package, "best_ebuild")
+                load_textfile(self.ebuild, package, "version_ebuild", self.summary.ebuild)
                 self.ebuild_loaded = True
-            else:
-                for i in self.plugin_package_tabs:
-                    #Search through the plugins dictionary and select the correct one.
-                    if self.plugin_package_tabs[i][2] == index:
-                        self.plugin_package_tabs[i][0]( package )
+                self.ebuild_loaded_version = self.summary.ebuild
+        else:
+            for i in self.plugin_package_tabs:
+                #Search through the plugins dictionary and select the correct one.
+                if self.plugin_package_tabs[i][2] == index:
+                    self.plugin_package_tabs[i][0]( package )
 
     def view_filter_changed(self, widget):
         """Update the treeviews for the selected filter"""

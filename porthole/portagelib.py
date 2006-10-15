@@ -37,6 +37,8 @@ try:
 except ImportError:
     exit(_('Could not find portage module.\n'
          'Are you sure this is a Gentoo system?'))
+         
+#from gentoolkit import package as gen_Package
 
 import threading
 
@@ -196,6 +198,7 @@ def get_portage_environ(var):
     except: temp = None
     return temp
 
+settings = portage.config(clone=portage.settings)
 portdir = portage.config(clone=portage.settings).environ()['PORTDIR']
 # is PORTDIR_OVERLAY always defined?
 portdir_overlay = get_portage_environ('PORTDIR_OVERLAY')
@@ -631,6 +634,8 @@ class Properties:
     """Contains all variables in an ebuild."""
     def __init__(self, dict = None):
         self.__dict = dict
+        #dprint("PORTAGELIB: Properties=")
+        #dprint(dict)
         
     def __getattr__(self, name):
         try: return self.__dict[name]
@@ -706,6 +711,17 @@ def get_properties(ebuild):
         if vartree.dbapi.cpv_exists(ebuild): # elif in installed pkg tree
             return Properties(dict(zip(keys, vartree.dbapi.aux_get(ebuild, portage.auxdbkeys))))
         else: return Properties()
+
+def is_overlay(cpv): # lifted from gentoolkit
+    """Returns true if the package is in an overlay."""
+    dir,ovl = portage.portdb.findname2(cpv)
+    return ovl != portdir
+
+def get_overlay(cpv):
+    """Returns an overlay."""
+    dir,ovl = portage.portdb.findname2(cpv)
+    return ovl
+
     
 def get_metadata(package):
     """Get the metadata for a package"""
@@ -885,7 +901,7 @@ class Package:
         criterion = include_masked and 'match-all' or 'match-visible'
         #dprint("PORTAGELIb: get_versions(); criterion = %s, package = %s" %(str(criterion),self.full_name))
         v = portage.portdb.xmatch(criterion, str(self.full_name))
-        #dprint("PORTAGELIb: Package.get_versions(); v = %s" %str(v))
+        dprint("PORTAGELIb: Package.get_versions(); v = %s" %str(v))
         return  v #portage.portdb.xmatch(criterion, str(self.full_name))
 
     def get_hard_masked(self, check_unmask = False):

@@ -69,7 +69,11 @@ def load_textfile(view, package, mode, version = None):
         """ Load and display a text file associated with a package """
         if package:
             dprint("LOADERS; load_textfile(): for '%s'" % package.full_name)
-            if mode != "changelog":
+            if mode == "version_ebuild":
+                ebuild = version
+                dprint("LOADERS; load_textfile(): version_ebuild = " + ebuild)
+                package_file = ('/' + package.full_name + '/' + ebuild.split('/')[1]) + Textfile_type[mode]
+            elif mode != "changelog":
                 installed = package.get_installed()
                 versions = package.get_versions()
                 nonmasked = package.get_versions(include_masked = False)
@@ -82,17 +86,19 @@ def load_textfile(view, package, mode, version = None):
                     #dprint("LOADERS; load_textfile(): best_ebuild '%s'" % ebuild)
                     package_file = ('/' + package.full_name + '/' + ebuild.split('/')[1]) + Textfile_type[mode]
                 else:
+                    dprint("LOADERS: load_textfile(); version = " + version)
                     package_file = ('/' + package.full_name + '/' + package.full_name.split('/')[1] + '-' + version + Textfile_type[mode])
                 #dprint("LOADERS: load_textfile(): package file '%s'" % package_file)
             else:
                 package_file = "/" + package.full_name + Textfile_type[mode]
             try:
-                try:
-                    f = open(_portage_lib.portdir + package_file)
-                    data = f.read(); f.close()
-                except:
+                if _portage_lib.is_overlay(ebuild):
                     f = open(_portage_lib.portdir_overlay + package_file)
                     data = f.read(); f.close()
+                else:
+                    f = open(_portage_lib.portdir + package_file)
+                    data = f.read(); f.close()
+
                 if data != None:
                     try:
                         dprint("LOADERS: load_textfile(); trying utf_8 encoding")

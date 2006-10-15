@@ -819,12 +819,13 @@ class DependsView(CommonTreeView):
         dprint("VIEWS: Depends view initialized")
         #return self
 
-    def fill_depends_tree(self, treeview, package):
+    def fill_depends_tree(self, treeview, package, ebuild):
         """ Fill the dependency tree with dependencies """
         # set column title to indicate which ebuild we're using
+        dprint("VIEWS: DependsView.fill_depends_tree(); ebuild = " + ebuild)
         title = self.get_column(0).get_title()
-        self.get_column(0).set_title(_("Dependencies") + ":  " + str(package.get_default_ebuild()))
-        self.model.fill_depends_tree(treeview, package)
+        self.get_column(0).set_title(_("Dependencies") + ":  " + str(ebuild)) #package.get_default_ebuild()))
+        self.model.fill_depends_tree(treeview, package, ebuild)
 
     def populate_info(self):
         """ Populate the current view with packages """

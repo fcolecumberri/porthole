@@ -4,7 +4,7 @@
     Porthole Summary Class
     Loads package info into a textview and makes it pretty
 
-    Copyright (C) 2003 - 2005 Fredrik Arnerup, Daniel G. Taylor,
+    Copyright (C) 2003 - 2006 Fredrik Arnerup, Daniel G. Taylor,
     Brian Dolbec, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify
@@ -24,6 +24,7 @@
 
 import gtk, pango
 import re
+from types import *
 import utils
 from utils import dprint
 global PORTAGE
@@ -64,6 +65,7 @@ class Summary(gtk.TextView):
         self.set_buffer(self.buffer)
         self.license_dir = "file://"+ _portage_lib.portdir + "/licenses/"
         self.package = None
+        self.ebuild = None
 
         # Capture any mouse motion in this tab so we
         # can highlight URL links & change mouse pointer
@@ -96,6 +98,8 @@ class Summary(gtk.TextView):
         menuitems["package-unmask"].connect("activate", self.package_unmask)
         menuitems["un-package-unmask"] = gtk.MenuItem(_("Remask this ebuild"))
         menuitems["un-package-unmask"].connect("activate", self.un_package_unmask)
+        menuitems["show_props"] = gtk.MenuItem(_("Show the propeties for this ebuild"))
+        menuitems["show_props"].connect("activate", self.show_version)
         
         for item in menuitems.values():
             menu.append(item)
@@ -158,7 +162,7 @@ class Summary(gtk.TextView):
             self.reset_cursor = False
         return False
 
-    def update_package_info(self, package):
+    def update_package_info(self, package, _ebuild = None):
         """ Update the notebook of information about a selected package """
 
         ######################################
@@ -241,75 +245,56 @@ class Summary(gtk.TextView):
             if self.prefs.globals.enable_archlist:
                 dprint("SUMMARY: create_ebuild_table: creating archlist enabled table")
                 archlist = self.prefs.globals.archlist
-                rows = 1 + len(ebuilds)
-                cols = 1 + len(archlist)
-                table = gtk.Table(rows, cols)
-                table.attach(boxify(gtk.Label(), "white"), 0, 1, 0, 1)
-                x = 0
-                for arch in archlist:
-                    x += 1
-                    label = gtk.Label(arch)
-                    label.set_padding(3, 3)
-                    table.attach(boxify(label, "#EEEEEE"), x, x+1, 0, 1)
-                y = len(ebuilds) + 1
-                for ebuild in ebuilds:
-                    y -= 1
-                    version = _portage_lib.get_version(ebuild)
-                    label = gtk.Label(str(version))
-                    label.set_padding(3, 3)
-                    table.attach(boxify(label, "#EEEEEE"), 0, 1, y, y+1)
-                    keys = package.get_properties(ebuild).get_keywords()
-                    x = 0
-                    for arch in archlist:
-                        x += 1
-                        if "".join(["~", arch]) in keys:
-                            text = "~"
-                            color = "#EEEE90"
-                        elif arch in keys:
-                            text = "+"
-                            color = "#90EE90"
-                        else:
-                            text = "-"
-                            color = "#EEEEEE"
-                        if ebuild in hardmasked and text != "-":
-                            text = "".join(["M", text])
-                            color = "#ED9191"
-                        if ebuild in installed and arch == myarch:
-                            color = "#9090EE"
-                        if (ebuild in keyword_unmasked and '~' in text and
-                                    '~' + arch in keyword_unmasked[ebuild]):
-                            # take account of package.keywords in text but leave colour unchanged
-                            text = text.replace('~', '(+)')
-                        if ebuild in package_unmasked and 'M' in text:
-                            text = '[' + text.replace('M', '') + ']'
-                        label = gtk.Label(text)
-                        box = boxify(label, color=color, ebuild=ebuild, arch=arch, text=text)
-                        if "M" in text or "[" in text:
-                            self.tooltips.set_tip(box, _portage_lib.get_masking_reason(ebuild))
-                        table.attach(box, x, x+1, y, y+1)
             else:
                 dprint("SUMMARY: create_ebuild_table: creating single arch table")
                 archlist = [myarch]
-                rows = 2
-                cols = 1 + len(ebuilds)
-                table = gtk.Table(rows, cols)
-                label = gtk.Label()
-                table.attach(boxify(label, "white"), 0, 1, 0, 1)
-                label = gtk.Label(myarch)
+            #if True: # saves an unindent for testing change    
+            rows = 1 + len(ebuilds)
+            cols = 2 + len(archlist)
+            table = gtk.Table(rows, cols)
+            table.attach(boxify(gtk.Label(), "white"), 0, 1, 0, 1)
+            label = gtk.Label(_("Overlay"))
+            label.set_padding(3, 3)
+            table.attach(boxify(label, "#EEEEEE"), 1, 2, 0, 1)
+            x = 1
+            for arch in archlist:
+                x += 1
+                label = gtk.Label(arch)
                 label.set_padding(3, 3)
-                table.attach(boxify(label, "#EEEEEE"), 0, 1, 1, 2)
-                x = 0
-                for ebuild in ebuilds:
+                table.attach(boxify(label, "#EEEEEE"), x, x+1, 0, 1)
+            y = rows
+            for ebuild in ebuilds:
+                y -= 1
+                version = _portage_lib.get_version(ebuild)
+                ver_label = gtk.Label(str(version))
+                ver_label.set_padding(3, 3)
+                # overlay column
+                overlay = _portage_lib.get_overlay(ebuild)
+                if type(overlay) is IntType: # catch obsolete 
+                    overlay = _("Ebuild version no longer supported")
+                    overlay_label = gtk.Label(_("Obsolete"))
+                    label_color = "#ED9191"
+                else:
+                    if overlay != _portage_lib.portdir:
+                        overlay_label = gtk.Label(_("Y"))
+                    else:
+                        overlay_label = gtk.Label(_("N"))
+                    label_color = "#EEEEEE"
+                overlay_label.set_padding(3, 3)
+                box = boxify(overlay_label, label_color)
+                self.tooltips.set_tip(box, overlay)
+                # attach version and overlay columns
+                table.attach(boxify(ver_label, label_color, ebuild, '.', "version"), 0, 1, y, y+1)
+                table.attach(box, 1, 2, y, y+1)
+                
+                keys = package.get_properties(ebuild).get_keywords()
+                x = 1
+                for arch in archlist:
                     x += 1
-                    version = _portage_lib.get_version(ebuild)
-                    label = gtk.Label(str(version))
-                    label.set_padding(3, 3)
-                    table.attach(boxify(label, "#EEEEEE"), x, x+1, 0, 1)
-                    keys = package.get_properties(ebuild).get_keywords()
-                    if "".join(["~", myarch]) in keys:
+                    if "".join(["~", arch]) in keys:
                         text = "~"
                         color = "#EEEE90"
-                    elif myarch in keys:
+                    elif arch in keys:
                         text = "+"
                         color = "#90EE90"
                     else:
@@ -318,19 +303,19 @@ class Summary(gtk.TextView):
                     if ebuild in hardmasked and text != "-":
                         text = "".join(["M", text])
                         color = "#ED9191"
-                    if ebuild in installed:
+                    if ebuild in installed and arch == myarch:
                         color = "#9090EE"
                     if (ebuild in keyword_unmasked and '~' in text and
-                                '~' + myarch in keyword_unmasked[ebuild]):
+                                '~' + arch in keyword_unmasked[ebuild]):
                         # take account of package.keywords in text but leave colour unchanged
                         text = text.replace('~', '(+)')
                     if ebuild in package_unmasked and 'M' in text:
                         text = '[' + text.replace('M', '') + ']'
                     label = gtk.Label(text)
-                    box = boxify(label, color=color, ebuild=ebuild, arch=myarch, text=text)
-                    if 'M' in text or '[' in text:
+                    box = boxify(label, color=color, ebuild=ebuild, arch=arch, text=text)
+                    if "M" in text or "[" in text:
                         self.tooltips.set_tip(box, _portage_lib.get_masking_reason(ebuild))
-                    table.attach(box, x, x+1, 1, 2)
+                    table.attach(box, x, x+1, y, y+1)
             table.set_row_spacings(1)
             table.set_col_spacings(1)
             table.set_border_width(1)
@@ -358,7 +343,72 @@ class Summary(gtk.TextView):
                 box.connect("enter-notify-event", self.on_table_mouse)
                 box.connect("leave-notify-event", self.on_table_mouse)
             return box
-        
+
+        def show_props(ebuild):
+            # Check package.use to see if it applies to this ebuild at all
+            package_use_flags = _portage_lib.get_user_config('package.use', ebuild=ebuild)
+            dprint("SUMARY: update_package_info(); package_use_flags = %s" %str(package_use_flags))
+            if package_use_flags != None and package_use_flags != []:
+                dprint("SUMARY: update_package_info(); adding package_use_flags to ebuild_use_flags")
+                ebuild_use_flags = system_use_flags + package_use_flags
+            else:
+                dprint("SUMARY: update_package_info(); adding only system_use_flags to ebuild_use_flags")
+                ebuild_use_flags = system_use_flags
+            # Use flags
+            if use_flags and self.prefs.summary.showuseflags:
+                append(_("Use flags: "), "property")
+                first_flag = True
+                for flag in use_flags:
+                    # Check to see if flag applies:
+                    if flag in ebuild_use_flags and '-' + flag in ebuild_use_flags:
+                        # check to see which comes last (this will be the applicable one)
+                        ebuild_use_flags.reverse()
+                        if ebuild_use_flags.index(flag) < ebuild_use_flags.index('-' + flag):
+                            flag_active = True
+                        else:
+                            flag_active = False
+                        ebuild_use_flags.reverse()
+                    elif flag in ebuild_use_flags:
+                        flag_active = True
+                    else:
+                        flag_active = False
+                    
+                    if not first_flag:
+                        append(", ", "value")
+                    else:
+                        first_flag = False
+                    # Added +/- for color impaired folks
+                    if flag_active:
+                        append('+' + flag,"useset")
+                    else:
+                        append('-' + flag,"useunset")
+                nl(2)
+
+            # Keywords
+            if keywords and self.prefs.summary.showkeywords:
+                append(_("Keywords: "), "property")
+                first_keyword = True
+                for keyword in keywords:
+                    if not first_keyword:
+                        append(", ", "value")
+                    else:
+                        first_keyword = False
+                    append(keyword, "value")
+                nl(2)
+
+            # License
+            if licenses and self.prefs.summary.showlicense:
+                append(_("License: "), "property")
+                _licenses = licenses.split()
+                x = 0
+                for license in _licenses:
+                    if license not in ["||","(",")"]:
+                        if x > 0:
+                            append( ', ')
+                        append_url(license, self.license_dir + license, "blue")
+                        x += 1
+                nl()
+
         # End supporting internal functions
         ####################################
 
@@ -389,12 +439,15 @@ class Summary(gtk.TextView):
         
         best = _portage_lib.best(installed + nonmasked)
         #dprint("SUMMARY: best = %s" %best)
-        if best == "": # all versions are masked and the package is not installed
-            ebuild = package.get_latest_ebuild(True) # get latest masked version
+        if _ebuild:
+            self.ebuild = _ebuild
         else:
-            ebuild = best
+            if best == "": # all versions are masked and the package is not installed
+                self.ebuild = package.get_latest_ebuild(True) # get latest masked version
+            else:
+                self.ebuild = best
         #dprint("SUMMARY: getting properties for ebuild version %s" %ebuild)
-        props = package.get_properties(ebuild)
+        props = package.get_properties(self.ebuild)
         description = props.description
         homepages = props.get_homepages() # may be more than one
         #dprint("SUMMARY: Summary; getting use flags")
@@ -468,73 +521,9 @@ class Summary(gtk.TextView):
             nl(2)
         
         append(_("Properties for version: "), "property")
-        append(_portage_lib.get_version(ebuild))
+        append(_portage_lib.get_version(self.ebuild))
         nl(2)
-        
-        # Check package.use to see if it applies to this ebuild at all
-        package_use_flags = _portage_lib.get_user_config('package.use', ebuild=ebuild)
-        dprint("SUMARY: update_package_info(); package_use_flags = %s" %str(package_use_flags))
-        if package_use_flags != None and package_use_flags != []:
-            dprint("SUMARY: update_package_info(); adding package_use_flags to ebuild_use_flags")
-            ebuild_use_flags = system_use_flags + package_use_flags
-        else:
-            dprint("SUMARY: update_package_info(); adding only system_use_flags to ebuild_use_flags")
-            ebuild_use_flags = system_use_flags
-        # Use flags
-        if use_flags and self.prefs.summary.showuseflags:
-            append(_("Use flags: "), "property")
-            first_flag = True
-            for flag in use_flags:
-                # Check to see if flag applies:
-                if flag in ebuild_use_flags and '-' + flag in ebuild_use_flags:
-                    # check to see which comes last (this will be the applicable one)
-                    ebuild_use_flags.reverse()
-                    if ebuild_use_flags.index(flag) < ebuild_use_flags.index('-' + flag):
-                        flag_active = True
-                    else:
-                        flag_active = False
-                    ebuild_use_flags.reverse()
-                elif flag in ebuild_use_flags:
-                    flag_active = True
-                else:
-                    flag_active = False
-                
-                if not first_flag:
-                    append(", ", "value")
-                else:
-                    first_flag = False
-                # Added +/- for color impaired folks
-                if flag_active:
-                    append('+' + flag,"useset")
-                else:
-                    append('-' + flag,"useunset")
-            nl(2)
-
-        # Keywords
-        if keywords and self.prefs.summary.showkeywords:
-            append(_("Keywords: "), "property")
-            first_keyword = True
-            for keyword in keywords:
-                if not first_keyword:
-                    append(", ", "value")
-                else:
-                    first_keyword = False
-                append(keyword, "value")
-            nl(2)
-
-        # License
-        if licenses and self.prefs.summary.showlicense:
-            append(_("License: "), "property")
-            _licenses = licenses.split()
-            x = 0
-            for license in _licenses:
-                if license not in ["||","(",")"]:
-                    if x > 0:
-                        append( ', ')
-                    append_url(license, self.license_dir + license, "blue")
-                    x += 1
-            nl()
-
+        show_props(self.ebuild)
 
     def on_button_press(self, summaryview, event):
         """Button press callback for Summary.
@@ -700,4 +689,7 @@ class Summary(gtk.TextView):
         ebuild = "=" + self.selected_ebuild
         _portage_lib.set_user_config(self.prefs, 'package.unmask', remove=ebuild, callback=self.update_callback)
     
+    def show_version(self, menuitem_widget):
+        ebuild =  self.selected_ebuild
+        self.update_package_info(self.package, ebuild)
 
