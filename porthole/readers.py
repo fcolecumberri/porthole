@@ -116,12 +116,15 @@ class UpgradableListReader(CommonReader):
 
     def get_system_list( self ):
         dprint("READERS: UpgradableListReader; getting system package list")
-        self.terminal = SimpleTerminal(self.system_cmd, need_output=True,  dprint_output='', callback=None)
-        self.terminal._run()
-        dprint("READERS: UpgradableListReader; waiting...")
-        while self.terminal.reader.process_running:
-            time.sleep(0.10)
-        self.categories["System"] = self.make_list(self.terminal.reader.string)
+        if True:
+            #~ self.terminal = SimpleTerminal(self.system_cmd, need_output=True,  dprint_output='', callback=None)
+            #~ self.terminal._run()
+            #~ dprint("READERS: UpgradableListReader; waiting...")
+            #~ while self.terminal.reader.process_running:
+                #~ time.sleep(0.10)
+            #~ self.categories["System"] = self.make_list(self.terminal.reader.string)
+        #~ else:
+            self.categories["System"] = _portage_lib.get_system_pkgs()   #self.make_list(self.terminal.reader.string)
         self.progress = 2
         dprint("READERS: UpgradableListReader; new system pkg list %s" %str(self.categories["System"]))
 

@@ -4,8 +4,11 @@
     PortageLib
     An interface library to Gentoo's Portage
 
-    Copyright (C) 2003 - 2005 Fredrik Arnerup, Daniel G. Taylor,
+    Copyright (C) 2003 - 2006 Fredrik Arnerup, Daniel G. Taylor,
     Wm. F. Wheeler, Brian Dolbec, Tommy Iorns
+
+    Copyright(c) 2004, Karl Trygve Kalleberg <karltk@gentoo.org>
+    Copyright(c) 2004, Gentoo Foundation
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -237,6 +240,7 @@ def get_name(full_name):
 
 def pkgsplit(ebuild):
     """Split ebuild into [category/package, version, release]"""
+    dprint("PORTAGELIB: pkgsplit(); calling portage function")
     return portage.pkgsplit(ebuild)
 
 def get_category(full_name):
@@ -729,6 +733,53 @@ def get_metadata(package):
     # but we are unlikely to find any metadata files there
     try: return parse_metadata(portdir + "/" + package + "/metadata.xml")
     except: return None
+
+def get_system_pkgs(): # lifted from gentoolkit
+	"""Returns a tuple of lists, first list is resolved system packages,
+	second is a list of unresolved packages."""
+	pkglist = settings.packages
+	resolved = []
+	unresolved = []
+	for x in pkglist:
+		cpv = x.strip()
+		if len(cpv) and cpv[0] == "*":
+			pkg = find_best_match(cpv)
+			if pkg:
+				resolved.append(get_full_name(pkg))
+			else:
+				unresolved.append(get_full_name(cpv))
+	return (resolved + unresolved)
+
+
+def find_best_match(search_key): # lifted from gentoolkit
+    """Returns a Package object for the best available installed candidate that
+    matched the search key. Doesn't handle virtuals perfectly"""
+    # FIXME: How should we handle versioned virtuals??
+    dprint("PORTAGELIB: find_best_match(search_key)=" + search_key)
+    cat,pkg,ver,rev = split_package_name(search_key)
+    if cat == "virtual":
+        t = portage.db["/"]["vartree"].dep_bestmatch(cat+"/"+pkg)
+    else:
+        t = portage.db["/"]["vartree"].dep_bestmatch(search_key)
+    if t:
+        return t
+    return None
+
+def split_package_name(name): # lifted from gentoolkit, handles vituals for find_best_match()
+	"""Returns a list on the form [category, name, version, revision]. Revision will
+	be 'r0' if none can be inferred. Category and version will be empty, if none can
+	be inferred."""
+	r = portage.catpkgsplit(name)
+	if not r:
+		r = name.split("/")
+		if len(r) == 1:
+			return ["", name, "", "r0"]
+		else:
+			return r + ["", "r0"]
+	if r[0] == 'null':
+		r[0] = ''
+	return r
+
 
 class Package:
     """An entry in the package database"""

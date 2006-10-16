@@ -1079,26 +1079,8 @@ class MainWindow:
         cur_page = self.notebook.get_current_page()
         # reset notebook tabs to reload new package info
         self.deps_filled = self.changelog_loaded = self.installed_loaded = self.ebuild_loaded = False
-        self.ebuild_loaded_version = None
-        if cur_page == 1:
-            self.deps_view.fill_depends_tree(self.deps_view, package, self.summary.ebuild)
-            self.deps_filled = True
-            self.deps_version = self.summary.ebuild
-        elif cur_page == 2:
-            load_textfile(self.changelog, package, "changelog")
-            self.changelog_loaded = True
-        elif cur_page == 3:
-            load_installed_files(self.installed_window, self.installed_files, package)
-            self.installed_loaded = True
-        elif cur_page == 4:
-            load_textfile(self.ebuild, package, "version_ebuild", self.summary.ebuild)
-            self.ebuild_loaded = True
-            self.ebuild_loaded_version = self.summary.ebuild
-        else:
-            for i in self.plugin_package_tabs:
-                #Search through the plugins dictionary and select the correct one.
-                if self.plugin_package_tabs[i][2] == cur_page:
-                    self.plugin_package_tabs[i][0]( package )
+        self.ebuild_loaded_version = self.deps_version = None
+        self.notebook_changed( None, None, cur_page)
 
     def notebook_changed(self, widget, pointer, index):
         """Catch when the user changes the notebook"""
