@@ -48,7 +48,7 @@ from dispatcher import Dispatcher
 from about import AboutDialog
 from utils import dprint
 #from process import ProcessWindow  # no longer used in favour of terminal and would need updating to be used
-from summary import Summary
+from packagebook.summary import Summary
 from terminal.terminal import ProcessManager
 from views import CategoryView, PackageView, DependsView, CommonTreeView
 from depends import DependsTree
@@ -775,7 +775,7 @@ class MainWindow:
         package = utils.get_treeview_selection(self.package_view, 2)
         if (sudo or (not self.is_root and utils.can_sudo())) \
                 and not self.prefs.emerge.pretend:
-            self.setup_command(package.get_name(), 'sudo -p "Password: " emerge unmerge' +
+            self.setup_command(package.get_name(), 'sudo -p "Password: " emerge --unmerge' +
                     self.prefs.emerge.get_string() + package.full_name)
         else:
             self.setup_command(package.get_name(), "emerge unmerge" +
