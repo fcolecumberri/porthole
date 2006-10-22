@@ -5,7 +5,8 @@
     Porthole Main Window
     The main interface the user will interact with
 
-    Copyright (C) 2003 - 2005 Fredrik Arnerup, Brian Dolbec, 
+    Copyright (C) 2003 - 2006
+    Fredrik Arnerup, Brian Dolbec, 
     Daniel G. Taylor, Wm. F. Wheeler, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify
@@ -48,10 +49,10 @@ from dispatcher import Dispatcher
 from about import AboutDialog
 from utils import dprint
 #from process import ProcessWindow  # no longer used in favour of terminal and would need updating to be used
-from packagebook.summary import Summary
+from packagebook.notebook import PackageNotebook
 from terminal.terminal import ProcessManager
 from views import CategoryView, PackageView, DependsView, CommonTreeView
-from depends import DependsTree
+from packagebook.depends import DependsTree
 from command import RunDialog
 from advemerge import AdvancedEmergeDialog
 from plugin import PluginGUI, PluginManager
@@ -121,7 +122,6 @@ class MainWindow:
             "on_about" : self.about,
             "view_filter_changed" : self.view_filter_changed,
             "on_pretend1_activate" : self.pretend_set,
-            "on_notebook_switch_page" : self.notebook_changed,
             "on_fetch_activate" : self.fetch_set,
             "on_verbose_activate" : self.verbose_set,
             "on_search_descriptions1_activate" : self.search_set,
@@ -141,11 +141,15 @@ class MainWindow:
         self.set_statusbar2("Starting")
         # aliases for convenience
         self.mainwindow = self.wtree.get_widget("main_window")
-        self.notebook = self.wtree.get_widget("notebook")
-        self.installed_window = self.wtree.get_widget("installed_files_scrolled_window")
-        self.changelog = self.wtree.get_widget("changelog").get_buffer()
-        self.installed_files = self.wtree.get_widget("installed_files").get_buffer()
-        self.ebuild = self.wtree.get_widget("ebuild").get_buffer()
+        callbacks = {
+            "summary_callback" : self.summary_callback,
+            "re_init_portage" : self.re_init_portage,
+            "set_package_actions_sensitive" : self.set_package_actions_sensitive
+        }
+        # initialize this now cause we need it next
+        self.plugin_package_tabs = {}
+        # create the primary package notebook
+        self.packagebook = PackageNotebook(self.prefs, self.wtree, callbacks, self.plugin_package_tabs)
         # set unfinished items to not be sensitive
         #self.wtree.get_widget("contents2").set_sensitive(False)
         # self.wtree.get_widget("btn_help").set_sensitive(False)
@@ -158,14 +162,6 @@ class MainWindow:
         #self.package_view.register_callbacks(self.package_changed, None, self.pkg_path_callback)
         self.package_view.register_callbacks(self.packageview_callback)
         result = self.wtree.get_widget("package_scrolled_window").add(self.package_view)
-        # setup the dependency treeview
-        self.deps_view = DependsView()
-        result = self.wtree.get_widget("dependencies_scrolled_window").add(self.deps_view)
-        # summary view
-        scroller = self.wtree.get_widget("summary_text_scrolled_window");
-        self.summary = Summary(self.prefs, Dispatcher(self.summary_callback), self.re_init_portage)
-        result = scroller.add(self.summary)
-        self.summary.show()
         # how should we setup our saved menus?
         if self.prefs.emerge.pretend:
             self.wtree.get_widget("pretend1").set_active(True)
@@ -273,8 +269,7 @@ class MainWindow:
         # view filter setting
         self.last_view_setting = None
         # set notebook tabs to load new package info
-        self.deps_filled = self.changelog_loaded = self.installed_loaded = self.ebuild_loaded = False
-        self.ebuild_loaded_version = None
+        self.packagebook.reset_tabs()
         # declare the database
         self.db = _portage_lib.Database()#        self.db = None
         self.ut_running = False
@@ -732,14 +727,14 @@ class MainWindow:
         dialog = AdvancedEmergeDialog(self.prefs, package, self.setup_command, self.re_init_portage)
 
     def new_plugin_package_tab( self, name, callback, widget ):
-        notebook = self.wtree.get_widget("notebook")
+        notebook = self.packagebook.notebook
         label = gtk.Label(name)
         notebook.append_page(widget, label)
         page_num = notebook.page_num(widget)
         self.plugin_package_tabs[name] = [callback, label, page_num]
 
     def del_plugin_package_tab( self, name ):
-        notebook = self.wtree.get_widget("notebook")
+        notebook = self.packagebook.notebook
         notebook.remove_page(self.plugin_package_tabs[name][1])
         self.plugin_package_tabs.remove(name)
 
@@ -932,7 +927,7 @@ class MainWindow:
 
     def package_search(self, widget=None):
         """Search package db with a string and display results."""
-        self.clear_notebook()
+        self.clear_package_detail()
         if not self.desc_loaded and self.prefs.main.search_desc:
             self.load_descriptions_list()
             return
@@ -1016,7 +1011,7 @@ class MainWindow:
             self.current_package_cursor = None
         #dprint("Category cursor = " +str(self.current_category_cursor))
         #dprint(self.current_category_cursor[0][1])
-        self.clear_notebook()
+        self.clear_package_detail()
         if mode == SHOW_SEARCH:
             packages = self.search_history[category]
             #if len(packages) == 1: # then select it
@@ -1046,11 +1041,16 @@ class MainWindow:
         else:
             raise Exception("The programmer is stupid. Unknown category_changed() mode");
 
+    def clear_package_detail(self):
+        self.packagebook.clear_notebook()
+        self.set_package_actions_sensitive(False)
+
+
     def package_changed(self, package):
         """Catch when the user changes packages."""
         dprint("MAINWINDOW: package_changed()")
         if not package or package.full_name == "None":
-            self.clear_notebook()
+            self.clear_package_detail()
             self.current_package_name = ''
             self.current_package_cursor = self.package_view.get_cursor()
             self.current_package_path = self.current_package_cursor[0]
@@ -1074,45 +1074,7 @@ class MainWindow:
         # the notebook must be sensitive before anything is displayed
         # in the tabs, especially the deps_view
         self.set_package_actions_sensitive(True, package)
-        self.summary.update_package_info(package)
-        # if the user is looking at the deps we need to update them
-        cur_page = self.notebook.get_current_page()
-        # reset notebook tabs to reload new package info
-        self.deps_filled = self.changelog_loaded = self.installed_loaded = self.ebuild_loaded = False
-        self.ebuild_loaded_version = self.deps_version = None
-        self.notebook_changed( None, None, cur_page)
-
-    def notebook_changed(self, widget, pointer, index):
-        """Catch when the user changes the notebook"""
-        package = utils.get_treeview_selection(self.package_view, 2)
-        if index == 1:
-            if not self.deps_filled or self.deps_version != self.summary.ebuild:
-                # fill the deps view!
-                self.deps_view.fill_depends_tree(self.deps_view, package, self.summary.ebuild)
-                self.deps_filled = True
-                self.deps_version = self.summary.ebuild
-        elif index == 2:
-            if not self.changelog_loaded:
-                # fill in the change log
-                load_textfile(self.changelog, package, "changelog")
-                self.changelog_loaded = True
-        elif index == 3:
-            if not self.installed_loaded:
-                # load list of installed files
-                load_installed_files(self.installed_window, self.installed_files, package)
-                self.installed_loaded = True
-        elif index == 4:
-            dprint("MAINWINDOW: notebook_changed(); self.summary.ebuild = " + str(self.summary.ebuild))
-            if not self.ebuild_loaded or self.ebuild_loaded_version != self.summary.ebuild:
-                #load_textfile(self.ebuild, package, "best_ebuild")
-                load_textfile(self.ebuild, package, "version_ebuild", self.summary.ebuild)
-                self.ebuild_loaded = True
-                self.ebuild_loaded_version = self.summary.ebuild
-        else:
-            for i in self.plugin_package_tabs:
-                #Search through the plugins dictionary and select the correct one.
-                if self.plugin_package_tabs[i][2] == index:
-                    self.plugin_package_tabs[i][0]( package )
+        self.packagebook.set_package(package)
 
     def view_filter_changed(self, widget):
         """Update the treeviews for the selected filter"""
@@ -1122,7 +1084,7 @@ class MainWindow:
         self.update_statusbar(index)
         cat_scroll = self.wtree.get_widget("category_scrolled_window")
         self.category_view.set_search(False)
-        self.clear_notebook()
+        self.clear_package_detail()
         if index in (SHOW_INSTALLED, SHOW_ALL):
             cat_scroll.show()
             if index == SHOW_ALL:
@@ -1185,7 +1147,7 @@ class MainWindow:
         if cat and pack:
             self.select_category_package(cat, pack, index)
         # clear the notebook tabs
-        #self.clear_notebook()
+        #self.clear_package_detail()
         #if self.last_view_setting != index:
         dprint("MAINWINDOW: view_filter_changed(); last_view_setting changed")
         self.last_view_setting = index
@@ -1243,10 +1205,10 @@ class MainWindow:
                 iter = model.iter_next(iter)
             if not path:
                 dprint("MAINWINDOW: select_category_package(): no package found")
-                self.clear_notebook()
+                self.clear_package_detail()
         else:
             dprint("MAINWINDOW: select_category_package(): no category path found")
-            self.clear_notebook()
+            self.clear_package_detail()
 
     def load_upgrades_list(self):
         self.ut_progress = 1
@@ -1296,7 +1258,7 @@ class MainWindow:
             else:
                 if self.last_view_setting == SHOW_UPGRADE:
                     self.package_view.set_view(self.package_view.UPGRADABLE)
-                    self.summary.update_package_info(None)
+                    self.packagebook.summary.update_package_info(None)
                     #self.wtree.get_widget("category_scrolled_window").hide()
             return False
         elif self.ut.progress < 2:
@@ -1383,7 +1345,7 @@ class MainWindow:
             self.widget["btn_unmerge"].set_sensitive(not enabled)
             
             self.widget["unmerge_package1"].set_sensitive(not enabled)
-        self.notebook.set_sensitive(enabled)
+        self.packagebook.notebook.set_sensitive(enabled)
 
     def size_update(self, widget, event):
         #dprint("MAINWINDOW: size_update(); called.")
@@ -1394,16 +1356,6 @@ class MainWindow:
         # note: event has x and y attributes but they do not give the same values as get_position().
         self.prefs.main.xpos = pos[0]
         self.prefs.main.ypos = pos[1]
-
-    def clear_notebook(self):
-        """ Clear all notebook tabs & disable them """
-        #dprint("MAINWINDOW: clear_notebook()")
-        self.summary.update_package_info(None)
-        self.set_package_actions_sensitive(False)
-        self.deps_view.clear()
-        self.changelog.set_text('')
-        self.installed_files.set_text('')
-        self.ebuild.set_text('')
 
     def open_log(self, widget):
         """ Open a log of a previous emerge in a new terminal window """
