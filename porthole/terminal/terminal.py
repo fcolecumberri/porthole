@@ -85,7 +85,7 @@ class ProcessManager:
             self.title = "Porthole-Terminal"
             dprint(self.title)
         self.log_mode = log_mode
-        self.Semaphore = threading.Semaphore()
+        #self.Semaphore = threading.Semaphore()
         # copy the environment and preferences
         self.env = env
         self.prefs = prefs
