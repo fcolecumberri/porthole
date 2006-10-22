@@ -41,6 +41,21 @@ from gettext import gettext as _
 
 EXCEPTION_LIST = ['.','^','$','*','+','?','(',')','\\','[',']','|','{','}']
 
+class ToolChain:
+    """Class to handle all toolchain related info and decisions"""
+    def __init__( self, build ):
+        self.build = build
+        self.tc_conf = ""
+        self.tc_stdc = ""
+        self.TC_build = ["sys-kernel/linux-headers", "sys-libs/glibc", tc_conf, \
+                      "sys-devel/binutils", "sys-devel/gcc", tc_stdc]
+        self.TC="linux-headers glibc $tc_conf_regx binutils-[0-9].* gcc-[0-9].* glibc binutils-[0-9].* gcc-[0-9].* $tc_stdc"
+        self.TC_glb="glibc $tc_conf_regx binutils-[0-9].* gcc-[0-9].* glibc binutils-[0-9].* gcc-[0-9].* $tc_stdc"
+        self.TCmini="$tc_conf_regx binutils-[0-9].* gcc-[0-9].* binutils-[0-9].* gcc-[0-9].* $tc_stdc"
+        self.TC1="linux-headers glibc $tc_conf_regx binutils-[0-9].* gcc-[0-9].* $tc_stdc"
+        self.TC_glb1="glibc $tc_conf_regx binutils-[0-9].* gcc-[0-9].* $tc_stdc"
+        self.TCmini1="$tc_conf_regx gcc-[0-9].* binutils-[0-9].* $tc_stdc"
+
 
 class CommonReader(threading.Thread):
     """ Common data reading class that works in a seperate thread """
@@ -74,8 +89,8 @@ class UpgradableListReader(CommonReader):
         # beginnings of multiple listings for packages in priority order
         # lists could be passed into the function and result in the following
         # eg self.categories = ["Tool Chain", "System", "User list", "World", "Dependencies"]
-        self.cat_order = ["System", "User list1", "World", "Dependencies"]
-        self.categories = {"System":None, "World":"World", "User list1":None, "Dependencies":"Dependencies"}
+        self.cat_order = ["Tool Chain","System", "User list1", "World", "Dependencies"]
+        self.categories = {"Tool Chain": None, "System":None, "World":"World", "User list1":None, "Dependencies":"Dependencies"}
         self.upgradables = {}
         self.pkg_count = {}
         for key in self.categories:
@@ -114,17 +129,17 @@ class UpgradableListReader(CommonReader):
         self.done = True
         return
 
-    def get_system_list( self ):
+    def get_system_list( self, emptytree = False ):
         dprint("READERS: UpgradableListReader; getting system package list")
-        if True:
-            #~ self.terminal = SimpleTerminal(self.system_cmd, need_output=True,  dprint_output='', callback=None)
-            #~ self.terminal._run()
-            #~ dprint("READERS: UpgradableListReader; waiting...")
-            #~ while self.terminal.reader.process_running:
-                #~ time.sleep(0.10)
-            #~ self.categories["System"] = self.make_list(self.terminal.reader.string)
-        #~ else:
-            self.categories["System"] = _portage_lib.get_system_pkgs()   #self.make_list(self.terminal.reader.string)
+        if emptytree:
+            self.terminal = SimpleTerminal(self.system_cmd, need_output=True,  dprint_output='', callback=None)
+            self.terminal._run()
+            dprint("READERS: UpgradableListReader; waiting for an 'emerge -ep system'...")
+            while self.terminal.reader.process_running:
+                time.sleep(0.10)
+            self.categories["System"] = self.make_list(self.terminal.reader.string)
+        else:
+            self.categories["System"] = _portage_lib.get_system_pkgs()
         self.progress = 2
         dprint("READERS: UpgradableListReader; new system pkg list %s" %str(self.categories["System"]))
 
