@@ -38,7 +38,7 @@ else:
 print ("VIEWS: PORTAGE = %s" %PORTAGE)
 
 
-from depends import DependsTree
+from packagebook.depends import DependsTree
 from utils import dprint
 #from _portage_lib import World
 from gettext import gettext as _
