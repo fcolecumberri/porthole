@@ -457,11 +457,11 @@ class TerminalNotebook:
             return False
             
     def set_startmark( self ):
-		start_iter = self.view_buffer[TAB_PROCESS].get_end_iter()
-		if self.command_start:
-			# move the start mark
-			self.view_buffer[TAB_PROCESS].move_mark_by_name("command_start",start_iter)
-		else:
-			# create the mark
-			self.command_start = self.view_buffer[TAB_PROCESS].create_mark( \
-				"command_start",start_iter, True)
+        start_iter = self.view_buffer[TAB_PROCESS].get_end_iter()
+        if self.command_start:
+            # move the start mark
+            self.view_buffer[TAB_PROCESS].move_mark_by_name("command_start",start_iter)
+        else:
+            # create the mark
+            self.command_start = self.view_buffer[TAB_PROCESS].create_mark( \
+                "command_start",start_iter, True)
