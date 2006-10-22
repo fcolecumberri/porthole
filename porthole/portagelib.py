@@ -302,11 +302,11 @@ def get_user_config(file, name=None, ebuild=None):
     filename = '/'.join([portage_const.USER_CONFIG_PATH, file])
     if not os.access(filename, os.F_OK):
         dprint(" * PORTAGELIB: get_user_config(): file does not exist: '%s'?" % file)
-        return None
+        return [] #None
     else:
         if not os.access(filename, os.R_OK):
             dprint(" * PORTAGELIB: get_user_config(): no read access on '%s'?" % file)
-            return None
+            return [] #None
     configfile = open(filename, 'r')
     configlines = configfile.readlines()
     configfile.close()
