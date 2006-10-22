@@ -4,7 +4,7 @@
     Porthole Depends TreeModel
     Calculates and stores package dependency information
 
-    Copyright (C) 2003 - 2005 Fredrik Arnerup, Daniel G. Taylor,
+    Copyright (C) 2003 - 2006 Fredrik Arnerup, Daniel G. Taylor,
     Brian Dolbec, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify
@@ -22,9 +22,18 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import gtk, gobject, portagelib, string
-from utils import dprint
+import gtk, gobject, string
+import utils
+from utils import dprint, get_treeview_selection
 from gettext import gettext as _
+
+# import the desired portage version
+PORTAGE = utils.PORTAGE
+if PORTAGE == "pkgcore_lib.py":
+    import pkgcore_lib as _portage_lib
+else:
+    import portagelib as _portage_lib
+print ("MAINWINDOW: PORTAGE = %s" %PORTAGE)
 
 class DependAtom:
     """Dependency Atom Class.
@@ -70,8 +79,8 @@ class DependAtom:
         Returns -1 if being satisfied is irrelevant (e.g. use flag for a
         "USING" DependAtom is not set). Otherwise, the return value can be
         evaluated as True if the dep is satisfied, False if unsatisfied."""
-        if self.type == 'DEP': return portagelib.get_installed(self.name)
-        elif self.type == 'BLOCKER': return not portagelib.get_installed(self.name)
+        if self.type == 'DEP': return _portage_lib.get_installed(self.name)
+        elif self.type == 'BLOCKER': return not _portage_lib.get_installed(self.name)
         elif self.type == 'OPTION': # nonempty if any child is satisfied
             satisfied = []
             for child in self.children:
@@ -102,11 +111,23 @@ class DependsTree(gtk.TreeStore):
     """Calculate and display dependencies in a treeview"""
     def __init__(self):
         """Initialize the TreeStore object"""
-        gtk.TreeStore.__init__(self, gobject.TYPE_STRING,
-                                gtk.gdk.Pixbuf,
-                                gobject.TYPE_PYOBJECT,
-                                gobject.TYPE_BOOLEAN)
-        self.use_flags = portagelib.get_portage_environ("USE").split()
+        gtk.TreeStore.__init__(self, gobject.TYPE_STRING,   # depend name
+                                gtk.gdk.Pixbuf,             # icon to display
+                                gobject.TYPE_PYOBJECT,      # package object
+                                gobject.TYPE_BOOLEAN,       # is_satisfied
+                                gobject.TYPE_STRING,        # package name
+                                gobject.TYPE_STRING,        # installed version
+                                gobject.TYPE_STRING)        # latest recommended version
+        self.column = {
+            "depend" : 0,
+            "icon" : 1,
+            "package" : 2,
+            "satisfied" : 3,
+            "name" : 4,
+            "installed" : 5,
+            "latest" : 6
+        }
+        self.use_flags = _portage_lib.get_portage_environ("USE").split()
         
     def parse_depends_list(self, depends_list, parent = None):
         """Read through the depends list and order it nicely
@@ -125,7 +146,7 @@ class DependsTree(gtk.TreeStore):
                     parent = _("Not Using ") + dep[1:-1]
             else:
                 if dep not in ["(", ")", ":", "||"]:
-                    satisfied = portagelib.get_installed(dep)
+                    satisfied = _portage_lib.get_installed(dep)
                     if using_list:
                         if [parent,dep,satisfied] not in use_list:
                             use_list.append([parent, dep, satisfied])
@@ -157,8 +178,8 @@ class DependsTree(gtk.TreeStore):
                     dprint("DEPENDS; add_depends_to_tree(): Help! Strange parent...")
                 if base == None:
                     base_iter = self.insert_before(base, None)
-                    self.set_value(base_iter, 0, parent)
-                    self.set_value(base_iter, 1, depends_view.render_icon(parent_icon,
+                    self.set_value(base_iter, self.column["depend"], parent)
+                    self.set_value(base_iter, self.column["icon"], depends_view.render_icon(parent_icon,
                                         size = gtk.ICON_SIZE_MENU, detail = None))
                     dep_before = base_iter
                 last_parent = parent
@@ -166,7 +187,7 @@ class DependsTree(gtk.TreeStore):
                 dep_before = base
             else:
                 dep_before = base_iter
-            #self.set_value(depend_iter, 0, depend)
+            #self.set_value(depend_iter, self.column["depend"], depend)
             if satisfied:
                 if depend[0] == "!": icon = gtk.STOCK_NO
                 else: icon = gtk.STOCK_YES
@@ -178,26 +199,26 @@ class DependsTree(gtk.TreeStore):
                 if parent != None:
                     if parent_icon == '': continue
                     if icon == gtk.STOCK_NO and parent_icon == gtk.STOCK_YES:
-                        self.set_value(base_iter, 1, depends_view.render_icon(gtk.STOCK_NO,
+                        self.set_value(base_iter, self.column["icon"], depends_view.render_icon(gtk.STOCK_NO,
                                        size = gtk.ICON_SIZE_MENU, detail = None))
                         if base != None:
                             base_iter = self.insert_before(base, None)
-                            self.set_value(base_iter, 0, parent)
+                            self.set_value(base_iter, self.column["depend"], parent)
                             dep_before = base_iter
                 depend_iter = self.insert_before(dep_before, None)
-                self.set_value(depend_iter, 0, depend)
-                self.set_value(depend_iter, 3, satisfied)
-                self.set_value(depend_iter, 1, 
+                self.set_value(depend_iter, self.column["depend"], depend)
+                self.set_value(depend_iter, self.column["satisfied"], satisfied)
+                self.set_value(depend_iter, self.column["icon"], 
                                     depends_view.render_icon(icon,
                                                              size = gtk.ICON_SIZE_MENU,
                                                              detail = None))
                 # get depname from depend:
                 # The get_text stuff above converted this to unicode, which gives portage headaches.
                 # So we have to convert this with str()
-                depname = str(portagelib.get_full_name(depend))
+                depname = str(_portage_lib.get_full_name(depend))
                 if not depname: continue
-                pack = portagelib.Package(depname)
-                self.set_value(depend_iter, 2, pack)
+                pack = _portage_lib.Package(depname)
+                self.set_value(depend_iter, self.column["package"], pack)
                 if icon != gtk.STOCK_YES:
                     #dprint("Dependency %s not found... recursing..." % str(depname))
                     if depname not in self.depends_list:
@@ -217,8 +238,8 @@ class DependsTree(gtk.TreeStore):
     #~ def is_dep_satisfied(self, installed_ebuild, dep_ebuild, operator = "="):
         #~ """ Returns installed_ebuild <operator> dep_ebuild """
         #~ retval = False
-        #~ ins_ver = portagelib.get_version(installed_ebuild)
-        #~ dep_ver = portagelib.get_version(dep_ebuild)
+        #~ ins_ver = _portage_lib.get_version(installed_ebuild)
+        #~ dep_ver = _portage_lib.get_version(dep_ebuild)
         #~ # extend to normal comparison operators in case they aren't
         #~ if operator == "=": operator = "=="
         #~ if operator == "!": operator = "!="
@@ -272,17 +293,17 @@ class DependsTree(gtk.TreeStore):
                     add_satisfied = 1
                 
                 if icon:
-                    self.set_value(iter, 1, depends_view.render_icon(icon,
+                    self.set_value(iter, self.column["icon"], depends_view.render_icon(icon,
                                       size = gtk.ICON_SIZE_MENU, detail = None))
-                self.set_value(iter, 0, text)
-                self.set_value(iter, 3, bool(satisfied))
+                self.set_value(iter, self.column["depend"], text)
+                self.set_value(iter, self.column["satisfied"], bool(satisfied))
                 if atom.type in ['DEP', 'BLOCKER']:
-                    depname = portagelib.get_full_name(atom.name)
+                    depname = _portage_lib.get_full_name(atom.name)
                     if not depname:
                         dprint(" * DEPENDS: add_atomized_depends_list(): No depname found for '%s'" % atom.name or atom.useflag)
                         continue
-                    pack = portagelib.Package(depname)
-                    self.set_value(iter, 2, pack)
+                    pack = _portage_lib.Package(depname)
+                    self.set_value(iter, self.column["package"], pack)
                 # add kids if we should
                 if add_kids and add_satisfied != -1:
                     self.add_atomized_depends_to_tree(atom.children, depends_view, iter, add_kids)
@@ -361,7 +382,7 @@ class DependsTree(gtk.TreeStore):
         """Fill the dependencies tree for a given ebuild"""
         #dprint("DEPENDS: Updating deps tree for " + package.get_name())
         #ebuild = package.get_default_ebuild()
-        ##depends = portagelib.get_property(ebuild, "DEPEND").split()
+        ##depends = _portage_lib.get_property(ebuild, "DEPEND").split()
         depends = (package.get_properties().depend.split() +
                    package.get_properties().rdepend.split())
         self.clear()
@@ -387,5 +408,5 @@ class DependsTree(gtk.TreeStore):
             self.add_atomized_depends_to_tree(atomized_depends, treeview)
         else:
             parent_iter = self.insert_before(None, None)
-            self.set_value(parent_iter, 0, _("None"))
+            self.set_value(parent_iter, self.column["depend"], _("None"))
         treeview.set_model(self)
