@@ -805,6 +805,8 @@ class DependsView(CommonTreeView):
         """ Initialize """
         # initialize the treeview
         CommonTreeView.__init__(self)
+        # setup the model
+        self.model = DependsTree()
         # setup the column
         column = gtk.TreeViewColumn(_("Dependencies"))
         pixbuf = gtk.CellRendererPixbuf()
@@ -812,10 +814,39 @@ class DependsView(CommonTreeView):
         column.add_attribute(pixbuf, "pixbuf", 1)
         text = gtk.CellRendererText()
         column.pack_start(text, expand = True)
-        column.add_attribute(text, "text", 0)
+        column.add_attribute(text, "text", self.model.column["depend"])
         self.append_column(column)
-        # setup the model
-        self.model = DependsTree()
+        # Setup the Package Name Column
+        self._name_column = gtk.TreeViewColumn(_("Package"))
+        self.append_column(self._name_column)
+        text_name = gtk.CellRendererText()
+        self._name_column.pack_start(text_name, expand = False)
+        self._name_column.add_attribute(text_name, "text", self.model.column["name"])
+        #self._name_column.set_cell_data_func(text_name, self.cell_data_func, None)
+        self._name_column.set_resizable(True)
+        self._name_column.set_min_width(10)
+        # Setup the Installed Column
+        self._installed_column = gtk.TreeViewColumn(_("Installed"))
+        self.append_column(self._installed_column)
+        text_installed = gtk.CellRendererText()
+        self._installed_column.pack_start(text_installed, expand = False)
+        self._installed_column.add_attribute(text_installed, "text", self.model.column["installed"])
+        #self._installed_column.set_cell_data_func(text_installed, self.cell_data_func, None)
+        self._installed_column.set_resizable(True)
+        self._installed_column.set_min_width(10)
+        #self._installed_column.set_sort_column_id(self.model.column["installed"])
+        # Setup the Latest Column
+        self._latest_column = gtk.TreeViewColumn(_("Recommended"))
+        self.append_column(self._latest_column)
+        text_latest = gtk.CellRendererText()
+        self._latest_column.pack_start(text_latest, expand = False)
+        self._latest_column.add_attribute(text_latest, "text", self.model.column["latest"])
+        #self._latest_column.set_cell_data_func(text_latest, self.cell_data_func, None)
+        self._latest_column.set_resizable(True)
+        self._latest_column.set_min_width(10)
+        #self._latest_column.set_sort_column_id(self.model.column["latest"])
+
+        self._last_selected = None
         dprint("VIEWS: Depends view initialized")
         #return self
 
@@ -826,27 +857,38 @@ class DependsView(CommonTreeView):
         title = self.get_column(0).get_title()
         self.get_column(0).set_title(_("Dependencies") + ":  " + str(ebuild)) #package.get_default_ebuild()))
         self.model.fill_depends_tree(treeview, package, ebuild)
+        self.model.foreach(self.populate_info)
 
-    def populate_info(self):
+    def populate_info(self, model, path, iter):
         """ Populate the current view with packages """
-        model = self.get_model()
-        iter = model.get_iter_first()
-        while iter:
-            package = model.get_value(iter, 2)
-            model.set_value(iter, 6, package.get_size())
-            try:
-                installed = package.get_latest_installed()
-                installed = _portage_lib.get_version(installed)
-            except IndexError:
-                installed = ""
-            try:
-                latest = package.get_latest_ebuild()
-                latest = _portage_lib.get_version(latest)
-            except IndexError, TypeError:
-                latest = "Error"
-            model.set_value(iter, 7, installed)
-            model.set_value(iter, 8, latest)
-            model.set_value(iter, 9, package.get_properties().description )
-            iter = model.iter_next( iter )
+        dprint("VIEWS: DependsView.populate_info()")
+        if model.get_value(iter, model.column["depend"]): # == "None":
+                dprint("VIEWS: populate_info(); dependency name = " + model.get_value(iter, model.column["depend"]))
+                try:
+                    package = model.get_value(iter, model.column["package"])
+                    name = package.full_name
+                    latest_installed = package.get_latest_installed()
+                    dprint("VIEWS: populate_info(); latest_installed: %s, getting best_ebuild" %str(latest_installed))
+                    best_ebuild = package.get_best_ebuild()
+                    #dprint("VIEWS: populate_info(); best_ebuild: %s, getting latest_ebuild" %str(best_ebuild))
+                    latest_ebuild = package.get_latest_ebuild(include_masked = False)
+                    dprint("VIEWS: populate_info(); latest_ebuild: %s" %str(latest_ebuild))
+                    model.set_value(iter, model.column["installed"], _portage_lib.get_version(latest_installed)) # installed
+                    dprint("VIEWS: populate_info(); model.latest_installed version = " + model.get_value(iter, model.column["installed"]))
+                    if best_ebuild:
+                        model.set_value(iter, model.column["latest"], _portage_lib.get_version(best_ebuild)) #  recommended by portage
+                        name = _portage_lib.get_full_name(best_ebuild)
+                    elif latest_ebuild:
+                        model.set_value(iter, model.column["latest"], "(" + _portage_lib.get_version(latest_ebuild) + ")") # latest
+                        name = _portage_lib.get_full_name(latest_ebuild)
+                    else:
+                        model.set_value(iter, model.column["latest"], "masked") # hard masked - don't display
+                    if latest_installed:
+                        name = _portage_lib.get_full_name(latest_installed)
+                    model.set_value(iter, model.column["name"], name) # installed
+                except Exception, e:
+                    dprint("VIEWS: populate_info(): Stopping due to exception '%s'" % e)
+        return False
+
 
 
