@@ -104,7 +104,8 @@ def usage():
     print "  -l, --local" + tabs + \
           "Run a local version (use modules in current directory)"
     print "  -v, --version" + tabs + "Output version information and exit"
-    print "  -d, --debug" + tabs + "Output debugging information to stderr (terminal)"
+    print "  -d [option], --debug [option]" + tabs + "Output debugging information to stderr (terminal)"
+    print "     [string match option] ALL = all all debug text printed"
     print "             " + tabs + "Also if PyCrash-0.4pre3 or newer is found it will use it"
     print "             " + tabs + "to try to save additional crash info to send in for debugging"
     print "  -p, --pkgcore" + tabs + "Use the experimental pkgcore (aka portage-ng, portage-3) code"
@@ -112,7 +113,7 @@ def usage():
 
 if __name__ == "__main__":
     try:
-        opts, args = getopt(sys.argv[1:], 'lvdhp', ["local", "version", "debug",
+        opts, args = getopt(sys.argv[1:], 'lvd:hp', ["local", "version", "debug",
                                               "help", "pkgcore"])
         #print opts
         #print args
@@ -162,13 +163,16 @@ if __name__ == "__main__":
             sys.exit()
 
     for opt, arg in opts:
+        print "opt, arg ", opt, arg
         if opt in ("-v", "--version"):
             # print version info
             print "Porthole " + version
             sys.exit(0)
         elif opt in ("-d", "--debug"):
             _utils.debug = True
-            _utils.dprint("Debug printing is enabled")
+            print("Debug printing is enabled")
+            _utils.debug_target = arg
+            print("Debug print filter set to ", arg)
             if not pycrash_found:
                 print("*** PYCRASH MODULE NOT FOUND ***\n*** For best debug info Please emerge >= dev-python/pycrash-0.4pre3 ***")
         elif opt in ("-h", "--help"):

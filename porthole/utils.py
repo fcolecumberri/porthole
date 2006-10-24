@@ -24,6 +24,7 @@
 
 # initially set debug to false
 debug = False
+debug_target = "ALL"
 
 import os, threading
 import errno
@@ -46,8 +47,12 @@ import pwd, cPickle
 
 def dprint(message):
     """Print debug message if debug is true."""
+    #print >>stderr, message
     if debug:
-        print >>stderr, message
+        if debug_target == "ALL" or debug_target in message:
+            print >>stderr, message
+        #else:
+        #    print >>stderr, "message filtered"
 
 def dsave(name, item = None):
     """saves 'item' to file 'name' if debug is true"""
