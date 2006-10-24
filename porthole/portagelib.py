@@ -716,6 +716,19 @@ def get_properties(ebuild):
             return Properties(dict(zip(keys, vartree.dbapi.aux_get(ebuild, portage.auxdbkeys))))
         else: return Properties()
 
+def get_virtual_dep(atom):
+    """returns a resolved virtual dependency.
+    contributed by Jason Stubbs, with a little adaptation"""
+    # Thanks Jason
+    non_virtual_atom = portage.dep_virtual([atom], portage.settings)[0]
+    if atom == non_virtual_atom:
+        # atom,"is a 'new style' virtual (aka regular package)"
+        return atom
+    else:
+        # atom,"is an 'old style' virtual that resolves to:  non_virtual_atom
+        return non_virtual_atom
+
+
 def is_overlay(cpv): # lifted from gentoolkit
     """Returns true if the package is in an overlay."""
     dir,ovl = portage.portdb.findname2(cpv)

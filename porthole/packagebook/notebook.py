@@ -79,6 +79,9 @@ class PackageNotebook:
         self.summary.show()
         # setup the dependency treeview
         self.deps_view = DependsView()
+        self.deps_filled = False
+        self.deps_version = ""
+
         result = self.wtree.get_widget("dependencies_scrolled_window").add(self.deps_view)
         self.notebook.connect("switch-page", self.notebook_changed)
         self.reset_tabs()
@@ -98,9 +101,10 @@ class PackageNotebook:
     def notebook_changed(self, widget, pointer, index):
         """Catch when the user changes the notebook"""
         package = self.package #utils.get_treeview_selection(self.package_view, 2)
+        dprint("NOTEBOOK: notebook_changed(); self.summary.ebuild " +self.summary.ebuild + " self.deps_version : " + self.deps_version)
         if index == 1:
-            if not self.deps_filled or self.deps_version != self.summary.ebuild:
-                # fill the deps view!
+            if  self.deps_version != self.summary.ebuild or not self.deps_filled:
+                dprint("NOTEBOOK: notebook_changed(); fill the deps view!")
                 self.deps_view.fill_depends_tree(self.deps_view, package, self.summary.ebuild)
                 self.deps_filled = True
                 self.deps_version = self.summary.ebuild

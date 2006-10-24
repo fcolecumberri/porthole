@@ -761,7 +761,7 @@ class CategoryView(CommonTreeView):
             return
         for cat in categories:
             #dprint(" VIEWS: CategoryView.populate(): cat: %s" %cat)
-            if cat != 'virtual':
+            if cat: # != 'virtual':
                 try:
                     catmaj, catmin = cat.split("-")
                 except:
@@ -885,7 +885,9 @@ class DependsView(CommonTreeView):
                         model.set_value(iter, model.column["latest"], "masked") # hard masked - don't display
                     if latest_installed:
                         name = _portage_lib.get_full_name(latest_installed)
-                    model.set_value(iter, model.column["name"], name) # installed
+                    if "virtual" in name:
+                        name = _portage_lib.get_virtual_dep(name)
+                    model.set_value(iter, model.column["name"], name)
                 except Exception, e:
                     dprint("VIEWS: populate_info(): Stopping due to exception '%s'" % e)
         return False
