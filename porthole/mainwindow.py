@@ -1009,8 +1009,14 @@ class MainWindow:
             self.current_search_cursor = self.category_view.get_cursor()
         if not self.reload:
             self.current_package_cursor = None
-        #dprint("Category cursor = " +str(self.current_category_cursor))
-        #dprint(self.current_category_cursor[0][1])
+        dprint("Category cursor = " +str(self.current_category_cursor))
+        dprint("Category = " + category)
+        dprint(self.current_category_cursor[0])#[1])
+        cursor = self.current_category_cursor[0]
+        if len(cursor) > 1:
+            sub_row = cursor[1] == None
+        else:
+            sub_row = False
         self.clear_package_detail()
         if mode == SHOW_SEARCH:
             packages = self.search_history[category]
@@ -1023,8 +1029,8 @@ class MainWindow:
         elif mode == SHOW_UPGRADE:
             packages = self.upgrades[category]
             self.package_view.populate(packages, self.current_package_name)
-        elif not category or self.current_category_cursor[0][1] == None:
-            #dprint("MAINWINDOW: category_changed(); category=False or self.current_category_cursor[0][1]=None")
+        elif not category or sub_row: #(self.current_category_cursor[0][1] == None):
+            dprint("MAINWINDOW: category_changed(); category=False or self.current_category_cursor[0][1]==None")
             packages = None
             self.current_package_name = None
             self.current_package_cursor = None
