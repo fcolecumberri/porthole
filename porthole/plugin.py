@@ -111,7 +111,7 @@ class Plugin:
             dprint(plugin_name)
             #
             self.module = __import__(plugin_name, [], [], ['not empty'])
-            dprint(self.module)
+            dprint(str(self.module))
             self.valid = True
         except ImportError, e:
             dprint("PLUGIN; initialize_plugin(): ImportError '%s'" % e)
