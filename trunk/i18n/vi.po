@@ -1,0 +1,1577 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Porthole VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2005-07-30 15:35+1200\n"
+"PO-Revision-Date: 2005-11-09 00:28-0800\n"
+"Last-Translator: pclouds <pclouds@gmail.com>\n"
+"Language-Team: Vietnamese\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Vietnamese\n"
+
+#: about.py:42
+#, python-format
+msgid "About Porthole %s"
+msgstr "Giới thiệu Porthole %s"
+
+#: advemerge.py:80
+#, python-format
+msgid "Advanced Emerge Settings for %s"
+msgstr "Thiết lập Emerge nâng cao cho %s"
+
+#: advemerge.py:123
+#: advemerge.py:353
+#, python-format
+msgid "Slot:%s"
+msgstr "Slot:%s"
+
+#: advemerge.py:125
+#: advemerge.py:355
+msgid "   {unavailable}"
+msgstr "   {không sẵn sàng}"
+
+#: advemerge.py:127
+#: advemerge.py:357
+msgid "   (unstable)"
+msgstr "   (không ổn định)"
+
+#: advemerge.py:129
+#: advemerge.py:359
+msgid "   [MASKED]"
+msgstr "   [MASKED]"
+
+#: advemerge.py:132
+#: advemerge.py:362
+msgid "   (recommended) (downgrade)"
+msgstr "   (khuyến khích) (hạ cấp)"
+
+#: advemerge.py:134
+#: advemerge.py:364
+msgid "   (recommended)"
+msgstr "   (khuyến khích)"
+
+#: advemerge.py:137
+#: advemerge.py:367
+msgid "   [installed]"
+msgstr "   [đã cài đặt]"
+
+#: advemerge.py:660
+msgid "Unsupported use flag"
+msgstr "USE flag khỗng hỗ trợ"
+
+#: advemerge.py:700
+#: depends.py:390
+msgid "None"
+msgstr "Không"
+
+#: command.py:88
+#: command.py:97
+msgid "command line entry"
+msgstr "Mục nhập lệnh"
+
+#: depends.py:122
+#: depends.py:150
+#: depends.py:151
+msgid "Using "
+msgstr "Dủng "
+
+#: depends.py:125
+#: depends.py:153
+#: depends.py:154
+msgid "Not Using "
+msgstr "Không dùng "
+
+#: depends.py:251
+#, python-format
+msgid "Using %s"
+msgstr "Dùng %s"
+
+#: depends.py:256
+#, python-format
+msgid "Not Using %s"
+msgstr "Không dùng %s"
+
+#: depends.py:266
+msgid "Any of:"
+msgstr "Bất kỳ trong:"
+
+#: depends.py:270
+msgid "All of:"
+msgstr "Mọi cái:"
+
+#: loaders.py:98
+#, python-format
+msgid ""
+"This %s has an encoding method unknown to porthole.\n"
+"Please report this to bugs.gentoo.org and porthole's bugtracker"
+msgstr ""
+"%s này dùng bảng mã lạ với porthole.\n"
+"Vui lòng báo lỗi cho bugs.gentoo.org và bugtracker của porthole."
+
+#: loaders.py:102
+#, python-format
+msgid "%s is Empty"
+msgstr "%s là rỗng"
+
+#: loaders.py:105
+#: loaders.py:108
+#, python-format
+msgid "%s Not Available"
+msgstr "%s không sẵn sàng"
+
+#: loaders.py:121
+#, python-format
+msgid ""
+"%i installed files:\n"
+"\n"
+msgstr ""
+"%i tập tin đã cài:\n"
+"\n"
+
+#: loaders.py:124
+#: summary.py:450
+msgid "Not installed"
+msgstr "Chưa cài đặt"
+
+#: loaders.py:127
+msgid ""
+"No data currently available.\n"
+"The package may not be installed"
+msgstr ""
+"Dữ liệu hiện chưa sẵn sàng.\n"
+"Không thể cài đặt gói."
+
+#: mainwindow.py:177
+msgid ""
+" Synchronise Package Database \n"
+" The last sync was done:\n"
+msgstr ""
+" Đồng bộ cơ sở dữ liệu gói \n"
+" Lần đồng bộ cuối cùng lúc:\n"
+
+#: mainwindow.py:235
+msgid "Active Plugins"
+msgstr "Plugin hoạt động"
+
+#: mainwindow.py:278
+msgid "Loading database"
+msgstr "Đang nạp cơ sở dữ liệu"
+
+#: mainwindow.py:279
+msgid "Initializing database. Please wait..."
+msgstr "Khởi động cơ sở dữ liệu. Vui lòng chờ..."
+
+#: mainwindow.py:327
+msgid "Reloading database"
+msgstr "Đang nạp lại cơ sở dữ liệu"
+
+#: mainwindow.py:360
+msgid "Unknown"
+msgstr "Không rõ"
+
+#: mainwindow.py:475
+msgid "No root privileges"
+msgstr "Không có quyền root"
+
+#: mainwindow.py:477
+msgid ""
+"In order to access all the features of Porthole,\n"
+"please run it with root privileges."
+msgstr ""
+"Để dùng hết tính năng của Porthole,\n"
+"bạn phải chạy nó dưới quyền root."
+
+#: mainwindow.py:480
+msgid "_Ok"
+msgstr "_Ok"
+
+#: mainwindow.py:502
+#, python-format
+msgid "%(base)s: %(count)i packages read"
+msgstr "%(base)s: %(count)i gói được đọc"
+
+#: mainwindow.py:531
+#, python-format
+msgid "%(base)s: Populating tree"
+msgstr "%(base)s: Đang tạo cây"
+
+#: mainwindow.py:839
+msgid "Upgrade requested"
+msgstr "Yêu cầu nâng cấp"
+
+#: mainwindow.py:841
+msgid "Do you want to upgrade all packages in your world file?"
+msgstr "Bạn có muốn nâng cấp mọi gói trong tập tin world của bạn không?"
+
+#: mainwindow.py:876
+msgid "Please Wait!"
+msgstr "Vui lòng chờ!"
+
+#: mainwindow.py:878
+msgid "Loading package descriptions..."
+msgstr "Đang nạp mô tả gói..."
+
+#: mainwindow.py:926
+#, python-format
+msgid "Searching descriptions for %s"
+msgstr "Đang tìm mô tả của %s"
+
+#: mainwindow.py:928
+#, python-format
+msgid "Searching for %s"
+msgstr "Đang tìm %s"
+
+#: mainwindow.py:1256
+msgid "Searching for upgradable packages..."
+msgstr "Đang tìm các gói cần nâng cấp..."
+
+#: mainwindow.py:1315
+msgid "Building Package List"
+msgstr "Đang lên danh sách gói"
+
+#: mainwindow.py:1326
+msgid "Done: "
+msgstr "Xong: "
+
+#: mainwindow.py:1339
+#: mainwindow.py:1345
+#, python-format
+msgid "%(pack)d packages in %(cat)d categories"
+msgstr "%(pack)d gói trong %(cat)d phân loại"
+
+#: mainwindow.py:1348
+#, python-format
+msgid "%d matches found"
+msgstr "Tìm thấy %d"
+
+#: mainwindow.py:1354
+#, python-format
+msgid "%(world)d world, %(deps)d dependencies"
+msgstr "%(world)d world, %(deps)d phụ thuộc"
+
+#: mainwindow.py:1442
+msgid "Confirm: Kill the Running Process in the Terminal"
+msgstr "Xác nhận: Buộc chấm dứt tiến trình đang chạy ở terminal"
+
+#: metadata.py:137
+#, python-format
+msgid "Metadata file \"%s\" does not exist."
+msgstr "Tập tin metadata \"%s\" không tồn tại."
+
+#: portagelib.py:39
+#: set_config.py:34
+msgid ""
+"Could not find portage module.\n"
+"Are you sure this is a Gentoo system?"
+msgstr ""
+"Không tìm thấy module portage.\n"
+"Bạn có chắc đây là hệ thống Gentoo không?"
+
+#: portagelib.py:620
+msgid "No masking reason given"
+msgstr "Không nêu lý do mask"
+
+#: portagelib.py:823
+msgid "No ebuild found."
+msgstr "Không tìm thấy ebuild."
+
+#: readers.py:102
+msgid "Upgradable dependencies:"
+msgstr "Phụ thuộc cần nâng cấp:"
+
+#: summary.py:72
+msgid "Emerge this ebuild"
+msgstr "Cài đặt ebuild này"
+
+#: summary.py:74
+msgid "Pretend Emerge this ebuild"
+msgstr "Giả cài đặt ebuild này"
+
+#: summary.py:76
+msgid "Sudo Emerge this ebuild"
+msgstr "Emerge Sudo ebuild này"
+
+#: summary.py:78
+msgid "Unmerge this ebuild"
+msgstr "Unmerge ebuild này"
+
+#: summary.py:80
+msgid "Sudo Unmerge this ebuild"
+msgstr "Unmerge Sudo ebuild này"
+
+#: summary.py:82
+#, python-format
+msgid "Add %s to package.keywords (for this ebuild only)"
+msgstr "Thêm %s vào package.keywords (chỉ ebuild này)"
+
+#: summary.py:84
+#, python-format
+msgid "Remove %s from package.keywords"
+msgstr "Loại %s khỏi package.keywords"
+
+#: summary.py:86
+msgid "Unmask this ebuild"
+msgstr "Unmask ebuild này"
+
+#: summary.py:88
+msgid "Remask this ebuild"
+msgstr "Mask lại ebuild này"
+
+#: summary.py:196
+#, python-format
+msgid "\tSlot %s: "
+msgstr "\tSlot %s: "
+
+#: summary.py:446
+msgid "Installed versions:\n"
+msgstr "Phiên bản đã cài:\n"
+
+#: summary.py:455
+#, python-format
+msgid "Available versions for %s:\n"
+msgstr "Phiên bản %s hiện có:\n"
+
+#: summary.py:459
+msgid "Properties for version: "
+msgstr "Thuộc tính phiên bản: "
+
+#: summary.py:470
+msgid "Use flags: "
+msgstr "USE flag: "
+
+#: summary.py:500
+msgid "Keywords: "
+msgstr "Từ khoá: "
+
+#: summary.py:512
+msgid "License: "
+msgstr "Giấy phép: "
+
+#: terminal.py:86
+msgid "*** process killed ***\n"
+msgstr "*** đã chấm dứt tiến trình ***\n"
+
+#: terminal.py:87
+msgid "*** process completed ***\n"
+msgstr "*** đã hoàn tất tiến trình ***\n"
+
+#: terminal.py:89
+#: porthole.glade.h:40
+msgid "Process"
+msgstr "Tiến trình"
+
+#: terminal.py:89
+msgid "Warnings"
+msgstr "Cảnh báo"
+
+#: terminal.py:89
+msgid "Cautions"
+msgstr "Chú ý"
+
+#: terminal.py:89
+#: porthole.glade.h:53
+msgid "Summary"
+msgstr "Tóm tắt"
+
+#: terminal.py:89
+msgid "Emerge queue"
+msgstr "Hàng đợi cài đặt"
+
+#: terminal.py:97
+msgid "Porthole Log Viewer"
+msgstr "Trình xem log"
+
+#: terminal.py:99
+msgid "Porthole-Terminal"
+msgstr "Terminal"
+
+#: terminal.py:312
+msgid "Packages to be merged      "
+msgstr "Các gói được cài đặt       "
+
+#: terminal.py:557
+msgid ""
+"The package you selected is already in the emerge queue,\n"
+"but it has been killed. Would you like to resume the emerge?"
+msgstr ""
+"Gói bạn chọn đã có trong hàng đợi emerge, nhưng đã bị\n"
+"buộc chấm dứt. Bạn có muốn tiếp tục tiến trình emerge không?"
+
+#: terminal.py:589
+msgid "The package you selected is already in the emerge queue!"
+msgstr "Gói bạn chọn đã có trong hàng đợi emerge rồi!"
+
+#: terminal.py:590
+msgid "Error Adding Package To Queue!"
+msgstr "Lỗi thêm gói vào hàng đợi!"
+
+#: terminal.py:591
+msgid "OK"
+msgstr "OK"
+
+#: terminal.py:753
+msgid "***Log Process Killed!"
+msgstr "***Đã buộc chấm dứt tiến trình log!"
+
+#: terminal.py:828
+msgid "Confirm: Kill the Running Process"
+msgstr "Xác nhận: Buộc chấm dứt tiến trình đang chạy"
+
+#: terminal.py:1141
+#, python-format
+msgid "*** Log loading complete : %s"
+msgstr "*** Hoàn tất nạp log : %s"
+
+#: terminal.py:1165
+msgid "_Cancel"
+msgstr "_Hủy bỏ"
+
+#: terminal.py:1172
+#, python-format
+msgid ""
+"'sudo -p Password: ' requires your user password to perform the command:\n"
+"'%s'"
+msgstr ""
+"'sudo -p mật_mã: ' cần mật mã để thực hiện lệnh:\n"
+"'%s'"
+
+#: terminal.py:1176
+#, python-format
+msgid ""
+"'su' requires the root password to perform the command:\n"
+"'%s'"
+msgstr ""
+"'su' cần mật mã để thực hiện lệnh:\n"
+"'%s'"
+
+#: terminal.py:1182
+msgid "Password: "
+msgstr "Mật mã:"
+
+#: terminal.py:1310
+#, python-format
+msgid "*** Total warnings count for merge = %d \n"
+msgstr "*** Tổng số cảnh báo cài đặt = %d \n"
+
+#: terminal.py:1316
+#, python-format
+msgid "*** Total cautions count for merge = %d \n"
+msgstr "*** Tổng số chú ý cài đặt = %d \n"
+
+#: terminal.py:1702
+msgid "*** Unfortunately, you don't have enough logged information about the listed packages to calculate estimated build times accurately.\n"
+msgstr "*** Không may, bạn không có đủ thông tin cần thiết về gói này để ước lượng thời gian tạo một cách chính xác.\n"
+
+#: terminal.py:1708
+#, python-format
+msgid "*** Based on the build history of these packages on your system, I can estimate that emerging them usually takes, on average, %(days)d days, %(hours)d hrs, %(minutes)d mins, and %(seconds)d secs.\n"
+msgstr "*** Dựa trên lịch sử tạo những gói này trên hệ thống, có thể ước lượng thời gian cần dùng để tạo, tính trung bình, %(days)d ngày, %(hours)d giờ, %(minutes)d phút, %(seconds)d giây.\n"
+
+#: terminal.py:1717
+msgid "*** Note: If you have a lot of programs running on your system while porthole is emerging packages, or if you have changed your hardware since the last time you built some of these packages, this estimate may be inaccurate.\n"
+msgstr "*** Chú ý: Nếu bạn có nhiều chương trình cùng chạy trên hệ thống khi emerge, hoặc bạn thay đổi phần cứng tính từ lần tạo gói cuối cùng, ước lượng có thể sẽ không chính xác.\n"
+
+#: terminal.py:1739
+msgid "*** Unknown File Loading error"
+msgstr "*** Lỗi lạnạp tập tin"
+
+#: terminal.py:1743
+msgid "*** File Loading... Processing..."
+msgstr "*** Đang nạp tập tin... Đang xử lý..."
+
+#: terminal.py:1752
+#: terminal.py:1756
+msgid ": Open log File"
+msgstr ": Mở tập tin log"
+
+#: terminal.py:1797
+#, python-format
+msgid "Ovewrite existing file '%s'?"
+msgstr "Ghi đè tập tin '%s' chứ?"
+
+#: terminal.py:1861
+#, python-format
+msgid "*** Loading File : %s"
+msgstr "*** Đang nạp tập tin : %s"
+
+#: terminal.py:1865
+#, python-format
+msgid "Cannot open file '%s': %s"
+msgstr "Không thể mở tập tin '%s': %s"
+
+#: terminal.py:1890
+#, python-format
+msgid "Cannot back up '%s' to '%s': %s"
+msgstr "Không thể sao lưu '%s' vào '%s': %s"
+
+#: terminal.py:1901
+#, python-format
+msgid "*** saving file: %s"
+msgstr "*** đang lưu tập tin: %s"
+
+#: terminal.py:1934
+#, python-format
+msgid ""
+"Can't restore backup file '%s' to '%s': %s\n"
+"Backup left as '%s'"
+msgstr ""
+"Không thể lư tập tin sao lưu '%s' vào '%s': %s\n"
+"Tập tin sao lưu vẫn là '%s'"
+
+#: terminal.py:1942
+#, python-format
+msgid "*** File saved : %s"
+msgstr "*** Đã lưu tập tin : %s"
+
+#: terminal.py:1952
+#, python-format
+msgid "Save log to '%s'?"
+msgstr "Lưu log vào '%s' nhé?"
+
+#: utils.py:178
+msgid "_Yes"
+msgstr "_Có"
+
+#: utils.py:180
+msgid "_No"
+msgstr "_Không"
+
+#: utils.py:191
+msgid "Loading"
+msgstr "Đang nạp"
+
+#: utils.py:443
+#: utils.py:475
+msgid "Sync"
+msgstr "Đồng bộ"
+
+#: utils.py:476
+msgid "WebRsync"
+msgstr "Đồng bộ Web"
+
+#: utils.py:724
+msgid "Error reading emerge log file.  Check file permissions, or check for corrupt log file."
+msgstr "Lỗi đọc emerge log. Vui lòng kiểm tra quyền truy cập hoặc kiểm tra xem tập tin log có hư không."
+
+#: views.py:170
+#: config.glade.h:30
+msgid "Emerge"
+msgstr "Cài đặt"
+
+#: views.py:172
+msgid "Pretend Emerge"
+msgstr "Giả cài đặt"
+
+#: views.py:174
+msgid "Sudo Emerge"
+msgstr "Cài đặt dùng Sudo"
+
+#: views.py:176
+msgid "Unmerge"
+msgstr "Gỡ bỏ"
+
+#: views.py:178
+msgid "Sudo Unmerge"
+msgstr "Gỡ bỏ dùng Sudo"
+
+#: views.py:180
+#, python-format
+msgid "Append with %s to package.keywords"
+msgstr "Thêm %s vào package.keywords"
+
+#: views.py:182
+msgid "De-Select all"
+msgstr "Bỏ chọn tất cả"
+
+#: views.py:184
+msgid "Select all"
+msgstr "Chọn tất cả"
+
+#: views.py:198
+msgid "Packages"
+msgstr "Gói"
+
+#: views.py:208
+#: config.glade.h:44
+msgid "Installed"
+msgstr "Đã cài đặt"
+
+#: views.py:215
+#: config.glade.h:64
+msgid "Recommended"
+msgstr "Khuyến khích"
+
+#: views.py:222
+#: config.glade.h:27
+msgid "Download Size"
+msgstr "Kích thước lấy về"
+
+#: views.py:229
+#: config.glade.h:25
+msgid "Description"
+msgstr "Mô tả"
+
+#: views.py:666
+#: views.py:687
+msgid "Categories"
+msgstr "Phân loại"
+
+#: views.py:685
+msgid "Search History"
+msgstr "Lịch sử tìm"
+
+#: views.py:750
+#: views.py:767
+#: porthole.glade.h:18
+msgid "Dependencies"
+msgstr "Phụ thuộc"
+
+#: advemerge.glade.h:1
+msgid "<b>Command Preview</b>"
+msgstr "<b>Xem trước lệnh</b>"
+
+#: advemerge.glade.h:2
+msgid "<b>Emerge Options</b>"
+msgstr "<b>Tùy chọn emerge</b>"
+
+#: advemerge.glade.h:3
+msgid "<b>Package Options</b>"
+msgstr "<b>Tùy chọn gói</b>"
+
+#: advemerge.glade.h:4
+msgid "Add the selected keyword to your package.keywords file. Changes will affect THIS VERSION only."
+msgstr "Thêm từ khoá bạn chọn vào tập tin package.keywords. Thay đổi chỉ tác động VỚI VERSION NÀY mà thôi."
+
+#: advemerge.glade.h:5
+msgid "Behaves just as usepkg except that this will only emerge binary packages.  All the binary packages must be available at the time of dependency calculation or emerge will simply abort."
+msgstr "Hành xử như usepkg trừ khi bạn chỉ dùng emerge binary. Mọi gói binary phải sẵn sàng lúc tính toán phụ thuộc hoặc emerge sẽ không chạy."
+
+#: advemerge.glade.h:6
+msgid "Causes portage to disregard merge records indicating that a config file inside of a CONFIG_PROTECT directory has been merged already.  Portage will normally merge those files only once to prevent the user from dealing with the same config multiple times.  This flag will cause the file to always be merged."
+msgstr "Làm portage bỏ qua mọi thông tin merge cho biết rằng tập tin cấu hình bên trong thư mục CONFIG_DIRECTORY đã được merge rồi. Portage bình thường sẽ merge những tập tin này chỉ một lần để tránh giải quyết cùng tập tin cấu hình nhiều lần. Cờ này sẽ làm tập tin luôn luôn được merge."
+
+#: advemerge.glade.h:7
+msgid "Command Preview Window"
+msgstr "Cửa sổ xem trước lệnh"
+
+#: advemerge.glade.h:8
+msgid "Commit Use Flag modifications to your make.conf file. Changes will affect ALL PACKAGES on your system."
+msgstr "Lưu USE flag vào make.conf. Thay đổi sẽ tác động TRÊN TÁT CẢ CÁC GÓI."
+
+#: advemerge.glade.h:9
+msgid "Commit Use Flag modifications to your package.use file. Changes will affect THIS PACKAGE only."
+msgstr "Lưu USE flag vào tập tin package.use. Thay đổi sẽ tác động CHỈ VỚI GÓI NÀY."
+
+#: advemerge.glade.h:10
+msgid "Creates binary packages for  all  ebuilds  processed  without actually merging the packages.  This comes with the caveat that all build time dependencies must already be emerged on the system."
+msgstr "Tạo gói nhị phân cho mọi ebuild được xử lý mà không cài đặt vào hệ thống. Lệnh nào kèm theo cảnh báo rằng mọi phụ thuộc của gói cần xử lý phải được cài sẵn trong hệ thống."
+
+#: advemerge.glade.h:11
+msgid "Disables the spinner regardless of terminal type.   ie.  Turns off the spinner normally displayed to indicate that portage is busy doing something and not frozen."
+msgstr "Tắt spinner bất kể loại terminal. Vd, tắt spinner thường được hiển thị khi portage đang bận làm gì đó nhưng chưa bị treo."
+
+#: advemerge.glade.h:12
+msgid "Emerge as normal, but do not add the packages to the world profile for later updating."
+msgstr "Emerge như bình thường, không thêm gói vào tập tin world."
+
+#: advemerge.glade.h:13
+msgid "Instead of actually performing the merge, simply display what *would* have been installed if pretend weren't used.  Using pretend is strongly recommended before installing an unfamiliar package.  In the printout, N = new, U = upgrading, R = replacing,  F = fetch restricted, B = blocked by an already installed package."
+msgstr "Thay vì thực hiện merge, chỉ hiển thị những gì sẽ được cài đặt nếu không dùng pretend. Bạn được khuyên dùng pretend trước khi cài đặt những gói không quen. Để in ra, N = new (mới), U = upgrading (nâng cấp), R = replacing (thay thế), F = fetch restricted (chỉ lấy về), B = blocked (bị cấm bởi một gói đã cài)."
+
+#: advemerge.glade.h:14
+msgid "Instead of doing any package building, just perform fetches for all packages (the main package as well as  all  dependencies.)"
+msgstr "Thay vì tạo gói, chỉ lấy những gói về (cả gói chính lẫn gói phụ thuộc)."
+
+#: advemerge.glade.h:15
+msgid "Keyword to accept"
+msgstr "Từ khoá chấp nhận"
+
+#: advemerge.glade.h:16
+msgid "Merges specified packages without merging  any  dependencies.  Note that the build may fail if the dependencies aren't satisfied."
+msgstr "Cài gói xác định mà không cài gói phụ thuộc của nó. Chú ý rằng quá trình tạo có thể thất bại nếu các phụ thuộc không đầy đủ."
+
+#: advemerge.glade.h:17
+msgid "Only merge (or pretend to  merge) the dependencies of the packages specified, not the packages themselves."
+msgstr "Chỉ cài đặt (hoặc giả bộ cài đặt) các gói phụ thuộc của gói xác định mà không cài gói chính."
+
+#: advemerge.glade.h:18
+msgid "Results may vary, but the general outcome is a reduced or condensed output from portage's displays."
+msgstr "Kết quả có thể khác nhau, nhưng thông thường sẽ cho ra kết quả cô đọng hơn."
+
+#: advemerge.glade.h:19
+msgid "Skips the packages specified on the command-line that have already been installed.  Without this option, any packages, ebuilds, or deps you specify on on the command-line *will* cause Portage to remerge the package, even if it is already installed.  Note that Portage will not remerge dependencies by default."
+msgstr "Bỏ qua các gói xác định trên dòng lệnh mà đã cài đặt. Không có tùy chọn này, bất kỳ gói nào, ebuild hoặc phụ thuộc bạn xác định trên dòng lệnh, Portage *sẽ* cài đặt lại gói đó, ngay cả khi nó đã cài rồi. Chú ý Portage mặc định sẽ không cài đặt lại các gói phụ thuộc."
+
+#: advemerge.glade.h:20
+msgid "Tell emerge to run in verbose mode.  Currently this flag causes emerge to print out GNU info errors, if any, and to show the USE flags that will be used for each package when pretending."
+msgstr "Đề nghị Portage chạy trong chế độ chi tiết. Hiện thời cờ nay chỉ làm cho Portage in ra lỗi nếu có và hiển thị USE flag được dùng cho mỗi gói khi cài đặt giả."
+
+#: advemerge.glade.h:21
+msgid "Tells emerge to build binary packages for  all  ebuilds  processed  in addition to actually merging the packages.  Useful for maintainers or if you administrate multiple Gentoo  Linux systems  (build  once, emerge tbz2s everywhere).  The package will be created in the ${PKGDIR}/All directory.  An  alternative  for  already-merged  packages  is to use quickpkg which  creates a tbz2 from the live filesystem."
+msgstr "Tạo gói nhị phân cho mọi ebuild được xử lý ngoài việc cài vào hệ thống. Hữu dụng khi quản lý cùng lúc nhiều hệ thống Gentoo (tạo một lần, tbz2 cho những lần khác). Những gói này nằm trong thư mục ${PKGDIR}/All. Cách khác để tạo gói là dùng lệnh quickpkg sau khi đã cài đặt."
+
+#: advemerge.glade.h:22
+msgid "Tells emerge to run the emerge command in debug mode.  In this mode the bash build environment will run with the -x option, causing it to output verbose debug information to stdout.  Debug is great for finding bash syntax errors."
+msgstr "Chạy emerge trong chế độ debug. Chế độ này bash sẽ chạy với tùy chọn -x, kết quả sẽ rất chi tiết. Debug rất tốt khi tìm lỗi cú pháp bash."
+
+#: advemerge.glade.h:23
+msgid "Tells emerge to use binary packages (from $PKGDIR) if they are available, thus possibly avoiding some time-consuming compiles.  This option is useful for CD installs; you  can export PKGDIR=/mnt/cdrom/packages and then use this option to have emerge \"pull\" binary packages from the CD in order to satisfy dependencies."
+msgstr "Dùng gói binary (từ $PKGDIR) nếu có, tránh quá trình biên dịch nếu có thể. Tùy chọn này hữu dụng để cài đặt từ CD; bạn có thể đặt PKGDIR=/mnt/cdrom/packages và sau đó dùng tùy chọn này để \"lấy\" các gói binary từ CD."
+
+#: advemerge.glade.h:24
+msgid "Update make.conf"
+msgstr "Cập nhật make.conf"
+
+#: advemerge.glade.h:25
+msgid "Update package.keywords"
+msgstr "Cập nhật package.keywords"
+
+#: advemerge.glade.h:26
+msgid "Update package.use"
+msgstr "Cập nhật package.use"
+
+#: advemerge.glade.h:27
+msgid "Updates packages to the most recent version available.  Note that update does not have full functionality yet.  It will not automatically update dependencies of packages in the world file, unless they too are in the world file."
+msgstr "Cập nhật gói sang phiên bản mới nhất. Chú ý rằng tính năng cập nhật chưa hoàn chỉnh. Nó không tự động cập nhật gói phụ thuộc trong tập tin world, trừ khi nó cũng nằm trong tập tin world."
+
+#: advemerge.glade.h:28
+msgid "Updates packages, but excludes updates that would result in a lower version of the package being installed.  SLOTs are considered at a basic level."
+msgstr "Cập nhật gói, trừ những cập nhật \"hạ cấp\" phiên bản gói so với gói đã cài đặt. SLOT được xem xét ở mức cơ bản."
+
+#: advemerge.glade.h:29
+msgid "Use Flags"
+msgstr "USE flag"
+
+#: advemerge.glade.h:30
+msgid "Virtually tweaks the tree of installed packages to only contain glibc; this is great to use together with pretend.  This allows developers to get a complete overview of the complete dependency tree of a package, and it enables complete trees to be rebuilt using the latest libraries."
+msgstr "Giả định các gói đã cài đặt để chỉ chứa glibc; rất hữu dụng khi dùng với pretend. Cho phép developer biết chính xác những gói nào cần để cài đặt gói này, và cho phép dựng lại toàn bộ các gói bằng phiên bản mới nhất."
+
+#: advemerge.glade.h:31
+msgid "When used in conjunction with update, this flag forces emerge to consider the entire dependency tree of packages, instead of checking only the immediate dependencies of the packages.  As an example, this catches updates in libraries that are not directly listed in the dependencies of a package."
+msgstr "Khi dùng với update, cờ này buộc emerge xem xét toàn bộ cây phụ thuộc. thay vỉ chỉ kiểm tra những gói phụ thuộc trực tiếp. Ví dụ, nó sẽ cập nhật những thư viện không phải là phụ thuộc trực tiếp của gói."
+
+#: advemerge.glade.h:32
+msgid "buildpkg"
+msgstr "buildpkg"
+
+#: advemerge.glade.h:33
+msgid "buildpkgonly"
+msgstr "buildpkgonly"
+
+#: advemerge.glade.h:34
+msgid "debug"
+msgstr "debug"
+
+#: advemerge.glade.h:35
+msgid "deep"
+msgstr "deep"
+
+#: advemerge.glade.h:36
+msgid "emptytree"
+msgstr "emptytree"
+
+#: advemerge.glade.h:37
+msgid "fetchonly"
+msgstr "fetchonly"
+
+#: advemerge.glade.h:38
+msgid "noconfmem"
+msgstr "noconfmem"
+
+#: advemerge.glade.h:39
+msgid "nodeps"
+msgstr "nodeps"
+
+#: advemerge.glade.h:40
+msgid "noreplace"
+msgstr "noreplace"
+
+#: advemerge.glade.h:41
+#: config.glade.h:101
+msgid "nospinner"
+msgstr "nospinner"
+
+#: advemerge.glade.h:42
+msgid "oneshot"
+msgstr "oneshot"
+
+#: advemerge.glade.h:43
+msgid "onlydeps"
+msgstr "onlydeps"
+
+#: advemerge.glade.h:44
+#: config.glade.h:102
+msgid "pretend"
+msgstr "pretend"
+
+#: advemerge.glade.h:45
+msgid "quiet"
+msgstr "quiet"
+
+#: advemerge.glade.h:46
+msgid "update"
+msgstr "update"
+
+#: advemerge.glade.h:47
+#: config.glade.h:113
+msgid "upgradeonly"
+msgstr "upgradeonly"
+
+#: advemerge.glade.h:48
+msgid "usepkg"
+msgstr "usepkg"
+
+#: advemerge.glade.h:49
+msgid "usepkgonly"
+msgstr "usepkgonly"
+
+#: advemerge.glade.h:50
+#: config.glade.h:114
+msgid "verbose"
+msgstr "verbose"
+
+#: advemerge.glade.h:51
+msgid "version"
+msgstr "version"
+
+#: config.glade.h:1
+msgid " Editor : "
+msgstr " Trình soạn thảo : "
+
+#: config.glade.h:2
+msgid "<b>Advanced Emerge dialog options</b>"
+msgstr "<b>Tùy chọn emerge nâng cao</b>"
+
+#: config.glade.h:3
+msgid "<b>Arch List</b> for display's &amp; options"
+msgstr "<b>Danh sách kiến trúc</b> và tùy chọn"
+
+#: config.glade.h:4
+msgid "<b>Emerge options</b>"
+msgstr "<b>Tùy chọn emerge</b>"
+
+#: config.glade.h:5
+msgid "<b>Run Custom Command options</b>"
+msgstr "<b>Tuỳ chọn lệnh chạy riêng</b>"
+
+#: config.glade.h:6
+msgid "<b>Web Browser Options</b>"
+msgstr "<b>Tùy chọn Trình duyệt web</b>"
+
+#: config.glade.h:7
+msgid "Add New"
+msgstr "Thêm mới"
+
+#: config.glade.h:8
+msgid "Add a new filter expression to the Selected Group"
+msgstr "Thêm biểu thức lọc vào nhóm được chọn"
+
+#: config.glade.h:9
+msgid "Arch-list/Version table"
+msgstr "Kiến trúc/Phiên bản"
+
+#: config.glade.h:10
+msgid "Available Versions"
+msgstr "Phiên bản hiện có"
+
+#: config.glade.h:11
+msgid "Background"
+msgstr "Nền"
+
+#: config.glade.h:12
+msgid "Background Colour"
+msgstr "Màu nền"
+
+#: config.glade.h:13
+msgid "Black"
+msgstr "Đen"
+
+#: config.glade.h:14
+msgid "Blue"
+msgstr "Lục"
+
+#: config.glade.h:15
+msgid "Browser : "
+msgstr "Trình duyệt : "
+
+#: config.glade.h:16
+msgid "Category View"
+msgstr "Xem phân loại"
+
+#: config.glade.h:17
+msgid "Caution"
+msgstr "Chú ý"
+
+#: config.glade.h:18
+msgid "Check off all items you would like displayed"
+msgstr "Đánh dấu những mục bạn muốn hiển thị"
+
+#: config.glade.h:19
+msgid "Command"
+msgstr "Lệnh"
+
+#: config.glade.h:20
+msgid "Current CPU architecture : "
+msgstr "Kiến trúc CPU hiện thời : "
+
+#: config.glade.h:21
+msgid "Cyan"
+msgstr "Xanh lơ"
+
+#: config.glade.h:22
+msgid "Default"
+msgstr "Mặc định"
+
+#: config.glade.h:23
+msgid "Delete"
+msgstr "Xoá"
+
+#: config.glade.h:24
+msgid "Delete the selected filter expression"
+msgstr "Xoá biểu thức lọc được chọn"
+
+#: config.glade.h:26
+msgid "Downgradable Colour"
+msgstr "Màu có thể hạ cấp"
+
+#: config.glade.h:28
+msgid "Edit"
+msgstr "Hiệu chỉnh"
+
+#: config.glade.h:29
+msgid "Edit the selected filter expression"
+msgstr "Sửa biểu thức lọc được chọn"
+
+#: config.glade.h:31
+msgid "Enable arch-list"
+msgstr "Bật danh sách kiến trúc"
+
+#: config.glade.h:32
+msgid "Enable make.conf modification"
+msgstr "Cho phép thay đổi make.conf"
+
+#: config.glade.h:33
+msgid "Enter the command for a GUI su client eg. 'gksu' or 'gnomesu'"
+msgstr "Nhập vào lệnh GUI su client, vg 'gksu' hoặc 'gnomesu'"
+
+#: config.glade.h:34
+msgid "Error"
+msgstr "Lỗi"
+
+#: config.glade.h:35
+msgid "Filters"
+msgstr "Bộ lọc"
+
+#: config.glade.h:36
+msgid "Font & Colors"
+msgstr "Phông và màu"
+
+#: config.glade.h:37
+msgid "Font :"
+msgstr "Phông chữ :"
+
+#: config.glade.h:38
+msgid "Foreground"
+msgstr "Chữ"
+
+#: config.glade.h:39
+msgid "GUI su client :"
+msgstr "GUI su client :"
+
+#: config.glade.h:40
+msgid "Global"
+msgstr "Toàn cục"
+
+#: config.glade.h:41
+msgid "Green"
+msgstr "Xanh"
+
+#: config.glade.h:42
+msgid "Homepage URL"
+msgstr "URL Trang chủ"
+
+#: config.glade.h:43
+msgid "Info"
+msgstr "Thông tin"
+
+#: config.glade.h:45
+msgid "Installed list"
+msgstr "Danh sách đã cài"
+
+#: config.glade.h:46
+msgid "Keywords"
+msgstr "Từ khoá"
+
+#: config.glade.h:47
+msgid "LANG = "
+msgstr "LANG = "
+
+#: config.glade.h:48
+msgid "License"
+msgstr "Giấy phép"
+
+#: config.glade.h:49
+msgid "Line Number"
+msgstr "Số dòng"
+
+#: config.glade.h:50
+msgid "Long Descriptions"
+msgstr "Mô tả chi tiết"
+
+#: config.glade.h:51
+msgid "Magenta"
+msgstr "Hồng"
+
+#: config.glade.h:52
+msgid "Main Window"
+msgstr "Cửa sổ chính"
+
+#: config.glade.h:53
+msgid "More Colours"
+msgstr "Nhiều màu hơn"
+
+#: config.glade.h:54
+msgid "Move"
+msgstr "Di chuyển"
+
+#: config.glade.h:55
+msgid "Move the selected filter expression to a different filter group"
+msgstr "Chuyển biểu thức lọc được chọn sang nhóm lọc khác"
+
+#: config.glade.h:56
+msgid "Normal"
+msgstr "Bình thường"
+
+#: config.glade.h:57
+msgid "Normal Font Colour"
+msgstr "Màu chữ bình thường"
+
+#: config.glade.h:58
+msgid "Note"
+msgstr "Ghi chú"
+
+#: config.glade.h:59
+msgid "Package View"
+msgstr "Xem gói"
+
+#: config.glade.h:60
+msgid ""
+"Please enter the persistent history commands\n"
+"you wish to be pre-typed"
+msgstr "Vui lòng nhập persistent history command bạn muốn gõ trước."
+
+#: config.glade.h:62
+msgid "Please select the Font colours desired"
+msgstr "Vui lòng chọn phông chữ và màu theo ý thích"
+
+#: config.glade.h:63
+msgid "Porthole Configuration"
+msgstr "Cấu hình Porthole"
+
+#: config.glade.h:65
+msgid "Red"
+msgstr "Đỏ"
+
+#: config.glade.h:66
+msgid "Reset the filters to the defaults"
+msgstr "Đặt lại bộ lọc về mặc định"
+
+#: config.glade.h:67
+msgid "Sample Window"
+msgstr "Cửa sổ mẫu"
+
+#: config.glade.h:68
+msgid "Save the filters to disk"
+msgstr "Lưu bộ lọc vào đĩa"
+
+#: config.glade.h:69
+msgid "Summary View"
+msgstr "Xem tóm tắt"
+
+#: config.glade.h:70
+msgid "Sync method "
+msgstr "Cách đồng bộ"
+
+#: config.glade.h:71
+msgid "Tag"
+msgstr "Tag"
+
+#: config.glade.h:72
+msgid "Terminal"
+msgstr "Terminal"
+
+#: config.glade.h:73
+msgid "Text Font & Colours"
+msgstr "Màu và phông chữ"
+
+#: config.glade.h:74
+msgid "These colours are used by Porthole for highlighting"
+msgstr "Những màu này được Porthole dùng để tô sáng"
+
+#: config.glade.h:75
+msgid "These colours are used by emerge for coloured output"
+msgstr "Những màu này được emerge dùng để hiển thị"
+
+#: config.glade.h:76
+msgid "USE Flags"
+msgstr "USE Flag"
+
+#: config.glade.h:77
+msgid "Upgradable Colour"
+msgstr "Màu có thể nâng cấp"
+
+#: config.glade.h:78
+msgid "Use Custom Browser"
+msgstr "Dùng trình duyệt riêng"
+
+#: config.glade.h:79
+msgid "Use Default"
+msgstr "Dùng mặc định"
+
+#: config.glade.h:80
+msgid "Use Flag set +"
+msgstr "Bật USE Flag"
+
+#: config.glade.h:81
+msgid "Use Flag set -"
+msgstr "Tắt USE flag"
+
+#: config.glade.h:82
+msgid "WARNING! Make sure you back up your make.conf file (usually /etc/make.conf) before enabling this option!"
+msgstr "CẢNH BÁO! Nhớ sao lưu tập tin make.conf (thường là /etc/make.conf) trước khi bật tùy chọn này!"
+
+#: config.glade.h:83
+msgid "Warning"
+msgstr "Cảnh báo"
+
+#: config.glade.h:84
+msgid "White"
+msgstr "Trắng"
+
+#: config.glade.h:85
+msgid "Yellow"
+msgstr "Vàng"
+
+#: config.glade.h:86
+msgid "checkbutton10"
+msgstr "checkbutton10"
+
+#: config.glade.h:87
+msgid "checkbutton16"
+msgstr "checkbutton16"
+
+#: config.glade.h:88
+msgid "checkbutton17"
+msgstr "checkbutton17"
+
+#: config.glade.h:89
+msgid "checkbutton18"
+msgstr "checkbutton18"
+
+#: config.glade.h:90
+msgid "checkbutton19"
+msgstr "checkbutton19"
+
+#: config.glade.h:91
+msgid "checkbutton20"
+msgstr "checkbutton20"
+
+#: config.glade.h:92
+msgid "checkbutton21"
+msgstr "checkbutton21"
+
+#: config.glade.h:93
+msgid "checkbutton22"
+msgstr "checkbutton22"
+
+#: config.glade.h:94
+msgid "checkbutton9"
+msgstr "checkbutton9"
+
+#: config.glade.h:95
+msgid "command 1:"
+msgstr "Lệnh 1:"
+
+#: config.glade.h:96
+msgid "command 2:"
+msgstr "Lệnh 2:"
+
+#: config.glade.h:97
+msgid "command 3:"
+msgstr "Lệnh 3:"
+
+#: config.glade.h:98
+msgid "command 4:"
+msgstr "Lệnh 4:"
+
+#: config.glade.h:99
+msgid "command 5:"
+msgstr "Lệnh 5:"
+
+#: config.glade.h:100
+msgid "fetch"
+msgstr "fetch"
+
+#: config.glade.h:103
+msgid "profile"
+msgstr "profile"
+
+#: config.glade.h:104
+msgid "radiobutton1"
+msgstr "radiobutton1"
+
+#: config.glade.h:105
+msgid "radiobutton2"
+msgstr "radiobutton2"
+
+#: config.glade.h:106
+msgid "radiobutton3"
+msgstr "radiobutton3"
+
+#: config.glade.h:107
+msgid "radiobutton4"
+msgstr "radiobutton4"
+
+#: config.glade.h:108
+msgid "radiobutton5"
+msgstr "radiobutton5"
+
+#: config.glade.h:109
+msgid "radiobutton6"
+msgstr "radiobutton6"
+
+#: config.glade.h:110
+msgid "radiobutton7"
+msgstr "radiobutton7"
+
+#: config.glade.h:111
+msgid "radiobutton8"
+msgstr "radiobutton8"
+
+#: config.glade.h:112
+msgid "radiobutton9"
+msgstr "radiobutton9"
+
+#: porthole.glade.h:1
+msgid "<b>Plugin Description</b>"
+msgstr "<b>Mô tả Plugin</b>"
+
+#: porthole.glade.h:2
+msgid "<b>Plugin List</b>"
+msgstr "<b>Danh sách Plugin</b>"
+
+#: porthole.glade.h:3
+msgid "<b>Plugin Options</b>"
+msgstr "<b>Tùy chọn Plugin</b>"
+
+#: porthole.glade.h:4
+msgid ""
+"A GTK+ frontend to Portage\n"
+"\n"
+"Developed by Fredrik Arnerup, Brian Dolbec,\n"
+"Daniel G. Taylor, Wm. F. Wheeler,\n"
+"Brian Bockelman and Tommy Iorns\n"
+"Copyright (C) 2003 - 2005"
+msgstr ""
+"Giao diện đồ hoạ GTK+ cho Portage\n"
+"\n"
+"Phát triển bởi Fredrik Arnerup, Brian Dolbec,\n"
+"Daniel G. Taylor, và Wm. F. Wheeler\n"
+"Brian Bockelman và Tommy Iorns\n"
+"Copyright (C) 2003 - 2005"
+
+#: porthole.glade.h:10
+msgid "A_bout"
+msgstr "_Giới thiệu"
+
+#: porthole.glade.h:11
+msgid "A_dv Emerge"
+msgstr "Cài đặt _nâng cao"
+
+#: porthole.glade.h:12
+msgid "About"
+msgstr "Giới thiệu"
+
+#: porthole.glade.h:13
+msgid "Advanced Emerge Package"
+msgstr "Cài đặt gói nâng cao"
+
+#: porthole.glade.h:14
+msgid "All Packages"
+msgstr "Mọi gói"
+
+#: porthole.glade.h:15
+msgid "C_lear"
+msgstr "_Xoá trắng"
+
+#: porthole.glade.h:16
+msgid "Cautions "
+msgstr "Chú ý "
+
+#: porthole.glade.h:17
+msgid "Changelog"
+msgstr "Changelog"
+
+#: porthole.glade.h:19
+msgid "E_merge"
+msgstr "_Cài đặt"
+
+#: porthole.glade.h:20
+msgid "E_merge Package"
+msgstr "_Cài đặt gói"
+
+#: porthole.glade.h:21
+msgid "Ebuild"
+msgstr "Ebuild"
+
+#: porthole.glade.h:22
+msgid "Emerge Package"
+msgstr "Cài đặt gói"
+
+#: porthole.glade.h:23
+msgid "Emerge Queue"
+msgstr "Hàng đợi cài đặt"
+
+#: porthole.glade.h:24
+msgid "In order to access all the features of Porthole, please run it with root privileges."
+msgstr "Để truy cập mọi tính năng của Porthole, hãy chạy Porthole bằng root."
+
+#: porthole.glade.h:25
+msgid "Information "
+msgstr "Thông tin "
+
+#: porthole.glade.h:26
+msgid "Installed Packages"
+msgstr "Gói đã cài đặt"
+
+#: porthole.glade.h:27
+msgid "Installed files"
+msgstr "Tập tin đã cài"
+
+#: porthole.glade.h:28
+msgid "Kill"
+msgstr "Buộc chấm dứt"
+
+#: porthole.glade.h:29
+msgid "Main process text"
+msgstr "Văng bản xử lý chính"
+
+#: porthole.glade.h:30
+msgid "Move _Down"
+msgstr "Chuyển _xuống"
+
+#: porthole.glade.h:31
+msgid "Move _Up"
+msgstr "Chuyển _lên"
+
+#: porthole.glade.h:32
+msgid "Not Root"
+msgstr "Không phải root"
+
+#: porthole.glade.h:33
+msgid "Only _Fetch"
+msgstr "Chỉ _lấy về"
+
+#: porthole.glade.h:34
+msgid "Open Emerge _Log"
+msgstr "Mở Emerge _log"
+
+#: porthole.glade.h:35
+msgid "Please Enter Command to Execute"
+msgstr "Vui lòng nhập Enter để thực hiện"
+
+#: porthole.glade.h:36
+msgid "Plugin Settings"
+msgstr "Thiết lập Plugin"
+
+#: porthole.glade.h:37
+msgid "Plugin _Settings"
+msgstr "Thiết lập _Plugin"
+
+#: porthole.glade.h:38
+msgid "Porthole"
+msgstr "Porthole"
+
+#: porthole.glade.h:39
+msgid "Porthole Terminal"
+msgstr "Porthole Terminal"
+
+#: porthole.glade.h:41
+msgid "Quit"
+msgstr "Thoát"
+
+#: porthole.glade.h:42
+msgid "RUN :"
+msgstr "CHẠY :"
+
+#: porthole.glade.h:43
+msgid "R_eload Database"
+msgstr "_Nạp lại Cơ sở dữ liệu"
+
+#: porthole.glade.h:44
+msgid "Re-Initialize _Portage"
+msgstr "_Khởi động lại Portage"
+
+#: porthole.glade.h:45
+msgid "Refresh the Current View"
+msgstr "Nạp lại cửa sổ"
+
+#: porthole.glade.h:46
+msgid "S_ync"
+msgstr "Đồng _bộ"
+
+#: porthole.glade.h:47
+msgid "S_ync Tree"
+msgstr "Đồng bộ _cây"
+
+#: porthole.glade.h:48
+msgid "Save Log _As"
+msgstr "Lưu _log với tên mới"
+
+#: porthole.glade.h:49
+msgid "Save _Log"
+msgstr "Lưu _log"
+
+#: porthole.glade.h:50
+msgid "Search Results"
+msgstr "Kết quả tìm"
+
+#: porthole.glade.h:51
+msgid "Search _Descriptions"
+msgstr "_Mô tả tìm"
+
+#: porthole.glade.h:52
+msgid "Skip _Queue Entry"
+msgstr "Bỏ qua _hàng đợi"
+
+#: porthole.glade.h:54
+msgid "U_nmerge"
+msgstr "_Gỡ bỏ"
+
+#: porthole.glade.h:55
+msgid "U_nmerge Package"
+msgstr "Gỡ bỏ gói"
+
+#: porthole.glade.h:56
+msgid "Unmerge Package"
+msgstr "Gỡ bỏ gói"
+
+#: porthole.glade.h:57
+msgid "Upgradable Packages"
+msgstr "Gói có thể nâng cấp"
+
+#: porthole.glade.h:58
+msgid "Upgrade packages to newest versions"
+msgstr "Nâng cấp các gói sang phiên bản mới nhất"
+
+#: porthole.glade.h:59
+msgid "Warnings! "
+msgstr "Cảnh báo! "
+
+#: porthole.glade.h:60
+msgid "_Actions"
+msgstr "_Hành động"
+
+#: porthole.glade.h:61
+msgid "_Advanced Emerge Package"
+msgstr "Cài đặt gói _nâng cao"
+
+#: porthole.glade.h:62
+msgid "_Close Window"
+msgstr "Đón_g cửa sổ"
+
+#: porthole.glade.h:63
+msgid "_Configure Porthole"
+msgstr "_Cấu hình Porthole"
+
+#: porthole.glade.h:64
+msgid "_Contents"
+msgstr "_Nội dung"
+
+#: porthole.glade.h:65
+msgid "_Copy"
+msgstr "_Chép"
+
+#: porthole.glade.h:66
+msgid "_Edit"
+msgstr "_Sửa"
+
+#: porthole.glade.h:67
+msgid "_Help"
+msgstr "Trợ _giúp"
+
+#: porthole.glade.h:68
+msgid "_Homepage"
+msgstr "_Trang chủ"
+
+#: porthole.glade.h:69
+msgid "_Kill Process"
+msgstr "_Buộc chấm dứt tiến trình"
+
+#: porthole.glade.h:70
+msgid "_Normal"
+msgstr "_Bình thường"
+
+#: porthole.glade.h:71
+msgid "_Open Log"
+msgstr "_Mở log"
+
+#: porthole.glade.h:72
+msgid "_Pretend"
+msgstr "_Chạy giả"
+
+#: porthole.glade.h:73
+msgid "_Process"
+msgstr "_Tiến trình"
+
+#: porthole.glade.h:74
+msgid "_Queue"
+msgstr "_Hàng đợi"
+
+#: porthole.glade.h:75
+msgid "_Remove"
+msgstr "_Loại bỏ"
+
+#: porthole.glade.h:76
+msgid "_Resume"
+msgstr "_Chạy tiếp"
+
+#: porthole.glade.h:77
+msgid "_Run Custom Command"
+msgstr "_Chạy lệnh riêng"
+
+#: porthole.glade.h:78
+msgid "_Settings"
+msgstr "_Thiết lập"
+
+#: porthole.glade.h:79
+msgid "_Skip First Package"
+msgstr "_Bỏ qua gói đầu tiên"
+
+#: porthole.glade.h:80
+msgid "_Upgrade"
+msgstr "_Nâng cấp"
+
+#: porthole.glade.h:81
+msgid "_Upgrade Packages"
+msgstr "_Nâng cấp gói"
+
+#: porthole.glade.h:82
+msgid "_Upgrades Only"
+msgstr "_Chỉ nâng cấp"
+
+#: porthole.glade.h:83
+msgid "_Verbose"
+msgstr "_Chi tiết"
+
+#: porthole.glade.h:84
+msgid "_View:"
+msgstr "_Xem:"
+

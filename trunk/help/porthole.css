@@ -1,0 +1,205 @@
+html
+  {margin: 0;
+  }
+body
+  {padding: .3cm;
+   margin: 0;
+   background-color: oldlace;
+   color: black;
+   font-size: 10pt;
+  }
+a:active, a:visited, a:link
+  {color: black; 
+  }
+a:hover
+  {background-color: yellow;
+   color: blue; 
+  }
+p
+  {text-indent:1.5em;
+  }
+pre
+  {margin-left:2em;
+   margin-right:2em;
+   padding:.1cm;
+   background-color:navajowhite;
+  }
+span.note
+  {font-style: italic;
+  }
+span.note:before {content: "["}
+span.note:after {content: "]"}
+span.command
+  {background-color: #000080;
+   color:white;
+   font-weight:bold;
+  }
+span.emerge
+  {background-color: #90ee90;
+   font-weight: bold;
+  }
+span.warning
+  {background-color:yellow;
+  }
+span.info
+  {background-color: #b0ffff;
+  }
+span.error
+  {color: #faf0e6;
+   background-color: #ff0000;
+   font-weight: bold;
+  }
+span.appnote
+  {color: #8b008b;
+  }
+div.toc 
+  {float: right;
+   margin: 2pt 2pt 2pt 2pt;
+  }
+div.figright
+  {float: right;
+   font-size: 10pt;
+   text-align: center;
+   margin-left: 0.3cm;
+   margin-bottom: 0.3cm;
+   margin-top: 0.3cm;
+   color: blue;
+  }
+div.figright img
+  {border: medium solid black
+  }
+div.figleft
+  {float: left;
+   font-size: 10pt;
+   text-align: center;
+   margin-right: 0.3cm;
+   margin-bottom: 0.3cm;
+   margin-top: 0.3cm;
+   color:blue;
+  }
+div.figleft img
+  {border: medium solid black
+  }
+div.figinline
+  {font-size: 10pt;
+   text-align: center;
+   margin-right: 0.3cm;
+   margin-bottom: 0.3cm;
+   margin-top: 0.3cm;
+   color:blue;
+  }
+div.figinline img
+  {border: medium solid black
+  }
+
+div.warnright
+  {float: right;
+   font-size: 10pt;
+   padding: 0.1cm;
+   margin-left: 0.3cm;
+   margin-bottom: 0.3cm;
+   margin-top: 0.3cm;
+   color: #a00033;
+   background-color: yellow;
+   width: 15em;
+   border: thin solid red;
+  }
+div.warnleft
+  {float: left;
+   font-size: 10pt;
+   padding: 0.1cm;
+   color: #a00033;
+   margin-right: 0.3cm;
+   margin-bottom: 0.3cm;
+   margin-top: 0.3cm;
+   background-color: yellow;
+   width: 15em;
+   border: thin solid red;
+   margin: 0.2cm;
+  }
+div.noteright
+  {float: right;
+   font-size: 10pt;
+   padding: 0.1cm;
+   margin-left: 0.3cm;
+   margin-bottom: 0.3cm;
+   margin-top: 0.3cm;
+   color: black;
+   background-color: #ffffdd;
+   width: 15em;
+   border: thin solid black;
+  }
+div.noteleft
+  {float: left;
+   font-size: 10pt;
+   padding: 0.1cm;
+   color:black;
+   margin-right: 0.3cm;
+   margin-bottom: 0.3cm;
+   margin-top: 0.3cm;
+   background-color:  #ffffdd;
+   width:15em;
+   border: thin solid black;
+   margin: 0.2cm;
+  }
+div.tipright
+  {float: right;
+   font-size: 10pt;
+   margin-left: 0.3cm;
+   margin-bottom: 0.3cm;
+   margin-top: 0.3cm;
+   padding: 0.1cm;
+   color:navy;
+   background-color: #66ffcc;
+   width:15em;
+   border: thin solid green;
+  }
+div.tipleft
+  {float: left;
+   font-size: 10pt;
+   padding: 0.1cm;
+   margin-right: 0.3cm;
+   margin-bottom: 0.3cm;
+   margin-top: 0.3cm;
+   color:navy;
+   background-color: #66ffcc;
+   width:15em;
+   border: thin solid green;
+  }
+img.left
+  {float:left;
+   margin-right: 0.3cm;
+   margin-bottom: 0.3cm;
+   margin-top: 0.3cm;
+  }
+img.right
+  {float:right;
+   margin-left: 0.3cm;
+   margin-bottom: 0.3cm;
+   margin-top: 0.3cm;
+  }
+iframe
+  {margin-bottom: 1em;
+   margin-left: 1em;
+   float:left;
+   border-top: thick solid brown;
+   border-bottom: thick solid brown;
+  }
+h1
+  {text-indent:3em;
+   color:blue;
+   font-variant:small-caps;
+   font-size:18pt;
+  }
+h2
+  {font-size:14pt;
+  }
+h3
+  {font-size:12pt;
+  }
+dl
+  {
+  }
+dt
+  {font-weight: bold;
+  }
