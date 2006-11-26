@@ -30,6 +30,7 @@ import backends
 portage_lib = backends.portage_lib
 
 from db.package import Package
+import db
 
 class DependAtom:
     """Dependency Atom Class.
@@ -108,12 +109,13 @@ class DependsTree(gtk.TreeStore):
     def __init__(self):
         """Initialize the TreeStore object"""
         gtk.TreeStore.__init__(self, gobject.TYPE_STRING,   # depend name
-                                gtk.gdk.Pixbuf,             # icon to display
-                                gobject.TYPE_PYOBJECT,      # package object
-                                gobject.TYPE_BOOLEAN,       # is_satisfied
+                                gtk.gdk.Pixbuf,                   # icon to display
+                                gobject.TYPE_PYOBJECT,     # package object
+                                gobject.TYPE_BOOLEAN,     # is_satisfied
                                 gobject.TYPE_STRING,        # package name
                                 gobject.TYPE_STRING,        # installed version
-                                gobject.TYPE_STRING)        # latest recommended version
+                                gobject.TYPE_STRING,        # latest recommended version
+                                gobject.TYPE_STRING)        # keyword
         self.column = {
             "depend" : 0,
             "icon" : 1,
@@ -121,7 +123,8 @@ class DependsTree(gtk.TreeStore):
             "satisfied" : 3,
             "name" : 4,
             "installed" : 5,
-            "latest" : 6
+            "latest" : 6,
+            "keyword":7
         }
         self.use_flags = portage_lib.get_portage_environ("USE").split()
         
@@ -213,7 +216,8 @@ class DependsTree(gtk.TreeStore):
                 # So we have to convert this with str()
                 depname = str(portage_lib.get_full_name(depend))
                 if not depname: continue
-                pack = Package(depname)
+                # pack = Package(depname)
+                pack = db.db.get_package(depname)
                 self.set_value(depend_iter, self.column["package"], pack)
                 if icon != gtk.STOCK_YES:
                     #utils.debug.dprint("Dependency %s not found... recursing..." % str(depname))
@@ -298,7 +302,8 @@ class DependsTree(gtk.TreeStore):
                     if not depname:
                         utils.debug.dprint(" * DEPENDS: add_atomized_depends_list(): No depname found for '%s'" % atom.name or atom.useflag)
                         continue
-                    pack = Package(depname)
+                    #pack = Package(depname)
+                    pack = db.db.get_package(depname)
                     self.set_value(iter, self.column["package"], pack)
                 # add kids if we should
                 if add_kids and add_satisfied != -1:
