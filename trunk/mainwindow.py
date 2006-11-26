@@ -29,7 +29,7 @@ import gtk, gtk.glade, gobject
 import os
 from gettext import gettext as _
 
-import utils.utils, utils.debug, utils.importer
+import utils.utils, utils.debug
 
 import config
 import backends
