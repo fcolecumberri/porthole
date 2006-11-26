@@ -34,6 +34,7 @@ from dbbase import DBBase
 from utils.dispatcher import Dispatcher
 from backends.utilities import get_sync_info
 import utils.debug
+import config
 
 
 NEW = 0
@@ -67,14 +68,17 @@ class Database(DBBase):
     def get_package(self, full_name):
         """Get a Package object based on full name."""
         try:
+            utils.debug.dprint("Database: get_package(); fullname = " + full_name)
             category = portage_lib.get_category(full_name)
             name = portage_lib.get_name(full_name)
             if (category in self.categories
                 and name in self.categories[category]):
                 return self.categories[category][name]
             else:
+                utils.debug.dprint("Database: get_package(); fullname not found")
                 return None
-        except:
+        except Exception, e:
+            utils.debug.dprint("Database: get_package(); exception occured: " + e)
             return None
 
     def update_package(self, fullname):
