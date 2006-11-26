@@ -34,6 +34,7 @@ def register_callbacks(self, callback = None):
         Actions can be "emerge", "emerge pretend", "unmerge", "set path",
         "package changed" or "refresh".
     """
+    global mainwindow_callback
     mainwindow_callback = callback
 
 def add_keyword(self, widget):
@@ -42,8 +43,9 @@ def add_keyword(self, widget):
     string = name + " " + arch + "\n"
     utils.debug.dprint("VIEWS: Package view add_keyword(); %s" %string)
     def callback():
+        global mainwindow_callback
         mainwindow_callback("refresh")
-    _portage_lib.set_user_config(self.prefs, 'package.keywords', name=name, add=arch, callback=callback)
+    _portage_lib.set_user_config('package.keywords', name=name, add=arch, callback=callback)
     #package = utils.get_treeview_selection(self,2)
     #package.best_ebuild = package.get_latest_ebuild()
     #mainwindow_callback("refresh")
@@ -58,9 +60,11 @@ def emerge(self, widget, pretend=None, sudo=None):
         #   mainwindow_callback("emerge")
     if sudo:
         emergestring += ' sudo'
+    global mainwindow_callback
     mainwindow_callback(emergestring)
 
 def unmerge(self, widget, sudo=None):
+    global mainwindow_callback
     if sudo:
         mainwindow_callback("unmerge sudo")
     else:
