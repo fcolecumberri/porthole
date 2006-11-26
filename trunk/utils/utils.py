@@ -32,6 +32,7 @@ import datetime
 from sys import stderr
 from version import version
 from _xml.xmlmgr import XMLManager, XMLManagerError
+import config
 from gettext import gettext as _
 
 import pygtk; pygtk.require("2.0") # make sure we have the right version
@@ -53,17 +54,17 @@ def get_icon_for_package(package):
         icon = '' # gtk.STOCK_NO
     return icon       
 
-def get_icon_for_upgrade_package(package, view_prefs):
+def get_icon_for_upgrade_package(package):
     """Return an icon and foreground text color for a package"""
     if not package:
         return '', 'blue'
     #  find out if it can be upgraded
     if package.is_upgradable() == 1:  # 1 for only upgrades (no downgrades)
         icon = gtk.STOCK_GO_UP
-        color = view_prefs.upgradable_fg
+        color = config.Prefs.views.upgradable_fg
     else: # it's a downgrade
         icon = gtk.STOCK_GO_DOWN
-        color = view_prefs.downgradable_fg
+        color = config.Prefs.views.downgradable_fg
     return icon, color      
 
 def is_root():

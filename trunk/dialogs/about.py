@@ -25,14 +25,14 @@ import gtk, gtk.glade
 import utils.debug
 from loaders.loaders import load_web_page
 from version import version
+import config
 
 class AboutDialog:
     """Class to hold about dialog and functionality."""
 
-    def __init__(self, prefs):
-        self.prefs = prefs
+    def __init__(self):
         # setup glade
-        self.gladefile = prefs.DATA_PATH + prefs.use_gladefile
+        self.gladefile = config.Prefs.DATA_PATH + config.Prefs.use_gladefile
         self.wtree = gtk.glade.XML(self.gladefile, "about_dialog")
         # register callbacks
         callbacks = {"on_ok_clicked" : self.ok_clicked,
@@ -48,4 +48,4 @@ class AboutDialog:
 
     def homepage_clicked(self, widget):
         """Open Porthole's Homepage!"""
-        load_web_page("http://porthole.sourceforge.net", self.prefs)
+        load_web_page("http://porthole.sourceforge.net", config.Prefs)

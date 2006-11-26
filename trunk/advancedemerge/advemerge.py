@@ -32,6 +32,7 @@ import utils.debug
 import backends
 portage_lib = backends.portage_lib
 
+import config
 from backends.version_sort import ver_sort
 from loaders.loaders import load_web_page
 from utils.dispatcher import Dispatcher
@@ -40,10 +41,9 @@ from gettext import gettext as _
 class AdvancedEmergeDialog:
     """Class to perform advanced emerge dialog functionality."""
 
-    def __init__(self, prefs, package, setup_command, re_init_portage):
+    def __init__(self, package, setup_command, re_init_portage):
         """ Initialize Advanced Emerge Dialog window """
         # Preserve passed parameters
-        self.prefs = prefs
         self.package = package
         self.setup_command = setup_command
         self.re_init_portage = re_init_portage
@@ -55,8 +55,8 @@ class AdvancedEmergeDialog:
         self.current_verInfo = None
         
         # Parse glade file
-        self.gladefile = prefs.DATA_PATH + "advancedemerge/advemerge.glade"
-        self.wtree = gtk.glade.XML(self.gladefile, "adv_emerge_dialog", self.prefs.APP)
+        self.gladefile = config.Prefs.DATA_PATH + "advancedemerge/advemerge.glade"
+        self.wtree = gtk.glade.XML(self.gladefile, "adv_emerge_dialog", config.Prefs.APP)
      
         # register callbacks
         callbacks = {"on_ok_clicked" : self.ok_clicked,
@@ -105,9 +105,9 @@ class AdvancedEmergeDialog:
                 utils.debug.dprint("ADVEMERGE: table2 has child not of type gtk.CheckButton")
                 utils.debug.dprint(checkbutton)
         
-        if not self.prefs.advemerge.showuseflags:
+        if not config.Prefs.advemerge.showuseflags:
             self.use_flags_frame.hide()
-        if not self.prefs.advemerge.showkeywords:
+        if not config.Prefs.advemerge.showkeywords:
             self.keywords_frame.hide()
         
         # Make tool tips available
@@ -162,17 +162,17 @@ class AdvancedEmergeDialog:
         self.emerge_combobox.set_active_iter(iter)
         
         # Set any emerge options the user wants defaulted
-        if self.prefs.emerge.pretend:
+        if config.Prefs.emerge.pretend:
             self.wtree.get_widget("cbPretend").set_active(True)
-        if self.prefs.emerge.verbose:
+        if config.Prefs.emerge.verbose:
             self.wtree.get_widget("cbVerbose").set_active(True)
         ## this now just references --update, which is probably not the desired behaviour.
         ## perhaps the current version should be indicated somewhere in the dialog
-        #if self.prefs.emerge.upgradeonly:
+        #if config.Prefs.emerge.upgradeonly:
         #    self.wtree.get_widget("cbUpgradeOnly").set_active(True)
-        if self.prefs.emerge.fetch:
+        if config.Prefs.emerge.fetch:
             self.wtree.get_widget("cbFetchOnly").set_active(True)
-        if self.prefs.emerge.nospinner:
+        if config.Prefs.emerge.nospinner:
             self.wtree.get_widget("cbNoSpinner").set_active(True)
         
         # show command in command_label
@@ -199,7 +199,7 @@ class AdvancedEmergeDialog:
 
     def help_clicked(self, widget):
         """ Display help file with web browser """
-        load_web_page('file://' + self.prefs.DATA_PATH + 'help/advemerge.html', self.prefs)
+        load_web_page('file://' + config.Prefs.DATA_PATH + 'help/advemerge.html', config.Prefs)
 
     def version_changed(self, widget):
         """ Version has changed, update the dialog window """
@@ -285,7 +285,7 @@ class AdvancedEmergeDialog:
                 removelist.append(item[1:])
             else:
                 removelist.append('-' + item)
-        okay = portage_lib.set_user_config( self.prefs,\
+        okay = portage_lib.set_user_config( config.Prefs,\
                 'package.use', name=self.package.full_name,
                 add=addlist, remove=removelist, callback=self.reload )
     
@@ -302,10 +302,9 @@ class AdvancedEmergeDialog:
                 removelist.append('-' + item)
         # set_user_config must be performed after set_make_conf has finished or we get problems.
         # we need to set package.use in case the flag was set there originally!
-        package_use_callback = Dispatcher( portage_lib.set_user_config, self.prefs, \
+        package_use_callback = Dispatcher( portage_lib.set_user_config,\
                 'package.use', self.package.full_name, '', '', removelist, self.reload )
-        portage_lib.set_make_conf( self.prefs, \
-            'USE', add=addlist, remove=removelist, callback=package_use_callback )
+        portage_lib.set_make_conf('USE', add=addlist, remove=removelist, callback=package_use_callback )
     
     def on_package_keywords_commit(self, button_widget):
         utils.debug.dprint("ADVEMERGE: on_package_keywords_commit()")
@@ -318,8 +317,7 @@ class AdvancedEmergeDialog:
             removelist = ["-" + keyword]
         verInfo = self.current_verInfo
         ebuild = verInfo["name"]
-        okay = portage_lib.set_user_config( self.prefs, \
-            'package.keywords', ebuild=ebuild, add=addlist, remove=removelist, callback=self.reload)
+        okay = portage_lib.set_user_config('package.keywords', ebuild=ebuild, add=addlist, remove=removelist, callback=self.reload)
     
     #------------------------------------------
     # Support function definitions start here
@@ -524,7 +522,7 @@ class AdvancedEmergeDialog:
         for Name, ShortOption, LongOption in List:
             if self.wtree.get_widget(Name).get_active():
                 options += LongOption
-        #if self.prefs.emerge.nospinner:
+        #if config.Prefs.emerge.nospinner:
         #    options += '--nospinner '
         return options
 
@@ -606,7 +604,7 @@ class AdvancedEmergeDialog:
             UseFlagFrame.show()
             if self.is_root or utils.utils.can_gksu():
                 self.btnPkgUse.show()
-                if self.prefs.advemerge.show_make_conf_button:
+                if config.Prefs.advemerge.show_make_conf_button:
                     self.btnMakeConf.show()
                 else:
                     self.btnMakeConf.hide()
@@ -713,8 +711,8 @@ class AdvancedEmergeDialog:
         for keyword in keywords:
             if keyword[0] == '~':
                 if (keyword[1:] == self.arch) or \
-                        (self.prefs.globals.enable_archlist and 
-                            (keyword[1:] in self.prefs.globals.archlist)):
+                        (config.Prefs.globals.enable_archlist and 
+                            (keyword[1:] in config.Prefs.globals.archlist)):
                     button = gtk.RadioButton(rbGroup, keyword)
                     self.kwList.append([button, keyword])
                     table.attach(button, col, col+1, row, row+1)
@@ -728,8 +726,8 @@ class AdvancedEmergeDialog:
                         button.set_active(True)
             else:
                 if (keyword == self.arch) or \
-                        (self.prefs.globals.enable_archlist and 
-                            (keyword in self.prefs.globals.archlist)):
+                        (config.Prefs.globals.enable_archlist and 
+                            (keyword in config.Prefs.globals.archlist)):
                     label = gtk.Label(keyword)
                     label.set_alignment(.05, .5)
                     table.attach(label, col, col+1, row, row+1)

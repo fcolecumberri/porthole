@@ -33,6 +33,7 @@ import os
 from gettext import gettext as _
 import version_sort
 from properties import Properties
+import config
 
 try:
     import portage
@@ -117,7 +118,7 @@ def get_user_config(file, name=None, ebuild=None):
                     dict[ebuild] = line[1:]
     return dict
 
-def set_user_config(prefs, file, name='', ebuild='', add='', remove='', callback=None):
+def set_user_config( file, name='', ebuild='', add='', remove='', callback=None):
     """
     Adds <name> or '=' + <ebuild> to <file> with flags <add>.
     If an existing entry is found, items in <remove> are removed and <add> is added.
@@ -139,7 +140,7 @@ def set_user_config(prefs, file, name='', ebuild='', add='', remove='', callback
         remove = ' '.join(remove)
     config_path = portage_const.USER_CONFIG_PATH
     if not os.access(config_path, os.W_OK):
-        commandlist = [prefs.globals.su, '"python', prefs.DATA_PATH + 'backends/set_config.py -d -f %s' %file]
+        commandlist = [config.Prefs.globals.su, '"python', config.Prefs.DATA_PATH + 'backends/set_config.py -d -f %s' %file]
         if name != '':
             commandlist.append('-n %s' %name)
         if ebuild != '':
@@ -215,7 +216,7 @@ def get_make_conf(want_linelist=False, savecopy=False):
         return dict, linelist
     return dict
 
-def set_make_conf(prefs, property, add='', remove='', replace='', callback=None):
+def set_make_conf(property, add='', remove='', replace='', callback=None):
     """
     Sets a variable in make.conf.
     If remove: removes elements of <remove> from variable string.
@@ -239,7 +240,7 @@ def set_make_conf(prefs, property, add='', remove='', replace='', callback=None)
         replace = ' '.join(replace)
     config_path = portage_const.USER_CONFIG_PATH
     if not os.access(portage_const.MAKE_CONF_FILE, os.W_OK):
-        command = (prefs.globals.su + ' "python ' + prefs.DATA_PATH + 'backends/set_config.py -d -f %s ' %file)
+        command = (config.Prefs.globals.su + ' "python ' + config.Prefs.DATA_PATH + 'backends/set_config.py -d -f %s ' %file)
         command = (command + '-p %s ' % property)
         if add != '':
             command = (command + '-a %s ' %("'" + add + "'"))

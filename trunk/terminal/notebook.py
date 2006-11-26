@@ -33,7 +33,7 @@ import gtk, pango
 
 from constants import *
 import utils.debug
-
+import config
 
 class TerminalNotebook:
     """generates a terminal notebook structure containing all needed views,
@@ -42,7 +42,6 @@ class TerminalNotebook:
     def __init__( self, notebook = None, wtree = None, prefs = None): # all arrays follow the same TABS order
         self.notebook = notebook
         self.wtree = wtree
-        self.prefs = prefs
         self.view = [] #[None, None, None, None]
         self.scrolled_window = [] #[None, None, None, None, None]
         self.view_buffer = [] #[None, None, None, None]
@@ -80,9 +79,9 @@ class TerminalNotebook:
             view = self.wtree.get_widget(x)
             self.view += [view]
             self.last_text += ['\n']
-            if x == "process_text" or self.prefs.terminal.all_tabs_use_custom_colors:
-                fg, bg, weight = self.prefs.TAG_DICT['default']
-                font = self.prefs.terminal.font
+            if x == "process_text" or config.Prefs.terminal.all_tabs_use_custom_colors:
+                fg, bg, weight = config.Prefs.TAG_DICT['default']
+                font = config.Prefs.terminal.font
                 if bg: view.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse(bg))
                 if fg: view.modify_text(gtk.STATE_NORMAL, gtk.gdk.color_parse(fg))
                 if font: view.modify_font(pango.FontDescription(font))
@@ -297,8 +296,8 @@ class TerminalNotebook:
         for process_tab in [TAB_PROCESS, TAB_WARNING, TAB_CAUTION, TAB_INFO]:
             bounds = self.view_buffer[process_tab].get_bounds()
             self.view_buffer[process_tab].remove_all_tags(*bounds)
-            for key in self.prefs.TAG_DICT:
-                text_tag = self.prefs.TAG_DICT[key] 
+            for key in config.Prefs.TAG_DICT:
+                text_tag = config.Prefs.TAG_DICT[key] 
                 argdict = {}
                 if text_tag[0]:
                     argdict["foreground"] = text_tag[0]

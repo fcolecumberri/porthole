@@ -27,13 +27,14 @@ import utils.debug
 from loaders.loaders import load_web_page
 from version import version
 from gettext import gettext as _
+import config
 
 class RunDialog:
     """Class to hold run dialog and functionality."""
 
-    def __init__(self, prefs, call_back, run_anyway=False):
+    def __init__(self, call_back, run_anyway=False):
         # setup glade
-        self.gladefile = prefs.DATA_PATH + prefs.use_gladefile
+        self.gladefile = config.Prefs.DATA_PATH + config.Prefs.use_gladefile
         self.wtree = gtk.glade.XML(self.gladefile, "run_dialog")
         # register callbacks
         callbacks = {"on_help" : self.help,
@@ -44,13 +45,12 @@ class RunDialog:
         self.wtree.signal_autoconnect(callbacks)
         self.command = None
         self.call_back = call_back
-        self.prefs = prefs
         self.run_anyway = run_anyway
-        if self.prefs:
-            #utils.debug.dprint("COMMAND: self.prefs == True")
-            self.history = self.prefs.run_dialog.history
+        if config.Prefs:
+            #utils.debug.dprint("COMMAND: config.Prefs == True")
+            self.history = config.Prefs.run_dialog.history
         else:
-            utils.debug.dprint("COMMAND: self.prefs == False")
+            utils.debug.dprint("COMMAND: config.Prefs == False")
             self.history = ["", "emerge ",
                             "ACCEPT_KEYWORDS='~x86' emerge ",
                             "USE=' ' emerge ",
@@ -72,9 +72,9 @@ class RunDialog:
         self.combo.set_model(self.comboList)
         self.combo.set_text_column(0)
         self.entry.connect("activate", self.activate, self.command)
-        if self.prefs:
-            self.window.resize(self.prefs.run_dialog.width, 
-                                self.prefs.run_dialog.height)
+        if config.Prefs:
+            self.window.resize(config.Prefs.run_dialog.width, 
+                                config.Prefs.run_dialog.height)
             # MUST! do this command last, or nothing else will _init__
             # after it until emerge is finished.
             # Also causes runaway recursion.
@@ -104,7 +104,7 @@ class RunDialog:
         
     def help(self, widget):
         """ Display help file with web browser """
-        load_web_page('file://' + self.prefs.DATA_PATH + 'help/custcmd.html', self.prefs)
+        load_web_page('file://' + config.Prefs.DATA_PATH + 'help/custcmd.html', config.Prefs)
 
 
     def on_size_request(self, window, gbox):
@@ -112,24 +112,24 @@ class RunDialog:
         # get the width and height of the window
         width, height = window.get_size()
         # set the preferences
-        self.prefs.run_dialog.width = width
-        self.prefs.run_dialog.height = height
+        config.Prefs.run_dialog.width = width
+        config.Prefs.run_dialog.height = height
 
     def history_add(self):
         """adds the command to the history if not already in"""
         if self.command not in self.history:
             length = len(self.history)
-            if length > self.prefs.run_dialog.default_history:
-                length = min(length, self.prefs.run_dialog.history_length)
-                old_history = self.history[self.prefs.run_dialog.default_history:length]
-                self.history = self.history[:self.prefs.run_dialog.default_history]
+            if length > config.Prefs.run_dialog.default_history:
+                length = min(length, config.Prefs.run_dialog.history_length)
+                old_history = self.history[config.Prefs.run_dialog.default_history:length]
+                self.history = self.history[:config.Prefs.run_dialog.default_history]
                 self.history.append(self.command)
                 self.history += old_history
             else:
                 self.history.append(self.command)
             utils.debug.dprint("COMMAND.history_add(): new self.history:")
             utils.debug.dprint(self.history)
-        self.prefs.run_dialog.history = self.history
+        config.Prefs.run_dialog.history = self.history
         return
 
     def command_changed(self,widget):

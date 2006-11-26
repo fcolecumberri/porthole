@@ -233,7 +233,7 @@ if __name__ == "__main__":
     config.Config.load()
     config.Prefs.use_gladefile = "not assigned"
     # create the main window
-    myapp = MainWindow(config.Prefs, config.Config)
+    myapp = MainWindow() #config.Prefs, config.Config)
     # start the program loop
     gtk.main()
     # save the prefs to disk for next time

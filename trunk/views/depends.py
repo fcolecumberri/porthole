@@ -316,7 +316,7 @@ class DependsView(CommonTreeView):
         utils.debug.dprint("VIEWS: Package view add_keyword(); %s" %string)
         def callback():
             self.mainwindow_callback("refresh")
-        portage_lib.set_user_config(self.prefs, 'package.keywords', name=name, add=arch, callback=callback)
+        portage_lib.set_user_config('package.keywords', name=name, add=arch, callback=callback)
         #package = utils.get_treeview_selection(self,2)
         #package.best_ebuild = package.get_latest_ebuild()
         #self.mainwindow_callback("refresh")

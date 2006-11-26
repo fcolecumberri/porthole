@@ -31,6 +31,7 @@ import backends
 import backends.utilities
 portage_lib = backends.portage_lib
 
+import config
 from commontreeview import CommonTreeView
 import utils.utils
 import utils.debug
@@ -41,9 +42,8 @@ from gettext import gettext as _
 
 class PackageView(CommonTreeView):
     """ Self contained treeview of packages """
-    def __init__(self, prefs):
+    def __init__(self):
         """ Initialize """
-        self.prefs = prefs
         self.info_thread = None
         self.iter = None
         self.model = None
@@ -305,7 +305,7 @@ class PackageView(CommonTreeView):
         utils.debug.dprint("VIEWS: Package view add_keyword(); %s" %string)
         def callback():
             self.mainwindow_callback("refresh")
-        portage_lib.set_user_config(self.prefs, 'package.keywords', name=name, add=arch, callback=callback)
+        portage_lib.set_user_config('package.keywords', name=name, add=arch, callback=callback)
         #package = utils.utils.get_treeview_selection(self,2)
         #package.best_ebuild = package.get_latest_ebuild()
         #self.mainwindow_callback("refresh")
@@ -447,9 +447,9 @@ class PackageView(CommonTreeView):
                 model.set_value(iter, 4, (packages[name].in_world))
                 upgradable = packages[name].is_upgradable()
                 if upgradable == 1: # portage wants to upgrade
-                    model.set_value(iter, 5, self.prefs.views.upgradable_fg)
+                    model.set_value(iter, 5, config.Prefs.views.upgradable_fg)
                 elif upgradable == -1: # portage wants to downgrade
-                    model.set_value(iter, 5, self.prefs.views.downgradable_fg)
+                    model.set_value(iter, 5, config.Prefs.views.downgradable_fg)
                 else:
                     model.set_value(iter, 5, '')
                 # get an icon for the package

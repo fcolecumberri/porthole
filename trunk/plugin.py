@@ -29,15 +29,15 @@ import gtk
 import imp
 import utils.debug
 from importer import my_import
+import config
 
 class PluginManager:
     """Handles all of our plugins"""
-    def __init__(self, prefs, porthole_instance, ):
+    def __init__(self, porthole_instance, ):
         #Scan through the contents of the directories
         #Load any plugins it sees
         #self.path_list = path_list
-        self.prefs = prefs
-        plugin_dir = self.prefs.PLUGIN_DIR
+        plugin_dir = config.Prefs.PLUGIN_DIR
         self.porthole_instance = porthole_instance
         self.plugins = []
         plugin_list = []
@@ -56,7 +56,7 @@ class PluginManager:
         for i in self.plugins:
             i.event(event, *args)
             #We should really check our prefs here to see if they should automatically be enabled.
-            i.enabled = i.name in self.prefs.plugins.active_list
+            i.enabled = i.name in config.Prefs.plugins.active_list
             if i.enabled:
                 i.event("enable")
 
@@ -126,7 +126,7 @@ class Plugin:
         self.desc = self.module.desc
         if self.module.need_prefs:
             # push the prefs to the new module
-            self.module.prefs = self.manager.prefs
+            self.module.prefs = config.Prefs
 
     def toggle_enabled(self):
         if self.enabled == True:
@@ -152,13 +152,12 @@ class Plugin:
 class PluginGUI(gtk.Window):
     """Class to implement plugin architecture."""
 
-    def __init__(self, prefs, plugin_manager):
+    def __init__(self, plugin_manager):
         """ Initialize Plugins Dialog Window """
         # Preserve passed parameters and manager
-        self.prefs = prefs
         self.plugin_manager = plugin_manager
-        self.gladefile = self.prefs.DATA_PATH + "porthole.glade"
-        self.wtree = gtk.glade.XML(self.gladefile, "plugin_dialog", self.prefs.APP)
+        self.gladefile = config.Prefs.DATA_PATH + "porthole.glade"
+        self.wtree = gtk.glade.XML(self.gladefile, "plugin_dialog", config.Prefs.APP)
         
         # Connect Callbacks
         callbacks = {
@@ -216,12 +215,12 @@ class PluginGUI(gtk.Window):
         changed_plugin.toggle_enabled()
         treemodel.set(row, 0, changed_plugin.enabled)
         if changed_plugin.enabled:
-            if changed_plugin.name not in self.prefs.plugins.active_list:
-                self.prefs.plugins.active_list.append(changed_plugin.name)
+            if changed_plugin.name not in config.Prefs.plugins.active_list:
+                config.Prefs.plugins.active_list.append(changed_plugin.name)
         else:
-            if changed_plugin.name in self.prefs.plugins.active_list:
-                index = self.prefs.plugins.active_list.index(changed_plugin.name)
-                self.prefs.plugins.active_list = self.prefs.plugins.active_list[:index-1] + self.prefs.plugins.active_list[index+1:]
+            if changed_plugin.name in config.Prefs.plugins.active_list:
+                index = config.Prefs.plugins.active_list.index(changed_plugin.name)
+                config.Prefs.plugins.active_list = config.Prefs.plugins.active_list[:index-1] + config.Prefs.plugins.active_list[index+1:]
 
     def sel_changed(self, selection, *args):
         treemodel, row = selection.get_selected()

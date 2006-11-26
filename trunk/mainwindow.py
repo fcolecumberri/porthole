@@ -41,7 +41,7 @@ from utils.dispatcher import Dispatcher
 from dialogs.about import AboutDialog
 from dialogs.command import RunDialog
 from dialogs.simple import SingleButtonDialog, YesNoDialog
-from dialogs.config import ConfigDialog
+from dialogs.configure import ConfigDialog
 from packagebook.notebook import PackageNotebook
 from packagebook.depends import DependsTree
 from terminal.terminal import ProcessManager
@@ -95,17 +95,16 @@ def check_glade():
 
 class MainWindow:
     """Main Window class to setup and manage main window interface."""
-    def __init__(self, preferences = None, configs = None):
+    def __init__(self) :#, preferences = None, configs = None):
         utils.debug.dprint("MAINWINDOW: process id = %d ****************" %os.getpid())
-        preferences.use_gladefile, self.new_toolbar_API = check_glade()
+        config.Prefs.use_gladefile, self.new_toolbar_API = check_glade()
         # setup prefs
-        self.prefs = preferences
-        self.prefs.myarch = portage_lib.get_arch()
+        config.Prefs.myarch = portage_lib.get_arch()
         utils.debug.dprint("MAINWINDOW: Prefs.myarch = " + config.Prefs.myarch)
-        self.config = configs
+        #self.config = configs
         # setup glade
-        self.gladefile = self.prefs.DATA_PATH + self.prefs.use_gladefile
-        self.wtree = gtk.glade.XML(self.gladefile, "main_window", self.prefs.APP)
+        self.gladefile = config.Prefs.DATA_PATH + config.Prefs.use_gladefile
+        self.wtree = gtk.glade.XML(self.gladefile, "main_window", config.Prefs.APP)
         # register callbacks  note: gtk.mainquit deprecated
         callbacks = {
             "on_main_window_destroy" : self.goodbye,
@@ -148,7 +147,7 @@ class MainWindow:
         # initialize this now cause we need it next
         self.plugin_package_tabs = {}
         # create the primary package notebook
-        self.packagebook = PackageNotebook(self.prefs, self.wtree, callbacks, self.plugin_package_tabs)
+        self.packagebook = PackageNotebook(self.wtree, callbacks, self.plugin_package_tabs)
         # set unfinished items to not be sensitive
         #self.wtree.get_widget("contents2").set_sensitive(False)
         # self.wtree.get_widget("btn_help").set_sensitive(False)
@@ -157,20 +156,20 @@ class MainWindow:
         self.category_view.register_callback(self.category_changed)
         result = self.wtree.get_widget("category_scrolled_window").add(self.category_view)
         # setup the package treeview
-        self.package_view = PackageView(self.prefs)
+        self.package_view = PackageView()
         #self.package_view.register_callbacks(self.package_changed, None, self.pkg_path_callback)
         self.package_view.register_callbacks(self.packageview_callback)
         result = self.wtree.get_widget("package_scrolled_window").add(self.package_view)
         # how should we setup our saved menus?
-        if self.prefs.emerge.pretend:
+        if config.Prefs.emerge.pretend:
             self.wtree.get_widget("pretend1").set_active(True)
-        if self.prefs.emerge.fetch:
+        if config.Prefs.emerge.fetch:
             self.wtree.get_widget("fetch").set_active(True)
-        if self.prefs.emerge.upgradeonly :
+        if config.Prefs.emerge.upgradeonly :
             self.wtree.get_widget("upgradeonly").set_active(True)
-        if self.prefs.emerge.verbose:
+        if config.Prefs.emerge.verbose:
             self.wtree.get_widget("verbose4").set_active(True)
-        if self.prefs.main.search_desc:
+        if config.Prefs.main.search_desc:
             self.wtree.get_widget("search_descriptions1").set_active(True)
         # setup a convienience tuple
         self.tool_widgets = ["emerge_package1","adv_emerge_package1","unmerge_package1","btn_emerge",
@@ -184,25 +183,25 @@ class MainWindow:
         self.synctooltip = gtk.Tooltips()
         self.sync_tip = _(" Synchronise Package Database \n The last sync was done:\n")
         # set the sync label to the saved one set in the options
-        self.widget["btn_sync"].set_label(self.prefs.globals.Sync_label)
+        self.widget["btn_sync"].set_label(config.Prefs.globals.Sync_label)
         self.widget["view_refresh"].set_sensitive(False)
         # restore last window width/height
-        if self.prefs.main.xpos and self.prefs.main.ypos:
-            self.mainwindow.move(self.prefs.main.xpos, self.prefs.main.ypos)
-        self.mainwindow.resize(self.prefs.main.width, self.prefs.main.height)
+        if config.Prefs.main.xpos and config.Prefs.main.ypos:
+            self.mainwindow.move(config.Prefs.main.xpos, config.Prefs.main.ypos)
+        self.mainwindow.resize(config.Prefs.main.width, config.Prefs.main.height)
         # connect gtk callback for window movement and resize events
         self.mainwindow.connect("configure-event", self.size_update)
         # restore maximized state and set window-state-event handler to keep track of it
-        if self.prefs.main.maximized:
+        if config.Prefs.main.maximized:
             self.mainwindow.maximize()
         self.mainwindow.connect("window-state-event", self.on_window_state_event)
         # move horizontal and vertical panes
-        #utils.debug.dprint("MAINWINDOW: __init__() before hpane; %d, vpane; %d" %(self.prefs.main.hpane, self.prefs.main.vpane))
+        #utils.debug.dprint("MAINWINDOW: __init__() before hpane; %d, vpane; %d" %(config.Prefs.main.hpane, config.Prefs.main.vpane))
         self.hpane = self.wtree.get_widget("hpane")
-        self.hpane.set_position(self.prefs.main.hpane)
+        self.hpane.set_position(config.Prefs.main.hpane)
         self.hpane.connect("notify", self.on_pane_notify)
         self.vpane = self.wtree.get_widget("vpane")
-        self.vpane.set_position(self.prefs.main.vpane)
+        self.vpane.set_position(config.Prefs.main.vpane)
         self.vpane.connect("notify", self.on_pane_notify)
         # Intercept the window delete event signal
         self.mainwindow.connect('delete-event', self.confirm_delete)
@@ -216,7 +215,7 @@ class MainWindow:
         self.init_data()
         # set if we are root or not
         self.is_root = utils.utils.is_root()
-        if self.prefs.main.show_nag_dialog:
+        if config.Prefs.main.show_nag_dialog:
             # let the user know if he can emerge or not
             self.check_for_root()
         if self.is_root:
@@ -226,7 +225,7 @@ class MainWindow:
         # This should be set in the glade file, but doesn't seem to work ?
         self.toolbar_expander.set_expand(True)
         # create and start our process manager
-        self.process_manager = ProcessManager(utils.utils.environment(), self.prefs, self.config, False)
+        self.process_manager = ProcessManager(utils.utils.environment(), False)
         # Search History
         self.search_history = {}
         self.search_history_counts = {}
@@ -237,13 +236,13 @@ class MainWindow:
     def setup_plugins(self):
         #Plugin-related statements
         self.needs_plugin_menu = False
-        #utils.debug.dprint("MAIN; setup_plugins(): path_list %s" % self.prefs.plugins.path_list)
-        utils.debug.dprint("MAIN: setup_plugins: plugin path: %s" % self.prefs.PLUGIN_DIR)
+        #utils.debug.dprint("MAIN; setup_plugins(): path_list %s" % config.Prefs.plugins.path_list)
+        utils.debug.dprint("MAIN: setup_plugins: plugin path: %s" % config.Prefs.PLUGIN_DIR)
         self.plugin_root_menu = gtk.MenuItem(_("Active Plugins"))
         self.plugin_menu = gtk.Menu()
         self.plugin_root_menu.set_submenu(self.plugin_menu)
         self.wtree.get_widget("menubar").append(self.plugin_root_menu)
-        self.plugin_manager = PluginManager(self.prefs, self)
+        self.plugin_manager = PluginManager(self)
         self.plugin_package_tabs = {}
 
     def init_data(self):
@@ -322,7 +321,7 @@ class MainWindow:
         portage_lib.reload_world()
         # load the db
         self.dbtime = 0
-        db.db.db_init()
+        db.db.db_init(True)
         #test = 87/0  # used to test pycrash is functioning
         self.reload = True
         self.upgrade_view = False
@@ -383,20 +382,20 @@ class MainWindow:
         #~ return
 
     def packageview_callback(self, action = None, arg = None):
-        old_pretend_value = self.prefs.emerge.pretend
-        old_verbose_value = self.prefs.emerge.verbose
+        old_pretend_value = config.Prefs.emerge.pretend
+        old_verbose_value = config.Prefs.emerge.verbose
         if action.startswith("emerge"):
             if "pretend" in action:
-                self.prefs.emerge.pretend = True
-                self.prefs.emerge.verbose = True
+                config.Prefs.emerge.pretend = True
+                config.Prefs.emerge.verbose = True
             else:
-                self.prefs.emerge.pretend = False
+                config.Prefs.emerge.pretend = False
             if "sudo" in action:
                 self.emerge_package(self.package_view, sudo=True)
             else:
                 self.emerge_package(self.package_view)
         elif action.startswith("unmerge"):
-            self.prefs.emerge.pretend = False
+            config.Prefs.emerge.pretend = False
             if "sudo" in action:
                 self.unmerge_package(self.package_view, sudo=True)
             else:
@@ -417,48 +416,48 @@ class MainWindow:
             self.refresh()
         else:
             utils.debug.dprint("MAINWINDOW package_view callback: unknown action '%s'" % str(action))
-        self.prefs.emerge.pretend = old_pretend_value
-        self.prefs.emerge.verbose = old_verbose_value
+        config.Prefs.emerge.pretend = old_pretend_value
+        config.Prefs.emerge.verbose = old_verbose_value
 
     def summary_callback(self, action = None, arg = None):
         utils.debug.dprint("MAINWINDOW: summary_callback(): called")
-        old_pretend_value = self.prefs.emerge.pretend
+        old_pretend_value = config.Prefs.emerge.pretend
         if action.startswith("emerge"):
             ebuild = arg
             cp = portage_lib.pkgsplit(ebuild)[0]
             if "pretend" in action:
-                self.prefs.emerge.pretend = True
+                config.Prefs.emerge.pretend = True
             else:
-                self.prefs.emerge.pretend = False
+                config.Prefs.emerge.pretend = False
             if "sudo" in action:
                 self.setup_command( \
                     portage_lib.get_name(cp),
                     ''.join(['sudo -p "Password: " emerge',
-                              self.prefs.emerge.get_string(), '=', ebuild])
+                              config.Prefs.emerge.get_string(), '=', ebuild])
                 )
             else:
                 self.setup_command( \
                     portage_lib.get_name(cp),
-                    ''.join(["emerge", self.prefs.emerge.get_string(), '=', ebuild])
+                    ''.join(["emerge", config.Prefs.emerge.get_string(), '=', ebuild])
                 )
         elif action.startswith("unmerge"):
             ebuild = arg
             cp = portage_lib.pkgsplit(ebuild)[0]
-            self.prefs.emerge.pretend = False
+            config.Prefs.emerge.pretend = False
             if "sudo" in action:
                 self.setup_command( \
                     portage_lib.get_name(cp),
                     ''.join(['sudo -p "Password: " emerge unmerge',
-                    self.prefs.emerge.get_string(), '=', ebuild])
+                    config.Prefs.emerge.get_string(), '=', ebuild])
                 )
             else:
                 self.setup_command(
                     portage_lib.get_name(cp),
-                    ''.join(["emerge unmerge", self.prefs.emerge.get_string(), '=', ebuild])
+                    ''.join(["emerge unmerge", config.Prefs.emerge.get_string(), '=', ebuild])
                 )
         else:
             utils.debug.dprint("MAINWINDOW package_view callback: unknown action '%s'" % str(action))
-        self.prefs.emerge.pretend = old_pretend_value
+        config.Prefs.emerge.pretend = old_pretend_value
 
     def check_for_root(self, *args):
         """figure out if the user can emerge or not..."""
@@ -473,7 +472,7 @@ class MainWindow:
     def remove_nag_dialog(self, widget, response):
         """ Remove the nag dialog and set it to not display next time """
         self.no_root_dialog.destroy()
-        self.prefs.main.show_nag_dialog = False
+        config.Prefs.main.show_nag_dialog = False
 
     def set_statusbar2(self, to_string):
         """Update the statusbar without having to use push and pop."""
@@ -492,10 +491,10 @@ class MainWindow:
             if count > 0:
                 self.set_statusbar2(_("%(base)s: %(count)i packages read")
                                      % {'base':self.status_root, 'count':count})
-            #utils.debug.dprint("self.prefs.dbtime = ")
-            #utils.debug.dprint(self.prefs.dbtime)
+            #utils.debug.dprint("config.Prefs.dbtime = ")
+            #utils.debug.dprint(config.Prefs.dbtime)
             try:
-                #fraction = min(1.0, max(0,(self.dbtime / float(self.prefs.dbtime))))
+                #fraction = min(1.0, max(0,(self.dbtime / float(config.Prefs.dbtime))))
                 fraction = min(1.0, max(0, (count / float(args["allnodes_length"]))))
                 self.progressbar.set_text(str(int(fraction * 100)) + "%")
                 self.progressbar.set_fraction(fraction)
@@ -579,29 +578,29 @@ class MainWindow:
 
     def db_save_variables(self):
         """recalulates and stores persistent database variables into the prefernces"""
-        self.prefs.database_size = db.db.db_thread.allnodes_length
+        config.Prefs.database_size = db.db.db_thread.allnodes_length
         # store only the last 10 reload times
-        if len(self.prefs.dbtotals)==10:
-            self.prefs.dbtotals = self.prefs.dbtotals[1:]+[str(self.dbtime)]
+        if len(config.Prefs.dbtotals)==10:
+            config.Prefs.dbtotals = config.Prefs.dbtotals[1:]+[str(self.dbtime)]
         else:
-            self.prefs.dbtotals += [str(self.dbtime)]
+            config.Prefs.dbtotals += [str(self.dbtime)]
         # calculate the average time to use for the progress bar calculations
         total = 0
         count = 0
-        for time in self.prefs.dbtotals:
+        for time in config.Prefs.dbtotals:
             total += int(time)
             count += 1
         #utils.debug.dprint("MAINWINDOW: db_save_variables(); total = %d : count = %d" %(total,count))
-        self.prefs.dbtime = int(total/count)
+        config.Prefs.dbtime = int(total/count)
         utils.debug.dprint("MAINWINDOW: db_save_variables(); dbtime = %d" %self.dbtime)
-        utils.debug.dprint("MAINWINDOW: db_save_variables(); new average load time = %d cycles" %self.prefs.dbtime)
+        utils.debug.dprint("MAINWINDOW: db_save_variables(); new average load time = %d cycles" %config.Prefs.dbtime)
 
 
     def setup_command(self, package_name, command, run_anyway=False):
         """Setup the command to run or not"""
         if (self.is_root
                 or run_anyway
-                or (self.prefs.emerge.pretend and not command.startswith(self.prefs.globals.Sync))
+                or (config.Prefs.emerge.pretend and not command.startswith(config.Prefs.globals.Sync))
                 or command.startswith("sudo ")
                 or utils.utils.pretend_check(command)):
             if command.startswith('sudo -p "Password: "'):
@@ -610,9 +609,9 @@ class MainWindow:
             else:
                 is_pretend = utils.utils.pretend_check(command)
             utils.debug.dprint("MAINWINDOW: setup_command(); emerge.pretend = %s, pretend_check = %s, help_check = %s, info_check = %s"\
-                    %(str(self.prefs.emerge.pretend), str(is_pretend), str(utils.utils.help_check(command)),\
+                    %(str(config.Prefs.emerge.pretend), str(is_pretend), str(utils.utils.help_check(command)),\
                         str(utils.utils.info_check(command))))
-            if (self.prefs.emerge.pretend
+            if (config.Prefs.emerge.pretend
                     or is_pretend
                     or utils.utils.help_check(command)
                     or utils.utils.info_check(command)):
@@ -628,7 +627,7 @@ class MainWindow:
                 callback = self.reload_db
                 utils.debug.dprint("MAINWINDOW: setup_command(); callback set to self.reload_db")
                 #callback = self.package_update
-            #ProcessWindow(command, env, self.prefs, callback)
+            #ProcessWindow(command, env, config.Prefs, callback)
             self.process_manager.add(package_name, command, callback)
         else:
             utils.debug.dprint("MAINWINDOW: Must be root user to run command '%s' " % command)
@@ -642,19 +641,19 @@ class MainWindow:
    
     def pretend_set(self, widget):
         """Set whether or not we are going to use the --pretend flag"""
-        self.prefs.emerge.pretend = widget.get_active()
+        config.Prefs.emerge.pretend = widget.get_active()
 
     def fetch_set(self, widget):
         """Set whether or not we are going to use the --fetchonly flag"""
-        self.prefs.emerge.fetch = widget.get_active()
+        config.Prefs.emerge.fetch = widget.get_active()
 
     def verbose_set(self, widget):
         """Set whether or not we are going to use the --verbose flag"""
-        self.prefs.emerge.verbose = widget.get_active()
+        config.Prefs.emerge.verbose = widget.get_active()
 
     def upgradeonly_set(self, widget):
         """Set whether or not we are going to use the --upgradeonly flag"""
-        self.prefs.emerge.upgradeonly = widget.get_active()
+        config.Prefs.emerge.upgradeonly = widget.get_active()
         # reset the upgrades list due to the change
         self.upgrades_loaded = False
         if hasattr(self, "widget") and self.widget["view_filter"].get_history() == SHOW_UPGRADE:
@@ -673,25 +672,25 @@ class MainWindow:
 
     def search_set(self, widget):
         """Set whether or not to search descriptions"""
-        self.prefs.main.search_desc = widget.get_active()
+        config.Prefs.main.search_desc = widget.get_active()
 
     def emerge_package(self, widget, sudo=False):
         """Emerge the currently selected package."""
         package = utils.utils.get_treeview_selection(self.package_view, 2)
         if (sudo or (not utils.utils.is_root() and utils.utils.can_sudo())) \
-                and not self.prefs.emerge.pretend:
+                and not config.Prefs.emerge.pretend:
             self.setup_command(package.get_name(), 'sudo -p "Password: " emerge' +
-                self.prefs.emerge.get_string() + package.full_name)
+                config.Prefs.emerge.get_string() + package.full_name)
         else:
             self.setup_command(package.get_name(), "emerge" +
-                self.prefs.emerge.get_string() + package.full_name)
+                config.Prefs.emerge.get_string() + package.full_name)
 
     def adv_emerge_package(self, widget):
         """Advanced emerge of the currently selected package."""
         package = utils.utils.get_treeview_selection(self.package_view, 2)
         # Activate the advanced emerge dialog window
         # re_init_portage callback is for when package.use etc. are modified
-        dialog = AdvancedEmergeDialog(self.prefs, package, self.setup_command, self.re_init_portage)
+        dialog = AdvancedEmergeDialog(package, self.setup_command, self.re_init_portage)
 
     def new_plugin_package_tab( self, name, callback, widget ):
         notebook = self.packagebook.notebook
@@ -707,11 +706,11 @@ class MainWindow:
 
     def plugin_settings_activate( self, widget ):
         """Shows the plugin settings window"""
-        plugin_dialog = PluginGUI( self.prefs, self.plugin_manager )
+        plugin_dialog = PluginGUI(self.plugin_manager )
     
     def configure_porthole(self, menuitem_widget):
         """Shows the Configuration GUI"""
-        config_dialog = ConfigDialog(self.prefs)
+        config_dialog = ConfigDialog()
     
     def new_plugin_menuitem( self, label ):
         utils.debug.dprint("MAINWINDOW: Adding new Menu Entry")
@@ -736,19 +735,19 @@ class MainWindow:
         """Unmerge the currently selected package."""
         package = utils.utils.get_treeview_selection(self.package_view, 2)
         if (sudo or (not self.is_root and utils.utils.can_sudo())) \
-                and not self.prefs.emerge.pretend:
+                and not config.Prefs.emerge.pretend:
             self.setup_command(package.get_name(), 'sudo -p "Password: " emerge --unmerge' +
-                    self.prefs.emerge.get_string() + package.full_name)
+                    config.Prefs.emerge.get_string() + package.full_name)
         else:
             self.setup_command(package.get_name(), "emerge unmerge" +
-                    self.prefs.emerge.get_string() + package.full_name)
+                    config.Prefs.emerge.get_string() + package.full_name)
 
     def sync_tree(self, widget):
         """Sync the portage tree and reload it when done."""
-        sync = self.prefs.globals.Sync
-        if self.prefs.emerge.verbose:
+        sync = config.Prefs.globals.Sync
+        if config.Prefs.emerge.verbose:
             sync += " --verbose"
-        if self.prefs.emerge.nospinner:
+        if config.Prefs.emerge.nospinner:
             sync += " --nospinner "
         if utils.utils.is_root():
             self.setup_command("Sync Portage Tree", sync)
@@ -771,21 +770,21 @@ class MainWindow:
         if widget is not self.mainwindow: return False
         utils.debug.dprint("MAINWINDOW: on_window_state_event(); event detected")
         if gtk.gdk.WINDOW_STATE_MAXIMIZED & event.new_window_state:
-            self.prefs.main.maximized = True
+            config.Prefs.main.maximized = True
         else:
-            self.prefs.main.maximized = False
+            config.Prefs.main.maximized = False
     
     def on_pane_notify(self, pane, gparamspec):
         if gparamspec.name == "position":
             # bugfix for hpane jump bug. Now why does this happen?
             # it seems we need to reset the hpane the first time this gets called...
             #if self.hpane_bug:
-                #self.hpane.set_position(self.prefs.main.hpane)
+                #self.hpane.set_position(config.Prefs.main.hpane)
                 #self.hpane_bug = False
                 #return True
             # save hpane, vpane positions
-            self.prefs.main.hpane = hpanepos = self.hpane.get_position()
-            self.prefs.main.vpane = vpanepos = self.vpane.get_position()
+            config.Prefs.main.hpane = hpanepos = self.hpane.get_position()
+            config.Prefs.main.vpane = vpanepos = self.vpane.get_position()
             utils.debug.dprint("MAINWINDOW on_pane_notify(): saved hpane %(hpanepos)s, vpane %(vpanepos)s" % locals())
     
     def upgrade_packages(self, widget):
@@ -798,7 +797,7 @@ class MainWindow:
             self.up_model = self.package_view.upgrade_model
             # read the upgrade tree into a list of packages to upgrade
             self.up_model.foreach(self.tree_node_to_list)
-            if self.is_root or self.prefs.emerge.pretend:
+            if self.is_root or config.Prefs.emerge.pretend:
                 emerge_cmd = "emerge --noreplace"
             elif utils.utils.can_sudo():
                 emerge_cmd = 'sudo -p "Password: " emerge --noreplace'
@@ -812,10 +811,10 @@ class MainWindow:
                 if not self.packages_list[key]:
                         utils.debug.dprint("MAINWINDOW: upgrade_packages(); dependancy selected: " + key)
                         if not self.setup_command(key, emerge_cmd +" --oneshot" +
-                                self.prefs.emerge.get_string() + key[:]): #use the full name
+                                config.Prefs.emerge.get_string() + key[:]): #use the full name
                             return
                 elif not self.setup_command(key, emerge_cmd +
-                                self.prefs.emerge.get_string() + ' ' + key[:]): #use the full name
+                                config.Prefs.emerge.get_string() + ' ' + key[:]): #use the full name
                     return
         else:
             utils.debug.dprint("MAIN: Upgrades not loaded; upgrade world?")
@@ -842,12 +841,12 @@ class MainWindow:
             #self.load_upgrades_list()
             #self.upgrades_loaded_callback = self.upgrade_packages
             if not utils.utils.is_root() and utils.utils.can_sudo() \
-                    and not self.prefs.emerge.pretend:
+                    and not config.Prefs.emerge.pretend:
                 self.setup_command('world', 'sudo -p "Password: " emerge --update' +
-                        self.prefs.emerge.get_string() + 'world')
+                        config.Prefs.emerge.get_string() + 'world')
             else:
                 self.setup_command('world', "emerge --update" +
-                        self.prefs.emerge.get_string() + 'world')
+                        config.Prefs.emerge.get_string() + 'world')
         else:
             # load the upgrades view to select which packages
             self.widget["view_filter"].set_history(SHOW_UPGRADE)
@@ -889,7 +888,7 @@ class MainWindow:
     def package_search(self, widget=None):
         """Search package db with a string and display results."""
         self.clear_package_detail()
-        if not db.db.desc_loaded and self.prefs.main.search_desc:
+        if not db.db.desc_loaded and config.Prefs.main.search_desc:
             self.load_descriptions_list()
             return
         tmp_search_term = self.wtree.get_widget("search_entry").get_text()
@@ -899,12 +898,12 @@ class MainWindow:
             # This won't actually do anything unless we thread the search.
             self.search_loaded = True # or else v_f_c() tries to call package_search again
             self.widget["view_filter"].set_history(SHOW_SEARCH)
-            if self.prefs.main.search_desc:
+            if config.Prefs.main.search_desc:
                 self.set_statusbar2(_("Searching descriptions for %s") % tmp_search_term)
             else:
                 self.set_statusbar2(_("Searching for %s") % tmp_search_term)
             # call the thread
-            self.search_thread = SearchReader(db.db.list, self.prefs.main.search_desc, tmp_search_term, db.db.descriptions, Dispatcher(self.search_done))
+            self.search_thread = SearchReader(db.db.list, config.Prefs.main.search_desc, tmp_search_term, db.db.descriptions, Dispatcher(self.search_done))
             self.search_thread.start()
         return
             
@@ -941,11 +940,11 @@ class MainWindow:
 
     def help_contents(self, widget):
         """Show the help file contents."""
-        load_web_page('file://' + self.prefs.DATA_PATH + 'help/index.html', self.prefs)
+        load_web_page('file://' + config.Prefs.DATA_PATH + 'help/index.html')
 
     def about(self, widget):
         """Show about dialog."""
-        dialog = AboutDialog(self.prefs)
+        dialog = AboutDialog()
 
     def refresh(self):
         """Refresh PackageView"""
@@ -1188,13 +1187,13 @@ class MainWindow:
         self.set_statusbar2(_("Generating 'system' packages list..."))
         # create upgrade thread for loading the upgrades
         #self.ut = UpgradableReader(Dispatcher(self.Update_upgrades, self.package_view, db.db.installed.items(),
-        #                           self.prefs.emerge.upgradeonly, self.prefs.views ))
+        #                           config.Prefs.emerge.upgradeonly ))
         if self.ut_running:
             utils.debug.dprint("MAINWINDOW: load_upgrades_list(); upgrades thread already running!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             return
         utils.debug.dprint("MAINWINDOW: load_upgrades_list(); starting upgrades thread")
         self.ut = UpgradableListReader(db.db.installed.items(),
-                                   self.prefs.emerge.upgradeonly, self.prefs.views )
+                                   config.Prefs.emerge.upgradeonly)
         self.ut.start()
         self.ut_running = True
         self.build_deps = False
@@ -1322,23 +1321,23 @@ class MainWindow:
     def size_update(self, widget, event):
         #utils.debug.dprint("MAINWINDOW: size_update(); called.")
         """ Store the window and pane positions """
-        self.prefs.main.width = event.width
-        self.prefs.main.height = event.height
+        config.Prefs.main.width = event.width
+        config.Prefs.main.height = event.height
         pos = widget.get_position()
         # note: event has x and y attributes but they do not give the same values as get_position().
-        self.prefs.main.xpos = pos[0]
-        self.prefs.main.ypos = pos[1]
+        config.Prefs.main.xpos = pos[0]
+        config.Prefs.main.ypos = pos[1]
 
     def open_log(self, widget):
         """ Open a log of a previous emerge in a new terminal window """
-        newterm = ProcessManager(utils.utils.environment(), self.prefs, self.config, True)
+        newterm = ProcessManager(utils.utils.environment(), True)
         newterm.do_open(widget)
 
     def custom_run(self, widget):
         """ Run a custom command in the terminal window """
         #utils.debug.dprint("MAINWINDOW: entering custom_run")
-        #utils.debug.dprint(self.prefs.run_dialog.history)
-        get_command = RunDialog(self.prefs, self.setup_command, run_anyway=True)
+        #utils.debug.dprint(config.Prefs.run_dialog.history)
+        get_command = RunDialog(self.setup_command, run_anyway=True)
 
     def re_init_portage(self, *widget):
         """re-initializes the imported portage modules in order to see changines in any config files

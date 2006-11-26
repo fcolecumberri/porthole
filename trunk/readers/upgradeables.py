@@ -34,13 +34,12 @@ from commonreader import CommonReader
 
 class UpgradableListReader(CommonReader):
     """ Read available upgrades and store them in a tuple """
-    def __init__( self, installed, upgrade_only, view_prefs ):
+    def __init__( self, installed, upgrade_only ):
         """ Initialize """
         CommonReader.__init__(self)
         self.installed_items = installed
         self.upgrade_only = upgrade_only
         #self.world = []
-        self.view_prefs = view_prefs
         # hack for statusbar updates
         self.progress = 1
         # beginnings of multiple listings for packages in priority order

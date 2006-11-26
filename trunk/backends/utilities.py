@@ -24,6 +24,8 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 """
 
+from gettext import gettext as _
+
 import utils.debug
 import os
 import backends

@@ -31,7 +31,7 @@ import backends
 portage_lib = backends.portage_lib
 
 from gettext import gettext as _
-
+import config
 
 # if using gnome, see if we can import it
 try:
@@ -143,19 +143,19 @@ def load_installed_files(window, view, package):
             view.set_text(_("No data currently available.\n" \
                             "The package may not be installed"))
 
-def load_web_page(name, prefs):
+def load_web_page(name):
     """Try to load a web page in the default browser"""
     utils.debug.dprint("LOADERS: load_web_page(); starting browser thread")
-    browser = web_page(name, prefs)
+    browser = web_page(name)
     browser.start()
     return
 
-def load_help_page(name, prefs):
+def load_help_page(name):
     """Load a locale-specific help page with the default browser."""
     utils.debug.dprint("LOADERS: load_help_page: %s" % name)
-    lc = prefs.globals.LANG
+    lc = config.Prefs.globals.LANG
     if not lc: lc = "en"
-    helpdir = os.path.join(prefs.DATA_PATH, 'help')
+    helpdir = os.path.join(config.Prefs.DATA_PATH, 'help')
     if os.access(os.path.join(helpdir, lc, name), os.R_OK):
         pagename = "file://" + os.path.join(helpdir, lc, name)
     elif os.access(os.path.join(helpdir, lc.split('_')[0], name), os.R_OK):
@@ -164,25 +164,24 @@ def load_help_page(name, prefs):
         pagename = "file://" + os.path.join(helpdir, "en", name)
     else:
         utils.debug.dprint(" * LOADERS: failed to find help file '%s' with LANG='%s'!" %
-            (name, prefs.globals.LANG))
+            (name, config.Prefs.globals.LANG))
         return False
-    load_web_page(pagename, prefs)
+    load_web_page(pagename)
 
 class web_page(threading.Thread):
     """Try to load a web page in the default browser"""
-    def __init__(self, name, prefs):
+    def __init__(self, name):
         utils.debug.dprint("LOADERS: web_page.__init__()")
         threading.Thread.__init__(self)
         self.name = name
-        self.prefs = prefs
         self.setDaemon(1)  # quit even if this thread is still running
 
     def run(self):
         utils.debug.dprint("LOADERS: web_page.run()")
         if self.name == '' or self.name == None:
             return
-        if self.prefs.globals.use_custom_browser:
-            command = self.prefs.globals.custom_browser_command
+        if config.Prefs.globals.use_custom_browser:
+            command = config.Prefs.globals.custom_browser_command
             if '%s' not in command: command += ' %s'
             browser = webbrowser.GenericBrowser(command)
             try:

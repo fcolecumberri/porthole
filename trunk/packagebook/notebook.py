@@ -36,6 +36,7 @@ portage_lib = backends.portage_lib
 
 World = portage_lib.World
 
+import config
 from utils.dispatcher import Dispatcher
 from summary import Summary
 from views.depends import DependsView
@@ -54,8 +55,7 @@ OFF = False
 class PackageNotebook:
     """Contains all functions for managing a packages detailed views"""
 
-    def __init__( self, prefs, wtree, callbacks, plugin_package_tabs):
-        self.prefs = prefs
+    def __init__( self,  wtree, callbacks, plugin_package_tabs):
         self.wtree = wtree
         self.callbacks = callbacks
         self.plugin_package_tabs = plugin_package_tabs
@@ -66,7 +66,7 @@ class PackageNotebook:
         self.ebuild = self.wtree.get_widget("ebuild").get_buffer()
         # summary view
         scroller = self.wtree.get_widget("summary_text_scrolled_window");
-        self.summary = Summary(self.prefs, Dispatcher(self.callbacks["summary_callback"]), self.callbacks["re_init_portage"])
+        self.summary = Summary(Dispatcher(self.callbacks["summary_callback"]), self.callbacks["re_init_portage"])
         result = scroller.add(self.summary)
         self.summary.show()
         # setup the dependency treeview
@@ -137,7 +137,7 @@ class PackageNotebook:
         to display 'package'"""
         if not self.dep_window:
             self.dep_window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-            self.dep_notebook = PackageNotebook(self.prefs, self.wtree, self.callbacks, self.plugin_package_tabs)
+            self.dep_notebook = PackageNotebook(self.wtree, self.callbacks, self.plugin_package_tabs)
             self.dep_window.add(self.dep_notebook)
             #self.dep_window.connect("destroy", gtk.main_quit)
             self.dep_window.resize(600, 400)

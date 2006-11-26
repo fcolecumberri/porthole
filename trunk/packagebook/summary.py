@@ -31,20 +31,20 @@ from utils import utils
 import backends
 portage_lib = backends.portage_lib
 
+import config
 from backends.version_sort import ver_sort
 from loaders.loaders import load_web_page
 from gettext import gettext as _
 
 class Summary(gtk.TextView):
     """ Class to manage display and contents of package info tab """
-    def __init__(self, prefs, dispatcher, re_init_portage):
+    def __init__(self, dispatcher, re_init_portage):
         """ Initialize object """
         gtk.TextView.__init__(self)
         self.re_init_portage = re_init_portage
         # get the preferences we need
-        self.prefs = prefs
-        self.enable_archlist = prefs.globals.enable_archlist
-        self.archlist = prefs.globals.archlist
+        self.enable_archlist = config.Prefs.globals.enable_archlist
+        self.archlist = config.Prefs.globals.archlist
         self.dispatch = dispatcher
         self.myarch = portage_lib.get_arch()
         self.tooltips = gtk.Tooltips()
@@ -133,7 +133,7 @@ class Summary(gtk.TextView):
     def on_url_event(self, tag, widget, event, iter):
         """ Catch when the user clicks the URL """
         if event.type == gtk.gdk.BUTTON_RELEASE:
-            load_web_page(tag.get_property("name"), self.prefs)
+            load_web_page(tag.get_property("name"))
 
     def on_mouse_motion(self, widget, event, data = None):
         # we need to call get_pointer, or we won't get any more events
@@ -236,9 +236,9 @@ class Summary(gtk.TextView):
                     modified = True
             if modified: ebuilds = ver_sort(ebuilds) # otherwise already sorted
             
-            if self.prefs.globals.enable_archlist:
+            if config.Prefs.globals.enable_archlist:
                 utils.debug.dprint("SUMMARY: create_ebuild_table: creating archlist enabled table")
-                archlist = self.prefs.globals.archlist
+                archlist = config.Prefs.globals.archlist
             else:
                 utils.debug.dprint("SUMMARY: create_ebuild_table: creating single arch table")
                 archlist = [myarch]
@@ -358,7 +358,7 @@ class Summary(gtk.TextView):
                 utils.debug.dprint("SUMARY: update_package_info(); adding only system_use_flags to ebuild_use_flags")
                 ebuild_use_flags = system_use_flags
             # Use flags
-            if use_flags and self.prefs.summary.showuseflags:
+            if use_flags and config.Prefs.summary.showuseflags:
                 append(_("Use flags: "), "property")
                 first_flag = True
                 for flag in use_flags:
@@ -388,7 +388,7 @@ class Summary(gtk.TextView):
                 nl(2)
 
             # Keywords
-            if keywords and self.prefs.summary.showkeywords:
+            if keywords and config.Prefs.summary.showkeywords:
                 append(_("Keywords: "), "property")
                 first_keyword = True
                 for keyword in keywords:
@@ -400,7 +400,7 @@ class Summary(gtk.TextView):
                 nl(2)
 
             # License
-            if licenses and self.prefs.summary.showlicense:
+            if licenses and config.Prefs.summary.showlicense:
                 append(_("License: "), "property")
                 _licenses = licenses.split()
                 x = 0
@@ -488,14 +488,14 @@ class Summary(gtk.TextView):
             nl(2)
 
         # Metadata long description(s), if available
-        if metadata and metadata.longdescription and self.prefs.summary.showlongdesc:
+        if metadata and metadata.longdescription and config.Prefs.summary.showlongdesc:
             append(_("Long Description: "), "property")
             append(metadata.longdescription, "description")
             nl(2)
         
         # Insert homepage(s), if any
         x = 0
-        if homepages and self.prefs.summary.showurl:
+        if homepages and config.Prefs.summary.showurl:
             for homepage in homepages:
                 if x > 0:
                     append( ', ')
@@ -505,10 +505,10 @@ class Summary(gtk.TextView):
         
         # display a table of architectures and support / stability
         # like on packages.gentoo.org :)
-        if self.prefs.summary.showtable: create_ebuild_table(versions)
+        if config.Prefs.summary.showtable: create_ebuild_table(versions)
         
         # Installed version(s)
-        if self.prefs.summary.showinstalled:
+        if config.Prefs.summary.showinstalled:
             if installed:
                 append(_("Installed versions:\n"), "property")
                 show_vnums(installed, show_all=True)
@@ -518,7 +518,7 @@ class Summary(gtk.TextView):
                 nl(2)
         
         # Remaining versions
-        if versions and self.prefs.summary.showavailable:
+        if versions and config.Prefs.summary.showavailable:
             append(_("Available versions for %s:\n") % self.myarch, "property")
             show_vnums(versions)
             nl(2)
@@ -680,20 +680,20 @@ class Summary(gtk.TextView):
     def add_keyword(self, menuitem_widget):
         arch = "~" + portage_lib.get_arch()
         ebuild = self.selected_ebuild
-        portage_lib.set_user_config(self.prefs, 'package.keywords', ebuild=ebuild, add=arch, callback=self.update_callback)
+        portage_lib.set_user_config('package.keywords', ebuild=ebuild, add=arch, callback=self.update_callback)
     
     def remove_keyword(self, menuitem_widget):
         arch = "~" + portage_lib.get_arch()
         ebuild = self.selected_ebuild
-        portage_lib.set_user_config(self.prefs, 'package.keywords', ebuild=ebuild, remove=arch, callback=self.update_callback)
+        portage_lib.set_user_config('package.keywords', ebuild=ebuild, remove=arch, callback=self.update_callback)
     
     def package_unmask(self, menuitem_widget):
         ebuild = "=" + self.selected_ebuild
-        portage_lib.set_user_config(self.prefs, 'package.unmask', add=ebuild, callback=self.update_callback)
+        portage_lib.set_user_config('package.unmask', add=ebuild, callback=self.update_callback)
     
     def un_package_unmask(self, menuitem_widget):
         ebuild = "=" + self.selected_ebuild
-        portage_lib.set_user_config(self.prefs, 'package.unmask', remove=ebuild, callback=self.update_callback)
+        portage_lib.set_user_config('package.unmask', remove=ebuild, callback=self.update_callback)
     
     def show_version(self, menuitem_widget):
         ebuild =  self.selected_ebuild

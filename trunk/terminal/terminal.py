@@ -77,10 +77,11 @@ from term_queue import TerminalQueue
 from constants import *
 from notebook import TerminalNotebook
 from fileselector import FileSel
+import config
 
 class ProcessManager:
     """ Manages queued and running processes """
-    def __init__(self, env = {}, prefs = None, config = None, log_mode = False):
+    def __init__(self, env = {}, log_mode = False):
         """ Initialize """
         utils.debug.dprint("TERMINAL: ProcessManager; process id = %d ****************" %os.getpid())
         if log_mode:
@@ -90,10 +91,8 @@ class ProcessManager:
             utils.debug.dprint(self.title)
         self.log_mode = log_mode
         #self.Semaphore = threading.Semaphore()
-        # copy the environment and preferences
+        # copy the environment
         self.env = env
-        self.prefs = prefs
-        self.config = config
         self.killed = 0
         self.pid = None
         self.Failed = False
@@ -154,9 +153,9 @@ class ProcessManager:
             for x in widget_labels:
                 self.term.last_text.append('\n')
                 view = self.wtree.get_widget(x)
-                if x == "process_text" or self.prefs.terminal.all_tabs_use_custom_colors:
-                    fg, bg, weight = self.prefs.TAG_DICT['default']
-                    font = self.prefs.terminal.font
+                if x == "process_text" or config.Prefs.terminal.all_tabs_use_custom_colors:
+                    fg, bg, weight = config.Prefs.TAG_DICT['default']
+                    font = config.Prefs.terminal.font
                     if bg: view.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse(bg))
                     else: view.modify_base(gtk.STATE_NORMAL, default_bg)
                     if fg: view.modify_text(gtk.STATE_NORMAL, gtk.gdk.color_parse(fg))
@@ -177,8 +176,8 @@ class ProcessManager:
             utils.debug.dprint("TERMINAL: show_window(): returning")
             return True
         # load the glade file
-        self.wtree = gtk.glade.XML(self.prefs.DATA_PATH + self.prefs.use_gladefile,
-                                   "process_window", self.prefs.APP)
+        self.wtree = gtk.glade.XML(config.Prefs.DATA_PATH + config.Prefs.use_gladefile,
+                                   "process_window", config.Prefs.APP)
         # these need to be before the callbacks
         # setup some aliases for easier access
         self.window = self.wtree.get_widget("process_window")
@@ -192,7 +191,7 @@ class ProcessManager:
         # Initialize event widget source
         self.event_src = None
         # get a mostly blank structure to hold a number of widgets & settings
-        self.term = TerminalNotebook(self.notebook, self.wtree, self.prefs)
+        self.term = TerminalNotebook(self.notebook, self.wtree)
         # queue init
         self.process_queue = TerminalQueue(self._run, self.reader, self.wtree, self.term)
         
@@ -239,11 +238,11 @@ class ProcessManager:
         self.reader.start()
         gobject.timeout_add(100, self.update)
 
-        if self.prefs:
-            self.window.resize((self.prefs.emerge.verbose and
-                                self.prefs.terminal.width_verbose or
-                                self.prefs.terminal.width), 
-                                self.prefs.terminal.height)
+        if config.Prefs:
+            self.window.resize((config.Prefs.emerge.verbose and
+                                config.Prefs.terminal.width_verbose or
+                                config.Prefs.terminal.width), 
+                                config.Prefs.terminal.height)
             # MUST! do this command last, or nothing else will _init__
             # after it until emerge is finished.
             # Also causes runaway recursion.
@@ -266,11 +265,11 @@ class ProcessManager:
         # get the width and height of the window
         width, height = window.get_size()
         # set the preferences
-        if self.prefs.emerge.verbose:
-            self.prefs.terminal.width_verbose = width
+        if config.Prefs.emerge.verbose:
+            config.Prefs.terminal.width_verbose = width
         else:
-            self.prefs.terminal.width = width
-        self.prefs.terminal.height = height
+            config.Prefs.terminal.width = width
+        config.Prefs.terminal.height = height
 
     def new_window_state(self, widget, event):
         """set the minimized variable to change the title to the same as the statusbar text"""
@@ -599,8 +598,8 @@ class ProcessManager:
                             overwrite = True
                         else:
                             overwrite = False
-                        #if self.config.isEmerge(self.process_buffer):
-                        if self.config.isEmerge(self.line_buffer):
+                        #if config.Config.isEmerge(self.process_buffer):
+                        if config.Config.isEmerge(self.line_buffer):
                             # add the pkg info to all other tabs to identify fom what
                             # pkg messages came from but no need to show it if it isn't
                             tag = 'emerge'
@@ -614,23 +613,23 @@ class ProcessManager:
                                     self.do_callback()
                                     self.callback_armed = False
                         
-                        elif self.config.isAction(self.line_buffer):
+                        elif config.Config.isAction(self.line_buffer):
                             if not self.term.tab_showing[TAB_INFO]:
                                 self.term.show_tab(TAB_INFO)
                                 self.term.view_buffer[TAB_INFO].set_modified(True)
                             tag = 'caution'
                             self.term.append(TAB_INFO, self.line_buffer, tag)
                         
-                        #elif self.config.isInfo(self.process_buffer):
-                        elif self.config.isInfo(self.line_buffer):
+                        #elif config.Config.isInfo(self.process_buffer):
+                        elif config.Config.isInfo(self.line_buffer):
                             # Info string has been found, show info tab if needed
                             if not self.term.tab_showing[TAB_INFO]:
                                 self.term.show_tab(TAB_INFO)
                                 self.term.view_buffer[TAB_INFO].set_modified(True)
                             
                             # Check for fatal error
-                            #if self.config.isError(self.process_buffer):
-                            if self.config.isError(self.line_buffer):
+                            #if config.Config.isError(self.process_buffer):
+                            if config.Config.isError(self.line_buffer):
                                 self.Failed = True
                                 tag = 'error'
                                 self.term.append(TAB_INFO, self.line_buffer, tag)
@@ -641,14 +640,14 @@ class ProcessManager:
                             # Check if the info is ">>> category/package-version merged"
                             # then set the callback to return the category/package to update the db
                             #utils.debug.dprint("TERMINAL: update(); checking info line: %s" %self.process_buffer)
-                            if (not self.file_input) and self.config.isMerged(self.line_buffer):
+                            if (not self.file_input) and config.Config.isMerged(self.line_buffer):
                                 self.callback_package = self.line_buffer.split()[1]
                                 self.callback_armed = True
                                 utils.debug.dprint("TERMINAL: update(); Detected sucessfull merge of package: " + self.callback_package)
                             #else:
                                 #utils.debug.dprint("TERMINAL: update(); merge not detected")
                         
-                        elif self.config.isWarning(self.line_buffer):
+                        elif config.Config.isWarning(self.line_buffer):
                             # warning string has been found, show info tab if needed
                             if not self.term.tab_showing[TAB_WARNING]:
                                 self.term.show_tab(TAB_WARNING)
@@ -658,7 +657,7 @@ class ProcessManager:
                             self.term.append(TAB_WARNING, self.line_buffer)
                             self.warning_count += 1
                         
-                        elif self.config.isCaution(self.line_buffer):
+                        elif config.Config.isCaution(self.line_buffer):
                             # warning string has been found, show info tab if needed
                             if not self.term.tab_showing[TAB_CAUTION]:
                                 self.term.show_tab(TAB_CAUTION)
@@ -932,7 +931,7 @@ class ProcessManager:
         package_list = []
         total = datetime.timedelta()        
         for line in output.split("\n"):
-            if self.config.ebuild_re.match(line):
+            if config.Config.ebuild_re.match(line):
                 tokens = line.split(']')
                 tokens = tokens[1].split()
                 tmp_name = portage_lib.get_name(tokens[0])
@@ -1073,8 +1072,8 @@ class ProcessManager:
         """sets the starting directory for file selection"""
         if not self.directory:
             # no directory was specified, so we are making one up
-            utils.debug.dprint("LOG: directory not specified, setting to default: %s" %self.prefs.LOG_FILE_DIR)
-            self.directory = self.prefs.LOG_FILE_DIR
+            utils.debug.dprint("LOG: directory not specified, setting to default: %s" %config.Prefs.LOG_FILE_DIR)
+            self.directory = config.Prefs.LOG_FILE_DIR
             ##self.directory = get_user_home_dir()
             ##if os.access(self.directory + "/.porthole", os.F_OK):
             ##    if not os.access(self.directory + "/.porthole/logs", os.F_OK):
@@ -1243,62 +1242,64 @@ class ProcessManager:
         self.term.clear_buffers()
         self.filename = None
 
-if __name__ == "__main__":
 
-    def callback():
-        """ Print a message to display that callbacks are working"""
-        utils.debug.dprint("TERMINAL: Callback caught...")
+# very out of date!
+#~ if __name__ == "__main__":
+
+    #~ def callback():
+        #~ """ Print a message to display that callbacks are working"""
+        #~ utils.debug.dprint("TERMINAL: Callback caught...")
     
-    DATA_PATH = "/usr/share/porthole/"
+    #~ DATA_PATH = "/usr/share/porthole/"
 
-    from sys import argv, exit, stderr
-    from getopt import getopt, GetoptError
-    import utils.debug
+    #~ from sys import argv, exit, stderr
+    #~ from getopt import getopt, GetoptError
+    #~ import utils.debug
 
-    try:
-        opts, args = getopt(argv[1:], "lvd", ["local", "version", "debug"])
-    except GetoptError, e:
-        print >>stderr, e.msg
-        exit(1)
+    #~ try:
+        #~ opts, args = getopt(argv[1:], "lvd", ["local", "version", "debug"])
+    #~ except GetoptError, e:
+        #~ print >>stderr, e.msg
+        #~ exit(1)
 
-    for opt, arg in opts:
-        if opt in ('-l', "--local"):
-            # running a local version (i.e. not installed in /usr/*)
-            DATA_PATH = ""
-        elif opt in ('-v', "--version"):
-            # print version info
-            print "Porthole-Terminal " + version
-            exit(0)
-        elif opt in ('-d', "--debug"):
-            utils.debug.debug = True
-            utils.debug.dprint("Debug printing is enabled")
-    # change dir to your data path
-    if DATA_PATH:
-        from os import chdir
-        chdir(DATA_PATH)
-    # make sure gtk lets threads run
-    gtk.threads_init()
-    # setup our app icon
-    myicon = gtk.gdk.pixbuf_new_from_file("pixmaps/porthole-icon.png")
-    gtk.window_set_default_icon_list(myicon)
-    # load prefs
-    prefs_additions = [
-        ["DATA_PATH",DATA_PATH],
-        ["APP",None],
-        ["i18n_DIR",None],
-        ["RUN_LOCAL",None]
-    ]
-    prefs = utils.PortholePreferences(prefs_additions)
-    env = utils.environment()
-    # to test the above classes when run standalone
-    test = ProcessManager(env, prefs)
-    test.title = "Porthole-Terminal"
-    test.process_queue.add("kde (-vp)", "emerge -vp kde", callback)
-    # un-comment the next line to get the queue to show up
-    test.process_queue.add("gnome (-vp)", "emerge -vp gnome", callback)
-    test.process_queue.add("gtk+ (-vp)", "emerge -vp gtk+", callback)
-    test.process_queue.add("bzip2 (-v)", "emerge -v bzip2", callback)
-    # start the program loop
-    gtk.mainloop()
-    # save the prefs to disk for next time
-    prefs.save()
+    #~ for opt, arg in opts:
+        #~ if opt in ('-l', "--local"):
+            #~ # running a local version (i.e. not installed in /usr/*)
+            #~ DATA_PATH = ""
+        #~ elif opt in ('-v', "--version"):
+            #~ # print version info
+            #~ print "Porthole-Terminal " + version
+            #~ exit(0)
+        #~ elif opt in ('-d', "--debug"):
+            #~ utils.debug.debug = True
+            #~ utils.debug.dprint("Debug printing is enabled")
+    #~ # change dir to your data path
+    #~ if DATA_PATH:
+        #~ from os import chdir
+        #~ chdir(DATA_PATH)
+    #~ # make sure gtk lets threads run
+    #~ gtk.threads_init()
+    #~ # setup our app icon
+    #~ myicon = gtk.gdk.pixbuf_new_from_file("pixmaps/porthole-icon.png")
+    #~ gtk.window_set_default_icon_list(myicon)
+    #~ # load prefs
+    #~ prefs_additions = [
+        #~ ["DATA_PATH",DATA_PATH],
+        #~ ["APP",None],
+        #~ ["i18n_DIR",None],
+        #~ ["RUN_LOCAL",None]
+    #~ ]
+    #~ prefs = utils.PortholePreferences(prefs_additions)
+    #~ env = utils.environment()
+    #~ # to test the above classes when run standalone
+    #~ test = ProcessManager(env, prefs)
+    #~ test.title = "Porthole-Terminal"
+    #~ test.process_queue.add("kde (-vp)", "emerge -vp kde", callback)
+    #~ # un-comment the next line to get the queue to show up
+    #~ test.process_queue.add("gnome (-vp)", "emerge -vp gnome", callback)
+    #~ test.process_queue.add("gtk+ (-vp)", "emerge -vp gtk+", callback)
+    #~ test.process_queue.add("bzip2 (-v)", "emerge -v bzip2", callback)
+    #~ # start the program loop
+    #~ gtk.mainloop()
+    #~ # save the prefs to disk for next time
+    #~ prefs.save()

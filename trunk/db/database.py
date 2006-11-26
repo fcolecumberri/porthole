@@ -121,12 +121,13 @@ class Database(DBBase):
     def set_callback(self, callback):
         self.callback = callback
 
-    def db_init(self):
+    def db_init(self, new_sync = False):
         self.db_thread_running = True
         self.db_thread = DatabaseReader(Dispatcher(self.db_update))
         self.db_thread.start()
-        # force a reload
-        # self.desc_loaded = False
+        if new_sync:
+            # force a reload
+            self.desc_loaded = False
         
     def db_update(self, args):# extra args for dispatcher callback
         """Update the callback to the number of packages read."""
