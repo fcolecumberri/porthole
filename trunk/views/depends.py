@@ -49,6 +49,8 @@ class DependsView(CommonTreeView):
         CommonTreeView.__init__(self)
         # save the dependency popup callback
         self.get_popup = get_popup
+        # parents name we are building the dependency tree for
+        self.parents_name = ''
         # setup the model
         self.model = DependsTree()
         # setup the column
@@ -135,15 +137,18 @@ class DependsView(CommonTreeView):
         self.popup_menuitems = menuitems
         self.dopopup = None
         self.event = None
+        self.event_src = None
         self.toggle = None
         self._depend_changed = None
         self.dep_window = None
+        self.dep_notebook = None
 
         utils.debug.dprint("DependsView: Depends view initialized")
         #return self
 
     def fill_depends_tree(self, treeview, package, ebuild):
         """ Fill the dependency tree with dependencies """
+        self.parents_name = ebuild
         # set column title to indicate which ebuild we're using
         utils.debug.dprint("DependsView: DependsView.fill_depends_tree(); ebuild = " + ebuild)
         title = self.get_column(0).get_title()
@@ -297,9 +302,12 @@ class DependsView(CommonTreeView):
             self.dopopup = False
             
         if event.type == gtk.gdk._2BUTTON_PRESS:
+            utils.debug.dprint("DependsView: dbl-click event detected")
             # Capture the source of the dbl-click event
             # but do nothing else
             self.event_src = widget
+            utils.debug.dprint("DependsView: button release dbl-click event detected, enabling dep popup")
+            _do_dep_window = True
 
         elif event.type != gtk.gdk.BUTTON_PRESS:
             utils.debug.dprint("DependsView: Strange event type got passed to on_button_press() callback...")
@@ -311,12 +319,13 @@ class DependsView(CommonTreeView):
             self.event_src = None
             # The button release event following the dbl-click
             # from the same widget, go ahead and process now
-            # Convert x,y window coords to buffer coords and get line text
+            utils.debug.dprint("DependsView: button release dbl-click event detected, enabling dep popup")
             _do_dep_window = True
             
         # Test to make sure something was clicked on:
         pathinfo = widget.get_path_at_pos(int(event.x), int(event.y))
         if pathinfo == None:
+            utils.debug.dprint("DependsView: pathinfo = None" )
             self.dopopup = do_dep_window = False
             return True
         else:
@@ -324,16 +333,38 @@ class DependsView(CommonTreeView):
             utils.debug.dprint("DependsView: pathinfo = %s" %str(pathinfo))
             #treeview.set_cursor(path, col, 0) # Note: sets off _clicked again
             if _do_dep_window:
-                self.do_dep_window()
+                self.do_dep_window(widget)
         return False
 
-    def do_dep_window(self):
+    def do_dep_window(self, treeview):
         """ Creates a new window for dependency detail display and sets the package
             or changes the package if there already is an open dep_window.
         """
-        if not self.dep_window:
-            self.dep_window, self.dep_notebook = self.get_popup()
-        self._depend_changed = self.dep_notebook.set_package
+        utils.debug.dprint("DependsView: do_dep_window(); doing the dep pupoup")
+        if self.dep_window == None or self.dep_notebook == None:
+            self.dep_window, self.dep_notebook = self.get_popup(self.dep_window_callback)
+        if  self.dep_window == None or self.dep_notebook == None:
+            utils.debug.dprint("DependsView: Failed to get the dep_window and/or the dep_notebook")
+            return
+        self.dep_window.set_title(_("Porthole Dependency Viewer for: %s")  %self.parents_name)
+        # get the package for the popup
+        model, iter = treeview.get_selection().get_selected()
+        if iter:
+            package =  model.get_value(iter, model.column["package"])
+        if package:
+            utils.debug.dprint("DependsView: do_dep_window() valid package : " + package.full_name)
+            self.dep_notebook.set_package(package)
+            self.dep_notebook.notebook.set_sensitive(True)
+        else:
+            utils.debug.dprint("DependsView: do_dep_window() not a valid package, clearing ")
+            self.dep_notebook.clear_notebook()
+            self.dep_notebook.notebook.set_sensitive(False)
+        #self._depend_changed = self.dep_notebook.set_package
+
+    def dep_window_callback(self):
+        del self.dep_window, self.dep_notebook
+        self.dep_window = self.dep_notebook = None
+
 
     def emerge(self, widget, pretend=None, sudo=None):
         emergestring = 'emerge'

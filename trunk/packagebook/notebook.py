@@ -55,7 +55,7 @@ OFF = False
 class PackageNotebook:
     """Contains all functions for managing a packages detailed views"""
 
-    def __init__( self,  wtree, callbacks, plugin_package_tabs):
+    def __init__( self,  wtree, callbacks, plugin_package_tabs, is_dep_window = False):
         self.wtree = wtree
         self.callbacks = callbacks
         self.plugin_package_tabs = plugin_package_tabs
@@ -73,6 +73,9 @@ class PackageNotebook:
         self.deps_view = DependsView(self.new_notebook)
         self.deps_filled = False
         self.deps_version = ""
+        self.dep_window = None
+        self.dep_notebook = None
+        self.dep_callback = None
 
         result = self.wtree.get_widget("dependencies_scrolled_window").add(self.deps_view)
         self.notebook.connect("switch-page", self.notebook_changed)
@@ -84,6 +87,8 @@ class PackageNotebook:
         self.reset_tabs()
         self.summary.update_package_info(package)
         self.notebook_changed(None, None, self.notebook.get_current_page())
+        if self.dep_window != None and self.dep_notebook != None:
+            self.dep_notebook.notebook.set_sensitive(False)
 
     def reset_tabs(self):
         """set notebook tabs to load new package info"""
@@ -93,10 +98,10 @@ class PackageNotebook:
     def notebook_changed(self, widget, pointer, index):
         """Catch when the user changes the notebook"""
         package = self.package
-        utils.debug.dprint("NOTEBOOK: notebook_changed(); self.summary.ebuild " +self.summary.ebuild + " self.deps_version : " + self.deps_version)
+        utils.debug.dprint("PackageNotebook notebook_changed(); self.summary.ebuild " +self.summary.ebuild + " self.deps_version : " + self.deps_version)
         if index == 1:
             if  self.deps_version != self.summary.ebuild or not self.deps_filled:
-                utils.debug.dprint("NOTEBOOK: notebook_changed(); fill the deps view!")
+                utils.debug.dprint("PackageNotebook notebook_changed(); fill the deps view!")
                 self.deps_view.fill_depends_tree(self.deps_view, package, self.summary.ebuild)
                 self.deps_filled = True
                 self.deps_version = self.summary.ebuild
@@ -111,7 +116,7 @@ class PackageNotebook:
                 load_installed_files(self.installed_window, self.installed_files, package)
                 self.installed_loaded = True
         elif index == 4:
-            utils.debug.dprint("MAINWINDOW: notebook_changed(); self.summary.ebuild = " + str(self.summary.ebuild))
+            utils.debug.dprint("PackageNotebook notebook_changed(); self.summary.ebuild = " + str(self.summary.ebuild))
             if not self.ebuild_loaded or self.ebuild_loaded_version != self.summary.ebuild:
                 #load_textfile(self.ebuild, package, "best_ebuild")
                 load_textfile(self.ebuild, package, "version_ebuild", self.summary.ebuild)
@@ -125,26 +130,41 @@ class PackageNotebook:
 
     def clear_notebook(self):
         """ Clear all notebook tabs & disable them """
-        #utils.debug.dprint("MAINWINDOW: clear_notebook()")
+        utils.debug.dprint("PackageNotebook clear_notebook()")
         self.summary.update_package_info(None)
         self.deps_view.clear()
         self.changelog.set_text('')
         self.installed_files.set_text('')
         self.ebuild.set_text('')
 
-    def new_notebook(self, package):
+    def new_notebook(self, callback): #, package):
         """creates a new popup window containing a new notebook instance
         to display 'package'"""
+        self.dep_callback = callback
         if not self.dep_window:
             self.dep_window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-            self.dep_notebook = PackageNotebook(self.wtree, self.callbacks, self.plugin_package_tabs)
-            self.dep_window.add(self.dep_notebook)
-            #self.dep_window.connect("destroy", gtk.main_quit)
+            gladefile = config.Prefs.DATA_PATH + config.Prefs.use_gladefile
+            self.deptree = gtk.glade.XML(gladefile, "notebook", config.Prefs.APP)
+            self.dep_notebook = PackageNotebook(self.deptree, self.callbacks, self.plugin_package_tabs)
+            self.dep_window.add(self.dep_notebook.notebook)
+            self.dep_window.connect("destroy", self.close_window)
             self.dep_window.resize(600, 400)
-            self.dep_window.set_title(_("Porthole Dependency Viewer")) 
             self.dep_window.show_all()
+        #self.dep_window.set_title(_("Porthole Dependency Viewer for: %s")  %self.parents_name) 
+        #self.dep_notebook.notebook.set_sensitive(True)
+        utils.debug.dprint("PackageNotebook: new_notebook(); new dep_window, dep_notebook" + str(self.dep_window) +str(self.dep_notebook))
         return self.dep_window, self.dep_notebook
         
-        
-        
-        
+    def close_window(self, *widget):
+        # first check for and close any children
+        if self.deps_view.dep_window != None and self.deps_view.dep_notebook != None:
+            self.deps_view.dep_notebook.close_window()
+        if self.dep_window:
+            self.dep_window.destroy()
+            del self.dep_window, self.dep_notebook
+            self.dep_window = self.dep_notebook = None
+            # tell the initiator that it is destroyed
+            if self.dep_callback:
+                self.dep_callback()
+            
+
