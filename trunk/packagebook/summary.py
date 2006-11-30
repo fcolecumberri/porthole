@@ -84,7 +84,9 @@ class Summary(gtk.TextView):
         menuitems["unmerge"].connect("activate", self.unmerge)
         menuitems["sudo-unmerge"] = gtk.MenuItem(_("Sudo Unmerge this ebuild"))
         menuitems["sudo-unmerge"].connect("activate", self.unmerge, True)
-        menuitems["add-keyword"] = gtk.MenuItem(_("Add %s to package.keywords (for this ebuild only)") % arch)
+        menuitems["add-ebuild-keyword"] = gtk.MenuItem(_("Add %s to package.keywords (for this ebuild only)") % arch)
+        menuitems["add-ebuild-keyword"].connect("activate", self.add_keyword_ebuild)
+        menuitems["add-keyword"] = gtk.MenuItem(_("Add %s to package.keywords") % arch)
         menuitems["add-keyword"].connect("activate", self.add_keyword)
         menuitems["remove-keyword"] = gtk.MenuItem(_("Remove %s from package.keywords") % arch)
         menuitems["remove-keyword"].connect("activate", self.remove_keyword)
@@ -677,15 +679,29 @@ class Summary(gtk.TextView):
         self.update_package_info(self.package)
         self.re_init_portage()
     
-    def add_keyword(self, menuitem_widget):
+    def add_keyword_ebuild(self, menuitem_widget):
         arch = "~" + portage_lib.get_arch()
         ebuild = self.selected_ebuild
         portage_lib.set_user_config('package.keywords', ebuild=ebuild, add=arch, callback=self.update_callback)
-    
-    def remove_keyword(self, menuitem_widget):
+
+    def add_keyword(self, widget):
+        arch = "~" + portage_lib.get_arch()
+        name = self.package.full_name
+        string = name + " " + arch + "\n"
+        utils.debug.dprint("Summary: Package view add_keyword(); %s" %string)
+        portage_lib.set_user_config('package.keywords', name=name, add=arch, callback=self.update_callback)
+
+    def remove_keyword_ebuild(self, menuitem_widget):
         arch = "~" + portage_lib.get_arch()
         ebuild = self.selected_ebuild
         portage_lib.set_user_config('package.keywords', ebuild=ebuild, remove=arch, callback=self.update_callback)
+
+    def remove_keyword(self, menuitem_widget):
+        arch = "~" + portage_lib.get_arch()
+        name = self.package.full_name
+        string = name + " " + arch + "\n"
+        utils.debug.dprint("Summary: Package view remove_keyword(); %s" %string)
+        portage_lib.set_user_config('package.keywords', name=name, remove=arch, callback=self.update_callback)
     
     def package_unmask(self, menuitem_widget):
         ebuild = "=" + self.selected_ebuild
