@@ -285,9 +285,8 @@ class AdvancedEmergeDialog:
                 removelist.append(item[1:])
             else:
                 removelist.append('-' + item)
-        okay = portage_lib.set_user_config( config.Prefs,\
-                'package.use', name=self.package.full_name,
-                add=addlist, remove=removelist, callback=self.reload )
+        okay = portage_lib.set_user_config('package.use', name=self.package.full_name, add=addlist,
+                                                                remove=removelist, callback=self.reload )
     
     def on_make_conf_commit(self, button_widget):
         utils.debug.dprint("ADVEMERGE: on_make_conf_commit()")
@@ -610,7 +609,7 @@ class AdvancedEmergeDialog:
                     self.btnMakeConf.hide()
         # Build table to hold checkboxes
         size = len(use_flags)
-        maxcol = 4  # = number of columns - 1 = index of last column
+        maxcol = 3  # = number of columns - 1 = index of last column
         maxrow = (size - 1) / (maxcol + 1)  # = number of rows - 1
         # resize the table if it's taller than it is wide
         table = gtk.Table(maxrow+1, maxcol+1, True)
