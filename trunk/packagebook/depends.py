@@ -381,11 +381,12 @@ class DependsTree(gtk.TreeStore):
     
     def fill_depends_tree(self, treeview, package, ebuild):
         """Fill the dependencies tree for a given ebuild"""
-        #utils.debug.dprint("DEPENDS: Updating deps tree for " + package.get_name())
+        utils.debug.dprint("DEPENDS: Updating deps tree for " + package.get_name())
         #ebuild = package.get_default_ebuild()
         ##depends = portage_lib.get_property(ebuild, "DEPEND").split()
-        depends = (package.get_properties().depend.split() +
-                   package.get_properties().rdepend.split())
+        depends = (package.get_properties(ebuild).depend.split() +
+                   package.get_properties(ebuild).rdepend.split() +
+                   package.get_properties(ebuild).pdepend.split())
         self.clear()
         if depends:
             #utils.debug.dprint("DEPENDS: depends = %s" % depends)
