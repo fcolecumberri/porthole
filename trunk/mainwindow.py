@@ -447,13 +447,13 @@ class MainWindow:
             if "sudo" in action:
                 self.setup_command( \
                     portage_lib.get_name(cp),
-                    ''.join(['sudo -p "Password: " emerge unmerge',
+                    ''.join(['sudo -p "Password: " emerge --unmerge',
                     config.Prefs.emerge.get_string(), '=', ebuild])
                 )
             else:
                 self.setup_command(
                     portage_lib.get_name(cp),
-                    ''.join(["emerge unmerge", config.Prefs.emerge.get_string(), '=', ebuild])
+                    ''.join(["emerge --unmerge", config.Prefs.emerge.get_string(), '=', ebuild])
                 )
         else:
             utils.debug.dprint("MAINWINDOW package_view callback: unknown action '%s'" % str(action))
@@ -739,7 +739,7 @@ class MainWindow:
             self.setup_command(package.get_name(), 'sudo -p "Password: " emerge --unmerge' +
                     config.Prefs.emerge.get_string() + package.full_name)
         else:
-            self.setup_command(package.get_name(), "emerge unmerge" +
+            self.setup_command(package.get_name(), "emerge --unmerge" +
                     config.Prefs.emerge.get_string() + package.full_name)
 
     def sync_tree(self, widget):
