@@ -355,6 +355,8 @@ class DependsView(CommonTreeView):
             utils.debug.dprint("DependsView: do_dep_window() valid package : " + package.full_name)
             self.dep_notebook.set_package(package)
             self.dep_notebook.notebook.set_sensitive(True)
+            # raise window to top of window stack, unminimize, etc.
+            self.dep_window.present()
         else:
             utils.debug.dprint("DependsView: do_dep_window() not a valid package, clearing ")
             self.dep_notebook.clear_notebook()
