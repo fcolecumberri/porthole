@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 '''
-    Porthole Portage module
-    Holds all portage library functions for Porthole
+    Porthole backend module
+    Holds all portage and related library functions for Porthole
 
     Copyright (C) 2003 - 2006 Fredrik Arnerup, Daniel G. Taylor
     Brian Dolbec, Wm. F. Wheeler, Tommy Iorns
