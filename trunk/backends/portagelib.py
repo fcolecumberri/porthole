@@ -309,22 +309,27 @@ def get_sets_list( filename ):
 
 def split_atom_pkg( pkg ):
     """Extract [category/package, atoms, version] from some ebuild identifier"""
+    utils.debug.dprint("PORTAGELIB: split_atom_pkg(); pkg = " +pkg)
     atoms = []
     version = ''
     if pkg.endswith("*"): pkg = pkg[:-1]
     cplist = portage.catpkgsplit(pkg) or portage.catsplit(pkg)
+    utils.debug.dprint("PORTAGELIB: split_atom_pkg(); cplist = " + str(cplist))
     if not cplist or len(cplist) < 2:
-        utils.debug.dprint("PORTAGELIB split_pkg(): issues with '%s'" % pkg)
+        utils.debug.dprint("PORTAGELIB split_atom_pkg(): issues with '%s'" % pkg)
         return ['', '', '']
     cp = cplist[0] + "/" + cplist[1]
     while cp[0] in ["<",">","=","!","*"]:
+        utils.debug.dprint("PORTAGELIB: split_atom_pkg(); cp = " + str(cp))
         atoms.append(cp[0])
         cp = cp[1:]
+    utils.debug.dprint("PORTAGELIB: split_atom_pkg(); cplist2 = " + str(cplist))
     if cplist:
-        version = cplist[2]
-        if cplist[3] != 'r0':
+        if len(cplist) >2:
+            version = cplist[2]
+        if len(cplist) >3 and cplist[3] != 'r0':
             version += '-' + cplist[3]
-    return [str(cp), atoms.join(), version] # hmm ... unicode keeps appearing :(
+    return [str(cp), ''.join(atoms), version] # hmm ... unicode keeps appearing :(
 
 
 def reload_world():
@@ -379,7 +384,7 @@ def get_name(full_name):
     return full_name.split('/')[1]
 
 def pkgsplit(ebuild):
-    """Split ebuild into [category/package, version, release]"""
+    """Split ebuild into [category/package, version, revision]"""
     utils.debug.dprint("PORTAGELIB: pkgsplit(); calling portage function")
     return portage.pkgsplit(ebuild)
 
@@ -395,7 +400,7 @@ def get_full_name(ebuild):
         utils.debug.dprint("PORTAGELIB get_full_name(): issues with '%s'" % ebuild)
         return ''
     cp = cplist[0] + "/" + cplist[1]
-    while cp[0] in ["<",">","=","!","*"]: cp = cp[1:]
+    while cp[0] in ["<",">","=","!","*","~"]: cp = cp[1:]
     return str(cp) # hmm ... unicode keeps appearing :(
 
 def get_installed(package_name):
@@ -432,7 +437,9 @@ def get_versions(full_name, include_masked = True):
     """Returns all available ebuilds for the package"""
     # Note: this is slow, especially when include_masked is false
     criterion = include_masked and 'match-all' or 'match-visible'
-    return portage.portdb.xmatch(criterion, str(full_name))
+    v = portage.portdb.xmatch(criterion, str(full_name))
+    utils.debug.dprint("PORTAGELIB: get_versions(); criterion = %s, package = %s, v = %s" %(str(criterion),full_name,str(v)))
+    return  v #portage.portdb.xmatch(criterion, str(full_name))
 
 def get_hard_masked(full_name):
 	full_name = str(full_name)
@@ -582,12 +589,20 @@ def get_virtual_dep(atom):
 
 def is_overlay(cpv): # lifted from gentoolkit
     """Returns true if the package is in an overlay."""
-    dir,ovl = portage.portdb.findname2(cpv)
+    try:
+        dir,ovl = portage.portdb.findname2(cpv)
+    except:
+        return False
     return ovl != portdir
 
 def get_overlay(cpv):
     """Returns an overlay."""
-    dir,ovl = portage.portdb.findname2(cpv)
+    if '/' not in cpv:
+        return ''
+    try:
+        dir,ovl = portage.portdb.findname2(cpv)
+    except:
+        ovl = 'Depricated?'
     return ovl
 
     
@@ -651,6 +666,9 @@ def get_allnodes():
 def get_installed_list():
     return portage.db['/']['vartree'].getallnodes()[:] # try copying...
 
+def get_installed_ebuild_path(fullname):
+    return portage.db['/']['vartree'].getebuildpath(fullname)
+
 def reset_use_flags():
     utils.debug.dprint("PORTAGELIB: reset_use_flags();")
     global SystemUseFlags
@@ -663,6 +681,8 @@ portdir = portage.config(clone=portage.settings).environ()['PORTDIR']
 portdir_overlay = get_portage_environ('PORTDIR_OVERLAY')
 
 ACCEPT_KEYWORDS = get_portage_environ("ACCEPT_KEYWORDS")
+
+user_config_dir = portage_const.USER_CONFIG_PATH
 
 # Run it once for sake of efficiency
 
