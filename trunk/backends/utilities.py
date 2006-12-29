@@ -35,18 +35,21 @@ portage_lib = backends.portage_lib
 # Copyright: 2005 Brian Harring <ferringb@gmail.com>
 # License: GPL2
 def iter_read_bash(bash_source):
-	"""read file honoring bash commenting rules.  Note that it's considered good behaviour to close filehandles, as such, 
-	either iterate fully through this, or use read_bash instead.
-	once the file object is no longer referenced, the handle will be closed, but be proactive instead of relying on the 
-	garbage collector."""
-	if isinstance(bash_source, basestring):
-		bash_source = open(bash_source, 'r')
-	for s in bash_source:
-		s=s.strip()
-		if s.startswith("#") or s == "":
-			continue
-		yield s
-	bash_source.close()
+    """read file honoring bash commenting rules.  Note that it's considered good behaviour to close filehandles, as such, 
+        either iterate fully through this, or use read_bash instead.
+        once the file object is no longer referenced, the handle will be closed, but be proactive instead of relying on the 
+        garbage collector."""
+    try:
+        if isinstance(bash_source, basestring):
+            bash_source = open(bash_source, 'r')
+        for s in bash_source:
+            s=s.strip()
+            if s.startswith("#") or s == "":
+                continue
+            yield s
+        bash_source.close()
+    except IOError:
+        pass
 
 def read_bash(bash_source):
 	return list(iter_read_bash(bash_source))
