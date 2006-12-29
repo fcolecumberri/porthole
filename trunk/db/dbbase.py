@@ -37,3 +37,4 @@ class DBBase:
         # the next 2 tuples hold pkg counts for each category
         self.pkg_count = {}
         self.installed_pkg_count = {}
+        self.depricated_list = []
