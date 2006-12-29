@@ -29,13 +29,13 @@ from dbbase import DBBase
 import backends
 portage_lib = backends.portage_lib
 
-# establish a semaphore for the Database
-Installed_Semaphore = threading.Semaphore()
+#~ # establish a semaphore for the Database
+#~ Installed_Semaphore = threading.Semaphore()
 
-# a list of all installed packages
-Installed_Semaphore.acquire()
-installed = None
-Installed_Semaphore.release()
+#~ # a list of all installed packages
+#~ Installed_Semaphore.acquire()
+#~ installed = None
+#~ Installed_Semaphore.release()
 
 
 class DatabaseReader(threading.Thread):
@@ -94,36 +94,20 @@ class DatabaseReader(threading.Thread):
                 self.callback({"nodecount": self.nodecount, "allnodes_length": self.allnodes_length,
                                 "done": self.done, 'db_thread_error': self.error})
                 count = 0
-            #utils.debug.dprint("DBREADER: entry = %s" %entry)
-            category, name = entry.split('/')
-            if category in ["metadata", "distfiles", "eclass"]:
-                continue
-            # why does getallnodes() return timestamps?
-            if (name.endswith('tbz2') or \
-                    name.startswith('.') or \
-                    name in ['timestamp.x', 'metadata.xml', 'CVS'] ):
-                continue
-            count += 1
-            data = Package(entry)
+            count += self.add_pkg(entry)
+        # now time to add any remaining installed packages not in the portage tree
+        self.db.depricated_list = self.installed_list[:]
+        utils.debug.dprint("DBREADER: read_db(); depricated installed packages = " + str(self.db.depricated_list))
+        for entry in self.installed_list:  # remaining installed packages no longer in the tree
             if self.cancelled: self.done = True; return
-            #self.db.categories.setdefault(category, {})[name] = data;
-            # look out for segfaults
-            if category not in self.db.categories:
-                self.db.categories[category] = {}
-                self.db.pkg_count[category] = 0
-                #utils.debug.dprint("added category %s" % str(category))
-            self.db.categories[category][name] = data;
-            if entry in self.installed_list:
-                if category not in self.db.installed:
-                    self.db.installed[category] = {}
-                    self.db.installed_pkg_count[category] = 0
-                    #utils.debug.dprint("added category %s to installed" % str(category))
-                self.db.installed[category][name] = data
-                self.db.installed_pkg_count[category] += 1
-                self.db.installed_count += 1
-                #utils.debug.dprint("DBREADER: read_db(); adding %s to db.list" %name)
-            self.db.list.append((name, data))
-            self.db.pkg_count[category] += 1
+            if count == 250:  # update the statusbar
+                self.nodecount += count
+                #utils.debug.dprint("DBREADER: read_db(); count = %d" %count)
+                self.callback({"nodecount": self.nodecount, "allnodes_length": self.allnodes_length,
+                                "done": self.done, 'db_thread_error': self.error})
+                count = 0
+            count += self.add_pkg(entry, depricated=True)
+
         utils.debug.dprint("PKGCORE_LIB: read_db(); end of list build; count = %d nodecount = %d" %(count,self.nodecount))
         self.nodecount += count
         utils.debug.dprint("PKGCORE_LIB: read_db(); end of list build; final nodecount = %d categories = %d sort is next" \
@@ -133,21 +117,46 @@ class DatabaseReader(threading.Thread):
         #utils.debug.dprint(self.db)
         utils.debug.dprint("DBREADER: read_db(); end of sort, finished")
 
+    def add_pkg(self, entry, depricated = False):
+            #utils.debug.dprint("DBREADER: add_pkg(); entry = %s" %entry)
+            category, name = entry.split('/')
+            if category in ["metadata", "distfiles", "eclass"]:
+                return 0
+            # why does getallnodes() return timestamps?
+            if (name.endswith('tbz2') or \
+                    name.startswith('.') or \
+                    name in ['timestamp.x', 'metadata.xml', 'CVS'] ):
+                return 0
+            data = Package(entry)
+            data.depricated = depricated
+            if self.cancelled: self.done = True; return 0
+            #self.db.categories.setdefault(category, {})[name] = data;
+            # look out for segfaults
+            if category not in self.db.categories:
+                self.db.categories[category] = {}
+                self.db.pkg_count[category] = 0
+                #utils.debug.dprint("DBREADER: add_pkg(); added category %s" % str(category))
+            self.db.categories[category][name] = data
+            if entry in self.installed_list:
+                if category not in self.db.installed:
+                    self.db.installed[category] = {}
+                    self.db.installed_pkg_count[category] = 0
+                    #utils.debug.dprint("DBREADER: add_pkg(); added category %s to installed" % str(category))
+                self.db.installed[category][name] = data
+                self.db.installed_pkg_count[category] += 1
+                self.db.installed_count += 1
+                #utils.debug.dprint("DBREADER: add_pkg(); adding %s to db.list" %name)
+                # remove entry from installed list since it has been added to the db
+                self.installed_list.remove(entry)
+            self.db.list.append((name, data))
+            self.db.pkg_count[category] += 1
+            return 1
+
     def get_installed(self):
         """get a new installed list"""
-        # I believe this next variable may be the cause of our segfaults
-        # so I' am semaphoring it.  Brian 2004/08/19
-        #self.new_installed_Semaphore.acquire()
-        #installed_list # a better way to do this?
         utils.debug.dprint("DBREADER: get_installed();")
         self.installed_list = portage_lib.get_installed_list()
         self.installed_count = len(self.installed_list)
-        global Installed_Semaphore
-        global installed
-        Installed_Semaphore.acquire()
-        installed = self.installed_list
-        Installed_Semaphore.release()
-        #self.new_installed_Semaphore.release()
         
     def run(self):
         """The thread function."""
