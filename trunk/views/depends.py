@@ -196,20 +196,23 @@ class DependsView(CommonTreeView):
     def get_relevant_keywords(self, package, ebuild):
         utils.debug.dprint("DependsView: get_relevant_keywords(); ebuild = " + ebuild)
         keys = package.get_properties(ebuild).get_keywords()
+        utils.debug.dprint("DependsView: get_relevant_keywords(); keys = " + str(keys))
         if config.Prefs.globals.enable_archlist:
             archlist = config.Prefs.globals.archlist
         else:
-            archlist = portage_lib.get_arch()
+            archlist = [portage_lib.get_arch()]
+        utils.debug.dprint("DependsView: get_relevant_keywords(); archlist = " + str(archlist))
         keywords = ''
         x = 1
         for arch in archlist:
             if x > 1:
                 keywords = keywords + ", "
-            if "".join(["~", arch]) in keys:
+            if ("~" + arch) in keys:
                 keywords = keywords + "~" + arch
+                x += 1
             elif arch in keys:
                 keywords = keywords + arch
-            x += 1
+                x += 1
         utils.debug.dprint("DependsView: get_relevant_keywords(); retuning keywords: " + keywords)
         return keywords
 
@@ -233,7 +236,7 @@ class DependsView(CommonTreeView):
         
         #pop up menu if was rmb-click
         if self.dopopup:
-            if utils.is_root():
+            if utils.utils.is_root():
                 if package.get_best_ebuild() != package.get_latest_ebuild(): # i.e. no ~arch keyword
                     self.popup_menuitems["add-keyword"].show()
                 else: self.popup_menuitems["add-keyword"].hide()
