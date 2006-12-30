@@ -80,7 +80,7 @@ class RMBMenu:
 
         #pop up menu if was rmb-click
         if self.dopopup:
-            if utils.is_root():
+            if utils.utils.is_root():
                 if package.get_best_ebuild() != package.get_latest_ebuild(): # i.e. no ~arch keyword
                     self.popup_menuitems["add-keyword"].show()
                 else: self.popup_menuitems["add-keyword"].hide()
