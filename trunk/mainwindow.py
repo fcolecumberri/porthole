@@ -215,12 +215,10 @@ class MainWindow:
         self.init_data()
         # set if we are root or not
         self.is_root = utils.utils.is_root()
+        utils.debug.dprint("MAINWINDOW: __init__(); is_root = " + str(self.is_root))
         if config.Prefs.main.show_nag_dialog:
             # let the user know if he can emerge or not
             self.check_for_root()
-        if self.is_root:
-            # hide warning toolbar widget
-            self.wtree.get_widget("btn_root_warning").hide()
         self.toolbar_expander = self.wtree.get_widget("toolbar_expander")
         # This should be set in the glade file, but doesn't seem to work ?
         self.toolbar_expander.set_expand(True)
@@ -232,6 +230,10 @@ class MainWindow:
         self.setup_plugins()
         utils.debug.dprint("MAINWINDOW: Showing main window")
         self.mainwindow.show_all()
+        if self.is_root:
+            # hide warning toolbar widget
+            utils.debug.dprint("MAINWINDOW: __init__(); hiding btn_root_warning")
+            self.wtree.get_widget("btn_root_warning").hide()
 
     def setup_plugins(self):
         #Plugin-related statements
