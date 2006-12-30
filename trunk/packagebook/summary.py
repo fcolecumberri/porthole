@@ -239,11 +239,11 @@ class Summary(gtk.TextView):
             if modified: ebuilds = ver_sort(ebuilds) # otherwise already sorted
             
             if config.Prefs.globals.enable_archlist:
-                utils.debug.dprint("SUMMARY: create_ebuild_table: creating archlist enabled table")
                 archlist = config.Prefs.globals.archlist
+                utils.debug.dprint("SUMMARY: create_ebuild_table: creating archlist enabled table for: " + str(archlist))
             else:
-                utils.debug.dprint("SUMMARY: create_ebuild_table: creating single arch table")
                 archlist = [myarch]
+                utils.debug.dprint("SUMMARY: create_ebuild_table: creating single arch table for: " + str(archlist))
             #if True: # saves an unindent for testing change    
             rows = 1 + len(ebuilds)
             cols = 3 + len(archlist)
@@ -255,8 +255,9 @@ class Summary(gtk.TextView):
             label = gtk.Label(_("Overlay"))
             label.set_padding(3, 3)
             table.attach(boxify(label, "#EEEEEE"), 2, 3, 0, 1)
-            x = 1
+            x = 2
             for arch in archlist:
+                utils.debug.dprint("SUMMARY: create_ebuild_table: arch is: " + str(arch))
                 x += 1
                 label = gtk.Label(arch)
                 label.set_padding(3, 3)
@@ -292,7 +293,7 @@ class Summary(gtk.TextView):
                 table.attach(box, 2, 3, y, y+1)
                 
                 keys = package.get_properties(ebuild).get_keywords()
-                x = 1
+                x = 2
                 for arch in archlist:
                     x += 1
                     if "".join(["~", arch]) in keys:
@@ -352,6 +353,7 @@ class Summary(gtk.TextView):
         def show_props(ebuild):
             # Check package.use to see if it applies to this ebuild at all
             package_use_flags = portage_lib.get_user_config('package.use', ebuild=ebuild)
+            #package_use_flags = backends.userconfigs.get_atom('USE', None, ebuild)
             utils.debug.dprint("SUMARY: update_package_info(); package_use_flags = %s" %str(package_use_flags))
             if package_use_flags != None and package_use_flags != []:
                 utils.debug.dprint("SUMARY: update_package_info(); adding package_use_flags to ebuild_use_flags")
@@ -561,7 +563,7 @@ class Summary(gtk.TextView):
         self.selected_ebuild = eventbox.ebuild
         self.selected_arch = eventbox.arch
         # moved these from is_root bit as we can sudo them now
-        if utils.is_root() or utils.can_gksu():
+        if utils.utils.is_root() or utils.utils.can_gksu():
             if '~' in eventbox.text:
                 self.popup_menuitems["add-keyword"].show()
             else: self.popup_menuitems["add-keyword"].hide()
@@ -579,7 +581,7 @@ class Summary(gtk.TextView):
             self.popup_menuitems["remove-keyword"].hide()
             self.popup_menuitems["package-unmask"].hide()
             self.popup_menuitems["un-package-unmask"].hide()
-        if utils.is_root():
+        if utils.utils.is_root():
             #if '~' in eventbox.text:
             #    self.popup_menuitems["add-keyword"].show()
             #else: self.popup_menuitems["add-keyword"].hide()
