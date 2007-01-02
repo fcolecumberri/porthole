@@ -563,7 +563,7 @@ class Summary(gtk.TextView):
         self.selected_ebuild = eventbox.ebuild
         self.selected_arch = eventbox.arch
         # moved these from is_root bit as we can sudo them now
-        if utils.utils.is_root() or utils.utils.can_gksu():
+        if utils.is_root() or utils.can_gksu():
             if '~' in eventbox.text:
                 self.popup_menuitems["add-keyword"].show()
             else: self.popup_menuitems["add-keyword"].hide()
@@ -581,7 +581,7 @@ class Summary(gtk.TextView):
             self.popup_menuitems["remove-keyword"].hide()
             self.popup_menuitems["package-unmask"].hide()
             self.popup_menuitems["un-package-unmask"].hide()
-        if utils.utils.is_root():
+        if utils.is_root():
             #if '~' in eventbox.text:
             #    self.popup_menuitems["add-keyword"].show()
             #else: self.popup_menuitems["add-keyword"].hide()
