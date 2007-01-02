@@ -421,7 +421,7 @@ def xmatch(*args, **kwargs):
        control-center                       ebuilds for gnome-base/control-center
        >=gnome-base/control-center-2.8.2    only ebuilds with version >= 2.8.2
     """
-    return portage.portdb.xmatch(*args, **kwargs)
+    return portage.portdb.xmatch(*args, **kwargs)[:] # make a copy.  needed for <portage-svn-r5382
 
 def get_version(ebuild):
     """Extract version number from ebuild name"""
@@ -437,16 +437,16 @@ def get_versions(full_name, include_masked = True):
     """Returns all available ebuilds for the package"""
     # Note: this is slow, especially when include_masked is false
     criterion = include_masked and 'match-all' or 'match-visible'
-    v = portage.portdb.xmatch(criterion, str(full_name))
+    v = xmatch(criterion, str(full_name))
     utils.debug.dprint("PORTAGELIB: get_versions(); criterion = %s, package = %s, v = %s" %(str(criterion),full_name,str(v)))
-    return  v #portage.portdb.xmatch(criterion, str(full_name))
+    return  v
 
 def get_hard_masked(full_name):
 	full_name = str(full_name)
 	hardmasked = []
 	try:
 		for x in portage.portdb.mysettings.pmaskdict[full_name]:
-			m = portage.portdb.xmatch("match-all",x)
+			m = xmatch("match-all",x)
 			for n in m:
 				if n not in hardmasked: hardmasked.append(n)
 	except KeyError:
@@ -454,7 +454,7 @@ def get_hard_masked(full_name):
 	hard_masked_nocheck = hardmasked[:]
 	try:
 		for x in portage.portdb.mysettings.punmaskdict[full_name]:
-			m = portage.portdb.xmatch("match-all",x)
+			m = xmatch("match-all",x)
 			for n in m:
 				while n in hardmasked: hardmasked.remove(n)
 	except KeyError:
@@ -501,7 +501,27 @@ def best(versions):
     return portage.best(versions)
 
 def get_best_ebuild(full_name):
-	return portage.portdb.xmatch("bestmatch-visible",str(full_name)) # no unicode
+	return xmatch("bestmatch-visible",str(full_name)) # no unicode
+
+def get_dep_ebuild(dep):
+    """progreesively checks for available ebuilds that match the dependency.
+    returns what it finds as up to three options."""
+    utils.debug.dprint("PORTAGELIB: get_dep_ebuild(); dep = " + dep)
+    best_ebuild = keyworded_ebuild = masked_ebuild = ''
+    best_ebuild = xmatch("bestmatch-visible", dep)
+    if best_ebuild == '':
+        utils.debug.dprint("PORTAGELIB: get_dep_ebuild(); checking masked packages")
+        full_name = split_atom_pkg(dep)[0]
+        hardmasked_nocheck, hardmasked = get_hard_masked(full_name)
+        matches = xmatch("match-all", dep)[:]
+        masked_ebuild = best(matches)
+        for m in matches:
+            if m in hardmasked:
+                matches.remove(m)
+        keyworded_ebuild = best(matches)
+    utils.debug.dprint("PORTAGELIB: get_dep_ebuild(); ebuilds = " + str([best_ebuild, keyworded_ebuild, masked_ebuild]))
+    return best_ebuild, keyworded_ebuild, masked_ebuild
+
 
 def get_archlist():
     """lists the architectures accepted by portage as valid keywords"""
