@@ -110,14 +110,13 @@ class Package:
         # taking into account keywords and masking, use get_best_ebuild().
         if self.full_name == "None":
             return ''
-        # next one was a pointer to portage's cache so removing masked ebuilds screwed things up
-        vers = self.get_versions()[:]  # make a local copy. portage fixed in svn r5382
-        utils.debug.dprint("PACKAGE: get_latest_ebuild(); versions: " + str(vers)) 
+        vers = self.get_versions()[:] # make a copy in case it is a pointer
+        #utils.debug.dprint("PACKAGE: get_latest_ebuild(); versions: " + str(vers)) 
         if include_masked:
-            utils.debug.dprint("PACKAGE: get_latest_ebuild(); trying portage_lib.best() of versions: " + str(vers)) 
+            #utils.debug.dprint("PACKAGE: get_latest_ebuild(); trying portage_lib.best() of versions: " + str(vers)) 
             return portage_lib.best(vers)
         if self.latest_ebuild == None:
-            utils.debug.dprint("PACKAGE: get_latest_ebuild(); checking hard masked vers = " + str(vers)) 
+            #utils.debug.dprint("PACKAGE: get_latest_ebuild(); checking hard masked vers = " + str(vers)) 
             for m in self.get_hard_masked(check_unmask = True):
                 while m in vers:
                     vers.remove(m)
@@ -131,7 +130,7 @@ class Package:
             return ''
         if self.best_ebuild == None or refresh:
             self.best_ebuild = portage_lib.get_best_ebuild(self.full_name)
-            utils.debug.dprint("PACKAGE: get_best_ebuild();  = " + str(self.best_ebuild)) 
+            #utils.debug.dprint("PACKAGE: get_best_ebuild();  = " + str(self.best_ebuild)) 
         return self.best_ebuild
 
     def get_default_ebuild(self):
@@ -211,9 +210,9 @@ class Package:
             return ''
         # Note: this is slow, especially when include_masked is false
         criterion = include_masked and 'match-all' or 'match-visible'
-        utils.debug.dprint("PACKAGE: get_versions(); criterion = %s, package = %s" %(str(criterion),self.full_name))
+        #utils.debug.dprint("PACKAGE: get_versions(); criterion = %s, package = %s" %(str(criterion),self.full_name))
         v = portage_lib.get_versions(self.full_name)
-        utils.debug.dprint("PACKAGE: get_versions(); v = " + str(v))
+        #utils.debug.dprint("PACKAGE: get_versions(); v = " + str(v))
         return v
 
     def get_hard_masked(self, check_unmask = False):
