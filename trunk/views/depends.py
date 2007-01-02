@@ -151,7 +151,7 @@ class DependsView(CommonTreeView):
         self.parents_name = ebuild
         # set column title to indicate which ebuild we're using
         utils.debug.dprint("DependsView: DependsView.fill_depends_tree(); ebuild = " + ebuild)
-        title = self.get_column(0).get_title()
+        #title = self.get_column(0).get_title()
         self.get_column(0).set_title(_("Dependencies") + ":  " + str(ebuild)) #package.get_default_ebuild()))
         self.model.fill_depends_tree(treeview, package, ebuild)
         self.model.foreach(self.populate_info)
@@ -166,23 +166,25 @@ class DependsView(CommonTreeView):
                     name = package.full_name
                     latest_installed = package.get_latest_installed()
                     utils.debug.dprint("DependsView: populate_info(); latest_installed: %s, getting best_ebuild" %str(latest_installed))
-                    best_ebuild = package.get_best_ebuild()
+                    best_ebuild, keyworded_ebuild, masked_ebuild = portage_lib.get_dep_ebuild(model.get_value(iter,model.column["depend"]))
                     #utils.debug.dprint("DependsView: populate_info(); best_ebuild: %s, getting latest_ebuild" %str(best_ebuild))
-                    latest_ebuild = package.get_latest_ebuild(False) # include_masked = False
-                    utils.debug.dprint("DependsView: populate_info(); latest_ebuild: %s" %str(latest_ebuild))
+                    #latest_ebuild = package.get_latest_ebuild(False) # include_masked = False
+                    #utils.debug.dprint("DependsView: populate_info(); latest_ebuild: %s" %str(latest_ebuild))
                     model.set_value(iter, model.column["installed"], portage_lib.get_version(latest_installed)) # installed
                     utils.debug.dprint("DependsView: populate_info(); model.latest_installed version = " + model.get_value(iter, model.column["installed"]))
                     keywords = ''
-                    if best_ebuild:
+                    if best_ebuild != '':
                         model.set_value(iter, model.column["latest"], portage_lib.get_version(best_ebuild)) #  recommended by portage
                         name = portage_lib.get_full_name(best_ebuild)
                         keywords = self.get_relevant_keywords(package, best_ebuild)
-                    elif latest_ebuild:
-                        model.set_value(iter, model.column["latest"], "(" + portage_lib.get_version(latest_ebuild) + ")") # latest
-                        name = portage_lib.get_full_name(latest_ebuild)
-                        keywords = self.get_relevant_keywords(package, latest_ebuild)
-                    else:
-                        model.set_value(iter, model.column["latest"], "masked") # hard masked - don't display
+                    elif keyworded_ebuild != '':
+                        model.set_value(iter, model.column["latest"], "(" + portage_lib.get_version(keyworded_ebuild) + ")") # latest
+                        name = portage_lib.get_full_name(keyworded_ebuild)
+                        keywords = self.get_relevant_keywords(package, keyworded_ebuild)
+                    elif masked_ebuild != '':
+                        model.set_value(iter, model.column["latest"], "M(" + portage_lib.get_version(masked_ebuild) + ")") # hard masked
+                        name = portage_lib.get_full_name(masked_ebuild)
+                        keywords = self.get_relevant_keywords(package, masked_ebuild)
                     if latest_installed:
                         name = portage_lib.get_full_name(latest_installed)
                     if "virtual" in name:
@@ -205,12 +207,14 @@ class DependsView(CommonTreeView):
         keywords = ''
         x = 1
         for arch in archlist:
-            if x > 1:
-                keywords = keywords + ", "
             if ("~" + arch) in keys:
+                if x > 1:
+                    keywords = keywords + ", "
                 keywords = keywords + "~" + arch
                 x += 1
             elif arch in keys:
+                if x > 1:
+                    keywords = keywords + ", "
                 keywords = keywords + arch
                 x += 1
         utils.debug.dprint("DependsView: get_relevant_keywords(); retuning keywords: " + keywords)
