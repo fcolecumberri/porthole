@@ -71,7 +71,7 @@ def is_root():
     """Returns true if process runs as root."""
     return os.geteuid() == 0
     
-write_access = is_root
+write_access = is_root()
 
 def read_access():
     """Return true if user is root or a member of the portage group."""
