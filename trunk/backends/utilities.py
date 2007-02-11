@@ -96,4 +96,26 @@ def get_sync_info():
     utils.debug.dprint("BACKENDS Utilities: get_sync_info(); last_sync = " + last_sync[:-1])
     return last_sync[:-1]
 
+def reduce_flags(flags):
+    """function to reduce a list of 'USE' flags to their final setting"""
+    myflags = []
+    for x in flags:
 
+        if x[0] == "+":
+            debug.dprint("USE flags should not start " + \
+                "with a '+': " + x)
+            x = x[1:]
+            if not x:
+                continue
+
+        if x[0] == "-":
+            try:
+                myflags.remove(x[1:])
+            except ValueError:
+                pass
+            #continue
+
+        if x not in myflags:
+            myflags.append(x)
+
+    return myflags
