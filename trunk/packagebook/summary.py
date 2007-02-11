@@ -31,8 +31,11 @@ from utils import utils
 import backends
 portage_lib = backends.portage_lib
 
+import db
 import config
+
 from backends.version_sort import ver_sort
+from backends.utilities import reduce_flags
 from loaders.loaders import load_web_page
 from gettext import gettext as _
 
@@ -60,6 +63,7 @@ class Summary(gtk.TextView):
         self.license_dir = "file://"+ portage_lib.portdir + "/licenses/"
         self.package = None
         self.ebuild = None
+        self.config_types = db.userconfigs.get_types()
 
         # Capture any mouse motion in this tab so we
         # can highlight URL links & change mouse pointer
@@ -180,7 +184,7 @@ class Summary(gtk.TextView):
             append(text, tag.get_property("name"))
 
         def nl(x=1):
-            """ Append a x new lines to the buffer """ 
+            """ Append x new lines to the buffer """ 
             append("\n"*x)
 
         def show_vnums(ebuilds, show_all=False):
@@ -330,8 +334,7 @@ class Summary(gtk.TextView):
             iter = self.buffer.get_end_iter()
             anchor = self.buffer.create_child_anchor(iter)
             self.add_child_at_anchor(tablebox, anchor)
-            nl()
-            nl()
+            nl(2)
             
         def boxify(label, color=None, ebuild=None, arch=None, text=None):
             box = gtk.EventBox()
@@ -352,12 +355,12 @@ class Summary(gtk.TextView):
 
         def show_props(ebuild):
             # Check package.use to see if it applies to this ebuild at all
-            package_use_flags = portage_lib.get_user_config('package.use', ebuild=ebuild)
-            #package_use_flags = backends.userconfigs.get_atom('USE', None, ebuild)
+            package_use_flags = db.userconfigs.get_user_config('USE', ebuild=ebuild)
+            #package_use_flags = db.userconfigs.get_useflags(ebuild)
             utils.debug.dprint("SUMARY: update_package_info(); package_use_flags = %s" %str(package_use_flags))
             if package_use_flags != None and package_use_flags != []:
                 utils.debug.dprint("SUMARY: update_package_info(); adding package_use_flags to ebuild_use_flags")
-                ebuild_use_flags = system_use_flags + package_use_flags
+                ebuild_use_flags = reduce_flags(system_use_flags + package_use_flags)
             else:
                 utils.debug.dprint("SUMARY: update_package_info(); adding only system_use_flags to ebuild_use_flags")
                 ebuild_use_flags = system_use_flags
@@ -366,16 +369,17 @@ class Summary(gtk.TextView):
                 append(_("Use flags: "), "property")
                 first_flag = True
                 for flag in use_flags:
+                    ## this next commented out block is due to the new reduce_flags function, so it is no longer needed
                     # Check to see if flag applies:
-                    if flag in ebuild_use_flags and '-' + flag in ebuild_use_flags:
+                    #if flag in ebuild_use_flags and '-' + flag in ebuild_use_flags:
                         # check to see which comes last (this will be the applicable one)
-                        ebuild_use_flags.reverse()
-                        if ebuild_use_flags.index(flag) < ebuild_use_flags.index('-' + flag):
-                            flag_active = True
-                        else:
-                            flag_active = False
-                        ebuild_use_flags.reverse()
-                    elif flag in ebuild_use_flags:
+                        #ebuild_use_flags.reverse()  # no longer needed
+                        #if ebuild_use_flags.index(flag) # < ebuild_use_flags.index('-' + flag):
+                        #    flag_active = True
+                        #else: # ebuild_use_flags.index('-' + flag):
+                        #    flag_active = False
+                        #ebuild_use_flags.reverse()
+                    if flag in ebuild_use_flags:
                         flag_active = True
                     else:
                         flag_active = False
@@ -415,6 +419,24 @@ class Summary(gtk.TextView):
                         append_url(license, self.license_dir + license, "blue")
                         x += 1
                 nl()
+        
+        def show_configs(ebuild):
+            append(_("User Configs: "), "property")
+            nl()
+            for type in self.config_types:
+                append('\t' + type + ': ', "property")
+                config_atoms = db.userconfigs.get_atom(type, None, ebuild)
+                if len(config_atoms):
+                    line = 0
+                    for atom in config_atoms:
+                        if line > 0:
+                            append('\t\t\t   ', "property")
+                        append(str(atom), "value")
+                        nl()
+                        line += 1
+                else:
+                    append(_("None"))
+                    nl()
 
         # End supporting internal functions
         ####################################
@@ -441,8 +463,9 @@ class Summary(gtk.TextView):
         hardmasked = package.get_hard_masked()
         #keyword_unmasked = portage_lib.get_keyword_unmasked_ebuilds(
         #                    archlist=self.archlist, full_name=package.full_name)
-        keyword_unmasked = portage_lib.get_user_config('package.keywords', name=package.full_name)
-        package_unmasked = portage_lib.get_user_config('package.unmask', name=package.full_name)
+        utils.debug.dprint("SUMMARY: get package info, name = " + package.full_name)
+        keyword_unmasked = db.userconfigs.get_user_config('KEYWORDS', name=package.full_name)
+        package_unmasked = db.userconfigs.get_user_config('UNMASK', name=package.full_name)
         
         best = portage_lib.best(installed + nonmasked)
         #utils.debug.dprint("SUMMARY: best = %s" %best)
@@ -531,6 +554,8 @@ class Summary(gtk.TextView):
         append(portage_lib.get_version(self.ebuild))
         nl(2)
         show_props(self.ebuild)
+        nl()
+        show_configs(self.ebuild)
 
     def on_button_press(self, summaryview, event):
         """Button press callback for Summary.
