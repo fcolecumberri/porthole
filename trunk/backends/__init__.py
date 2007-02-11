@@ -30,7 +30,7 @@ print "PORTAGE setting = ", config.Prefs.PORTAGE
 #import portagelib as portage_lib
 portage_lib = my_import(config.Prefs.PORTAGE)
 
-print "import complete :", portage_lib
+print "BACKENDS: portage_lib import complete :", portage_lib
 
 del config
 del my_import
