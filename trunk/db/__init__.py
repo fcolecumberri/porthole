@@ -25,7 +25,11 @@
 from database import Database, NEW, LOAD, SAVE
 from dbreader import DatabaseReader
 from utils.dispatcher import Dispatcher
+from user_configs import UserConfigs
 
 db = Database(LOAD)
 
+#print "DB: load user configs"
+userconfigs = UserConfigs(True)
 
+#print str(userconfigs.db)
