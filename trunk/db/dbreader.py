@@ -108,9 +108,9 @@ class DatabaseReader(threading.Thread):
                 count = 0
             count += self.add_pkg(entry, depricated=True)
 
-        utils.debug.dprint("PKGCORE_LIB: read_db(); end of list build; count = %d nodecount = %d" %(count,self.nodecount))
+        utils.debug.dprint("DBREADER: read_db(); end of list build; count = %d nodecount = %d" %(count,self.nodecount))
         self.nodecount += count
-        utils.debug.dprint("PKGCORE_LIB: read_db(); end of list build; final nodecount = %d categories = %d sort is next" \
+        utils.debug.dprint("DBREADER: read_db(); end of list build; final nodecount = %d categories = %d sort is next" \
                 %(self.nodecount, len(self.db.categories)))
         #utils.debug.dprint(self.db)
         self.db.list = self.sort(self.db.list)
