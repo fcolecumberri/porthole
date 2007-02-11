@@ -139,6 +139,8 @@ class MainWindow:
         self.set_statusbar2("Starting")
         # aliases for convenience
         self.mainwindow = self.wtree.get_widget("main_window")
+        # save the mainwindow widget to Config for use by other modules as a parent window
+        config.Mainwindow = self.mainwindow
         callbacks = {
             "summary_callback" : self.summary_callback,
             "re_init_portage" : self.re_init_portage,
