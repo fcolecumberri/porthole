@@ -50,6 +50,7 @@
     <emerge>^&gt;&gt;&gt; emerge [^/]</emerge>
     <ebuild>^\d+\s+\[ebuild.*</ebuild>
     <merged>merged.$</merged>
+    <unmerged>^\*\*\* Unmerging</unmerged>
     <needaction py_type="list" item_count="6">
       <needaction-1>^ \* .*emerge</needaction-1>
       <needaction-2>^ \* .*echo</needaction-2>
