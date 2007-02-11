@@ -28,3 +28,4 @@ from configuration import PortholeConfiguration
 
 Prefs = None # initialize, then create the real one from the porthole startup script PortholePreferences()
 Config = PortholeConfiguration()
+Mainwindow = None # initialize then update from mainwindow on window creation. Used as a parent window for dialogs
