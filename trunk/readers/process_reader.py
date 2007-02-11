@@ -110,9 +110,9 @@ class ProcessOutputReader(threading.Thread):
                     if self.file_input:
                         self.file_input = False
                     else:
-                        gtk.threads_enter()
+                        gtk.gdk.threads_enter()
                         self.dispatcher()
-                        gtk.threads_leave()
+                        gtk.gdk.threads_leave()
             else:
                 # sleep for .5 seconds before we check again
                 if time:
