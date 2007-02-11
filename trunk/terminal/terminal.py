@@ -613,6 +613,15 @@ class ProcessManager:
                                     self.do_callback()
                                     self.callback_armed = False
                         
+                        #~ if config.Config.isUnmerge(self.line_buffer):
+                            #~ tag = 'emerge'
+                            #~ if not self.file_input:
+                                #~ self.set_statusbar(self.line_buffer[:-1])
+                                #~ self.resume_line = self.line_buffer
+                                #~ if self.callback_armed:
+                                    #~ self.do_callback()
+                                    #~ self.callback_armed = False
+                        
                         elif config.Config.isAction(self.line_buffer):
                             if not self.term.tab_showing[TAB_INFO]:
                                 self.term.show_tab(TAB_INFO)
