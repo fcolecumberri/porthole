@@ -57,7 +57,7 @@ if is_root(): # then import some modules and run it directly
     import set_config
 
 def get_user_config(file, name=None, ebuild=None):
-    """
+    """ depricated function. this is now part of the db.user_configs module
     Function for parsing package.use, package.mask, package.unmask
     and package.keywords.
     
@@ -70,7 +70,7 @@ def get_user_config(file, name=None, ebuild=None):
     For package.use/keywords, a list of applicable flags is returned.
     For package.mask/unmask, a list containing the matching lines is returned.
     """
-    utils.debug.dprint("PORTAGELIB: get_user_config('%s')" % file)
+    utils.debug.dprint("PORTAGELIB: DEPRICATED FUNCTION! get_user_config('%s'), PLEASE update the code calling this function to use db.userconfigs.get_user_config()" % file)
     maskfiles = ['package.mask', 'package.unmask']
     otherfiles = ['package.use', 'package.keywords']
     package_files = otherfiles + maskfiles
@@ -312,21 +312,24 @@ def split_atom_pkg( pkg ):
     utils.debug.dprint("PORTAGELIB: split_atom_pkg(); pkg = " +pkg)
     atoms = []
     version = ''
-    if pkg.endswith("*"): pkg = pkg[:-1]
+    ver_suffix = ''
+    if pkg.endswith("*"):
+        pkg = pkg[:-1]
+        ver_suffix = '*'
+    while pkg[0] in ["<",">","=","!","*"]:
+        utils.debug.dprint("PORTAGELIB: split_atom_pkg(); pkg = " + str(pkg))
+        atoms.append(pkg[0])
+        pkg = pkg[1:]
     cplist = portage.catpkgsplit(pkg) or portage.catsplit(pkg)
     utils.debug.dprint("PORTAGELIB: split_atom_pkg(); cplist = " + str(cplist))
     if not cplist or len(cplist) < 2:
         utils.debug.dprint("PORTAGELIB split_atom_pkg(): issues with '%s'" % pkg)
         return ['', '', '']
     cp = cplist[0] + "/" + cplist[1]
-    while cp[0] in ["<",">","=","!","*"]:
-        utils.debug.dprint("PORTAGELIB: split_atom_pkg(); cp = " + str(cp))
-        atoms.append(cp[0])
-        cp = cp[1:]
     utils.debug.dprint("PORTAGELIB: split_atom_pkg(); cplist2 = " + str(cplist))
     if cplist:
         if len(cplist) >2:
-            version = cplist[2]
+            version = cplist[2] + ver_suffix
         if len(cplist) >3 and cplist[3] != 'r0':
             version += '-' + cplist[3]
     return [str(cp), ''.join(atoms), version] # hmm ... unicode keeps appearing :(
@@ -394,14 +397,17 @@ def get_category(full_name):
 
 def get_full_name(ebuild):
     """Extract category/package from some ebuild identifier"""
-    if ebuild.endswith("*"): ebuild = ebuild[:-1]
-    cplist = portage.catpkgsplit(ebuild) or portage.catsplit(ebuild)
-    if not cplist or len(cplist) < 2:
-        utils.debug.dprint("PORTAGELIB get_full_name(): issues with '%s'" % ebuild)
-        return ''
-    cp = cplist[0] + "/" + cplist[1]
-    while cp[0] in ["<",">","=","!","*","~"]: cp = cp[1:]
-    return str(cp) # hmm ... unicode keeps appearing :(
+    return split_atom_pkg(ebuild)[0]
+    # portage.catpkgsplit now pukes when it gets atoms
+    ## depricated
+    ##if ebuild.endswith("*"): ebuild = ebuild[:-1]
+    ##cplist = portage.catpkgsplit(ebuild) or portage.catsplit(ebuild)
+    ##if not cplist or len(cplist) < 2:
+    ##    utils.debug.dprint("PORTAGELIB get_full_name(): issues with '%s'" % ebuild)
+    ##    return ''
+    ##cp = cplist[0] + "/" + cplist[1]
+    ##while cp[0] in ["<",">","=","!","*","~"]: cp = cp[1:]
+    ##return str(cp) # hmm ... unicode keeps appearing :(
 
 def get_installed(package_name):
     """Extract installed versions from package_name.
@@ -642,7 +648,7 @@ def get_system_pkgs(): # lifted from gentoolkit
 	for x in pkglist:
 		cpv = x.strip()
 		if len(cpv) and cpv[0] == "*":
-			pkg = find_best_match(cpv)
+			pkg = find_best_match(cpv[1:])
 			if pkg:
 				resolved.append(get_full_name(pkg))
 			else:
@@ -650,13 +656,15 @@ def get_system_pkgs(): # lifted from gentoolkit
 	return (resolved + unresolved)
 
 
-def find_best_match(search_key): # lifted from gentoolkit
+def find_best_match(search_key): # lifted from gentoolkit and updated
     """Returns a Package object for the best available installed candidate that
     matched the search key. Doesn't handle virtuals perfectly"""
     # FIXME: How should we handle versioned virtuals??
-    cat,pkg,ver,rev = split_package_name(search_key)
-    if cat == "virtual":
-        t = portage.db["/"]["vartree"].dep_bestmatch(cat+"/"+pkg)
+    #cat,pkg,ver,rev = split_package_name(search_key)
+    full_name = split_atom_pkg(search_key)[0]
+    if "virtual" == get_category(full_name):
+        #t= get_virtual_dep(search_key)
+        t = portage.db["/"]["vartree"].dep_bestmatch(full_name)
     else:
         t = portage.db["/"]["vartree"].dep_bestmatch(search_key)
     if t:
@@ -666,19 +674,20 @@ def find_best_match(search_key): # lifted from gentoolkit
     return None
 
 def split_package_name(name): # lifted from gentoolkit, handles vituals for find_best_match()
-	"""Returns a list on the form [category, name, version, revision]. Revision will
-	be 'r0' if none can be inferred. Category and version will be empty, if none can
-	be inferred."""
-	r = portage.catpkgsplit(name)
-	if not r:
-		r = name.split("/")
-		if len(r) == 1:
-			return ["", name, "", "r0"]
-		else:
-			return r + ["", "r0"]
-	if r[0] == 'null':
-		r[0] = ''
-	return r
+    """Returns a list on the form [category, name, version, revision]. Revision will
+    be 'r0' if none can be inferred. Category and version will be empty, if none can
+    be inferred."""
+    utils.debug.dprint(" * PORTAGELIB: split_package_name() name = " + name)
+    r = portage.catpkgsplit(name)
+    if not r:
+        r = name.split("/")
+        if len(r) == 1:
+            return ["", name, "", "r0"]
+        else:
+            return r + ["", "r0"]
+    if r[0] == 'null':
+        r[0] = ''
+    return r
 
 def get_allnodes():
     return portage.db['/']['porttree'].getallnodes()[:] # copy
