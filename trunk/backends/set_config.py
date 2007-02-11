@@ -43,7 +43,7 @@ def dprint(message):
     if debug:
         print message
 
-def set_user_config(file, name='', ebuild='', add=[], remove=[]):
+def set_user_config(filename, name='', ebuild='', add=[], remove=[]):
     """
     Adds <name> or '=' + <ebuild> to <file> with flags <add>.
     If an existing entry is found, items in <remove> are removed and <add> is added.
@@ -52,18 +52,18 @@ def set_user_config(file, name='', ebuild='', add=[], remove=[]):
     remove are removed, and items in <add> are added as new lines.
     """
     dprint("SET_CONFIG: set_user_config(): '%s'" % file)
-    maskfiles = ['package.mask', 'package.unmask']
-    otherfiles = ['package.use', 'package.keywords']
-    package_files = otherfiles + maskfiles
-    if file not in package_files:
-        dprint(" * SET_CONFIG: unsupported config file '%s'" % file)
-        return False
+    #maskfiles = ['package.mask', 'package.unmask']
+    #otherfiles = ['package.use', 'package.keywords']
+    #package_files = otherfiles + maskfiles
+    #if file not in package_files:
+    #    dprint(" * SET_CONFIG: unsupported config file '%s'" % file)
+    #    return False
     config_path = portage_const.USER_CONFIG_PATH
     if not os.access(config_path, os.W_OK):
         dprint(" * SET_CONFIG: get_user_config(): no write access to '%s'. " \
               "Perhaps the user is not root?" % config_path)
         return False
-    filename = '/'.join([config_path, file])
+    #filename = '/'.join([config_path, file])
     if os.access(filename, os.F_OK): # if file exists
         configfile = open(filename, 'r')
         configlines = configfile.readlines()
@@ -297,9 +297,7 @@ if __name__ == "__main__":
             replace = arg
             dprint("replace = %s" % str(replace))
     
-    if file in ['package.use', 'package.keywords', 'package.mask', 'package.unmask']:
-        set_user_config(file, name, ebuild, add, remove)
-    elif file in ['make.conf']:
+    if file in ['make.conf']:
         set_make_conf(property, add, remove, replace)
     else:
-        print(" * SET_CONFIG: filename '%s' not supported!" % file)
+        set_user_config(file, name, ebuild, add, remove)
