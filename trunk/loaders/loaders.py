@@ -70,6 +70,8 @@ def load_textfile(view, package, mode, version = None):
                 installed = package.get_installed()
                 versions = package.get_versions()
                 nonmasked = package.get_versions(include_masked = False)
+                if package.depricated or mode == "installed_ebuild":
+                    ebuild_path = portage_lib.get_vdb
                 if mode == "best_ebuild":
                     best = portage_lib.best(installed + nonmasked)
                     if best == "": # all versions are masked and the package is not installed
@@ -91,6 +93,7 @@ def load_textfile(view, package, mode, version = None):
                     try:
                         f = open(portage_lib.portdir + package_file)
                     except:
+                        # need to add multiple overlay support
                         f = open(portage_lib.portdir_overlay + package_file)
                 elif portage_lib.is_overlay(ebuild):
                     utils.debug.dprint("LOADERS: load_textfile(); loading from an overlay")
