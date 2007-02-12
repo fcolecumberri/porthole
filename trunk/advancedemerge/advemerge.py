@@ -33,6 +33,7 @@ import backends
 portage_lib = backends.portage_lib
 
 import config
+import db
 from backends.version_sort import ver_sort
 from loaders.loaders import load_web_page
 from utils.dispatcher import Dispatcher
@@ -51,7 +52,7 @@ class AdvancedEmergeDialog:
         self.system_use_flags = portage_lib.SystemUseFlags
         self.emerge_unmerge = "emerge"
         self.is_root = utils.utils.is_root()
-        self.package_use_flags = portage_lib.get_user_config('package.use', package.full_name)
+        self.package_use_flags = db.userconfigs.get_user_config('USE', package.full_name)
         self.current_verInfo = None
         
         # Parse glade file
@@ -285,8 +286,8 @@ class AdvancedEmergeDialog:
                 removelist.append(item[1:])
             else:
                 removelist.append('-' + item)
-        okay = portage_lib.set_user_config('package.use', name=self.package.full_name, add=addlist,
-                                                                remove=removelist, callback=self.reload )
+        okay = db.userconfigs.set_user_config('USE', name=self.package.full_name, add=addlist,
+                                                                remove=removelist, callback=self.reload, parent_window = self.window )
     
     def on_make_conf_commit(self, button_widget):
         utils.debug.dprint("ADVEMERGE: on_make_conf_commit()")
@@ -301,8 +302,8 @@ class AdvancedEmergeDialog:
                 removelist.append('-' + item)
         # set_user_config must be performed after set_make_conf has finished or we get problems.
         # we need to set package.use in case the flag was set there originally!
-        package_use_callback = Dispatcher( portage_lib.set_user_config,\
-                'package.use', self.package.full_name, '', '', removelist, self.reload )
+        package_use_callback = Dispatcher( db.userconfigs.set_user_config,\
+                'USE', self.package.full_name, '', '', removelist, self.reload )
         portage_lib.set_make_conf('USE', add=addlist, remove=removelist, callback=package_use_callback )
     
     def on_package_keywords_commit(self, button_widget):
@@ -316,7 +317,7 @@ class AdvancedEmergeDialog:
             removelist = ["-" + keyword]
         verInfo = self.current_verInfo
         ebuild = verInfo["name"]
-        okay = portage_lib.set_user_config('package.keywords', ebuild=ebuild, add=addlist, remove=removelist, callback=self.reload)
+        okay = db.userconfigs.set_user_config('package.keywords', ebuild=ebuild, add=addlist, remove=removelist, callback=self.reload)
     
     #------------------------------------------
     # Support function definitions start here
@@ -336,7 +337,7 @@ class AdvancedEmergeDialog:
         # Remove properties object so everything's recalculated
         self.package.properties.pop(ebuild, None)
         self.system_use_flags = portage_lib.SystemUseFlags
-        self.package_use_flags = portage_lib.get_user_config('package.use', self.package.full_name)
+        self.package_use_flags = db.userconfigs.get_user_config('USE', self.package.full_name)
         #utils.debug.dprint(self.package_use_flags)
         
         self.current_verInfo = None
