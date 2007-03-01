@@ -991,8 +991,8 @@
 		      <property name="pixels_above_lines">0</property>
 		      <property name="pixels_below_lines">0</property>
 		      <property name="pixels_inside_wrap">0</property>
-		      <property name="left_margin">0</property>
-		      <property name="right_margin">0</property>
+		      <property name="left_margin">10</property>
+		      <property name="right_margin">10</property>
 		      <property name="indent">0</property>
 		      <property name="text" translatable="yes"></property>
 		    </widget>
@@ -1049,8 +1049,8 @@
 		      <property name="pixels_above_lines">0</property>
 		      <property name="pixels_below_lines">0</property>
 		      <property name="pixels_inside_wrap">0</property>
-		      <property name="left_margin">0</property>
-		      <property name="right_margin">0</property>
+		      <property name="left_margin">10</property>
+		      <property name="right_margin">10</property>
 		      <property name="indent">0</property>
 		      <property name="text" translatable="yes"></property>
 		    </widget>
@@ -1107,8 +1107,8 @@
 		      <property name="pixels_above_lines">0</property>
 		      <property name="pixels_below_lines">0</property>
 		      <property name="pixels_inside_wrap">0</property>
-		      <property name="left_margin">0</property>
-		      <property name="right_margin">0</property>
+		      <property name="left_margin">10</property>
+		      <property name="right_margin">10</property>
 		      <property name="indent">0</property>
 		      <property name="text" translatable="yes"></property>
 		    </widget>
@@ -1989,8 +1989,8 @@ Copyright (C) 2003 - 2005</property>
 			  <property name="pixels_above_lines">0</property>
 			  <property name="pixels_below_lines">0</property>
 			  <property name="pixels_inside_wrap">0</property>
-			  <property name="left_margin">0</property>
-			  <property name="right_margin">0</property>
+			  <property name="left_margin">10</property>
+			  <property name="right_margin">10</property>
 			  <property name="indent">0</property>
 			  <property name="text" translatable="yes"></property>
 			  <signal name="key_press_event" handler="on_process_text_key_press_event" last_modification_time="Tue, 14 Jun 2005 10:52:05 GMT"/>
@@ -2161,8 +2161,8 @@ Copyright (C) 2003 - 2005</property>
 			  <property name="pixels_above_lines">0</property>
 			  <property name="pixels_below_lines">0</property>
 			  <property name="pixels_inside_wrap">0</property>
-			  <property name="left_margin">0</property>
-			  <property name="right_margin">0</property>
+			  <property name="left_margin">10</property>
+			  <property name="right_margin">10</property>
 			  <property name="indent">0</property>
 			  <property name="text" translatable="yes"></property>
 			</widget>
@@ -2251,8 +2251,8 @@ Copyright (C) 2003 - 2005</property>
 			  <property name="pixels_above_lines">0</property>
 			  <property name="pixels_below_lines">0</property>
 			  <property name="pixels_inside_wrap">0</property>
-			  <property name="left_margin">0</property>
-			  <property name="right_margin">0</property>
+			  <property name="left_margin">10</property>
+			  <property name="right_margin">10</property>
 			  <property name="indent">0</property>
 			  <property name="text" translatable="yes"></property>
 			</widget>
@@ -2341,8 +2341,8 @@ Copyright (C) 2003 - 2005</property>
 			  <property name="pixels_above_lines">0</property>
 			  <property name="pixels_below_lines">0</property>
 			  <property name="pixels_inside_wrap">0</property>
-			  <property name="left_margin">0</property>
-			  <property name="right_margin">0</property>
+			  <property name="left_margin">10</property>
+			  <property name="right_margin">10</property>
 			  <property name="indent">0</property>
 			  <property name="text" translatable="yes"></property>
 			</widget>
