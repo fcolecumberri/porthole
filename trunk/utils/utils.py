@@ -199,7 +199,7 @@ def estimate(package_name, log_file_name="/var/log/emerge.log"):
 def pretend_check(command_string):
     isPretend = (sre.search("--pretend", command_string) != None)
     if not isPretend:
-        tmpcmdline = command_string.split()
+        tmpcmdline = command_string.replace('sudo -p "Password: "', "").split()
         #debug.dprint(tmpcmdline)
         for x in tmpcmdline:
             if x[0:1]=="-"and x[1:2]!="-":
