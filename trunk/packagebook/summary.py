@@ -709,34 +709,34 @@ class Summary(gtk.TextView):
     def add_keyword_ebuild(self, menuitem_widget):
         arch = "~" + portage_lib.get_arch()
         ebuild = self.selected_ebuild
-        portage_lib.set_user_config('package.keywords', ebuild=ebuild, add=arch, callback=self.update_callback)
+        db.userconfigs.set_user_config('KEYWORDS', ebuild=ebuild, add=arch, callback=self.update_callback)
 
     def add_keyword(self, widget):
         arch = "~" + portage_lib.get_arch()
         name = self.package.full_name
         string = name + " " + arch + "\n"
         utils.debug.dprint("Summary: Package view add_keyword(); %s" %string)
-        portage_lib.set_user_config('package.keywords', name=name, add=arch, callback=self.update_callback)
+        db.userconfigs.set_user_config('KEYWORDS', name=name, add=arch, callback=self.update_callback)
 
     def remove_keyword_ebuild(self, menuitem_widget):
         arch = "~" + portage_lib.get_arch()
         ebuild = self.selected_ebuild
-        portage_lib.set_user_config('package.keywords', ebuild=ebuild, remove=arch, callback=self.update_callback)
+        db.userconfigs.set_user_config('KEYWORDS', ebuild=ebuild, remove=arch, callback=self.update_callback)
 
     def remove_keyword(self, menuitem_widget):
         arch = "~" + portage_lib.get_arch()
         name = self.package.full_name
         string = name + " " + arch + "\n"
         utils.debug.dprint("Summary: Package view remove_keyword(); %s" %string)
-        portage_lib.set_user_config('package.keywords', name=name, remove=arch, callback=self.update_callback)
+        db.userconfigs.set_user_config('KEYWORDS', name=name, remove=arch, callback=self.update_callback)
     
     def package_unmask(self, menuitem_widget):
         ebuild = "=" + self.selected_ebuild
-        portage_lib.set_user_config('package.unmask', add=ebuild, callback=self.update_callback)
+        db.userconfigs.set_user_config('UNMASK', add=ebuild, callback=self.update_callback)
     
     def un_package_unmask(self, menuitem_widget):
         ebuild = "=" + self.selected_ebuild
-        portage_lib.set_user_config('package.unmask', remove=ebuild, callback=self.update_callback)
+        db.userconfigs.set_user_config('UNMASK', remove=ebuild, callback=self.update_callback)
     
     def show_version(self, menuitem_widget):
         ebuild =  self.selected_ebuild
