@@ -75,6 +75,14 @@ class ConfigAtom:
             _acpv = _acpv + '-'+ self.version
         return _acpv
 
+    def update(self, new):
+        self.name = new.name
+        self.type = new.type
+        self.version = new.version
+        self.atoms = new.atoms
+        self.value = new.value
+        self.file = new.file
+
 class UserConfigs:
     """get and store all user configs data"""
     
@@ -97,9 +105,9 @@ class UserConfigs:
                     self.load(os.path.join(myfilename, f), recursive)
         else:
             lines = read_bash(myfilename)
-            self.atomize(lines, myfilename)
+            self.atomize(lines, myfilename, self.db)
 
-    def atomize(self, lines, source):
+    def atomize(self, lines, source, db = None):
         """takes a list of items and creates db records of the package and values"""
         type = get_type(source)
         utils.debug.dprint("USER_CONFIGS: atomize(); type = " + type)
@@ -113,10 +121,16 @@ class UserConfigs:
             atom.type = type
             atom.value = values[1:]
             utils.debug.dprint("USER_CONFIGS: atomize(); new atom: " + str(atom.name))
-            if name in self.db[type]:
-                self.db[type][name].append(atom)
+            # index by name
+            if name in db[type]:
+                db[type][name].append(atom)
             else:
-                self.db[type][name] = [atom]
+                db[type][name] = [atom]
+            # index by source
+            if source in db[type]:
+                db[type][source].append(atom)
+            else:
+                db[type][source] = [atom]
 
     def get_atom(self, type, name = None, ebuild = None):
         """searches for a package name and or ebuild version
@@ -243,14 +257,17 @@ class UserConfigs:
         # get an existing atom if one exists.  pass both name and ebuild, no need to check which one, I think
         atom = self.get_atom(type, name, ebuild)
         if atom == None or atom == []: # get a target file
-            target = CONFIG_FILES[CONFIG_TYPES.index(type)]
-            target_path = os.path.join(portage_lib.user_config_dir,file)
-            if os.path.isdir(file): # Then bring up a file selector dialog
+            file = target = CONFIG_FILES[CONFIG_TYPES.index(type)]
+            target_path = os.path.join(portage_lib.user_config_dir, target)
+            if os.path.isdir(target_path): # Then bring up a file selector dialog
                 if parent_window == None:
                     parent_window = config.Mainwindow
                 file_picker = FileSelector(parent_window, target_path)
-                file = file_picker.get_filename(_("Porthole: Please select the %s file to use for adding/changing %s") \
-                                                                %(target, atom.name))
+                file = file_picker.get_filename(_("Porthole: Please select the %s file to use") \
+                                                                %(target))
+                file = os.path.join(target_path, file)
+            else:
+                file = target_path
             utils.debug.dprint("USER_CONFIGS: set_user_config(): got a filename :) file = " + file)
 
         else: # found one
@@ -278,7 +295,7 @@ class UserConfigs:
             command = ' '.join(commandlist) + '"'
             utils.debug.dprint(" * USER_CONFIGS: set_user_config(): command = %s" %command )
             # add code to update_config()
-            if not callback: callback = reload_portage
+            if not callback: callback = portage_lib.reload_portage
             app = SimpleTerminal(command, False, dprint_output='SET_USER_CONFIG CHILD APP: ', callback=Dispatcher(callback))
             app._run()
         else:
@@ -286,7 +303,9 @@ class UserConfigs:
             remove = remove.split()
             set_config.set_user_config(file, name, ebuild, add, remove)
             if callback: callback()
-            else: reload_portage()
+            else:
+                self.reload_file(type, file)
+                portage_lib.reload_portage()
         # This is slow, but otherwise portage doesn't notice the change.
         #reload_portage()
         # Note: could perhaps just update portage.settings.
@@ -294,3 +313,35 @@ class UserConfigs:
         # or portage.portdb.mysettings ?
         return True
 
+    def reload_file(type, file):
+        """reload a config file due to changes"""
+        utils.debug.dprint(" * USER_CONFIGS: reload_file(): type = " + type + ",file = " + file )
+        return # for now
+        # load the file to a temp_db
+        temp_db = {}
+        lines = read_bash(myfilename)
+        self.atomize(lines, myfilename, temp_db)
+        # get all atoms matching the correct file
+        old_file_atoms = self.db[type][file]
+        # process the new temp_db's atoms
+        for old_atom in old_file_atoms:
+            # now look for a new atom
+            if old_atom.name in temp_db[type]:
+                new = temp_db[type][old_atom.name]
+            else:
+                new = []
+                # atom was removed from the file, delete it
+            oldlength = len(old_atom)
+            newlength = len(new)
+            if oldlength == 1: # just update it
+                old_atom[0].update(new)
+            else: # look for a match in the list
+                for atom in old_atoms:
+                    if atom.name == new[0].name:
+                        if newlength == 1:
+                            atom.update(new[0])
+                    else:
+                        pass # for now  <=== Fix me
+            if length == 0: # a new entry
+                self.db[type][new_atom.name] = [new_atom]
+                        
