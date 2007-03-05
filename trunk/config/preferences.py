@@ -324,8 +324,15 @@ class PortholePreferences:
             for option, value in New_prefs:
                 setattr(self, option, value)
         
-        
-        self.PLUGIN_DIR = self.DATA_PATH + 'plugins/' # could add more dirs later
+        if self.DATA_PATH == '/usr/share/porthole/': # installed version running
+            import sys
+            while a in sys.path: # find our installed location
+                if a.split('/')[-1] == 'site-packages':
+                    self.PACKAGE_DIR = a + '/porthole/'
+                    break
+        else:
+            self.PACKAGE_DIR = self.DATA_PATH
+        self.PLUGIN_DIR = self.PACKAGE_DIR + 'plugins/' # could add more dirs later
         utils.debug.dprint("UTILS: PortholePreferences; PLUGIN_DIR = %s" %self.PLUGIN_DIR)
         self.plugins = OptionsClass()
         try:
