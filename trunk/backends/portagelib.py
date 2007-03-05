@@ -317,16 +317,16 @@ def split_atom_pkg( pkg ):
         pkg = pkg[:-1]
         ver_suffix = '*'
     while pkg[0] in ["<",">","=","!","*"]:
-        utils.debug.dprint("PORTAGELIB: split_atom_pkg(); pkg = " + str(pkg))
+        #utils.debug.dprint("PORTAGELIB: split_atom_pkg(); pkg = " + str(pkg))
         atoms.append(pkg[0])
         pkg = pkg[1:]
     cplist = portage.catpkgsplit(pkg) or portage.catsplit(pkg)
-    utils.debug.dprint("PORTAGELIB: split_atom_pkg(); cplist = " + str(cplist))
+    #utils.debug.dprint("PORTAGELIB: split_atom_pkg(); cplist = " + str(cplist))
     if not cplist or len(cplist) < 2:
         utils.debug.dprint("PORTAGELIB split_atom_pkg(): issues with '%s'" % pkg)
         return ['', '', '']
     cp = cplist[0] + "/" + cplist[1]
-    utils.debug.dprint("PORTAGELIB: split_atom_pkg(); cplist2 = " + str(cplist))
+    #utils.debug.dprint("PORTAGELIB: split_atom_pkg(); cplist2 = " + str(cplist))
     if cplist:
         if len(cplist) >2:
             version = cplist[2] + ver_suffix
@@ -444,7 +444,7 @@ def get_versions(full_name, include_masked = True):
     # Note: this is slow, especially when include_masked is false
     criterion = include_masked and 'match-all' or 'match-visible'
     v = xmatch(criterion, str(full_name))
-    utils.debug.dprint("PORTAGELIB: get_versions(); criterion = %s, package = %s, v = %s" %(str(criterion),full_name,str(v)))
+    #utils.debug.dprint("PORTAGELIB: get_versions(); criterion = %s, package = %s, v = %s" %(str(criterion),full_name,str(v)))
     return  v
 
 def get_hard_masked(full_name):
