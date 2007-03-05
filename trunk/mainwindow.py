@@ -1060,6 +1060,9 @@ class MainWindow:
         cat_scroll = self.wtree.get_widget("category_scrolled_window")
         self.category_view.set_search(False)
         self.clear_package_detail()
+        cat = None #self.current_category
+        pack = None #self.current_package_name
+
         if index in (SHOW_INSTALLED, SHOW_ALL):
             if index == SHOW_ALL:
                 items = db.db.categories.keys()
@@ -1118,8 +1121,9 @@ class MainWindow:
             cat = None #self.current_category
             pack = None #self.current_package_name
             pass
+
         utils.debug.dprint("MAINWINDOW: view_filter_changed(); reselect category & package")
-        if cat and pack:
+        if cat != None and pack != None:
             self.select_category_package(cat, pack, index)
         # clear the notebook tabs
         #self.clear_package_detail()
