@@ -33,8 +33,8 @@ except ImportError:
     sys.exit(_('Could not find portage module.\n'
          'Are you sure this is a Gentoo system?'))
 
-debug = False
-#debug = True
+#debug = False
+debug = True
 version = 1.0
 
 
@@ -60,10 +60,11 @@ def set_user_config(filename, name='', ebuild='', add=[], remove=[]):
     #    return False
     config_path = portage_const.USER_CONFIG_PATH
     if not os.access(config_path, os.W_OK):
-        dprint(" * SET_CONFIG: get_user_config(): no write access to '%s'. " \
+        dprint(" * SET_CONFIG: set_user_config(): no write access to '%s'. " \
               "Perhaps the user is not root?" % config_path)
         return False
     #filename = '/'.join([config_path, file])
+    dprint(" * SET_CONFIG: set_user_config(): filename = " + filename)
     if os.access(filename, os.F_OK): # if file exists
         configfile = open(filename, 'r')
         configlines = configfile.readlines()
