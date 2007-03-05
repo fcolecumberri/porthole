@@ -4,7 +4,7 @@
     Porthole Plugin Interface
     Imports and interacts with plugins
 
-    Copyright (C) 2003 - 2005 Brian Bockelman, Brian Dolbec, Tommy Iorns
+    Copyright (C) 2003 - 2007 Brian Bockelman, Brian Dolbec, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -97,10 +97,10 @@ class Plugin:
         utils.debug.dprint("PLUGIN; init(): New plugin being made: '%(name)s' in %(path)s" % locals())
         self.name = name
         self.path = path
+        self.event_table = {}
         self.manager = manager
         initialized = self.initialize_plugin()
         self.enabled = False
-        self.event_table = {}
 
     def initialize_plugin(self):
         try:
@@ -124,9 +124,8 @@ class Plugin:
         utils.debug.dprint("PLUGIN: initialize_plugin(); !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         self.event_table = self.module.event_table
         self.desc = self.module.desc
-        if self.module.need_prefs:
-            # push the prefs to the new module
-            self.module.prefs = config.Prefs
+        utils.debug.dprint("PLUGIN: event_table = " + str(self.event_table))
+        utils.debug.dprint("PLUGIN: event desc = " + str(self.desc))
 
     def toggle_enabled(self):
         if self.enabled == True:
@@ -142,7 +141,8 @@ class Plugin:
             a = self.event_table[event](*args)
         else:
             a = None
-            utils.debug.dprint("PLUGIN: event: %s , not defined for plugin: %s" %(event,self.name))
+            utils.debug.dprint("PLUGIN: event(): %s , not defined for plugin: %s" %(event,self.name))
+            utils.debug.dprint("PLUGIN: event(): event_table = " + str(self.event_table))
             return a
         if not a:
             utils.debug.dprint("PLUGIN: event: recieved '%s' as response...")
