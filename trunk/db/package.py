@@ -144,14 +144,17 @@ class Package:
     def get_size(self, ebuild = None):
         if self.full_name == "None":
             return ''
-        if self.size == None or ebuild:
+        if ebuild or self.size == None or self.size == '':
             if not ebuild:
                 ebuild = self.get_default_ebuild()
-                if ebuild: self.size = portage_lib.get_size(ebuild)
+                if ebuild: 
+                    self.size = portage_lib.get_size(ebuild)
                 else: 
                     self.size = ''
-                    return self.size
+                #utils.debug.dprint("PACKAGE: get_size(); returning self.size")
+                return self.size
             else: # return the specific ebuild size
+                #utils.debug.dprint("PACKAGE: get_size(); returning portage_lib.get_size(ebuild)")
                 return portage_lib.get_size(ebuild)
         
     def get_digest(self):
