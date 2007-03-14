@@ -38,6 +38,7 @@ import config
 try:
     import portage
     import portage_const
+    import portage_manifest
     print >>stderr, ("PORTAGELIB: portage version = " + portage.VERSION)
 except ImportError:
     exit(_('Could not find portage module.\n'
@@ -545,44 +546,48 @@ def get_masking_reason(ebuild):
         reason = reason[:-1]
     return reason
 
-def get_size(ebuild):
+def get_size(mycpv):
     """ Returns size of package to fetch. """
     #This code to calculate size of downloaded files was taken from /usr/bin/emerge - BB
-    mydigest = portage.db['/']['porttree'].dbapi.finddigest(ebuild)
-    mysum = 0
+    # new code chunks from emerge since the files/digest is no longer, info now in Manifest.
+    utils.debug.dprint( "PORTAGELIB: get_size; mycpv = " + mycpv)
+    mysum = [0,'']
+    myebuild = portdb.findname(mycpv)
+    pkgdir = os.path.dirname(myebuild)
+    mf = portage_manifest.Manifest(pkgdir, settings["DISTDIR"])
+    fetchlist = portdb.getfetchlist(mycpv, mysettings=settings, all=True)[1]
+    #utils.debug.dprint( "PORTAGELIB: get_size; fetchlist = " + str(fetchlist))
     try:
-        myfile = open(mydigest,"r")
-        for line in myfile.readlines():
-            mysum += int(line.split(" ")[3])
-        myfile.close()
-        mystr = str(mysum/1024)
+        #utils.debug.dprint( "PORTAGELIB: get_size; mf.getDistfilesSize()")
+        mysum[0] = mf.getDistfilesSize(fetchlist)
+        mystr = str(mysum[0]/1024)
+        #utils.debug.dprint( "PORTAGELIB: get_size; mystr = " + mystr)
         mycount=len(mystr)
         while (mycount > 3):
             mycount-=3
             mystr=mystr[:mycount]+","+mystr[mycount:]
-        mysum=mystr+" kB"
-    except SystemExit, e:
-        raise # Needed else can't exit
-    except Exception, e:
-        utils.debug.dprint( "PORTAGELIB: get_size; Exception: %s" %s  )
-        utils.debug.dprint( "PORTAGELIB: get_size; ebuild: " + str(ebuild))
-        utils.debug.dprint( "PORTAGELIB: get_size; mydigest: " + str(mydigest))
-        mysum="[bad / blank digest]"
-    return mysum
+        mysum[1]=mystr+" kB"
+    except KeyError, e:
+        mysum[1] = "Unknown (missing digest)"
+        utils.debug.dprint( "PORTAGELIB: get_size; Exception: " + str(e)  )
+        utils.debug.dprint( "PORTAGELIB: get_size; ebuild: " + str(mycpv))
+    utils.debug.dprint( "PORTAGELIB: get_size; returning mysum[1] = " + mysum[1])
+    return mysum[1]
 
-def get_digest(ebuild):
+def get_digest(ebuild): ## depricated
     """Returns digest of an ebuild"""
     mydigest = portage.db['/']['porttree'].dbapi.finddigest(ebuild)
     digest_file = []
-    try:
-        myfile = open(mydigest,"r")
-        for line in myfile.readlines():
-            digest_file.append(line.split(" "))
-        myfile.close()
-    except SystemExit, e:
-        raise # Needed else can't exit
-    except Exception, e:
-        utils.debug.dprint("PORTAGELIB: get_digest(): Exception: %s" % e)
+    if mydigest != "":
+        try:
+            myfile = open(mydigest,"r")
+            for line in myfile.readlines():
+                digest_file.append(line.split(" "))
+            myfile.close()
+        except SystemExit, e:
+            raise # Needed else can't exit
+        except Exception, e:
+            utils.debug.dprint("PORTAGELIB: get_digest(): Exception: %s" % e)
     return digest_file
 
 def get_properties(ebuild):
@@ -703,7 +708,28 @@ def reset_use_flags():
     global SystemUseFlags
     SystemUseFlags = get_portage_environ("USE").split()
 
-settings = portage.config(clone=portage.settings)
+def load_emerge_config(trees=None):
+    # Taken from /usr/bin/emerge portage-2.1.2.2  ...Brian
+    kwargs = {}
+    for k, envvar in (("config_root", "PORTAGE_CONFIGROOT"), ("target_root", "ROOT")):
+        kwargs[k] = os.environ.get(envvar, None)
+    trees = portage.create_trees(trees=trees, **kwargs)
+    
+    settings = trees["/"]["vartree"].settings
+    
+    for myroot in trees:
+        if myroot != "/":
+            settings = trees[myroot]["vartree"].settings
+            break
+    
+    mtimedbfile = os.path.join("/", portage.CACHE_PATH.lstrip(os.path.sep), "mtimedb")
+    mtimedb = portage.MtimeDB(mtimedbfile)
+    return settings, trees, mtimedb
+
+settings, trees, mtimedb = load_emerge_config()
+portdb = trees[settings["ROOT"]]["porttree"].dbapi
+
+#settings = portage.config(clone=portage.settings)
 
 portdir = portage.config(clone=portage.settings).environ()['PORTDIR']
 # is PORTDIR_OVERLAY always defined?
