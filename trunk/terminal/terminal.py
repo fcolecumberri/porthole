@@ -193,7 +193,7 @@ class ProcessManager:
         # get a mostly blank structure to hold a number of widgets & settings
         self.term = TerminalNotebook(self.notebook, self.wtree)
         # queue init
-        self.process_queue = TerminalQueue(self._run, self.reader, self.wtree, self.term)
+        self.process_queue = TerminalQueue(self._run, self.reader, self.wtree, self.term, self.set_resume)
         
         # setup the callbacks
         callbacks = {"on_process_window_destroy" : self.on_process_window_destroy,
