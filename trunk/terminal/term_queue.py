@@ -72,11 +72,12 @@ class ProcessItem:
 
 class TerminalQueue:
     """A QUEUE queue"""
-    def __init__(self, run_function = None, reader = None, wtree = None, term = None):
+    def __init__(self, run_function = None, reader = None, wtree = None, term = None, set_resume = None):
         self._run = run_function
         self.reader = reader
         self.wtree = wtree
         self.term = term
+        self.set_resume = set_resume
         self.queue_paused = False
         self.process_list = []
         self.process_id = 0
