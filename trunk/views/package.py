@@ -498,7 +498,9 @@ class PackageView(CommonTreeView):
                 latest_ebuild = package.get_latest_ebuild(include_masked = False)
                 #utils.debug.dprint("VIEWS: populate_info(); latest_ebuild: %s" %str(latest_ebuild))
                 try:
-                    model.set_value(iter, 6, package.get_size()) # Size
+                    size = package.get_size()
+                    #utils.debug.dprint("VIEWS: populate_info(); size = " + size)
+                    model.set_value(iter, 6, size) # Size
                 except:
                     utils.debug.dprint("VIEWS: populate_info(); Had issues getting size for '%s'" % str(package.full_name))
                 model.set_value(iter, 7, portage_lib.get_version(latest_installed)) # installed
