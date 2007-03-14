@@ -45,8 +45,9 @@ class UpgradableListReader(CommonReader):
         # beginnings of multiple listings for packages in priority order
         # lists could be passed into the function and result in the following
         # eg self.categories = ["Tool Chain", "System", "User list", "World", "Dependencies"]
-        self.cat_order = ["Tool Chain","System", "User list1", "World", "Dependencies"]
-        self.categories = {"Tool Chain": None, "System":None, "World":"World", "User list1":None, "Dependencies":"Dependencies"}
+        self.cat_order = ["System", "World", "Dependencies"]
+        #self.categories = {"Tool Chain": None, "System":None, "World":"World", "User list1":None, "Dependencies":"Dependencies"}
+        self.categories = {"System":None, "World":"World", "Dependencies":"Dependencies"}
         self.upgradables = {}
         self.pkg_count = {}
         for key in self.categories:
