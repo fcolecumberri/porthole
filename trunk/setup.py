@@ -13,7 +13,10 @@ setup( \
     author_email = "farnerup@users.sourceforge.net, dgt84@users.sourceforge.net, " \
                    "dol-sen@users.sourceforge.net, tiredoldcoder@users.sourceforge.net",
     url = "http://porthole.sourceforge.net",
-    packages = ['porthole'],
+    packages = ['porthole', 'porthole.advancedemerge', 'porthole.backends', 'porthole.config',
+                        'porthole.db', 'porthole.dialogs', 'porthole.loaders', 'porthole.packagebook',
+                        'porthole.loaders', 'porthole.plugins', 'porthole.readers', 'porthole.terminal',
+                        'porthole.utils', 'porthole.views', 'porthole._xml'],
     package_dir = {'porthole':''},
     scripts = ["porthole"],
     data_files = [
@@ -29,7 +32,7 @@ setup( \
              "help/unmerge.html", "help/update.html", "help/warningtab.png"]),
         (datadir,
             ["advemerge.glade", "porthole.glade", "config.glade", "configuration.xml",
-             "dopot.sh", "pocompile.sh"]),
+             "dopot.sh", "pocompile.sh", "set_config.py"]),
         (datadir + "i18n",
             ["i18n/messages.pot", "i18n/vi.po", "i18n/fr_FR.po", "i18n/de_DE.po",
              "i18n/pl.po", "i18n/ru.po", "i18n/TRANSLATING"]),
