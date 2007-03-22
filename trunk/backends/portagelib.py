@@ -120,14 +120,17 @@ def get_user_config(file, name=None, ebuild=None):
     return dict
 
 def set_user_config( file, name='', ebuild='', add='', remove='', callback=None):
-    """
+    """depricated function. this is now part of the db.user_configs module
+    Function for parsing package.use, package.mask, package.unmask
+    and package.keywords.
+
     Adds <name> or '=' + <ebuild> to <file> with flags <add>.
     If an existing entry is found, items in <remove> are removed and <add> is added.
     
     If <name> and <ebuild> are not given then lines starting with something in
     remove are removed, and items in <add> are added as new lines.
     """
-    utils.debug.dprint("PORTAGELIB: set_user_config()")
+    utils.debug.dprint("PORTAGELIB: DEPRICATED FUNCTION! set_user_config(); depricated update calling code to use the db.user_configs module")
     command = ''
     maskfiles = ['package.mask', 'package.unmask']
     otherfiles = ['package.use', 'package.keywords']

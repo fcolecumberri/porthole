@@ -94,6 +94,8 @@ class Summary(gtk.TextView):
         menuitems["add-keyword"].connect("activate", self.add_keyword)
         menuitems["remove-keyword"] = gtk.MenuItem(_("Remove %s from package.keywords") % arch)
         menuitems["remove-keyword"].connect("activate", self.remove_keyword)
+        menuitems["remove-keyword-ebuild"] = gtk.MenuItem(_("Remove ebuild keyword from package.keywords") )
+        menuitems["remove-keyword-ebuild"].connect("activate", self.remove_keyword_ebuild)
         menuitems["package-unmask"] = gtk.MenuItem(_("Unmask this ebuild"))
         menuitems["package-unmask"].connect("activate", self.package_unmask)
         menuitems["un-package-unmask"] = gtk.MenuItem(_("Remask this ebuild"))
@@ -708,7 +710,7 @@ class Summary(gtk.TextView):
     
     def add_keyword_ebuild(self, menuitem_widget):
         arch = "~" + portage_lib.get_arch()
-        ebuild = self.selected_ebuild
+        ebuild = "=" + self.selected_ebuild
         db.userconfigs.set_user_config('KEYWORDS', ebuild=ebuild, add=arch, callback=self.update_callback)
 
     def add_keyword(self, widget):
@@ -719,9 +721,9 @@ class Summary(gtk.TextView):
         db.userconfigs.set_user_config('KEYWORDS', name=name, add=arch, callback=self.update_callback)
 
     def remove_keyword_ebuild(self, menuitem_widget):
-        arch = "~" + portage_lib.get_arch()
-        ebuild = self.selected_ebuild
-        db.userconfigs.set_user_config('KEYWORDS', ebuild=ebuild, remove=arch, callback=self.update_callback)
+        #arch = "~" + portage_lib.get_arch()
+        ebuild = "=" + self.selected_ebuild
+        db.userconfigs.set_user_config('KEYWORDS', ebuild=ebuild, remove=ebuild, callback=self.update_callback)
 
     def remove_keyword(self, menuitem_widget):
         arch = "~" + portage_lib.get_arch()

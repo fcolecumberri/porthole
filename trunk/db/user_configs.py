@@ -49,6 +49,40 @@ def get_type(file):
         else:
             return CONFIG_TYPES[CONFIG_FILES.index(parts[-1])]
 
+def compare_atoms(a=None, b=None):
+    """Function to comare two (ConfigAtom)s and return a value representing the probable match
+    name being the most important, followed by version and atoms
+    0 = no match
+    1 = name only match
+    3 = name and version match
+    4 = name and atoms match
+    5 = name and value match
+    6 = name, version and atoms match
+    7 = name, version and value match
+    10 = considered a full match, as file not used for comaparison
+    """
+    match = 0
+    if a.name == b.name:
+        match = 1
+        if a.version == b.version:
+            match += 2
+        if a.atoms == b.atoms:
+            match += 3
+        if a.value == b.value:
+            match +=4
+    return match
+
+def cmp(a=None, b=None):
+    """comparison function for sorting ConfigAtoms"""
+    if a.name == b.name:
+        return 0
+    if a.name < b.name:
+        return -1
+    if a.name > b.name:
+        return 1
+    return 0
+
+
 class ConfigAtom:
     def __init__(self, name):
         self.name = name                        # pkg name
@@ -249,6 +283,8 @@ class UserConfigs:
         remove are removed, and items in <add> are added as new lines.
         """
         utils.debug.dprint("USER_CONFIGS: set_user_config()")
+        self.set_callback = callback
+        self.set_type = type
         command = ''
         if type not in CONFIG_TYPES:
             utils.debug.dprint("USER_CONFIGS: set_user_config(): unsupported config type '%s'" % type)
@@ -273,6 +309,7 @@ class UserConfigs:
         else: # found one
             file = atom[0].file
             utils.debug.dprint("USER_CONFIGS: set_user_config(): found an atom :) file = " + file)
+        self.set_file = file
 
         if isinstance(add, list):
             add = ' '.join(add)
@@ -295,53 +332,56 @@ class UserConfigs:
             command = ' '.join(commandlist) + '"'
             utils.debug.dprint(" * USER_CONFIGS: set_user_config(): command = %s" %command )
             # add code to update_config()
-            if not callback: callback = portage_lib.reload_portage
-            app = SimpleTerminal(command, False, dprint_output='SET_USER_CONFIG CHILD APP: ', callback=Dispatcher(callback))
+            mycallback = self.set_config_callback #portage_lib.reload_portage
+            app = SimpleTerminal(command, False, dprint_output='SET_USER_CONFIG CHILD APP: ', callback=Dispatcher(mycallback))
             app._run()
         else:
             add = add.split()
             remove = remove.split()
             set_config.set_user_config(file, name, ebuild, add, remove)
-            if callback: callback()
-            else:
-                self.reload_file(type, file)
-                portage_lib.reload_portage()
+            self.set_config_callback()
+        return True
+
+    def set_config_callback(self, *args):
+        utils.debug.dprint(" * USER_CONFIGS: set_config_callback():" )
+        self.reload_file(self.set_type, self.set_file)
         # This is slow, but otherwise portage doesn't notice the change.
         #reload_portage()
         # Note: could perhaps just update portage.settings.
         # portage.settings.pmaskdict, punmaskdict, pkeywordsdict, pusedict
         # or portage.portdb.mysettings ?
-        return True
+        portage_lib.reload_portage()
+        if self.set_callback:
+            utils.debug.dprint(" * USER_CONFIGS: set_config_callback(): doing self.set_callback()" )
+            self.set_callback()
 
-    def reload_file(type, file):
+
+    def reload_file(self, type, file):
         """reload a config file due to changes"""
-        utils.debug.dprint(" * USER_CONFIGS: reload_file(): type = " + type + ",file = " + file )
-        return # for now
+        utils.debug.dprint(" * USER_CONFIGS: reload_file(): type = " + type + ", file = " + file )
+        #return # for now
         # load the file to a temp_db
         temp_db = {}
-        lines = read_bash(myfilename)
-        self.atomize(lines, myfilename, temp_db)
+        temp_db[type] = {}
+        lines = []
+        lines = read_bash(file)
+        self.atomize(lines, file, temp_db)
         # get all atoms matching the correct file
         old_file_atoms = self.db[type][file]
-        # process the new temp_db's atoms
-        for old_atom in old_file_atoms:
-            # now look for a new atom
-            if old_atom.name in temp_db[type]:
-                new = temp_db[type][old_atom.name]
+        old_file_atoms.sort(cmp)
+        old_length = len(old_file_atoms)
+        temp_db[type][file].sort(cmp)
+        new_length = len(temp_db[type][file])
+        utils.debug.dprint(" * USER_CONFIGS: reload_file(): old atoms : " + str(old_file_atoms))
+        for a in old_file_atoms:
+            # delete the old record
+            self.db[type][a.name].remove(a)
+        del self.db[type][file]
+        self.db[type][file] = temp_db[type][file]
+        for a in temp_db[type][file]:
+            # index by name
+            if a.name in self.db[type]:
+                self.db[type][a.name].append(a)
             else:
-                new = []
-                # atom was removed from the file, delete it
-            oldlength = len(old_atom)
-            newlength = len(new)
-            if oldlength == 1: # just update it
-                old_atom[0].update(new)
-            else: # look for a match in the list
-                for atom in old_atoms:
-                    if atom.name == new[0].name:
-                        if newlength == 1:
-                            atom.update(new[0])
-                    else:
-                        pass # for now  <=== Fix me
-            if length == 0: # a new entry
-                self.db[type][new_atom.name] = [new_atom]
-                        
+                self.db[type][a.name] = [a]
+

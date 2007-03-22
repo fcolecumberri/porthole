@@ -43,7 +43,7 @@ def dprint(message):
     if debug:
         print message
 
-def set_user_config(filename, name='', ebuild='', add=[], remove=[]):
+def set_user_config(filename, name='', ebuild='', add=[], remove=[], delete=[]):
     """
     Adds <name> or '=' + <ebuild> to <file> with flags <add>.
     If an existing entry is found, items in <remove> are removed and <add> is added.
@@ -52,19 +52,12 @@ def set_user_config(filename, name='', ebuild='', add=[], remove=[]):
     remove are removed, and items in <add> are added as new lines.
     """
     dprint("SET_CONFIG: set_user_config(): '%s'" % file)
-    #maskfiles = ['package.mask', 'package.unmask']
-    #otherfiles = ['package.use', 'package.keywords']
-    #package_files = otherfiles + maskfiles
-    #if file not in package_files:
-    #    dprint(" * SET_CONFIG: unsupported config file '%s'" % file)
-    #    return False
     config_path = portage_const.USER_CONFIG_PATH
     if not os.access(config_path, os.W_OK):
         dprint(" * SET_CONFIG: set_user_config(): no write access to '%s'. " \
               "Perhaps the user is not root?" % config_path)
         return False
-    #filename = '/'.join([config_path, file])
-    dprint(" * SET_CONFIG: set_user_config(): filename = " + filename)
+    #dprint(" * SET_CONFIG: set_user_config(): filename = " + filename)
     if os.access(filename, os.F_OK): # if file exists
         configfile = open(filename, 'r')
         configlines = configfile.readlines()
@@ -73,12 +66,13 @@ def set_user_config(filename, name='', ebuild='', add=[], remove=[]):
         configlines = ['']
     config = [line.split() for line in configlines]
     if not name:
-        name = '=' + ebuild
+        name =  ebuild
     done = False
     # Check if there is already a line to append to
     for line in config:
         if not line: continue
-        if line[0] == name:
+        dprint("SET_CONFIG: checking line: "  + str(line) )
+        if line[0] == name and line[0] not in remove:
             done = True
             dprint("SET_CONFIG: found line for '%s'" % name)
             for flag in remove:
@@ -95,17 +89,27 @@ def set_user_config(filename, name='', ebuild='', add=[], remove=[]):
         elif line[0] in remove:
             config[config.index(line)] = []
             dprint("SET_CONFIG: removed line '%s'" % ' '.join(line))
+            done = True
     if not done:
-        if name != '=': # package.use/keywords: name or ebuild given
+        if '=' not in name: # package.use/keywords: name or ebuild given
             if add:
                 config.append([name] + add)
                 dprint("SET_CONFIG: added line '%s'" % ' '.join(config[-1]))
             elif ebuild:
                 # Probably tried to modify by ebuild but was listed by package.
                 # Do a pass with the package name just in case
-                from portagelib import get_full_name
-                dprint("SET_CONFIG: couldn't find '%s', trying '%s' in stead" % (ebuild, get_full_name(ebuild)))
-                return set_user_config(file, name=get_full_name(ebuild), remove=remove)
+                pkg = ebuild
+                while pkg[0] in ["<",">","=","!","*"]: # remove any leading atoms
+                    pkg = pkg[1:]
+                import portage
+                cplist = portage.catpkgsplit(pkg) or portage.catsplit(pkg)
+                dprint("SET_CONFIG: cplist = " + str(cplist))
+                if not cplist or len(cplist) < 2:
+                    dprint("SET_CONFIG: issues with '%s'" % pkg)
+                    return
+                cp = cplist[0] + "/" + cplist[1]
+                dprint("SET_CONFIG: couldn't find '%s', trying '%s' in stead" % (ebuild, cp))
+                return set_user_config(file, name=cp, remove=remove)
         else: # package.mask/unmask: list of names to add
             config.extend([[item] for item in add])
             dprint("SET_CONFIG: added %d lines to %s" % (len(add), file))
@@ -122,11 +126,6 @@ def set_user_config(filename, name='', ebuild='', add=[], remove=[]):
     configfile = open(filename, 'w')
     configfile.write(configtext)
     configfile.close()
-    # This is slow, but otherwise portage doesn't notice the change.
-    #reload_portage()
-    # Note: could perhaps just update portage.settings.
-    # portage.settings.pmaskdict, punmaskdict, pkeywordsdict, pusedict
-    # or portage.portdb.mysettings ?
     return True
 
 def get_make_conf(want_linelist=False, savecopy=False):
@@ -236,10 +235,6 @@ def set_make_conf(property, add=[], remove=[], replace=''):
     file = open(portage_const.MAKE_CONF_FILE, 'w')
     file.write(make_conf)
     file.close()
-    # This is slow, but otherwise portage doesn't notice the change
-    #reload_portage()
-    # Note: could perhaps just update portage.settings (or portage.portdb.mysettings ?)
-    # portage.settings.mygcfg ??   portage.portdb.configdict['conf'] ??
     return True
 
 
