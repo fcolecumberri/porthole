@@ -292,10 +292,11 @@ class MainWindow:
         self.last_sync = _("Unknown")
         self.get_sync_time()
         self.set_sync_tip()
+        self.reload_depth = 0
 
     def reload_db(self, *widget):
         utils.debug.dprint("MAINWINDOW: reload_db() callback")
-        if db.db.db_thread_running or self.ut_running:
+        if db.db.db_thread_running or self.ut_running and self.reload_depth <4:
             if db.db.db_thread_running:
                 try:
                     utils.debug.dprint("MAINWINDOW: reload_db(); killing db thread")
@@ -309,7 +310,11 @@ class MainWindow:
             self.progress_done(True)
             # set this function to re-run after some time for the thread to stop
             self.reload_db_timeout = gobject.timeout_add(50, self.reload_db)
+            self.reload_depth += 1
             return True
+        if self.reload_depth < 4:
+            utils.debug.dprint("MAINWINDOW: reload_db(); failed to kill db thread, exceeded retry depth...continuing anyway")
+        self.reload_depth = 0
         # upgrades loaded?
         # reset so that it reloads the upgrade list
         #self.upgrades_loaded = False
