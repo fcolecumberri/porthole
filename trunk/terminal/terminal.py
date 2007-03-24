@@ -286,17 +286,6 @@ class ProcessManager:
             self.window.set_title(self.title)
         return False
 
-    def resume_dialog(self, message):
-        """ Handle response when user tries to re-add killed process to queue """
-        dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
-                                    gtk.MESSAGE_QUESTION,
-                                    gtk.BUTTONS_CANCEL, message);
-        dialog.add_button(gtk.STOCK_EXECUTE, gtk.RESPONSE_ACCEPT)
-        dialog.add_button("Resume", gtk.RESPONSE_YES)
-        result = dialog.run()
-        dialog.destroy()
-        return result
-
     def _run(self, command_string, command_id):
         """ Run a given command string """
         utils.debug.dprint("TERMINAL: running command string '%s'" % command_string)
@@ -769,9 +758,9 @@ class ProcessManager:
         hbox.pack_start(entry, expand=True)
         dialog.vbox.pack_start(hbox)
         hbox.show_all()
-        gtk.threads_enter()
+        gtk.gdk.threads_enter()
         result = dialog.run()
-        gtk.threads_leave()
+        gtk.gdk.threads_leave()
         utils.debug.dprint("TERMINAL: do_password_popup(): result %s" % result)
         dialog.destroy()
         if result == gtk.RESPONSE_CANCEL:

@@ -55,6 +55,7 @@ import pango
 from utils.utils import get_treeview_selection
 import utils.debug
 from constants import *
+from dialogs.simple import SingleButtonDialog
 
 
 class ProcessItem:
@@ -85,6 +86,7 @@ class TerminalQueue:
         self.process_iter = None
         self.task_completed = False
         self.killed_id = None
+        self.window = wtree.get_widget("process_window")
         self.queue_tree = wtree.get_widget("queue_treeview")
         self.queue_menu = wtree.get_widget("queue1")
         self.resume_menu = self.wtree.get_widget("resume")
@@ -179,6 +181,7 @@ class TerminalQueue:
                     # Let the user know it's already in the list
                     #if data == self.process_list[0]:
                     message = _("The package you selected is already in the emerge queue!")
+                    utils.debug.dprint("TERM_QUEUE: add(); gettext result = " + _("Error Adding Package To Queue!"))
                     SingleButtonDialog(_("Error Adding Package To Queue!"), None,
                                         message, None, _("OK"))
                     utils.debug.dprint("TERM_QUEUE: add(): returning from match dialog & returning")
@@ -496,3 +499,16 @@ class TerminalQueue:
         self.play_btn.set_sensitive(active)
         self.pause_menu.set_sensitive(not active)
         self.pause_btn.set_sensitive(not active)
+
+    def resume_dialog(self, message):
+        """ Handle response when user tries to re-add killed process to queue """
+        window = self.wtree.get_widget("process_window")
+        _dialog = gtk.MessageDialog(window, gtk.DIALOG_MODAL,
+                                    gtk.MESSAGE_QUESTION,
+                                    gtk.BUTTONS_CANCEL, message);
+        _dialog.add_button(gtk.STOCK_EXECUTE, gtk.RESPONSE_ACCEPT)
+        _dialog.add_button("Resume", gtk.RESPONSE_YES)
+        result = _dialog.run()
+        _dialog.destroy()
+        return result
+
