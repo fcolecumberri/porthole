@@ -28,14 +28,13 @@ from gettext import gettext as _
 import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk
 
-
 #import utils.debug
 
 class CommonDialog(gtk.Dialog):
     """ A common gtk Dialog class """
     def __init__(self, title, parent, message, callback, button):
         gtk.Dialog.__init__(self, title, parent, gtk.DIALOG_MODAL or
-                            gtk.DIALOG_DESTROY_WITH_PARENT, (button, 0))
+                            gtk.DIALOG_DESTROY_WITH_PARENT, (str(button), 0))
         # add message
         text = gtk.Label(message)
         text.set_padding(5, 5)
