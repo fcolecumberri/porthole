@@ -65,7 +65,8 @@ SHOW_ALL = 0
 SHOW_INSTALLED = 1
 SHOW_SEARCH = 2
 SHOW_UPGRADE = 3
-SHOW_REBUILD = 4
+SHOW_DEPRECATED = 4
+SHOW_SETS = 5
 ON = True
 OFF = False
 
@@ -226,6 +227,14 @@ class MainWindow:
         self.toolbar_expander.set_expand(True)
         # create and start our process manager
         self.process_manager = ProcessManager(utils.utils.environment(), False)
+        # populate the view_filter menu
+        self.widget["view_filter_list"] = gtk.ListStore(str)
+        for i in [_("All Packages"), _("Installed Packages"), _("Search Results"), _("Upgradable Packages"),
+                    _("Deprecated Packages"), _("Sets")]:
+            self.widget["view_filter_list"].append([i])
+        self.widget["view_filter"].set_model(self.widget["view_filter_list"])
+        self.widget["view_filter"].set_active(SHOW_ALL)
+        
         # Search History
         self.search_history = {}
         self.search_history_counts = {}
@@ -345,7 +354,7 @@ class MainWindow:
 
     def reload_view(self, *widget):
         """reload the package view"""
-        if self.widget["view_filter"].get_history() == SHOW_UPGRADE:
+        if self.widget["view_filter"].get_active() == SHOW_UPGRADE:
             self.upgrades_loaded = False
         else:
             self.category_view.populate(db.db.categories.keys())
@@ -412,7 +421,7 @@ class MainWindow:
         elif action == "set path":
             # save the path to the package that matched the name passed
             # to populate() in PackageView... (?)
-            index = self.widget["view_filter"].get_history()
+            index = self.widget["view_filter"].get_active()
             if index in [SHOW_INSTALLED, SHOW_ALL]:
                 self.current_package_path = arg # arg = path
             elif index == SHOW_SEARCH:
@@ -525,7 +534,7 @@ class MainWindow:
             if self.plugin_manager and not self.plugin_manager.plugins: # no plugins
                 self.wtree.get_widget("plugin_settings").set_sensitive(False)
             # make sure we search again if we reloaded!
-            if self.widget["view_filter"].get_history() == SHOW_SEARCH:
+            if self.widget["view_filter"].get_active() == SHOW_SEARCH:
                 #utils.debug.dprint("MAINWINDOW: update_db_read()... Search view")
                 # update the views by calling view_filter_changed
                 self.view_filter_changed(self.widget["view_filter"])
@@ -539,8 +548,8 @@ class MainWindow:
                         # re-select the package
                         self.package_view.set_cursor(self.current_search_package_cursor[0],
                                                      self.current_search_package_cursor[1])
-            elif self.reload and (self.widget["view_filter"].get_history() == SHOW_ALL or \
-                                  self.widget["view_filter"].get_history() == SHOW_INSTALLED):
+            elif self.reload and (self.widget["view_filter"].get_active() == SHOW_ALL or \
+                                  self.widget["view_filter"].get_active() == SHOW_INSTALLED):
                 #utils.debug.dprint("MAINWINDOW: update_db_read()... self.reload=True ALL or INSTALLED view")
                 # reset _last_selected so it thinks this category is new again
                 self.category_view._last_category = None
@@ -665,7 +674,7 @@ class MainWindow:
         config.Prefs.emerge.upgradeonly = widget.get_active()
         # reset the upgrades list due to the change
         self.upgrades_loaded = False
-        if hasattr(self, "widget") and self.widget["view_filter"].get_history() == SHOW_UPGRADE:
+        if hasattr(self, "widget") and self.widget["view_filter"].get_active() == SHOW_UPGRADE:
             if self.ut_running: # aargh, kill it
                 self.ut.please_die()
                 utils.debug.dprint("MAINWINDOW: joining upgrade thread...")
@@ -958,7 +967,7 @@ class MainWindow:
     def refresh(self):
         """Refresh PackageView"""
         utils.debug.dprint("MAINWINDOW: refresh()")
-        mode = self.widget["view_filter"].get_history()
+        mode = self.widget["view_filter"].get_active()
         if mode == SHOW_SEARCH:
             self.category_changed(self.current_search)
         else:
@@ -966,7 +975,7 @@ class MainWindow:
 
     def category_changed(self, category):
         """Catch when the user changes categories."""
-        mode = self.widget["view_filter"].get_history()
+        mode = self.widget["view_filter"].get_active()
         # log the new category for reloads
         if mode not in [SHOW_SEARCH, SHOW_UPGRADE]:
             self.current_category = category
@@ -1036,7 +1045,7 @@ class MainWindow:
             self.current_package_path = self.current_package_cursor[0]
             return
         # log the new package for db reloads
-        index = self.widget["view_filter"].get_history()
+        index = self.widget["view_filter"].get_active()
         if index in [SHOW_INSTALLED, SHOW_ALL]:
             self.current_package_name = package.get_name()
             self.current_package_cursor = self.package_view.get_cursor()
@@ -1059,7 +1068,7 @@ class MainWindow:
     def view_filter_changed(self, widget):
         """Update the treeviews for the selected filter"""
         utils.debug.dprint("MAINWINDOW: view_filter_changed()")
-        index = widget.get_history()
+        index = widget.get_active()
         utils.debug.dprint("MAINWINDOW: view_filter_changed(); index = %d" %index)
         self.update_statusbar(index)
         cat_scroll = self.wtree.get_widget("category_scrolled_window")
@@ -1114,15 +1123,24 @@ class MainWindow:
                 utils.debug.dprint("MAINWINDOW: view_filter_changed(); back from load_upgrades_list()")
             else:
                 self.category_view.populate(self.upgrades.keys(), False, self.upgrade_counts)
-            self.package_view.set_view(self.package_view.UPGRADABLE)
+            #self.package_view.set_view(self.package_view.UPGRADABLE)
             utils.debug.dprint("MAINWINDOW: view_filter_changed(); init package_view")
             self.package_view._init_view()
             #utils.debug.dprint("MAINWINDOW: view_filter_changed(); clear package_view")
             #self.package_view.clear()
             cat = self.current_upgrade_category
             pack = self.current_upgrade_package_name
-        elif index == SHOW_REBUILD:
-            utils.debug.dprint("MAINWINDOW: view_filter_changed(); Rebuild selected")
+        elif index == SHOW_DEPRECATED:
+            utils.debug.dprint("MAINWINDOW: view_filter_changed(); Deprecated selected")
+            #items = ["Packages", "Ebuild Versions"]
+            #count = [0,0]
+            #self.category_view.populate(items, True, count)
+            cat_scroll.show();
+            cat = None #self.current_category
+            pack = None #self.current_package_name
+            pass
+        elif index == SHOW_SETS:
+            utils.debug.dprint("MAINWINDOW: view_filter_changed(); Deprecated selected")
             cat = None #self.current_category
             pack = None #self.current_package_name
             pass
@@ -1300,12 +1318,12 @@ class MainWindow:
             else:
                 text = (_("%(pack)d packages in %(cat)d categories") 
                         % {'pack':db.db.installed_count, 'cat':len(db.db.installed)})
-        elif mode == SHOW_SEARCH:
+        elif mode in [SHOW_SEARCH, SHOW_DEPRECATED, SHOW_SETS]:
             text = '' #(_("%d matches found") % self.package_view.search_model.size)
 
         elif mode == SHOW_UPGRADE:
             if not self.ut:
-                utils.debug.dprint("MAINWINDOW: attempt to update status bar with no upgrade thread assigned")
+                utils.debug.dprint("MAINWINDOW: attempt to update status bar with no reader thread assigned")
             else:
                 text = '' #(_("%(world)d world, %(deps)d dependencies")
                            # % {'world':self.ut.pkg_count["World"], 'deps':self.ut.pkg_count["Dependencies"]})
