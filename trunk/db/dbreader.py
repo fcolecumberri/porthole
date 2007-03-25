@@ -97,8 +97,8 @@ class DatabaseReader(threading.Thread):
             count += self.add_pkg(entry)
         # now time to add any remaining installed packages not in the portage tree
         self.db.depricated_list = self.installed_list[:]
-        utils.debug.dprint("DBREADER: read_db(); depricated installed packages = " + str(self.db.depricated_list))
-        for entry in self.installed_list:  # remaining installed packages no longer in the tree
+        #utils.debug.dprint("DBREADER: read_db(); depricated installed packages = " + str(self.db.depricated_list))
+        for entry in self.db.depricated_list:  # remaining installed packages no longer in the tree
             if self.cancelled: self.done = True; return
             if count == 250:  # update the statusbar
                 self.nodecount += count
@@ -106,6 +106,7 @@ class DatabaseReader(threading.Thread):
                 self.callback({"nodecount": self.nodecount, "allnodes_length": self.allnodes_length,
                                 "done": self.done, 'db_thread_error': self.error})
                 count = 0
+            utils.debug.dprint("DBREADER: read_db(); deprecated entry = " + entry)
             count += self.add_pkg(entry, depricated=True)
 
         utils.debug.dprint("DBREADER: read_db(); end of list build; count = %d nodecount = %d" %(count,self.nodecount))
