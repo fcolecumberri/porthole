@@ -39,6 +39,7 @@ from helpers import *
 from models import PackageModel
 from gettext import gettext as _
 
+MODEL_NAMES = ["All_Installed", "Search", "Upgradable", "Deprecated", "Sets", "Blank", "Temp"]
 
 class PackageView(CommonTreeView):
     """ Self contained treeview of packages """
@@ -54,6 +55,10 @@ class PackageView(CommonTreeView):
         self.PACKAGES = 0
         self.SEARCH_RESULTS = 1
         self.UPGRADABLE = 2
+        self.DEPRECATED = 3
+        self.SETS = 4
+        self.BLANK = 5
+        self.TEMP = 6
 
         # create popup menu for rmb-click
         arch = "~" + portage_lib.get_arch()
@@ -135,12 +140,15 @@ class PackageView(CommonTreeView):
         self.set_rules_hint(True)
         
         # setup the treemodels
-        self.upgrade_model = PackageModel()
-        self.package_model = PackageModel()
-        self.search_model =  PackageModel()
-        self.search_model.size = 0
-        self.blank_model = PackageModel()
-        self.temp_model = self.package_model
+        self.view_model = {MODEL_NAMES[self.UPGRADABLE]: PackageModel(),
+                                    MODEL_NAMES[self.PACKAGES]: PackageModel(),
+                                    MODEL_NAMES[self.SEARCH_RESULTS]: PackageModel(),
+                                    MODEL_NAMES[self.DEPRECATED]:  PackageModel(),
+                                    MODEL_NAMES[self.SETS]: PackageModel(),
+                                    MODEL_NAMES[self.BLANK]: PackageModel()
+                                    }
+        self.view_model[MODEL_NAMES[self.TEMP]] = self.view_model[MODEL_NAMES[self.PACKAGES]]
+        self.view_model[MODEL_NAMES[self.SEARCH_RESULTS]].size = 0
         self.temp_view = None
         # set the view
         self.set_view(self.PACKAGES) # default view
@@ -173,7 +181,7 @@ class PackageView(CommonTreeView):
         self._latest_column.clear()
         self._installed_column.clear()
         self._desc_column.clear()
-        if self.current_view == self.UPGRADABLE:
+        if self.current_view in [self.UPGRADABLE, self.DEPRECATED, self.SETS]:
             # add the toggle renderer
             check = gtk.CellRendererToggle()
             self._checkbox_column.pack_start(check, expand = False)
@@ -241,22 +249,16 @@ class PackageView(CommonTreeView):
 
     def _set_model(self):
         """ Set the correct treemodel for the current view """
-        if self.current_view == self.PACKAGES:
+        if self.current_view in [self.PACKAGES, self.SEARCH_RESULTS]:
             #self.remove_model()
-            self.set_model(self.package_model)
-            self.popup_menuitems["deselect_all"].hide()
-            self.popup_menuitems["select_all"].hide()
-            #self.enable_column_sort()
-        elif self.current_view == self.SEARCH_RESULTS:
-            #self.remove_model()
-            self.set_model(self.search_model)
+            self.set_model(self.view_model[MODEL_NAMES[self.current_view]])
             self.popup_menuitems["deselect_all"].hide()
             self.popup_menuitems["select_all"].hide()
             #self.enable_column_sort()
         else:
-            utils.debug.dprint("VIEWS: Package_view._set_model(); changing to upgrades view")
+            utils.debug.dprint("VIEWS: Package_view._set_model(); changing to '" + MODEL_NAMES[self.current_view] + "' view")
             #self.remove_model()
-            self.set_model(self.upgrade_model)
+            self.set_model(self.view_model[MODEL_NAMES[self.current_view]])
             self.popup_menuitems["deselect_all"].show()
             self.popup_menuitems["select_all"].show()
             #utils.debug.dprint("VIEWS: _set_model(); disabling column sort")
@@ -339,19 +341,19 @@ class PackageView(CommonTreeView):
             return False
         if self.toggle != None : # for upgrade view
             iter = self.get_model().get_iter(self.toggle)
-            #if self.upgrade_model.get_value(iter, 0) != "None":
-            check = self.upgrade_model.get_value(iter, 1)
+            #if self.view_model["Upgradable"].get_value(iter, 0) != "None":
+            check = self.view_model["Upgradable"].get_value(iter, 1)
             check = not check
-            self.upgrade_model.set_value(iter, 1, check)
+            self.view_model["Upgradable"].set_value(iter, 1, check)
             package.is_checked = check
-            #~ if self.upgrade_model.get_value(iter, 2) == None:
+            #~ if self.view_model["Upgradable"].get_value(iter, 2) == None:
                 #~ #utils.debug.dprint("VIEWS: _clicked(): Toggling all upgradable deps")
                 #~ # package == None for "Upgradable Dependencies" row
                 #~ # so select or deselect all deps
-                #~ iter = self.upgrade_model.iter_children(iter)
+                #~ iter = self.view_model["Upgradable"].iter_children(iter)
                 #~ while iter:
-                    #~ self.upgrade_model.set_value(iter, 1, check)
-                    #~ iter = self.upgrade_model.iter_next(iter)
+                    #~ self.view_model["Upgradable"].set_value(iter, 1, check)
+                    #~ iter = self.view_model["Upgradable"].iter_next(iter)
             self.dopopup = False # don't popup menu if clicked on checkbox
             self.toggle = None
             return True # we've got it sorted
@@ -550,13 +552,13 @@ class PackageView(CommonTreeView):
             model.get_value(iter, 2).is_checked = selected
     
     def remove_model(self): # used by upgrade reader to speed up adding to the model
-        self.temp_model = self.get_model()
+        self.view_model["Temp"] = self.get_model()
         self.temp_view = self.current_view
-        self.set_model(self.blank_model)
+        self.set_model(self.view_model["Blank"])
     
     def restore_model(self):
         if self.temp_view == self.current_view: # otherwise don't worry about it
-            self.set_model(self.temp_model)
+            self.set_model(self.view_model["Temp"])
     
     def column_clicked(self, column):
         # This seems to be unnecessary - gtk does all the work.

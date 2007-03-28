@@ -39,6 +39,7 @@ class UpgradableListReader(CommonReader):
         CommonReader.__init__(self)
         self.installed_items = installed
         self.upgrade_only = upgrade_only
+        self.reader_type = "Upgradable"
         #self.world = []
         # hack for statusbar updates
         self.progress = 1
@@ -48,12 +49,13 @@ class UpgradableListReader(CommonReader):
         self.cat_order = ["System", "World", "Dependencies"]
         #self.categories = {"Tool Chain": None, "System":None, "World":"World", "User list1":None, "Dependencies":"Dependencies"}
         self.categories = {"System":None, "World":"World", "Dependencies":"Dependencies"}
-        self.upgradables = {}
+        self.pkg_dict = {}
         self.pkg_count = {}
         for key in self.categories:
-            self.upgradables[key] = {}
+            self.pkg_dict[key] = {}
             self.pkg_count[key] = 0
         self.count = 0
+        self.pkg_dict_total = 0
         # command lifted fom emwrap and emwrap.sh
         self.system_cmd = "emerge -ep --nocolor --nospinner system | cut -s -f2 -d ']'| cut -f1 -d '[' | sed 's/^[ ]\+//' | sed 's/[ ].*$//'"
 
@@ -73,15 +75,16 @@ class UpgradableListReader(CommonReader):
                 if upgradable == 1 or (not self.upgrade_only and upgradable == -1):
                     for key in self.cat_order:
                         if package.in_list(self.categories[key]):
-                            self.upgradables[key][package.full_name] = package
+                            self.pkg_dict[key][package.full_name] = package
                             self.pkg_count[key] += 1
                             break
-        self.upgrade_total = 0
+        self.pkg_dict_total = 0
         for key in self.pkg_count:
-            self.upgrade_total += self.pkg_count[key]
-            if self.upgradables[key] == {}:
+            self.pkg_dict_total += self.pkg_count[key]
+            if self.pkg_dict[key] == {}:
                 pkg = Package("None")
-                self.upgradables[key]["None"] = pkg
+                self.pkg_dict[key]["None"] = pkg
+        #utils.debug.dprint("READERS: UpgradableListReader(); new pkg_list = " + str(self.pkg_dict))
         # set the thread as finished
         self.done = True
         return

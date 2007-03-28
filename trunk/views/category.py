@@ -97,7 +97,7 @@ class CategoryView(CommonTreeView):
     def populate(self, categories, _sort = True, counts = None):
         """Fill the category tree."""
         self.clear()
-        utils.debug.dprint("VIEWS: Populating category view")
+        utils.debug.dprint("VIEWS: Populating category view;") # categories: " + str(categories))
         last_catmaj = None
         if _sort:
             categories.sort()
