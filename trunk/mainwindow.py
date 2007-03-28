@@ -835,7 +835,7 @@ class MainWindow:
             # create a list of packages to be upgraded
             self.packages_list = {}
             self.keyorder = []
-            self.up_model = self.package_view.upgrade_model
+            self.up_model = self.package_view.view_model["Upgradable"]
             # read the upgrade tree into a list of packages to upgrade
             self.up_model.foreach(self.tree_node_to_list)
             if self.is_root or config.Prefs.emerge.pretend:
@@ -1041,7 +1041,6 @@ class MainWindow:
             self.current_pkg_name["All_Installed"] = None
             self.current_pkg_cursor["All_Installed"] = None
             self.current_pkg_path["All_Installed"] = None
-            self.package_view.PACKAGES = 0
             self.package_view.set_view(self.package_view.PACKAGES)
             self.package_view.clear()
         elif mode == SHOW_ALL:
