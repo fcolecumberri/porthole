@@ -51,7 +51,7 @@ class Package:
         self.digest_file = None
         self.in_world = full_name in portage_lib.World
         self.is_checked = False
-        self.depricated = False
+        self.deprecated = False
 
     def in_list(self, list=None):
         """returns True/False if the package is listed in the list"""

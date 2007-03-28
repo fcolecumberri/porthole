@@ -96,9 +96,9 @@ class DatabaseReader(threading.Thread):
                 count = 0
             count += self.add_pkg(entry)
         # now time to add any remaining installed packages not in the portage tree
-        self.db.depricated_list = self.installed_list[:]
-        #utils.debug.dprint("DBREADER: read_db(); depricated installed packages = " + str(self.db.depricated_list))
-        for entry in self.db.depricated_list:  # remaining installed packages no longer in the tree
+        self.db.deprecated_list = self.installed_list[:]
+        #utils.debug.dprint("DBREADER: read_db(); deprecated installed packages = " + str(self.db.deprecated_list))
+        for entry in self.db.deprecated_list:  # remaining installed packages no longer in the tree
             if self.cancelled: self.done = True; return
             if count == 250:  # update the statusbar
                 self.nodecount += count
@@ -107,7 +107,7 @@ class DatabaseReader(threading.Thread):
                                 "done": self.done, 'db_thread_error': self.error})
                 count = 0
             utils.debug.dprint("DBREADER: read_db(); deprecated entry = " + entry)
-            count += self.add_pkg(entry, depricated=True)
+            count += self.add_pkg(entry, deprecated=True)
 
         utils.debug.dprint("DBREADER: read_db(); end of list build; count = %d nodecount = %d" %(count,self.nodecount))
         self.nodecount += count
@@ -118,7 +118,7 @@ class DatabaseReader(threading.Thread):
         #utils.debug.dprint(self.db)
         utils.debug.dprint("DBREADER: read_db(); end of sort, finished")
 
-    def add_pkg(self, entry, depricated = False):
+    def add_pkg(self, entry, deprecated = False):
             #utils.debug.dprint("DBREADER: add_pkg(); entry = %s" %entry)
             category, name = entry.split('/')
             if category in ["metadata", "distfiles", "eclass"]:
@@ -129,7 +129,7 @@ class DatabaseReader(threading.Thread):
                     name in ['timestamp.x', 'metadata.xml', 'CVS'] ):
                 return 0
             data = Package(entry)
-            data.depricated = depricated
+            data.deprecated = deprecated
             if self.cancelled: self.done = True; return 0
             #self.db.categories.setdefault(category, {})[name] = data;
             # look out for segfaults
