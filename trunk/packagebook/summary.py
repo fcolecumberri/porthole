@@ -236,10 +236,11 @@ class Summary(gtk.TextView):
         def create_ebuild_table(versions):
             myarch = self.myarch
             ebuilds = versions[:] # make a copy
+            while '' in ebuilds: ebuilds.remove('')
             modified = False
             for entry in installed:
                 if entry not in ebuilds:
-                    utils.debug.dprint("SUMMARY; create_ebuild_table(): adding %s to ebuild list" % entry)
+                    utils.debug.dprint("SUMMARY; create_ebuild_table(): adding %s to ebuild list %s" % (entry, str(ebuilds)))
                     ebuilds.append(entry)
                     modified = True
             if modified: ebuilds = ver_sort(ebuilds) # otherwise already sorted
@@ -456,10 +457,11 @@ class Summary(gtk.TextView):
         #utils.debug.dprint("SUMMARY: get package info")
         metadata = package.get_metadata()
         installed = self.installed = package.get_installed()
-        utils.debug.dprint("SUMMARY: installed = %s" %str(installed))
+        utils.debug.dprint("SUMMARY: installed = " + str(installed))
         versions = package.get_versions()
+        utils.debug.dprint("SUMMARY: versions = " + str(versions))
         nonmasked = package.get_versions(include_masked = False)
-        utils.debug.dprint("SUMMARY: nonmasked = %s" %str(nonmasked))
+        utils.debug.dprint("SUMMARY: nonmasked = " + str(nonmasked))
         
         # added by Tommy
         hardmasked = package.get_hard_masked()

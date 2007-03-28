@@ -177,6 +177,8 @@ def two_list_sort(keylist, versions):
 
 def ver_sort(versions):
     """sorts a version list according to portage versioning rules"""
+    if len(versions) <2:  # no need to sort for 0 or 1 versions
+        return versions
     keylist = pad_ver(get_versions_only(versions))
     if not keylist: # there was an error
         dprint("VERSION_SORT: ver_sort(); keylist[] creation error")
