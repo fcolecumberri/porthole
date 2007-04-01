@@ -71,12 +71,9 @@ class PackageNotebook:
         self.summary.show()
         # setup the dependency treeview
         self.deps_view = DependsView(self.new_notebook)
-        self.deps_filled = False
-        self.deps_version = ""
         self.dep_window = None
         self.dep_notebook = None
         self.dep_callback = None
-
         result = self.wtree.get_widget("dependencies_scrolled_window").add(self.deps_view)
         self.notebook.connect("switch-page", self.notebook_changed)
         self.reset_tabs()
@@ -92,36 +89,39 @@ class PackageNotebook:
 
     def reset_tabs(self):
         """set notebook tabs to load new package info"""
-        self.deps_filled = self.changelog_loaded = self.installed_loaded = self.ebuild_loaded = False
-        self.ebuild_loaded_version = None
+        self.loaded = {"deps": False, "changelog": False, "installed": False, "ebuild": False}
+        self.loaded_version= {"ebuild" : None, "installed": None, "deps": None}
 
     def notebook_changed(self, widget, pointer, index):
         """Catch when the user changes the notebook"""
         package = self.package
-        utils.debug.dprint("PackageNotebook notebook_changed(); self.summary.ebuild " +self.summary.ebuild + " self.deps_version : " + self.deps_version)
+        utils.debug.dprint("PackageNotebook notebook_changed(); self.summary.ebuild " +self.summary.ebuild +
+                                    " self.loaded_version['deps'] : " + str(self.loaded_version["deps"]))
         if index == 1:
-            if  self.deps_version != self.summary.ebuild or not self.deps_filled:
+            if  self.loaded_version["deps"] != self.summary.ebuild or not self.loaded["deps"]:
                 utils.debug.dprint("PackageNotebook notebook_changed(); fill the deps view!")
                 self.deps_view.fill_depends_tree(self.deps_view, package, self.summary.ebuild)
-                self.deps_filled = True
-                self.deps_version = self.summary.ebuild
+                self.loaded["deps"] = True
+                self.loaded_version["deps"] = self.summary.ebuild
         elif index == 2:
-            if not self.changelog_loaded:
+            if not self.loaded["changelog"]:
                 # fill in the change log
                 load_textfile(self.changelog, package, "changelog")
-                self.changelog_loaded = True
+                self.loaded["changelog"] = True
         elif index == 3:
-            if not self.installed_loaded:
+            utils.debug.dprint("PackageNotebook notebook_changed(); load installed files for: " + str(self.summary.ebuild))
+            if not self.loaded["installed"] or self.loaded_version["installed"] != self.summary.ebuild:
                 # load list of installed files
-                load_installed_files(self.installed_window, self.installed_files, package)
-                self.installed_loaded = True
+                load_installed_files(self.installed_window, self.installed_files, package, self.summary.ebuild )
+                self.loaded["installed"] = True
+                self.loaded_version["installed"] = self.summary.ebuild
         elif index == 4:
             utils.debug.dprint("PackageNotebook notebook_changed(); self.summary.ebuild = " + str(self.summary.ebuild))
-            if not self.ebuild_loaded or self.ebuild_loaded_version != self.summary.ebuild:
+            if not self.loaded["ebuild"] or self.loaded_version["ebuild"] != self.summary.ebuild:
                 #load_textfile(self.ebuild, package, "best_ebuild")
                 load_textfile(self.ebuild, package, "version_ebuild", self.summary.ebuild)
-                self.ebuild_loaded = True
-                self.ebuild_loaded_version = self.summary.ebuild
+                self.loaded["ebuild"] = True
+                self.loaded_version["ebuild"] = self.summary.ebuild
         else:
             for i in self.plugin_package_tabs:
                 #Search through the plugins dictionary and select the correct one.
