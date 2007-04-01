@@ -336,6 +336,7 @@ class UserConfigs:
             app = SimpleTerminal(command, False, dprint_output='SET_USER_CONFIG CHILD APP: ', callback=Dispatcher(mycallback))
             app._run()
         else:
+            import backends.set_config
             add = add.split()
             remove = remove.split()
             set_config.set_user_config(file, name, ebuild, add, remove)
