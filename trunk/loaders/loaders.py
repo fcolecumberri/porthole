@@ -126,25 +126,32 @@ def load_textfile(view, package, mode, version = None):
             utils.debug.dprint("LOADERS: No package sent to load_textfile()!")
             view.set_text(_("%s Not Available") % Textfile_type[mode][1:])
 
-def load_installed_files(window, view, package):
+def load_installed_files(window, view, package = None, ebuild = None):
         """Obtain and display list of installed files for a package,
         if installed."""
-        if package:
+        utils.debug.dprint("LOADERS: load_installed_files(); package = %s, ebuild = %s" %(package.full_name,ebuild))
+        if ebuild:
+            utils.debug.dprint("LOADERS: load_installed_files(); get installed files for ebuild")
+            installed_files = portage_lib.get_installed_files(ebuild)
+        elif package:
+            utils.debug.dprint("LOADERS: load_installed_files(); get installed files for latest installed version of package")
             installed = package.get_installed()
             is_installed = installed and True or False
             window.set_sensitive(is_installed)
             if is_installed:
                 installed.sort()
+                ebuild = installed[-1]
                 installed_files = portage_lib.get_installed_files(installed[-1])
-                view.set_text(
-                    (_("%i installed files:\n\n") % len(installed_files))
-                    + "\n".join(installed_files))
             else:
                 view.set_text(_("Not installed"))
         else:
             utils.debug.dprint("LOADERS: No package sent to load_installed_files!")
             view.set_text(_("No data currently available.\n" \
                             "The package may not be installed"))
+            return
+        view.set_text((_("%i installed files for: %s\n\n") % (len(installed_files), ebuild)) 
+                            + "\n".join(installed_files))
+
 
 def load_web_page(name):
     """Try to load a web page in the default browser"""
