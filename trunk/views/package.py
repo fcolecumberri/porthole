@@ -32,6 +32,7 @@ import backends.utilities
 portage_lib = backends.portage_lib
 
 import config
+import db
 from commontreeview import CommonTreeView
 import utils.utils
 import utils.debug
@@ -307,10 +308,7 @@ class PackageView(CommonTreeView):
         utils.debug.dprint("VIEWS: Package view add_keyword(); %s" %string)
         def callback():
             self.mainwindow_callback("refresh")
-        portage_lib.set_user_config('package.keywords', name=name, add=arch, callback=callback)
-        #package = utils.utils.get_treeview_selection(self,2)
-        #package.best_ebuild = package.get_latest_ebuild()
-        #self.mainwindow_callback("refresh")
+        db.userconfigs.set_user_config('KEYWORDS', name=name, add=arch, callback=callback)
 
     def emerge(self, widget, pretend=None, sudo=None):
         emergestring = 'emerge'
