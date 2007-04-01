@@ -341,19 +341,18 @@ class PackageView(CommonTreeView):
             return False
         if self.toggle != None : # for upgrade view
             iter = self.get_model().get_iter(self.toggle)
-            #if self.view_model["Upgradable"].get_value(iter, 0) != "None":
-            check = self.view_model["Upgradable"].get_value(iter, 1)
+            check = self.view_model[MODEL_NAMES[self.current_view]].get_value(iter, 1)
             check = not check
-            self.view_model["Upgradable"].set_value(iter, 1, check)
+            self.view_model[MODEL_NAMES[self.current_view]].set_value(iter, 1, check)
             package.is_checked = check
-            #~ if self.view_model["Upgradable"].get_value(iter, 2) == None:
+            #~ if self.view_model[MODEL_NAMES[self.current_view]].get_value(iter, 2) == None:
                 #~ #utils.debug.dprint("VIEWS: _clicked(): Toggling all upgradable deps")
                 #~ # package == None for "Upgradable Dependencies" row
                 #~ # so select or deselect all deps
-                #~ iter = self.view_model["Upgradable"].iter_children(iter)
+                #~ iter = self.view_model[MODEL_NAMES[self.current_view]].iter_children(iter)
                 #~ while iter:
-                    #~ self.view_model["Upgradable"].set_value(iter, 1, check)
-                    #~ iter = self.view_model["Upgradable"].iter_next(iter)
+                    #~ self.view_model[MODEL_NAMES[self.current_view]].set_value(iter, 1, check)
+                    #~ iter = self.view_model[MODEL_NAMES[self.current_view]].iter_next(iter)
             self.dopopup = False # don't popup menu if clicked on checkbox
             self.toggle = None
             return True # we've got it sorted
