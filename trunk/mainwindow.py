@@ -5,7 +5,7 @@
     Porthole Main Window
     The main interface the user will interact with
 
-    Copyright (C) 2003 - 2006
+    Copyright (C) 2003 - 2007
     Fredrik Arnerup, Brian Dolbec, 
     Daniel G. Taylor, Wm. F. Wheeler, Tommy Iorns
 
