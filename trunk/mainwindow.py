@@ -830,12 +830,16 @@ class MainWindow:
     
     def upgrade_packages(self, widget):
         """Upgrade selected packages that have newer versions available."""
-        if self.loaded["Upgradable"]:
+        if self.last_view_setting in [SHOW_UPGRADE, SHOW_DEPRECATED , SHOW_SETS]:
+            my_type = INDEX_TYPES[self.last_view_setting]
+        else:
+            my_type = INDEX_TYPES[SHOW_DEPRECATED]
+        if self.loaded[my_type]:
             utils.debug.dprint("MAINWINDOW: upgrade_packages() upgrades loaded")
             # create a list of packages to be upgraded
             self.packages_list = {}
             self.keyorder = []
-            self.up_model = self.package_view.view_model["Upgradable"]
+            self.up_model = self.package_view.view_model[my_type]
             # read the upgrade tree into a list of packages to upgrade
             self.up_model.foreach(self.tree_node_to_list)
             if self.is_root or config.Prefs.emerge.pretend:
@@ -1188,7 +1192,7 @@ class MainWindow:
                         kids -= 1
                     if catpath: break
                 iter = model.iter_next(iter)
-        elif x in [SHOW_SEARCH, SHOW_UPGRADE, SHOW_REBUILD]:
+        elif x in [SHOW_SEARCH, SHOW_UPGRADE, SHOW_DEPRECATED, SHOW_SETS]:
             while iter:
                 if cat == model.get_value(iter, 0):
                     catpath = model.get_path(iter)
