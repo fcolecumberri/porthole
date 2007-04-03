@@ -90,26 +90,26 @@ def set_user_config(filename, name='', ebuild='', add=[], remove=[], delete=[]):
             config[config.index(line)] = []
             dprint("SET_CONFIG: removed line '%s'" % ' '.join(line))
             done = True
-    if not done:
-        if name and not remove:
+    if not done: # it did not find a matching line to modify
+        if "package.use" in filename or "package.keywords" in filename:
             if add:
                 config.append([name] + add)
                 dprint("SET_CONFIG: added line '%s'" % ' '.join(config[-1]))
-        elif ebuild and remove:
-            # Probably tried to modify by ebuild but was listed by package.
-            # Do a pass with the package name just in case
-            pkg = ebuild
-            while pkg[0] in ["<",">","=","!","*"]: # remove any leading atoms
-                pkg = pkg[1:]
-            import portage
-            cplist = portage.catpkgsplit(pkg) or portage.catsplit(pkg)
-            dprint("SET_CONFIG: cplist = " + str(cplist))
-            if not cplist or len(cplist) < 2:
-                dprint("SET_CONFIG: issues with '%s'" % pkg)
-                return
-            cp = cplist[0] + "/" + cplist[1]
-            dprint("SET_CONFIG: couldn't find '%s', trying '%s' in stead" % (ebuild, cp))
-            return set_user_config(file, name=cp, remove=remove)
+            elif ebuild:
+                # Probably tried to modify by ebuild but was listed by package.
+                # Do a pass with the package name just in case
+                pkg = ebuild
+                while pkg[0] in ["<",">","=","!","*"]: # remove any leading atoms
+                    pkg = pkg[1:]
+                import portage
+                cplist = portage.catpkgsplit(pkg) or portage.catsplit(pkg)
+                dprint("SET_CONFIG: cplist = " + str(cplist))
+                if not cplist or len(cplist) < 2:
+                    dprint("SET_CONFIG: issues with '%s'" % pkg)
+                    return
+                cp = cplist[0] + "/" + cplist[1]
+                dprint("SET_CONFIG: couldn't find '%s', trying '%s' in stead" % (ebuild, cp))
+                return set_user_config(file, name=cp, remove=remove)
         else: # package.mask/unmask: list of names to add
             config.extend([[item] for item in add])
             dprint("SET_CONFIG: added %d lines to %s" % (len(add), file))
@@ -293,7 +293,7 @@ if __name__ == "__main__":
             replace = arg
             dprint("replace = %s" % str(replace))
     
-    if file in ['make.conf']:
+    if 'make.conf' in file:
         set_make_conf(property, add, remove, replace)
     else:
         set_user_config(file, name, ebuild, add, remove)
