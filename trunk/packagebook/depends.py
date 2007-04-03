@@ -29,6 +29,8 @@ from gettext import gettext as _
 import backends
 portage_lib = backends.portage_lib
 
+from backends.utilities import get_reduced_flags
+
 from db.package import Package
 import db
 
@@ -132,8 +134,8 @@ class DependsTree(gtk.TreeStore):
             "keyword":7,
             "atom": 8
         }
-        self.use_flags = portage_lib.get_portage_environ("USE").split()
         self.dep_depth = 0
+        self.parent_use_flags = {}
         
     def parse_depends_list(self, depends_list, parent = None):
         """Read through the depends list and order it nicely
@@ -166,11 +168,18 @@ class DependsTree(gtk.TreeStore):
                     
 
     def add_atomized_depends_to_tree(self, atomized_depends_list, depends_view,
-                                     parent_iter=None, add_satisfied=1):
+                                     parent_iter=None, add_satisfied=1, ebuild = None, is_new_child = False):
         """Add atomized dependencies to the tree"""
+        utils.debug.dprint(" * DependsTree: add_atomized_depends_list(): new depth level = " + str(self.dep_depth))
+        if ebuild and is_new_child:
+            self.parent_use_flags[self.dep_depth] = get_reduced_flags(ebuild)
+            utils.debug.dprint(" * DependsTree: add_atomized_depends_list(): parent_use_flags = reduced: " + str(self.parent_use_flags[self.dep_depth]))
+        elif is_new_child:
+            self.parent_use_flags[self.dep_depth] = portage_lib.SystemUseFlags
+            utils.debug.dprint(" * DependsTree: add_atomized_depends_list(): parent_use_flags = system only")
         for atom in atomized_depends_list:
             dep_atomized_list = []
-            satisfied = atom.is_satisfied(self.use_flags)
+            satisfied = atom.is_satisfied(self.parent_use_flags[self.dep_depth])
             if satisfied:
                 icon = gtk.STOCK_YES
                 add_kids = 0
@@ -247,7 +256,7 @@ class DependsTree(gtk.TreeStore):
                         #utils.debug.dprint("DependsTree: add_atomized_depends_list(): DEP new atomized_list for: " \
                         #                                + atom.name + ' = ' + str(dep_atomized_list) + ' ' + dep_ebuild)
                         self.dep_depth += 1
-                        self.add_atomized_depends_to_tree(dep_atomized_list, depends_view, iter, add_kids)
+                        self.add_atomized_depends_to_tree(dep_atomized_list, depends_view, iter, add_kids, ebuild = dep_ebuild, is_new_child = True )
                         self.dep_depth -= 1
                     #del best,keyworded,masked
 
@@ -277,7 +286,7 @@ class DependsTree(gtk.TreeStore):
             #self.add_depends_to_tree(depends, treeview)
             atomized_depends = atomize_depends_list(depends)
             #utils.debug.dprint(atomized_depends)
-            self.add_atomized_depends_to_tree(atomized_depends, treeview)
+            self.add_atomized_depends_to_tree(atomized_depends, treeview, ebuild = ebuild, is_new_child = True)
         else:
             parent_iter = self.insert_before(None, None)
             self.set_value(parent_iter, self.column["depend"], _("None"))
