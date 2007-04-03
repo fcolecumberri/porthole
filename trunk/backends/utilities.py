@@ -30,6 +30,7 @@ import utils.debug
 import os
 import backends
 portage_lib = backends.portage_lib
+import db
 
 # And now for some code stolen from pkgcore :)
 # Copyright: 2005 Brian Harring <ferringb@gmail.com>
@@ -102,7 +103,7 @@ def reduce_flags(flags):
     for x in flags:
 
         if x[0] == "+":
-            debug.dprint("USE flags should not start " + \
+            utils.debug.dprint("BACKENDS Utilities: USE flags should not start " + \
                 "with a '+': " + x)
             x = x[1:]
             if not x:
@@ -119,3 +120,18 @@ def reduce_flags(flags):
             myflags.append(x)
 
     return myflags
+
+
+def get_reduced_flags(ebuild):
+    """function to get all use flags for an ebuild or package and reduce them to their final setting"""
+    # Check package.use to see if it applies to this ebuild at all
+    package_use_flags = db.userconfigs.get_user_config('USE', ebuild=ebuild)
+    utils.debug.dprint("BACKENDS Utilities: get_reduced_flags(); package_use_flags = %s" %str(package_use_flags))
+    if package_use_flags != None and package_use_flags != []:
+        utils.debug.dprint("BACKENDS Utilities: get_reduced_flags(); adding package_use_flags to ebuild_use_flags")
+        ebuild_use_flags = reduce_flags(portage_lib.SystemUseFlags + package_use_flags)
+    else:
+        utils.debug.dprint("BACKENDS Utilities: get_reduced_flags(); adding only system_use_flags to ebuild_use_flags")
+        ebuild_use_flags = portage_lib.SystemUseFlags
+    return ebuild_use_flags
+

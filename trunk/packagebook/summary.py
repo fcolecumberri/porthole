@@ -35,7 +35,7 @@ import db
 import config
 
 from backends.version_sort import ver_sort
-from backends.utilities import reduce_flags
+from backends.utilities import get_reduced_flags
 from loaders.loaders import load_web_page
 from gettext import gettext as _
 
@@ -357,16 +357,7 @@ class Summary(gtk.TextView):
             return box
 
         def show_props(ebuild):
-            # Check package.use to see if it applies to this ebuild at all
-            package_use_flags = db.userconfigs.get_user_config('USE', ebuild=ebuild)
-            #package_use_flags = db.userconfigs.get_useflags(ebuild)
-            utils.debug.dprint("SUMARY: update_package_info(); package_use_flags = %s" %str(package_use_flags))
-            if package_use_flags != None and package_use_flags != []:
-                utils.debug.dprint("SUMARY: update_package_info(); adding package_use_flags to ebuild_use_flags")
-                ebuild_use_flags = reduce_flags(system_use_flags + package_use_flags)
-            else:
-                utils.debug.dprint("SUMARY: update_package_info(); adding only system_use_flags to ebuild_use_flags")
-                ebuild_use_flags = system_use_flags
+            ebuild_use_flags = get_reduced_flags(ebuild)
             # Use flags
             if use_flags and config.Prefs.summary.showuseflags:
                 append(_("Use flags: "), "property")
