@@ -326,7 +326,8 @@ class AdvancedEmergeDialog:
     def reload(self):
         """ Reload package info """
         # This is the callback for changes to portage config files, so we need to reload portage
-        self.re_init_portage()
+        # now done elsewhere
+        #self.re_init_portage()
         
         # Also delete properties for the current ebuild so they are refreshed
         verInfo = self.current_verInfo
