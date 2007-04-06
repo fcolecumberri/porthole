@@ -47,7 +47,7 @@ from packagebook.depends import DependsTree
 from terminal.terminal import ProcessManager
 from views.category import CategoryView
 from views.package import PackageView
-from views.depends import DependsView
+#from views.depends import DependsView
 from views.commontreeview import CommonTreeView
 from advancedemerge.advemerge import AdvancedEmergeDialog
 from plugin import PluginGUI, PluginManager
