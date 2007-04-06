@@ -43,14 +43,14 @@ from gettext import gettext as _
 
 class DependsView(CommonTreeView):
     """ Store dependency information """
-    def __init__(self, get_popup):
+    def __init__(self, get_popup, parent_tree):
         """ Initialize """
         # initialize the treeview
         CommonTreeView.__init__(self)
         # save the dependency popup callback
         self.get_popup = get_popup
-        # parents name we are building the dependency tree for
-        self.parents_name = ''
+        # parents name we are building the dependency tree for, and some history
+        self.parent_tree = parent_tree #{'name': '', 'tree': '', 'depth': 0}
         # setup the model
         self.model = DependsTree()
         # setup the column
@@ -140,15 +140,13 @@ class DependsView(CommonTreeView):
         self.event_src = None
         self.toggle = None
         self._depend_changed = None
-        self.dep_window = None
-        self.dep_notebook = None
-
+        self.dep_window = {"window": None, "notebook": None, 'tree': []} #, 'depth': 0}
         utils.debug.dprint("DependsView: Depends view initialized")
         #return self
 
     def fill_depends_tree(self, treeview, package, ebuild):
         """ Fill the dependency tree with dependencies """
-        self.parents_name = ebuild
+        self.parent_tree["name"] = ebuild
         # set column title to indicate which ebuild we're using
         utils.debug.dprint("DependsView: DependsView.fill_depends_tree(); ebuild = " + ebuild)
         #title = self.get_column(0).get_title()
@@ -348,31 +346,63 @@ class DependsView(CommonTreeView):
             or changes the package if there already is an open dep_window.
         """
         utils.debug.dprint("DependsView: do_dep_window(); doing the dep pupoup")
-        if self.dep_window == None or self.dep_notebook == None:
-            self.dep_window, self.dep_notebook = self.get_popup(self.dep_window_callback)
-        if  self.dep_window == None or self.dep_notebook == None:
+        if self.dep_window["window"] == None or self.dep_window["notebook"] == None:
+            utils.debug.dprint("********** DependsView: do_dep_window(); parent_tree dep_window tree length " + str(len(self.parent_tree['tree'])) + '  ' + str(len(self.dep_window['tree'])))
+            self.parent_tree['tree'].append(self.parent_tree["name"])
+            utils.debug.dprint("********** DependsView: do_dep_window(); new parent_tree tree & depth " + str(self.parent_tree['tree']) + '  ' + str(len(self.parent_tree['tree'])))
+            self.dep_window = self.get_popup(self.dep_window_callback, self.parent_tree)
+        if  self.dep_window["window"] == None or self.dep_window["notebook"] == None:
             utils.debug.dprint("DependsView: Failed to get the dep_window and/or the dep_notebook")
             return
-        self.dep_window.set_title(_("Porthole Dependency Viewer for: %s")  %self.parents_name)
+        self.dep_window["window"].set_title(_("Porthole Dependency Viewer")) 
+        self.parent_tree['tree'] = self.dep_window['tree'] #+ ('   ' * self.dep_window['depth']) + '\_' + self.parent_tree["name"] 
+        #self.parent_tree['depth'] = self.dep_window['depth']
+        utils.debug.dprint("********** DependsView: do_dep_window(); parent_tree dep_window tree length " + str(len(self.parent_tree['tree'])) + '  ' + str(len(self.dep_window['tree'])))
+        utils.debug.dprint("********** DependsView: do_dep_window(); new dep_window tree & depth " + str(self.parent_tree['tree']) + '  ' + str(len(self.parent_tree['tree'])))
+        self.dep_window['label'].set_text(self.parent_tree["name"])
+        self.set_tip_tree()
         # get the package for the popup
         model, iter = treeview.get_selection().get_selected()
         if iter:
             package =  model.get_value(iter, model.column["package"])
         if package:
             utils.debug.dprint("DependsView: do_dep_window() valid package : " + package.full_name)
-            self.dep_notebook.set_package(package)
-            self.dep_notebook.notebook.set_sensitive(True)
+            self.dep_window["notebook"].set_package(package)
+            self.dep_window["notebook"].notebook.set_sensitive(True)
             # raise window to top of window stack, unminimize, etc.
-            self.dep_window.present()
+            self.dep_window["window"].present()
         else:
             utils.debug.dprint("DependsView: do_dep_window() not a valid package, clearing ")
-            self.dep_notebook.clear_notebook()
-            self.dep_notebook.notebook.set_sensitive(False)
-        #self._depend_changed = self.dep_notebook.set_package
+            self.dep_window["notebook"].clear_notebook()
+            self.dep_window["notebook"].notebook.set_sensitive(False)
+        #self._depend_changed = self.dep_window["notebook"].set_package
+
+    def set_tip_tree(self):
+        utils.debug.dprint("********** DependsView: set_tip_tree()")
+        tip = self.parent_tree['tree'][0]
+        x = 1
+        while x < len(self.parent_tree['tree']):
+            tip = tip +'\n' + ('    ' *  x) + '|__' + self.parent_tree['tree'][x]
+            utils.debug.dprint("********** DependsView: set_tip_tree(); x = " + str(x))
+            x += 1
+        self.dep_window['tooltip'].set_tip(self.dep_window['event_box'], tip)
+        return
+        #self.parent_tree['tree'] = self.parent_tree['tree'] + '\n' + ('   ' * self.parent_tree['depth']) + '|__' + self.parent_tree["name"]
+
+    def set_label(self, name):
+        self.parent_tree["name"] = name
+        self.dep_window['label'].set_text(self.parent_tree["name"])
+
 
     def dep_window_callback(self):
-        del self.dep_window, self.dep_notebook
-        self.dep_window = self.dep_notebook = None
+        del self.dep_window["window"], self.dep_window["notebook"]
+        self.dep_window["window"] = self.dep_window["notebook"] = None
+        utils.debug.dprint("********** DependsView: dep_window_callback(); deleting last entry in dep_window['tree'] = " + str(self.dep_window['tree'][-1]))
+        self.dep_window["tree"] = self.dep_window["tree"][:-1]
+        self.parent_tree["tree"] = self.parent_tree["tree"][:-1]
+        #self.parent_tree['name'] = ''
+        utils.debug.dprint("********** DependsView: dep_window_callback(); DependsView: dep_window['tree'] = " + str(self.dep_window['tree']))
+
 
 
     def emerge(self, widget, pretend=None, sudo=None):

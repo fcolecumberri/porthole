@@ -55,7 +55,7 @@ OFF = False
 class PackageNotebook:
     """Contains all functions for managing a packages detailed views"""
 
-    def __init__( self,  wtree, callbacks, plugin_package_tabs, is_dep_window = False):
+    def __init__( self,  wtree, callbacks, plugin_package_tabs, parent_tree = {'name': '', 'tree': []}): #, 'depth': 0}):
         self.wtree = wtree
         self.callbacks = callbacks
         self.plugin_package_tabs = plugin_package_tabs
@@ -70,10 +70,8 @@ class PackageNotebook:
         result = scroller.add(self.summary)
         self.summary.show()
         # setup the dependency treeview
-        self.deps_view = DependsView(self.new_notebook)
-        self.dep_window = None
-        self.dep_notebook = None
-        self.dep_callback = None
+        self.deps_view = DependsView(self.new_notebook, parent_tree)
+        self.dep_window = {'window': None, 'notebook': None, 'callback': None, 'label': None, 'tooltip': None, 'tree': '', 'depth': 0}
         result = self.wtree.get_widget("dependencies_scrolled_window").add(self.deps_view)
         self.notebook.connect("switch-page", self.notebook_changed)
         self.reset_tabs()
@@ -84,8 +82,8 @@ class PackageNotebook:
         self.reset_tabs()
         self.summary.update_package_info(package)
         self.notebook_changed(None, None, self.notebook.get_current_page())
-        if self.dep_window != None and self.dep_notebook != None:
-            self.dep_notebook.notebook.set_sensitive(False)
+        if self.dep_window["window"] != None and self.dep_window["notebook"] != None:
+            self.dep_window["notebook"].set_new_parent(package.full_name)
 
     def reset_tabs(self):
         """set notebook tabs to load new package info"""
@@ -137,34 +135,59 @@ class PackageNotebook:
         self.installed_files.set_text('')
         self.ebuild.set_text('')
 
-    def new_notebook(self, callback): #, package):
+    def new_notebook(self, callback, parent_tree): #, package):
         """creates a new popup window containing a new notebook instance
         to display 'package'"""
-        self.dep_callback = callback
-        if not self.dep_window:
-            self.dep_window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        self.dep_window["callback"] = callback
+        self.dep_window["tree"] = parent_tree['tree']
+        #self.dep_window['depth'] = parent_tree['depth']
+        if not self.dep_window["window"]:
+            self.dep_window['window'] = gtk.Window(gtk.WINDOW_TOPLEVEL)
+            #self.dep_window['depth'] += 1 # increase the depth number since it is a new window
+            v_box = gtk.VBox()
+            h_box = gtk.HBox()
+            label1 = gtk.Label(_("Viewing Dependecy of: "))
+            h_box.pack_start(label1, False, False, 0)
+            self.dep_window['label'] = gtk.Label()
+            self.dep_window['event_box'] = gtk.EventBox()
+            self.dep_window['event_box'].add(self.dep_window['label'])
+            h_box.pack_start(self.dep_window['event_box'], expand=False, fill=False)
+            label2 = gtk.Label('')
+            h_box.pack_start(label2, expand=True, fill=True)
+            v_box.pack_start(h_box, False, False,3)
+            self.dep_window['tooltip'] = gtk.Tooltips()
+            self.dep_window['tooltip'].set_tip(self.dep_window['event_box'], '')
+            self.dep_window['tooltip'].enable()
             gladefile = config.Prefs.DATA_PATH + config.Prefs.use_gladefile
             self.deptree = gtk.glade.XML(gladefile, "notebook", config.Prefs.APP)
-            self.dep_notebook = PackageNotebook(self.deptree, self.callbacks, self.plugin_package_tabs)
-            self.dep_window.add(self.dep_notebook.notebook)
-            self.dep_window.connect("destroy", self.close_window)
-            self.dep_window.resize(600, 400)
-            self.dep_window.show_all()
-        #self.dep_window.set_title(_("Porthole Dependency Viewer for: %s")  %self.parents_name) 
-        #self.dep_notebook.notebook.set_sensitive(True)
-        utils.debug.dprint("PackageNotebook: new_notebook(); new dep_window, dep_notebook" + str(self.dep_window) +str(self.dep_notebook))
-        return self.dep_window, self.dep_notebook
+            self.dep_window["notebook"] = PackageNotebook(self.deptree, self.callbacks, self.plugin_package_tabs, parent_tree)
+            v_box.pack_start(self.dep_window["notebook"].notebook)
+            self.dep_window["window"].add(v_box)
+            self.dep_window["window"].connect("destroy", self.close_window)
+            self.dep_window["window"].resize(600, 400)
+            self.dep_window["window"].show_all()
+            utils.debug.dprint("********** PackageNotebook: new_notebook(); DependsView: do_dep_window() new dep_window{'window', 'notebook', 'depth'}" + \
+                                    str(self.dep_window["window"]) +str(self.dep_window["notebook"])) # +str(self.dep_window['depth']))
+        return self.dep_window
         
     def close_window(self, *widget):
         # first check for and close any children
-        if self.deps_view.dep_window != None and self.deps_view.dep_notebook != None:
-            self.deps_view.dep_notebook.close_window()
-        if self.dep_window:
-            self.dep_window.destroy()
-            del self.dep_window, self.dep_notebook
-            self.dep_window = self.dep_notebook = None
+        if self.dep_window["window"] != None and self.dep_window["notebook"] != None:
+            self.dep_window["notebook"].close_window()
+        if self.dep_window["window"]:
+            self.dep_window["window"].destroy()
+            del self.dep_window["window"], self.dep_window["notebook"]
+            self.dep_window["window"] = self.dep_window["notebook"] = None
             # tell the initiator that it is destroyed
-            if self.dep_callback:
-                self.dep_callback()
-            
+            if self.dep_window["callback"]:
+                self.dep_window["callback"]()
+
+    def set_new_parent(self, name):
+        if self.dep_window["notebook"] != None:
+            self.dep_window["notebook"].set_new_parent(package.full_name)
+            self.dep_window["notebook"].notebook.set_sensitive(False)
+            self.dep_window["tree"] = self.dep_window["tree"][:-1]
+            self.dep_window.deps_view.parent_tree["tree"] = self.dep_window.deps_view.parent_tree["tree"][:-1]
+            self.dep_window.deps_view.set_label(name)
+
 
