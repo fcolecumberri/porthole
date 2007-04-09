@@ -55,6 +55,7 @@ from readers.upgradeables import UpgradableListReader
 from readers.descriptions import DescriptionReader
 from readers.deprecated import DeprecatedReader
 from readers.search import SearchReader
+from readers.sets import SetListReader
 from loaders.loaders import *
 from backends.version_sort import ver_match
 from backends.utilities import get_sync_info
@@ -236,15 +237,6 @@ class MainWindow:
             self.widget["view_filter_list"].append([i])
         self.widget["view_filter"].set_model(self.widget["view_filter_list"])
         self.widget["view_filter"].set_active(SHOW_ALL)
-        # init pkg lists, counts
-        self.pkg_list = {"Upgradable" :{},
-                                "Deprecated": {},
-                                "Search": {}
-                                }
-        self.pkg_count = {"Upgradable" :{},
-                                "Deprecated": {},
-                                "Search": {}
-                                }
         self.setup_plugins()
         utils.debug.dprint("MAINWINDOW: Showing main window")
         self.mainwindow.show_all()
@@ -277,38 +269,29 @@ class MainWindow:
         self.set_cancel_btn(OFF)
         db.db.set_callback(self.update_db_read)
         # init some dictionaries
-        self.loaded = {"Upgradable": False,
-                                "Deprecated": False,
-                                "Search": False
-                                }
-        self.loaded_callback = {"Upgradable": None,
-                                            "Deprecated": None
-                                            }
-        self.current_cat_name = {"All_Installed": None,
-                                                "Upgradable": None,
-                                                "Deprecated": None,
-                                                "Search":  None
-                                                }
-        self.current_cat_cursor = {"All_Installed": None,
-                                                "Upgradable": None,
-                                                "Deprecated": None,
-                                                "Search":  None
-                                                }
-        self.current_pkg_name = {"All_Installed": None,
-                                                "Upgradable": None,
-                                                "Deprecated": None,
-                                                "Search":  None
-                                                }
-        self.current_pkg_cursor = {"All_Installed": None,
-                                                    "Upgradable": None,
-                                                    "Deprecated": None,
-                                                    "Search": None
-                                                }
-        self.current_pkg_path = {"All_Installed": None,
-                                                "Upgradable": None,
-                                                "Deprecated": None,
-                                                "Search":  None
-                                                }
+        self.loaded_callback = {}
+        self.current_cat_name = {}
+        self.current_cat_cursor = {}
+        self.current_pkg_name = {}
+        self.current_pkg_cursor = {}
+        self.current_pkg_path = {}
+        self.pkg_list = {}
+        self.pkg_count = {}
+        self.loaded = {}
+        for i in ["All_Installed", "Upgradable", "Deprecated", "Search", "Sets"]:
+            self.current_cat_name[i] = None
+            self.current_cat_cursor[i] = None
+            self.current_pkg_name[i] = None
+            self.current_pkg_cursor[i] = None
+            self.current_pkg_path[i] = None
+            if i not  in ["All_Installed"]:
+                # init pkg lists, counts
+                self.pkg_list[i] =  {}
+                self.pkg_count[i] =  {}
+                self.loaded[i] = False
+            if i in ["Upgradable", "Deprecated", "Sets"]:
+                self.loaded_callback[i] = None
+
         # next add any index names that need to be reset on a reload
         self.loaded_resets = ["Search", "Deprecated"]
         self.current_search = None
@@ -1004,7 +987,7 @@ class MainWindow:
         """Catch when the user changes categories."""
         mode = self.widget["view_filter"].get_active()
         # log the new category for reloads
-        if mode not in [SHOW_SEARCH, SHOW_UPGRADE]:
+        if mode not in [SHOW_SEARCH, SHOW_UPGRADE, SHOW_SETS]:
             self.current_cat_name["All_Installed"] = category
             self.current_cat_cursor["All_Installed"] = self.category_view.get_cursor()
         #~ elif mode == SHOW_UPGRADE:
@@ -1036,7 +1019,7 @@ class MainWindow:
             # if search was a package name, select that one
             # (searching for 'python' for example would benefit)
             self.package_view.populate(packages, category)
-        elif mode in [SHOW_UPGRADE, SHOW_DEPRECATED]:
+        elif mode in [SHOW_UPGRADE, SHOW_DEPRECATED, SHOW_SETS]:
             packages = self.pkg_list[INDEX_TYPES[mode]][category]
             self.package_view.populate(packages, self.current_pkg_name[INDEX_TYPES[mode]])
         elif not category or sub_row: #(self.current_cat_cursor["All_Installed"][0][1] == None):
@@ -1129,13 +1112,15 @@ class MainWindow:
             cat = self.current_search
             pack = self.current_pkg_name[INDEX_TYPES[x]]
             #self.select_category_package(cat, pack, x)
-        elif x in [SHOW_UPGRADE, SHOW_DEPRECATED]:
+        elif x in [SHOW_UPGRADE, SHOW_DEPRECATED, SHOW_SETS]:
             utils.debug.dprint("MAINWINDOW: view_filter_changed(); '" + INDEX_TYPES[x] + "' selected")
             cat_scroll.show();
             if x == SHOW_UPGRADE:
                 self.package_view.set_view(self.package_view.UPGRADABLE)
-            else:
+            elif x == SHOW_DEPRECATED:
                 self.package_view.set_view(self.package_view.DEPRECATED)
+            else:
+                self.package_view.set_view(self.package_view.SETS)
             if not self.loaded[INDEX_TYPES[x]]:
                 utils.debug.dprint("MAINWINDOW: view_filter_changed(); calling load_reader_list('" + INDEX_TYPES[x] + "') reader_running = %s ********************************" %self.reader_running)
                 self.load_reader_list(INDEX_TYPES[x])
@@ -1238,7 +1223,10 @@ class MainWindow:
             self.reader = DeprecatedReader(db.db.installed.items())
         elif reader == "Upgradable":
             self.reader = UpgradableListReader(db.db.installed.items(),
-                                                    config.Prefs.emerge.upgradeonly)            
+                                                    config.Prefs.emerge.upgradeonly)
+        elif reader == "Sets":
+            self.reader = SetListReader()
+
         self.reader.start()
         self.reader_running = True
         utils.debug.dprint("MAINWINDOW: load_reader_list(); reader_running set to True")
@@ -1268,33 +1256,27 @@ class MainWindow:
             self.progress_done(True)
             if self.reader.cancelled:
                 return False
-            if reader_type == "Upgradable":
-                self.pkg_list["Upgradable"] = self.reader.pkg_dict
-                self.pkg_count["Upgradable"] = self.reader.pkg_count
-                self.loaded["Upgradable"] = True
+            utils.debug.dprint("MAINWINDOW: update_reader_thread(): reader_type = " + reader_type)
+            if reader_type in ["Upgradable", "Deprecated", "Sets"]:
+                self.pkg_list[reader_type] = self.reader.pkg_dict
+                self.pkg_count[reader_type] = self.reader.pkg_count
+                self.loaded[reader_type] = True
                 self.view_filter_changed(self.widget["view_filter"])
-                if self.loaded_callback["Upgradable"]:
-                    self.loaded_callback["Upgradable"](None)
-                    self.loaded_callback["Upgradable"] = None
+                if self.loaded_callback[reader_type]:
+                    self.loaded_callback[reader_type](None)
+                    self.loaded_callback[reader_type] = None
                 else:
                     if self.last_view_setting == SHOW_UPGRADE:
                         self.package_view.set_view(self.package_view.UPGRADABLE)
                         self.packagebook.summary.update_package_info(None)
                         #self.wtree.get_widget("category_scrolled_window").hide()
-                return False
-            elif reader_type == "Deprecated":
-                self.pkg_list["Deprecated"] = self.reader.pkg_dict
-                self.pkg_count["Deprecated"] = self.reader.pkg_count
-                self.loaded["Deprecated"] = True
-                self.view_filter_changed(self.widget["view_filter"])
-                if self.loaded_callback["Deprecated"]:
-                    self.loaded_callback["Deprecated"](None)
-                    self.loaded_callback["Deprecated"] = None
-                else:
-                    if self.last_view_setting == SHOW_DEPRECATED:
+                    elif self.last_view_setting == SHOW_DEPRECATED:
                         self.package_view.set_view(self.package_view.DEPRECATED)
                         self.packagebook.summary.update_package_info(None)
                         #self.wtree.get_widget("category_scrolled_window").hide()
+                    elif self.last_view_setting == SHOW_SETS:
+                        self.package_view.set_view(self.package_view.SETS)
+                        self.packagebook.summary.update_package_info(None)
                 return False
         elif self.reader.progress < 2:
             # Still building system package list nothing to do
