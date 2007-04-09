@@ -122,9 +122,12 @@ class UserConfigs:
     
     def __init__(self, go):
         utils.debug.dprint("USER_CONFIGS: __init__()")
+        # main index files
         self.db = {}
-        for type in CONFIG_TYPES:
-            self.db[type] = {}
+        self.sources = {}
+        for mytype in CONFIG_TYPES:
+            self.db[mytype] = {}
+            self.sources[mytype] = {}
         for file in CONFIG_FILES:
             utils.debug.dprint("USER_CONFIGS: __init__(); file = " + file)
             self.load(os.path.join(portage_lib.user_config_dir,file))
@@ -139,12 +142,12 @@ class UserConfigs:
                     self.load(os.path.join(myfilename, f), recursive)
         else:
             lines = read_bash(myfilename)
-            self.atomize(lines, myfilename, self.db)
+            self.atomize(lines, myfilename, self.db, self.sources)
 
-    def atomize(self, lines, source, db = None):
+    def atomize(self, lines, source, db = None, sources = None):
         """takes a list of items and creates db records of the package and values"""
-        type = get_type(source)
-        utils.debug.dprint("USER_CONFIGS: atomize(); type = " + type)
+        mytype = get_type(source)
+        utils.debug.dprint("USER_CONFIGS: atomize(); mytype = " + mytype)
         for line in lines:
             values = line.split()
             name,atoms, version = portage_lib.split_atom_pkg( values[0] )
@@ -152,42 +155,42 @@ class UserConfigs:
             atom.atoms = atoms
             atom.version = version
             atom.file = source
-            atom.type = type
+            atom.type = mytype
             atom.value = values[1:]
             utils.debug.dprint("USER_CONFIGS: atomize(); new atom: " + str(atom.name))
             # index by name
-            if name in db[type]:
-                db[type][name].append(atom)
+            if name in db[mytype]:
+                db[mytype][name].append(atom)
             else:
-                db[type][name] = [atom]
+                db[mytype][name] = [atom]
             # index by source
-            if source in db[type]:
-                db[type][source].append(atom)
+            if source in sources[mytype]:
+                sources[mytype][source].append(atom)
             else:
-                db[type][source] = [atom]
+                sources[mytype][source] = [atom]
 
-    def get_atom(self, type, name = None, ebuild = None):
+    def get_atom(self, mytype, name = None, ebuild = None):
         """searches for a package name and or ebuild version
             and returns the atom or None if not found"""
-        if type not in CONFIG_TYPES:
-            return None
-        result = None
+        result = []
+        if mytype not in CONFIG_TYPES:
+            return result
         if name and name != '':
-            if name in self.db[type]:
-                result = self.db[type][name]
-            else:
-                result = []
+            if name in self.db[mytype]:
+                result = self.db[mytype][name]
+            #~ else:
+                #~ result = []
         elif ebuild and ebuild != '':
             utils.debug.dprint("USER_CONFIGS: get_atom(); ebuild = " + ebuild)
             pkgname = portage_lib.get_full_name(ebuild)
             utils.debug.dprint("USER_CONFIGS: get_atom(); pkgname = " + pkgname)
-            if pkgname in self.db[type]:
-                result = self.db[type][pkgname]
-            else:
-                result = []
+            if pkgname in self.db[mytype]:
+                result = self.db[mytype][pkgname]
+            #~ else:
+                #~ result = []
             # match ebuild version
         utils.debug.dprint("USER_CONFIGS: get_atom(); result = " + str(result))
-        return result
+        return result[:]
 
     def get_types(self):
         """returns a list of the valid config types"""
@@ -218,7 +221,7 @@ class UserConfigs:
                     keywords.append(x)
         return keywords
 
-    def get_user_config(self, type, name=None, ebuild=None):
+    def get_user_config(self, mytype, name=None, ebuild=None):
         """
         Function for parsing package.use, package.mask, package.unmask
         and package.keywords.
@@ -232,22 +235,24 @@ class UserConfigs:
         For package.use/keywords, a list of applicable flags is returned.
         For package.mask/unmask, a list containing the matching lines is returned.
         """
-        utils.debug.dprint("USER_CONFIGS: get_user_config('" + type + "')")
+        utils.debug.dprint("USER_CONFIGS: get_user_config('" + mytype + "')")
         masktypes = ['MASK', 'UNMASK']
         othertypes = ['USE', 'KEYWORDS']
         package_types = othertypes + masktypes
-        if type not in package_types:
-            utils.debug.dprint("USER_CONFIGS: get_user_config(): unsupported config type '%s'" % type)
+        if mytype not in package_types:
+            utils.debug.dprint("USER_CONFIGS: get_user_config(): unsupported config mytype '%s'" % mytype)
             return None
-        atoms = self.get_atom(type, name, ebuild)
+        atoms = self.get_atom(mytype, name, ebuild)
         dict = {}
         if ebuild is not None:
             result = []
+            if atoms == []:
+                return result
             for atom in atoms:
                 acpv = atom.acpv()
                 match = portage_lib.xmatch('match-list', acpv, mylist=[ebuild])
                 if match:
-                    if type in masktypes:
+                    if mytype in masktypes:
                         result.extend(acpv) # package.mask/unmask
                     else:
                         result.extend(atom.value[:]) # package.use/keywords
@@ -274,7 +279,7 @@ class UserConfigs:
                         dict[ebuild] = atom.value[:]
         return dict
 
-    def set_user_config( self, type, name='', ebuild='', add='', remove='', callback=None, parent_window = None):
+    def set_user_config( self, mytype, name='', ebuild='', add='', remove='', callback=None, parent_window = None):
         """
         Adds <name> or '=' + <ebuild> to <file> with flags <add>.
         If an existing entry is found, items in <remove> are removed and <add> is added.
@@ -284,16 +289,16 @@ class UserConfigs:
         """
         utils.debug.dprint("USER_CONFIGS: set_user_config()")
         self.set_callback = callback
-        self.set_type = type
+        self.set_type = mytype
         command = ''
-        if type not in CONFIG_TYPES:
-            utils.debug.dprint("USER_CONFIGS: set_user_config(): unsupported config type '%s'" % type)
+        if mytype not in CONFIG_TYPES:
+            utils.debug.dprint("USER_CONFIGS: set_user_config(): unsupported config mytype '%s'" % mytype)
             return False
         config_path = portage_lib.user_config_dir
         # get an existing atom if one exists.  pass both name and ebuild, no need to check which one, I think
-        atom = self.get_atom(type, name, ebuild)
+        atom = self.get_atom(mytype, name, ebuild)
         if atom == None or atom == []: # get a target file
-            file = target = CONFIG_FILES[CONFIG_TYPES.index(type)]
+            file = target = CONFIG_FILES[CONFIG_TYPES.index(mytype)]
             target_path = os.path.join(portage_lib.user_config_dir, target)
             if os.path.isdir(target_path): # Then bring up a file selector dialog
                 if parent_window == None:
@@ -357,32 +362,39 @@ class UserConfigs:
             self.set_callback()
 
 
-    def reload_file(self, type, file):
+    def reload_file(self, mytype, file):
         """reload a config file due to changes"""
-        utils.debug.dprint(" * USER_CONFIGS: reload_file(): type = " + type + ", file = " + file )
+        utils.debug.dprint(" * USER_CONFIGS: reload_file(): mytype = " + mytype + ", file = " + file )
         #return # for now
         # load the file to a temp_db
         temp_db = {}
-        temp_db[type] = {}
+        temp_sources = {}
+        temp_db[mytype] = {}
+        temp_sources[mytype] = {}
         lines = []
         lines = read_bash(file)
-        self.atomize(lines, file, temp_db)
+        self.atomize(lines, file, temp_db, temp_sources)
         # get all atoms matching the correct file
-        old_file_atoms = self.db[type][file]
+        old_file_atoms = self.sources[mytype][file]
         old_file_atoms.sort(cmp)
         old_length = len(old_file_atoms)
-        temp_db[type][file].sort(cmp)
-        new_length = len(temp_db[type][file])
+        temp_db[mytype][file].sort(cmp)
+        new_length = len(temp_db[mytype][file])
         utils.debug.dprint(" * USER_CONFIGS: reload_file(): old atoms : " + str(old_file_atoms))
         for a in old_file_atoms:
             # delete the old record
-            self.db[type][a.name].remove(a)
-        del self.db[type][file]
-        self.db[type][file] = temp_db[type][file]
-        for a in temp_db[type][file]:
+            self.db[mytype][a.name].remove(a)
+        del self.sources[mytype][file]
+        self.sources[mytype][file] = temp_sources[mytype][file]
+        for a in temp_db[mytype][file]:
             # index by name
-            if a.name in self.db[type]:
-                self.db[type][a.name].append(a)
+            if a.name in self.db[mytype]:
+                self.db[mytype][a.name].append(a)
             else:
-                self.db[type][a.name] = [a]
+                self.db[mytype][a.name] = [a]
 
+    def get_source_keys(self, mytype):
+        return self.sources[mytype].keys()
+
+    def get_source_atoms(self, mytype, filename):
+        return self.sources[mytype][filename]
