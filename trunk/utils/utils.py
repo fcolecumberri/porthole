@@ -216,3 +216,7 @@ def help_check(command_string):
 def info_check(command_string):
     return (sre.search("emerge info", command_string) != None)
 
+def get_set_name(file):
+        if file:
+            parts = file.split('/')
+            return parts[-1]
