@@ -69,7 +69,7 @@ SHOW_SEARCH = 2
 SHOW_UPGRADE = 3
 SHOW_DEPRECATED = 4
 SHOW_SETS = 5
-INDEX_TYPES = ["All_Installed", "All_Installed", "Search", "Upgradable", "Deprecated", "Sets"]
+INDEX_TYPES = ["All", "Installed", "Search", "Upgradable", "Deprecated", "Sets"]
 ON = True
 OFF = False
 
@@ -278,13 +278,13 @@ class MainWindow:
         self.pkg_list = {}
         self.pkg_count = {}
         self.loaded = {}
-        for i in ["All_Installed", "Upgradable", "Deprecated", "Search", "Sets"]:
+        for i in ["All", "Installed", "Upgradable", "Deprecated", "Search", "Sets"]:
             self.current_cat_name[i] = None
             self.current_cat_cursor[i] = None
             self.current_pkg_name[i] = None
             self.current_pkg_cursor[i] = None
             self.current_pkg_path[i] = None
-            if i not  in ["All_Installed"]:
+            if i not  in ["All", "Installed"]:
                 # init pkg lists, counts
                 self.pkg_list[i] =  {}
                 self.pkg_count[i] =  {}
@@ -343,7 +343,8 @@ class MainWindow:
         #self.pkg_list["Upgradable"] = {}
         for x in self.loaded_resets:
             self.loaded[x] = False
-        self.current_pkg_path["All_Installed"] = None
+        for i in ["All", "Installed"]:
+            self.current_pkg_path[i] = None
         self.current_pkg_cursor["Search"] = None
         # test to reset portage
         #portage_lib.reload_portage()
@@ -540,7 +541,8 @@ class MainWindow:
             if self.plugin_manager and not self.plugin_manager.plugins: # no plugins
                 self.wtree.get_widget("plugin_settings").set_sensitive(False)
             # make sure we search again if we reloaded!
-            if self.widget["view_filter"].get_active() == SHOW_SEARCH:
+            mode = self.widget["view_filter"].get_active()
+            if  mode in [SHOW_SEARCH]:
                 #utils.debug.dprint("MAINWINDOW: update_db_read()... Search view")
                 # update the views by calling view_filter_changed
                 self.view_filter_changed(self.widget["view_filter"])
@@ -554,31 +556,29 @@ class MainWindow:
                         # re-select the package
                         self.package_view.set_cursor(self.current_pkg_cursor["Search"][0],
                                                      self.current_pkg_cursor["Search"][1])
-            elif self.reload and (self.widget["view_filter"].get_active() == SHOW_ALL or \
-                                  self.widget["view_filter"].get_active() == SHOW_INSTALLED):
+            elif self.reload and mode in [SHOW_ALL, SHOW_INSTALLED]:
                 #utils.debug.dprint("MAINWINDOW: update_db_read()... self.reload=True ALL or INSTALLED view")
                 # reset _last_selected so it thinks this category is new again
                 self.category_view._last_category = None
                 #utils.debug.dprint("MAINWINDOW: re-select the category: self.current_cat_cursor["All_Installed"] =")
                 #utils.debug.dprint(self.current_cat_cursor["All_Installed"])
                 #utils.debug.dprint(type(self.current_cat_cursor["All_Installed"]))
-                if (self.current_cat_cursor["All_Installed"] != None) and (self.current_cat_cursor["All_Installed"] != [None,None]):
-                    # re-select the category
+                if (self.current_cat_cursor[INDEX_TYPES[mode]] != None) and (self.current_cat_cursor[INDEX_TYPES[mode]] != [None,None]):
+               # re-select the category
                     try:
-                        self.category_view.set_cursor(self.current_cat_cursor["All_Installed"][0],
-                                                      self.current_cat_cursor["All_Installed"][1])
+                        self.category_view.set_cursor(self.current_cat_cursor[INDEX_TYPES[mode]][0], self.current_cat_cursor[INDEX_TYPES[mode]][1])
                     except:
-                        utils.debug.dprint('MAINWINDOW: update_db_read(); error converting self.current_cat_cursor["All_Installed"][]: %s'
-                                %str(self.current_cat_cursor["All_Installed"]))
+                        utils.debug.dprint('MAINWINDOW: update_db_read(); error converting self.current_cat_cursor[' + mode + '][]: %s'
+                                %str(self.current_cat_cursor[INDEX_TYPES[mode]]))
                 #~ #utils.debug.dprint("MAINWINDOW: reset _last_selected so it thinks this package is new again")
                 # reset _last_selected so it thinks this package is new again
                 self.package_view._last_selected = None
                 #~ #utils.debug.dprint("MAINWINDOW: re-select the package")
                 # re-select the package
-                if self.current_pkg_path["All_Installed"] != None:
-                    if self.current_pkg_cursor["All_Installed"] != None and self.current_pkg_cursor["All_Installed"][0]:
-                        self.package_view.set_cursor(self.current_pkg_path["All_Installed"],
-                                                     self.current_pkg_cursor["All_Installed"][1])
+                if self.current_pkg_path[INDEX_TYPES[mode]] != None:
+                    if self.current_pkg_cursor[mode] != None and self.current_pkg_cursor[INDEX_TYPES[mode]][0]:
+                        self.package_view.set_cursor(self.current_pkg_path[INDEX_TYPES[mode]],
+                                                     self.current_pkg_cursor[INDEX_TYPES[mode]][1])
                 self.view_filter_changed(self.widget["view_filter"])
                 # reset the upgrades list if it is loaded and not being viewed
                 self.loaded["Upgradable"] = False
@@ -818,7 +818,7 @@ class MainWindow:
         else:
             my_type = INDEX_TYPES[SHOW_DEPRECATED]
         if self.loaded[my_type]:
-            utils.debug.dprint("MAINWINDOW: upgrade_packages() upgrades loaded")
+            utils.debug.dprint("MAINWINDOW: upgrade_packages() " + my_type + " loaded")
             # create a list of packages to be upgraded
             self.packages_list = {}
             self.keyorder = []
@@ -978,31 +978,32 @@ class MainWindow:
         """Refresh PackageView"""
         utils.debug.dprint("MAINWINDOW: refresh()")
         mode = self.widget["view_filter"].get_active()
-        if mode == SHOW_SEARCH:
+        if mode in [SHOW_SEARCH]:
             self.category_changed(self.current_search)
         else:
-            self.category_changed(self.current_cat_name["All_Installed"])
+            self.category_changed(self.current_cat_name[INDEX_TYPES[mode]])
 
     def category_changed(self, category):
         """Catch when the user changes categories."""
         mode = self.widget["view_filter"].get_active()
         # log the new category for reloads
-        if mode not in [SHOW_SEARCH, SHOW_UPGRADE, SHOW_SETS]:
-            self.current_cat_name["All_Installed"] = category
-            self.current_cat_cursor["All_Installed"] = self.category_view.get_cursor()
+        if mode not in [SHOW_SEARCH]: #, SHOW_UPGRADE, SHOW_SETS]:
+            self.current_cat_name[INDEX_TYPES[mode]] = category
+            self.current_cat_cursor[INDEX_TYPES[mode]] = self.category_view.get_cursor()
         #~ elif mode == SHOW_UPGRADE:
             #~ self.current_cat_name["All_Installed"]["Upgradable"] = category
             #~ self.current_upgrade_cursor = self.category_view.get_cursor()
-        else:
+        elif mode in [SHOW_SEARCH]:
             self.current_search = category
             self.current_search_cursor = self.category_view.get_cursor()
         if not self.reload:
-            self.current_pkg_cursor["All_Installed"] = None
+            self.current_pkg_cursor["All"] = None
+            self.current_pkg_cursor["Installed"] = None
         #utils.debug.dprint("Category cursor = " +str(self.current_cat_cursor["All_Installed"]))
         #utils.debug.dprint("Category = " + category)
         #utils.debug.dprint(self.current_cat_cursor["All_Installed"][0])#[1])
-        if self.current_cat_cursor["All_Installed"]:
-            cursor = self.current_cat_cursor["All_Installed"][0]
+        if self.current_cat_cursor[INDEX_TYPES[mode]]:
+            cursor = self.current_cat_cursor[INDEX_TYPES[mode]][0]
             if cursor and len(cursor) > 1:
                 sub_row = cursor[1] == None
             else:
@@ -1019,23 +1020,23 @@ class MainWindow:
             # if search was a package name, select that one
             # (searching for 'python' for example would benefit)
             self.package_view.populate(packages, category)
+        elif not category or sub_row: #(self.current_cat_cursor["All_Installed"][0][1] == None):
+            utils.debug.dprint('MAINWINDOW: category_changed(); category=False or self.current_cat_cursor[' + INDEX_TYPES[mode] + '][0][1]==None')
+            packages = None
+            self.current_pkg_name[INDEX_TYPES[mode]] = None
+            self.current_pkg_cursor[INDEX_TYPES[mode]] = None
+            self.current_pkg_path[INDEX_TYPES[mode]] = None
+            #self.package_view.set_view(self.package_view.PACKAGES)
+            self.package_view.populate(packages)
         elif mode in [SHOW_UPGRADE, SHOW_DEPRECATED, SHOW_SETS]:
             packages = self.pkg_list[INDEX_TYPES[mode]][category]
             self.package_view.populate(packages, self.current_pkg_name[INDEX_TYPES[mode]])
-        elif not category or sub_row: #(self.current_cat_cursor["All_Installed"][0][1] == None):
-            utils.debug.dprint('MAINWINDOW: category_changed(); category=False or self.current_cat_cursor["All_Installed"][0][1]==None')
-            packages = None
-            self.current_pkg_name["All_Installed"] = None
-            self.current_pkg_cursor["All_Installed"] = None
-            self.current_pkg_path["All_Installed"] = None
-            self.package_view.set_view(self.package_view.PACKAGES)
-            self.package_view.clear()
         elif mode == SHOW_ALL:
             packages = db.db.categories[category]
-            self.package_view.populate(packages, self.current_pkg_name["All_Installed"])
+            self.package_view.populate(packages, self.current_pkg_name["All"])
         elif mode == SHOW_INSTALLED:
             packages = db.db.installed[category]
-            self.package_view.populate(packages, self.current_pkg_name["All_Installed"])
+            self.package_view.populate(packages, self.current_pkg_name["Installed"])
         else:
             raise Exception("The programmer is stupid. Unknown category_changed() mode");
 
@@ -1137,19 +1138,19 @@ class MainWindow:
             #self.package_view.clear()
             cat = self.current_cat_name[INDEX_TYPES[x]]
             pack = self.current_pkg_name[INDEX_TYPES[x]]
-        elif x == SHOW_SETS:
-            utils.debug.dprint("MAINWINDOW: view_filter_changed(); Sets selected")
-            cat = None #self.current_cat_name["All_Installed"]
-            pack = None #self.current_pkg_name["All_Installed"]
-            pass
+        #~ elif x == SHOW_SETS:
+            #~ utils.debug.dprint("MAINWINDOW: view_filter_changed(); Sets selected")
+            #~ cat = None #self.current_cat_name["All_Installed"]
+            #~ pack = None #self.current_pkg_name["All_Installed"]
+            #~ pass
 
         utils.debug.dprint("MAINWINDOW: view_filter_changed(); reselect category & package (maybe)")
-        if cat != None and pack != None:
+        if cat != None: # and pack != None:
             self.select_category_package(cat, pack, x)
         # clear the notebook tabs
         #self.clear_package_detail()
         #if self.last_view_setting != x:
-        utils.debug.dprint("MAINWINDOW: view_filter_changed(); last_view_setting " + str(self.last_view_setting) + "changed: x = " + str(x))
+        utils.debug.dprint("MAINWINDOW: view_filter_changed(); last_view_setting " + str(self.last_view_setting) + " changed: x = " + str(x))
         self.last_view_setting = x
         #self.current_cat_name["All_Installed"] = None
         #self.category_view.last_category = None
@@ -1157,16 +1158,16 @@ class MainWindow:
         #self.current_pkg_cursor["All_Installed"] = None
     
     def select_category_package(self, cat, pack, x):
-        utils.debug.dprint("MAINWINDOW: select_category_package(): %s / %s" % (cat, pack))
+        utils.debug.dprint("MAINWINDOW: select_category_package(): %s/%s, x = %s" % (cat, pack,INDEX_TYPES[x]))
         model = self.category_view.get_model()
         iter = model.get_iter_first()
         catpath = None
-        if x in [SHOW_INSTALLED, SHOW_ALL] and cat and '-' in cat:
+        if  cat and '-' in cat: # x in [SHOW_INSTALLED, SHOW_ALL, SHOW_UPGRADE] and
             # find path of category
             catmaj, catmin = cat.split("-")
-            #utils.debug.dprint("catmaj, catmin = %s, %s" % (catmaj, catmin))
+            utils.debug.dprint("catmaj, catmin = %s, %s" % (catmaj, catmin))
             while iter:
-                #utils.debug.dprint("value at iter %s: %s" % (iter, model.get_value(iter, 0)))
+                utils.debug.dprint("value at iter %s: %s" % (iter, model.get_value(iter, 0)))
                 if catmaj == model.get_value(iter, 0):
                     kids = model.iter_n_children(iter)
                     while kids: # this will count backwards, but hey so what
@@ -1175,27 +1176,27 @@ class MainWindow:
                             catpath = model.get_path(kiditer)
                             break
                         kids -= 1
-                    if catpath: break
+                    if catpath:
+                        utils.debug.dprint("found value at iter %s: %s" % (iter, model.get_value(kiditer, 0)))
+                        break
                 iter = model.iter_next(iter)
-        elif x in [SHOW_SEARCH, SHOW_UPGRADE, SHOW_DEPRECATED, SHOW_SETS]:
+        elif cat: #elif x in [SHOW_SEARCH, SHOW_DEPRECATED, SHOW_SETS]:
             while iter:
                 if cat == model.get_value(iter, 0):
                     catpath = model.get_path(iter)
                     break
                 iter = model.iter_next(iter)
-        #elif x == SHOW_UPGRADE:
         #    catpath = 'Sure, why not?'
-        else: utils.debug.dprint("MAINWINDOW: select_category_package(): bad x or category?")
+        else: utils.debug.dprint("MAINWINDOW: select_category_package(): bad category?")
         if catpath:
-            if x: # != SHOW_UPGRADE:
-                self.category_view.expand_to_path(catpath)
-                self.category_view.last_category = None # so it thinks it's changed
-                self.category_view.set_cursor(catpath)
+            self.category_view.expand_to_path(catpath)
+            self.category_view.last_category = None # so it thinks it's changed
+            self.category_view.set_cursor(catpath)
             # now reselect whatever package we had selected
             model = self.package_view.get_model()
             iter = model.get_iter_first()
             path = None
-            while iter:
+            while iter and pack:
                 #utils.debug.dprint("value at iter %s: %s" % (iter, model.get_value(iter, 0)))
                 if model.get_value(iter, 0).split('/')[-1] == pack:
                     path = model.get_path(iter)

@@ -398,3 +398,9 @@ class UserConfigs:
 
     def get_source_atoms(self, mytype, filename):
         return self.sources[mytype][filename]
+
+    def get_source_cplist(self, mytype, key):
+        newlist = []
+        for atom in self.sources[mytype][key]:
+            newlist.append(atom.name)
+        return newlist[:]

@@ -2,9 +2,8 @@
 
 '''
     Porthole Reader Class: Upgradable List Reader
-    The main interface the user will interact with
 
-    Copyright (C) 2003 - 2005 Fredrik Arnerup, Brian Dolbec, 
+    Copyright (C) 2003 - 2007 Fredrik Arnerup, Brian Dolbec, 
     Daniel G. Taylor and Wm. F. Wheeler, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify
@@ -29,31 +28,34 @@ from sterminal import SimpleTerminal
 import backends
 portage_lib = backends.portage_lib
 
+import db
 from db.package import Package
 from commonreader import CommonReader
+from utils.utils import get_set_name
+
+
+PRIORTIES = {"System": 0, "Sets":1, "World":2, "Dependencies":3}
+
 
 class UpgradableListReader(CommonReader):
     """ Read available upgrades and store them in a tuple """
-    def __init__( self, installed, upgrade_only ):
+    def __init__( self, installed, upgrade_only, sets = None ):
         """ Initialize """
         CommonReader.__init__(self)
         self.installed_items = installed
         self.upgrade_only = upgrade_only
+        self.sets = sets
         self.reader_type = "Upgradable"
         #self.world = []
         # hack for statusbar updates
         self.progress = 1
         # beginnings of multiple listings for packages in priority order
         # lists could be passed into the function and result in the following
-        # eg self.categories = ["Tool Chain", "System", "User list", "World", "Dependencies"]
+        # eg self.categories = ["Tool Chain", "System", "Sets", "World", "Dependencies"]
         self.cat_order = ["System", "World", "Dependencies"]
-        #self.categories = {"Tool Chain": None, "System":None, "World":"World", "User list1":None, "Dependencies":"Dependencies"}
         self.categories = {"System":None, "World":"World", "Dependencies":"Dependencies"}
         self.pkg_dict = {}
         self.pkg_count = {}
-        for key in self.categories:
-            self.pkg_dict[key] = {}
-            self.pkg_count[key] = 0
         self.count = 0
         self.pkg_dict_total = 0
         # command lifted fom emwrap and emwrap.sh
@@ -64,6 +66,10 @@ class UpgradableListReader(CommonReader):
         """fill upgrade tree"""
         utils.debug.dprint("READERS: UpgradableListReader(); process id = %d *******************" %os.getpid())
         self.get_system_list()
+        self.get_sets()
+        for key in self.cat_order:
+            self.pkg_dict[key] = {}
+            self.pkg_count[key] = 0
         upgradeflag = self.upgrade_only and True or False
         # find upgradable packages
         for cat, packages in self.installed_items:
@@ -88,6 +94,8 @@ class UpgradableListReader(CommonReader):
         # set the thread as finished
         self.done = True
         return
+
+
 
     def get_system_list( self, emptytree = False ):
         utils.debug.dprint("READERS: UpgradableListReader; getting system package list")
@@ -114,4 +122,11 @@ class UpgradableListReader(CommonReader):
     def get_sets( self):
         """Get any package lists stored in the /etc/portage/sets directory
            and add them to the categories list"""
-        
+        sets_list = []
+        for key in db.userconfigs.get_source_keys("SETS"):
+            name = get_set_name(key)
+            self.categories["Sets-"+name] = db.userconfigs.get_source_cplist("SETS", key)
+            sets_list.append("Sets-"+name)
+        self.cat_order = ["System"] + sets_list + ["World", "Dependencies"]
+        return #sets_lists
+                

@@ -29,6 +29,7 @@ portage_lib = backends.portage_lib
 import db
 from db.package import Package
 from commonreader import CommonReader
+from utils.utils import get_set_name
 
 class SetListReader(CommonReader):
     """ Convert userconfigs sets to a filename (category) & pkg (package) db (tuple) """
@@ -52,7 +53,7 @@ class SetListReader(CommonReader):
         utils.debug.dprint("READERS: SetListReader(); filenames are: " + str(filenames))
         for filename in filenames:
             utils.debug.dprint("READERS: SetListReader(); filename is: " + filename)
-            key = self.get_set_name(filename)
+            key =get_set_name(filename)
             if key not in self.pkg_dict.keys():
                 self.pkg_dict[key] = {}
                 self.pkg_count[key] = 0
@@ -77,9 +78,5 @@ class SetListReader(CommonReader):
         self.done = True
         return
 
-    def get_set_name(self, file):
-        if file:
-            parts = file.split('/')
-            return parts[-1]
 
       

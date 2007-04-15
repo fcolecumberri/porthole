@@ -22,7 +22,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-#from backends import portage_lib
+import db
 from backends.version_sort import ver_sort
 
 import utils.debug
@@ -45,6 +45,7 @@ class Package:
         self.category = None
         self.properties = {}
         self.upgradable = None
+        self.dep_upgradable = None
 
         self.latest_installed = None
         self.size = None
@@ -252,4 +253,35 @@ class Package:
             elif better == installed:
                 self.upgradable = -1
         return self.upgradable
+
+    def is_dep_upgradable(self, refresh = False, dep = None):
+        """Indicates whether an unmasked upgrade/downgrade is available.
+        If portage wants to upgrade the package, returns 1.
+        If portage wants to downgrade the package, returns -1.
+        Else, returns 0.
+        """
+        if self.full_name == "None":
+            return 0
+        if dep == None:
+            atoms = db.userconfigs.get_atom('SETS',self.full_name)
+            if atoms != []:
+                # use the last one in the list
+                dep = atoms[-1].acpv()
+            else: #
+                dep = self.full_name
+        if self.dep_upgradable == None or refresh:
+            best, keyworded, hardmasked = portage_lib.get_dep_ebuild(dep)
+            installed = self.get_latest_installed(refresh)
+            if not best or not installed:
+                self.dep_upgradable = 0
+                return self.dep_upgradable
+            better = portage_lib.best([best,installed])
+            if best == installed:
+                self.dep_upgradable = 0
+            elif better == best:
+                self.dep_upgradable = 1
+            elif better == installed:
+                self.dep_upgradable = -1
+        return self.dep_upgradable
+
 
