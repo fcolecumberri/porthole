@@ -40,7 +40,7 @@ from helpers import *
 from models import PackageModel
 from gettext import gettext as _
 
-MODEL_NAMES = ["All_Installed", "Search", "Upgradable", "Deprecated", "Sets", "Blank", "Temp"]
+MODEL_NAMES = ["All", "Installed", "Search", "Upgradable", "Deprecated", "Sets", "Blank", "Temp"]
 
 class PackageView(CommonTreeView):
     """ Self contained treeview of packages """
@@ -416,11 +416,12 @@ class PackageView(CommonTreeView):
  
     def populate(self, packages, locate_name = None):
         """ Populate the current view with packages """
-        if not packages:
-            self.get_model().clear()
-            return
         utils.debug.dprint("VIEWS: Populating package view")
         utils.debug.dprint("VIEWS: PackageView.populate(); process_id = %s" %str(os.getpid()))
+        if not packages:
+            utils.debug.dprint("VIEWS: clearing package view model")
+            self.get_model().clear()
+            return
         # ask info_thread to die, if alive
         self.infothread_die = "Please"
         self.model = None
@@ -444,7 +445,7 @@ class PackageView(CommonTreeView):
             if name != "None":
                 model.set_value(iter, 1, (packages[name].is_checked))
                 model.set_value(iter, 4, (packages[name].in_world))
-                upgradable = packages[name].is_upgradable()
+                upgradable = packages[name].is_dep_upgradable()
                 if upgradable == 1: # portage wants to upgrade
                     model.set_value(iter, 5, config.Prefs.views.upgradable_fg)
                 elif upgradable == -1: # portage wants to downgrade
