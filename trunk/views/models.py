@@ -29,7 +29,7 @@ import gtk, gobject
 from helpers import *
 from sorts import *
 
-from gettext import gettext as _
+#from gettext import gettext as _
 
 
 def PackageModel():
