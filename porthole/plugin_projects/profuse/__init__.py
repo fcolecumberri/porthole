@@ -21,8 +21,8 @@
 '''
 
 
-import utils
-from utils import dprint
+from utils.utils import is_root
+import utils.debug
 from gettext import gettext as _
 from sterminal import SimpleTerminal
 
@@ -38,14 +38,16 @@ initialized = False
 enabled = False
 ## The next variable should be set to False if the porthole preferences are not needed
 #need_prefs = False
-need_prefs = True ## then plugin.py will push them here during initialzation
-prefs = None
+need_prefs = True ## then import them from Config
+
+if need_prefs:
+    import config
 
 def new_instance(my_manager):
     global  manager, initialized
     manager = my_manager
     initialized = True
-    dprint(plugin_name + " new_instance: initialized okay")
+    utils.debug.dprint(plugin_name + " new_instance: initialized okay")
     return True
 
 def destroy_instance( ):
@@ -54,19 +56,26 @@ def destroy_instance( ):
         disable_plugin()    
     manager.del_menuitem(menuitem)
     initialized = False
-    dprint(plugin_name + " destroy_instance: destroyed")
+    utils.debug.dprint(plugin_name + " destroy_instance: destroyed")
     return True
     
 def enable_plugin():
     global menuitem1, menuitem2, enabled, initialized
     if initialized == False:
-        dprint(plugin_name + " enable_plugin: not initialized!")
+        utils.debug.dprint(plugin_name + " enable_plugin: not initialized!")
         return False
-    dprint(plugin_name + " enable_plugin: generating new menuitem")
-    menuitem1 = manager.new_menuitem(_("Profuse (user mode)"))
-    menuitem1.connect("activate", run_as_user)
-    menuitem2 = manager.new_menuitem(_("Profuse (su mode)"))
-    menuitem2.connect("activate", run_as_root)
+    utils.debug.dprint(plugin_name + " enable_plugin: generating new menuitem")
+    if is_root():
+        menuitem1 = manager.new_menuitem(_("Profuse (root mode)"))
+        utils.debug.dprint(plugin_name + " enabling plugin to run_as_user user='root'")
+        menuitem1.connect("activate", run_as_user)
+    else:
+        menuitem1 = manager.new_menuitem(_("Profuse (user mode)"))
+        utils.debug.dprint(plugin_name + " enabling plugin to run_as_user, user='non-root'")
+        menuitem1.connect("activate", run_as_user)
+        menuitem2 = manager.new_menuitem(_("Profuse (su mode)"))
+        utils.debug.dprint(plugin_name + " enabling plugin to run_as_root, user='non-root'")
+        menuitem2.connect("activate", run_as_root)
     enabled = True
     return True
 
@@ -88,7 +97,7 @@ event_table = {
 
 def run_as_root(*args):
 	global app, command, prefs
-	app = SimpleTerminal(prefs.globals.su + ' ' + command, False)
+	app = SimpleTerminal(config.Prefs.globals.su + ' ' + command, False)
 	app._run()
 
 def run_as_user(*args):
