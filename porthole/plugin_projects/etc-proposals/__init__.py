@@ -40,6 +40,9 @@ enabled = False
 #need_prefs = False
 need_prefs = True ## then import them from Config
 
+# boolean cause a the plugin gui to load the plugin's options widget
+HAS_OPTIONS = True
+
 if need_prefs:
     import config
 
@@ -100,4 +103,7 @@ def run_as_user(*args):
 	global app, command
 	app = SimpleTerminal(command, False)
 	app._run()
+
+def configure_options():
+	pass
 
