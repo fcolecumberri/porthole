@@ -157,20 +157,20 @@ class DependsView(CommonTreeView):
 
     def populate_info(self, model, path, iter):
         """ Populate the current view with packages """
-        utils.debug.dprint("DependsView: DependsView.populate_info()")
+        #utils.debug.dprint("DependsView: DependsView.populate_info()")
         if model.get_value(iter, model.column["depend"]): # == "None":
-                utils.debug.dprint("DependsView: populate_info(); dependency name = " + model.get_value(iter, model.column["depend"]))
+                #utils.debug.dprint("DependsView: populate_info(); dependency name = " + model.get_value(iter, model.column["depend"]))
                 try:
                     package = model.get_value(iter, model.column["package"])
                     name = package.full_name
                     latest_installed = package.get_latest_installed()
-                    utils.debug.dprint("DependsView: populate_info(); latest_installed: %s, getting best_ebuild" %str(latest_installed))
+                    #utils.debug.dprint("DependsView: populate_info(); latest_installed: %s, getting best_ebuild" %str(latest_installed))
                     best_ebuild, keyworded_ebuild, masked_ebuild = portage_lib.get_dep_ebuild(model.get_value(iter,model.column["depend"]))
                     #utils.debug.dprint("DependsView: populate_info(); best_ebuild: %s, getting latest_ebuild" %str(best_ebuild))
                     #latest_ebuild = package.get_latest_ebuild(False) # include_masked = False
                     #utils.debug.dprint("DependsView: populate_info(); latest_ebuild: %s" %str(latest_ebuild))
                     model.set_value(iter, model.column["installed"], portage_lib.get_version(latest_installed)) # installed
-                    utils.debug.dprint("DependsView: populate_info(); model.latest_installed version = " + model.get_value(iter, model.column["installed"]))
+                    #utils.debug.dprint("DependsView: populate_info(); model.latest_installed version = " + model.get_value(iter, model.column["installed"]))
                     keywords = ''
                     if best_ebuild != '':
                         model.set_value(iter, model.column["latest"], portage_lib.get_version(best_ebuild)) #  recommended by portage
@@ -191,18 +191,19 @@ class DependsView(CommonTreeView):
                     model.set_value(iter, model.column["name"], name)
                     model.set_value(iter, model.column["keyword"], keywords)
                 except Exception, e:
-                    utils.debug.dprint("DependsView: populate_info(): Stopping due to exception '%s'" % e)
+                    if "'NoneType' object has no attribute " not in str(e):
+                        utils.debug.dprint("DependsView: populate_info(): Stopping due to exception %s" % e)
         return False
 
     def get_relevant_keywords(self, package, ebuild):
-        utils.debug.dprint("DependsView: get_relevant_keywords(); ebuild = " + ebuild)
+        #utils.debug.dprint("DependsView: get_relevant_keywords(); ebuild = " + ebuild)
         keys = package.get_properties(ebuild).get_keywords()
-        utils.debug.dprint("DependsView: get_relevant_keywords(); keys = " + str(keys))
+        #utils.debug.dprint("DependsView: get_relevant_keywords(); keys = " + str(keys))
         if config.Prefs.globals.enable_archlist:
             archlist = config.Prefs.globals.archlist
         else:
             archlist = [portage_lib.get_arch()]
-        utils.debug.dprint("DependsView: get_relevant_keywords(); archlist = " + str(archlist))
+        #utils.debug.dprint("DependsView: get_relevant_keywords(); archlist = " + str(archlist))
         keywords = ''
         x = 1
         for arch in archlist:
@@ -216,7 +217,7 @@ class DependsView(CommonTreeView):
                     keywords = keywords + ", "
                 keywords = keywords + arch
                 x += 1
-        utils.debug.dprint("DependsView: get_relevant_keywords(); retuning keywords: " + keywords)
+        #utils.debug.dprint("DependsView: get_relevant_keywords(); retuning keywords: " + keywords)
         return keywords
 
 
@@ -308,7 +309,7 @@ class DependsView(CommonTreeView):
             self.dopopup = False
             
         if event.type == gtk.gdk._2BUTTON_PRESS:
-            utils.debug.dprint("DependsView: dbl-click event detected")
+            #utils.debug.dprint("DependsView: dbl-click event detected")
             # Capture the source of the dbl-click event
             # but do nothing else
             self.event_src = widget
@@ -325,7 +326,7 @@ class DependsView(CommonTreeView):
             self.event_src = None
             # The button release event following the dbl-click
             # from the same widget, go ahead and process now
-            utils.debug.dprint("DependsView: button release dbl-click event detected, enabling dep popup")
+            #utils.debug.dprint("DependsView: button release dbl-click event detected, enabling dep popup")
             _do_dep_window = True
             
         # Test to make sure something was clicked on:
@@ -336,7 +337,7 @@ class DependsView(CommonTreeView):
             return True
         else:
             #path, col, cellx, celly = pathinfo
-            utils.debug.dprint("DependsView: pathinfo = %s" %str(pathinfo))
+            #utils.debug.dprint("DependsView: pathinfo = %s" %str(pathinfo))
             #treeview.set_cursor(path, col, 0) # Note: sets off _clicked again
             if _do_dep_window:
                 self.do_dep_window(widget)
@@ -348,17 +349,17 @@ class DependsView(CommonTreeView):
         """
         utils.debug.dprint("DependsView: do_dep_window(); doing the dep pupoup")
         if self.dep_window["window"] == None or self.dep_window["notebook"] == None:
-            utils.debug.dprint("********** DependsView: do_dep_window(); parent_tree length " + str(len(self.parent_tree)))
+            #utils.debug.dprint("********** DependsView: do_dep_window(); parent_tree length " + str(len(self.parent_tree)))
             self.parent_tree.append(self.parent_name)
-            utils.debug.dprint("********** DependsView: do_dep_window(); new parent_tree tree & depth " + str(self.parent_tree) + '  ' + str(len(self.parent_tree)))
+            #utils.debug.dprint("********** DependsView: do_dep_window(); new parent_tree tree & depth " + str(self.parent_tree) + '  ' + str(len(self.parent_tree)))
             self.dep_window = self.get_popup(self.dep_window_callback, self.parent_name, self.parent_tree[:])
         if  self.dep_window["window"] == None or self.dep_window["notebook"] == None:
-            utils.debug.dprint("DependsView: Failed to get the dep_window and/or the dep_notebook")
+            #utils.debug.dprint("DependsView: Failed to get the dep_window and/or the dep_notebook")
             return
         self.dep_window["window"].set_title(_("Porthole Dependency Viewer")) 
         self.parent_tree = self.dep_window['tree']
-        utils.debug.dprint("********** DependsView: do_dep_window(); parent_tree dep_window tree length " + str(len(self.parent_tree)) + '  ' + str(len(self.dep_window['tree'])))
-        utils.debug.dprint("********** DependsView: do_dep_window(); new dep_window tree & depth " + str(self.parent_tree) + '  ' + str(len(self.parent_tree)))
+        #utils.debug.dprint("********** DependsView: do_dep_window(); parent_tree dep_window tree length " + str(len(self.parent_tree)) + '  ' + str(len(self.dep_window['tree'])))
+        #utils.debug.dprint("********** DependsView: do_dep_window(); new dep_window tree & depth " + str(self.parent_tree) + '  ' + str(len(self.parent_tree)))
         self.dep_window['label'].set_text(self.parent_name)
         self.set_tip_tree()
         # get the package for the popup
@@ -366,24 +367,24 @@ class DependsView(CommonTreeView):
         if iter:
             package =  model.get_value(iter, model.column["package"])
         if package:
-            utils.debug.dprint("DependsView: do_dep_window() valid package : " + package.full_name)
+            #utils.debug.dprint("DependsView: do_dep_window() valid package : " + package.full_name)
             self.dep_window["notebook"].set_package(package)
             self.dep_window["notebook"].notebook.set_sensitive(True)
             # raise window to top of window stack, unminimize, etc.
             self.dep_window["window"].present()
         else:
-            utils.debug.dprint("DependsView: do_dep_window() not a valid package, clearing ")
+            #utils.debug.dprint("DependsView: do_dep_window() not a valid package, clearing ")
             self.dep_window["notebook"].clear_notebook()
             self.dep_window["notebook"].notebook.set_sensitive(False)
         #self._depend_changed = self.dep_window["notebook"].set_package
 
     def set_tip_tree(self):
-        utils.debug.dprint("********** DependsView: set_tip_tree()")
+        #utils.debug.dprint("********** DependsView: set_tip_tree()")
         tip = self.parent_tree[0]
         x = 1
         while x < len(self.parent_tree):
             tip = tip +'\n' + ('    ' *  x) + '|__' + self.parent_tree[x]
-            utils.debug.dprint("********** DependsView: set_tip_tree(); x = " + str(x))
+            #utils.debug.dprint("********** DependsView: set_tip_tree(); x = " + str(x))
             x += 1
         self.dep_window['tooltip'].set_tip(self.dep_window['event_box'], tip)
         return
@@ -396,10 +397,10 @@ class DependsView(CommonTreeView):
     def dep_window_callback(self):
         del self.dep_window["window"], self.dep_window["notebook"]
         self.dep_window["window"] = self.dep_window["notebook"] = None
-        utils.debug.dprint("********** DependsView: dep_window_callback(); deleting last entry in dep_window['tree'] = " + str(self.dep_window['tree'][-1]))
+        #utils.debug.dprint("********** DependsView: dep_window_callback(); deleting last entry in dep_window['tree'] = " + str(self.dep_window['tree'][-1]))
         self.dep_window["tree"] = self.dep_window["tree"][:-1]
         self.parent_tree = self.parent_tree[:-1]
-        utils.debug.dprint("********** DependsView: dep_window_callback(); DependsView: dep_window['tree'] = " + str(self.dep_window['tree']))
+        #utils.debug.dprint("********** DependsView: dep_window_callback(); DependsView: dep_window['tree'] = " + str(self.dep_window['tree']))
 
 
 
@@ -419,7 +420,7 @@ class DependsView(CommonTreeView):
         arch = "~" + portage_lib.get_arch()
         name = utils.get_treeview_selection(self, 2).full_name
         string = name + " " + arch + "\n"
-        utils.debug.dprint("DependsView: Package view add_keyword(); %s" %string)
+        #utils.debug.dprint("DependsView: Package view add_keyword(); %s" %string)
         def callback():
             self.mainwindow_callback("refresh")
         portage_lib.set_user_config('package.keywords', name=name, add=arch, callback=callback)
