@@ -170,13 +170,13 @@ class DependsTree(gtk.TreeStore):
     def add_atomized_depends_to_tree(self, atomized_depends_list, depends_view,
                                      parent_iter=None, add_satisfied=1, ebuild = None, is_new_child = False):
         """Add atomized dependencies to the tree"""
-        utils.debug.dprint(" * DependsTree: add_atomized_depends_list(): new depth level = " + str(self.dep_depth))
+        #utils.debug.dprint(" * DependsTree: add_atomized_depends_list(): new depth level = " + str(self.dep_depth))
         if ebuild and is_new_child:
             self.parent_use_flags[self.dep_depth] = get_reduced_flags(ebuild)
-            utils.debug.dprint(" * DependsTree: add_atomized_depends_list(): parent_use_flags = reduced: " + str(self.parent_use_flags[self.dep_depth]))
+            #utils.debug.dprint(" * DependsTree: add_atomized_depends_list(): parent_use_flags = reduced: " + str(self.parent_use_flags[self.dep_depth]))
         elif is_new_child:
             self.parent_use_flags[self.dep_depth] = portage_lib.SystemUseFlags
-            utils.debug.dprint(" * DependsTree: add_atomized_depends_list(): parent_use_flags = system only")
+            #utils.debug.dprint(" * DependsTree: add_atomized_depends_list(): parent_use_flags = system only")
         for atom in atomized_depends_list:
             dep_atomized_list = []
             satisfied = atom.is_satisfied(self.parent_use_flags[self.dep_depth])
@@ -262,7 +262,7 @@ class DependsTree(gtk.TreeStore):
 
     def fill_depends_tree(self, treeview, package, ebuild):
         """Fill the dependencies tree for a given ebuild"""
-        utils.debug.dprint("DependsTree: Updating deps tree for " + package.get_name())
+        #utils.debug.dprint("DependsTree: Updating deps tree for " + package.get_name())
         #ebuild = package.get_default_ebuild()
         ##depends = portage_lib.get_property(ebuild, "DEPEND").split()
         depends = get_depends(package, ebuild)
@@ -394,7 +394,7 @@ def atomize_depends_list(depends_list, parent = None):
     
 def split_group(dep_list):
     """separate out the ( ) grouped dependencies"""
-    utils.debug.dprint("DependsTree: split_group(); starting")
+    #utils.debug.dprint("DependsTree: split_group(); starting")
     group = []
     remainder = []
     if dep_list[0] != '(':
