@@ -85,7 +85,7 @@ def get_sync_info():
                 last_sync = (str(data).decode('utf_8').encode("utf_8",'replace'))
             except:
                 try:
-                    utils.debug.dprint("BACKENDS Utilities: get_sync_info(); trying iso-8859-1 encoding")
+                    #utils.debug.dprint("BACKENDS Utilities: get_sync_info(); trying iso-8859-1 encoding")
                     last_sync = (str(data).decode('iso-8859-1').encode('utf_8', 'replace'))
                 except:
                     utils.debug.dprint("BACKENDS Utilities: get_sync_info(); Failure = unknown encoding")
@@ -126,12 +126,12 @@ def get_reduced_flags(ebuild):
     """function to get all use flags for an ebuild or package and reduce them to their final setting"""
     # Check package.use to see if it applies to this ebuild at all
     package_use_flags = db.userconfigs.get_user_config('USE', ebuild=ebuild)
-    utils.debug.dprint("BACKENDS Utilities: get_reduced_flags(); package_use_flags = %s" %str(package_use_flags))
+    #utils.debug.dprint("BACKENDS Utilities: get_reduced_flags(); package_use_flags = %s" %str(package_use_flags))
     if package_use_flags != None and package_use_flags != []:
-        utils.debug.dprint("BACKENDS Utilities: get_reduced_flags(); adding package_use_flags to ebuild_use_flags")
+        #utils.debug.dprint("BACKENDS Utilities: get_reduced_flags(); adding package_use_flags to ebuild_use_flags")
         ebuild_use_flags = reduce_flags(portage_lib.SystemUseFlags + package_use_flags)
     else:
-        utils.debug.dprint("BACKENDS Utilities: get_reduced_flags(); adding only system_use_flags to ebuild_use_flags")
+        #utils.debug.dprint("BACKENDS Utilities: get_reduced_flags(); adding only system_use_flags to ebuild_use_flags")
         ebuild_use_flags = portage_lib.SystemUseFlags
     return ebuild_use_flags
 

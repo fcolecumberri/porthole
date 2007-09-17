@@ -68,7 +68,7 @@ class Database(DBBase):
     def get_package(self, full_name):
         """Get a Package object based on full name."""
         try:
-            utils.debug.dprint("Database: get_package(); fullname = " + full_name)
+            #utils.debug.dprint("Database: get_package(); fullname = " + full_name)
             category = portage_lib.get_category(full_name)
             name = portage_lib.get_name(full_name)
             if (category in self.categories
