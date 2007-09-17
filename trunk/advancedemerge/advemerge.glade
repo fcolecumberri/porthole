@@ -17,6 +17,7 @@
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -98,39 +99,18 @@
 		<widget class="GtkTable" id="table2">
 		  <property name="border_width">3</property>
 		  <property name="visible">True</property>
-		  <property name="n_rows">4</property>
+		  <property name="n_rows">6</property>
 		  <property name="n_columns">5</property>
 		  <property name="homogeneous">True</property>
 		  <property name="row_spacing">1</property>
 		  <property name="column_spacing">1</property>
 
 		  <child>
-		    <widget class="GtkCheckButton" id="cbBuildPkg">
-		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Tells emerge to build binary packages for  all  ebuilds  processed  in addition to actually merging the packages.  Useful for maintainers or if you administrate multiple Gentoo  Linux systems  (build  once, emerge tbz2s everywhere).  The package will be created in the ${PKGDIR}/All directory.  An  alternative  for  already-merged  packages  is to use quickpkg which  creates a tbz2 from the live filesystem.</property>
-		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">buildpkg</property>
-		      <property name="use_underline">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">True</property>
-		      <property name="active">False</property>
-		      <property name="inconsistent">False</property>
-		      <property name="draw_indicator">True</property>
-		      <signal name="clicked" handler="on_cbBuildPkg_clicked" last_modification_time="Sun, 23 May 2004 22:04:27 GMT"/>
-		    </widget>
-		    <packing>
-		      <property name="left_attach">0</property>
-		      <property name="right_attach">1</property>
-		      <property name="top_attach">0</property>
-		      <property name="bottom_attach">1</property>
-		      <property name="y_options"></property>
-		    </packing>
-		  </child>
-
-		  <child>
 		    <widget class="GtkCheckButton" id="cbBuildPkgOnly">
 		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Creates binary packages for  all  ebuilds  processed  without actually merging the packages.  This comes with the caveat that all build time dependencies must already be emerged on the system.</property>
+		      <property name="tooltip" translatable="yes">--buildpkgonly (-B)
+Creates binary packages for all ebuilds processed without actually merging  the  packages.   This  comes  with  the
+caveat that all build-time dependencies must already be emerged on the system.</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">buildpkgonly</property>
 		      <property name="use_underline">True</property>
@@ -144,8 +124,86 @@
 		    <packing>
 		      <property name="left_attach">0</property>
 		      <property name="right_attach">1</property>
+		      <property name="top_attach">3</property>
+		      <property name="bottom_attach">4</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options"></property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkCheckButton" id="cbBuildPkg">
+		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes"> --buildpkg (-b)
+Tells emerge to build binary packages for all ebuilds processed in addition to actually merging the packages.  Useful for maintainers or if you administrate multiple Gentoo Linux systems (build  once,  emerge  tbz2s  everywhere). The  package  will be created in the ${PKGDIR}/All directory.  An alternative for already-merged packages is to use quickpkg which creates a tbz2 from the live filesystem.</property>
+		      <property name="can_focus">True</property>
+		      <property name="label" translatable="yes">buildpkg</property>
+		      <property name="use_underline">True</property>
+		      <property name="relief">GTK_RELIEF_NORMAL</property>
+		      <property name="focus_on_click">True</property>
+		      <property name="active">False</property>
+		      <property name="inconsistent">False</property>
+		      <property name="draw_indicator">True</property>
+		      <signal name="clicked" handler="on_cbBuildPkg_clicked" last_modification_time="Sun, 23 May 2004 22:04:27 GMT"/>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">0</property>
+		      <property name="right_attach">1</property>
+		      <property name="top_attach">2</property>
+		      <property name="bottom_attach">3</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options"></property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkCheckButton" id="cbAsk">
+		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes">--ask (-a)
+Before performing the action, display what will take place (server info for --sync, --pretend output for merge, and so  forth),  then ask whether to proceed with the action or abort.  Using --ask is more efficient than using --pre‐
+tend and then executing the same command without --pretend, as dependencies will only need to be  calculated  once.
+   WARNING:  If the &quot;Enter&quot; key is pressed at the prompt (with no other input), it is interpreted as acceptance of the first choice.  Note that the input buffer is not cleared prior to the prompt, so an accidental press of the &quot;Enter&quot; key at any time prior to the prompt will be interpreted as a choice!</property>
+		      <property name="can_focus">True</property>
+		      <property name="label" translatable="yes">ask</property>
+		      <property name="use_underline">True</property>
+		      <property name="relief">GTK_RELIEF_NORMAL</property>
+		      <property name="focus_on_click">True</property>
+		      <property name="active">False</property>
+		      <property name="inconsistent">False</property>
+		      <property name="draw_indicator">True</property>
+		      <signal name="clicked" handler="on_cbAsk_clicked" last_modification_time="Sun, 22 Apr 2007 01:42:28 GMT"/>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">0</property>
+		      <property name="right_attach">1</property>
 		      <property name="top_attach">1</property>
 		      <property name="bottom_attach">2</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options"></property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkCheckButton" id="cbAlpabetical">
+		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes">--alphabetical
+When  displaying  USE  and  other  flag output, combines the enabled and disabled lists into one list and sorts the whole list alphabetically.</property>
+		      <property name="can_focus">True</property>
+		      <property name="label" translatable="yes">alphabetical</property>
+		      <property name="use_underline">True</property>
+		      <property name="relief">GTK_RELIEF_NORMAL</property>
+		      <property name="focus_on_click">True</property>
+		      <property name="active">False</property>
+		      <property name="inconsistent">False</property>
+		      <property name="draw_indicator">True</property>
+		      <signal name="clicked" handler="on_cbAlpabetical_clicked" last_modification_time="Sat, 21 Apr 2007 13:58:00 GMT"/>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">0</property>
+		      <property name="right_attach">1</property>
+		      <property name="top_attach">0</property>
+		      <property name="bottom_attach">1</property>
+		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
 		  </child>
@@ -153,7 +211,8 @@
 		  <child>
 		    <widget class="GtkCheckButton" id="cbDebug">
 		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Tells emerge to run the emerge command in debug mode.  In this mode the bash build environment will run with the -x option, causing it to output verbose debug information to stdout.  Debug is great for finding bash syntax errors.</property>
+		      <property name="tooltip" translatable="yes">--debug (-d)
+Tells emerge to run the emerge command in --debug mode. In this mode the bash build environment will run with  the -x  option,  causing  it  to output verbose debugging information to stdout.  This also enables a plethora of other output mostly dependency resolution messages).</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">debug</property>
 		      <property name="use_underline">True</property>
@@ -167,8 +226,9 @@
 		    <packing>
 		      <property name="left_attach">0</property>
 		      <property name="right_attach">1</property>
-		      <property name="top_attach">2</property>
-		      <property name="bottom_attach">3</property>
+		      <property name="top_attach">5</property>
+		      <property name="bottom_attach">6</property>
+		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
 		  </child>
@@ -176,7 +236,9 @@
 		  <child>
 		    <widget class="GtkCheckButton" id="cbDeep">
 		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">When used in conjunction with update, this flag forces emerge to consider the entire dependency tree of packages, instead of checking only the immediate dependencies of the packages.  As an example, this catches updates in libraries that are not directly listed in the dependencies of a package.</property>
+		      <property name="tooltip" translatable="yes">--deep (-D)
+This flag forces emerge to consider the entire dependency tree of packages, instead of checking only the  immediate
+dependencies of the packages.  As an example, this catches updates in libraries that are not directly listed in the dependencies of a package.  Also see --with-bdeps for behavior with respect to build time dependencies that are not strictly required.</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">deep</property>
 		      <property name="use_underline">True</property>
@@ -188,10 +250,11 @@
 		      <signal name="clicked" handler="on_cbDeep_clicked" last_modification_time="Sun, 23 May 2004 22:04:52 GMT"/>
 		    </widget>
 		    <packing>
-		      <property name="left_attach">0</property>
-		      <property name="right_attach">1</property>
-		      <property name="top_attach">3</property>
-		      <property name="bottom_attach">4</property>
+		      <property name="left_attach">1</property>
+		      <property name="right_attach">2</property>
+		      <property name="top_attach">0</property>
+		      <property name="bottom_attach">1</property>
+		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
 		  </child>
@@ -199,7 +262,8 @@
 		  <child>
 		    <widget class="GtkCheckButton" id="cbEmptyTree">
 		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Virtually tweaks the tree of installed packages to only contain glibc; this is great to use together with pretend.  This allows developers to get a complete overview of the complete dependency tree of a package, and it enables complete trees to be rebuilt using the latest libraries.</property>
+		      <property name="tooltip" translatable="yes">--emptytree (-e)
+Reinstalls  all  world  packages  and their dependencies to the current USE specifications while differing from the installed set of packages as little as possible.  You should run with --pretend first to make sure  the  result  is what you expect.</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">emptytree</property>
 		      <property name="use_underline">True</property>
@@ -213,8 +277,9 @@
 		    <packing>
 		      <property name="left_attach">1</property>
 		      <property name="right_attach">2</property>
-		      <property name="top_attach">0</property>
-		      <property name="bottom_attach">1</property>
+		      <property name="top_attach">1</property>
+		      <property name="bottom_attach">2</property>
+		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
 		  </child>
@@ -222,7 +287,9 @@
 		  <child>
 		    <widget class="GtkCheckButton" id="cbFetchOnly">
 		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Instead of doing any package building, just perform fetches for all packages (the main package as well as  all  dependencies.)</property>
+		      <property name="tooltip" translatable="yes">--fetchonly (-f)
+Instead  of  doing  any  package  building,  just perform fetches for all packages (the main package as well as all
+dependencies).</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">fetchonly</property>
 		      <property name="use_underline">True</property>
@@ -236,8 +303,141 @@
 		    <packing>
 		      <property name="left_attach">1</property>
 		      <property name="right_attach">2</property>
+		      <property name="top_attach">2</property>
+		      <property name="bottom_attach">3</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options"></property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkCheckButton" id="cbFetchAllUri">
+		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes">--fetch-all-uri (-F)
+Instead of doing any package building, just perform fetches for all packages (the  main  package  as  well  as  all dependencies), grabbing all potential files.</property>
+		      <property name="can_focus">True</property>
+		      <property name="label" translatable="yes">fetch-all-uri</property>
+		      <property name="use_underline">True</property>
+		      <property name="relief">GTK_RELIEF_NORMAL</property>
+		      <property name="focus_on_click">True</property>
+		      <property name="active">False</property>
+		      <property name="inconsistent">False</property>
+		      <property name="draw_indicator">True</property>
+		      <signal name="clicked" handler="on_cbFetchAllUri_clicked" last_modification_time="Sat, 21 Apr 2007 13:59:43 GMT"/>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">1</property>
+		      <property name="right_attach">2</property>
+		      <property name="top_attach">3</property>
+		      <property name="bottom_attach">4</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options"></property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkCheckButton" id="cbGetBinPkg">
+		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes">--getbinpkg (-g)
+Using  the server and location defined in PORTAGE_BINHOST (see make.conf(5)), portage will download the information from each binary package found and it will use that information to help build the  dependency  list.   This  option implies -k.  (Use -gK for binary-only merging.)</property>
+		      <property name="can_focus">True</property>
+		      <property name="label" translatable="yes">getbinpkg</property>
+		      <property name="use_underline">True</property>
+		      <property name="relief">GTK_RELIEF_NORMAL</property>
+		      <property name="focus_on_click">True</property>
+		      <property name="active">False</property>
+		      <property name="inconsistent">False</property>
+		      <property name="draw_indicator">True</property>
+		      <signal name="clicked" handler="on_cbGetBinPkg_clicked" last_modification_time="Sat, 21 Apr 2007 14:00:03 GMT"/>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">1</property>
+		      <property name="right_attach">2</property>
+		      <property name="top_attach">4</property>
+		      <property name="bottom_attach">5</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options"></property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkCheckButton" id="cbGetBinPkgOnly">
+		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes">--getbinpkgonly (-G)
+This option is identical to -g, as above, except it will not use ANY information from the local machine.  All binaries will be downloaded from the remote server without consulting packages existing in the  local  packages  directory.</property>
+		      <property name="can_focus">True</property>
+		      <property name="label" translatable="yes">getbinpkgonly</property>
+		      <property name="use_underline">True</property>
+		      <property name="relief">GTK_RELIEF_NORMAL</property>
+		      <property name="focus_on_click">True</property>
+		      <property name="active">False</property>
+		      <property name="inconsistent">False</property>
+		      <property name="draw_indicator">True</property>
+		      <signal name="clicked" handler="on_cbGetBinPkgOnly_clicked" last_modification_time="Sat, 21 Apr 2007 14:00:20 GMT"/>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">1</property>
+		      <property name="right_attach">2</property>
+		      <property name="top_attach">5</property>
+		      <property name="bottom_attach">6</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options"></property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkCheckButton" id="cbIgnoreDefaultOptions">
+		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes"> --ignore-default-opts
+Causes EMERGE_DEFAULT_OPTS (see make.conf(5)) to be ignored.</property>
+		      <property name="can_focus">True</property>
+		      <property name="label" translatable="yes">ignore-default-opts</property>
+		      <property name="use_underline">True</property>
+		      <property name="relief">GTK_RELIEF_NORMAL</property>
+		      <property name="focus_on_click">True</property>
+		      <property name="active">False</property>
+		      <property name="inconsistent">False</property>
+		      <property name="draw_indicator">True</property>
+		      <signal name="clicked" handler="on_cbIgnoreDefaultOptions_clicked" last_modification_time="Sat, 21 Apr 2007 14:00:41 GMT"/>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">2</property>
+		      <property name="right_attach">3</property>
+		      <property name="top_attach">0</property>
+		      <property name="bottom_attach">1</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options"></property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkCheckButton" id="cbNewUse">
+		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes"> --newuse (-N)
+Tells  emerge  to  include  installed  packages  where  USE flags have changed since compilation.  USE flag changes include:
+
+    A USE flag was added to a package.
+    A USE flag was removed from a package.
+    A USE flag was turned on for a package.
+    A USE flag was turned off for a package.
+
+USE flags may be toggled by your profile as well as your USE and package.use settings.</property>
+		      <property name="can_focus">True</property>
+		      <property name="label" translatable="yes">newuse</property>
+		      <property name="use_underline">True</property>
+		      <property name="relief">GTK_RELIEF_NORMAL</property>
+		      <property name="focus_on_click">True</property>
+		      <property name="active">False</property>
+		      <property name="inconsistent">False</property>
+		      <property name="draw_indicator">True</property>
+		      <signal name="clicked" handler="on_cbNewUse_clicked" last_modification_time="Sat, 21 Apr 2007 14:02:13 GMT"/>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">2</property>
+		      <property name="right_attach">3</property>
 		      <property name="top_attach">1</property>
 		      <property name="bottom_attach">2</property>
+		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
 		  </child>
@@ -245,7 +445,10 @@
 		  <child>
 		    <widget class="GtkCheckButton" id="cbNoConfMem">
 		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Causes portage to disregard merge records indicating that a config file inside of a CONFIG_PROTECT directory has been merged already.  Portage will normally merge those files only once to prevent the user from dealing with the same config multiple times.  This flag will cause the file to always be merged.</property>
+		      <property name="tooltip" translatable="yes"> --noconfmem
+Causes  portage  to  disregard merge records indicating that a config file inside of a CONFIG_PROTECT directory has
+been merged already.  Portage will normally merge those files only once to prevent the user from dealing  with  the
+same config multiple times.  This flag will cause the file to always be merged.</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">noconfmem</property>
 		      <property name="use_underline">True</property>
@@ -257,10 +460,11 @@
 		      <signal name="clicked" handler="on_cbNoConfMem_clicked" last_modification_time="Sun, 23 May 2004 22:05:17 GMT"/>
 		    </widget>
 		    <packing>
-		      <property name="left_attach">1</property>
-		      <property name="right_attach">2</property>
+		      <property name="left_attach">2</property>
+		      <property name="right_attach">3</property>
 		      <property name="top_attach">2</property>
 		      <property name="bottom_attach">3</property>
+		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
 		  </child>
@@ -268,7 +472,9 @@
 		  <child>
 		    <widget class="GtkCheckButton" id="cbNoDeps">
 		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Merges specified packages without merging  any  dependencies.  Note that the build may fail if the dependencies aren't satisfied.</property>
+		      <property name="tooltip" translatable="yes">--nodeps (-O)
+Merges  specified  packages  without  merging  any  dependencies.  Note that the build may fail if the dependencies aren’t satisfied.
+</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">nodeps</property>
 		      <property name="use_underline">True</property>
@@ -280,10 +486,11 @@
 		      <signal name="clicked" handler="on_cbNoDeps_clicked" last_modification_time="Sun, 23 May 2004 20:05:26 GMT"/>
 		    </widget>
 		    <packing>
-		      <property name="left_attach">1</property>
-		      <property name="right_attach">2</property>
+		      <property name="left_attach">2</property>
+		      <property name="right_attach">3</property>
 		      <property name="top_attach">3</property>
 		      <property name="bottom_attach">4</property>
+		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
 		  </child>
@@ -291,7 +498,10 @@
 		  <child>
 		    <widget class="GtkCheckButton" id="cbNoReplace">
 		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Skips the packages specified on the command-line that have already been installed.  Without this option, any packages, ebuilds, or deps you specify on on the command-line *will* cause Portage to remerge the package, even if it is already installed.  Note that Portage will not remerge dependencies by default.</property>
+		      <property name="tooltip" translatable="yes">--noreplace (-n)
+Skips the packages specified on the command-line that have already been installed.  Without this option, any  pack‐
+ages,  ebuilds,  or  deps  you specify on the command-line will cause Portage to remerge the package, even if it is
+already installed.  Note that Portage will not remerge dependencies by default.</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">noreplace</property>
 		      <property name="use_underline">True</property>
@@ -305,8 +515,9 @@
 		    <packing>
 		      <property name="left_attach">2</property>
 		      <property name="right_attach">3</property>
-		      <property name="top_attach">0</property>
-		      <property name="bottom_attach">1</property>
+		      <property name="top_attach">4</property>
+		      <property name="bottom_attach">5</property>
+		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
 		  </child>
@@ -314,7 +525,9 @@
 		  <child>
 		    <widget class="GtkCheckButton" id="cbNoSpinner">
 		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Disables the spinner regardless of terminal type.   ie.  Turns off the spinner normally displayed to indicate that portage is busy doing something and not frozen.</property>
+		      <property name="tooltip" translatable="yes">--nospinner
+Disables the spinner for the session.  The spinner is active when the terminal device is determined to  be  a  TTY.
+This flag disables it regardless.</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">nospinner</property>
 		      <property name="use_underline">True</property>
@@ -323,13 +536,14 @@
 		      <property name="active">False</property>
 		      <property name="inconsistent">False</property>
 		      <property name="draw_indicator">True</property>
-		      <signal name="clicked" handler="on_cbNoReplace_clicked" last_modification_time="Sun, 23 May 2004 22:05:25 GMT"/>
+		      <signal name="clicked" handler="on_cbNoSpinner_clicked" last_modification_time="Sat, 21 Apr 2007 14:01:50 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">2</property>
 		      <property name="right_attach">3</property>
-		      <property name="top_attach">1</property>
-		      <property name="bottom_attach">2</property>
+		      <property name="top_attach">5</property>
+		      <property name="bottom_attach">6</property>
+		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
 		  </child>
@@ -337,7 +551,8 @@
 		  <child>
 		    <widget class="GtkCheckButton" id="cbOneShot">
 		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Emerge as normal, but do not add the packages to the world profile for later updating.</property>
+		      <property name="tooltip" translatable="yes"> --oneshot (-1)
+Emerge as normal, but do not add the packages to the world file for later updating.</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">oneshot</property>
 		      <property name="use_underline">True</property>
@@ -349,10 +564,11 @@
 		      <signal name="clicked" handler="on_cbOneShot_clicked" last_modification_time="Sun, 23 May 2004 22:05:31 GMT"/>
 		    </widget>
 		    <packing>
-		      <property name="left_attach">2</property>
-		      <property name="right_attach">3</property>
-		      <property name="top_attach">2</property>
-		      <property name="bottom_attach">3</property>
+		      <property name="left_attach">3</property>
+		      <property name="right_attach">4</property>
+		      <property name="top_attach">0</property>
+		      <property name="bottom_attach">1</property>
+		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
 		  </child>
@@ -360,7 +576,8 @@
 		  <child>
 		    <widget class="GtkCheckButton" id="cbOnlyDeps">
 		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Only merge (or pretend to  merge) the dependencies of the packages specified, not the packages themselves.</property>
+		      <property name="tooltip" translatable="yes">--onlydeps (-o)
+Only merge (or pretend to merge) the dependencies of the packages specified, not the packages themselves.</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">onlydeps</property>
 		      <property name="use_underline">True</property>
@@ -372,10 +589,11 @@
 		      <signal name="clicked" handler="on_cbOnlyDeps_clicked" last_modification_time="Sun, 23 May 2004 20:05:40 GMT"/>
 		    </widget>
 		    <packing>
-		      <property name="left_attach">2</property>
-		      <property name="right_attach">3</property>
-		      <property name="top_attach">3</property>
-		      <property name="bottom_attach">4</property>
+		      <property name="left_attach">3</property>
+		      <property name="right_attach">4</property>
+		      <property name="top_attach">1</property>
+		      <property name="bottom_attach">2</property>
+		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
 		  </child>
@@ -383,7 +601,17 @@
 		  <child>
 		    <widget class="GtkCheckButton" id="cbPretend">
 		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Instead of actually performing the merge, simply display what *would* have been installed if pretend weren't used.  Using pretend is strongly recommended before installing an unfamiliar package.  In the printout, N = new, U = upgrading, R = replacing,  F = fetch restricted, B = blocked by an already installed package.</property>
+		      <property name="tooltip" translatable="yes">--pretend (-p)
+Instead  of  actually  performing  the  merge, simply display what *would* have been installed if --pretend weren't used. Using --pretend is strongly recommended before installing an unfamiliar package.  In the printout:
+
+N = new (not yet installed)
+S = new SLOT installation (side-by-side versions)
+U = updating (to another version)
+D = downgrading (best version seems lower)
+R = replacing (remerging same version))
+F = fetch restricted (must be manually downloaded)
+f = fetch restricted (already downloaded)
+B = blocked by an already installed package</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">pretend</property>
 		      <property name="use_underline">True</property>
@@ -397,16 +625,172 @@
 		    <packing>
 		      <property name="left_attach">3</property>
 		      <property name="right_attach">4</property>
-		      <property name="top_attach">0</property>
-		      <property name="bottom_attach">1</property>
+		      <property name="top_attach">2</property>
+		      <property name="bottom_attach">3</property>
+		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkHBox" id="hbox7">
+		      <property name="visible">True</property>
+		      <property name="homogeneous">False</property>
+		      <property name="spacing">0</property>
+
+		      <child>
+			<widget class="GtkLabel" id="label2">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">  |__</property>
+			  <property name="use_underline">False</property>
+			  <property name="use_markup">False</property>
+			  <property name="justify">GTK_JUSTIFY_LEFT</property>
+			  <property name="wrap">False</property>
+			  <property name="selectable">False</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+			  <property name="width_chars">-1</property>
+			  <property name="single_line_mode">False</property>
+			  <property name="angle">0</property>
+			</widget>
+			<packing>
+			  <property name="padding">0</property>
+			  <property name="expand">False</property>
+			  <property name="fill">False</property>
+			</packing>
+		      </child>
+
+		      <child>
+			<widget class="GtkCheckButton" id="cbColumns">
+			  <property name="visible">True</property>
+			  <property name="tooltip" translatable="yes">--columns
+Used alongside --pretend to cause the package name, new version, and old version to be displayed in an aligned format for easy cut-n-paste.</property>
+			  <property name="can_focus">True</property>
+			  <property name="label" translatable="yes">columns</property>
+			  <property name="use_underline">True</property>
+			  <property name="relief">GTK_RELIEF_NORMAL</property>
+			  <property name="focus_on_click">True</property>
+			  <property name="active">False</property>
+			  <property name="inconsistent">False</property>
+			  <property name="draw_indicator">True</property>
+			  <signal name="clicked" handler="on_cbColumns_clicked" last_modification_time="Sat, 21 Apr 2007 13:59:10 GMT"/>
+			</widget>
+			<packing>
+			  <property name="padding">0</property>
+			  <property name="expand">False</property>
+			  <property name="fill">False</property>
+			</packing>
+		      </child>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">3</property>
+		      <property name="right_attach">4</property>
+		      <property name="top_attach">3</property>
+		      <property name="bottom_attach">4</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options">fill</property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkEventBox" id="eventbox1">
+		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes"> --color &lt; y | n &gt;
+Enable or disable color output.  This option will override NOCOLOR (see make.conf(5)) and may also be used to force color output when stdout is not a tty (by default, color is disabled unless stdout is a tty).</property>
+		      <property name="visible_window">True</property>
+		      <property name="above_child">False</property>
+
+		      <child>
+			<widget class="GtkHBox" id="hbox9">
+			  <property name="visible">True</property>
+			  <property name="homogeneous">False</property>
+			  <property name="spacing">0</property>
+
+			  <child>
+			    <widget class="GtkLabel" id="label4">
+			      <property name="visible">True</property>
+			      <property name="label" translatable="yes">color  </property>
+			      <property name="use_underline">False</property>
+			      <property name="use_markup">False</property>
+			      <property name="justify">GTK_JUSTIFY_LEFT</property>
+			      <property name="wrap">False</property>
+			      <property name="selectable">False</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">3</property>
+			      <property name="ypad">0</property>
+			      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+			      <property name="width_chars">-1</property>
+			      <property name="single_line_mode">False</property>
+			      <property name="angle">0</property>
+			    </widget>
+			    <packing>
+			      <property name="padding">0</property>
+			      <property name="expand">False</property>
+			      <property name="fill">False</property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkCheckButton" id="cbColorY">
+			      <property name="visible">True</property>
+			      <property name="can_focus">True</property>
+			      <property name="label" translatable="yes">y</property>
+			      <property name="use_underline">True</property>
+			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <property name="focus_on_click">True</property>
+			      <property name="active">False</property>
+			      <property name="inconsistent">False</property>
+			      <property name="draw_indicator">True</property>
+			      <signal name="clicked" handler="on_cbWithBDepsY_clicked" last_modification_time="Sat, 21 Apr 2007 14:04:02 GMT"/>
+			    </widget>
+			    <packing>
+			      <property name="padding">0</property>
+			      <property name="expand">False</property>
+			      <property name="fill">False</property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkCheckButton" id="cbColorN">
+			      <property name="visible">True</property>
+			      <property name="can_focus">True</property>
+			      <property name="label" translatable="yes">n</property>
+			      <property name="use_underline">True</property>
+			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <property name="focus_on_click">True</property>
+			      <property name="active">False</property>
+			      <property name="inconsistent">False</property>
+			      <property name="draw_indicator">True</property>
+			      <signal name="clicked" handler="on_cbWithBDepsN_clicked" last_modification_time="Sat, 21 Apr 2007 14:03:46 GMT"/>
+			    </widget>
+			    <packing>
+			      <property name="padding">0</property>
+			      <property name="expand">False</property>
+			      <property name="fill">False</property>
+			    </packing>
+			  </child>
+			</widget>
+		      </child>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">0</property>
+		      <property name="right_attach">1</property>
+		      <property name="top_attach">4</property>
+		      <property name="bottom_attach">5</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options">fill</property>
 		    </packing>
 		  </child>
 
 		  <child>
 		    <widget class="GtkCheckButton" id="cbQuiet">
 		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Results may vary, but the general outcome is a reduced or condensed output from portage's displays.</property>
+		      <property name="tooltip" translatable="yes">--quiet (-q)
+Results may vary, but the general outcome is a reduced or condensed output from portage’s displays.</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">quiet</property>
 		      <property name="use_underline">True</property>
@@ -420,108 +804,114 @@
 		    <packing>
 		      <property name="left_attach">3</property>
 		      <property name="right_attach">4</property>
-		      <property name="top_attach">1</property>
-		      <property name="bottom_attach">2</property>
+		      <property name="top_attach">4</property>
+		      <property name="bottom_attach">5</property>
+		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
 		  </child>
 
 		  <child>
-		    <widget class="GtkCheckButton" id="cbUpdate">
+		    <widget class="GtkEventBox" id="eventbox2">
 		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Updates packages to the most recent version available.  Note that update does not have full functionality yet.  It will not automatically update dependencies of packages in the world file, unless they too are in the world file.</property>
-		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">update</property>
-		      <property name="use_underline">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">True</property>
-		      <property name="active">False</property>
-		      <property name="inconsistent">False</property>
-		      <property name="draw_indicator">True</property>
-		      <signal name="clicked" handler="on_cbUpdate_clicked" last_modification_time="Sun, 23 May 2004 22:05:50 GMT"/>
-		    </widget>
-		    <packing>
-		      <property name="left_attach">3</property>
-		      <property name="right_attach">4</property>
-		      <property name="top_attach">2</property>
-		      <property name="bottom_attach">3</property>
-		      <property name="y_options"></property>
-		    </packing>
-		  </child>
+		      <property name="tooltip" translatable="yes">--with-bdeps &lt; y | n &gt;
+In  dependency calculations, pull in build time dependencies that are not strictly required.   This defaults to ´n´ for installation actions and ´y´ for the --depclean action.  This setting can be added to EMERGE_DEFAULT_OPTS  (see make.conf(5)) and later overridden via the command line.</property>
+		      <property name="visible_window">True</property>
+		      <property name="above_child">False</property>
 
-		  <child>
-		    <widget class="GtkCheckButton" id="cbUpgradeOnly">
-		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Updates packages, but excludes updates that would result in a lower version of the package being installed.  SLOTs are considered at a basic level.</property>
-		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">upgradeonly</property>
-		      <property name="use_underline">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">True</property>
-		      <property name="active">False</property>
-		      <property name="inconsistent">False</property>
-		      <property name="draw_indicator">True</property>
-		      <signal name="clicked" handler="on_cbUpgradeOnly_clicked" last_modification_time="Sun, 23 May 2004 22:06:00 GMT"/>
-		    </widget>
-		    <packing>
-		      <property name="left_attach">3</property>
-		      <property name="right_attach">4</property>
-		      <property name="top_attach">3</property>
-		      <property name="bottom_attach">4</property>
-		      <property name="y_options"></property>
-		    </packing>
-		  </child>
+		      <child>
+			<widget class="GtkHBox" id="hbox8">
+			  <property name="visible">True</property>
+			  <property name="homogeneous">False</property>
+			  <property name="spacing">0</property>
 
-		  <child>
-		    <widget class="GtkCheckButton" id="cbUsePkg">
-		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Tells emerge to use binary packages (from $PKGDIR) if they are available, thus possibly avoiding some time-consuming compiles.  This option is useful for CD installs; you  can export PKGDIR=/mnt/cdrom/packages and then use this option to have emerge &quot;pull&quot; binary packages from the CD in order to satisfy dependencies.</property>
-		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">usepkg</property>
-		      <property name="use_underline">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">True</property>
-		      <property name="active">False</property>
-		      <property name="inconsistent">False</property>
-		      <property name="draw_indicator">True</property>
-		      <signal name="clicked" handler="on_cbUsePkg_clicked" last_modification_time="Sun, 23 May 2004 22:06:13 GMT"/>
+			  <child>
+			    <widget class="GtkLabel" id="label3">
+			      <property name="visible">True</property>
+			      <property name="label" translatable="yes">with-bdeps</property>
+			      <property name="use_underline">False</property>
+			      <property name="use_markup">False</property>
+			      <property name="justify">GTK_JUSTIFY_LEFT</property>
+			      <property name="wrap">False</property>
+			      <property name="selectable">False</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+			      <property name="width_chars">-1</property>
+			      <property name="single_line_mode">False</property>
+			      <property name="angle">0</property>
+			    </widget>
+			    <packing>
+			      <property name="padding">0</property>
+			      <property name="expand">False</property>
+			      <property name="fill">False</property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkCheckButton" id="cbWithBDepsY">
+			      <property name="visible">True</property>
+			      <property name="can_focus">True</property>
+			      <property name="label" translatable="yes">y</property>
+			      <property name="use_underline">True</property>
+			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <property name="focus_on_click">True</property>
+			      <property name="active">False</property>
+			      <property name="inconsistent">False</property>
+			      <property name="draw_indicator">True</property>
+			      <signal name="clicked" handler="on_cbWithBDepsY_clicked" last_modification_time="Sat, 21 Apr 2007 14:04:02 GMT"/>
+			    </widget>
+			    <packing>
+			      <property name="padding">0</property>
+			      <property name="expand">False</property>
+			      <property name="fill">False</property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkCheckButton" id="cbWithBDepsN">
+			      <property name="visible">True</property>
+			      <property name="can_focus">True</property>
+			      <property name="label" translatable="yes">n</property>
+			      <property name="use_underline">True</property>
+			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <property name="focus_on_click">True</property>
+			      <property name="active">False</property>
+			      <property name="inconsistent">False</property>
+			      <property name="draw_indicator">True</property>
+			      <signal name="clicked" handler="on_cbWithBDepsN_clicked" last_modification_time="Sat, 21 Apr 2007 14:03:46 GMT"/>
+			    </widget>
+			    <packing>
+			      <property name="padding">0</property>
+			      <property name="expand">False</property>
+			      <property name="fill">False</property>
+			    </packing>
+			  </child>
+			</widget>
+		      </child>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">4</property>
 		      <property name="right_attach">5</property>
-		      <property name="top_attach">0</property>
-		      <property name="bottom_attach">1</property>
-		      <property name="y_options"></property>
-		    </packing>
-		  </child>
-
-		  <child>
-		    <widget class="GtkCheckButton" id="cbUsePkgOnly">
-		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Behaves just as usepkg except that this will only emerge binary packages.  All the binary packages must be available at the time of dependency calculation or emerge will simply abort.</property>
-		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">usepkgonly</property>
-		      <property name="use_underline">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">True</property>
-		      <property name="active">False</property>
-		      <property name="inconsistent">False</property>
-		      <property name="draw_indicator">True</property>
-		      <signal name="clicked" handler="on_cbUsePkgOnly_clicked" last_modification_time="Sun, 23 May 2004 22:06:21 GMT"/>
-		    </widget>
-		    <packing>
-		      <property name="left_attach">4</property>
-		      <property name="right_attach">5</property>
-		      <property name="top_attach">1</property>
-		      <property name="bottom_attach">2</property>
-		      <property name="y_options"></property>
+		      <property name="top_attach">4</property>
+		      <property name="bottom_attach">5</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options">fill</property>
 		    </packing>
 		  </child>
 
 		  <child>
 		    <widget class="GtkCheckButton" id="cbVerbose">
 		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Tell emerge to run in verbose mode.  Currently this flag causes emerge to print out GNU info errors, if any, and to show the USE flags that will be used for each package when pretending.</property>
+		      <property name="tooltip" translatable="yes">--verbose (-v)
+Tell emerge to run in verbose mode.  Currently this flag causes emerge to print out GNU info errors, if any, and to show the USE flags that will be used for each package when pretending. The following symbols  are  affixed  to  USE flags in order to indicate their status:
+
+    - prefix     = not enabled (either disabled or removed)
+    * suffix     = transition to or from the enabled state
+    % suffix     = newly added or removed
+    () circumfix = forced, masked, or removed</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">verbose</property>
 		      <property name="use_underline">True</property>
@@ -535,8 +925,111 @@
 		    <packing>
 		      <property name="left_attach">4</property>
 		      <property name="right_attach">5</property>
+		      <property name="top_attach">3</property>
+		      <property name="bottom_attach">4</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options"></property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkCheckButton" id="cbUsePkgOnly">
+		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes">--usepkgonly (-K)
+ Tells  emerge to only use binary packages (from $PKGDIR).  All the binary packages must be available at the time of
+dependency calculation or emerge will simply abort.  Portage does not  use  $PORTDIR  when  calculating  dependency
+information so all masking information is ignored.</property>
+		      <property name="can_focus">True</property>
+		      <property name="label" translatable="yes">usepkgonly</property>
+		      <property name="use_underline">True</property>
+		      <property name="relief">GTK_RELIEF_NORMAL</property>
+		      <property name="focus_on_click">True</property>
+		      <property name="active">False</property>
+		      <property name="inconsistent">False</property>
+		      <property name="draw_indicator">True</property>
+		      <signal name="clicked" handler="on_cbUsePkgOnly_clicked" last_modification_time="Sun, 23 May 2004 22:06:21 GMT"/>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">4</property>
+		      <property name="right_attach">5</property>
 		      <property name="top_attach">2</property>
 		      <property name="bottom_attach">3</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options"></property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkCheckButton" id="cbUsePkg">
+		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes">--usepkg (-k)
+Tells  emerge to use binary packages (from $PKGDIR) if they are available, thus possibly avoiding some time-consuming compiles.  This option is useful for CD installs; you can export PKGDIR=/mnt/cdrom/packages and then  use  this option to have emerge &quot;pull&quot; binary packages from the CD in order to satisfy dependencies.</property>
+		      <property name="can_focus">True</property>
+		      <property name="label" translatable="yes">usepkg</property>
+		      <property name="use_underline">True</property>
+		      <property name="relief">GTK_RELIEF_NORMAL</property>
+		      <property name="focus_on_click">True</property>
+		      <property name="active">False</property>
+		      <property name="inconsistent">False</property>
+		      <property name="draw_indicator">True</property>
+		      <signal name="clicked" handler="on_cbUsePkg_clicked" last_modification_time="Sun, 23 May 2004 22:06:13 GMT"/>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">4</property>
+		      <property name="right_attach">5</property>
+		      <property name="top_attach">1</property>
+		      <property name="bottom_attach">2</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options"></property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkCheckButton" id="cbUpdate">
+		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes">--update (-u)
+Updates packages to the best version available, which may not always be the highest version number due  to  masking for  testing  and  development.  This will also update direct dependencies which may not be what you want.  Package atoms specified on the command line are greedy, meaning that unspecific atoms may match multiple installed versions of slotted packages.</property>
+		      <property name="can_focus">True</property>
+		      <property name="label" translatable="yes">update</property>
+		      <property name="use_underline">True</property>
+		      <property name="relief">GTK_RELIEF_NORMAL</property>
+		      <property name="focus_on_click">True</property>
+		      <property name="active">False</property>
+		      <property name="inconsistent">False</property>
+		      <property name="draw_indicator">True</property>
+		      <signal name="clicked" handler="on_cbUpdate_clicked" last_modification_time="Sun, 23 May 2004 22:05:50 GMT"/>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">4</property>
+		      <property name="right_attach">5</property>
+		      <property name="top_attach">0</property>
+		      <property name="bottom_attach">1</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options"></property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkCheckButton" id="cbTree">
+		      <property name="visible">True</property>
+		      <property name="sensitive">False</property>
+		      <property name="tooltip" translatable="yes">--tree (-t)
+Shows the dependency tree for the given target by indenting dependencies.  This is only really useful  in  combination with --emptytree or --update and --deep.</property>
+		      <property name="label" translatable="yes">tree</property>
+		      <property name="use_underline">True</property>
+		      <property name="relief">GTK_RELIEF_NORMAL</property>
+		      <property name="focus_on_click">True</property>
+		      <property name="active">False</property>
+		      <property name="inconsistent">False</property>
+		      <property name="draw_indicator">True</property>
+		      <signal name="clicked" handler="on_cbTree_clicked" last_modification_time="Sat, 21 Apr 2007 14:03:13 GMT"/>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">3</property>
+		      <property name="right_attach">4</property>
+		      <property name="top_attach">5</property>
+		      <property name="bottom_attach">6</property>
+		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
 		  </child>

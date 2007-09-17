@@ -63,6 +63,7 @@ class AdvancedEmergeDialog:
         callbacks = {"on_ok_clicked" : self.ok_clicked,
                      "on_help_clicked" : self.help_clicked,
                      "on_cancel_clicked" : self.cancel_clicked,
+                     #"on_cbAsk_clicked": self.Ask_clicked,
                      "on_cbOnlyDeps_clicked" : self.onlydeps_check,
                      "on_cbNoDeps_clicked" : self.nodeps_check,
                      "on_cbQuiet_clicked" : self.quiet_check,
@@ -223,7 +224,23 @@ class AdvancedEmergeDialog:
         model = self.emerge_combobox.get_model()
         self.emerge_unmerge = model.get_value(iter, 0)
         self.display_emerge_command()
-    
+
+    def color_y_check(self, widget):
+        """ If color y is selected, disable color n """
+        if widget.get_active():
+            self.wtree.get_widget("cbColorN").set_active(False)
+
+    def color_n_check(self, widget):
+        """ If color n is selected, disable color y """
+        if widget.get_active():
+            self.wtree.get_widget("cbColorY").set_active(False)
+
+    def _check(self, widget):
+        """ If color y is selected, disable color n """
+        if widget.get_active():
+            self.wtree.get_widget("cbColorN").set_active(False)
+
+
     def quiet_check(self, widget):
         """ If quiet is selected, disable verbose """
         if widget.get_active():
@@ -326,8 +343,8 @@ class AdvancedEmergeDialog:
     def reload(self):
         """ Reload package info """
         # This is the callback for changes to portage config files, so we need to reload portage
-        # now done elsewhere
-        #self.re_init_portage()
+        ## now done elsewhere
+        ##self.re_init_portage()
         
         # Also delete properties for the current ebuild so they are refreshed
         verInfo = self.current_verInfo
@@ -500,12 +517,21 @@ class AdvancedEmergeDialog:
 
     def get_options(self):
         """ Create keyword list from option checkboxes """
-        List = [('cbBuildPkg', '-b ', '--buildpkg '),
+        List = [('cbAlphabetical', '--alphabetical', '--alphabetical'),
+                #('cbAsk', 'a', '--ask'),
+                ('cbBuildPkg', '-b ', '--buildpkg '),
                 ('cbBuildPkgOnly', '-B ', '--buildpkgonly '),
+                ('cbColorY', '--color y', '--color y' ),
+                ('cbColorN', '--color n', '--color n' ),
                 ('cbDebug', '-d ', '--debug '),
-                ('cbFetchOnly', '-f ', '--fetchonly '),
-                ('cbEmptyTree', '-e ', '--emptytree '),
                 ('cbDeep', '-D ', '--deep '),
+                ('cbEmptyTree', '-e ', '--emptytree '),
+                ('cbFetchOnly', '-f ', '--fetchonly '),
+                ('cbFetchAllUri', '-F ', '--fetch-all-uri '),
+                ('cbBinPkg', '-g ', '--getbinpkg '),
+                ('cbBinPkgOnly', '-G ', '--getbinpkgonly '),
+                ('cbIgnoreDefaultOptions',  '--ignore-default-opts', '--ignore-default-opts'),
+                ('cbNewUse', '-N', '--newuse'),
                 ('cbNoConfMem', '--noconfmem ', '--noconfmem '),
                 ('cbNoDeps', '-O ', '--nodeps '),
                 ('cbNoReplace', '-n ', '--noreplace '),
@@ -513,12 +539,15 @@ class AdvancedEmergeDialog:
                 ('cbOneShot', '--oneshot ', '--oneshot '),
                 ('cbOnlyDeps', '-o ', '--onlydeps '),
                 ('cbPretend','-p ', '--pretend '),
-                ('cbUpgradeOnly','-U ', '--upgradeonly '),
-                ('cbUpdate','-u ', '--update '),
-                ('cbUsePkgOnly', '-K ', '--usepkgonly '),
-                ('cbUsePkg', '-k ', '--usepkg '),
                 ('cbQuiet', '-q ', '--quiet '),
-                ('cbVerbose', '-v ', '--verbose ')]
+                ('cbTree', '-t', '--tree'),
+                ('cbUpdate','-u ', '--update '),
+                ('cbUsePkg', '-k ', '--usepkg '),
+                ('cbUsePkgOnly', '-K ', '--usepkgonly '),
+                ('cbVerbose', '-v ', '--verbose '),
+                ('cbWithBDepsY', '--with-bdeps y', '--with-bdeps y'),
+                ('cbWithBDepsY', '--with-bdeps n', '--with-bdeps n')
+                ]
         options = ''
         for Name, ShortOption, LongOption in List:
             if self.wtree.get_widget(Name).get_active():
