@@ -313,7 +313,7 @@ def get_sets_list( filename ):
 
 def split_atom_pkg( pkg ):
     """Extract [category/package, atoms, version] from some ebuild identifier"""
-    utils.debug.dprint("PORTAGELIB: split_atom_pkg(); pkg = " +pkg)
+    #utils.debug.dprint("PORTAGELIB: split_atom_pkg(); pkg = " +pkg)
     atoms = []
     version = ''
     ver_suffix = ''
@@ -516,11 +516,11 @@ def get_best_ebuild(full_name):
 def get_dep_ebuild(dep):
     """progreesively checks for available ebuilds that match the dependency.
     returns what it finds as up to three options."""
-    utils.debug.dprint("PORTAGELIB: get_dep_ebuild(); dep = " + dep)
+    #utils.debug.dprint("PORTAGELIB: get_dep_ebuild(); dep = " + dep)
     best_ebuild = keyworded_ebuild = masked_ebuild = ''
     best_ebuild = xmatch("bestmatch-visible", dep)
     if best_ebuild == '':
-        utils.debug.dprint("PORTAGELIB: get_dep_ebuild(); checking masked packages")
+        #utils.debug.dprint("PORTAGELIB: get_dep_ebuild(); checking masked packages")
         full_name = split_atom_pkg(dep)[0]
         hardmasked_nocheck, hardmasked = get_hard_masked(full_name)
         matches = xmatch("match-all", dep)[:]
@@ -529,7 +529,7 @@ def get_dep_ebuild(dep):
             if m in hardmasked:
                 matches.remove(m)
         keyworded_ebuild = best(matches)
-    utils.debug.dprint("PORTAGELIB: get_dep_ebuild(); ebuilds = " + str([best_ebuild, keyworded_ebuild, masked_ebuild]))
+    #utils.debug.dprint("PORTAGELIB: get_dep_ebuild(); ebuilds = " + str([best_ebuild, keyworded_ebuild, masked_ebuild]))
     return best_ebuild, keyworded_ebuild, masked_ebuild
 
 
@@ -553,7 +553,7 @@ def get_size(mycpv):
     """ Returns size of package to fetch. """
     #This code to calculate size of downloaded files was taken from /usr/bin/emerge - BB
     # new code chunks from emerge since the files/digest is no longer, info now in Manifest.
-    utils.debug.dprint( "PORTAGELIB: get_size; mycpv = " + mycpv)
+    #utils.debug.dprint( "PORTAGELIB: get_size; mycpv = " + mycpv)
     mysum = [0,'']
     myebuild = portdb.findname(mycpv)
     pkgdir = os.path.dirname(myebuild)
@@ -574,7 +574,7 @@ def get_size(mycpv):
         mysum[1] = "Unknown (missing digest)"
         utils.debug.dprint( "PORTAGELIB: get_size; Exception: " + str(e)  )
         utils.debug.dprint( "PORTAGELIB: get_size; ebuild: " + str(mycpv))
-    utils.debug.dprint( "PORTAGELIB: get_size; returning mysum[1] = " + mysum[1])
+    #utils.debug.dprint( "PORTAGELIB: get_size; returning mysum[1] = " + mysum[1])
     return mysum[1]
 
 def get_digest(ebuild): ## depricated
@@ -639,6 +639,15 @@ def get_overlay(cpv):
         ovl = 'Depricated?'
     return ovl
 
+def get_path(cpv):
+    """Returns a path to the specified category/package-version"""
+    if '/' not in cpv:
+        return ''
+    try:
+        dir,ovl = portage.portdb.findname2(cpv)
+    except:
+        dir = ''
+    return dir
     
 def get_metadata(package):
     """Get the metadata for a package"""
