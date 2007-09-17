@@ -37,10 +37,19 @@ from commontreeview import CommonTreeView
 import utils.utils
 import utils.debug
 from helpers import *
-from models import PackageModel
+from models import PackageModel, MODEL_ITEM
 from gettext import gettext as _
 
+PACKAGES = 0
+INSTALLED = 1
+SEARCH = 2
+UPGRADABLE = 3
+DEPRECATED = 4
+SETS = 5
+BLANK = 6
+TEMP = 7
 MODEL_NAMES = ["All", "Installed", "Search", "Upgradable", "Deprecated", "Sets", "Blank", "Temp"]
+GROUP_SELECTABLE = [UPGRADABLE, DEPRECATED , SETS]
 
 class PackageView(CommonTreeView):
     """ Self contained treeview of packages """
@@ -49,17 +58,9 @@ class PackageView(CommonTreeView):
         self.info_thread = None
         self.iter = None
         self.model = None
-        self.current_view = None
+        self.current_view = PACKAGES
         # initialize the treeview
         CommonTreeView.__init__(self)
-        # setup some variables for the different views
-        self.PACKAGES = 0
-        self.SEARCH_RESULTS = 1
-        self.UPGRADABLE = 2
-        self.DEPRECATED = 3
-        self.SETS = 4
-        self.BLANK = 5
-        self.TEMP = 6
 
         # create popup menu for rmb-click
         arch = "~" + portage_lib.get_arch()
@@ -97,7 +98,7 @@ class PackageView(CommonTreeView):
         self._column.set_resizable(True)
         self._column.set_min_width(10)
         self.append_column(self._column)
-        self._column.set_sort_column_id(0)
+        self._column.set_sort_column_id(MODEL_ITEM["name"])
         # add checkbox column
         self._checkbox_column = gtk.TreeViewColumn()
         self._checkbox_column.set_resizable(False)
@@ -108,21 +109,21 @@ class PackageView(CommonTreeView):
         self._installed_column.set_resizable(True)
         self._installed_column.set_min_width(10)
         #self._installed_column.set_expand(False)
-        self._installed_column.set_sort_column_id(7)
+        self._installed_column.set_sort_column_id(MODEL_ITEM["installed"])
         # Setup the Latest Column
         self._latest_column = gtk.TreeViewColumn(_("Recommended"))
         self.append_column(self._latest_column)
         self._latest_column.set_resizable(True)
         self._latest_column.set_min_width(10)
         #self._latest_column.set_expand(False)
-        self._latest_column.set_sort_column_id(8)
+        self._latest_column.set_sort_column_id(MODEL_ITEM["recommended"])
         # setup the packagesize column
         self._size_column = gtk.TreeViewColumn(_("Download Size"))
         self.append_column(self._size_column)
         self._size_column.set_resizable(True)
         self._size_column.set_min_width(10)
         #self._size_column.set_expand(False)
-        self._size_column.set_sort_column_id(6)
+        self._size_column.set_sort_column_id(MODEL_ITEM["size"])
         # setup the Description column
         self._desc_column = gtk.TreeViewColumn(_("Description"))
         self.append_column(self._desc_column)
@@ -141,18 +142,15 @@ class PackageView(CommonTreeView):
         self.set_rules_hint(True)
         
         # setup the treemodels
-        self.view_model = {MODEL_NAMES[self.UPGRADABLE]: PackageModel(),
-                                    MODEL_NAMES[self.PACKAGES]: PackageModel(),
-                                    MODEL_NAMES[self.SEARCH_RESULTS]: PackageModel(),
-                                    MODEL_NAMES[self.DEPRECATED]:  PackageModel(),
-                                    MODEL_NAMES[self.SETS]: PackageModel(),
-                                    MODEL_NAMES[self.BLANK]: PackageModel()
-                                    }
-        self.view_model[MODEL_NAMES[self.TEMP]] = self.view_model[MODEL_NAMES[self.PACKAGES]]
-        self.view_model[MODEL_NAMES[self.SEARCH_RESULTS]].size = 0
+        self.view_model = {}
+        for x in MODEL_NAMES[:-1]:
+            utils.debug.dprint("VIEWS: initializing Package view_model: " + x)
+            self.view_model[x] = PackageModel()
+        self.view_model[MODEL_NAMES[TEMP]] = self.view_model[MODEL_NAMES[PACKAGES]]
+        self.view_model[MODEL_NAMES[SEARCH]].size = 0
         self.temp_view = None
         # set the view
-        self.set_view(self.PACKAGES) # default view
+        self.set_view(PACKAGES) # default view
 
         # connect to clicked event
         self.connect("cursor_changed", self._clicked)
@@ -182,47 +180,47 @@ class PackageView(CommonTreeView):
         self._latest_column.clear()
         self._installed_column.clear()
         self._desc_column.clear()
-        if self.current_view in [self.UPGRADABLE, self.DEPRECATED, self.SETS]:
+        if self.current_view in GROUP_SELECTABLE:
             # add the toggle renderer
             check = gtk.CellRendererToggle()
             self._checkbox_column.pack_start(check, expand = False)
-            self._checkbox_column.add_attribute(check, "active", 1)
+            self._checkbox_column.add_attribute(check, "active", MODEL_ITEM["checkbox"])
             check.connect("toggled",self.on_toggled)
             self._checkbox_column.set_visible(True)
             # add the pixbuf renderer
             pixbuf = gtk.CellRendererPixbuf()
             self._column.pack_start(pixbuf, expand = False)
-            self._column.add_attribute(pixbuf, "pixbuf", 3)
+            self._column.add_attribute(pixbuf, "pixbuf", MODEL_ITEM["icon"])
 
         else:
             self._checkbox_column.set_visible(False)
             # add the pixbuf renderer
             pixbuf = gtk.CellRendererPixbuf()
             self._column.pack_start(pixbuf, expand = False)
-            self._column.add_attribute(pixbuf, "pixbuf", 3)
+            self._column.add_attribute(pixbuf, "pixbuf", MODEL_ITEM["icon"])
         # add the text renderer
         text = gtk.CellRendererText()
         self._column.pack_start(text, expand = True)
-        self._column.add_attribute(text, "text", 0)
+        self._column.add_attribute(text, "text",MODEL_ITEM["name"])
         self._column.set_cell_data_func(text, self.cell_data_func, None)
         text_size = gtk.CellRendererText()
         text_installed = gtk.CellRendererText()
         text_latest = gtk.CellRendererText()
         self._size_column.pack_start(text_size, expand = False)
-        self._size_column.add_attribute(text_size, "text", 6)
+        self._size_column.add_attribute(text_size, "text", MODEL_ITEM["size"])
         self._size_column.set_cell_data_func(text_size, self.cell_data_func, None)
         self._installed_column.pack_start(text_installed, expand = False)
-        self._installed_column.add_attribute(text_installed, "text", 7)
+        self._installed_column.add_attribute(text_installed, "text", MODEL_ITEM["installed"])
         self._installed_column.set_cell_data_func(text_installed, self.cell_data_func, None)
         self._latest_column.pack_start(text_latest, expand = False)
-        self._latest_column.add_attribute(text_latest, "text", 8)
+        self._latest_column.add_attribute(text_latest, "text", MODEL_ITEM["recommended"])
         self._latest_column.set_cell_data_func(text_latest, self.cell_data_func, None)
         #self._latest_column.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
         #self._installed_column.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
         #self._size_column.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
         text_desc = gtk.CellRendererText()
         self._desc_column.pack_start(text_desc, expand=False)
-        self._desc_column.add_attribute(text_desc, 'text', 9)
+        self._desc_column.add_attribute(text_desc, 'text', MODEL_ITEM["description"])
         self._desc_column.set_cell_data_func(text_desc, self.cell_data_func, None)
         #self._desc_column.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
 
@@ -232,9 +230,9 @@ class PackageView(CommonTreeView):
     def cell_data_func(self, column, renderer, model, iter, data):
             """function to render the package name according
                to whether it is in the world file or not"""
-            #full_name = model.get_value(iter, 0)
-            color = model.get_value(iter, 5)
-            if model.get_value(iter, 4):
+            #full_name = model.get_value(iter,MODEL_ITEM["name"])
+            color = model.get_value(iter, MODEL_ITEM["text_colour"])
+            if model.get_value(iter, MODEL_ITEM["world"]):
                 renderer.set_property("weight", pango.WEIGHT_BOLD)
             else:
                 renderer.set_property("weight", pango.WEIGHT_NORMAL)
@@ -250,16 +248,15 @@ class PackageView(CommonTreeView):
 
     def _set_model(self):
         """ Set the correct treemodel for the current view """
-        if self.current_view in [self.PACKAGES, self.SEARCH_RESULTS]:
+        utils.debug.dprint("VIEWS: Package_view._set_model(); changing to '" + MODEL_NAMES[self.current_view] + "' view model")
+        self.set_model(self.view_model[MODEL_NAMES[self.current_view]])
+        if self.current_view in [PACKAGES, SEARCH]:
             #self.remove_model()
-            self.set_model(self.view_model[MODEL_NAMES[self.current_view]])
             self.popup_menuitems["deselect_all"].hide()
             self.popup_menuitems["select_all"].hide()
             #self.enable_column_sort()
         else:
-            utils.debug.dprint("VIEWS: Package_view._set_model(); changing to '" + MODEL_NAMES[self.current_view] + "' view")
-            #self.remove_model()
-            self.set_model(self.view_model[MODEL_NAMES[self.current_view]])
+            #utils.debug.dprint("VIEWS: Package_view._set_model(); changing to '" + MODEL_NAMES[self.current_view] + "' view")
             self.popup_menuitems["deselect_all"].show()
             self.popup_menuitems["select_all"].show()
             #utils.debug.dprint("VIEWS: _set_model(); disabling column sort")
@@ -292,7 +289,7 @@ class PackageView(CommonTreeView):
         else:
             path, col, cellx, celly = pathinfo
             utils.debug.dprint("VIEWS: pathinfo = %s" %str(pathinfo))
-            #treeview.set_cursor(path, col, 0) # Note: sets off _clicked again
+            #treeview.set_cursor(path, col, MODEL_ITEM["name"]) # Note: sets off _clicked again
         return False
 
     def on_toggled(self, widget, path):
@@ -303,7 +300,7 @@ class PackageView(CommonTreeView):
 
     def add_keyword(self, widget):
         arch = "~" + portage_lib.get_arch()
-        name = utils.utils.get_treeview_selection(self, 2).full_name
+        name = utils.utils.get_treeview_selection(self, MODEL_ITEM["package"]).full_name
         string = name + " " + arch + "\n"
         utils.debug.dprint("VIEWS: Package view add_keyword(); %s" %string)
         def callback():
@@ -332,24 +329,24 @@ class PackageView(CommonTreeView):
         """ Handles treeview clicks """
         utils.debug.dprint("VIEWS: Package view _clicked() signal caught")
         # get the selection
-        package = utils.utils.get_treeview_selection(treeview, 2)
+        package = utils.utils.get_treeview_selection(treeview, MODEL_ITEM["package"])
         #utils.debug.dprint("VIEWS: package = %s" % package.full_name)
         if (not package and not self.toggle) or package.full_name == "None":
             self.mainwindow_callback("package changed", None)
             return False
         if self.toggle != None : # for upgrade view
             iter = self.get_model().get_iter(self.toggle)
-            check = self.view_model[MODEL_NAMES[self.current_view]].get_value(iter, 1)
+            check = self.view_model[MODEL_NAMES[self.current_view]].get_value(iter, MODEL_ITEM["checkbox"])
             check = not check
-            self.view_model[MODEL_NAMES[self.current_view]].set_value(iter, 1, check)
+            self.view_model[MODEL_NAMES[self.current_view]].set_value(iter, MODEL_ITEM["checkbox"], check)
             package.is_checked = check
-            #~ if self.view_model[MODEL_NAMES[self.current_view]].get_value(iter, 2) == None:
+            #~ if self.view_model[MODEL_NAMES[self.current_view]].get_value(iter, MODEL_ITEM["package"]) == None:
                 #~ #utils.debug.dprint("VIEWS: _clicked(): Toggling all upgradable deps")
                 #~ # package == None for "Upgradable Dependencies" row
                 #~ # so select or deselect all deps
                 #~ iter = self.view_model[MODEL_NAMES[self.current_view]].iter_children(iter)
                 #~ while iter:
-                    #~ self.view_model[MODEL_NAMES[self.current_view]].set_value(iter, 1, check)
+                    #~ self.view_model[MODEL_NAMES[self.current_view]].set_value(iter, MODEL_ITEM["checkbox"], check)
                     #~ iter = self.view_model[MODEL_NAMES[self.current_view]].iter_next(iter)
             self.dopopup = False # don't popup menu if clicked on checkbox
             self.toggle = None
@@ -430,6 +427,8 @@ class PackageView(CommonTreeView):
             utils.debug.dprint("VIEWS: Selecting " + str(locate_name))
         # get the right model
         model = self.get_model()
+        if not model:
+            utils.debug.dprint("VIEWS: populate(); FAILED TO GET model!!!!!!")
         self.disable_column_sort()
         model.clear()
         names = backends.utilities.sort(packages.keys())
@@ -439,22 +438,22 @@ class PackageView(CommonTreeView):
             #utils.debug.dprint("VIEWS: PackageView.populate(); name = %s" %name)
             # go through each package
             iter = model.insert_before(None, None)
-            model.set_value(iter, 2, packages[name])
-            model.set_value(iter, 0, name)
+            model.set_value(iter, MODEL_ITEM["package"], packages[name])
+            model.set_value(iter,MODEL_ITEM["name"], name)
             upgradable = 0
             if name != "None":
-                model.set_value(iter, 1, (packages[name].is_checked))
-                model.set_value(iter, 4, (packages[name].in_world))
+                model.set_value(iter, MODEL_ITEM["checkbox"], (packages[name].is_checked))
+                model.set_value(iter, MODEL_ITEM["world"], (packages[name].in_world))
                 upgradable = packages[name].is_dep_upgradable()
-                if upgradable == 1: # portage wants to upgrade
-                    model.set_value(iter, 5, config.Prefs.views.upgradable_fg)
+                if upgradable == MODEL_ITEM["checkbox"]: # portage wants to upgrade
+                    model.set_value(iter, MODEL_ITEM["text_colour"], config.Prefs.views.upgradable_fg)
                 elif upgradable == -1: # portage wants to downgrade
-                    model.set_value(iter, 5, config.Prefs.views.downgradable_fg)
+                    model.set_value(iter, MODEL_ITEM["text_colour"], config.Prefs.views.downgradable_fg)
                 else:
-                    model.set_value(iter, 5, '')
+                    model.set_value(iter, MODEL_ITEM["text_colour"], '')
                 # get an icon for the package
                 icon = utils.utils.get_icon_for_package(packages[name])
-                model.set_value(iter, 3,
+                model.set_value(iter, MODEL_ITEM["icon"],
                                 self.render_icon(icon,
                                 size = gtk.ICON_SIZE_MENU,
                                 detail = None))
@@ -469,7 +468,7 @@ class PackageView(CommonTreeView):
             self.set_cursor(path)
         utils.debug.dprint("VIEWS: starting info_thread")
         self.infothread_die = False
-        self.get_model().set_sort_column_id(0, gtk.SORT_ASCENDING)
+        self.get_model().set_sort_column_id(MODEL_ITEM["name"], gtk.SORT_ASCENDING)
         #self.disable_column_sort()
         self.model = self.get_model()
         self.iter = model.get_iter_first()
@@ -486,10 +485,10 @@ class PackageView(CommonTreeView):
         iter = self.iter
         #gtk.threads_leave()
         #while iter and not (self.infothread_die):
-        if iter and not model.get_value(iter, 0) == "None":
+        if iter and not model.get_value(iter,MODEL_ITEM["name"]) == "None":
             try:
                 #gtk.threads_enter()
-                package = model.get_value(iter, 2)
+                package = model.get_value(iter, MODEL_ITEM["package"])
                 #utils.debug.dprint("VIEWS: populate_info(); getting latest_installed")
                 latest_installed = package.get_latest_installed()
                 #utils.debug.dprint("VIEWS: populate_info(); latest_installed: %s, getting best_ebuild" %str(latest_installed))
@@ -500,18 +499,18 @@ class PackageView(CommonTreeView):
                 try:
                     size = package.get_size()
                     #utils.debug.dprint("VIEWS: populate_info(); size = " + size)
-                    model.set_value(iter, 6, size) # Size
+                    model.set_value(iter, MODEL_ITEM["size"], size) # Size
                 except:
                     utils.debug.dprint("VIEWS: populate_info(); Had issues getting size for '%s'" % str(package.full_name))
-                model.set_value(iter, 7, portage_lib.get_version(latest_installed)) # installed
+                model.set_value(iter, MODEL_ITEM["installed"], portage_lib.get_version(latest_installed)) # installed
                 if best_ebuild:
-                    model.set_value(iter, 8, portage_lib.get_version(best_ebuild)) #  recommended by portage
+                    model.set_value(iter, MODEL_ITEM["recommended"], portage_lib.get_version(best_ebuild)) #  recommended by portage
                 elif latest_ebuild:
-                    model.set_value(iter, 8, "(" + portage_lib.get_version(latest_ebuild) + ")") # latest
+                    model.set_value(iter, MODEL_ITEM["recommended"], "(" + portage_lib.get_version(latest_ebuild) + ")") # latest
                 else:
-                    model.set_value(iter, 8, "masked") # hard masked - don't display
+                    model.set_value(iter, MODEL_ITEM["recommended"], "masked") # hard masked - don't display
                 try:
-                    model.set_value(iter, 9, package.get_properties().description) # Description
+                    model.set_value(iter, MODEL_ITEM["description"], package.get_properties().description) # Description
                 except:
                     utils.debug.dprint("VIEWS populate_info(): Failed to get item description for '%s'" % package.full_name)
                 self.iter = model.iter_next(iter)
@@ -545,9 +544,9 @@ class PackageView(CommonTreeView):
         model.foreach(self.set_select, True)
 
     def set_select(self, model, path, iter, selected):
-        if model.get_value(iter, 0) != "None":
-            model.set_value(iter, 1, selected)
-            model.get_value(iter, 2).is_checked = selected
+        if model.get_value(iter,MODEL_ITEM["name"]) != "None":
+            model.set_value(iter, MODEL_ITEM["checkbox"], selected)
+            model.get_value(iter, MODEL_ITEM["package"]).is_checked = selected
     
     def remove_model(self): # used by upgrade reader to speed up adding to the model
         self.view_model["Temp"] = self.get_model()

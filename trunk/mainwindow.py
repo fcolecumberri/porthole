@@ -46,7 +46,8 @@ from packagebook.notebook import PackageNotebook
 from packagebook.depends import DependsTree
 from terminal.terminal import ProcessManager
 from views.category import CategoryView
-from views.package import PackageView
+from views.package import PackageView, PACKAGES, SEARCH, UPGRADABLE, DEPRECATED, SETS, BLANK, TEMP
+from views.models import MODEL_ITEM as PACKAGE_MODEL_ITEM
 #from views.depends import DependsView
 from views.commontreeview import CommonTreeView
 from advancedemerge.advemerge import AdvancedEmergeDialog
@@ -70,6 +71,7 @@ SHOW_UPGRADE = 3
 SHOW_DEPRECATED = 4
 SHOW_SETS = 5
 INDEX_TYPES = ["All", "Installed", "Search", "Upgradable", "Deprecated", "Sets"]
+GROUP_SELECTABLE = [SHOW_UPGRADE, SHOW_DEPRECATED , SHOW_SETS]
 ON = True
 OFF = False
 
@@ -113,9 +115,9 @@ class MainWindow:
         callbacks = {
             "on_main_window_destroy" : self.goodbye,
             "on_quit1_activate" : self.quit,
-            "on_emerge_package" : self.emerge_package,
-            "on_adv_emerge_package" : self.adv_emerge_package,
-            "on_unmerge_package" : self.unmerge_package,
+            "on_emerge_package" : self.emerge_btn,
+            "on_adv_emerge_package" : self.adv_emerge_btn,
+            "on_unmerge_package" : self.unmerge_btn,
             "on_sync_tree" : self.sync_tree,
             "on_upgrade_packages" : self.upgrade_packages,
             "on_package_search" : self.package_search,
@@ -390,6 +392,7 @@ class MainWindow:
         # self.reload==False is currently broken for init_data when reloading after a sync
         #self.init_data() 
         self.reload_db()
+        self.refresh()
 
     def get_sync_time(self):
         """gets and returns the timestamp info saved during
@@ -698,9 +701,13 @@ class MainWindow:
         """Set whether or not to search descriptions"""
         config.Prefs.main.search_desc = widget.get_active()
 
-    def emerge_package(self, widget, sudo=False):
-        """Emerge the currently selected package."""
+    def emerge_btn(self, widget, sudo=False):
+        """callback for the emerge toolbutton and menu entries"""
         package = utils.utils.get_treeview_selection(self.package_view, 2)
+        self.emerge_package(package, sudo)
+
+    def emerge_package(self, package, sudo=False):
+        """Emerge the package."""
         if (sudo or (not utils.utils.is_root() and utils.utils.can_sudo())) \
                 and not config.Prefs.emerge.pretend:
             self.setup_command(package.get_name(), 'sudo -p "Password: " emerge' +
@@ -709,9 +716,13 @@ class MainWindow:
             self.setup_command(package.get_name(), "emerge" +
                 config.Prefs.emerge.get_string() + package.full_name)
 
-    def adv_emerge_package(self, widget):
+    def adv_emerge_btn(self, widget):
         """Advanced emerge of the currently selected package."""
         package = utils.utils.get_treeview_selection(self.package_view, 2)
+        self.adv_emerge_package(package)
+
+    def adv_emerge_package(self, package):
+        """Advanced emerge of the package."""
         # Activate the advanced emerge dialog window
         # re_init_portage callback is for when package.use etc. are modified
         dialog = AdvancedEmergeDialog(package, self.setup_command, self.re_init_portage)
@@ -755,9 +766,14 @@ class MainWindow:
             self.needs_plugin_menu = False
         del menuitem
 
-    def unmerge_package(self, widget, sudo=False):
-        """Unmerge the currently selected package."""
+    def unmerge_btn(self, widget, sudo=False):
+        """callback for the Unmerge button and menu entry to
+        unmerge the currently selected package."""
         package = utils.utils.get_treeview_selection(self.package_view, 2)
+        self.unmerge_package(package, sudo)
+
+    def unmerge_package(self, package, sudo=False):
+        """Unmerge the package."""
         if (sudo or (not self.is_root and utils.utils.can_sudo())) \
                 and not config.Prefs.emerge.pretend:
             self.setup_command(package.get_name(), 'sudo -p "Password: " emerge --unmerge' +
@@ -766,7 +782,7 @@ class MainWindow:
             self.setup_command(package.get_name(), "emerge --unmerge" +
                     config.Prefs.emerge.get_string() + package.full_name)
 
-    def sync_tree(self, widget):
+    def sync_tree(self, *widget):
         """Sync the portage tree and reload it when done."""
         sync = config.Prefs.globals.Sync
         if config.Prefs.emerge.verbose:
@@ -811,20 +827,38 @@ class MainWindow:
             config.Prefs.main.vpane = vpanepos = self.vpane.get_position()
             utils.debug.dprint("MAINWINDOW on_pane_notify(): saved hpane %(hpanepos)s, vpane %(vpanepos)s" % locals())
     
+    def get_selected_list(self):
+        """creates self.packages_list, self.keyorder"""
+        utils.debug.dprint("MAINWINDOW: get_selected_list()")
+        my_type = INDEX_TYPES[self.last_view_setting]
+        if self.last_view_setting not in GROUP_SELECTABLE:
+            utils.debug.dprint("MAINWINDOW: get_selected_list() " + my_type + " view is not group selectable for emerge/upgrade commands")
+            return False
+        # create a list of packages to be upgraded
+        self.packages_list = {}
+        self.keyorder = []
+        if self.loaded[my_type]:
+            utils.debug.dprint("MAINWINDOW: get_selected_list() '" + my_type + "' loaded")
+            self.list_model = self.package_view.view_model[my_type]
+            # read the my_type tree into a list of packages
+            utils.debug.dprint("MAINWINDOW: get_selected_list(); run list_model.foreach() len = " + str(len(self.list_model)))
+            utils.debug.dprint("MAINWINDOW: get_selected_list(); self.list_model = " +str(self.list_model))
+            self.list_model.foreach(self.tree_node_to_list)
+            utils.debug.dprint("MAINWINDOW: get_selected_list(); list_model.foreach() Done")
+            utils.debug.dprint("MAINWINDOW: get_selected_list(); len(self.packages_list) = " + str(len(self.packages_list)))
+            utils.debug.dprint("MAINWINDOW: get_selected_list(); self.keyorder) = " + str(self.keyorder))
+            return len(self.keyorder)>0
+        else:
+            utils.debug.dprint("MAINWINDOW: get_selected_list() " + my_type + " not loaded")
+            return False
+
     def upgrade_packages(self, widget):
         """Upgrade selected packages that have newer versions available."""
-        if self.last_view_setting in [SHOW_UPGRADE, SHOW_DEPRECATED , SHOW_SETS]:
-            my_type = INDEX_TYPES[self.last_view_setting]
-        else:
-            my_type = INDEX_TYPES[SHOW_DEPRECATED]
-        if self.loaded[my_type]:
-            utils.debug.dprint("MAINWINDOW: upgrade_packages() " + my_type + " loaded")
-            # create a list of packages to be upgraded
-            self.packages_list = {}
-            self.keyorder = []
-            self.up_model = self.package_view.view_model[my_type]
-            # read the upgrade tree into a list of packages to upgrade
-            self.up_model.foreach(self.tree_node_to_list)
+        if self.last_view_setting in GROUP_SELECTABLE:
+            if not self.get_selected_list():
+                utils.debug.dprint("MAINWINDOW: upgrade_packages(); No packages were selected")
+                return
+            utils.debug.dprint("MAINWINDOW: upgrade_packages(); packages were selected")
             if self.is_root or config.Prefs.emerge.pretend:
                 emerge_cmd = "emerge --noreplace"
             elif utils.utils.can_sudo():
@@ -853,13 +887,17 @@ class MainWindow:
 
     def tree_node_to_list(self, model, path, iter):
         """callback function from gtk.TreeModel.foreach(),
-           used to add packages to an upgrades list"""
-        if model.get_value(iter, 1):
-            name = model.get_value(iter, 0)
-            utils.debug.dprint("MAINWINDOW; tree_node_to_list(): name '%s'" % name)
+           used to add packages to the self.packages_list, self.keyorder lists"""
+        #utils.debug.dprint("MAINWINDOW; tree_node_to_list(): begin building list")
+        if model.get_value(iter, PACKAGE_MODEL_ITEM["checkbox"]):
+            name = model.get_value(iter, PACKAGE_MODEL_ITEM["name"])
+            #utils.debug.dprint("MAINWINDOW; tree_node_to_list(): name '%s'" % name)
             if name not in self.keyorder and name <> _("Upgradable dependencies:"):
-                self.packages_list[name] = model.get_value(iter, 4) # model.get_value(iter, 2), name]
+                self.packages_list[name] = model.get_value(iter, PACKAGE_MODEL_ITEM["package"])
+                #model.get_value(iter, PACKAGE_MODEL_ITEM["world"])
+                # model.get_value(iter, PACKAGE_MODEL_INDEX["package"]), name]
                 self.keyorder = [name] + self.keyorder 
+        #utils.debug.dprint("MAINWINDOW; tree_node_to_list(): new keyorder list = " + str(self.keyorder))
         return False
 
 
@@ -1026,8 +1064,8 @@ class MainWindow:
             self.current_pkg_name[INDEX_TYPES[mode]] = None
             self.current_pkg_cursor[INDEX_TYPES[mode]] = None
             self.current_pkg_path[INDEX_TYPES[mode]] = None
-            #self.package_view.set_view(self.package_view.PACKAGES)
-            self.package_view.populate(packages)
+            self.package_view.set_view(PACKAGES)
+            self.package_view.populate(None)
         elif mode in [SHOW_UPGRADE, SHOW_DEPRECATED, SHOW_SETS]:
             packages = self.pkg_list[INDEX_TYPES[mode]][category]
             self.package_view.populate(packages, self.current_pkg_name[INDEX_TYPES[mode]])
@@ -1089,7 +1127,7 @@ class MainWindow:
             self.category_view.populate(items, True, count)
             cat_scroll.show()
             utils.debug.dprint("MAINWINDOW: view_filter_changed(); reset package_view")
-            self.package_view.set_view(self.package_view.PACKAGES)
+            self.package_view.set_view(PACKAGES)
             utils.debug.dprint("MAINWINDOW: view_filter_changed(); init package_view")
             self.package_view._init_view()
             #utils.debug.dprint("MAINWINDOW: view_filter_changed(); clear package_view")
@@ -1109,7 +1147,7 @@ class MainWindow:
                 self.category_view.populate(self.pkg_list[INDEX_TYPES[x]].keys(), True, self.pkg_count[INDEX_TYPES[x]])
             cat_scroll.show();
             utils.debug.dprint("MAIN: Showing search results")
-            self.package_view.set_view(self.package_view.SEARCH_RESULTS)
+            self.package_view.set_view(SEARCH)
             cat = self.current_search
             pack = self.current_pkg_name[INDEX_TYPES[x]]
             #self.select_category_package(cat, pack, x)
@@ -1117,11 +1155,11 @@ class MainWindow:
             utils.debug.dprint("MAINWINDOW: view_filter_changed(); '" + INDEX_TYPES[x] + "' selected")
             cat_scroll.show();
             if x == SHOW_UPGRADE:
-                self.package_view.set_view(self.package_view.UPGRADABLE)
+                self.package_view.set_view(UPGRADABLE)
             elif x == SHOW_DEPRECATED:
-                self.package_view.set_view(self.package_view.DEPRECATED)
+                self.package_view.set_view(DEPRECATED)
             else:
-                self.package_view.set_view(self.package_view.SETS)
+                self.package_view.set_view(SETS)
             if not self.loaded[INDEX_TYPES[x]]:
                 utils.debug.dprint("MAINWINDOW: view_filter_changed(); calling load_reader_list('" + INDEX_TYPES[x] + "') reader_running = %s ********************************" %self.reader_running)
                 self.load_reader_list(INDEX_TYPES[x])
@@ -1131,7 +1169,7 @@ class MainWindow:
             else:
                 utils.debug.dprint("MAINWINDOW: view_filter_changed(); calling category_view.populate() with categories:" + str(self.pkg_list[INDEX_TYPES[x]].keys()))
                 self.category_view.populate(self.pkg_list[INDEX_TYPES[x]].keys(), False, self.pkg_count[INDEX_TYPES[x]])
-            #self.package_view.set_view(self.package_view.UPGRADABLE)
+            #self.package_view.set_view(UPGRADABLE)
             utils.debug.dprint("MAINWINDOW: view_filter_changed(); init package_view")
             self.package_view._init_view()
             #utils.debug.dprint("MAINWINDOW: view_filter_changed(); clear package_view")
@@ -1268,15 +1306,15 @@ class MainWindow:
                     self.loaded_callback[reader_type] = None
                 else:
                     if self.last_view_setting == SHOW_UPGRADE:
-                        self.package_view.set_view(self.package_view.UPGRADABLE)
+                        self.package_view.set_view(UPGRADABLE)
                         self.packagebook.summary.update_package_info(None)
                         #self.wtree.get_widget("category_scrolled_window").hide()
                     elif self.last_view_setting == SHOW_DEPRECATED:
-                        self.package_view.set_view(self.package_view.DEPRECATED)
+                        self.package_view.set_view(DEPRECATED)
                         self.packagebook.summary.update_package_info(None)
                         #self.wtree.get_widget("category_scrolled_window").hide()
                     elif self.last_view_setting == SHOW_SETS:
-                        self.package_view.set_view(self.package_view.SETS)
+                        self.package_view.set_view(SETS)
                         self.packagebook.summary.update_package_info(None)
                 return False
         elif self.reader.progress < 2:

@@ -4,7 +4,7 @@
     Porthole Views
     The view filter classes
 
-    Copyright (C) 2003 - 2006 Fredrik Arnerup, Daniel G. Taylor, Brian Dolbec,
+    Copyright (C) 2003 - 2007 Fredrik Arnerup, Daniel G. Taylor, Brian Dolbec,
     Brian Bockelman, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify
@@ -32,23 +32,35 @@ from sorts import *
 #from gettext import gettext as _
 
 
+MODEL_ITEM = {"name": 0,
+                        "checkbox": 1,
+                        "package": 2,
+                        "icon": 3,
+                        "world": 4,
+                        "text_colour": 5,
+                        "size": 6,
+                        "installed": 7,
+                        "recommended": 8,
+                        "description": 9}
+
+
 def PackageModel():
     """Common model for a package Treestore"""
     store = gtk.TreeStore(
         gobject.TYPE_STRING,        # 0: package name
-        gobject.TYPE_BOOLEAN,       # 1: checkbox value in upgrade view
-        gobject.TYPE_PYOBJECT,      # 2: package object
-        gtk.gdk.Pixbuf,             # 3: room for various icons
-        gobject.TYPE_BOOLEAN,       # 4: true if package is in 'world' file
+        gobject.TYPE_BOOLEAN,     # 1: checkbox value in upgrade view
+        gobject.TYPE_PYOBJECT,     # 2: package object
+        gtk.gdk.Pixbuf,                   # 3: room for various icons
+        gobject.TYPE_BOOLEAN,     # 4: true if package is in 'world' file
         gobject.TYPE_STRING,        # 5: foreground text colour
         gobject.TYPE_STRING,        # 6: size
         gobject.TYPE_STRING,        # 7: installed version
         gobject.TYPE_STRING,        # 8: portage recommended version
         gobject.TYPE_STRING,        # 9: description
     )
-    store.set_sort_func(6, size_sort_func)
-    store.set_sort_func(8, latest_sort_func)
-    store.set_sort_func(7, installed_sort_func)
+    store.set_sort_func(MODEL_ITEM["size"], size_sort_func)
+    store.set_sort_func(MODEL_ITEM["recommended"], latest_sort_func)
+    store.set_sort_func(MODEL_ITEM["installed"], installed_sort_func)
     return store
 
 
