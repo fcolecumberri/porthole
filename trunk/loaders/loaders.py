@@ -63,9 +63,9 @@ def load_textfile(view, package, mode, version = None):
         if package:
             utils.debug.dprint("LOADERS; load_textfile(): for '%s'" % package.full_name)
             if mode == "version_ebuild":
-                ebuild = version
-                utils.debug.dprint("LOADERS; load_textfile(): version_ebuild = " + ebuild)
-                package_file = ('/' + package.full_name + '/' + ebuild.split('/')[1]) + Textfile_type[mode]
+                #~ ebuild = version
+                utils.debug.dprint("LOADERS; load_textfile(): version_ebuild = " + version)
+                #~ package_file = ('/' + package.full_name + '/' + ebuild.split('/')[1]) + Textfile_type[mode]
             elif mode != "changelog":
                 installed = package.get_installed()
                 versions = package.get_versions()
@@ -95,9 +95,14 @@ def load_textfile(view, package, mode, version = None):
                     except:
                         # need to add multiple overlay support
                         f = open(portage_lib.portdir_overlay + package_file)
-                elif portage_lib.is_overlay(ebuild):
-                    utils.debug.dprint("LOADERS: load_textfile(); loading from an overlay")
-                    f = open(portage_lib.portdir_overlay + package_file)
+                #~ elif portage_lib.is_overlay(ebuild):
+                    #~ utils.debug.dprint("LOADERS: load_textfile(); loading from an overlay")
+                    #~ f = open(portage_lib.portdir_overlay + package_file)
+                elif mode == "version_ebuild":
+                    #utils.debug.dprint("LOADERS: load_textfile(): version_ebiuld, getting path for: " + ebuild)
+                    path = portage_lib.get_path(version)
+                    utils.debug.dprint("LOADERS: load_textfile(): loading from: " + path)
+                    f = open(path)
                 else:
                     utils.debug.dprint("LOADERS: load_textfile(): loading from the portage tree")
                     f = open(portage_lib.portdir + package_file)
