@@ -157,7 +157,7 @@ class UserConfigs:
             atom.file = source
             atom.type = mytype
             atom.value = values[1:]
-            utils.debug.dprint("USER_CONFIGS: atomize(); new atom: " + str(atom.name))
+            #utils.debug.dprint("USER_CONFIGS: atomize(); new atom: " + str(atom.name))
             # index by name
             if name in db[mytype]:
                 db[mytype][name].append(atom)
@@ -181,15 +181,15 @@ class UserConfigs:
             #~ else:
                 #~ result = []
         elif ebuild and ebuild != '':
-            utils.debug.dprint("USER_CONFIGS: get_atom(); ebuild = " + ebuild)
+            #utils.debug.dprint("USER_CONFIGS: get_atom(); ebuild = " + ebuild)
             pkgname = portage_lib.get_full_name(ebuild)
-            utils.debug.dprint("USER_CONFIGS: get_atom(); pkgname = " + pkgname)
+            #utils.debug.dprint("USER_CONFIGS: get_atom(); pkgname = " + pkgname)
             if pkgname in self.db[mytype]:
                 result = self.db[mytype][pkgname]
             #~ else:
                 #~ result = []
             # match ebuild version
-        utils.debug.dprint("USER_CONFIGS: get_atom(); result = " + str(result))
+        #utils.debug.dprint("USER_CONFIGS: get_atom(); result = " + str(result))
         return result[:]
 
     def get_types(self):
@@ -235,12 +235,12 @@ class UserConfigs:
         For package.use/keywords, a list of applicable flags is returned.
         For package.mask/unmask, a list containing the matching lines is returned.
         """
-        utils.debug.dprint("USER_CONFIGS: get_user_config('" + mytype + "')")
+        #utils.debug.dprint("USER_CONFIGS: get_user_config('" + mytype + "')")
         masktypes = ['MASK', 'UNMASK']
         othertypes = ['USE', 'KEYWORDS']
         package_types = othertypes + masktypes
         if mytype not in package_types:
-            utils.debug.dprint("USER_CONFIGS: get_user_config(): unsupported config mytype '%s'" % mytype)
+            #utils.debug.dprint("USER_CONFIGS: get_user_config(): unsupported config mytype '%s'" % mytype)
             return None
         atoms = self.get_atom(mytype, name, ebuild)
         dict = {}
@@ -287,7 +287,7 @@ class UserConfigs:
         If <name> and <ebuild> are not given then lines starting with something in
         remove are removed, and items in <add> are added as new lines.
         """
-        utils.debug.dprint("USER_CONFIGS: set_user_config()")
+        #utils.debug.dprint("USER_CONFIGS: set_user_config()")
         self.set_callback = callback
         self.set_type = mytype
         command = ''
@@ -309,11 +309,11 @@ class UserConfigs:
                 file = os.path.join(target_path, file)
             else:
                 file = target_path
-            utils.debug.dprint("USER_CONFIGS: set_user_config(): got a filename :) file = " + file)
+            #utils.debug.dprint("USER_CONFIGS: set_user_config(): got a filename :) file = " + file)
 
         else: # found one
             file = atom[0].file
-            utils.debug.dprint("USER_CONFIGS: set_user_config(): found an atom :) file = " + file)
+            #utils.debug.dprint("USER_CONFIGS: set_user_config(): found an atom :) file = " + file)
         self.set_file = file
 
         if isinstance(add, list):
@@ -378,15 +378,15 @@ class UserConfigs:
         old_file_atoms = self.sources[mytype][file]
         old_file_atoms.sort(cmp)
         old_length = len(old_file_atoms)
-        temp_db[mytype][file].sort(cmp)
-        new_length = len(temp_db[mytype][file])
-        utils.debug.dprint(" * USER_CONFIGS: reload_file(): old atoms : " + str(old_file_atoms))
+        temp_sources[mytype][file].sort(cmp)
+        new_length = len(temp_sources[mytype][file])
+        #utils.debug.dprint(" * USER_CONFIGS: reload_file(): old atoms : " + str(old_file_atoms))
         for a in old_file_atoms:
             # delete the old record
             self.db[mytype][a.name].remove(a)
         del self.sources[mytype][file]
         self.sources[mytype][file] = temp_sources[mytype][file]
-        for a in temp_db[mytype][file]:
+        for a in temp_sources[mytype][file]:
             # index by name
             if a.name in self.db[mytype]:
                 self.db[mytype][a.name].append(a)
