@@ -58,7 +58,7 @@ class PackageView(CommonTreeView):
         self.info_thread = None
         self.iter = None
         self.model = None
-        self.current_view = PACKAGES
+        self.current_view = None
         # initialize the treeview
         CommonTreeView.__init__(self)
 
@@ -429,6 +429,7 @@ class PackageView(CommonTreeView):
         model = self.get_model()
         if not model:
             utils.debug.dprint("VIEWS: populate(); FAILED TO GET model!!!!!!")
+            return
         self.disable_column_sort()
         model.clear()
         names = backends.utilities.sort(packages.keys())
