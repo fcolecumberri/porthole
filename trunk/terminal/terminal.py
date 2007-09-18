@@ -112,6 +112,8 @@ class ProcessManager:
         self.clipboard = gtk.Clipboard()
         # create the process reader
         self.reader = ProcessOutputReader(Dispatcher(self.process_done))
+        # Added a Line Feed check in order to bypass code if LF's are not used ==> CR only
+        self.LF_check = False
 
     def reset_buffer_update(self):
         # clear process output buffer
@@ -507,18 +509,20 @@ class ProcessManager:
                 #utils.debug.dprint("TERMINAL: adding text to buffer: %s, %s" % (char, ord(char)))
                 # if we find a CR without a LF, switch to overwrite mode
                 if self.cr_flag:
-                    if char != '\n':
+                    # gcc and some emerge output no longer outputs a LF so addded a bypass switch
+                    if self.LF_check and char != '\n':
                         tag = None
                         if self.first_cr:
                             #utils.debug.dprint("TERMINAL: self.first_cr = True")
                             self.term.append(TAB_PROCESS, self.process_buffer, tag)
                             self.first_cr = False
-                            self.overwrite_till_nl = True
+                            #utils.debug.dprint("TERMINAL: self.first_cr = True, setting self.overwrite_till_nl = True")
+                            #self.overwrite_till_nl = True
                             self.process_buffer = ''
                             self.line_buffer = ''
                         # overwrite until after a '\n' detected for this line
                         else:
-                            #utils.debug.dprint("TERMINAL: self.first_cr = False")
+                            #utils.debug.dprint("TERMINAL: self.first_cr = False, calling overwrite()")
                             self.term.overwrite(TAB_PROCESS, self.process_buffer, tag)
                             self.process_buffer = ''
                             self.line_buffer = ''
@@ -570,10 +574,12 @@ class ProcessManager:
                         if not self.b_flag: # initial display
                             self.term.append(TAB_PROCESS, self.line_buffer)
                         else: # every other display until \n is found
+                            #utils.debug.dprint("TERMINAL: self.b_flag = True, calling overwrite()")
                             self.term.overwrite(TAB_PROCESS, self.line_buffer)
-                    self.process_buffer = ''
+                    #self.process_buffer = ''
                     self.line_buffer = self.line_buffer[:-1]
                     self.b_flag = True
+                    #utils.debug.dprint("TERMINAL: self.b_flag = True, setting self.overwrite_till_nl = True")
                     self.overwrite_till_nl = True
                 elif ord(char) == 13:  # carriage return
                     self.cr_flag = True
@@ -666,11 +672,12 @@ class ProcessManager:
                             self.caution_count += 1
                         
                         if self.overwrite_till_nl:
-                            #utils.debug.dprint("TERMINAL: '\\n' detected in overwrite mode")
+                            #utils.debug.dprint("TERMINAL: '\\n' detected in overwrite mode, calling overwrite()")
                             self.term.overwrite(TAB_PROCESS, self.line_buffer[:-1], tag)
                             self.term.append(TAB_PROCESS, '\n', tag)
                             self.overwrite_till_nl = False
                         elif overwrite and tag:
+                            #utils.debug.dprint("TERMINAL: overwrite and tag = True, calling overwrite()")
                             self.term.overwrite(TAB_PROCESS, self.line_buffer[:-1], tag)
                             self.term.append(TAB_PROCESS, '\n', tag)
                         else:

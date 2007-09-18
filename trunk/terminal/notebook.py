@@ -347,7 +347,7 @@ class TerminalNotebook:
             line numbering is correct.
             Optionally, text formatting can be applied as well
         """
-        #utils.debug.dprint("Notebook: overwrite() -- num= " + str(num))
+        #utils.debug.dprint("Notebook: overwrite() -- num= " + str(num) + "..." + text)
         #utils.debug.dprint(self.current_tab)
         line_number = self.view_buffer[TAB_PROCESS].get_line_count() 
         iter = self.view_buffer[num].get_iter_at_line(line_number)
@@ -372,7 +372,7 @@ class TerminalNotebook:
             line numbering is correct.
             Optionally, text formatting can be applied as well
         """
-        #utils.debug.dprint("Notebook: overwrite() -- num= " + str(num))
+        #utils.debug.dprint("Notebook: append() -- num= " + str(num) + "..." + text)
         #utils.debug.dprint(self.current_tab)
         line_number = self.view_buffer[TAB_PROCESS].get_line_count() 
         iter = self.view_buffer[num].get_end_iter()
