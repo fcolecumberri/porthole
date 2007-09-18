@@ -215,7 +215,7 @@ class MainWindow:
         self.mainwindow.connect('delete-event', self.confirm_delete)
         # initialize some variable to fix the hpane jump bug
         #self.hpane_bug_count = 0
-        self.hpane_bug = True
+        #self.hpane_bug = True
         # initialize now so that the update_db_callback doesn't puke
         self.plugin_manager = None
         self.plugin_package_tabs = {}
