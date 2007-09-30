@@ -56,12 +56,17 @@ import pango
 import signal, os, pty, threading, time, sre
 import datetime, pango, errno
 
+import dbus
+import dbus.service
+from dbus.mainloop.glib import DBusGMainLoop
+DBusGMainLoop(set_as_default=True)
+
 from gettext import gettext as _
 
-if __name__ == "__main__":
-    # setup our path so we can load our custom modules
-    from sys import path
-    path.append("/usr/lib/porthole")
+#~ if __name__ == "__main__":
+    #~ # setup our path so we can load our custom modules
+    #~ from sys import path
+    #~ path.append("/usr/lib/porthole")
 
 # import custom modules
 import backends
@@ -79,11 +84,21 @@ from notebook import TerminalNotebook
 from fileselector import FileSel
 import config
 
-class ProcessManager:
+CONN_INTERFACE = 'Porthole.Terminal'
+
+class ProcessManager(dbus.service.Object):
     """ Manages queued and running processes """
     def __init__(self, env = {}, log_mode = False):
         """ Initialize """
         utils.debug.dprint("TERMINAL: ProcessManager; process id = %d ****************" %os.getpid())
+        
+        self.sysbus = dbus.SystemBus()
+        self.sesbus = dbus.SessionBus()
+        bus_name = dbus.service.BusName(CONN_INTERFACE)
+        object_path = '/Porthole/Terminal/Connection'
+        dbus.service.Object.__init__(self, bus_name, object_path)
+        #dbus.service.Object.__init__(self, self.sesbus, path)
+        
         if log_mode:
             self.title = "Porthole Log Viewer"
         else:
@@ -114,6 +129,7 @@ class ProcessManager:
         self.reader = ProcessOutputReader(Dispatcher(self.process_done))
         # Added a Line Feed check in order to bypass code if LF's are not used ==> CR only
         self.LF_check = False
+
 
     def reset_buffer_update(self):
         # clear process output buffer
@@ -250,7 +266,11 @@ class ProcessManager:
             # Also causes runaway recursion.
             self.window.connect("size_request", self.on_size_request)
 
-    def add( self, name, command, callback ):
+    @dbus.service.method(CONN_INTERFACE, in_signature='ss', out_signature='', sender_keyword='sender')
+    def request_add( self, name, command, sender ):
+        self.add(name, command, self.reply , sender)
+
+    def add( self, name, command, callback, sender = 'Non-DBus' ):
         # show the window if it isn't visible
         if not self.window_visible:
             self.show_window()
@@ -260,7 +280,10 @@ class ProcessManager:
                 utils.debug.dprint("*** TERM_QUEUE: add_process: Dangerous things may happen after this point!")
             self.process_queue.new_window = True
 
-        self.process_queue.add(name, command, callback)
+        self.process_queue.add(name, command, callback, sender)
+
+    def reply():
+        pass
 
     def on_size_request(self, window, gbox):
         """ Store new size in prefs """

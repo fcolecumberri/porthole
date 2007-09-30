@@ -59,12 +59,13 @@ from dialogs.simple import SingleButtonDialog
 
 
 class ProcessItem:
-    def __init__(self, name, command, process_id, callback = None):
+    def __init__(self, name, command, process_id, callback = None, sender = 'Non-DBus'):
         """Structure of a process list item"""
         ## old process item structure [package_name, command_string, iter, callback, self.process_id]
         self.name = name
         self.command = command
         self.callback = callback
+        self.sender = sender
         self.killed = False
         # id number for storing in the queue
         self.process_id = process_id
@@ -132,16 +133,22 @@ class TerminalQueue:
         column.pack_start(text, expand = True)
         column.add_attribute(text, "text", 2)
         self.queue_tree.append_column(column)
+        column = gtk.TreeViewColumn("Sender")
+        text = gtk.CellRendererText()
+        column.pack_start(text, expand = True)
+        column.add_attribute(text, "text", 4)
+        self.queue_tree.append_column(column)
         self.queue_model = gtk.ListStore(gtk.gdk.Pixbuf,
                                         gobject.TYPE_STRING,
                                         gobject.TYPE_STRING,
-                                        gobject.TYPE_INT)
+                                        gobject.TYPE_INT,
+                                        gobject.TYPE_STRING)
         self.queue_tree.set_model(self.queue_model)
         self.new_window = False
         # set the buttons and menu options sensitive state
         self.set_btn_menus()
 
-    def add(self, package_name, command_string, callback):
+    def add(self, package_name, command_string, callback, sender):
         """ Add a process to the queue """
         # if the last process was killed, check if it's the same thing
         self.resume_string = None
@@ -201,9 +208,10 @@ class TerminalQueue:
             self.queue_model.set_value(insert_iter, 1, str(package_name))
             self.queue_model.set_value(insert_iter, 2, str(command_string))
             self.queue_model.set_value(insert_iter, 3, self.next_id)
+            self.queue_model.set_value(insert_iter, 4, str(sender))
             # add to the process list only if not resuming
             self.process_list.append( ProcessItem(package_name, command_string,
-                                                    self.next_id, callback))
+                                                    self.next_id, callback, sender))
             self.next_id += 1
             if self.queue_paused:
                 self.set_icon(PAUSED, self.process_id+1)
@@ -479,6 +487,9 @@ class TerminalQueue:
             self.skip_queue_menu.set_sensitive(True)
         else:
             self.skip_queue_menu.set_sensitive(False)
+
+    def get_sender( self ):
+        return self.process_list[0].sender
 
     def resume( self ):
         # add resume to the command only if it's queue id matches.
