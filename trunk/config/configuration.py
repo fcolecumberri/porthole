@@ -22,7 +22,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import sre
+import re
 
 from _xml.xmlmgr import XMLManager, XMLManagerError
 from gettext import gettext as _
@@ -50,16 +50,16 @@ class PortholeConfiguration:
             attrname = ''.join([filter, '_re_list'])
             setattr(self, attrname, []) # e.g. self.info_re_list = []
             for regexp in patternlist:
-                getattr(self, attrname).append(sre.compile(regexp))
+                getattr(self, attrname).append(re.compile(regexp))
             patternlist = dom.getitem(''.join(['/re_filters/not',filter])) # e.g. '/re_filters/notinfo'
             attrname = ''.join([filter, '_re_notlist'])
             setattr(self, attrname, []) # e.g. self.info_re_notlist = []
             for regexp in patternlist:
-                getattr(self, attrname).append(sre.compile(regexp))
+                getattr(self, attrname).append(re.compile(regexp))
         
-        self.emerge_re = sre.compile(dom.getitem('/re_filters/emerge'))
-        self.ebuild_re = sre.compile(dom.getitem('/re_filters/ebuild'))
-        self.merged_re = sre.compile(dom.getitem('/re_filters/merged'))
+        self.emerge_re = re.compile(dom.getitem('/re_filters/emerge'))
+        self.ebuild_re = re.compile(dom.getitem('/re_filters/ebuild'))
+        self.merged_re = re.compile(dom.getitem('/re_filters/merged'))
         del dom
 
     def isInfo(self, teststring):
