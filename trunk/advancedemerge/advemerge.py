@@ -550,7 +550,7 @@ class AdvancedEmergeDialog:
                 ]
         options = ''
         for Name, ShortOption, LongOption in List:
-            if self.wtree.get_widget(Name).get_active():
+            if self.wtree.get_widget(Name) and self.wtree.get_widget(Name).get_active():
                 options += LongOption
         #if config.Prefs.emerge.nospinner:
         #    options += '--nospinner '
