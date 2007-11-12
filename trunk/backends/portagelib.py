@@ -43,9 +43,6 @@ try:
 except ImportError:
     exit(_('Could not find portage module.\n'
          'Are you sure this is a Gentoo system?'))
-         
-
-import threading
 
 from metadata import parse_metadata
 from utils.utils import is_root
