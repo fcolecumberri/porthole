@@ -264,7 +264,7 @@ class ConfigDialog:
             utils.debug.dprint("CONFIGDIALOG: set_widget_values(); Checkboxes: widget = %s" %('_'.join([category, name])))
             if widget:
                 active = getattr(getattr(config.Prefs, category), name)
-                utils.debug.dprint(active)
+                utils.debug.dprint(str(active))
                 if active == []:
                     active = False
                 widget.set_active(active)
