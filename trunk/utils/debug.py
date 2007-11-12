@@ -25,7 +25,7 @@
 
 import errno
 import string
-import sre
+#import re
 #import datetime
 
 from sys import stderr
