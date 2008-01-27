@@ -39,9 +39,10 @@ class TerminalNotebook:
     """generates a terminal notebook structure containing all needed views,
     buffers,handler id's, etc."""
 
-    def __init__( self, notebook = None, wtree = None, prefs = None): # all arrays follow the same TABS order
+    def __init__( self, notebook = None, wtree = None, set_statusbar = None): # all arrays follow the same TABS order
         self.notebook = notebook
         self.wtree = wtree
+        self.set_statusbar = set_statusbar
         self.view = [] #[None, None, None, None]
         self.scrolled_window = [] #[None, None, None, None, None]
         self.view_buffer = [] #[None, None, None, None]
@@ -347,6 +348,9 @@ class TerminalNotebook:
             line numbering is correct.
             Optionally, text formatting can be applied as well
         """
+        if text == '':
+            #utils.debug.dprint("Notebook: overwrite() no text to overwrite... returning")
+            return
         #utils.debug.dprint("Notebook: overwrite() -- num= " + str(num) + "..." + text)
         #utils.debug.dprint(self.current_tab)
         line_number = self.view_buffer[TAB_PROCESS].get_line_count() 
