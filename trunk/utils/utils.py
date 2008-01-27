@@ -26,7 +26,7 @@
 import os, threading
 import errno
 import string
-import sre
+import re
 import datetime
 
 from sys import stderr
@@ -162,9 +162,9 @@ def estimate(package_name, log_file_name="/var/log/emerge.log"):
             package_name_escaped += package_name[i]
         # Now that we already escaped the "special characters", we
         # can start searching the logs
-        start_pattern = sre.compile("^[0-9]+:  >>> emerge.*%s*." %
+        start_pattern = re.compile("^[0-9]+:  >>> emerge.*%s*." %
                                                            package_name_escaped)
-        end_pattern = sre.compile("^[0-9]+:  ::: completed emerge.*%s*." %
+        end_pattern = re.compile("^[0-9]+:  ::: completed emerge.*%s*." %
                                                            package_name_escaped)      
         lines = log_file.readlines()
         for i in range(1, len(lines)):
@@ -197,7 +197,7 @@ def estimate(package_name, log_file_name="/var/log/emerge.log"):
         raise BadLogFile, _("Error reading emerge log file.  Check file permissions, or check for corrupt log file.")
 
 def pretend_check(command_string):
-    isPretend = (sre.search("--pretend", command_string) != None)
+    isPretend = (re.search("--pretend", command_string) != None)
     if not isPretend:
         tmpcmdline = command_string.replace('sudo -p "Password: "', "").split()
         #debug.dprint(tmpcmdline)
@@ -211,10 +211,10 @@ def pretend_check(command_string):
     return isPretend
 
 def help_check(command_string):
-    return (sre.search("--help", command_string) != None)
+    return (re.search("--help", command_string) != None)
 
 def info_check(command_string):
-    return (sre.search("emerge info", command_string) != None)
+    return (re.search("emerge info", command_string) != None)
 
 def get_set_name(file):
         if file:
