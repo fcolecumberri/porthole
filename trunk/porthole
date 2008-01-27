@@ -51,7 +51,7 @@ while '/usr/bin' in sys.path: # this gets added when we run /usr/bin/porthole
 
 LOG_FILE_DIR = "/var/log/porthole"
 
-Choices = {"portage": 'backends.portagelib', "pkgcore": 'pkgcore_lib'}
+Choices = {"portage": 'backends.portagelib', "pkgcore": 'backends.pkgcore_lib', "dbus": "backends.dbus_main" }
 BACKEND = Choices["portage"]
 
 import os
@@ -111,13 +111,14 @@ def usage():
     print "             " + tabs + "print only those texts containing 'string'"
     print "             " + tabs + "Also if PyCrash-0.4pre3 or newer is found it will use it"
     print "             " + tabs + "to try to save additional crash info to send in for debugging"
-    print "  -p, --pkgcore" + tabs + "Use the experimental pkgcore (aka portage-ng, portage-3) code"
+    print "  -b, [portage, pkgcore, dbus]  select one of the backends"
+    print "  -p, --pkgcore" + tabs + "Use the pkgcore (aka portage-ng, portage-3) code"
 
 
 if __name__ == "__main__":
     try:
-        opts, args = getopt(sys.argv[1:], 'lvd:hp', ["local", "version", "debug=",
-                                              "help", "pkgcore"])
+        opts, args = getopt(sys.argv[1:], 'lvd:b:hp', ["local", "version", "debug=",
+                                              "backend=", "help", "pkgcore"])
         #print opts
         #print args
     except GetoptError, e:
@@ -132,6 +133,11 @@ if __name__ == "__main__":
     for opt, arg in opts:
         if opt in ("-p", "--pkgcore"):
             BACKEND = choices["pkgcore"]
+        if opt in ("-b"):
+            if arg in choices:
+                BACKEND = choices[arg]
+            else:
+                useage()
     for opt, arg in opts:
         if opt in ("-l", "--local"):
             # running a local version (i.e. not installed in /usr/*)
