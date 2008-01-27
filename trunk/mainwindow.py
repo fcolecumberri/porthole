@@ -655,7 +655,7 @@ class MainWindow:
                 utils.debug.dprint("MAINWINDOW: setup_command(); callback set to self.reload_db")
                 #callback = self.package_update
             #ProcessWindow(command, env, config.Prefs, callback)
-            self.process_manager.add(package_name, command, callback)
+            self.process_manager.add(package_name, command, callback, "Porthole Main Window")
         else:
             utils.debug.dprint("MAINWINDOW: Must be root user to run command '%s' " % command)
             #self.sorry_dialog = utils.SingleButtonDialog(_("You are not root!"),
