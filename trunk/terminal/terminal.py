@@ -53,13 +53,15 @@
 import pygtk; pygtk.require('2.0')
 import gtk, gtk.glade, gobject
 import pango
-import signal, os, pty, threading, time, sre
+import signal, os, pty, threading, time #, re
 import datetime, pango, errno
 
-import dbus
-import dbus.service
-from dbus.mainloop.glib import DBusGMainLoop
-DBusGMainLoop(set_as_default=True)
+#import dbus
+#import dbus.service
+#from dbus.mainloop.glib import DBusGMainLoop
+#DBusGMainLoop(set_as_default=True)
+
+#CONN_INTERFACE = 'Porthole.Terminal'
 
 from gettext import gettext as _
 
@@ -84,20 +86,21 @@ from notebook import TerminalNotebook
 from fileselector import FileSel
 import config
 
-CONN_INTERFACE = 'Porthole.Terminal'
-
-class ProcessManager(dbus.service.Object):
+class ProcessManager(): #dbus.service.Object):
     """ Manages queued and running processes """
     def __init__(self, env = {}, log_mode = False):
         """ Initialize """
         utils.debug.dprint("TERMINAL: ProcessManager; process id = %d ****************" %os.getpid())
         
-        self.sysbus = dbus.SystemBus()
-        self.sesbus = dbus.SessionBus()
-        bus_name = dbus.service.BusName(CONN_INTERFACE)
-        object_path = '/Porthole/Terminal/Connection'
-        dbus.service.Object.__init__(self, bus_name, object_path)
+        #self.sysbus = dbus.SystemBus()
+        #self.sesbus = dbus.SessionBus()
+        #bus_name = dbus.service.BusName(CONN_INTERFACE)
+        #object_path = '/Porthole/Terminal'
+        #dbus.service.Object.__init__(self, bus_name, object_path)
         #dbus.service.Object.__init__(self, self.sesbus, path)
+        #self.dbus_obj = self.sesbus.get_object(CONN_INTERFACE, object_path)
+        #self.dbus_if = dbus.Interface(self.dbus_obj, CONN_INTERFACE)
+        #services = dbus_if.ListNames()
         
         if log_mode:
             self.title = "Porthole Log Viewer"
@@ -128,7 +131,9 @@ class ProcessManager(dbus.service.Object):
         # create the process reader
         self.reader = ProcessOutputReader(Dispatcher(self.process_done))
         # Added a Line Feed check in order to bypass code if LF's are not used ==> CR only
-        self.LF_check = False
+        self.LF_check = True #False
+        #self.cr_count = 0
+        self.line_num = 0
 
 
     def reset_buffer_update(self):
@@ -209,7 +214,7 @@ class ProcessManager(dbus.service.Object):
         # Initialize event widget source
         self.event_src = None
         # get a mostly blank structure to hold a number of widgets & settings
-        self.term = TerminalNotebook(self.notebook, self.wtree)
+        self.term = TerminalNotebook(self.notebook, self.wtree, self.set_statusbar)
         # queue init
         self.process_queue = TerminalQueue(self._run, self.reader, self.wtree, self.term, self.set_resume)
         
@@ -266,9 +271,10 @@ class ProcessManager(dbus.service.Object):
             # Also causes runaway recursion.
             self.window.connect("size_request", self.on_size_request)
 
-    @dbus.service.method(CONN_INTERFACE, in_signature='ss', out_signature='', sender_keyword='sender')
-    def request_add( self, name, command, sender ):
-        self.add(name, command, self.reply , sender)
+    #~ @dbus.service.method(CONN_INTERFACE, in_signature='ss', out_signature='', sender_keyword='sender')
+    #~ def request_add( self, name, command, sender ):
+        #~ sender_name = self.dbus_if.GetNameOwner(sender)
+        #~ self.add(name, command, self.reply , sendername + " (" +sender + ")")
 
     def add( self, name, command, callback, sender = 'Non-DBus' ):
         # show the window if it isn't visible
@@ -515,6 +521,106 @@ class ProcessManager(dbus.service.Object):
         self.force_buffer_write = True
         return False # don't repeat call
 
+    def newline(self):
+        #utils.debug.dprint("TERMINAL: newline(); self.cr_count = %d, self.line_num = %d" %(self.cr_count, self.line_num))
+        tag = None
+        self.b_flag = False
+        if self.line_buffer != self.process_buffer:
+            overwrite = True
+        else:
+            overwrite = False
+        #if config.Config.isEmerge(self.process_buffer):
+        if config.Config.isEmerge(self.line_buffer):
+            # add the pkg info to all other tabs to identify fom what
+            # pkg messages came from but no need to show it if it isn't
+            tag = 'emerge'
+            self.term.append(TAB_INFO, self.line_buffer, tag)
+            self.term.append(TAB_WARNING, self.line_buffer, tag)
+            if not self.file_input:
+                self.set_file_name(self.line_buffer)
+                self.set_statusbar(self.line_buffer[:-1])
+                self.resume_line = self.line_buffer
+                if self.callback_armed:
+                    self.do_callback()
+                    self.callback_armed = False
+                        
+        #~ if config.Config.isUnmerge(self.line_buffer):
+            #~ tag = 'emerge'
+            #~ if not self.file_input:
+                #~ self.set_statusbar(self.line_buffer[:-1])
+                #~ self.resume_line = self.line_buffer
+                #~ if self.callback_armed:
+                    #~ self.do_callback()
+                    #~ self.callback_armed = False
+                        
+        elif config.Config.isAction(self.line_buffer):
+            if not self.term.tab_showing[TAB_INFO]:
+                self.term.show_tab(TAB_INFO)
+                self.term.view_buffer[TAB_INFO].set_modified(True)
+            tag = 'caution'
+            self.term.append(TAB_INFO, self.line_buffer, tag)
+                        
+        #elif config.Config.isInfo(self.process_buffer):
+        elif config.Config.isInfo(self.line_buffer):
+            # Info string has been found, show info tab if needed
+            if not self.term.tab_showing[TAB_INFO]:
+                self.term.show_tab(TAB_INFO)
+                self.term.view_buffer[TAB_INFO].set_modified(True)
+                            
+            # Check for fatal error
+            #if config.Config.isError(self.process_buffer):
+            if config.Config.isError(self.line_buffer):
+                self.Failed = True
+                tag = 'error'
+                self.term.append(TAB_INFO, self.line_buffer, tag)
+            else:
+                tag = 'info'
+                self.term.append(TAB_INFO, self.line_buffer)
+                            
+            # Check if the info is ">>> category/package-version merged"
+            # then set the callback to return the category/package to update the db
+            #utils.debug.dprint("TERMINAL: update(); checking info line: %s" %self.process_buffer)
+            if (not self.file_input) and config.Config.isMerged(self.line_buffer):
+                self.callback_package = self.line_buffer.split()[1]
+                self.callback_armed = True
+                utils.debug.dprint("TERMINAL: update(); Detected sucessfull merge of package: " + self.callback_package)
+            #else:
+                #utils.debug.dprint("TERMINAL: update(); merge not detected")
+                        
+        elif config.Config.isWarning(self.line_buffer):
+            # warning string has been found, show info tab if needed
+            if not self.term.tab_showing[TAB_WARNING]:
+                self.term.show_tab(TAB_WARNING)
+                self.term.view_buffer[TAB_WARNING].set_modified(True)
+            # insert the line into the info text buffer
+            tag = 'warning'
+            self.term.append(TAB_WARNING, self.line_buffer)
+            self.warning_count += 1
+                        
+        elif config.Config.isCaution(self.line_buffer):
+            # warning string has been found, show info tab if needed
+            if not self.term.tab_showing[TAB_CAUTION]:
+                self.term.show_tab(TAB_CAUTION)
+                self.term.view_buffer[TAB_CAUTION].set_modified(True)
+            # insert the line into the info text buffer
+            tag = 'caution'
+            self.term.append(TAB_CAUTION, self.line_buffer)
+            self.caution_count += 1
+                        
+        if self.overwrite_till_nl:
+            #utils.debug.dprint("TERMINAL: '\\n' detected in overwrite mode, calling overwrite()")
+            self.term.overwrite(TAB_PROCESS, self.line_buffer[:-1], tag)
+            self.term.append(TAB_PROCESS, '\n', tag)
+            self.overwrite_till_nl = False
+        elif overwrite and tag:
+            #utils.debug.dprint("TERMINAL: overwrite and tag = True, calling overwrite()")
+            self.term.overwrite(TAB_PROCESS, self.line_buffer[:-1], tag)
+            self.term.append(TAB_PROCESS, '\n', tag)
+        else:
+            self.term.append(TAB_PROCESS, self.process_buffer, tag)
+        self.process_buffer = ''  # reset buffer
+        self.line_buffer = ''
+
     def update(self):
         """ Add text to the buffer """
         # stores line of text in buffer
@@ -529,23 +635,27 @@ class ProcessManager(dbus.service.Object):
         self.reader.string_locked = True
         for char in self.reader.string:
             if char:
-                #utils.debug.dprint("TERMINAL: adding text to buffer: %s, %s" % (char, ord(char)))
+                ord_char = ord(char)
+                #if ord_char <=31 or (ord_char >=127 and ord_char<=160):
+                #    utils.debug.dprint("TERMINAL: adding control char to buffer: %s" % (ord_char ))
                 # if we find a CR without a LF, switch to overwrite mode
                 if self.cr_flag:
                     # gcc and some emerge output no longer outputs a LF so addded a bypass switch
-                    if self.LF_check and char != '\n':
+                    # no, seems gcc is sending 2 <cr>'s before a LF
+                    if (self.LF_check and ord_char != 10): # or ord(self.lastchar) == 13:
+                        #utils.debug.dprint("TERMINAL: self.LF_check = True and the next char != 10, but = %d, self.cr_count = %d, self.lastchar = %d" %(ord_char, self.cr_count,ord(self.lastchar)))
                         tag = None
                         if self.first_cr:
                             #utils.debug.dprint("TERMINAL: self.first_cr = True")
                             self.term.append(TAB_PROCESS, self.process_buffer, tag)
                             self.first_cr = False
-                            #utils.debug.dprint("TERMINAL: self.first_cr = True, setting self.overwrite_till_nl = True")
-                            #self.overwrite_till_nl = True
+                            #utils.debug.dprint("TERMINAL: resetting self.first_cr to True, setting self.overwrite_till_nl = True")
+                            self.overwrite_till_nl = True
                             self.process_buffer = ''
                             self.line_buffer = ''
                         # overwrite until after a '\n' detected for this line
                         else:
-                            #utils.debug.dprint("TERMINAL: self.first_cr = False, calling overwrite()")
+                            utils.debug.dprint("TERMINAL: self.first_cr = False, calling overwrite()")
                             self.term.overwrite(TAB_PROCESS, self.process_buffer, tag)
                             self.process_buffer = ''
                             self.line_buffer = ''
@@ -554,7 +664,7 @@ class ProcessManager(dbus.service.Object):
                         self.first_cr = True
                     self.cr_flag = False
                 # catch portage escape sequences for colour and terminal title
-                if self.catch_seq and ord(char) != 27:
+                if self.catch_seq and ord_char != 27:
                     self.escape_seq += char
                     if self.escape_seq.startswith('['):
                         # xterm escape sequence. terminated with:
@@ -562,13 +672,13 @@ class ProcessManager(dbus.service.Object):
                         # and _perhaps_ '`' (96) (an erroneous character may be output to the
                         # screen after this)
                         # also note: this list may not be exhaustive......
-                        if 63 <= ord(char) <= 90 or 96 <= ord(char) <= 126:
+                        if 63 <= ord_char <= 90 or 96 <= ord_char <= 126:
                             self.catch_seq = False
                             #utils.debug.dprint('escape_seq = ' + self.escape_seq)
                             self.term.parse_escape_sequence(self.escape_seq)
                             self.escape_seq = ''
                     elif self.escape_seq.startswith(']'):
-                        if ord(char) == 7 or self.escape_seq.endswith('\x1b\\'):
+                        if ord_char == 7 or self.escape_seq.endswith('\x1b\\'):
                             self.catch_seq = False
                             self.term.parse_escape_sequence(self.escape_seq)
                             self.escape_seq = ''
@@ -581,7 +691,7 @@ class ProcessManager(dbus.service.Object):
                         self.catch_seq = False
                         self.term.parse_escape_sequence(self.escape_seq)
                         self.escape_seq = ''
-                elif ord(char) == 27:
+                elif ord_char == 27:
                     if self.escape_seq.startswith("k"):
                         self.escape_seq += char
                     else:
@@ -606,111 +716,18 @@ class ProcessManager(dbus.service.Object):
                     self.overwrite_till_nl = True
                 elif ord(char) == 13:  # carriage return
                     self.cr_flag = True
-                elif 32 <= ord(char) <= 127 or char == '\n': # no unprintable
+                    #self.cr_count += 1
+                    #utils.debug.dprint("TERMINAL: update(); <cr> detected, self.cr_count = %d, self.lastchar = %d" %(self.cr_count, ord(self.lastchar)))
+                elif 32 <= ord_char <= 127 or ord_char == 10: # no unprintable
                     self.process_buffer += char
                     self.line_buffer += char
-                    if char == '\n': # newline
-                        tag = None
-                        self.b_flag = False
-                        if self.line_buffer != self.process_buffer:
-                            overwrite = True
-                        else:
-                            overwrite = False
-                        #if config.Config.isEmerge(self.process_buffer):
-                        if config.Config.isEmerge(self.line_buffer):
-                            # add the pkg info to all other tabs to identify fom what
-                            # pkg messages came from but no need to show it if it isn't
-                            tag = 'emerge'
-                            self.term.append(TAB_INFO, self.line_buffer, tag)
-                            self.term.append(TAB_WARNING, self.line_buffer, tag)
-                            if not self.file_input:
-                                self.set_file_name(self.line_buffer)
-                                self.set_statusbar(self.line_buffer[:-1])
-                                self.resume_line = self.line_buffer
-                                if self.callback_armed:
-                                    self.do_callback()
-                                    self.callback_armed = False
-                        
-                        #~ if config.Config.isUnmerge(self.line_buffer):
-                            #~ tag = 'emerge'
-                            #~ if not self.file_input:
-                                #~ self.set_statusbar(self.line_buffer[:-1])
-                                #~ self.resume_line = self.line_buffer
-                                #~ if self.callback_armed:
-                                    #~ self.do_callback()
-                                    #~ self.callback_armed = False
-                        
-                        elif config.Config.isAction(self.line_buffer):
-                            if not self.term.tab_showing[TAB_INFO]:
-                                self.term.show_tab(TAB_INFO)
-                                self.term.view_buffer[TAB_INFO].set_modified(True)
-                            tag = 'caution'
-                            self.term.append(TAB_INFO, self.line_buffer, tag)
-                        
-                        #elif config.Config.isInfo(self.process_buffer):
-                        elif config.Config.isInfo(self.line_buffer):
-                            # Info string has been found, show info tab if needed
-                            if not self.term.tab_showing[TAB_INFO]:
-                                self.term.show_tab(TAB_INFO)
-                                self.term.view_buffer[TAB_INFO].set_modified(True)
-                            
-                            # Check for fatal error
-                            #if config.Config.isError(self.process_buffer):
-                            if config.Config.isError(self.line_buffer):
-                                self.Failed = True
-                                tag = 'error'
-                                self.term.append(TAB_INFO, self.line_buffer, tag)
-                            else:
-                                tag = 'info'
-                                self.term.append(TAB_INFO, self.line_buffer)
-                            
-                            # Check if the info is ">>> category/package-version merged"
-                            # then set the callback to return the category/package to update the db
-                            #utils.debug.dprint("TERMINAL: update(); checking info line: %s" %self.process_buffer)
-                            if (not self.file_input) and config.Config.isMerged(self.line_buffer):
-                                self.callback_package = self.line_buffer.split()[1]
-                                self.callback_armed = True
-                                utils.debug.dprint("TERMINAL: update(); Detected sucessfull merge of package: " + self.callback_package)
-                            #else:
-                                #utils.debug.dprint("TERMINAL: update(); merge not detected")
-                        
-                        elif config.Config.isWarning(self.line_buffer):
-                            # warning string has been found, show info tab if needed
-                            if not self.term.tab_showing[TAB_WARNING]:
-                                self.term.show_tab(TAB_WARNING)
-                                self.term.view_buffer[TAB_WARNING].set_modified(True)
-                            # insert the line into the info text buffer
-                            tag = 'warning'
-                            self.term.append(TAB_WARNING, self.line_buffer)
-                            self.warning_count += 1
-                        
-                        elif config.Config.isCaution(self.line_buffer):
-                            # warning string has been found, show info tab if needed
-                            if not self.term.tab_showing[TAB_CAUTION]:
-                                self.term.show_tab(TAB_CAUTION)
-                                self.term.view_buffer[TAB_CAUTION].set_modified(True)
-                            # insert the line into the info text buffer
-                            tag = 'caution'
-                            self.term.append(TAB_CAUTION, self.line_buffer)
-                            self.caution_count += 1
-                        
-                        if self.overwrite_till_nl:
-                            #utils.debug.dprint("TERMINAL: '\\n' detected in overwrite mode, calling overwrite()")
-                            self.term.overwrite(TAB_PROCESS, self.line_buffer[:-1], tag)
-                            self.term.append(TAB_PROCESS, '\n', tag)
-                            self.overwrite_till_nl = False
-                        elif overwrite and tag:
-                            #utils.debug.dprint("TERMINAL: overwrite and tag = True, calling overwrite()")
-                            self.term.overwrite(TAB_PROCESS, self.line_buffer[:-1], tag)
-                            self.term.append(TAB_PROCESS, '\n', tag)
-                        else:
-                            self.term.append(TAB_PROCESS, self.process_buffer, tag)
-                        self.process_buffer = ''  # reset buffer
-                        self.line_buffer = ''
+                    if ord_char == 10: # newline
+                        #utils.debug.dprint("TERMINAL: update(); <LF> detected, self.cr_count = " + str(self.cr_count))
+                        self.newline()
                     elif self.force_buffer_write:
                         if self.overwrite_till_nl:
-                            #self.term.overwrite(TAB_PROCESS, self.line_buffer)
-                            pass
+                            self.term.overwrite(TAB_PROCESS, self.line_buffer)
+                            self.line_buffer = ''
                         else:
                             self.term.append(TAB_PROCESS, self.process_buffer)
                             self.process_buffer = ''
@@ -722,6 +739,7 @@ class ProcessManager(dbus.service.Object):
                 #utils.debug.dprint("TERMINAL: update(): nothing else to do - forcing text to buffer")
                 if self.overwrite_till_nl:
                     #self.term.overwrite(TAB_PROCESS, self.line_buffer)
+                    #self.line_buffer = ''
                     pass
                 else:
                     self.term.append(TAB_PROCESS, self.process_buffer)
@@ -1269,6 +1287,7 @@ class ProcessManager(dbus.service.Object):
     def clear_buffer( self, *widget ):
         self.term.clear_buffers()
         self.filename = None
+        
 
 
 # very out of date!
