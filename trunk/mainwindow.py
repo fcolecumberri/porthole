@@ -545,6 +545,7 @@ class MainWindow:
                 self.wtree.get_widget("plugin_settings").set_sensitive(False)
             # make sure we search again if we reloaded!
             mode = self.widget["view_filter"].get_active()
+            utils.debug.dprint("MAINWINDOW: update_db_read() mode = " + str(mode) + ' type = ' + str(type(mode)))
             if  mode in [SHOW_SEARCH]:
                 #utils.debug.dprint("MAINWINDOW: update_db_read()... Search view")
                 # update the views by calling view_filter_changed
@@ -579,7 +580,7 @@ class MainWindow:
                 #~ #utils.debug.dprint("MAINWINDOW: re-select the package")
                 # re-select the package
                 if self.current_pkg_path[INDEX_TYPES[mode]] != None:
-                    if self.current_pkg_cursor[mode] != None and self.current_pkg_cursor[INDEX_TYPES[mode]][0]:
+                    if self.current_pkg_cursor[INDEX_TYPES[mode]] != None and self.current_pkg_cursor[INDEX_TYPES[mode]][0]:
                         self.package_view.set_cursor(self.current_pkg_path[INDEX_TYPES[mode]],
                                                      self.current_pkg_cursor[INDEX_TYPES[mode]][1])
                 self.view_filter_changed(self.widget["view_filter"])
