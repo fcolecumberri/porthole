@@ -1,3 +1,36 @@
+
+
+0.6.0:
+    * Major slice and dice operation to split up the different files into more manageable modules.
+    There are several new internal db modules for serving and handling the main package db,
+    user configs, porthole preferences, etc..  This has sped things up quite a bit.
+    
+    * Sets support is now partially integrated.  I have not had the time, etc. to handle package 
+    atoms properly, nor does it handle non-installed packages in the set.  So that means it is 
+    still up to you to make all the correct choices.
+    
+    * new user configs addition to the summary view showing any entries for the package in any of 
+    the /etc/portage/package.*  files as well as any /etc/portage/sets/* files.
+    
+    * package versions are now fully selectable for summary and other tab dispalys.
+    
+    * Improved dependency listings with much more info presented about their status and needs.
+    
+    * New dependency pop-up window when a dependency is dbl-clicked.
+    
+    * New Sets and Deprecated views for better package management.
+    
+    * bug fix the terminal display losing the gcc output.
+    
+    * new queue pause and run icons/functions, a timer is not yet implememnted.
+
+    * numerous portage updates.
+    
+    * numerous gtk+ updates
+    
+    *** It has been so long that I have probably forgotten most of the changes made to list them.
+
+
 0.5.0:
 
      * Added columns to package list view, displaying installed version, recommended version,
