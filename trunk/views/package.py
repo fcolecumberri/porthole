@@ -493,8 +493,8 @@ class PackageView(CommonTreeView):
                 #utils.debug.dprint("VIEWS: populate_info(); getting latest_installed")
                 latest_installed = package.get_latest_installed()
                 #utils.debug.dprint("VIEWS: populate_info(); latest_installed: %s, getting best_ebuild" %str(latest_installed))
-                best_ebuild = package.get_best_ebuild()
-                #utils.debug.dprint("VIEWS: populate_info(); best_ebuild: %s, getting latest_ebuild" %str(best_ebuild))
+                best_ebuild = package.get_best_dep_ebuild()
+                #utils.debug.dprint("VIEWS: populate_info(); best_dep_ebuild: %s, getting latest_ebuild" %str(best_ebuild))
                 latest_ebuild = package.get_latest_ebuild(include_masked = False)
                 #utils.debug.dprint("VIEWS: populate_info(); latest_ebuild: %s" %str(latest_ebuild))
                 try:
@@ -506,10 +506,13 @@ class PackageView(CommonTreeView):
                 model.set_value(iter, MODEL_ITEM["installed"], portage_lib.get_version(latest_installed)) # installed
                 if best_ebuild:
                     model.set_value(iter, MODEL_ITEM["recommended"], portage_lib.get_version(best_ebuild)) #  recommended by portage
+                    #utils.debug.dprint("VIEWS populate_info(): got best ebuild for '%s' = %s" % (package.full_name, best_ebuild))
                 elif latest_ebuild:
                     model.set_value(iter, MODEL_ITEM["recommended"], "(" + portage_lib.get_version(latest_ebuild) + ")") # latest
+                    #utils.debug.dprint("VIEWS populate_info(): got latest ebuild for '%s' = %s" % (package.full_name, latest_ebuild))
                 else:
                     model.set_value(iter, MODEL_ITEM["recommended"], "masked") # hard masked - don't display
+                    #utils.debug.dprint("VIEWS populate_info(): got masked ebuild for '%s' = %s" % (package.full_name, "masked"))
                 try:
                     model.set_value(iter, MODEL_ITEM["description"], package.get_properties().description) # Description
                 except:

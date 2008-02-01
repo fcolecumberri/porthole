@@ -134,6 +134,18 @@ class Package:
             #utils.debug.dprint("PACKAGE: get_best_ebuild();  = " + str(self.best_ebuild)) 
         return self.best_ebuild
 
+    def get_best_dep_ebuild(self, refresh = False):
+        """Return best visible ebuild (taking account of package.keywords, .mask and .unmask.
+        If all ebuilds are masked for your architecture, returns ''."""
+        if self.full_name == "None":
+            return ''
+        dep = self.get_dep_atom()
+        if self.best_ebuild == None or refresh:
+            best, keyworded, hardmasked = portage_lib.get_dep_ebuild(dep)
+            self.best_ebuild = best
+            #utils.debug.dprint("PACKAGE: get_best_ebuild();  = " + str(self.best_ebuild)) 
+        return self.best_ebuild
+
     def get_default_ebuild(self):
         if self.full_name == "None":
             return ''
@@ -263,12 +275,7 @@ class Package:
         if self.full_name == "None":
             return 0
         if dep == None:
-            atoms = db.userconfigs.get_atom('SETS',self.full_name)
-            if atoms != []:
-                # use the last one in the list
-                dep = atoms[-1].acpv()
-            else: #
-                dep = self.full_name
+            dep = self.get_dep_atom()
         if self.dep_upgradable == None or refresh:
             best, keyworded, hardmasked = portage_lib.get_dep_ebuild(dep)
             installed = self.get_latest_installed(refresh)
@@ -284,4 +291,11 @@ class Package:
                 self.dep_upgradable = -1
         return self.dep_upgradable
 
+    def get_dep_atom(self):
+            atoms = db.userconfigs.get_atom('SETS',self.full_name)
+            if atoms != []:
+                # use the last one in the list
+                return atoms[-1].acpv()
+            else: #
+                return self.full_name
 
