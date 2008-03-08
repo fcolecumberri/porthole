@@ -2,32 +2,24 @@
 |                          TODO list for Porthole:                             |
 --------------------------------------------------------------------------------
 
- * Add a Depricated packges/versions view, scan /var/db/pkg/ for installed packages no
+* Clean up zombie gksu processes for plugin's needing to run as root.
+
+ * (Done) Add a Depricated packges/versions view, scan /var/db/pkg/ for installed packages no
    longer in the portage tree and add them to the Installed list and the depricated list.
         -- partially done.  I've added an overlay column to the ebuild table along with info
             about the ebuild path and also mark it as "Obsolete" if if it's installed and not
             in any of the defined trees.
 
- * add dependency info to dependency tab, such as keyword status, use flags status,
-      and the ability to set package.* files.
-      I also want to make the dependency clickable to bring up a window with another package-book
-      for that package.  That will require further splitting of the mainwindow.py to facilitate 
-      multiple package-books open and displayed.
-
-
- / (In Progress) Preferences Dialog:
+  / (In Progress) Preferences Dialog:
       (Done) sync options (e.g. websync)
       (Done) default emerge options (e.g. verbose)
       (Done) archlist option (for advemerge and summary view)
       option to disable screensaver ? (RFE [1094373])
-      Font and colour chooser for Terminal window ?
+      (done) Font and colour chooser for Terminal window ?
       use flag options ? 
       mirrors, proxies ?
 
- + (Done) Add right-click menu to summary view.
-   Refine Package View right-click menu.
-
- * Allow multiple packages to be selected, then emerge in one line
+  * Allow multiple packages to be selected, then emerge in one line
    i.e. "emerge <package1> <package2> <package3>"
    (see RFE [974902])
 
@@ -35,7 +27,7 @@
    Perhaps using libgksu, libgksuui somehow (swig?).
    Pygksu is in gnome-python-extras cvs, but not ready for use (03 June 2005)
 
- * Manager for: (RFE [954349, 994537])
+ * Manager for: (RFE [954349, 994537])   {In the works by another called gpytage}
       use flags (make.conf)
       package.use
       package.unmask
@@ -62,29 +54,18 @@
    Fix webbrowser choice, add "copy link" option in summary (bug [908237])
    Porthole needs to do more work to open the default browser.
 
- + (Done) Go back to selected category / package when changing views.
-
- * Method of faking or performing "ask" emerge - see what will be emerged
-   then click "yes / no"
-
- * (Done) Allow the details for specific ebuilds to be viewed in the bottom pane
-   (not just the default one)
-
- * Way of seeing what installed packages depend on a certain package.
+  * Way of seeing what installed packages depend on a certain package.
 
  * Indication of unstable packages in package view (bug [1222366])
 
- * (Done) Show slots in summary view table
-
- + (mostly done) Table of available ebuilds in summary view
-
- ? Central database (perhaps persistant across sessions) of "Package" objects
+  * (done) Central database (perhaps persistant across sessions) of "Package" objects
    (i.e. don't keep them in TreeView objects)
    Perhaps check on startup to see if the portage database has changed since
    porthole was closed last, and update then (i.e. only when necessary).
-   Porthole could keep track of changes while running, and thus wouldn't have
+   
+   (pending) Porthole could keep track of changes while running, and thus wouldn't have
    to reload information so much.
-   This could help for fast description searching (RFE [998428]), and would
+   (done = now saves a description db after a sync) This could help for fast description searching (RFE [998428]), and would
    make Porthole a lot faster in general, but has the potential for lots
    of problems with discrepancies between Porthole and portage...
    perhaps use python fam interface.  Fam is being replaced by gamin which
@@ -92,21 +73,18 @@
 
  ? Advanced search criteria (masking, architectures, use flags)
 
- ? Thread the search function
-
- ? (work in progress, system added) Possible "newuse", "system", "tool chain" filters for upgrade list ?
+  ? (work in progress, system, world sets, dependencies added) Possible "newuse", "system", "tool chain" filters for upgrade list ?
 
  ? Somehow prompt to add packages to package.keywords if the user tries to
    merge a masked package (bug [1107532]). Check dependencies also.
 
  ? Possible "uninstalled packages" view (bug [1078839])
+ 
  ? Show upgrade flags (B, NS etc.) in upgrade view (bug [1078839])
 
  ? Possibility to show info for packages in the emerge queue (right click ->
    select in packageview?) and to indicate queued packages in the packageview
    (Bug [1222366])
-
- ? Possible support for easy etc-update (RFE [954349])
 
  ? Distcc monitor ? (RFE [1071208])
 
