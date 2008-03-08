@@ -32,8 +32,8 @@ The advanced emerge dialog can only emerge one package at a time.
 <p>
 The advanced emerge dialog is split into three basic sections: emerge
 options, package options and a button bar. &nbsp;The package
-options section is further divided into three sub-sections:
-version list selector, use flags and keyword acceptor.
+options section is further divided into four sub-sections:
+emerge/unmerge selector, version list selector, use flags and keyword acceptor.
 </p>
 <h2>Emerge Options</h2>
 <p>
@@ -55,8 +55,7 @@ are automatically set here. </li>
 </ul>
 <p>
 Only the options that make sense for installing a package are listed.
-&nbsp;The options that assist in formatting output (e.g. --columns)
-or displaying information
+&nbsp;The options that display information
 that Porthole already supplies (e.g. --changelog) were omitted to save
 space on the menu and make the interface as simple as
 possible.
@@ -73,6 +72,10 @@ Figure 1. Advanced Emerge Dialog
 Note: Changing the version will change and reset the use flags and
 keyword to accept sections.
 </div>
+<h3>Command Selector</h3>
+<p>
+The command list is a drop-down selection list containing "emerge" or "unmerge" commands.
+</p>
 <h3>Version List</h3>
 <p>
 The version list is a drop-down select list containing all the
@@ -143,6 +146,9 @@ yet. So back up your package.keywords file (usually
 <b>TIP:</b> Use the pretend option to test your settings
 before committing to an installation.
 </div>
+<h2>Command Preview</h2>
+<p>Shows the command that will be sent to the terminal when you choose "Execute"
+</p>
 <h2>Buttons</h2>
 <ul>
   <li>Help - brings up this window

@@ -66,7 +66,7 @@ package info pane. </p>
 
 <h2>Menu Bar</h2>
 
-<p>The menu bar has three sub-menues: Action, Settings and Help.
+<p>The menu bar has four sub-menues: Action, Settings, Help and Active Plugins.
 &nbsp;Each menu item has a hot key combo to select it from the
 keyboard.
 </p>
@@ -163,6 +163,10 @@ authors and links to home page and help system. </li>
 
 </ul>
 
+<h3>Active Plugins</h3>
+
+<p>This will be visible only if, and contain a list of active plugins installed</p>
+
 <h2>Tool Bar</h2>
 
 <div class="tipright"><b>TIP:</b> The toolbar
@@ -193,11 +197,13 @@ of the last sync by hovering the mouse over it. </li>
   <li><u>Upgrade</u> - Same as Action menu
 Upgrade Packages.</li>
 
+  <li><u>Queue</u> - Will give options to pause, run or set a timer for the terminal queue but is not yet coded in this window. 
+  Please use the buttons on the bottom left of the terminal window.</li>
+
 </ul>
 
 <p>In addition, if porthole is run as a non-root user, there will
-be an icon on the right-hand side of the toolbar to remind the user
-that not all features of porthole will be accessible.<br>
+be an icon on the right-hand side of the toolbar to remind the user.<br>
 
 </p>
 
@@ -222,6 +228,17 @@ packages meeting your search criteria, or review previous searches. </li>
 
   <li><u>Upgradable Packages</u> - Display
 only the packages that portage recommends you upgrade (or downgrade). </li>
+
+  <li><u>Deprecated Packages</u> - Display
+only the packages that are no longer in the portage tree or any local overlays. </li>
+
+  <li><u>Sets</u> - Display any package sets files and packages contained in them, located in /etc/portage/sets/.  
+  This lets users define package sets rather than create meta package ebuilds similar to gnome-base/gnome. 
+  This works with current portage versions which do net yet have sets support.  
+  Please be advised that this is early code inclusion and may not always follow specific package versions specified.
+  Please file any bugs in porthole bug tracker.   
+  The upgrades listing will also list any sets defined and will list those packages only in their set and be removed from the "World" listing displayed.  
+  Portage will soon be able to wiht package sets and some code is now is testing.  I will update porthole as needed to correctly work with portage's sets.</li>
 
 </ul>
 
@@ -292,8 +309,7 @@ author(s). </li>
 
   <li>URL of the package project home page.</li>
 
-  <li>Table
-of available versions</li>
+  <li>Table of available versions (see details below)</li>
 
   <li>Which version(s), if any, are
 installed in which slots. </li>
@@ -308,6 +324,8 @@ of them, those that don't; in red with a minus sign. </li>
 
   <li>Which license the package is distributed under. </li>
 
+  <li>User Configs. Will display any and all user config definitions for that package defined in any of the /etc/portage/package.* files/directories as well as any package sets</li>
+
 </ul>
 
 <div class="tipright"><b>TIP:</b> Hovering the
@@ -319,7 +337,9 @@ approximately the same format as that used on <a href="http://packages.gentoo.or
 Stable packages are shown in green with a "+" symbol. Keyword masked
 packages (those not yet deemed&nbsp;stable) are
 shown in yellow with a "~" symbol. Hard masked&nbsp;packages (those
-with known problems) are shown in red with an additional "M".</p>
+with known problems) are shown in red with an additional "M". 
+The ebuild versions are now clickable and will set all other information displayed to use that version for display.
+The Overlay column will display a Y/N of whether it is from a local overlay, hovering over the entry will bring up a tooltip of the path the the overlay where this ebuild is located.</p>
 
 <p>If
 you have already emerged the package, the emerged version or versions
@@ -351,12 +371,31 @@ circle).</p>
 example "Using png" in the screenshot to the right), this refers to
 dependencies that are only necessary if the specified Use Flag
 <a href="#notes"> <span class="note">1</span></a>
-is
-enabled or disabled, respectively. If this condition isn't met, the
+is enabled or disabled, respectively. If this condition isn't met, the
 dependencies will be ignored, and the icon is changed to your theme's
 "Remove" icon (normally a horizontal line).
 </p>
 
+<p>There are now several columns of information listed about the specific dependency that aid you in determining any needed config changes such as keyword unmasking. 
+The dependency is also double-clickable which will bring up a popup window of that package's details like the one you are already viewing.
+
+</p>
+
+
+<div class="figright"><img src="depview.png"><br>
+
+Figure 5. Dependency Viewer
+Tab
+</div>
+
+<h3>Dependency Viewer</h3>
+<p>The dependency viewer is a popup window that contains all the same package if information as the main porthole window.  
+It too can have a popup depency window for any of it's dependecies. 
+Only one dependency popup window is allowed per window, so double-clicking a different depency will change the displayed info in it's viewer.
+</p>
+
+<br><br>
+<br><br>
 <div class="figright"><img src="changelog.png"><br>
 
 Figure
@@ -371,6 +410,8 @@ need to upgrade or not. &nbsp;Look here for information on bug
 fixes and new features.
 </p>
 
+<br><br>
+<br><br>
 <div class="figright"><img src="installedfiles.png"><br>
 
 Figure 4. Installed Files
@@ -390,8 +431,9 @@ the package name and was not mentioned in the release notes.</p>
 <p>Here you can view the raw ebuild file (the script that will be
 used by Emerge to install the package). </p>
 
-<hr><a name="notes">Notes:</a>
 <br>
+
+<hr><a name="notes">Notes:</a>
 
 [1] See <a target="_top" href="termrefs.html">
 Terms &amp; References</a> for more info on portage terms.
