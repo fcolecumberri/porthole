@@ -572,7 +572,7 @@ class MainWindow:
                     try:
                         self.category_view.set_cursor(self.current_cat_cursor[INDEX_TYPES[mode]][0], self.current_cat_cursor[INDEX_TYPES[mode]][1])
                     except:
-                        utils.debug.dprint('MAINWINDOW: update_db_read(); error converting self.current_cat_cursor[' + mode + '][]: %s'
+                        utils.debug.dprint('MAINWINDOW: update_db_read(); error converting self.current_cat_cursor[' + str(mode) + '][]: %s'
                                 %str(self.current_cat_cursor[INDEX_TYPES[mode]]))
                 #~ #utils.debug.dprint("MAINWINDOW: reset _last_selected so it thinks this package is new again")
                 # reset _last_selected so it thinks this package is new again
