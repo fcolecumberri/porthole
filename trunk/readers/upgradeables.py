@@ -34,7 +34,7 @@ from commonreader import CommonReader
 from utils.utils import get_set_name
 
 
-PRIORTIES = {"System": 0, "Sets":1, "World":2, "Dependencies":3}
+PRIORITIES = {"System": 0, "Sets":1, "World":2, "Dependencies":3}
 
 
 class UpgradableListReader(CommonReader):
