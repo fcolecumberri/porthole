@@ -260,7 +260,7 @@ class PortholePreferences:
            self.database_size = 7000
         try:
            self.dbtime = dom.getitem('/database/dbtime')
-           #utils.debug.dprint("UTILS: __init__(); self.dbtime =")
+           #utils.debug.dprint("PREFS: __init__(); self.dbtime =")
            #utils.debug.dprint(self.dbtime)
         except XMLManagerError:
            self.dbtime = 50
@@ -299,7 +299,7 @@ class PortholePreferences:
                 value = default
                 utils.debug.dprint("DEFAULT VALUE: %s = %s" %(option,str(value)))
             setattr(self.globals, option, value)
-            utils.debug.dprint("UTILS: PortholePreferences; setting globals.%s = %s" %(option, str(value)))
+            utils.debug.dprint("PREFS: PortholePreferences; setting globals.%s = %s" %(option, str(value)))
         
         if can_gksu(self.globals.su.split(' ')[0]) == False:
             # If the current su option is not valid, try some others.
@@ -323,17 +323,21 @@ class PortholePreferences:
         if New_prefs:
             for option, value in New_prefs:
                 setattr(self, option, value)
-        
+        utils.debug.dprint("PREFS: PortholePreferences;  DATA_PATH = " + self.DATA_PATH)
         if self.DATA_PATH == '/usr/share/porthole/': # installed version running
+            # find our installed location
             import sys
-            while a in sys.path: # find our installed location
+            import os.path as osp
+            a= osp.dirname(osp.dirname(osp.abspath(__file__)))
+            while a in sys.path: 
                 if a.split('/')[-1] == 'site-packages':
                     self.PACKAGE_DIR = a + '/porthole/'
+                    utils.debug.dprint("PREFS: PortholePreferences;  PACKAGE_DIR = " + self.PACKAGE_DIR)
                     break
         else:
             self.PACKAGE_DIR = self.DATA_PATH
         self.PLUGIN_DIR = self.PACKAGE_DIR + 'plugins/' # could add more dirs later
-        utils.debug.dprint("UTILS: PortholePreferences; PLUGIN_DIR = %s" %self.PLUGIN_DIR)
+        utils.debug.dprint("PREFS: PortholePreferences; PLUGIN_DIR = %s" %self.PLUGIN_DIR)
         self.plugins = OptionsClass()
         try:
             option = "active_list"
@@ -341,14 +345,14 @@ class PortholePreferences:
         except XMLManagerError:
             value = []
         setattr(self.plugins, option, value)
-        utils.debug.dprint("UTILS: PortholePreferences; setting plugins.%s = %s" %(option, str(value)))
+        utils.debug.dprint("PREFS: PortholePreferences; setting plugins.%s = %s" %(option, str(value)))
 
         # All prefs now loaded or defaulted
         del dom   # no longer needed, release memory
 
     def save(self):
         """ Save preferences """
-        utils.debug.dprint("UTILS: preferences save()")
+        utils.debug.dprint("PREFS: preferences save()")
         dom = XMLManager(None)
         dom.name = 'portholeprefs'
         dom.version = version
@@ -357,7 +361,7 @@ class PortholePreferences:
         dom.additem('/window/main/xpos', self.main.xpos)
         dom.additem('/window/main/ypos', self.main.ypos)
         dom.additem('/window/main/hpane', self.main.hpane)
-        #utils.debug.dprint("UTILS: save() hpane: %d" %self.main.hpane)
+        #utils.debug.dprint("PREFS: save() hpane: %d" %self.main.hpane)
         dom.additem('/window/main/vpane', self.main.vpane)
         dom.additem('/window/main/maximized', self.main.maximized)
         dom.additem('/window/main/search_desc', self.main.search_desc)
@@ -403,7 +407,7 @@ class PortholePreferences:
         dom.additem('/summary/showlicense', self.summary.showlicense)
         dom.additem('/summary/showurl', self.summary.showurl)
         dom.additem('/database/size', self.database_size)
-        #utils.debug.dprint("UTILS: save(); self.dbtime = %d" %self.dbtime)
+        #utils.debug.dprint("PREFS: save(); self.dbtime = %d" %self.dbtime)
         dom.additem('/database/dbtime', self.dbtime)
         dom.additem('/database/dbtotals', self.dbtotals)
         #dom.additem('/plugins/path_list', self.plugins.path_list)
