@@ -23,14 +23,12 @@
 '''
 
 import gtk, gobject, string
-import utils.debug
 from gettext import gettext as _
 
+import utils.debug
 import backends
 portage_lib = backends.portage_lib
-
 from backends.utilities import get_reduced_flags
-
 from db.package import Package
 import db
 

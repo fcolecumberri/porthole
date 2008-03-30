@@ -23,15 +23,15 @@
 '''
 
 import threading, re, gtk, os, cPickle, time
+from gettext import gettext as _
+
 from views import DependsView, CommonTreeView
 import utils.debug
 from utils.utils import get_icon_for_package, get_icon_for_upgrade_package
 from sterminal import SimpleTerminal
-
 import backends
 portage_lib = backends.portage_lib
 
-from gettext import gettext as _
 
 EXCEPTION_LIST = ['.','^','$','*','+','?','(',')','\\','[',']','|','{','}']
 

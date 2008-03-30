@@ -22,8 +22,8 @@
 '''
 
 import os
-import utils.debug
 
+import utils.debug
 from commonreader import CommonReader
 
 class DescriptionReader( CommonReader ):

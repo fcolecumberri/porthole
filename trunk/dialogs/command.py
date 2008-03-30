@@ -23,10 +23,11 @@
 '''
 
 import gtk, gtk.glade
+from gettext import gettext as _
+
 import utils.debug
 from loaders.loaders import load_web_page
 from version import version
-from gettext import gettext as _
 import config
 
 class RunDialog:

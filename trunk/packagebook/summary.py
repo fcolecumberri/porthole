@@ -25,19 +25,17 @@
 import gtk, pango
 import re
 from types import *
+from gettext import gettext as _
+
 import utils.debug
 from utils import utils
-
 import backends
 portage_lib = backends.portage_lib
-
 import db
 import config
-
 from backends.version_sort import ver_sort
 from backends.utilities import get_reduced_flags
 from loaders.loaders import load_web_page
-from gettext import gettext as _
 
 class Summary(gtk.TextView):
     """ Class to manage display and contents of package info tab """

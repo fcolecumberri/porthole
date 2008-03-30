@@ -25,12 +25,12 @@
 import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, gobject, pango
 import os
+from gettext import gettext as _
 
 
 import backends
 import backends.utilities
 portage_lib = backends.portage_lib
-
 import config
 import db
 from commontreeview import CommonTreeView
@@ -38,7 +38,6 @@ import utils.utils
 import utils.debug
 from helpers import *
 from models import PackageModel, MODEL_ITEM
-from gettext import gettext as _
 
 PACKAGES = 0
 INSTALLED = 1

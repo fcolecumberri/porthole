@@ -53,10 +53,10 @@ class Database(DBBase):
         self.callback = None
         self.desc_callback = None
         self.desc_thread = None
-        # get home directory
-        home = pwd.getpwuid(os.getuid())[5]
-        self._DBFile = home + "/.porthole/descriptions.db"
-        del home
+        ## get home directory
+        ##home = pwd.getpwuid(os.getuid())[5]
+        self._DBFile = "var/db/porthole/descriptions.db"
+        ##del home
         #if action == NEW:
         self.db_init()
         #if action == LOAD:

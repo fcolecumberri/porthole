@@ -30,12 +30,9 @@ import os, sys
 from gettext import gettext as _
 
 import utils.debug
-
 import backends
 portage_lib = backends.portage_lib
-
 World = portage_lib.World
-
 import config
 from utils.dispatcher import Dispatcher
 from summary import Summary

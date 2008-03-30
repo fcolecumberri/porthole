@@ -21,11 +21,10 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 import os, types
-import utils.debug
 
+import utils.debug
 import backends
 portage_lib = backends.portage_lib
-
 import db
 from db.package import Package
 from commonreader import CommonReader

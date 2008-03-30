@@ -25,19 +25,19 @@
 
 import gtk
 import gtk.glade
+from gettext import gettext as _
+
+
 import utils
 import utils.debug
-
 #import config
 import backends
 portage_lib = backends.portage_lib
-
 import config
 import db
 from backends.version_sort import ver_sort
 from loaders.loaders import load_web_page
 from utils.dispatcher import Dispatcher
-from gettext import gettext as _
 
 class AdvancedEmergeDialog:
     """Class to perform advanced emerge dialog functionality."""

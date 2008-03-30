@@ -23,11 +23,10 @@
 '''
 
 import re
-
-from _xml.xmlmgr import XMLManager, XMLManagerError
 from gettext import gettext as _
-#import utils.debug
 
+#import utils.debug
+from _xml.xmlmgr import XMLManager, XMLManagerError
 
 
 class PortholeConfiguration:

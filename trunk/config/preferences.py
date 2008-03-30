@@ -23,12 +23,20 @@
 '''
 
 import os 
+from gettext import gettext as _
+
+import sys
+print "config/preferences.py, sys.path = ", sys.path
 
 from version import version
 from _xml.xmlmgr import XMLManager, XMLManagerError
-from gettext import gettext as _
+import utils
+print "utils = ", utils
 import utils.debug
+print "utils.debug = ", utils.debug
 from utils.utils import get_user_home_dir, can_gksu
+mydebug = utils.mydebug
+print "PREFERENCES: utils.mydebug = ", utils.mydebug.debug, " utils.debug.debug = ", utils.debug.debug
 
 class OptionsClass:
     """Blank class to hold options"""
@@ -327,13 +335,8 @@ class PortholePreferences:
         if self.DATA_PATH == '/usr/share/porthole/': # installed version running
             # find our installed location
             import sys
-            import os.path as osp
-            a= osp.dirname(osp.dirname(osp.abspath(__file__)))
-            while a in sys.path: 
-                if a.split('/')[-1] == 'site-packages':
-                    self.PACKAGE_DIR = a + '/porthole/'
-                    utils.debug.dprint("PREFS: PortholePreferences;  PACKAGE_DIR = " + self.PACKAGE_DIR)
-                    break
+            self.PACKAGE_DIR = sys.path[0] 
+            utils.debug.dprint("PREFS: PortholePreferences;  PACKAGE_DIR = " + self.PACKAGE_DIR)
         else:
             self.PACKAGE_DIR = self.DATA_PATH
         self.PLUGIN_DIR = self.PACKAGE_DIR + 'plugins/' # could add more dirs later

@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python
 
 '''
@@ -25,12 +26,10 @@
 import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, gobject, pango
 import threading, os
-from utils import utils
 
+from utils import utils
 import backends
 portage_lib = backends.portage_lib
-
-
 from packagebook.depends import DependsTree
 from commontreeview import CommonTreeView
 import utils.debug

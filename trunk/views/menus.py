@@ -25,16 +25,14 @@
 import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, gobject, pango
 import threading, os
-from utils import utils
+from gettext import gettext as _
 
+from utils import utils
 import backends
 portage_lib = backends.portage_lib
-
 from packagebook.depends import DependsTree
 import utils.debug
 from helpers import *
-
-from gettext import gettext as _
 
 
 class RMBMenu:

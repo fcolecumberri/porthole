@@ -59,8 +59,10 @@ if __name__ == "__main__":
         if opt in ("-l", "--local"):
             # running a local version (i.e. not installed in /usr/*)
             print "importing local modules"
-            import os
-            sys.path.insert(0, (os.path.dirname(os.path.abspath(__file__))))
+            print sys.path
+            #import os
+            #sys.path.insert(0, (os.path.dirname(os.path.abspath(__file__))))
+            #print sys.path
             from startup import *
             RUN_LOCAL = True
             local()
@@ -68,6 +70,8 @@ if __name__ == "__main__":
     if not RUN_LOCAL:
         print "importing installed modules"
         from porthole.startup import *
+        print "inserting path to modules"
+        insert_path()
 
     for opt, arg in opts:
         if opt in ("-p", "--pkgcore"):
@@ -86,6 +90,7 @@ if __name__ == "__main__":
             set_debug(arg)
         elif opt in ("-h", "--help"):
             usage()
+    print "starting main()"
     main()
     sys.exit()
 

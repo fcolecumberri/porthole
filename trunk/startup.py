@@ -30,13 +30,10 @@ gobject.threads_init()
 APP = 'porthole'
 
 # setup our path so we can load our custom modules
-import sys
+import sys, os
 
 # Add path to portage module if 
 # missing from path (ref bug # 924100)
-
-#print sys.path
-
 PORTAGE_MOD_PATH = '/usr/lib/portage/pym'
 if PORTAGE_MOD_PATH not in sys.path:
     sys.path.append(PORTAGE_MOD_PATH)
@@ -80,6 +77,8 @@ from gettext import gettext as _
 # it is recommended to init threads right after importing gtk just in case
 #gtk.threads_init()
 #gtk.gdk.threads_init()
+
+import utils.debug
 
 try:
     from pycrash.utils import *
@@ -126,9 +125,8 @@ def local():
     RUN_LOCAL = True
 
 def set_debug(arg):
-    import utils.debug
     utils.debug.set_debug(True)
-    print("Debug printing is enabled")
+    print("Debug printing is enabled = ", utils.debug.debug)
     utils.debug.debug_target = arg
     print("Debug print filter set to ", arg)
     if not pycrash_found:
@@ -144,6 +142,11 @@ def set_backend(arg):
         BACKEND = choices[arg]
     else:
         useage()
+
+def insert_path():
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    print(sys.path)
+
 
 def main():
     """star the porthole frontend"""

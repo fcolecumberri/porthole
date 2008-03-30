@@ -25,14 +25,12 @@
 import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, gobject, pango
 import threading, os
-from utils import utils
+from gettext import gettext as _
 
+from utils import utils
 from packagebook.depends import DependsTree
 #import utils.debug
 from helpers import *
-
-from gettext import gettext as _
-
 
 def size_sort_func(treemodel, iter1, iter2):
     """Sorts by download size"""

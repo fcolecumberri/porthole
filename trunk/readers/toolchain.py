@@ -22,7 +22,6 @@
 '''
 
 import utils.debug
-
 import backends
 portage_lib = backends.portage_lib
 

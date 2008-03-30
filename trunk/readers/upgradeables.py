@@ -22,12 +22,11 @@
 '''
 
 import os, time
+
 import utils.debug
 from sterminal import SimpleTerminal
-
 import backends
 portage_lib = backends.portage_lib
-
 import db
 from db.package import Package
 from commonreader import CommonReader
