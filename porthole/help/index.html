@@ -1,0 +1,212 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+
+  
+  
+  <title>Porthole Help</title>
+  <link rel="stylesheet" type="text/css" media="screen" href="porthole.css">
+</head>
+
+
+<body>
+
+
+<img style="float: left;" src="../pixmaps/porthole-about.png">
+<div class="toc">
+<iframe src="toc.html" frameborder="0" height="400" width="240"></iframe>
+</div>
+
+
+<br>
+
+<br>
+
+<br>
+
+<br>
+
+
+<h1>About Porthole</h1>
+
+
+<h2>What is Porthole</h2>
+
+
+<p>
+Porthole is a GTK-based frontend for Portage (the Gentoo package
+management system, <a target="_blank" href="http://www.gentoo.org/">http://www.gentoo.org</a>).
+ &nbsp;It features a hierarchical view of packages and supports
+ fast searches and dependency calculations.
+ &nbsp;Porthole also supports basic emerge features such as emerge,
+unmerge, sync and upgrade world.
+ &nbsp;Porthole is written in Python.
+</p>
+
+
+<h2>License</h2>
+
+
+<p>
+Porthole is released under the GNU General Public License
+(GPL) version 2, see <a target="_blank" href="../COPYING">
+COPYING</a> for details.
+</p>
+
+
+<h2>History</h2>
+
+
+<p>
+Porthole is partially based on an earlier program, called gportage
+(<a target="_blank" href="http://www.stacken.kth.se/%7Efoo/gentoo/">
+http://www.stacken.kth.se/~foo/gentoo/</a>), 
+which has been discontinued
+in favour of Porthole.
+</p>
+
+
+<p>
+For a detailed history of changes, please see <a target="_blank" href="../NEWS">
+NEWS</a>.
+</p>
+
+
+<h2>How to Install Porthole</h2>
+
+
+<p>
+The easiest and recommended way of installing Porthole is by using the
+ebuild that is available from the webpage.
+ &nbsp;We assume you know how to
+put ebuilds in the portage overlay.
+ &nbsp;If not, please consult the
+documentation and forums on the Gentoo web site (http://www.gentoo.org), or follow the instructions on <a href="http://gentoo-wiki.com/HOWTO_Installing_3rd_Party_Ebuilds">this gentoo-wiki page</a>.
+</p>
+
+
+<p>
+If you don't want to use the ebuild, you can download the tarball
+(porthole-x.x.x.tar.bz2) and install it yourself.
+ &nbsp;The following packages must be installed for Porthole to work:
+</p>
+
+
+<ul>
+
+  <li>&gt;=python-2.3
+  </li>
+
+  <li>&gt;=PyGTK-2.4
+  </li>
+
+  <li>&gt;=libglade-2.5.0
+  </li>
+
+  <li>&gt;=pyxml-0.8.3
+  </li>
+
+  <li>and, of course, Portage
+  </li>
+
+  <li>Optionally: &gt;=pycrash-0.4_pre3
+  </li>
+
+</ul>
+
+
+<p>
+Use the following commands to install Porthole:
+</p>
+
+
+<pre>&gt; tar xvjf porthole-0.6.tar.bz2<br>&gt; cd porthole-0.6<br>&gt; python setup.py install</pre>
+
+
+<h2>How to Run Porthole</h2>
+
+
+<p>
+From a terminal window enter:
+</p>
+
+
+<pre>&gt; porthole</pre>
+
+
+<p>
+Porthole has three possible command line flags:
+</p>
+
+
+<ul>
+
+  <li>-d, --debug (followed by a string will generate extra diagnostic info)
+  eg: "-d ALL" will output all debug text, "-d terminal" will output all text lines that contain "terminal"
+  </li>
+
+  <li>-l, --local (used for a non-emerged copy of Porthole) i.e.  &gt; ./porthole -l
+  </li>
+
+  <li>-h, --help (display the command line options
+  </li>
+
+</ul>
+
+
+<p>
+For Gnome users, Porthole will install a menu item under 
+Applications -&gt; System Tools.
+
+</p>
+
+
+<div class="tipright"> 
+<b>Tip!</b> If you run into a problem, try running
+ porthole --debug from a terminal.
+</div>
+
+
+<h2>Problem Reporting</h2>
+
+
+<p>
+We absolutely love bug reports!  If you have pycrash installed, don't forget to include the ~/.porthole/crash.html file
+ &nbsp;Please use the bugtracker at
+SourceForge: <a target="_blank" href="http://sourceforge.net/projects/porthole/">
+http://sourceforge.net/projects/porthole/</a>.
+</p>
+
+
+<h2>Contact Information</h2>
+
+
+<ul>
+
+  <li>Webpage: <a href="http://porthole.sourceforge.net">http://porthole.sourceforge.net</a>
+  </li>
+
+  <li>Project Admins:
+    
+    <ul>
+      <li>Brian Dolbec - <a href="mailto:dol-sen@users.sourceforge.net">dol-sen@users.sourceforge.net</a>
+
+      </li>
+
+      <li>Fredrik Arnerup - <a href="mailto:farnerup@users.sourceforge.net">farnerup@users.sourceforge.net</a> (inactive)
+
+      </li>
+  
+    </ul>
+
+  </li>
+
+</ul>
+
+
+<hr>
+Notes:
+
+
+</body>
+</html>

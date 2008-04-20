@@ -1,0 +1,114 @@
+<html>
+<head>
+<title>Porthole Help</title>
+<link rel="stylesheet" type="text/css" media="screen" href="porthole.css" />
+</head>
+<body>
+<img style='float:left;' src='../pixmaps/porthole-about.png'>
+<div class='toc'>
+<iframe src='toc.html' height=400 width=240 frameborder=0></iframe>
+</div>
+<br>
+<br>
+<br>
+<br>
+<h1>Terms & References</h1>
+<h2>Terms Defined</h2>
+<dl>
+<dt>Arch(itecture)</dt>
+<dd>
+Type of system.
+ &nbsp;Generally, a hardware specific distinction such as 64-bit processor or
+a mainframe.
+ &nbsp;Supported architectures are documented in <a target='_blank' 
+href='/usr/portage/profiles/arch.list'>/usr/portage/profiles/arch.list</a>
+</dd>
+<dt>Ebuild</dt>
+<dd>The script that installs a package,
+ specifies package dependencies, use flags and architectures that it supports or
+is unstable on.
+ &nbsp;See <i>Masked</i>.
+</dd>
+<dt>Keyword</dt>
+<dd>The architecture supported.  If it is masked it will be preceded by
+ a tilde (~).
+ &nbsp;Supported keywords are documented in <a target='_blank' 
+href='/usr/portage/profiles/keywords.desc'>/usr/portage/profiles/keywords.desc</a>
+</dd>
+<dt>Masked</dt>
+<dd>
+A package that for some reason should not be installed
+without first examining it's deficiencies.
+ &nbsp;Masks can be for all architectures or just for specific architectures.
+ &nbsp;Packages can be masked for several reasons:
+<ul>
+<li>Basic software is not stable (in other words, buggy)
+<li>Problems with the ebuild
+<li>Depends on obsolete/unstable packages
+<li>Not supported under a particular architecture
+</ul>
+ &nbsp;Masks can be set in one of the following locations:
+<ul>
+<li>Ebuild - Set by author
+<li><a target='_blank' href='/usr/portage/profiles/package.mask'>
+/usr/portage/profiles/package.mask</a> - Set by Gentoo package manager
+<li><a target='_blank' href='/etc/'>/etc/portage/package.keywords</a>
+ - Maintained by user.
+</ul>
+</dd>
+<dt>Package</dt>
+<dd>
+The aggregate files and settings used to install a set of software.
+ &nbsp;Package information is stored in <a target='_blank'
+ href='/usr/portage'>/usr/portage</a>.
+</dd>
+<dt>Use Flag</dt>
+<dd>
+Use flags exist to provide a customized installation of packages.
+ &nbsp;Two of the most commony used flags are kde and gnome.
+ &nbsp;When set, these tell the package to provide custom support
+for gnome and/or kde.
+ &nbsp;You can set use flags permanently in <a target = '_blank'
+ href='/etc/make.conf'>/etc/make.conf</a>. 
+ &nbsp;Use flags descriptions and purpose are documented in:
+<ul>
+<li><a target='_blank' href='/usr/portage/profiles/use.desc'>
+/usr/portage/profiles/use.desc</a> (global)
+<li><a target='_blank' href='/usr/portage/profiles/use.desc'>
+/usr/portage/profiles/use.local.desc</a> (package specific)
+</ul> 
+</dd>
+</dl> 
+<h2>References</h2>
+<h3>Portage &amp; Gentoo</h3>
+<ol>
+<li>Gentoo Handbook Chapter 2 - Working with Gentoo (
+<a target='_blank' href='http://www.gentoo.org/doc/en/handbook/handbook-x86.xml?part=2'>
+http://www.gentoo.org/doc/en/handbook/handbook-x86.xml?part=2</a>
+) - excellent resource on
+ use flags and portage in general.
+<li>Emerge Manual - run &quot;man emerge&quot; or &quot;info 
+emerge&quot; from a terminal
+<li>Package Database Web Site (
+<a target='_blank' href='http://packages.gentoo.org'>http://packages.gentoo.org</a>
+)
+
+</ol>
+
+<h3>Development Components</h3>
+
+<ol>
+<li>Python (<a target='_blank' href='http://www.python.org/'>http://www.python.org</a>)
+ - The language Porthole was developed in.
+<li>pyGTK (<a target='_blank' href='http://www.pygtk.org/'>http://www.pygtk.org/</a>)
+ - The GUI library used to build the interface.
+<li>Glade (<a target='_blank' href='http://glade.gnome.org/'>http://glade.gnome.org/</a>)
+ - GUI tool used to design the interface.
+<li>Regular expressions (<a target='_blank'
+ href='http://sitescooper.org/tao_regexps.html'>http://sitescooper.org/tao_regexps.html</a>)
+</ol>
+
+
+
+</body>
+</html>

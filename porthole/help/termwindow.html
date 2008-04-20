@@ -1,0 +1,289 @@
+<html>
+<head>
+
+
+  <title>Porthole Help</title>
+  <link rel="stylesheet" type="text/css" media="screen" href="porthole.css">
+</head>
+
+<body>
+
+<img style="float: left;" src="../pixmaps/porthole-about.png">
+<div class="toc">
+<iframe src="toc.html" frameborder="0" height="400" width="240"></iframe>
+</div>
+
+<br>
+
+<br>
+
+<br>
+
+<br>
+
+<h1>Terminal Window</h1>
+
+<h2>Introduction</h2>
+
+<p>
+Porthole is just a front-end for the emerge command which can generate 
+ amazing amounts of output.
+ &nbsp;The challenge for most users is to discover what's important
+ and what is not out of the thousands of lines of emerge output.
+ &nbsp;Porthole's answer to this challenge is it's terminal window.
+</p>
+<p>The terminal window filters out warnings, cautions and summary information into 
+separate tabs.
+ &nbsp;This allows the user to find critical information that would normally be
+like finding a needle in a haystack.
+ &nbsp;In addition, different types of information are color-coded for emphasis.
+</p>
+ 
+<p>
+The terminal window consists of a menu bar and five tabs.
+ &nbsp;The tabs appear only as needed.
+ &nbsp;For example, if there were no warnings found, the warning tab 
+ will never be visible.
+</p>
+
+<p>
+The terminal window also supports an emerge queue so you can select
+more than one package to install without having to wait
+for the previous one to finish!
+</p>
+
+<h2>Menu Bar</h2>
+
+
+
+<h3>Process Menu</h3>
+
+<ul>
+
+  <li><u>Resume</u> - Restart an emerge command that was killed.
+  </li>
+  <li><u>Kill Process</u> - Kill the currently running process.
+  </li>
+  <li><u>Save Log</u> - Save the contents of the process window to a file.
+ &nbsp;The default directory is /home/<i>userid</i>/.porthole/.
+ &nbsp;Saving the log automatically clears the process, caution,
+ warning and summary tabs.<i>  If the tab buffers are large it could take a while
+ to clear &amp; release the memory, be patient.</i>
+  </li>
+  <li><u>Save Log As</u> - Save the contents of the process window to a file.
+ &nbsp;The default directory is /home/<i>userid</i>/.porthole/.
+  </li>
+  <li><u>Open Log</u> - Opens a previously saved log
+  </li>
+  <li><u>Close Window</u> - Close the terminal window.
+  </li>
+</ul>
+
+<div class="figright">
+<img src="termwindow.png">
+<br>
+
+Figure 1. Porthole Terminal Window
+</div>
+
+<h3>Edit Menu</h3>
+
+<ul>
+
+  <li><u>Clear</u> - Empties the process, caution, warning and summary tabs.
+    <i>  If the tab buffers are large it could take a while to clear &amp; release the memory, be patient.</i>
+ &nbsp;
+  </li>
+</ul>
+
+
+<h3>Queue Menu</h3>
+
+<ul>
+
+  <li><u>Pause</u> - Do not start the next command in the queue, if one exists. 
+  </li>
+  <li><u>Resume</u> - Start the next queue command when the terminal is ready for it. 
+  </li>
+  <li><u>Timer</u> - (not yet coded) Set a timer to start and stop sending queued commands to the process terminal. 
+  </li>
+  <li><u>Move Up</u> - Move the selected queue item up one position. 
+  </li>
+  <li><u>Move Down</u> - Move the selected queue item down one position.
+  </li>
+  <li><u>Remove</u> - Remove the item from the queue.
+  </li>
+</ul>
+
+
+<h2>Process Tab</h2>
+
+<p>
+The process tab holds the raw emerge command output.
+ &nbsp;The process tab has a built-in kill button that performs the
+same action as the Process -&gt; Kill Process menu.
+ &nbsp;Each line of output is numbered for reference in the summary
+and warning tabs.
+</p>
+<p>
+Color coding is applied to certain lines to highlight the
+ following situations:
+</p>
+
+<ul>
+
+  <li>The beginning of each command.
+    <br>
+E.G.
+ <span class="command">*** emerge --nospinner =dev-dotnet/pnetc-0.6.2 ***</span>
+  </li>
+  <li>The beginning of each emerge.
+    <br>
+E.G.
+ <span class="emerge">&gt;&gt;&gt; emerge (3 of 4) dev-dotnet/pnetlib-0.6.2 to /</span>
+    <div class="tipright">
+TIP! You can change the color coding scheme, 
+ see the help section on "Customizing Porthole".
+    </div>
+
+  </li>
+  <li>Warning messages.
+    <br>
+E.G.
+ <span class="warning">cg_arith.tc:360: warning: dereferencing type-punned pointer will break strict-aliasing rules
+    </span>
+  </li>
+  <li>Informational text.
+    <br>
+E.G.
+  <span class="info"> * Use /etc/init.d/dotnet to register your runtime</span></li>
+  <li>Error messages.
+    <br>
+E.G.
+  <span class="error">!!! Error calculating dependencies. Please correct.</span></li>
+  <li>Porthole generated notes.
+    <br>
+E.G.
+  <span class="appnote">*** Based on the build history of these packages on
+ your system, I can estimate that emerging them usually takes, on average, 
+0 days, 0 hrs, 0 mins, and 39 secs
+    </span></li>
+</ul>
+
+<p>Note that when you run a emerge --pretend, Porthole will look through the emerge
+history and try to find how long it will take to emerge
+that package.
+ &nbsp;That information will be highlighted in the note color.
+</p>
+
+<p>
+</p>
+<div class="figright">
+<img src="warningtab.png">
+<br>
+
+Figure 2. Warning tab
+</div>
+
+<h2>Warning/Caution Tab</h2>
+
+<p>
+Porthole will filter out any warnings/cautions and place them into their 
+corresponding tabs.
+ &nbsp;In addition to warnings/cautions these tabs also
+display the command and emerge information lines using
+the color coding scheme.
+ &nbsp;This allows you to identify which package the messages originated from.
+</p>
+
+<p>
+One of the really useful features of this tab is the ability to jump
+ directly to the message location in the process terminal by simply
+double-clicking on the line in question.
+ &nbsp;When you do this Porthole will switch to the process tab and 
+bring the desired line into focus near the center of the tab's window.
+ &nbsp; When you find an error it is good to check the process window
+ because there may be additional lines associated with the error that
+were not picked up by the filter.
+</p>
+<div class="figright">
+<img src="summarytab.png">
+<br>
+
+Figure 3. Summary Tab
+</div>
+
+<h2>Summary Tab</h2>
+
+<p>
+Like the warning and caution tabs, the summary tab is a filtered view of the 
+process window.
+ &nbsp;Unlike the others though, it displays not only informational mesages
+but major error messages as well.
+</p>
+
+<div class="tipleft">
+TIP! Carefully review the summary tab after the emerge is complete
+for important instructions!
+</div>
+
+<p>Porthole also attempts to filter messages that direct you to perform
+additional actions after the emerge is complete like the reminder to 
+run etc-update.
+</p>
+
+<p>
+It also displays the command and emerge information lines using
+the color coding scheme so you can identify the origin of the message.
+</p>
+
+<p>
+The summary tab also supports double-clicking on the line number to open
+the process window.
+</p>
+<div class="figright">
+<img src="queuetab.png">
+<br>
+
+Figure 4. Queue tab
+</div>
+
+<h2>Queue Tab</h2>
+
+<p>
+The queue displays a list of all the packages selected for emerge and 
+displays the status of the emerge.
+ &nbsp;Each line in the queue lists first the package short name 
+followed by the full command string.
+ </p>
+
+<p>
+Status is represented via icons which are described below.
+ &nbsp;Please be aware that different schemes will use different icons, so
+your system may not look exactly like this.  The following descriptions
+ refer to figure 4 as an example. 
+</p>
+
+<ul>
+
+  <li>Complete/Successful - a checkmark (like textinfo, autoconf)
+  </li>
+  <li>Error/Unsuccessful - red circle with a white X (like glibmm)
+  </li>
+  <li>Process killed - red X (like aspell-cs)
+  </li>
+  <li>Process is running - a gear (like aspell-br)
+  </li>
+  <li>Waiting to run - no icon
+  </li>
+</ul>
+
+
+<hr>
+<a name="notes">Notes:</a>
+<br>
+
+
+
+</body>
+</html>
