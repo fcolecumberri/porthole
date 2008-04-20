@@ -22,13 +22,26 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import config
-from importer import my_import
+import datetime
+id = datetime.datetime.now().microsecond
+print "BACKENDS: id initialized to ", id
 
-print "PORTAGE setting = ", config.Prefs.PORTAGE
+import time
 
-#import portagelib as portage_lib
-portage_lib = my_import(config.Prefs.PORTAGE)
+from porthole import config
+from porthole.importer import my_import
+
+while config.Prefs == None:
+    print "BACKENDS: waiting for config.Prefs"
+    # wait 50 ms and check again
+    time.sleep(0.05)
+
+print "BACKENDS: PORTAGE setting = ", config.Prefs.PORTAGE
+
+if config.Prefs.PORTAGE == "portagelib":
+    from porthole.backends import portagelib
+    portage_lib = portagelib
+#portage_lib = my_import(config.Prefs.PORTAGE)
 
 print "BACKENDS: portage_lib import complete :", portage_lib
 

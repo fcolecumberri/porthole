@@ -22,12 +22,13 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
+import datetime
+id = datetime.datetime.now().microsecond
+print "DEBUG: id initialized to ", id
 
 import errno
 import string
 #import re
-#import datetime
-
 from sys import stderr
 import pwd, cPickle
 import os
@@ -41,6 +42,7 @@ global dprint, dsave, debug, debug_target
 # initially set debug to false
 debug = False
 debug_target = "ALL"
+
     
 # initialize to dummy functions
 dprint = __dummy

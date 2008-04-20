@@ -22,7 +22,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import utils.debug
+from porthole.utils import debug
 
 # establish some modules global variables
 mainwindow_callback = None
@@ -41,7 +41,7 @@ def add_keyword(self, widget):
     arch = "~" + _portage_lib.get_arch()
     name = utils.get_treeview_selection(self, 2).full_name
     string = name + " " + arch + "\n"
-    utils.debug.dprint("VIEWS: Package view add_keyword(); %s" %string)
+    debug.dprint("VIEWS: Package view add_keyword(); %s" %string)
     def callback():
         global mainwindow_callback
         mainwindow_callback("refresh")

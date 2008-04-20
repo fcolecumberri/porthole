@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: UTF8 -*-
 
 '''
     Porthole Main Window
@@ -29,19 +28,19 @@ import gtk, gtk.glade, gobject, pango
 import os, sys
 from gettext import gettext as _
 
-import utils.debug
-import backends
+from porthole.utils import debug
+from porthole import backends
 portage_lib = backends.portage_lib
 World = portage_lib.World
-import config
-from utils.dispatcher import Dispatcher
-from summary import Summary
-from views.depends import DependsView
-from views.commontreeview import CommonTreeView
-from depends import DependsTree
-from plugin import PluginGUI, PluginManager
-from loaders.loaders import *
-from backends.version_sort import ver_match
+from porthole import config
+from porthole.utils.dispatcher import Dispatcher
+from porthole.packagebook.summary import Summary
+from porthole.views.depends import DependsView
+from porthole.views.commontreeview import CommonTreeView
+from porthole.packagebook.depends import DependsTree
+from porthole.plugin import PluginGUI, PluginManager
+from porthole.loaders.loaders import *
+from porthole.backends.version_sort import ver_match
 #from timeit import Timer
 
 
@@ -90,11 +89,11 @@ class PackageNotebook:
     def notebook_changed(self, widget, pointer, index):
         """Catch when the user changes the notebook"""
         package = self.package
-        utils.debug.dprint("PackageNotebook notebook_changed(); self.summary.ebuild " +self.summary.ebuild +
+        debug.dprint("PackageNotebook notebook_changed(); self.summary.ebuild " +self.summary.ebuild +
                                     " self.loaded_version['deps'] : " + str(self.loaded_version["deps"]))
         if index == 1:
             if  self.loaded_version["deps"] != self.summary.ebuild or not self.loaded["deps"]:
-                utils.debug.dprint("PackageNotebook notebook_changed(); fill the deps view!")
+                debug.dprint("PackageNotebook notebook_changed(); fill the deps view!")
                 self.deps_view.fill_depends_tree(self.deps_view, package, self.summary.ebuild)
                 self.loaded["deps"] = True
                 self.loaded_version["deps"] = self.summary.ebuild
@@ -104,14 +103,14 @@ class PackageNotebook:
                 load_textfile(self.changelog, package, "changelog")
                 self.loaded["changelog"] = True
         elif index == 3:
-            utils.debug.dprint("PackageNotebook notebook_changed(); load installed files for: " + str(self.summary.ebuild))
+            debug.dprint("PackageNotebook notebook_changed(); load installed files for: " + str(self.summary.ebuild))
             if not self.loaded["installed"] or self.loaded_version["installed"] != self.summary.ebuild:
                 # load list of installed files
                 load_installed_files(self.installed_window, self.installed_files, package, self.summary.ebuild )
                 self.loaded["installed"] = True
                 self.loaded_version["installed"] = self.summary.ebuild
         elif index == 4:
-            utils.debug.dprint("PackageNotebook notebook_changed(); self.summary.ebuild = " + str(self.summary.ebuild))
+            debug.dprint("PackageNotebook notebook_changed(); self.summary.ebuild = " + str(self.summary.ebuild))
             if not self.loaded["ebuild"] or self.loaded_version["ebuild"] != self.summary.ebuild:
                 #load_textfile(self.ebuild, package, "best_ebuild")
                 load_textfile(self.ebuild, package, "version_ebuild", self.summary.ebuild)
@@ -125,7 +124,7 @@ class PackageNotebook:
 
     def clear_notebook(self):
         """ Clear all notebook tabs & disable them """
-        utils.debug.dprint("PackageNotebook clear_notebook()")
+        debug.dprint("PackageNotebook clear_notebook()")
         self.summary.update_package_info(None)
         self.deps_view.clear()
         self.changelog.set_text('')
@@ -163,7 +162,7 @@ class PackageNotebook:
             self.dep_window["window"].connect("destroy", self.close_window)
             self.dep_window["window"].resize(600, 400)
             self.dep_window["window"].show_all()
-            utils.debug.dprint("********** PackageNotebook: new_notebook(); DependsView: do_dep_window() new dep_window{'window', 'notebook', 'depth'}" + \
+            debug.dprint("********** PackageNotebook: new_notebook(); DependsView: do_dep_window() new dep_window{'window', 'notebook', 'depth'}" + \
                                     str(self.dep_window["window"]) +str(self.dep_window["notebook"])) # +str(self.dep_window['depth']))
         return self.dep_window
         

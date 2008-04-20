@@ -27,12 +27,12 @@ import gtk, gobject, pango
 import threading, os
 from gettext import gettext as _
 
-from utils import utils
-import backends
+from porthole.utils import utils
+from porthole import backends
 portage_lib = backends.portage_lib
-from packagebook.depends import DependsTree
-import utils.debug
-from helpers import *
+from porthole.packagebook.depends import DependsTree
+from porthole.utils import debug
+from porthole.views.helpers import *
 
 
 class RMBMenu:
@@ -71,10 +71,10 @@ class RMBMenu:
 
     def _clicked(self, treeview, *args):
         """ Handles treeview clicks """
-        utils.debug.dprint("VIEWS: Package view _clicked() signal caught")
+        debug.dprint("VIEWS: Package view _clicked() signal caught")
         # get the selection
         package = utils.get_treeview_selection(treeview, 2)
-        #utils.debug.dprint("VIEWS: package = %s" % package.full_name)
+        #debug.dprint("VIEWS: package = %s" % package.full_name)
 
         #pop up menu if was rmb-click
         if self.dopopup:

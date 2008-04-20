@@ -4,7 +4,7 @@
     Porthole Configuration Dialog
     Allows the user to Configure Porthole
 
-    Copyright (C) 2005 Brian Dolbec, Thomas Iorns
+    Copyright (C) 2005 - 2008 Brian Dolbec, Thomas Iorns
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,10 +24,10 @@
 import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, gtk.glade
 
-import utils.debug
-from loaders.loaders import load_web_page
-import config
-import backends
+from porthole.utils import debug
+from porthole.loaders.loaders import load_web_page
+from porthole import config
+from porthole import backends
 portage_lib = backends.portage_lib
 
 class ConfigDialog:
@@ -37,7 +37,7 @@ class ConfigDialog:
         """ Initialize Config GUI """
         
         # Parse glade file
-        self.gladefile = config.Prefs.DATA_PATH + "/config/config.glade"
+        self.gladefile = config.Prefs.DATA_PATH + "/glade/config.glade"
         self.wtree = gtk.glade.XML(self.gladefile, "config", config.Prefs.APP)
      
         # register callbacks
@@ -68,7 +68,7 @@ class ConfigDialog:
 
     def on_config_response(self, dialog_widget, response_id):
         """ Parse dialog response (ok, cancel, apply or help clicked) """
-        utils.debug.dprint("CONFIGDIALOG: on_config_response(): response_id '%s'" % response_id)
+        debug.dprint("CONFIGDIALOG: on_config_response(): response_id '%s'" % response_id)
         if response_id == gtk.RESPONSE_OK:
             self.apply_widget_values()
             self.window.destroy()
@@ -84,7 +84,7 @@ class ConfigDialog:
     
     def on_color_clicked(self, button_widget, event):
         """ Make sure colour dialog doesn't show alpha choice """
-        utils.debug.dprint("CONFIGDIALOG: on_color_clicked()")
+        debug.dprint("CONFIGDIALOG: on_color_clicked()")
         if event.button == 1: # primary mouse button
             button_widget.set_use_alpha(False)
             return False # continue to build colour selection dialog
@@ -110,7 +110,7 @@ class ConfigDialog:
                 return True
     
     def on_color_set(self, button_widget):
-        utils.debug.dprint("CONFIGDIALOG: on_color_set()")
+        debug.dprint("CONFIGDIALOG: on_color_set()")
         # if button is default-button: change colour in all buttons using default.
         color = button_widget.get_color()
         ext = None
@@ -261,15 +261,15 @@ class ConfigDialog:
         # Checkboxes:
         for category, name in self.checkboxes:
             widget = self.wtree.get_widget('_'.join([category, name]))
-            utils.debug.dprint("CONFIGDIALOG: set_widget_values(); Checkboxes: widget = %s" %('_'.join([category, name])))
+            debug.dprint("CONFIGDIALOG: set_widget_values(); Checkboxes: widget = %s" %('_'.join([category, name])))
             if widget:
                 active = getattr(getattr(config.Prefs, category), name)
-                utils.debug.dprint(str(active))
+                debug.dprint(str(active))
                 if active == []:
                     active = False
                 widget.set_active(active)
             else:
-                utils.debug.dprint("CONFIGDIALOG: set_widget_values(); Checkboxes: widget = %s not found!" %('_'.join([category, name])))
+                debug.dprint("CONFIGDIALOG: set_widget_values(); Checkboxes: widget = %s not found!" %('_'.join([category, name])))
         
         # Sync combobox
         store = gtk.ListStore(str)
@@ -323,23 +323,23 @@ class ConfigDialog:
             if widget:
                 color = widget.get_color()
                 alpha = widget.get_alpha()
-                #utils.debug.dprint("CONFIGDIALOG: '%s_fg': previous value: '%s'" % (name, config.Prefs.TAG_DICT[name][0]))
+                #debug.dprint("CONFIGDIALOG: '%s_fg': previous value: '%s'" % (name, config.Prefs.TAG_DICT[name][0]))
                 if alpha > 40000: # colour set
-                    #utils.debug.dprint("CONFIGDIALOG: setting to '%s'" % self.get_color_spec(color))
+                    #debug.dprint("CONFIGDIALOG: setting to '%s'" % self.get_color_spec(color))
                     config.Prefs.TAG_DICT[name][0] = self.get_color_spec(color)
                 else: # use default
-                    #utils.debug.dprint("CONFIGDIALOG: setting to ''")
+                    #debug.dprint("CONFIGDIALOG: setting to ''")
                     config.Prefs.TAG_DICT[name][0] = ''
             widget = self.wtree.get_widget(name + '_bg')
             if widget:
                 color = widget.get_color()
                 alpha = widget.get_alpha()
-                #utils.debug.dprint("CONFIGDIALOG: '%s_bg': previous value: '%s'" % (name, config.Prefs.TAG_DICT[name][1]))
+                #debug.dprint("CONFIGDIALOG: '%s_bg': previous value: '%s'" % (name, config.Prefs.TAG_DICT[name][1]))
                 if alpha > 40000:
-                    #utils.debug.dprint("CONFIGDIALOG: setting to '%s'" % self.get_color_spec(color))
+                    #debug.dprint("CONFIGDIALOG: setting to '%s'" % self.get_color_spec(color))
                     config.Prefs.TAG_DICT[name][1] = self.get_color_spec(color)
                 else:
-                    #utils.debug.dprint("CONFIGDIALOG: setting to ''")
+                    #debug.dprint("CONFIGDIALOG: setting to ''")
                     config.Prefs.TAG_DICT[name][1] = ''
         
         # Terminal Font:
@@ -375,10 +375,10 @@ class ConfigDialog:
         
         # Checkboxes:
         for category, name in self.checkboxes:
-            utils.debug.dprint("CONFIGDIALOG: apply_widget_values(); name = %s" %name)
+            debug.dprint("CONFIGDIALOG: apply_widget_values(); name = %s" %name)
             widget = self.wtree.get_widget('_'.join([category, name]))
             if widget:
-                #utils.debug.dprint("CONFIGDIALOG: apply_widget_values(); name = %s widget found" %name)
+                #debug.dprint("CONFIGDIALOG: apply_widget_values(); name = %s widget found" %name)
                 active = widget.get_active()
                 setattr(getattr(config.Prefs, category), name, active)
                 if name == 'enable_archlist' and active:
@@ -387,9 +387,9 @@ class ConfigDialog:
                     for item in self.kwList:
                         keyword = item[1]
                         if item[0].get_active():
-                            utils.debug.dprint(item[1])
+                            debug.dprint(item[1])
                             archlist.append(keyword)
-                    utils.debug.dprint("CONFIGDIALOG: new archlist = %s" %str(archlist))
+                    debug.dprint("CONFIGDIALOG: new archlist = %s" %str(archlist))
                     config.Prefs.globals.archlist = archlist[:]
             
         
@@ -439,7 +439,7 @@ class ConfigDialog:
             checkbox widgets representing the available
             keywords
         """
-        utils.debug.dprint("CONFIGDIALOG: build_archlist_widget()")
+        debug.dprint("CONFIGDIALOG: build_archlist_widget()")
 
         # If frame has any children, remove them
         child = self.KeywordsFrame.child
@@ -485,19 +485,19 @@ class ConfigDialog:
             self.KeywordsFrame.set_sensitive(config.Prefs.globals.enable_archlist)
         else:
             self.KeywordsFrame.set_sensitive(False)
-        utils.debug.dprint("CONFIGDIALOG: build_archlist_widget(); widget build completed")
+        debug.dprint("CONFIGDIALOG: build_archlist_widget(); widget build completed")
         
     def toggle_archlist(self, widget):
         """Toggles the archlist frame sensitivity
         """
-        utils.debug.dprint("CONFIGDIALOG: toggle_archlist(); signal caught")
+        debug.dprint("CONFIGDIALOG: toggle_archlist(); signal caught")
         self.KeywordsFrame.set_sensitive(widget.get_active())
         config.Prefs.globals.enable_archlist = widget.get_active()
 
     def toggle_browser_table(self, widget):
         """Toggles custom browser command sensitivity
         """
-        utils.debug.dprint("CONFIGDIALOG: toggle_browser_table()")
+        debug.dprint("CONFIGDIALOG: toggle_browser_table()")
         self.wtree.get_widget('custom_browser_table').set_sensitive(widget.get_active())
 
 

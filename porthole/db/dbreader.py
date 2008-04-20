@@ -21,12 +21,16 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 """
 
+import datetime
+id = datetime.datetime.now().microsecond
+print "DBREADER: import id initialized to ", id
+
 import threading, os
 
-import utils.debug
-from package import Package
-from dbbase import DBBase
-import backends
+from porthole.utils import debug
+from porthole.db.package import Package
+from porthole.db.dbbase import DBBase
+from porthole import backends
 portage_lib = backends.portage_lib
 
 #~ # establish a semaphore for the Database
@@ -44,6 +48,8 @@ class DatabaseReader(threading.Thread):
     def __init__(self, callback):
         threading.Thread.__init__(self)
         self.setDaemon(1)     # quit even if this thread is still running
+        self.id = datetime.datetime.now().microsecond
+        print "DBREADER: DatabaseReader.id initialized to ", self.id
         self.db = DBBase()        # the database
         self.callback = callback
         self.done = False     # false if the thread is still working
@@ -69,57 +75,57 @@ class DatabaseReader(threading.Thread):
 
     def read_db(self):
         """Read portage's database and store it nicely"""
-        utils.debug.dprint("DBREADER: read_db(); process id = %d *****************" %(os.getpid()))
+        debug.dprint("DBREADER: read_db(); process id = %d *****************" %(os.getpid()))
         
         self.get_installed()
         try:
-            utils.debug.dprint("DBREADER: read_db(); getting allnodes package list")
+            debug.dprint("DBREADER: read_db(); getting allnodes package list")
             allnodes = portage_lib.get_allnodes()
-            utils.debug.dprint("DBREADER: read_db(); Done getting allnodes package list")
+            debug.dprint("DBREADER: read_db(); Done getting allnodes package list")
         except OSError, e:
             # I once forgot to give read permissions
             # to an ebuild I created in the portage overlay.
             self.error = str(e)
             return
         self.allnodes_length = len(allnodes)
-        utils.debug.dprint("DBREADER: read_db() create internal porthole list; length=%d" %self.allnodes_length)
+        debug.dprint("DBREADER: read_db() create internal porthole list; length=%d" %self.allnodes_length)
         #dsave("db_allnodes_cache", allnodes)
-        utils.debug.dprint("DBREADER: read_db(); Threading info: %s" %str(threading.enumerate()) )
+        debug.dprint("DBREADER: read_db(); Threading info: %s" %str(threading.enumerate()) )
         count = 0
         for entry in allnodes:
             if self.cancelled: self.done = True; return
             if count == 250:  # update the statusbar
                 self.nodecount += count
-                #utils.debug.dprint("DBREADER: read_db(); count = %d" %count)
+                #debug.dprint("DBREADER: read_db(); count = %d" %count)
                 self.callback({"nodecount": self.nodecount, "allnodes_length": self.allnodes_length,
                                 "done": self.done, 'db_thread_error': self.error})
                 count = 0
             count += self.add_pkg(entry)
         # now time to add any remaining installed packages not in the portage tree
         self.db.deprecated_list = self.installed_list[:]
-        #utils.debug.dprint("DBREADER: read_db(); deprecated installed packages = " + str(self.db.deprecated_list))
+        #debug.dprint("DBREADER: read_db(); deprecated installed packages = " + str(self.db.deprecated_list))
         for entry in self.db.deprecated_list:  # remaining installed packages no longer in the tree
             if self.cancelled: self.done = True; return
             if count == 250:  # update the statusbar
                 self.nodecount += count
-                #utils.debug.dprint("DBREADER: read_db(); count = %d" %count)
+                #debug.dprint("DBREADER: read_db(); count = %d" %count)
                 self.callback({"nodecount": self.nodecount, "allnodes_length": self.allnodes_length,
                                 "done": self.done, 'db_thread_error': self.error})
                 count = 0
-            utils.debug.dprint("DBREADER: read_db(); deprecated entry = " + entry)
+            debug.dprint("DBREADER: read_db(); deprecated entry = " + entry)
             count += self.add_pkg(entry, deprecated=True)
 
-        utils.debug.dprint("DBREADER: read_db(); end of list build; count = %d nodecount = %d" %(count,self.nodecount))
+        debug.dprint("DBREADER: read_db(); end of list build; count = %d nodecount = %d" %(count,self.nodecount))
         self.nodecount += count
-        utils.debug.dprint("DBREADER: read_db(); end of list build; final nodecount = %d categories = %d sort is next" \
+        debug.dprint("DBREADER: read_db(); end of list build; final nodecount = %d categories = %d sort is next" \
                 %(self.nodecount, len(self.db.categories)))
-        #utils.debug.dprint(self.db)
+        #debug.dprint(self.db)
         self.db.list = self.sort(self.db.list)
-        #utils.debug.dprint(self.db)
-        utils.debug.dprint("DBREADER: read_db(); end of sort, finished")
+        #debug.dprint(self.db)
+        debug.dprint("DBREADER: read_db(); end of sort, finished")
 
     def add_pkg(self, entry, deprecated = False):
-            #utils.debug.dprint("DBREADER: add_pkg(); entry = %s" %entry)
+            #debug.dprint("DBREADER: add_pkg(); entry = %s" %entry)
             category, name = entry.split('/')
             if category in ["metadata", "distfiles", "eclass"]:
                 return 0
@@ -136,17 +142,17 @@ class DatabaseReader(threading.Thread):
             if category not in self.db.categories:
                 self.db.categories[category] = {}
                 self.db.pkg_count[category] = 0
-                #utils.debug.dprint("DBREADER: add_pkg(); added category %s" % str(category))
+                #debug.dprint("DBREADER: add_pkg(); added category %s" % str(category))
             self.db.categories[category][name] = data
             if entry in self.installed_list:
                 if category not in self.db.installed:
                     self.db.installed[category] = {}
                     self.db.installed_pkg_count[category] = 0
-                    #utils.debug.dprint("DBREADER: add_pkg(); added category %s to installed" % str(category))
+                    #debug.dprint("DBREADER: add_pkg(); added category %s to installed" % str(category))
                 self.db.installed[category][name] = data
                 self.db.installed_pkg_count[category] += 1
                 self.db.installed_count += 1
-                #utils.debug.dprint("DBREADER: add_pkg(); adding %s to db.list" %name)
+                #debug.dprint("DBREADER: add_pkg(); adding %s to db.list" %name)
                 # remove entry from installed list since it has been added to the db
                 self.installed_list.remove(entry)
             self.db.list.append((name, data))
@@ -155,7 +161,7 @@ class DatabaseReader(threading.Thread):
 
     def get_installed(self):
         """get a new installed list"""
-        utils.debug.dprint("DBREADER: get_installed();")
+        debug.dprint("DBREADER: get_installed();")
         self.installed_list = portage_lib.get_installed_list()
         self.installed_count = len(self.installed_list)
         
@@ -164,14 +170,14 @@ class DatabaseReader(threading.Thread):
         self.read_db()
         self.done = True   # tell main thread that this thread has finished and pass back the db
         self.callback({"nodecount": self.nodecount, "done": True, 'db_thread_error': self.error})
-        utils.debug.dprint("DBREADER: DatabaseReader.run(); finished")
+        debug.dprint("DBREADER: DatabaseReader.run(); finished")
 
     def sort(self, list):
         """sort in alphabetic instead of ASCIIbetic order"""
-        utils.debug.dprint("DBREADER: DatabaseReader.sort()")
+        debug.dprint("DBREADER: DatabaseReader.sort()")
         spam = [(x[0].upper(), x) for x in list]
         spam.sort()
-        utils.debug.dprint("DBREADER: sort(); finished")
+        debug.dprint("DBREADER: sort(); finished")
         return [x[1] for x in spam]
 
 

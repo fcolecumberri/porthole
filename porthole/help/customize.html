@@ -49,12 +49,15 @@ is disabled by default.</p>
 
 <p>If Porthole is not opening your <span style="font-weight: bold;">preferred web browser</span>
 when you click on the help buttons, or the home page link in the
-package summary, then you can set it here. Select the "Use Custom
-Browser" radio button, then type the command used to start your browser
-in the text box below it. It may be sufficient to simply type the name
-of your browser (for example, "firefox") into this box. If you want to
+package summary, then you can either set your <span style="font-weight: bold;">BROWSER</span> environment variable
+or set it here. Select the "<span style="font-weight: bold;">Use Custom Browser</span>" radio button, then type
+the command used to start your browser in the text box below it. It will usualy be
+sufficient to simply type the name of your browser (for example, "firefox") into this box. If you want to
 specify the exact command to open the browser, use "%s" where you want
-the webpage or help-file location to be substituted in.</p>
+the webpage or help-file location to be substituted in as well as any other options you desire.  
+In most cases simply entering 'firefox' will will get the pre-defined python <span style="font-weight: bold;">Firefox</span>
+webbrowser module with its default options.
+If it does not find a pre-configured webbrowser module it will create a generic module with the '%s' url parameter added for you.</p>
 
 <p>If you want to use the <span style="font-weight: bold;">emerge-webrsync</span>
 command to sync your portage tree, select "emerge-webrsync" from the

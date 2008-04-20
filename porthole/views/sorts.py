@@ -27,10 +27,10 @@ import gtk, gobject, pango
 import threading, os
 from gettext import gettext as _
 
-from utils import utils
-from packagebook.depends import DependsTree
-#import utils.debug
-from helpers import *
+from porthole.utils import utils
+from porthole.packagebook.depends import DependsTree
+#from porthole.utils import debug
+from porthole.views.helpers import *
 
 def size_sort_func(treemodel, iter1, iter2):
     """Sorts by download size"""

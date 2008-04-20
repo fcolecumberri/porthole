@@ -25,10 +25,10 @@
 import gtk, gtk.glade
 from gettext import gettext as _
 
-import utils.debug
-from loaders.loaders import load_web_page
-from version import version
-import config
+from porthole.utils import debug
+from porthole.loaders.loaders import load_web_page
+from porthole.version import version
+from porthole import config
 
 class RunDialog:
     """Class to hold run dialog and functionality."""
@@ -48,16 +48,16 @@ class RunDialog:
         self.call_back = call_back
         self.run_anyway = run_anyway
         if config.Prefs:
-            #utils.debug.dprint("COMMAND: config.Prefs == True")
+            #debug.dprint("COMMAND: config.Prefs == True")
             self.history = config.Prefs.run_dialog.history
         else:
-            utils.debug.dprint("COMMAND: config.Prefs == False")
+            debug.dprint("COMMAND: config.Prefs == False")
             self.history = ["", "emerge ",
                             "ACCEPT_KEYWORDS='~x86' emerge ",
                             "USE=' ' emerge ",
                             "ACCEPT_KEYWORDS='~x86' USE=' ' emerge"]
-        #utils.debug.dprint("COMMAND: self.history:")
-        #utils.debug.dprint(self.history)
+        #debug.dprint("COMMAND: self.history:")
+        #debug.dprint(self.history)
         self.window = self.wtree.get_widget("run_dialog")
         self.combo = self.wtree.get_widget("comboboxentry1")
         self.entry = self.combo.child
@@ -85,7 +85,7 @@ class RunDialog:
         """Adds the command line entry to the queue"""
         self.command = self.entry.get_text()
         if self.command:
-            #utils.debug.dprint("COMMAND: activated: %s" %self.command)
+            #debug.dprint("COMMAND: activated: %s" %self.command)
             self.call_back(_("command line entry"), self.command, self.run_anyway)
             self.history_add()
         self.cancel(None)
@@ -94,7 +94,7 @@ class RunDialog:
         """Adds the command line entry to the queue"""
         self.command = self.entry.get_text()
         if self.command:
-            #utils.debug.dprint("COMMAND: execute: %s" %self.command)
+            #debug.dprint("COMMAND: execute: %s" %self.command)
             self.call_back(_("command line entry"), self.command, self.run_anyway)
             self.history_add()
         self.cancel(None)
@@ -128,14 +128,14 @@ class RunDialog:
                 self.history += old_history
             else:
                 self.history.append(self.command)
-            utils.debug.dprint("COMMAND.history_add(): new self.history:")
-            utils.debug.dprint(self.history)
+            debug.dprint("COMMAND.history_add(): new self.history:")
+            debug.dprint(self.history)
         config.Prefs.run_dialog.history = self.history
         return
 
     def command_changed(self,widget):
         """Updates the gtk.Entry with the history item selected"""
-        utils.debug.dprint("COMMAND: changing entry item")
+        debug.dprint("COMMAND: changing entry item")
         return # not needed at this time
         model = widget.get_model()
         iter = widget.get_active_iter()

@@ -31,9 +31,9 @@
 import pygtk; pygtk.require('2.0')
 import gtk, pango
 
-from constants import *
-import utils.debug
-import config
+from porthole.terminal.constants import *
+from porthole.utils import debug
+from porthole import config
 
 class TerminalNotebook:
     """generates a terminal notebook structure containing all needed views,
@@ -113,10 +113,10 @@ class TerminalNotebook:
         # text mark to mark the start of the current command
         self.command_start = None
 
-        utils.debug.dprint("NOTEBOOK: get & connect to vadjustments")
-        #utils.debug.dprint(TABS[:-1])
+        debug.dprint("NOTEBOOK: get & connect to vadjustments")
+        #debug.dprint(TABS[:-1])
         for x in TABS[:-1]:
-            #utils.debug.dprint(x)
+            #debug.dprint(x)
             adj = self.scrolled_window[x].get_vadjustment()
             self.vadjustment +=  [adj]
             id = self.vadjustment[x].connect("value_changed", self.set_scroll)
@@ -125,11 +125,11 @@ class TerminalNotebook:
             # create autoscroll end marks to seek to &
             end_mark = self.view_buffer[x].create_mark(("end_mark"+str(x)), self.view_buffer[x].get_end_iter(), False)
             self.end_mark += [end_mark]
-        #utils.debug.dprint("NOTEBOOK: __init__() -- self.vadjustment[]," +
+        #debug.dprint("NOTEBOOK: __init__() -- self.vadjustment[]," +
         #       "self.vhandler_id[], self.autoscroll")
-        #utils.debug.dprint(self.vadjustment)
-        #utils.debug.dprint(self.vhandler_id)
-        #utils.debug.dprint(self.auto_scroll)
+        #debug.dprint(self.vadjustment)
+        #debug.dprint(self.vhandler_id)
+        #debug.dprint(self.auto_scroll)
         self.notebook.connect("switch-page", self.switch_page)
 
 
@@ -138,15 +138,15 @@ class TerminalNotebook:
         #tabs_showing = 0
         self.visible_tablist = []
         tab_num = 0
-        #utils.debug.dprint("NOTEBOOK: get_tab_list -- self.tab_showing")
-        #utils.debug.dprint(self.tab_showing)
+        #debug.dprint("NOTEBOOK: get_tab_list -- self.tab_showing")
+        #debug.dprint(self.tab_showing)
         for tab in self.tab_showing:
-            #utils.debug.dprint(tab_num)
-            #utils.debug.dprint(tab)
+            #debug.dprint(tab_num)
+            #debug.dprint(tab)
             if tab:
                 self.visible_tablist += [tab_num]
             tab_num += 1
-        utils.debug.dprint("NOTEBOOK: get_tab_list() new self.visible_tablist: %s" % self.visible_tablist)
+        debug.dprint("NOTEBOOK: get_tab_list() new self.visible_tablist: %s" % self.visible_tablist)
         return
 
     def get_current_vadjustment_value(self):
@@ -192,7 +192,7 @@ class TerminalNotebook:
         self.notebook.insert_page(tab, hbox, pos)
         # reset the visible_tablist
         self.get_tab_list()
-        utils.debug.dprint("NOTEBOOK: self.visible_tablist %s" % self.visible_tablist)
+        debug.dprint("NOTEBOOK: self.visible_tablist %s" % self.visible_tablist)
         
     def hide_tab(self, tab):
         pos = -1
@@ -205,7 +205,7 @@ class TerminalNotebook:
         elif tab == TAB_QUEUE:
             pos = self.notebook.page_num(self.queue_tab)
         if pos is not -1:
-            utils.debug.dprint("NOTEBOOK: hiding tab %s, pos %s." % (tab, pos))
+            debug.dprint("NOTEBOOK: hiding tab %s, pos %s." % (tab, pos))
             self.notebook.remove_page(pos)
             self.tab_showing[tab] = False
 
@@ -269,7 +269,7 @@ class TerminalNotebook:
 
     def set_scroll(self,  vadjustment):
         """Sets autoscrolling on when moved to bottom of scrollbar"""
-        #utils.debug.dprint("NOTEBOOK: set_scroll() -- vadjustment")
+        #debug.dprint("NOTEBOOK: set_scroll() -- vadjustment")
         self.auto_scroll[self.current_tab] = ((vadjustment.upper - \
                                                         vadjustment.get_value()) - \
                                                         vadjustment.page_size < \
@@ -278,7 +278,7 @@ class TerminalNotebook:
 
     def switch_page(self, notebook, page, page_num):
         """callback function changes the current_page setting in the term structure"""
-        utils.debug.dprint("NOTEBOOK: switch_page(); page_num = " + str(page_num))
+        debug.dprint("NOTEBOOK: switch_page(); page_num = " + str(page_num))
         self.current_tab = self.visible_tablist[page_num]
         if self.auto_scroll[self.current_tab]:
             self.scroll_current_view()
@@ -349,16 +349,16 @@ class TerminalNotebook:
             Optionally, text formatting can be applied as well
         """
         if text == '':
-            #utils.debug.dprint("Notebook: overwrite() no text to overwrite... returning")
+            #debug.dprint("Notebook: overwrite() no text to overwrite... returning")
             return
-        #utils.debug.dprint("Notebook: overwrite() -- num= " + str(num) + "..." + text)
-        #utils.debug.dprint(self.current_tab)
+        #debug.dprint("Notebook: overwrite() -- num= " + str(num) + "..." + text)
+        #debug.dprint(self.current_tab)
         line_number = self.view_buffer[TAB_PROCESS].get_line_count() 
         iter = self.view_buffer[num].get_iter_at_line(line_number)
         if iter.get_chars_in_line() >= 7:
             iter.set_line_offset(7)
         else:
-            utils.debug.dprint("*** Notebook: overwrite: less than 7 chars in line... no linenumber???")
+            debug.dprint("*** Notebook: overwrite: less than 7 chars in line... no linenumber???")
             iter.set_line_offset(0)
         end = iter.copy()
         end.forward_line()
@@ -376,8 +376,8 @@ class TerminalNotebook:
             line numbering is correct.
             Optionally, text formatting can be applied as well
         """
-        #utils.debug.dprint("Notebook: append() -- num= " + str(num) + "..." + text)
-        #utils.debug.dprint(self.current_tab)
+        #debug.dprint("Notebook: append() -- num= " + str(num) + "..." + text)
+        #debug.dprint(self.current_tab)
         line_number = self.view_buffer[TAB_PROCESS].get_line_count() 
         iter = self.view_buffer[num].get_end_iter()
         lntext = str(line_number).zfill(6) + ' '
@@ -385,7 +385,7 @@ class TerminalNotebook:
             self.view_buffer[num].insert_with_tags_by_name(iter, lntext, 'linenumber')
         if tagname == None:
             #self.view_buffer[num].insert(iter, text)
-            #utils.debug.dprint("Notebook: append(): attempting to set text with tagnames " + str(self.current_tagnames))
+            #debug.dprint("Notebook: append(): attempting to set text with tagnames " + str(self.current_tagnames))
             self.view_buffer[num].insert_with_tags_by_name(iter, text, *self.current_tagnames)
         else:
             self.view_buffer[num].insert_with_tags_by_name(iter, text, tagname)
@@ -409,7 +409,7 @@ class TerminalNotebook:
         """ Handles xterm escape sequences. This includes colour change requests,
         window title changes and cursor position requests
         """
-        #utils.debug.dprint("Notebook: parse_escape_sequence(): parsing '%s'" % sequence)
+        #debug.dprint("Notebook: parse_escape_sequence(): parsing '%s'" % sequence)
         if sequence.startswith("[") and sequence.endswith("m"):
             #and sequence != "[A[73G [34;01m": # <== right justify the" [OK]"
             if ";" in sequence:
@@ -423,7 +423,7 @@ class TerminalNotebook:
                 try:
                     item = int(item)
                 except:
-                    utils.debug.dprint("Notebook: parse_escape_sequence(); failed to convert item '%s' to an integer" % item)
+                    debug.dprint("Notebook: parse_escape_sequence(); failed to convert item '%s' to an integer" % item)
                     return False
                 if 0 <= item <= 1:
                     weight_tagname = self.esc_seq_dict[item]
@@ -432,7 +432,7 @@ class TerminalNotebook:
                 elif 40 <= item <= 49:
                     bg_tagname = self.esc_seq_dict[item]
                 else:
-                    utils.debug.dprint("Notebook: parse_escape_sequence(): ignoring term '%s'" % item)
+                    debug.dprint("Notebook: parse_escape_sequence(): ignoring term '%s'" % item)
             self.current_tagnames = []
             if fg_tagname:
                 self.current_tagnames.append(fg_tagname)
@@ -442,7 +442,7 @@ class TerminalNotebook:
                 self.current_tagnames.append(weight_tagname)
             if not self.current_tagnames:
                 self.current_tagnames = ['default']
-            #utils.debug.dprint("Notebook: parse_escape_sequence(): tagnames are %s" % self.current_tagnames)
+            #debug.dprint("Notebook: parse_escape_sequence(): tagnames are %s" % self.current_tagnames)
             return True
         elif sequence[:3] in ["]2;", "]0;", "]1;"] and ord(sequence[-1]) == 7:
             # note: 2 = window title, 1 = icon name, 0 = window title and icon name
@@ -456,7 +456,7 @@ class TerminalNotebook:
         else:
             # note: the "[A" then "[-7G" used to display "[ ok ]" on the
             # right hand side of patching lines is currently unsupported.
-            utils.debug.dprint("Notebook: parse_escape_sequence(): unsupported escape sequence '%s'" % sequence)
+            debug.dprint("Notebook: parse_escape_sequence(): unsupported escape sequence '%s'" % sequence)
             return False
             
     def set_startmark( self ):

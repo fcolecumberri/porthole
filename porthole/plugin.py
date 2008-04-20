@@ -4,7 +4,7 @@
     Porthole Plugin Interface
     Imports and interacts with plugins
 
-    Copyright (C) 2003 - 2007 Brian Bockelman, Brian Dolbec, Tommy Iorns
+    Copyright (C) 2003 - 2008 Brian Bockelman, Brian Dolbec, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,15 +21,19 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
+import datetime
+id = datetime.datetime.now().microsecond
+print "PLUGIN: id initialized to ", id
 
 import os
 from glob import glob
 import gtk
-#from utils import utils
-import imp
-import utils.debug
-from importer import my_import
-import config
+#import imp
+
+#from porthole.utils import utils
+from porthole.utils import debug
+#from porthole.importer import my_import
+from porthole import config
 
 class PluginManager:
     """Handles all of our plugins"""
@@ -43,9 +47,11 @@ class PluginManager:
         plugin_list = []
         list = os.listdir(plugin_dir)
         for entry in list:
+            debug.dprint("PLUGIN: PluginManager.init(); possible plugin found: %s" % entry)
             if os.path.isdir(os.path.join(plugin_dir, entry)):
                 if os.access(os.path.join(plugin_dir, entry, '__init__.py'), os.R_OK):
                     plugin_list.append(entry)
+                    debug.dprint("PLUGIN: PluginManager.init(); valid plugin found: %s" % entry)
         os.chdir(plugin_dir)
         for entry in plugin_list:
             new_plugin = Plugin(entry, plugin_dir, self)
@@ -94,7 +100,7 @@ class PluginManager:
 class Plugin:
     """Class that defines all of our plugins"""
     def __init__(self, name, path, manager):
-        utils.debug.dprint("PLUGIN; init(): New plugin being made: '%(name)s' in %(path)s" % locals())
+        debug.dprint("PLUGIN: init(); New plugin being made: '%(name)s' in %(path)s" % locals())
         self.name = name
         self.path = path
         self.event_table = {}
@@ -105,27 +111,27 @@ class Plugin:
     def initialize_plugin(self):
         try:
             os.chdir(self.path)
-            utils.debug.dprint("PLUGIN: initialize_plugin: cwd: %s !!!!!!!!!!!!!!!!!" % os.getcwd())
+            debug.dprint("PLUGIN: initialize_plugin; cwd: %s !!!!!!!!!!!!!!!!!" % os.getcwd())
             #find_results = imp.find_module(self.name, self.path)
             #self.module = imp.load_module(self.name, *find_results)
-            #self.module = __import__('/'.join([self.path, self.name]))
-            plugin_name = '.'.join(['plugins', self.name])
-            utils.debug.dprint('Plugin name = ' + plugin_name)
+            #plugin_name = self.path + self.name
+            plugin_name = '.'.join(['porthole','plugins', self.name])
+            debug.dprint('Plugin name = ' + plugin_name)
             #
             #self.module = my_import(plugin_name)
             self.module = __import__(plugin_name, [], [], ['not empty'])
-            utils.debug.dprint('Plugin module = ' + str(self.module))
+            debug.dprint('Plugin module = ' + str(self.module))
             self.valid = True
         except ImportError, e:
-            utils.debug.dprint("PLUGIN; initialize_plugin(): ImportError '%s'" % e)
-            utils.debug.dprint("PLUGIN; initialize_plugin(): Error loading plugin '%s' in %s" % (self.name, self.path))
+            debug.dprint("PLUGIN: initialize_plugin(); ImportError '%s'" % e)
+            debug.dprint("PLUGIN: initialize_plugin(); Error loading plugin '%s' in %s" % (self.name, self.path))
             self.valid = False
             return False
-        utils.debug.dprint("PLUGIN: initialize_plugin(); !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        debug.dprint("PLUGIN: initialize_plugin(); !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         self.event_table = self.module.event_table
         self.desc = self.module.desc
-        utils.debug.dprint("PLUGIN: event_table = " + str(self.event_table))
-        utils.debug.dprint("PLUGIN: event desc = " + str(self.desc))
+        debug.dprint("PLUGIN: event_table = " + str(self.event_table))
+        debug.dprint("PLUGIN: event desc = " + str(self.desc))
 
     def toggle_enabled(self):
         if self.enabled == True:
@@ -136,16 +142,16 @@ class Plugin:
             self.event("enable")
 
     def event(self, event, *args):
-        utils.debug.dprint("PLUGIN: Event: " + event + ", Plugin: " + self.name)
+        debug.dprint("PLUGIN: Event: " + event + ", Plugin: " + self.name)
         if event in self.event_table:
             a = self.event_table[event](*args)
         else:
             a = None
-            utils.debug.dprint("PLUGIN: event(): %s , not defined for plugin: %s" %(event,self.name))
-            utils.debug.dprint("PLUGIN: event(): event_table = " + str(self.event_table))
+            debug.dprint("PLUGIN: event(): %s , not defined for plugin: %s" %(event,self.name))
+            debug.dprint("PLUGIN: event(): event_table = " + str(self.event_table))
             return a
         if not a:
-            utils.debug.dprint("PLUGIN: event: recieved '%s' as response...")
+            debug.dprint("PLUGIN: event: recieved '%s' as response...")
         return a
         #return self.event_table[event](*args)
 
@@ -156,7 +162,7 @@ class PluginGUI(gtk.Window):
         """ Initialize Plugins Dialog Window """
         # Preserve passed parameters and manager
         self.plugin_manager = plugin_manager
-        self.gladefile = config.Prefs.DATA_PATH + "porthole.glade"
+        self.gladefile = config.Prefs.DATA_PATH + "glade/porthole.glade"
         self.wtree = gtk.glade.XML(self.gladefile, "plugin_dialog", config.Prefs.APP)
         
         # Connect Callbacks

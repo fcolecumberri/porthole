@@ -22,14 +22,17 @@
 '''
 
 
-
+import datetime
+id = datetime.datetime.now().microsecond
+print "STERMINAL: id initialized to ", id
 
 import signal, os, pty, threading, time
-import datetime, errno, string
-import utils.utils
-from utils.dispatcher import Dispatcher
+import errno, string
+
+from porthole.utils import utils, debug
+from porthole.utils.dispatcher import Dispatcher
 # next, avoid a circular import and go direct
-from readers.process_reader import ProcessOutputReader
+from porthole.readers.process_reader import ProcessOutputReader
 
 
 class SimpleTerminal:
@@ -46,19 +49,19 @@ class SimpleTerminal:
         self.reader.start()
     
     def _run(self):
-        utils.debug.dprint("STERMINAL: run_app(); process id = %d *******************" %os.getpid())
-        env = utils.utils.environment()
+        debug.dprint("STERMINAL: run_app(); process id = %d *******************" %os.getpid())
+        env = utils.environment()
         # next section probably not needed since this will usually be run one time only
         if self.reader.fd:
             if os.isatty(self.reader.fd):
-                utils.debug.dprint("STERMINAL: self.reader already has fd, closing")
+                debug.dprint("STERMINAL: self.reader already has fd, closing")
                 os.close(self.reader.fd)
             else:
-                utils.debug.dprint("STERMINAL: self.reader has fd but seems to be already closed.")
+                debug.dprint("STERMINAL: self.reader has fd but seems to be already closed.")
                 try:
                     os.close(self.reader.fd)
                 except OSError, e:
-                    utils.debug.dprint("STERMINAL: error closing self.reader.fd: %s" % e)
+                    debug.dprint("STERMINAL: error closing self.reader.fd: %s" % e)
         
         self.pid, self.reader.fd = pty.fork()
         if self.pid == pty.CHILD:  # child
@@ -68,12 +71,12 @@ class SimpleTerminal:
                 os.execve(shell, [shell, '-c', self.command],
                     env)
             except Exception, e:
-                utils.debug.dprint("STERMINAL: Error in child" + e)
+                debug.dprint("STERMINAL: Error in child" + e)
                 os._exit(1)
         else:
             # set process_running so the reader thread reads it's output
             self.reader.process_running = True
-            utils.debug.dprint("STERMINAL: pty process id: %s ******" % self.pid)
+            debug.dprint("STERMINAL: pty process id: %s ******" % self.pid)
         return
     
     def cleanup(self):
@@ -83,9 +86,9 @@ class SimpleTerminal:
         # clean up finished process
         try:
             m = os.waitpid(self.pid, 0) # wait for any child processes to finish
-            utils.debug.dprint("STERMINAL: process %s finished, status %s" % m)
+            debug.dprint("STERMINAL: process %s finished, status %s" % m)
         except OSError, e:
             if not e.args[0] == 10: # 10 = no process to kill
-                utils.debug.dprint("STERMINAL: OSError %s" % e)
+                debug.dprint("STERMINAL: OSError %s" % e)
         if self.callback:
             self.callback()

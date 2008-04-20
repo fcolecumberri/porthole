@@ -6,7 +6,7 @@
     -----------------------------------------------------------
     A graphical process output viewer/filter and emerge queue
     -----------------------------------------------------------
-    Copyright (C) 2003 - 2005 Fredrik Arnerup, Brian Dolbec, 
+    Copyright (C) 2003 - 2008 Fredrik Arnerup, Brian Dolbec, 
     Daniel G. Taylor, Wm. F. Wheeler, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify
@@ -71,26 +71,25 @@ from gettext import gettext as _
     #~ path.append("/usr/lib/porthole")
 
 # import custom modules
-import backends
+from porthole import backends
 portage_lib = backends.portage_lib
+from porthole.dialogs.simple import SingleButtonDialog, YesNoDialog
+from porthole.readers.process_reader import ProcessOutputReader
+from porthole.utils.dispatcher import Dispatcher
+from porthole.utils import debug
+from porthole.utils.utils import get_user_home_dir, get_treeview_selection, estimate, pretend_check
+from porthole.version import version
+from porthole.terminal.term_queue import TerminalQueue
+from porthole.terminal.constants import *
+from porthole.terminal.notebook import TerminalNotebook
+from porthole.terminal.fileselector import FileSel
+from porthole import config
 
-from dialogs.simple import SingleButtonDialog, YesNoDialog
-from readers.process_reader import ProcessOutputReader
-from utils.dispatcher import Dispatcher
-import utils.debug
-from utils.utils import get_user_home_dir, get_treeview_selection, estimate, pretend_check
-from version import version
-from term_queue import TerminalQueue
-from constants import *
-from notebook import TerminalNotebook
-from fileselector import FileSel
-import config
-
-class ProcessManager(): #dbus.service.Object):
+class ProcessManager: #dbus.service.Object):
     """ Manages queued and running processes """
     def __init__(self, env = {}, log_mode = False):
         """ Initialize """
-        utils.debug.dprint("TERMINAL: ProcessManager; process id = %d ****************" %os.getpid())
+        debug.dprint("TERMINAL: ProcessManager; process id = %d ****************" %os.getpid())
         
         #self.sysbus = dbus.SystemBus()
         #self.sesbus = dbus.SessionBus()
@@ -106,7 +105,7 @@ class ProcessManager(): #dbus.service.Object):
             self.title = "Porthole Log Viewer"
         else:
             self.title = "Porthole-Terminal"
-            utils.debug.dprint(self.title)
+            debug.dprint(self.title)
         self.log_mode = log_mode
         #self.Semaphore = threading.Semaphore()
         # copy the environment
@@ -157,12 +156,12 @@ class ProcessManager(): #dbus.service.Object):
         self.reset_buffer_update()
         
         if hasattr(self, 'window'):
-            utils.debug.dprint("TERMINAL: show_window(): window attribute already set... attempting show")
+            debug.dprint("TERMINAL: show_window(): window attribute already set... attempting show")
             # clear text buffer and emerge queue, hide tabs
             self.clear_buffer(None)
-            utils.debug.dprint("TERMINAL: show_window(): buffers cleared... clearing queue model...")
+            debug.dprint("TERMINAL: show_window(): buffers cleared... clearing queue model...")
             self.process_queue.clear()
-            utils.debug.dprint("TERMINAL: show_window(): queue model cleared")
+            debug.dprint("TERMINAL: show_window(): queue model cleared")
             for tab in [TAB_WARNING, TAB_CAUTION, TAB_INFO, TAB_QUEUE]:
                 self.term.hide_tab(tab)
             # re-set base values for textviews
@@ -196,7 +195,7 @@ class ProcessManager(): #dbus.service.Object):
             self.window.show()
             self.window_visible = True
             #gobject.timeout_add(100, self.update)
-            utils.debug.dprint("TERMINAL: show_window(): returning")
+            debug.dprint("TERMINAL: show_window(): returning")
             return True
         # load the glade file
         self.wtree = gtk.glade.XML(config.Prefs.DATA_PATH + config.Prefs.use_gladefile,
@@ -257,6 +256,13 @@ class ProcessManager(): #dbus.service.Object):
 
         # set keyboard focus to process tab
         self.wtree.get_widget("process_text").grab_focus()
+        # set the custom timer icon
+        self.wtree.get_widget('timer_button_img').set_from_file(config.Prefs.DATA_PATH + "pixmaps/porthole-clock-20x20.png")
+        self.timer_btn = self.wtree.get_widget('timer_button')
+        self.timer_btn.set_sensitive(False)
+        self.wtree.get_widget('timer_image').set_from_file(config.Prefs.DATA_PATH + "pixmaps/porthole-clock-20x20.png")
+        self.timer_menuitem = self.wtree.get_widget('timer')
+        self.timer_menuitem.set_sensitive(False)
         # start the reader
         self.reader.start()
         gobject.timeout_add(100, self.update)
@@ -282,8 +288,8 @@ class ProcessManager(): #dbus.service.Object):
             self.show_window()
             # clear process list, too
             if self.reader.process_running:
-                utils.debug.dprint("*** TERM_QUEUE: add_process: There should be NO process running here!")
-                utils.debug.dprint("*** TERM_QUEUE: add_process: Dangerous things may happen after this point!")
+                debug.dprint("*** TERM_QUEUE: add_process: There should be NO process running here!")
+                debug.dprint("*** TERM_QUEUE: add_process: Dangerous things may happen after this point!")
             self.process_queue.new_window = True
 
         self.process_queue.add(name, command, callback, sender)
@@ -304,22 +310,22 @@ class ProcessManager(): #dbus.service.Object):
 
     def new_window_state(self, widget, event):
         """set the minimized variable to change the title to the same as the statusbar text"""
-        utils.debug.dprint("TERMINAL: window state event: %s" % event.new_window_state) # debug print statements
-        #utils.debug.dprint(event.changed_mask
+        debug.dprint("TERMINAL: window state event: %s" % event.new_window_state) # debug print statements
+        #debug.dprint(event.changed_mask
         state = event.new_window_state
         if state & gtk.gdk.WINDOW_STATE_ICONIFIED:
-            utils.debug.dprint("TERMINAL: new_window_state; event = minimized")
+            debug.dprint("TERMINAL: new_window_state; event = minimized")
             self.minimized = True
             self.window.set_title(self.status_text)
         elif self.minimized:
-            utils.debug.dprint("TERMINAL: new_window_state; event = unminimized")
+            debug.dprint("TERMINAL: new_window_state; event = unminimized")
             self.minimized = False
             self.window.set_title(self.title)
         return False
 
     def _run(self, command_string, command_id):
         """ Run a given command string """
-        utils.debug.dprint("TERMINAL: running command string '%s'" % command_string)
+        debug.dprint("TERMINAL: running command string '%s'" % command_string)
         # we can't be killed anymore
         self.killed = 0
         self.command_id = command_id
@@ -341,14 +347,14 @@ class ProcessManager(): #dbus.service.Object):
         # pty.fork() creates a new process group
         if self.reader.fd:
             if os.isatty(self.reader.fd):
-                utils.debug.dprint("TERMINAL: self.reader already has fd, closing")
+                debug.dprint("TERMINAL: self.reader already has fd, closing")
                 os.close(self.reader.fd)
             else:
-                utils.debug.dprint("TERMINAL: self.reader has fd but seems to be already closed.")
+                debug.dprint("TERMINAL: self.reader has fd but seems to be already closed.")
                 try:
                     os.close(self.reader.fd)
                 except OSError, e:
-                    utils.debug.dprint("TERMINAL: error closing self.reader.fd: %s" % e)
+                    debug.dprint("TERMINAL: error closing self.reader.fd: %s" % e)
         self.pid, self.reader.fd = pty.fork()
         if self.pid == pty.CHILD:  # child
             try:
@@ -359,26 +365,26 @@ class ProcessManager(): #dbus.service.Object):
                 
             except Exception, e:
                 # print out the exception
-                utils.debug.dprint("TERMINAL: Error in child" + e)
+                debug.dprint("TERMINAL: Error in child" + e)
                 #print "Error in child:"
                 #print e
                 os._exit(1)
         else:
             # set process_running so the reader thread reads it's output
             self.reader.process_running = True
-            utils.debug.dprint("TERMINAL: pty process id: %s ******" % self.pid)
+            debug.dprint("TERMINAL: pty process id: %s ******" % self.pid)
 
     def menu_quit(self, widget):
         """ hide the window when the close button is pressed """
-        utils.debug.dprint("TERMINAL: menu_quit()")
+        debug.dprint("TERMINAL: menu_quit()")
         if self.confirm_delete():
             return
-        utils.debug.dprint("TERMINAL: menu==>quit clicked... starting destruction")
+        debug.dprint("TERMINAL: menu==>quit clicked... starting destruction")
         self.window.destroy()
 
     def on_process_window_destroy(self, widget, data = None):
         """Window was closed"""
-        utils.debug.dprint("TERMINAL: on_process_window_destroy()")
+        debug.dprint("TERMINAL: on_process_window_destroy()")
         # kill any running processes
         self.kill_process()
         # make sure to reset the process list
@@ -394,11 +400,11 @@ class ProcessManager(): #dbus.service.Object):
                 gtk.mainquit()
         if self.reader.isAlive():
             self.reader.die = "Please"
-            utils.debug.dprint("TERMINAL: reader process still alive - killing...")
+            debug.dprint("TERMINAL: reader process still alive - killing...")
             self.reader.join()
-            utils.debug.dprint("okay!")
+            debug.dprint("okay!")
             del self.reader
-        utils.debug.dprint("TERMINAL: on_process_window_destroy(); ...destroying now")
+        debug.dprint("TERMINAL: on_process_window_destroy(); ...destroying now")
         self.window.destroy()
         del self.window
 
@@ -406,49 +412,49 @@ class ProcessManager(): #dbus.service.Object):
         """ Kill currently running process """
         # Prevent conflicts while changing process queue
         #self.Semaphore.acquire()
-        #utils.debug.dprint("TERMINAL: kill_process; Semaphore acquired")
+        #debug.dprint("TERMINAL: kill_process; Semaphore acquired")
 
         if not self.reader.process_running and not self.file_input:
-            utils.debug.dprint("TERMINAL: No running process to kill!")
+            debug.dprint("TERMINAL: No running process to kill!")
             # We're finished, release semaphore
             #self.Semaphore.release()
-            #utils.debug.dprint("TERMINAL: kill_process; Semaphore released")
-            utils.debug.dprint("TERMINAL: leaving kill_process")
+            #debug.dprint("TERMINAL: kill_process; Semaphore released")
+            debug.dprint("TERMINAL: leaving kill_process")
             return True
         self.kill()
         if self.log_mode:
-            utils.debug.dprint("LOG: set statusbar -- log killed")
+            debug.dprint("LOG: set statusbar -- log killed")
             self.set_statusbar(_("***Log Process Killed!"))
         else:
             #self.Semaphore.release()
-            #utils.debug.dprint("TERMINAL: kill_process; Semaphore released")
+            #debug.dprint("TERMINAL: kill_process; Semaphore released")
             self.was_killed()
             return True
 
         # We're finished, release semaphore
         #self.Semaphore.release()
-        #utils.debug.dprint("TERMINAL: kill_process; Semaphore released")
-        utils.debug.dprint("TERMINAL: leaving kill_process")
+        #debug.dprint("TERMINAL: kill_process; Semaphore released")
+        debug.dprint("TERMINAL: leaving kill_process")
         return True
 
     def kill(self):
         """Kill process."""
         if self.log_mode:
             self.reader.file_input = False
-            utils.debug.dprint("LOG: kill() wait for reader to notice")
+            debug.dprint("LOG: kill() wait for reader to notice")
             # wait for ProcessOutputReader to notice
             time.sleep(.5)
-            utils.debug.dprint("LOG: kill() -- self.reader.f.close()")
+            debug.dprint("LOG: kill() -- self.reader.f.close()")
             self.reader.f.close()
             self.file_input = False
-            utils.debug.dprint("LOG: leaving kill()")
+            debug.dprint("LOG: leaving kill()")
             return True
         # If started and still running
         if self.pid and not self.killed:
             try:
                 if self.reader.fd:
                     os.write(self.reader.fd, "\x03")
-                    utils.debug.dprint("TERMINAL: ctrl-C sent to process")
+                    debug.dprint("TERMINAL: ctrl-C sent to process")
                     self.resume_available = True
                     # make sure the thread notices
                     #os.kill(self.pid, signal.SIGKILL)
@@ -457,7 +463,7 @@ class ProcessManager(): #dbus.service.Object):
                     # negative pid kills process group
                     os.kill(-self.pid, signal.SIGKILL)
             except OSError, e:
-                utils.debug.dprint("TERMINAL: kill(), OSError %s" % e)
+                debug.dprint("TERMINAL: kill(), OSError %s" % e)
                 pass
             self.killed = True
             self.task_completed = True
@@ -466,24 +472,24 @@ class ProcessManager(): #dbus.service.Object):
                 #self.Semaphore.release()
                 self.process_queue.clicked()
                 #self.Semaphore.acquire()
-        utils.debug.dprint("TERMINAL: leaving kill()")
+        debug.dprint("TERMINAL: leaving kill()")
         return True
 
     def was_killed(self):
-        utils.debug.dprint("TERMINAL: was_killed(); setting queue icon")
+        debug.dprint("TERMINAL: was_killed(); setting queue icon")
         # set the queue icon to killed
         self.killed_id = self.process_queue.set_process(KILLED)
-        utils.debug.dprint("TERMINAL: was_killed(); setting resume to sensitive")
+        debug.dprint("TERMINAL: was_killed(); setting resume to sensitive")
         # set the resume buttons to sensitive
         self.set_resume(True)
-        utils.debug.dprint("TERMINAL: leaving was_killed()")
+        debug.dprint("TERMINAL: leaving was_killed()")
 
 
     def confirm_delete(self, widget = None, *event):
         if self.allow_delete:
             retval = False
         else:
-            utils.debug.dprint("TERMINAL: disallowing delete event")
+            debug.dprint("TERMINAL: disallowing delete event")
             retval = True
         if not self.task_completed:
             err = _("Confirm: Kill the Running Process")
@@ -493,36 +499,36 @@ class ProcessManager(): #dbus.service.Object):
             result = dialog.run()
             dialog.destroy()
             if result != gtk.RESPONSE_YES:
-                utils.debug.dprint("TERMINAL: confirm_delete(); stopping delete")
+                debug.dprint("TERMINAL: confirm_delete(); stopping delete")
                 return True
-            utils.debug.dprint("TERMINAL: confirm_delete(); confirmed")
+            debug.dprint("TERMINAL: confirm_delete(); confirmed")
             if self.kill_process():
                 self.task_completed = True
         # hide the window. if retval is false it'll be destroyed soon.
         self.window.hide()
         self.window_visible = False
         # now also seems like the only good time to clean up.
-        utils.debug.dprint("TERMINAL: cleaning up zombie emerge processes")
+        debug.dprint("TERMINAL: cleaning up zombie emerge processes")
         while True:
             try:
                 m = os.wait() # wait for any child processes to finish
-                utils.debug.dprint("TERMINAL: process %s finished, status %s" % m)
+                debug.dprint("TERMINAL: process %s finished, status %s" % m)
             except OSError, e:
                 if e.args[0] == 10: # 10 = no process to kill
                     break
-                utils.debug.dprint("TERMINAL: OSError %s" % e)
+                debug.dprint("TERMINAL: OSError %s" % e)
                 break
-        utils.debug.dprint("TERMINAL: done cleaning up emerge processes")
+        debug.dprint("TERMINAL: done cleaning up emerge processes")
         return retval
 
     def force_buffer_write_timer(self):
         """ Indicates that text in the buffer should be displayed immediately. """
-        #utils.debug.dprint("TERMINAL: force_buffer_write_timer(): setting True")
+        #debug.dprint("TERMINAL: force_buffer_write_timer(): setting True")
         self.force_buffer_write = True
         return False # don't repeat call
 
     def newline(self):
-        #utils.debug.dprint("TERMINAL: newline(); self.cr_count = %d, self.line_num = %d" %(self.cr_count, self.line_num))
+        #debug.dprint("TERMINAL: newline(); self.cr_count = %d, self.line_num = %d" %(self.cr_count, self.line_num))
         tag = None
         self.b_flag = False
         if self.line_buffer != self.process_buffer:
@@ -579,13 +585,13 @@ class ProcessManager(): #dbus.service.Object):
                             
             # Check if the info is ">>> category/package-version merged"
             # then set the callback to return the category/package to update the db
-            #utils.debug.dprint("TERMINAL: update(); checking info line: %s" %self.process_buffer)
+            #debug.dprint("TERMINAL: update(); checking info line: %s" %self.process_buffer)
             if (not self.file_input) and config.Config.isMerged(self.line_buffer):
                 self.callback_package = self.line_buffer.split()[1]
                 self.callback_armed = True
-                utils.debug.dprint("TERMINAL: update(); Detected sucessfull merge of package: " + self.callback_package)
+                debug.dprint("TERMINAL: update(); Detected sucessfull merge of package: " + self.callback_package)
             #else:
-                #utils.debug.dprint("TERMINAL: update(); merge not detected")
+                #debug.dprint("TERMINAL: update(); merge not detected")
                         
         elif config.Config.isWarning(self.line_buffer):
             # warning string has been found, show info tab if needed
@@ -608,12 +614,12 @@ class ProcessManager(): #dbus.service.Object):
             self.caution_count += 1
                         
         if self.overwrite_till_nl:
-            #utils.debug.dprint("TERMINAL: '\\n' detected in overwrite mode, calling overwrite()")
+            #debug.dprint("TERMINAL: '\\n' detected in overwrite mode, calling overwrite()")
             self.term.overwrite(TAB_PROCESS, self.line_buffer[:-1], tag)
             self.term.append(TAB_PROCESS, '\n', tag)
             self.overwrite_till_nl = False
         elif overwrite and tag:
-            #utils.debug.dprint("TERMINAL: overwrite and tag = True, calling overwrite()")
+            #debug.dprint("TERMINAL: overwrite and tag = True, calling overwrite()")
             self.term.overwrite(TAB_PROCESS, self.line_buffer[:-1], tag)
             self.term.append(TAB_PROCESS, '\n', tag)
         else:
@@ -637,25 +643,25 @@ class ProcessManager(): #dbus.service.Object):
             if char:
                 ord_char = ord(char)
                 #if ord_char <=31 or (ord_char >=127 and ord_char<=160):
-                #    utils.debug.dprint("TERMINAL: adding control char to buffer: %s" % (ord_char ))
+                #    debug.dprint("TERMINAL: adding control char to buffer: %s" % (ord_char ))
                 # if we find a CR without a LF, switch to overwrite mode
                 if self.cr_flag:
                     # gcc and some emerge output no longer outputs a LF so addded a bypass switch
                     # no, seems gcc is sending 2 <cr>'s before a LF
                     if (self.LF_check and ord_char != 10): # or ord(self.lastchar) == 13:
-                        #utils.debug.dprint("TERMINAL: self.LF_check = True and the next char != 10, but = %d, self.cr_count = %d, self.lastchar = %d" %(ord_char, self.cr_count,ord(self.lastchar)))
+                        #debug.dprint("TERMINAL: self.LF_check = True and the next char != 10, but = %d, self.cr_count = %d, self.lastchar = %d" %(ord_char, self.cr_count,ord(self.lastchar)))
                         tag = None
                         if self.first_cr:
-                            #utils.debug.dprint("TERMINAL: self.first_cr = True")
+                            #debug.dprint("TERMINAL: self.first_cr = True")
                             self.term.append(TAB_PROCESS, self.process_buffer, tag)
                             self.first_cr = False
-                            #utils.debug.dprint("TERMINAL: resetting self.first_cr to True, setting self.overwrite_till_nl = True")
+                            #debug.dprint("TERMINAL: resetting self.first_cr to True, setting self.overwrite_till_nl = True")
                             self.overwrite_till_nl = True
                             self.process_buffer = ''
                             self.line_buffer = ''
                         # overwrite until after a '\n' detected for this line
                         else:
-                            utils.debug.dprint("TERMINAL: self.first_cr = False, calling overwrite()")
+                            #debug.dprint("TERMINAL: self.first_cr = False, calling overwrite()")
                             self.term.overwrite(TAB_PROCESS, self.process_buffer, tag)
                             self.process_buffer = ''
                             self.line_buffer = ''
@@ -674,7 +680,7 @@ class ProcessManager(): #dbus.service.Object):
                         # also note: this list may not be exhaustive......
                         if 63 <= ord_char <= 90 or 96 <= ord_char <= 126:
                             self.catch_seq = False
-                            #utils.debug.dprint('escape_seq = ' + self.escape_seq)
+                            #debug.dprint('escape_seq = ' + self.escape_seq)
                             self.term.parse_escape_sequence(self.escape_seq)
                             self.escape_seq = ''
                     elif self.escape_seq.startswith(']'):
@@ -707,22 +713,22 @@ class ProcessManager(): #dbus.service.Object):
                         if not self.b_flag: # initial display
                             self.term.append(TAB_PROCESS, self.line_buffer)
                         else: # every other display until \n is found
-                            #utils.debug.dprint("TERMINAL: self.b_flag = True, calling overwrite()")
+                            #debug.dprint("TERMINAL: self.b_flag = True, calling overwrite()")
                             self.term.overwrite(TAB_PROCESS, self.line_buffer)
                     #self.process_buffer = ''
                     self.line_buffer = self.line_buffer[:-1]
                     self.b_flag = True
-                    #utils.debug.dprint("TERMINAL: self.b_flag = True, setting self.overwrite_till_nl = True")
+                    #debug.dprint("TERMINAL: self.b_flag = True, setting self.overwrite_till_nl = True")
                     self.overwrite_till_nl = True
                 elif ord(char) == 13:  # carriage return
                     self.cr_flag = True
                     #self.cr_count += 1
-                    #utils.debug.dprint("TERMINAL: update(); <cr> detected, self.cr_count = %d, self.lastchar = %d" %(self.cr_count, ord(self.lastchar)))
+                    #debug.dprint("TERMINAL: update(); <cr> detected, self.cr_count = %d, self.lastchar = %d" %(self.cr_count, ord(self.lastchar)))
                 elif 32 <= ord_char <= 127 or ord_char == 10: # no unprintable
                     self.process_buffer += char
                     self.line_buffer += char
                     if ord_char == 10: # newline
-                        #utils.debug.dprint("TERMINAL: update(); <LF> detected, self.cr_count = " + str(self.cr_count))
+                        #debug.dprint("TERMINAL: update(); <LF> detected, self.cr_count = " + str(self.cr_count))
                         self.newline()
                     elif self.force_buffer_write:
                         if self.overwrite_till_nl:
@@ -736,7 +742,7 @@ class ProcessManager(): #dbus.service.Object):
                 self.lastchar = char
         else: # if reader string is empty... maybe waiting for input
             if self.force_buffer_write and self.process_buffer:
-                #utils.debug.dprint("TERMINAL: update(): nothing else to do - forcing text to buffer")
+                #debug.dprint("TERMINAL: update(): nothing else to do - forcing text to buffer")
                 if self.overwrite_till_nl:
                     #self.term.overwrite(TAB_PROCESS, self.line_buffer)
                     #self.line_buffer = ''
@@ -752,9 +758,9 @@ class ProcessManager(): #dbus.service.Object):
                 if self.line_buffer.startswith("Password:"):
                     self.do_password_popup()
         self.reader.string = ""
-        #utils.debug.dprint("TERMINAL: update() checking file input/reader finished")
+        #debug.dprint("TERMINAL: update() checking file input/reader finished")
         if self.file_input and not self.reader.file_input: # reading file finished
-            utils.debug.dprint("LOG: update()... end of file input... cleaning up")
+            debug.dprint("LOG: update()... end of file input... cleaning up")
             self.term.view_buffer[TAB_PROCESS].set_modified(False)
             self.finish_update()
             self.set_statusbar(_("*** Log loading complete : %s") % self.filename)
@@ -767,17 +773,17 @@ class ProcessManager(): #dbus.service.Object):
     def do_password_popup(self):
         """ Pops up a dialog asking for the users password """
         if hasattr(self, 'password'): # have already entered password, forward it
-            utils.debug.dprint("TERMINAL: do_password_popup: forwarding previously-entered password to sudo")
+            debug.dprint("TERMINAL: do_password_popup: forwarding previously-entered password to sudo")
             if self.reader.fd:
                 try:
                     os.write(self.reader.fd, self.password + '\n')
                 except OSError:
-                    utils.debug.dprint(" * TERMINAL: forward_password(): Error forwarding password!")
+                    debug.dprint(" * TERMINAL: forward_password(): Error forwarding password!")
                 self.term.append(TAB_PROCESS, '********')
             else:
-                utils.debug.dprint("TERMINAL: do_password_popup: reader has no open file descriptor, skipping")
+                debug.dprint("TERMINAL: do_password_popup: reader has no open file descriptor, skipping")
             return
-        utils.debug.dprint("TERMINAL: do_password_popup: asking for user's password")
+        debug.dprint("TERMINAL: do_password_popup: asking for user's password")
         dialog = gtk.Dialog("Password Required",
                             self.window,
                             gtk.DIALOG_MODAL & gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -809,7 +815,7 @@ class ProcessManager(): #dbus.service.Object):
         gtk.gdk.threads_enter()
         result = dialog.run()
         gtk.gdk.threads_leave()
-        utils.debug.dprint("TERMINAL: do_password_popup(): result %s" % result)
+        debug.dprint("TERMINAL: do_password_popup(): result %s" % result)
         dialog.destroy()
         if result == gtk.RESPONSE_CANCEL:
             self.kill_process()
@@ -825,7 +831,7 @@ class ProcessManager(): #dbus.service.Object):
             try:
                 os.write(self.reader.fd, password + '\n')
             except OSError:
-                utils.debug.dprint(" * TERMINAL: forward_password(): Error forwarding password!")
+                debug.dprint(" * TERMINAL: forward_password(): Error forwarding password!")
             self.password = password
             self.term.append(TAB_PROCESS, '********')
         entrydialog.response(1)
@@ -834,10 +840,10 @@ class ProcessManager(): #dbus.service.Object):
         """Catch keypresses in the terminal process window, and forward
         them on to the emerge process.
         """
-        #utils.debug.dprint("TERMINAL: on_pty_keypress(): string %s" % event.string)
+        #debug.dprint("TERMINAL: on_pty_keypress(): string %s" % event.string)
         self.write_to_term(event.string)
         if event.string == "\003":
-            utils.debug.dprint("TERMINAL: on_pty_keypress(): cntl-c detected")
+            debug.dprint("TERMINAL: on_pty_keypress(): cntl-c detected")
             # set the resume sensitive & set the queue icon to killed
             self.was_killed()
             self.killed = True
@@ -849,7 +855,7 @@ class ProcessManager(): #dbus.service.Object):
                 os.write(self.reader.fd, text)
                 return True
             except OSError, e:
-                utils.debug.dprint(" * TERMINAL: write_to_term(): Error '%s' writing text '%s'"
+                debug.dprint(" * TERMINAL: write_to_term(): Error '%s' writing text '%s'"
                         % (e, text))
                 return False
     
@@ -859,7 +865,7 @@ class ProcessManager(): #dbus.service.Object):
         y = x[1].split(" ")
         name = y[0]
         self.filename = name + "." + self.term.view_buffer_types[TAB_PROCESS]
-        utils.debug.dprint("TERMINAL: New ebuild detected, new filename: " + self.filename)
+        debug.dprint("TERMINAL: New ebuild detected, new filename: " + self.filename)
         return
 
     def set_statusbar(self, string):
@@ -888,19 +894,19 @@ class ProcessManager(): #dbus.service.Object):
     def process_done(self, *args):
         """ Remove the finished process from the queue, and
         start the next one if there are any more to be run"""
-        utils.debug.dprint("TERMINAL: process_done(): process id: %s" % os.getpid())
-        utils.debug.dprint("TERMINAL: process_done(): process group id: %s" % os.getpgrp())
-        utils.debug.dprint("TERMINAL: process_done(): parent process id: %s" % os.getppid())
+        debug.dprint("TERMINAL: process_done(): process id: %s" % os.getpid())
+        debug.dprint("TERMINAL: process_done(): process group id: %s" % os.getpgrp())
+        debug.dprint("TERMINAL: process_done(): parent process id: %s" % os.getppid())
         
         # reset to None, so next one starts properly
         self.reader.fd = None
         # clean up finished emerge process
         try:
             m = os.waitpid(self.pid, 0) # wait for any child processes to finish
-            utils.debug.dprint("TERMINAL: process %s finished, status %s" % m)
+            debug.dprint("TERMINAL: process %s finished, status %s" % m)
         except OSError, e:
             if not e.args[0] == 10: # 10 = no process to kill
-                utils.debug.dprint("TERMINAL: OSError %s" % e)
+                debug.dprint("TERMINAL: OSError %s" % e)
         # if the last process was killed, stop until the user does something
         if self.killed:
             # display message that process has been killed
@@ -912,7 +918,7 @@ class ProcessManager(): #dbus.service.Object):
             # remove stored password
             if hasattr(self, 'password'):
                 del self.password
-            utils.debug.dprint("TERMINAL: process_done; self.killed = True, returning")
+            debug.dprint("TERMINAL: process_done; self.killed = True, returning")
             return
             
         # If the user did an emerge --pretend, we print out
@@ -938,7 +944,7 @@ class ProcessManager(): #dbus.service.Object):
         callback = self.process_queue.get_callback()
         # if there is a callback set, call it
         if callback:
-            utils.debug.dprint("TERMINAL: do_callback(); Calling callback()")
+            debug.dprint("TERMINAL: do_callback(); Calling callback()")
             callback()
             # callback(self.callback_package)
 
@@ -1025,16 +1031,16 @@ class ProcessManager(): #dbus.service.Object):
 
     def set_save_buffer(self):
         """Sets the save info for the notebook tab's visible buffer"""
-        utils.debug.dprint("TERMINAL: Entering set_save_buffer")
+        debug.dprint("TERMINAL: Entering set_save_buffer")
         self.buffer_num = self.term.current_tab
         self.buffer_to_save = self.term.view_buffer[self.buffer_num]
         self.buffer_type = self.term.view_buffer_types[self.buffer_num]
-        utils.debug.dprint("TERMINAL: set_save_buffer: " + str(self.buffer_num) + " type: " + self.buffer_type)
+        debug.dprint("TERMINAL: set_save_buffer: " + str(self.buffer_num) + " type: " + self.buffer_type)
         return (self.buffer_num != None)
 
     def open_ok_func(self, filename):
         """callback function from file selector"""
-        utils.debug.dprint("LOG: Entering callback open_ok_func")
+        debug.dprint("LOG: Entering callback open_ok_func")
         # set terminal to log mode if not already
         self.log_mode = True
         if not self.window_visible: self.show_window()
@@ -1048,7 +1054,7 @@ class ProcessManager(): #dbus.service.Object):
 
     def do_open(self, widget):
         """opens the file selector for file to open"""
-        utils.debug.dprint("LOG: Entering do_open")
+        debug.dprint("LOG: Entering do_open")
         if not self.directory:
             self.set_directory()
         try:
@@ -1059,21 +1065,21 @@ class ProcessManager(): #dbus.service.Object):
             FileSel(self.title + _(": Open log File")).run(None,
                                                         self.directory+"*.log",
                                                         self.open_ok_func)
-        utils.debug.dprint("LOG: leaving do_open")
+        debug.dprint("LOG: leaving do_open")
 
     def do_save_as(self, widget):
         """determine buffer to save as and saves it"""
-        utils.debug.dprint("LOG: Entering do_save_as")
+        debug.dprint("LOG: Entering do_save_as")
         if not self.directory:
             self.set_directory()
         if self.set_save_buffer():
             result = self.check_buffer_saved(self.buffer_to_save, False)
         else:
-            utils.debug.dprint("TERMINAL: Error: buffer is already saved")
+            debug.dprint("TERMINAL: Error: buffer is already saved")
 
     def do_save(self, widget):
         """determine buffer to save and proceed"""
-        utils.debug.dprint("LOG: Entering do_save")
+        debug.dprint("LOG: Entering do_save")
         if not self.directory:
             self.set_directory()
         if not self.filename:
@@ -1082,17 +1088,17 @@ class ProcessManager(): #dbus.service.Object):
             if self.set_save_buffer():
                 result = self.check_buffer_saved(self.buffer_to_save, True)
             else:
-                utils.debug.dprint("LOG: set_save_buffer error")
+                debug.dprint("LOG: set_save_buffer error")
 
     def save_as_buffer(self):
-        utils.debug.dprint("LOG: Entering save_as_buffer")
+        debug.dprint("LOG: Entering save_as_buffer")
         return FileSel(self.title + ": Save File").run(self.window,
                                                            self.filename,
                                                            self.save_as_ok_func)
 
     def save_as_ok_func(self, filename):
         """file selector callback function"""
-        utils.debug.dprint("LOG: Entering save_as_ok_func")
+        debug.dprint("LOG: Entering save_as_ok_func")
         old_filename = self.filename
 
         if (not self.filename or filename != self.filename):
@@ -1118,12 +1124,12 @@ class ProcessManager(): #dbus.service.Object):
         """sets the starting directory for file selection"""
         if not self.directory:
             # no directory was specified, so we are making one up
-            utils.debug.dprint("LOG: directory not specified, setting to default: %s" %config.Prefs.LOG_FILE_DIR)
+            debug.dprint("LOG: directory not specified, setting to default: %s" %config.Prefs.LOG_FILE_DIR)
             self.directory = config.Prefs.LOG_FILE_DIR
             ##self.directory = get_user_home_dir()
             ##if os.access(self.directory + "/.porthole", os.F_OK):
             ##    if not os.access(self.directory + "/.porthole/logs", os.F_OK):
-            ##        utils.debug.dprint("LOG: Creating logs directory in " + self.directory +
+            ##        debug.dprint("LOG: Creating logs directory in " + self.directory +
             ##               "/.porthole/logs")
             ##        os.mkdir(self.directory + "/.porthole/logs")
             ##    self.directory += "/.porthole/logs/"
@@ -1131,7 +1137,7 @@ class ProcessManager(): #dbus.service.Object):
  
     def pretty_name(self):
         """pre-assigns generic filename & serial #"""
-        utils.debug.dprint("LOG: Entering pretty_name")
+        debug.dprint("LOG: Entering pretty_name")
         # check if filename set and set the extension to the correct buffer type 
         if self.filename and self.filename[:7] != "Untitled":
             filename = os.path.basename(self.filename)
@@ -1140,7 +1146,7 @@ class ProcessManager(): #dbus.service.Object):
             for x in filename[1:-1]:
                 newname += ("." + x)
             self.filename = newname + "." + self.buffer_type
-            utils.debug.dprint(self.filename)
+            debug.dprint(self.filename)
             return self.filename
         else: # Untitlted filename
             if not self.directory: # just in case it is not set
@@ -1157,7 +1163,7 @@ class ProcessManager(): #dbus.service.Object):
 
     def fill_buffer(self, filename):
         """loads a file into the reader.string"""
-        utils.debug.dprint("LOG: Entering fill_buffer")
+        debug.dprint("LOG: Entering fill_buffer")
         self.clear_buffer(None)
         self.warning_count = 0
         self.caution_count = 0
@@ -1165,7 +1171,8 @@ class ProcessManager(): #dbus.service.Object):
         try:
             self.reader.f = open(filename, "r")
         except IOError, (errnum, errmsg):
-            err = _("Cannot open file '%s': %s") % (filename, errmsg)
+            d = {"filename" : filename, "errmsg" : errmsg}
+            err = _("Cannot open file '%(filename)s': %(errmsg)s") % d
             dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
                                        gtk.MESSAGE_INFO,
                                        gtk.BUTTONS_OK, err);
@@ -1179,7 +1186,7 @@ class ProcessManager(): #dbus.service.Object):
 
     def save_buffer(self):
         """save the contents of the buffer"""
-        utils.debug.dprint("LOG: Entering save_buffer")
+        debug.dprint("LOG: Entering save_buffer")
         result = False
         have_backup = False
         if not self.filename:
@@ -1190,9 +1197,8 @@ class ProcessManager(): #dbus.service.Object):
             os.rename(self.filename, bak_filename)
         except (OSError, IOError), (errnum, errmsg):
             if errnum != errno.ENOENT:
-                err = _("Cannot back up '%s' to '%s': %s") % (self.filename,
-                                                           bak_filename,
-                                                           errmsg)
+                d = {"filename" : self.filename, "bak_filename" : bak_filename, "errmsg" : errmsg}
+                err = _("Cannot back up '%(filename)s' to '%(bak_filename)s': %(errmsg)s") % d
                 dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
                                            gtk.MESSAGE_INFO,
                                            gtk.BUTTONS_OK, err);
@@ -1234,8 +1240,8 @@ class ProcessManager(): #dbus.service.Object):
             try:
                 os.rename(bak_filename, self.filename)
             except OSError, (errnum, errmsg):
-                err = _("Can't restore backup file '%s' to '%s': %s\nBackup left as '%s'") % (
-                    self.filename, bak_filename, errmsg, bak_filename)
+                d = {"filename" : self.filename, "bak_filename" : bak_filename, "errmsg" : errmsg}
+                err = _("Can't restore backup file '%(filename)s' to '%(bak_filename)s': %(errmsg)s\nBackup left as '%(bak_filename)s'") % d
                 dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
                                            gtk.MESSAGE_INFO,
                                            gtk.BUTTONS_OK, err);
@@ -1243,12 +1249,12 @@ class ProcessManager(): #dbus.service.Object):
                 dialog.destroy()
 
         self.set_statusbar(_("*** File saved : %s") % self.filename)
-        utils.debug.dprint("LOG: Buffer saved, exiting")
+        debug.dprint("LOG: Buffer saved, exiting")
         return result
 
     def check_buffer_saved(self, _buffer, save = False):
         """checks if buffer has been modified before saving again"""
-        utils.debug.dprint("LOG: Entering check_buffer_saved")
+        debug.dprint("LOG: Entering check_buffer_saved")
         self.filename = self.pretty_name()
         if _buffer.get_modified():
             if save:
@@ -1295,7 +1301,7 @@ class ProcessManager(): #dbus.service.Object):
 
     #~ def callback():
         #~ """ Print a message to display that callbacks are working"""
-        #~ utils.debug.dprint("TERMINAL: Callback caught...")
+        #~ debug.dprint("TERMINAL: Callback caught...")
     
     #~ DATA_PATH = "/usr/share/porthole/"
 
@@ -1318,8 +1324,8 @@ class ProcessManager(): #dbus.service.Object):
             #~ print "Porthole-Terminal " + version
             #~ exit(0)
         #~ elif opt in ('-d', "--debug"):
-            #~ utils.debug.debug = True
-            #~ utils.debug.dprint("Debug printing is enabled")
+            #~ debug.debug = True
+            #~ debug.dprint("Debug printing is enabled")
     #~ # change dir to your data path
     #~ if DATA_PATH:
         #~ from os import chdir

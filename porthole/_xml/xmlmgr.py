@@ -4,7 +4,7 @@
 # File name: xmlmgr.py
 #  Abstract: A class to encapsulate XML DOM functionality and simplify the
 #            storing of Python variables in an XML format.  Created to save &
-#            load user preferences and application configuration info from
+#            load user preferences and application configuration info/from
 #            XML files.
 #  Language: Python 2.3
 #------------------------------------------------------------------------------ 

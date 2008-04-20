@@ -24,6 +24,8 @@
 import sys
 from getopt import getopt, GetoptError
 
+print "Porthole: python version = ", sys.version
+
 def usage():
     tabs = "\t\t"
     print "Usage: porthole [OPTION...]\n"
@@ -60,10 +62,12 @@ if __name__ == "__main__":
             # running a local version (i.e. not installed in /usr/*)
             print "importing local modules"
             print sys.path
-            #import os
-            #sys.path.insert(0, (os.path.dirname(os.path.abspath(__file__))))
-            #print sys.path
-            from startup import *
+            import os
+            print "dir = ", os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            sys.path.insert(0, (os.path.dirname(os.path.dirname(os.path.abspath(__file__))))) #+"/porthole"))
+            print "\n"
+            print sys.path
+            from porthole.startup import *
             RUN_LOCAL = True
             local()
 

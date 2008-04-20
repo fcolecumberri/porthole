@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: Porthole 0.5.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2005-07-30 15:35+1200\n"
-"PO-Revision-Date: 2005-11-28 22:05+0100\n"
-"Last-Translator: Timo Gurr <timo.gurr@gmail.com>\n"
+"PO-Revision-Date: 2008-04-16 17:31-0800\n"
+"Last-Translator: \n"
 "Language-Team: Timo Gurr <timo.gurr@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -17,97 +17,278 @@ msgstr ""
 "X-Poedit-Language: German\n"
 "X-Poedit-Country: GERMANY\n"
 
-#: about.py:42
-#, python-format
-msgid "About Porthole %s"
-msgstr "Porthole %s"
+#: ../porthole/mainwindow.py:191
+msgid ""
+" Synchronise Package Database \n"
+" The last sync was done:\n"
+msgstr ""
+" Paketdatenbank synchronisieren \n"
+" Zuletzt synchronisiert:\n"
 
-#: advemerge.py:80
+#: ../porthole/mainwindow.py:236
+msgid "All Packages"
+msgstr "Alle Pakete"
+
+#: ../porthole/mainwindow.py:236
+msgid "Installed Packages"
+msgstr "Installierte Pakete"
+
+#: ../porthole/mainwindow.py:236
+msgid "Search Results"
+msgstr "Suchergebnisse"
+
+#: ../porthole/mainwindow.py:236
+msgid "Upgradable Packages"
+msgstr "Aktualisierbare Pakete"
+
+#: ../porthole/mainwindow.py:237
+#, fuzzy
+msgid "Deprecated Packages"
+msgstr "_Pakete aktualisieren"
+
+#: ../porthole/mainwindow.py:237
+#, fuzzy
+msgid "Sets"
+msgstr "_Einstellungen"
+
+#: ../porthole/mainwindow.py:254
+msgid "Active Plugins"
+msgstr "Aktive Plugins"
+
+#: ../porthole/mainwindow.py:267
+msgid "Loading database"
+msgstr "Lade Datenbank"
+
+#: ../porthole/mainwindow.py:268
+msgid "Initializing database. Please wait..."
+msgstr "Initialisiere Datenbank. Bitte warten..."
+
+#: ../porthole/mainwindow.py:312
+#: ../porthole/backends/utilities.py:77
+msgid "Unknown"
+msgstr "Unbekannt"
+
+#: ../porthole/mainwindow.py:364
+msgid "Reloading database"
+msgstr "Datenbank wird neu geladen"
+
+#: ../porthole/mainwindow.py:493
+msgid "No root privileges"
+msgstr "Keine Root Rechte"
+
+#: ../porthole/mainwindow.py:495
+msgid ""
+"In order to access all the features of Porthole,\n"
+"please run it with root privileges."
+msgstr ""
+"Um Zugriff auf alle Funktionen von Porthole zu haben,\n"
+" starten Sie es bitte mit Root Rechten."
+
+#: ../porthole/mainwindow.py:498
+msgid "_Ok"
+msgstr "_Ok"
+
+#: ../porthole/mainwindow.py:520
+#, python-format
+msgid "%(base)s: %(count)i packages read"
+msgstr "%(base)s: %(count)i Pakete gelesen"
+
+#: ../porthole/mainwindow.py:539
+#, python-format
+msgid "%(base)s: Populating tree"
+msgstr "%(base)s: bevölkere Paketdatenbank"
+
+#: ../porthole/mainwindow.py:884
+msgid "Upgrade requested"
+msgstr "Aktualisierung"
+
+#: ../porthole/mainwindow.py:886
+msgid "Do you want to upgrade all packages in your world file?"
+msgstr "Wollen Sie alle Pakete aus Ihrem Worldfile aktualisieren?"
+
+#: ../porthole/mainwindow.py:896
+msgid "Upgradable dependencies:"
+msgstr "Aktualisierbare Abhängigkeiten"
+
+#: ../porthole/mainwindow.py:925
+msgid "Please Wait!"
+msgstr "Bitte warten!"
+
+#: ../porthole/mainwindow.py:927
+msgid "Loading package descriptions..."
+msgstr "Lade Paketbeschreibungen..."
+
+#: ../porthole/mainwindow.py:969
+#, python-format
+msgid "Searching descriptions for %s"
+msgstr "Suche Beschreibungen für %s"
+
+#: ../porthole/mainwindow.py:971
+#, python-format
+msgid "Searching for %s"
+msgstr "Suche nach %s"
+
+#: ../porthole/mainwindow.py:1256
+msgid "Generating '"
+msgstr ""
+
+#: ../porthole/mainwindow.py:1327
+#, fuzzy
+msgid "Searching for '"
+msgstr "Suche nach %s"
+
+#: ../porthole/mainwindow.py:1344
+msgid "Building Package List"
+msgstr "Erstelle Paketliste"
+
+#: ../porthole/mainwindow.py:1355
+msgid "Done: "
+msgstr "Fertig:"
+
+#: ../porthole/mainwindow.py:1368
+#: ../porthole/mainwindow.py:1374
+#, python-format
+msgid "%(pack)d packages in %(cat)d categories"
+msgstr "%(pack)d Pakete in %(cat)d Kategorien"
+
+#: ../porthole/mainwindow.py:1461
+msgid "Confirm: Kill the Running Process in the Terminal"
+msgstr "Bestätigen: Den laufenden Prozess in diesem Terminal abbrechen"
+
+#: ../porthole/advancedemerge/advemerge.py:89
 #, python-format
 msgid "Advanced Emerge Settings for %s"
 msgstr "Fortgeschrittene Emerge-Einstellungen für %s"
 
-#: advemerge.py:123
-#: advemerge.py:353
+#: ../porthole/advancedemerge/advemerge.py:132
+#: ../porthole/advancedemerge/advemerge.py:377
 #, python-format
 msgid "Slot:%s"
 msgstr "Slot:%s"
 
-#: advemerge.py:125
-#: advemerge.py:355
+#: ../porthole/advancedemerge/advemerge.py:134
+#: ../porthole/advancedemerge/advemerge.py:379
 msgid "   {unavailable}"
 msgstr "   {nicht verfügbar}"
 
-#: advemerge.py:127
-#: advemerge.py:357
+#: ../porthole/advancedemerge/advemerge.py:136
+#: ../porthole/advancedemerge/advemerge.py:381
 msgid "   (unstable)"
 msgstr "   (instabil)"
 
-#: advemerge.py:129
-#: advemerge.py:359
+#: ../porthole/advancedemerge/advemerge.py:138
+#: ../porthole/advancedemerge/advemerge.py:383
 msgid "   [MASKED]"
 msgstr "   [MASKIERT]"
 
-#: advemerge.py:132
-#: advemerge.py:362
+#: ../porthole/advancedemerge/advemerge.py:141
+#: ../porthole/advancedemerge/advemerge.py:386
 msgid "   (recommended) (downgrade)"
 msgstr "   (empfohlen) (downgrade)"
 
-#: advemerge.py:134
-#: advemerge.py:364
+#: ../porthole/advancedemerge/advemerge.py:143
+#: ../porthole/advancedemerge/advemerge.py:388
 msgid "   (recommended)"
 msgstr "   (empfohlen)"
 
-#: advemerge.py:137
-#: advemerge.py:367
+#: ../porthole/advancedemerge/advemerge.py:146
+#: ../porthole/advancedemerge/advemerge.py:391
 msgid "   [installed]"
 msgstr "   [installiert]"
 
-#: advemerge.py:660
+#: ../porthole/advancedemerge/advemerge.py:696
 msgid "Unsupported use flag"
 msgstr "Nicht unterstütztes USE-Flag"
 
-#: advemerge.py:700
-#: depends.py:390
+#: ../porthole/advancedemerge/advemerge.py:736
+#: ../porthole/packagebook/depends.py:290
+#: ../porthole/packagebook/summary.py:430
 msgid "None"
 msgstr "Keine"
 
-#: command.py:88
-#: command.py:97
+#: ../porthole/backends/metadata.py:142
+#, python-format
+msgid "Metadata file \"%s\" does not exist."
+msgstr "Metadata Datei \"%s\" existiert nicht."
+
+#: ../porthole/backends/pkgcore_lib.py:34
+msgid "Could not find pkgcore module."
+msgstr ""
+
+#: ../porthole/backends/pkgcore_lib.py:38
+msgid "Could not find pkgcore.config module."
+msgstr ""
+
+#: ../porthole/backends/pkgcore_lib.py:42
+msgid "Could not find pkgcore.const module."
+msgstr ""
+
+#: ../porthole/backends/pkgcore_lib.py:46
+msgid "Could not find pkgcore.util.file.read_bash module."
+msgstr ""
+
+#: ../porthole/backends/pkgcore_lib.py:50
+msgid "Could not find pkgcore.package.atom module."
+msgstr ""
+
+#: ../porthole/backends/pkgcore_lib.py:56
+#: ../porthole/backends/portagelib.py:51
+#: ../porthole/backends/set_config.py:33
+msgid ""
+"Could not find portage module.\n"
+"Are you sure this is a Gentoo system?"
+msgstr ""
+"Konnte Portagemodul nicht finden.\n"
+"Sind sie sicher, dass dies ein Gentoo System ist?"
+
+#: ../porthole/backends/pkgcore_lib.py:550
+#: ../porthole/backends/portagelib.py:548
+msgid "No masking reason given"
+msgstr "Kein Maskierungsgrund gegeben"
+
+#: ../porthole/config/preferences.py:286
+#: ../porthole/config/preferences.py:320
+msgid "Sync"
+msgstr "Synchronisieren"
+
+#: ../porthole/config/preferences.py:321
+msgid "WebRsync"
+msgstr "WebRsync"
+
+#: ../porthole/db/user_configs.py:310
+#, fuzzy, python-format
+msgid "Porthole: Please select the %s file to use"
+msgstr "Bitte wählen Sie die gewünschten Schriftfarben aus."
+
+#: ../porthole/dialogs/about.py:44
+#, python-format
+msgid "About Porthole %s"
+msgstr "Porthole %s"
+
+#: ../porthole/dialogs/command.py:89
+#: ../porthole/dialogs/command.py:98
 msgid "command line entry"
 msgstr "Kommandozeileneintrag"
 
-#: depends.py:122
-#: depends.py:150
-#: depends.py:151
-msgid "Using "
-msgstr "Benutze"
-
-#: depends.py:125
-#: depends.py:153
-#: depends.py:154
-msgid "Not Using "
-msgstr "Benutze nicht"
-
-#: depends.py:251
+#: ../porthole/dialogs/fileselector.py:77
+#: ../porthole/terminal/terminal.py:1103
 #, python-format
-msgid "Using %s"
-msgstr "Benutze %s"
+msgid "Ovewrite existing file '%s'?"
+msgstr "Bestehende Datei '%s' überschreiben?"
 
-#: depends.py:256
-#, python-format
-msgid "Not Using %s"
-msgstr "Benutze nicht %s"
+#: ../porthole/dialogs/simple.py:58
+msgid "_Yes"
+msgstr "_Ja"
 
-#: depends.py:266
-msgid "Any of:"
-msgstr "Irgendeines von:"
+#: ../porthole/dialogs/simple.py:60
+msgid "_No"
+msgstr "_Nein"
 
-#: depends.py:270
-msgid "All of:"
-msgstr "Alle von:"
+#: ../porthole/dialogs/simple.py:71
+msgid "Loading"
+msgstr "Lade"
 
-#: loaders.py:98
+#: ../porthole/loaders/loaders.py:121
 #, python-format
 msgid ""
 "This %s has an encoding method unknown to porthole.\n"
@@ -116,32 +297,23 @@ msgstr ""
 "Dieses %s benutzt eine für Porthole unbekannte Kodierung.\n"
 "Bitte erstellen Sie einen Bugreport auf bugs.gentoo.org oder in der Bugdatenbank des Porthole Projektes"
 
-#: loaders.py:102
+#: ../porthole/loaders/loaders.py:125
 #, python-format
 msgid "%s is Empty"
 msgstr "%s ist leer"
 
-#: loaders.py:105
-#: loaders.py:108
+#: ../porthole/loaders/loaders.py:128
+#: ../porthole/loaders/loaders.py:131
 #, python-format
 msgid "%s Not Available"
 msgstr "%s Nicht verfügbar"
 
-#: loaders.py:121
-#, python-format
-msgid ""
-"%i installed files:\n"
-"\n"
-msgstr ""
-"%i installierte Dateien:\n"
-"\n"
-
-#: loaders.py:124
-#: summary.py:450
+#: ../porthole/loaders/loaders.py:150
+#: ../porthole/packagebook/summary.py:537
 msgid "Not installed"
 msgstr "Nicht installiert"
 
-#: loaders.py:127
+#: ../porthole/loaders/loaders.py:153
 msgid ""
 "No data currently available.\n"
 "The package may not be installed"
@@ -149,293 +321,214 @@ msgstr ""
 "Momentan keine Informationen verfügbar.\n"
 "Das Paket scheint nicht installiert zu sein"
 
-#: mainwindow.py:177
+#: ../porthole/loaders/loaders.py:157
+#, python-format
 msgid ""
-" Synchronise Package Database \n"
-" The last sync was done:\n"
+"%(installed_count)i installed files for: %(ebuild)s \n"
+"\n"
 msgstr ""
-" Paketdatenbank synchronisieren \n"
-" Zuletzt synchronisiert:\n"
 
-#: mainwindow.py:235
-msgid "Active Plugins"
-msgstr "Aktive Plugins"
+#: ../porthole/packagebook/depends.py:149
+msgid "Using "
+msgstr "Benutze"
 
-#: mainwindow.py:278
-msgid "Loading database"
-msgstr "Lade Datenbank"
+#: ../porthole/packagebook/depends.py:152
+msgid "Not Using "
+msgstr "Benutze nicht"
 
-#: mainwindow.py:279
-msgid "Initializing database. Please wait..."
-msgstr "Initialisiere Datenbank. Bitte warten..."
+#: ../porthole/packagebook/depends.py:192
+#, python-format
+msgid "Using %s"
+msgstr "Benutze %s"
 
-#: mainwindow.py:327
-msgid "Reloading database"
-msgstr "Datenbank wird neu geladen"
+#: ../porthole/packagebook/depends.py:197
+#, python-format
+msgid "Not Using %s"
+msgstr "Benutze nicht %s"
 
-#: mainwindow.py:360
-msgid "Unknown"
-msgstr "Unbekannt"
+#: ../porthole/packagebook/depends.py:209
+msgid "Any of:"
+msgstr "Irgendeines von:"
 
-#: mainwindow.py:475
-msgid "No root privileges"
-msgstr "Keine Root Rechte"
+#: ../porthole/packagebook/depends.py:213
+msgid "All of:"
+msgstr "Alle von:"
 
-#: mainwindow.py:477
-msgid ""
-"In order to access all the features of Porthole,\n"
-"please run it with root privileges."
+#: ../porthole/packagebook/notebook.py:145
+msgid "Viewing Dependecy of: "
 msgstr ""
-"Um Zugriff auf alle Funktionen von Porthole zu haben,\n"
-" starten Sie es bitte mit Root Rechten."
 
-#: mainwindow.py:480
-msgid "_Ok"
-msgstr "_Ok"
-
-#: mainwindow.py:502
-#, python-format
-msgid "%(base)s: %(count)i packages read"
-msgstr "%(base)s: %(count)i Pakete gelesen"
-
-#: mainwindow.py:531
-#, python-format
-msgid "%(base)s: Populating tree"
-msgstr "%(base)s: bevölkere Paketdatenbank"
-
-#: mainwindow.py:839
-msgid "Upgrade requested"
-msgstr "Aktualisierung"
-
-#: mainwindow.py:841
-msgid "Do you want to upgrade all packages in your world file?"
-msgstr "Wollen Sie alle Pakete aus Ihrem Worldfile aktualisieren?"
-
-#: mainwindow.py:850
-#: readers.py:102
-msgid "Upgradable dependencies:"
-msgstr "Aktualisierbare Abhängigkeiten"
-
-#: mainwindow.py:876
-msgid "Please Wait!"
-msgstr "Bitte warten!"
-
-#: mainwindow.py:878
-msgid "Loading package descriptions..."
-msgstr "Lade Paketbeschreibungen..."
-
-#: mainwindow.py:926
-#, python-format
-msgid "Searching descriptions for %s"
-msgstr "Suche Beschreibungen für %s"
-
-#: mainwindow.py:928
-#, python-format
-msgid "Searching for %s"
-msgstr "Suche nach %s"
-
-#: mainwindow.py:1256
-msgid "Searching for upgradable packages..."
-msgstr "Suche nach aktualisierbaren Paketen"
-
-#: mainwindow.py:1315
-msgid "Building Package List"
-msgstr "Erstelle Paketliste"
-
-#: mainwindow.py:1326
-msgid "Done: "
-msgstr "Fertig:"
-
-#: mainwindow.py:1339
-#: mainwindow.py:1345
-#, python-format
-msgid "%(pack)d packages in %(cat)d categories"
-msgstr "%(pack)d Pakete in %(cat)d Kategorien"
-
-#: mainwindow.py:1348
-#, python-format
-msgid "%d matches found"
-msgstr "%d Übereinstimmungen gefunden"
-
-#: mainwindow.py:1354
-#, python-format
-msgid "%(world)d world, %(deps)d dependencies"
-msgstr "%(world)d World, %(deps)d Abhängigkeiten"
-
-#: mainwindow.py:1442
-msgid "Confirm: Kill the Running Process in the Terminal"
-msgstr "Bestätigen: Den laufenden Prozess in diesem Terminal abbrechen"
-
-#: metadata.py:137
-#, python-format
-msgid "Metadata file \"%s\" does not exist."
-msgstr "Metadata Datei \"%s\" existiert nicht."
-
-#: portagelib.py:39
-#: set_config.py:34
-msgid ""
-"Could not find portage module.\n"
-"Are you sure this is a Gentoo system?"
-msgstr ""
-"Konnte Portagemodul nicht finden.\n"
-"Sind sie sicher, dass dies ein Gentoo System ist?"
-
-#: portagelib.py:620
-msgid "No masking reason given"
-msgstr "Kein Maskierungsgrund gegeben"
-
-#: portagelib.py:823
-msgid "No ebuild found."
-msgstr "Kein Ebuild gefunden."
-
-#: summary.py:72
+#: ../porthole/packagebook/summary.py:79
 msgid "Emerge this ebuild"
 msgstr "Dieses Ebuild emergen"
 
-#: summary.py:74
+#: ../porthole/packagebook/summary.py:81
 msgid "Pretend Emerge this ebuild"
 msgstr "Emergevorschau für dieses Ebuild"
 
-#: summary.py:76
+#: ../porthole/packagebook/summary.py:83
 msgid "Sudo Emerge this ebuild"
 msgstr "Ebuild mit Sudo emergen"
 
-#: summary.py:78
+#: ../porthole/packagebook/summary.py:85
 msgid "Unmerge this ebuild"
 msgstr "Ebuild unmergen"
 
-#: summary.py:80
+#: ../porthole/packagebook/summary.py:87
 msgid "Sudo Unmerge this ebuild"
 msgstr "Ebuild mit Sudo unmergen"
 
-#: summary.py:82
+#: ../porthole/packagebook/summary.py:89
 #, python-format
 msgid "Add %s to package.keywords (for this ebuild only)"
 msgstr "%s zur package.keywords hinzufügen (Nur für dieses Ebuild)"
 
-#: summary.py:84
+#: ../porthole/packagebook/summary.py:91
+#, fuzzy, python-format
+msgid "Add %s to package.keywords"
+msgstr "Mit %s zu der package.keywords hinzufügen"
+
+#: ../porthole/packagebook/summary.py:93
 #, python-format
 msgid "Remove %s from package.keywords"
 msgstr "%s aus der package.keywords Datei entfernen"
 
-#: summary.py:86
+#: ../porthole/packagebook/summary.py:95
+#, fuzzy
+msgid "Remove ebuild keyword from package.keywords"
+msgstr "%s aus der package.keywords Datei entfernen"
+
+#: ../porthole/packagebook/summary.py:97
 msgid "Unmask this ebuild"
 msgstr "Dieses Ebuild entmaskieren"
 
-#: summary.py:88
+#: ../porthole/packagebook/summary.py:99
 msgid "Remask this ebuild"
 msgstr "Dieses Ebuild wieder maskieren"
 
-#: summary.py:196
+#: ../porthole/packagebook/summary.py:101
+#, fuzzy
+msgid "Show the propeties for this ebuild"
+msgstr "Ebuild mit Sudo emergen"
+
+#: ../porthole/packagebook/summary.py:209
 #, python-format
 msgid "\tSlot %s: "
 msgstr "\tSlot %s: "
 
-#: summary.py:446
+#: ../porthole/packagebook/summary.py:230
+#, fuzzy
+msgid "\tNone"
+msgstr "Keine"
+
+#: ../porthole/packagebook/summary.py:257
+#, fuzzy
+msgid "Slot"
+msgstr "Slot:%s"
+
+#: ../porthole/packagebook/summary.py:260
+msgid "Overlay"
+msgstr ""
+
+#: ../porthole/packagebook/summary.py:283
+msgid "Ebuild version no longer supported"
+msgstr ""
+
+#: ../porthole/packagebook/summary.py:284
+msgid "Obsolete"
+msgstr ""
+
+#: ../porthole/packagebook/summary.py:288
+msgid "Y"
+msgstr ""
+
+#: ../porthole/packagebook/summary.py:290
+msgid "N"
+msgstr ""
+
+#: ../porthole/packagebook/summary.py:361
+msgid "Use flags: "
+msgstr "USE-Flags: "
+
+#: ../porthole/packagebook/summary.py:392
+msgid "Keywords: "
+msgstr "Keywords: "
+
+#: ../porthole/packagebook/summary.py:404
+msgid "License: "
+msgstr "Lizenz: "
+
+#: ../porthole/packagebook/summary.py:416
+#, fuzzy
+msgid "User Configs: "
+msgstr "USE-Flags: "
+
+#: ../porthole/packagebook/summary.py:512
+#, fuzzy
+msgid "Long Description: "
+msgstr "Lange Beschreibungen"
+
+#: ../porthole/packagebook/summary.py:533
 msgid "Installed versions:\n"
 msgstr "Installierte Versionen:\n"
 
-#: summary.py:455
+#: ../porthole/packagebook/summary.py:542
 #, python-format
 msgid "Available versions for %s:\n"
 msgstr "Verfügbare Versionen für %s:\n"
 
-#: summary.py:459
+#: ../porthole/packagebook/summary.py:546
 msgid "Properties for version: "
 msgstr "Eigenschaften der Version: "
 
-#: summary.py:470
-msgid "Use flags: "
-msgstr "USE-Flags: "
-
-#: summary.py:500
-msgid "Keywords: "
-msgstr "Keywords: "
-
-#: summary.py:512
-msgid "License: "
-msgstr "Lizenz: "
-
-#: terminal.py:86
+#: ../porthole/terminal/constants.py:46
 msgid "*** process killed ***\n"
 msgstr "*** Prozess abgebrochen ***\n"
 
-#: terminal.py:87
+#: ../porthole/terminal/constants.py:47
 msgid "*** process completed ***\n"
 msgstr "*** Prozess abgeschlossen ***\n"
 
-#: terminal.py:89
-#: porthole.glade.h:40
+#: ../porthole/terminal/constants.py:48
+#: ../porthole/glade/porthole.glade.h:39
 msgid "Process"
 msgstr "Prozess"
 
-#: terminal.py:89
+#: ../porthole/terminal/constants.py:48
 msgid "Warnings"
 msgstr "Warnungen"
 
-#: terminal.py:89
+#: ../porthole/terminal/constants.py:48
 msgid "Cautions"
 msgstr "Hinweis"
 
-#: terminal.py:89
-#: porthole.glade.h:53
+#: ../porthole/terminal/constants.py:48
+#: ../porthole/glade/porthole.glade.h:55
 msgid "Summary"
 msgstr "Zusammenfassung"
 
-#: terminal.py:89
+#: ../porthole/terminal/constants.py:48
 msgid "Emerge queue"
 msgstr "Emerge-Warteschlange"
 
-#: terminal.py:97
-msgid "Porthole Log Viewer"
-msgstr "Porthole Log-Anzeige"
-
-#: terminal.py:99
-msgid "Porthole-Terminal"
-msgstr "Porthole-Terminal"
-
-#: terminal.py:312
-msgid "Packages to be merged      "
-msgstr "Zu installierende Pakete"
-
-#: terminal.py:557
-msgid ""
-"The package you selected is already in the emerge queue,\n"
-"but it has been killed. Would you like to resume the emerge?"
-msgstr ""
-"Das ausgewählte Paket befindet sich bereits in der Emerge Warteschlange,\n"
-"aber wurde abgebrochen. Wollen Sie den Emergevorgang wiederaufnehmen?"
-
-#: terminal.py:589
-msgid "The package you selected is already in the emerge queue!"
-msgstr "Das ausgewählte Paket befindet sich bereits in der Emerge Warteschlange!"
-
-#: terminal.py:590
-msgid "Error Adding Package To Queue!"
-msgstr "Fehler beim Hinzufügen des Paketes zur Warteschlange!"
-
-#: terminal.py:591
-msgid "OK"
-msgstr "Ok"
-
-#: terminal.py:753
+#: ../porthole/terminal/terminal.py:424
 msgid "***Log Process Killed!"
 msgstr "***Log-Prozess abgebrochen!"
 
-#: terminal.py:828
+#: ../porthole/terminal/terminal.py:492
 msgid "Confirm: Kill the Running Process"
 msgstr "Bestätigen: Den laufenden Prozess abbrechen"
 
-#: terminal.py:1141
+#: ../porthole/terminal/terminal.py:763
 #, python-format
 msgid "*** Log loading complete : %s"
 msgstr "*** Logdatei fertig geladen: %s"
 
-#: terminal.py:1165
+#: ../porthole/terminal/terminal.py:787
 msgid "_Cancel"
 msgstr "_Abbrechen"
 
-#: terminal.py:1172
+#: ../porthole/terminal/terminal.py:794
 #, python-format
 msgid ""
 "'sudo -p Password: ' requires your user password to perform the command:\n"
@@ -444,7 +537,7 @@ msgstr ""
 "'Sudo' benötigt Ihr Passwort um den folgenden Befehl auszuführen:\n"
 "'%s'"
 
-#: terminal.py:1176
+#: ../porthole/terminal/terminal.py:798
 #, python-format
 msgid ""
 "'su' requires the root password to perform the command:\n"
@@ -453,831 +546,221 @@ msgstr ""
 "'su' benötigt Ihr Passwort um den folgenden Befehl auszuführen:\n"
 "'%s'"
 
-#: terminal.py:1182
+#: ../porthole/terminal/terminal.py:804
 msgid "Password: "
 msgstr "Passwort:"
 
-#: terminal.py:1310
+#: ../porthole/terminal/terminal.py:878
 #, python-format
 msgid "*** Total warnings count for merge = %d \n"
 msgstr "*** Anzahl der Warnungen während des Emerge-Vorgangs = %d \n"
 
-#: terminal.py:1316
+#: ../porthole/terminal/terminal.py:884
 #, python-format
 msgid "*** Total cautions count for merge = %d \n"
 msgstr "*** Anzahl der Hinweise während Emerge = %d \n"
 
-#: terminal.py:1702
+#: ../porthole/terminal/terminal.py:1008
 msgid "*** Unfortunately, you don't have enough logged information about the listed packages to calculate estimated build times accurately.\n"
 msgstr "*** Leider haben Sie nicht genügend geloggte Informationen über die aufgeführten Pakete, um die geschätzte Kompilierzeit genau zu berechnen.\n"
 
-#: terminal.py:1708
+#: ../porthole/terminal/terminal.py:1014
 #, python-format
 msgid "*** Based on the build history of these packages on your system, I can estimate that emerging them usually takes, on average, %(days)d days, %(hours)d hrs, %(minutes)d mins, and %(seconds)d secs.\n"
 msgstr "*** Ausgehend von den Installationsprotokollen dieser Pakete auf Ihrem System, schätze ich, dass der \"Emerge\"-Vorgang etwa %(days)d Tage, %(hours)d Stunden, %(minutes)d Minuten und %(seconds)d Sekunden dauert.\n"
 
-#: terminal.py:1717
+#: ../porthole/terminal/terminal.py:1023
 msgid "*** Note: If you have a lot of programs running on your system while porthole is emerging packages, or if you have changed your hardware since the last time you built some of these packages, this estimate may be inaccurate.\n"
 msgstr "*** Anmerkung: Wenn Sie viele Programme auf Ihrem System laufen haben während Porthole Pakete installiert, oder wenn sich Ihre Hardware seit dem letzten \"Emerge\"-Vorgang eines dieser Pakete geändert hat, könnten die Angaben ungenau sein.\n"
 
-#: terminal.py:1739
+#: ../porthole/terminal/terminal.py:1045
 msgid "*** Unknown File Loading error"
 msgstr "*** Unbekannter Fehler beim Laden der Datei"
 
-#: terminal.py:1743
+#: ../porthole/terminal/terminal.py:1049
 msgid "*** File Loading... Processing..."
 msgstr "*** Datei wird geladen... verarbeite..."
 
-#: terminal.py:1752
-#: terminal.py:1756
+#: ../porthole/terminal/terminal.py:1058
+#: ../porthole/terminal/terminal.py:1062
 msgid ": Open log File"
 msgstr ": Logdatei öffnen"
 
-#: terminal.py:1797
-#, python-format
-msgid "Ovewrite existing file '%s'?"
-msgstr "Bestehende Datei '%s' überschreiben?"
-
-#: terminal.py:1861
+#: ../porthole/terminal/terminal.py:1167
 #, python-format
 msgid "*** Loading File : %s"
 msgstr "*** Lade Datei : %s"
 
-#: terminal.py:1865
-#, python-format
-msgid "Cannot open file '%s': %s"
+#: ../porthole/terminal/terminal.py:1172
+#, fuzzy, python-format
+msgid "Cannot open file '%(filename)s': %(errmsg)s"
 msgstr "Kann Datei '%s' nicht öffnen: %s"
 
-#: terminal.py:1890
-#, python-format
-msgid "Cannot back up '%s' to '%s': %s"
+#: ../porthole/terminal/terminal.py:1198
+#, fuzzy, python-format
+msgid "Cannot back up '%(filename)s' to '%(bak_filename)s': %(errmsg)s"
 msgstr "Kann '%s' nicht nach '%s' sichern: %s"
 
-#: terminal.py:1901
+#: ../porthole/terminal/terminal.py:1207
 #, python-format
 msgid "*** saving file: %s"
 msgstr "*** speichere Datei: %s"
 
-#: terminal.py:1934
-#, python-format
+#: ../porthole/terminal/terminal.py:1241
+#, fuzzy, python-format
 msgid ""
-"Can't restore backup file '%s' to '%s': %s\n"
-"Backup left as '%s'"
+"Can't restore backup file '%(filename)s' to '%(bak_filename)s': %(errmsg)s\n"
+"Backup left as '%(bak_filename)s'"
 msgstr ""
 "Kann Backupdatei '%s' nicht nach '%s' wiederherstellen: %s\n"
 "Backup left as '%s'"
 
-#: terminal.py:1942
+#: ../porthole/terminal/terminal.py:1248
 #, python-format
 msgid "*** File saved : %s"
 msgstr "*** Datei gespeichert : %s"
 
-#: terminal.py:1952
+#: ../porthole/terminal/terminal.py:1258
 #, python-format
 msgid "Save log to '%s'?"
 msgstr "Speichere Logdatei nach '%s'?"
 
-#: utils.py:178
-msgid "_Yes"
-msgstr "_Ja"
+#: ../porthole/terminal/term_queue.py:123
+msgid "Packages to be merged      "
+msgstr "Zu installierende Pakete"
 
-#: utils.py:180
-msgid "_No"
-msgstr "_Nein"
+#: ../porthole/terminal/term_queue.py:161
+msgid ""
+"The package you selected is already in the emerge queue,\n"
+"but it has been killed. Would you like to resume the emerge?"
+msgstr ""
+"Das ausgewählte Paket befindet sich bereits in der Emerge Warteschlange,\n"
+"aber wurde abgebrochen. Wollen Sie den Emergevorgang wiederaufnehmen?"
 
-#: utils.py:191
-msgid "Loading"
-msgstr "Lade"
+#: ../porthole/terminal/term_queue.py:190
+msgid "The package you selected is already in the emerge queue!"
+msgstr "Das ausgewählte Paket befindet sich bereits in der Emerge Warteschlange!"
 
-#: utils.py:443
-#: utils.py:475
-msgid "Sync"
-msgstr "Synchronisieren"
+#: ../porthole/terminal/term_queue.py:191
+#: ../porthole/terminal/term_queue.py:192
+msgid "Error Adding Package To Queue!"
+msgstr "Fehler beim Hinzufügen des Paketes zur Warteschlange!"
 
-#: utils.py:476
-msgid "WebRsync"
-msgstr "WebRsync"
+#: ../porthole/terminal/term_queue.py:193
+msgid "OK"
+msgstr "Ok"
 
-#: utils.py:724
+#: ../porthole/utils/utils.py:194
 msgid "Error reading emerge log file.  Check file permissions, or check for corrupt log file."
 msgstr "Fehler beim Lesen der Emerge Logdatei.  Überprüfen Sie die Dateiberechtigungen, oder prüfen Sie ob die Datei beschädigt ist."
 
-#: views.py:170
-#: config.glade.h:30
+#: ../porthole/views/category.py:42
+#: ../porthole/views/category.py:72
+msgid "Categories"
+msgstr "Kategorien"
+
+#: ../porthole/views/category.py:48
+msgid "# pkgs"
+msgstr ""
+
+#: ../porthole/views/category.py:70
+msgid "Search History"
+msgstr "Suchverlauf"
+
+#: ../porthole/views/depends.py:57
+#: ../porthole/views/depends.py:153
+#: ../porthole/glade/porthole.glade.h:10
+msgid "Dependencies"
+msgstr "Abhängigkeiten"
+
+#: ../porthole/views/depends.py:66
+#, fuzzy
+msgid "Package"
+msgstr "Paketname"
+
+#: ../porthole/views/depends.py:75
+#: ../porthole/views/package.py:106
+#: ../porthole/glade/config.glade.h:44
+msgid "Installed"
+msgstr "Installiert"
+
+#: ../porthole/views/depends.py:85
+#: ../porthole/views/package.py:113
+#: ../porthole/glade/config.glade.h:64
+msgid "Recommended"
+msgstr "Empfohlen"
+
+#: ../porthole/views/depends.py:95
+#: ../porthole/glade/config.glade.h:46
+msgid "Keywords"
+msgstr "Keywords"
+
+#: ../porthole/views/depends.py:115
+#: ../porthole/views/menus.py:47
+#: ../porthole/views/package.py:68
+#: ../porthole/glade/config.glade.h:30
 msgid "Emerge"
 msgstr "Emerge"
 
-#: views.py:172
+#: ../porthole/views/depends.py:117
+#: ../porthole/views/menus.py:49
+#: ../porthole/views/package.py:70
 msgid "Pretend Emerge"
 msgstr "Emergevorschau"
 
-#: views.py:174
+#: ../porthole/views/depends.py:119
+#: ../porthole/views/menus.py:51
+#: ../porthole/views/package.py:72
 msgid "Sudo Emerge"
 msgstr "Sudo Emerge"
 
-#: views.py:176
-msgid "Unmerge"
-msgstr "Unmerge"
-
-#: views.py:178
-msgid "Sudo Unmerge"
-msgstr "Sudo Unmerge"
-
-#: views.py:180
+#: ../porthole/views/depends.py:125
+#: ../porthole/views/menus.py:57
+#: ../porthole/views/package.py:78
 #, python-format
 msgid "Append with %s to package.keywords"
 msgstr "Mit %s zu der package.keywords hinzufügen"
 
-#: views.py:182
+#: ../porthole/views/depends.py:358
+#, fuzzy
+msgid "Porthole Dependency Viewer"
+msgstr "Porthole Log-Anzeige"
+
+#: ../porthole/views/menus.py:53
+#: ../porthole/views/package.py:74
+msgid "Unmerge"
+msgstr "Unmerge"
+
+#: ../porthole/views/menus.py:55
+#: ../porthole/views/package.py:76
+msgid "Sudo Unmerge"
+msgstr "Sudo Unmerge"
+
+#: ../porthole/views/menus.py:59
+#: ../porthole/views/package.py:80
 msgid "De-Select all"
 msgstr "Auswahl aufheben"
 
-#: views.py:184
+#: ../porthole/views/menus.py:61
+#: ../porthole/views/package.py:82
 msgid "Select all"
 msgstr "Alle auswählen"
 
-#: views.py:198
+#: ../porthole/views/package.py:96
 msgid "Packages"
 msgstr "Paketname"
 
-#: views.py:208
-#: config.glade.h:44
-msgid "Installed"
-msgstr "Installiert"
-
-#: views.py:215
-#: config.glade.h:64
-msgid "Recommended"
-msgstr "Empfohlen"
-
-#: views.py:222
-#: config.glade.h:27
+#: ../porthole/views/package.py:120
+#: ../porthole/glade/config.glade.h:27
 msgid "Download Size"
 msgstr "Downloadgröße"
 
-#: views.py:229
-#: config.glade.h:25
+#: ../porthole/views/package.py:127
+#: ../porthole/glade/config.glade.h:25
 msgid "Description"
 msgstr "Beschreibung"
 
-#: views.py:666
-#: views.py:687
-msgid "Categories"
-msgstr "Kategorien"
-
-#: views.py:685
-msgid "Search History"
-msgstr "Suchverlauf"
-
-#: views.py:750
-#: views.py:767
-#: porthole.glade.h:18
-msgid "Dependencies"
-msgstr "Abhängigkeiten"
-
-#: advemerge.glade.h:1
-msgid "<b>Command Preview</b>"
-msgstr "<b>Vorschau des Kommandos</b>"
-
-#: advemerge.glade.h:2
-msgid "<b>Emerge Options</b>"
-msgstr "<b>Emerge-Optionen</b>"
-
-#: advemerge.glade.h:3
-msgid "<b>Package Options</b>"
-msgstr "<b>Paket-Optionen</b>"
-
-#: advemerge.glade.h:4
-msgid "Add the selected keyword to your package.keywords file. Changes will affect THIS VERSION only."
-msgstr "Das ausgewählte Keyword der package.keywords Datei hinzufügen. Die Änderungen betreffen nur DIESE VERSION."
-
-#: advemerge.glade.h:5
-msgid "Behaves just as usepkg except that this will only emerge binary packages.  All the binary packages must be available at the time of dependency calculation or emerge will simply abort."
-msgstr "Verhält sich genau wie usepkg, bis auf das bei dieser Option nur Binärpakete installiert werden. Alle Binärpakete müssen in dem Moment verfügbar sein, wenn die Abhängigkeiten überprüft werden, ansonsten wird der Emerge Vorgang einfach abgebrochen."
-
-#: advemerge.glade.h:6
-msgid "Causes portage to disregard merge records indicating that a config file inside of a CONFIG_PROTECT directory has been merged already.  Portage will normally merge those files only once to prevent the user from dealing with the same config multiple times.  This flag will cause the file to always be merged."
-msgstr "Veranlasst Portage dazu die Funktion zur Überprüfung auf installierte Konfigurationsdateien auszulassen. Portage installiert diese Dateien normalerweise nur einmal, um dem Benutzer den Aufwand mit ein und denselben Konfigurationsdateien zu ersparen. Diese Option veranlasst Portage dazu, die Dateien dennoch zu installieren."
-
-#: advemerge.glade.h:7
-msgid "Command Preview Window"
-msgstr "Befehlsvorschaufenster"
-
-#: advemerge.glade.h:8
-msgid "Commit Use Flag modifications to your make.conf file. Changes will affect ALL PACKAGES on your system."
-msgstr "USE-Flag Modifikation in die make.conf speichern. Die Änderungen betreffen ALLE PAKETE auf Ihrem System."
-
-#: advemerge.glade.h:9
-msgid "Commit Use Flag modifications to your package.use file. Changes will affect THIS PACKAGE only."
-msgstr "USE-Flag Modifikation in die make.conf speichern. Die Änderungen betreffen nur DIESES PAKET."
-
-#: advemerge.glade.h:10
-msgid "Creates binary packages for  all  ebuilds  processed  without actually merging the packages.  This comes with the caveat that all build time dependencies must already be emerged on the system."
-msgstr "Binärpakete für alle verarbeiteten Pakete erstellen, anstatt die Pakete tatsächlich auf Ihrem System zu installieren. Dies setzt voraus, dass alle Abhängigkeiten des betroffenen Pakets bereits auf Ihrem System vorhanden sein müssen."
-
-#: advemerge.glade.h:11
-msgid "Disables the spinner regardless of terminal type.   ie.  Turns off the spinner normally displayed to indicate that portage is busy doing something and not frozen."
-msgstr "Deaktiviert den \"Spinner\" ohne Rücksicht auf das verwendete Terminal. (Schaltet zum Beispiel den drehenden Backslash aus, welcher anzeigt, dass Portage beschäftigt ist und sich nicht aufgehängt hat.)"
-
-#: advemerge.glade.h:12
-msgid "Emerge as normal, but do not add the packages to the world profile for later updating."
-msgstr "Installieren, aber die Pakete nicht zum Worldfile für spätere Aktualisierungen hinzufügen."
-
-#: advemerge.glade.h:13
-msgid "Instead of actually performing the merge, simply display what *would* have been installed if pretend weren't used.  Using pretend is strongly recommended before installing an unfamiliar package.  In the printout, N = new, U = upgrading, R = replacing,  F = fetch restricted, B = blocked by an already installed package."
-msgstr "Anstatt tatsächlich zu installieren nur anzeigen was installiert *worden wäre*, wenn Sie die Vorschaufunktion nicht aktiviert hätten. Es wird dringend empfohlen die Vorschaufunktion zu benutzen, wenn Sie mit dem betroffenen Paket nicht vertraut sind. Legende: N = neu, U = Aktualisierung vorhanden, UD=downgrade, R = ersetzen, F = manuelles Herunterladen nötig, B = blockiert von einem bereits installierten Paket."
-
-#: advemerge.glade.h:14
-msgid "Instead of doing any package building, just perform fetches for all packages (the main package as well as  all  dependencies.)"
-msgstr "Nur herunterladen anstatt die Pakete zu installieren. (Ausgewähltes Paket mit allen Abhängigkeiten)"
-
-#: advemerge.glade.h:15
-msgid "Keyword to accept"
-msgstr "akzeptiertes Keyword"
-
-#: advemerge.glade.h:16
-msgid "Merges specified packages without merging  any  dependencies.  Note that the build may fail if the dependencies aren't satisfied."
-msgstr "Installiert das ausgewählte Paket ohne die Abhängigkeiten zu installieren. Bitte beachten Sie, dass das Paket nicht erfolgreich installiert werden könnte, falls Abhängigkeiten fehlen."
-
-#: advemerge.glade.h:17
-msgid "Only merge (or pretend to  merge) the dependencies of the packages specified, not the packages themselves."
-msgstr "Nur die Abhängigkeiten der ausgewählten Pakete installieren (oder die Vorschau anzeigen), ohne die Pakete an sich zu installieren."
-
-#: advemerge.glade.h:18
-msgid "Results may vary, but the general outcome is a reduced or condensed output from portage's displays."
-msgstr "Das Ergebnis könnte abweichen, aber das eigentliche Resultat ist eine reduzierte oder gekürzte Ausgabe des Portage Textes."
-
-#: advemerge.glade.h:19
-msgid "Skips the packages specified on the command-line that have already been installed.  Without this option, any packages, ebuilds, or deps you specify on on the command-line *will* cause Portage to remerge the package, even if it is already installed.  Note that Portage will not remerge dependencies by default."
-msgstr "Überspringt schon installierte Pakete. Ohne diese Option werden alle Pakete, Ebuilds oder Abhängigkeiten installiert, auch wenn sie schon auf Ihrem System vorhanden sind. Anmerkung: Portage installiert in der Standardeinstellung keine schon auf dem System vorhandene Abhängigkeiten."
-
-#: advemerge.glade.h:20
-msgid "Tell emerge to run in verbose mode.  Currently this flag causes emerge to print out GNU info errors, if any, and to show the USE flags that will be used for each package when pretending."
-msgstr "Mit dieser Option aktivieren Sie die ausführliche Ausgabe. Momentan werden GNU Info Fehler ausgegeben und die aktivierten USE-Flags der einzelnen Pakete angezeigt, wenn sie zusätzlich die Vorschau Funktion aktiviert haben."
-
-#: advemerge.glade.h:21
-msgid "Tells emerge to build binary packages for  all  ebuilds  processed  in addition to actually merging the packages.  Useful for maintainers or if you administrate multiple Gentoo  Linux systems  (build  once, emerge tbz2s everywhere).  The package will be created in the ${PKGDIR}/All directory.  An  alternative  for  already-merged  packages  is to use quickpkg which  creates a tbz2 from the live filesystem."
-msgstr "Durch das Aktivieren dieser Option wird für jedes verarbeitete Paket zusätzlich ein Binärpaket zu erzeugt. Das ist hilfreich, wenn sie mehrere Gentoo Linux Systeme administrieren (auf einem System installieren und auf den anderen jeweils die tbz2s Pakete für Emerge benutzen). Die Pakete werden im ${PKGDIR}/All Verzeichnis erstellt. Eine Alternative dieser Option um Archive für bereits installierte Pakete im Nachhinein zu erstellen ist die quickpkg Option."
-
-#: advemerge.glade.h:22
-msgid "Tells emerge to run the emerge command in debug mode.  In this mode the bash build environment will run with the -x option, causing it to output verbose debug information to stdout.  Debug is great for finding bash syntax errors."
-msgstr "Aktivieren Sie diese Option, um das Emerge Kommando im Debug Modus auszuführen. In diesem Modus wird die Bash Installationsumgebung mit der -x Option ausgeführt. Dadurch werden alle Debug Informationen nach stdout ausgegeben. Die Debug Option ist hilfreich, um Bash Syntaxfehler zu finden."
-
-#: advemerge.glade.h:23
-msgid "Tells emerge to use binary packages (from $PKGDIR) if they are available, thus possibly avoiding some time-consuming compiles.  This option is useful for CD installs; you  can export PKGDIR=/mnt/cdrom/packages and then use this option to have emerge \"pull\" binary packages from the CD in order to satisfy dependencies."
-msgstr "Durch diese Option benutzt Emerge Binärpakete (aus dem Ordner $PKGDIR), sofern auf Ihrem System vorhanden. Diese Option ist hilfreich, um CD Installationen durchzuführen: Sie können den Pfad mit PKGDIR=/mnt/cdrom/packages exportieren und dann diese Option aktivieren, um das Binärpaket von der CD zu benutzen."
-
-#: advemerge.glade.h:24
-msgid "Update make.conf"
-msgstr "make.conf aktualisieren"
-
-#: advemerge.glade.h:25
-msgid "Update package.keywords"
-msgstr "package.keywords aktualisieren"
-
-#: advemerge.glade.h:26
-msgid "Update package.use"
-msgstr "package.use aktualisieren"
-
-#: advemerge.glade.h:27
-msgid "Updates packages to the most recent version available.  Note that update does not have full functionality yet.  It will not automatically update dependencies of packages in the world file, unless they too are in the world file."
-msgstr "Aktualisiert das Paket auf die neuste verfügbare Version. Anmerkung: Die Funktion ist noch nicht vollständig implementiert. Sie aktualisiert noch nicht selbständig die Abhängigkeiten von Paketen im Worldfile, es sei denn diese sind ebenfalls im Worldfile eingetragen."
-
-#: advemerge.glade.h:28
-msgid "Updates packages, but excludes updates that would result in a lower version of the package being installed.  SLOTs are considered at a basic level."
-msgstr "Aktualisiert Pakete, aber nur, wenn diese in einer aktuelleren als der bereits installierten Version vorliegen.WARNUNG: Benutzten Sie diese Option nur mit Vorsicht! Manchmal wird eine aktuellere Version aufgrund von Sicherheitslücken oder schweren Bugs maskiert, dadurch kann ein Downgrade auf eine ältere Version empfohlen werden!"
-
-#: advemerge.glade.h:29
-msgid "Use Flags"
-msgstr "USE-Flags"
-
-#: advemerge.glade.h:30
-msgid "Virtually tweaks the tree of installed packages to only contain glibc; this is great to use together with pretend.  This allows developers to get a complete overview of the complete dependency tree of a package, and it enables complete trees to be rebuilt using the latest libraries."
-msgstr "Diese Option simuliert Portage ein leeres Worldfile welches nur die glibc enthält. Die Option lässt sich sinnvoll zusammen mit der pretend Option benutzen, um eine komplette Übersicht der Abhängigkeiten eines Pakets zu bekommen."
-
-#: advemerge.glade.h:31
-msgid "When used in conjunction with update, this flag forces emerge to consider the entire dependency tree of packages, instead of checking only the immediate dependencies of the packages.  As an example, this catches updates in libraries that are not directly listed in the dependencies of a package."
-msgstr "Wenn diese Option zusammen mit der update Option benutzt wird (empfohlen), wird Portage dazu angewiesen die Abhängigkeiten von allen installierten Paketen zu berücksichtigen."
-
-#: advemerge.glade.h:32
-msgid "buildpkg"
-msgstr "buildpkg"
-
-#: advemerge.glade.h:33
-msgid "buildpkgonly"
-msgstr "buildpkgonly"
-
-#: advemerge.glade.h:34
-msgid "debug"
-msgstr "debug"
-
-#: advemerge.glade.h:35
-msgid "deep"
-msgstr "deep"
-
-#: advemerge.glade.h:36
-msgid "emptytree"
-msgstr "emptytree"
-
-#: advemerge.glade.h:37
-msgid "fetchonly"
-msgstr "fetchonly"
-
-#: advemerge.glade.h:38
-msgid "noconfmem"
-msgstr "noconfmem"
-
-#: advemerge.glade.h:39
-msgid "nodeps"
-msgstr "nodeps"
-
-#: advemerge.glade.h:40
-msgid "noreplace"
-msgstr "noreplace"
-
-#: advemerge.glade.h:41
-#: config.glade.h:101
-msgid "nospinner"
-msgstr "nospinner"
-
-#: advemerge.glade.h:42
-msgid "oneshot"
-msgstr "oneshot"
-
-#: advemerge.glade.h:43
-msgid "onlydeps"
-msgstr "onlydeps"
-
-#: advemerge.glade.h:44
-#: config.glade.h:102
-msgid "pretend"
-msgstr "pretend"
-
-#: advemerge.glade.h:45
-msgid "quiet"
-msgstr "quiet"
-
-#: advemerge.glade.h:46
-msgid "update"
-msgstr "update"
-
-#: advemerge.glade.h:47
-#: config.glade.h:113
-msgid "upgradeonly"
-msgstr "upgradeonly"
-
-#: advemerge.glade.h:48
-msgid "usepkg"
-msgstr "usepkg"
-
-#: advemerge.glade.h:49
-msgid "usepkgonly"
-msgstr "usepkgonly"
-
-#: advemerge.glade.h:50
-#: config.glade.h:114
-msgid "verbose"
-msgstr "verbose"
-
-#: advemerge.glade.h:51
-msgid "version"
-msgstr "version"
-
-#: config.glade.h:1
-msgid " Editor : "
-msgstr " Editor : "
-
-#: config.glade.h:2
-msgid "<b>Advanced Emerge dialog options</b>"
-msgstr "<b>Fortgeschrittene Emerge-Optionen</b>"
-
-#: config.glade.h:3
-msgid "<b>Arch List</b> for display's &amp; options"
-msgstr "<b>Arch-Liste</b> für Anzeigen &amp; Optionen"
-
-#: config.glade.h:4
-msgid "<b>Emerge options</b>"
-msgstr "<b>Emerge Optionen</b>"
-
-#: config.glade.h:5
-msgid "<b>Run Custom Command options</b>"
-msgstr "<b>Optionen um benutzerdefiniertes Kommando auszuführen</b>"
-
-#: config.glade.h:6
-msgid "<b>Web Browser Options</b>"
-msgstr "<b>Web-Browser Optionen</b>"
-
-#: config.glade.h:7
-msgid "Add New"
-msgstr "Hinzufügen"
-
-#: config.glade.h:8
-msgid "Add a new filter expression to the Selected Group"
-msgstr "Der ausgewählten Gruppe eine neue Filterregel hinzufügen"
-
-#: config.glade.h:9
-msgid "Arch-list/Version table"
-msgstr "Arch-Liste/Versionstabelle"
-
-#: config.glade.h:10
-msgid "Available Versions"
-msgstr "Verfügbare Versionen"
-
-#: config.glade.h:11
-msgid "Background"
-msgstr "Hintergrund"
-
-#: config.glade.h:12
-msgid "Background Colour"
-msgstr "Hintergrundfarbe"
-
-#: config.glade.h:13
-msgid "Black"
-msgstr "Schwarz"
-
-#: config.glade.h:14
-msgid "Blue"
-msgstr "Blau"
-
-#: config.glade.h:15
-msgid "Browser : "
-msgstr "Web-Browser : "
-
-#: config.glade.h:16
-msgid "Category View"
-msgstr "Kategorieansicht"
-
-#: config.glade.h:17
-msgid "Caution"
-msgstr "Hinweis"
-
-#: config.glade.h:18
-msgid "Check off all items you would like displayed"
-msgstr "Bitte wählen Sie die Informationen aus, welche Ihnen angezeigt werden sollen."
-
-#: config.glade.h:19
-msgid "Command"
-msgstr "Befehl"
-
-#: config.glade.h:20
-msgid "Current CPU architecture : "
-msgstr "Momentane CPU Architektur : "
-
-#: config.glade.h:21
-msgid "Cyan"
-msgstr "Cyan"
-
-#: config.glade.h:22
-msgid "Default"
-msgstr "Standard"
-
-#: config.glade.h:23
-msgid "Delete"
-msgstr "Löschen"
-
-#: config.glade.h:24
-msgid "Delete the selected filter expression"
-msgstr "Die ausgewählte Filterregel löschen"
-
-#: config.glade.h:26
-msgid "Downgradable Colour"
-msgstr "Downgrade empfohlen"
-
-#: config.glade.h:28
-msgid "Edit"
-msgstr "Editieren"
-
-#: config.glade.h:29
-msgid "Edit the selected filter expression"
-msgstr "Die ausgewählte Filterregel bearbeiten"
-
-#: config.glade.h:31
-msgid "Enable arch-list"
-msgstr "Architekturliste aktivieren"
-
-#: config.glade.h:32
-msgid "Enable make.conf modification"
-msgstr "Geänderte make.conf übernehmen"
-
-#: config.glade.h:33
-msgid "Enter the command for a GUI su client eg. 'gksu' or 'gnomesu'"
-msgstr "Geben Sie den Befehl einer grafischen Oberfläche zu su ein (z.B. 'gksu' oder 'gnomesu')"
-
-#: config.glade.h:34
-msgid "Error"
-msgstr "Fehler"
-
-#: config.glade.h:35
-msgid "Filters"
-msgstr "Filter"
-
-#: config.glade.h:36
-msgid "Font & Colors"
-msgstr "Schriftart & Farbe"
-
-#: config.glade.h:37
-msgid "Font :"
-msgstr "Schriftart:"
-
-#: config.glade.h:38
-msgid "Foreground"
-msgstr "Vordergrund"
-
-#: config.glade.h:39
-msgid "GUI su client :"
-msgstr "Grafische su-Oberfläche:"
-
-#: config.glade.h:40
-msgid "Global"
-msgstr "Global"
-
-#: config.glade.h:41
-msgid "Green"
-msgstr "Grün"
-
-#: config.glade.h:42
-msgid "Homepage URL"
-msgstr "Webseiten URL"
-
-#: config.glade.h:43
-msgid "Info"
-msgstr "Info"
-
-#: config.glade.h:45
-msgid "Installed list"
-msgstr "Liste installierter Programme"
-
-#: config.glade.h:46
-msgid "Keywords"
-msgstr "Keywords"
-
-#: config.glade.h:47
-msgid "LANG = "
-msgstr "LANG = "
-
-#: config.glade.h:48
-msgid "License"
-msgstr "Lizenz"
-
-#: config.glade.h:49
-msgid "Line Number"
-msgstr "Zeilennummer"
-
-#: config.glade.h:50
-msgid "Long Descriptions"
-msgstr "Lange Beschreibungen"
-
-#: config.glade.h:51
-msgid "Magenta"
-msgstr "Magenta"
-
-#: config.glade.h:52
-msgid "Main Window"
-msgstr "Hauptfenster"
-
-#: config.glade.h:53
-msgid "More Colours"
-msgstr "Mehr Farben"
-
-#: config.glade.h:54
-msgid "Move"
-msgstr "Verschieben"
-
-#: config.glade.h:55
-msgid "Move the selected filter expression to a different filter group"
-msgstr "Die ausgewählte Filterregel in eine andere Filtergruppe verschieben"
-
-#: config.glade.h:56
-msgid "Normal"
-msgstr "Normal"
-
-#: config.glade.h:57
-msgid "Normal Font Colour"
-msgstr "Normale Schriftfarbe"
-
-#: config.glade.h:58
-msgid "Note"
-msgstr "Anmerkung"
-
-#: config.glade.h:59
-msgid "Package View"
-msgstr "Paketansicht"
-
-#: config.glade.h:60
-msgid ""
-"Please enter the persistent history commands\n"
-"you wish to be pre-typed"
-msgstr ""
-"Bitte geben Sie hier Befehle an, welche gespeichert werden\n"
-"und Ihnen in einer Auswahlliste zur Verfügung stehen."
-
-#: config.glade.h:62
-msgid "Please select the Font colours desired"
-msgstr "Bitte wählen Sie die gewünschten Schriftfarben aus."
-
-#: config.glade.h:63
-msgid "Porthole Configuration"
-msgstr "Porthole Konfiguration"
-
-#: config.glade.h:65
-msgid "Red"
-msgstr "Rot"
-
-#: config.glade.h:66
-msgid "Reset the filters to the defaults"
-msgstr "Die Filter auf den Standard zurücksetzen"
-
-#: config.glade.h:67
-msgid "Sample Window"
-msgstr "Beispielfenster"
-
-#: config.glade.h:68
-msgid "Save the filters to disk"
-msgstr "Die Filter abspeichern"
-
-#: config.glade.h:69
-msgid "Summary View"
-msgstr "Anzeigeoptionen"
-
-#: config.glade.h:70
-msgid "Sync method "
-msgstr "Sync.-Methode"
-
-#: config.glade.h:71
-msgid "Tag"
-msgstr "Tag"
-
-#: config.glade.h:72
-msgid "Terminal"
-msgstr "Terminal"
-
-#: config.glade.h:73
-msgid "Text Font & Colours"
-msgstr "Schriftart & Farben"
-
-#: config.glade.h:74
-msgid "These colours are used by Porthole for highlighting"
-msgstr "Diese Farben werden von Porthole zur Syntaxhervorhebung genutzt."
-
-#: config.glade.h:75
-msgid "These colours are used by emerge for coloured output"
-msgstr "Diese Farben werden von Emerge zur Syntaxhervorhebung genutzt."
-
-#: config.glade.h:76
-msgid "USE Flags"
-msgstr "USE-Flags"
-
-#: config.glade.h:77
-msgid "Upgradable Colour"
-msgstr "Aktualisierung verfügbar"
-
-#: config.glade.h:78
-msgid "Use Custom Browser"
-msgstr "Benutzerdefinierter Web-Browser"
-
-#: config.glade.h:79
-msgid "Use Default"
-msgstr "Standard benutzen"
-
-#: config.glade.h:80
-msgid "Use Flag set +"
-msgstr "USE-Flag + gesetzt"
-
-#: config.glade.h:81
-msgid "Use Flag set -"
-msgstr "USE-Flag - gesetzt"
-
-#: config.glade.h:82
-msgid "WARNING! Make sure you back up your make.conf file (usually /etc/make.conf) before enabling this option!"
-msgstr ""
-"WARNUNG!\n"
-"Vergewissern Sie sich, dass Sie ein Backup Ihrer make.conf Datei gemacht haben (für gewöhnlich /etc/make.conf), bevor Sie diese Option aktivieren!"
-
-#: config.glade.h:83
-msgid "Warning"
-msgstr "Warnung"
-
-#: config.glade.h:84
-msgid "White"
-msgstr "Weiß"
-
-#: config.glade.h:85
-msgid "Yellow"
-msgstr "Gelb"
-
-#: config.glade.h:86
-msgid "checkbutton10"
-msgstr "checkbutton10"
-
-#: config.glade.h:87
-msgid "checkbutton16"
-msgstr "checkbutton16"
-
-#: config.glade.h:88
-msgid "checkbutton17"
-msgstr "checkbutton17"
-
-#: config.glade.h:89
-msgid "checkbutton18"
-msgstr "checkbutton18"
-
-#: config.glade.h:90
-msgid "checkbutton19"
-msgstr "checkbutton19"
-
-#: config.glade.h:91
-msgid "checkbutton20"
-msgstr "checkbutton20"
-
-#: config.glade.h:92
-msgid "checkbutton21"
-msgstr "checkbutton21"
-
-#: config.glade.h:93
-msgid "checkbutton22"
-msgstr "checkbutton22"
-
-#: config.glade.h:94
-msgid "checkbutton9"
-msgstr "checkbutton9"
-
-#: config.glade.h:95
-msgid "command 1:"
-msgstr "Befehl 1:"
-
-#: config.glade.h:96
-msgid "command 2:"
-msgstr "Befehl 2:"
-
-#: config.glade.h:97
-msgid "command 3:"
-msgstr "Befehl 3:"
-
-#: config.glade.h:98
-msgid "command 4:"
-msgstr "Befehl 4:"
-
-#: config.glade.h:99
-msgid "command 5:"
-msgstr "Befehl 5:"
-
-#: config.glade.h:100
-msgid "fetch"
-msgstr "fetch"
-
-#: config.glade.h:103
-msgid "profile"
-msgstr "Profil"
-
-#: config.glade.h:104
-msgid "radiobutton1"
-msgstr "radiobutton1"
-
-#: config.glade.h:105
-msgid "radiobutton2"
-msgstr "radiobutton2"
-
-#: config.glade.h:106
-msgid "radiobutton3"
-msgstr "radiobutton3"
-
-#: config.glade.h:107
-msgid "radiobutton4"
-msgstr "radiobutton4"
-
-#: config.glade.h:108
-msgid "radiobutton5"
-msgstr "radiobutton5"
-
-#: config.glade.h:109
-msgid "radiobutton6"
-msgstr "radiobutton6"
-
-#: config.glade.h:110
-msgid "radiobutton7"
-msgstr "radiobutton7"
-
-#: config.glade.h:111
-msgid "radiobutton8"
-msgstr "radiobutton8"
-
-#: config.glade.h:112
-msgid "radiobutton9"
-msgstr "radiobutton9"
-
-#: porthole.glade.h:1
-msgid "<b>Plugin Description</b>"
-msgstr "<b>Plugin Beschreibung</b>"
-
-#: porthole.glade.h:2
-msgid "<b>Plugin List</b>"
-msgstr "<b>Plugin Liste</b>"
-
-#: porthole.glade.h:3
-msgid "<b>Plugin Options</b>"
-msgstr "<b>Plugin Optionen</b>"
-
-#: porthole.glade.h:4
+#: ../porthole/glade/about.glade.h:1
 msgid ""
 "A GTK+ frontend to Portage\n"
 "\n"
@@ -1293,291 +776,1172 @@ msgstr ""
 "Brian Bockelman and Tommy Iorns\n"
 "Copyright (C) 2003 - 2005"
 
-#: porthole.glade.h:10
-msgid "A_bout"
-msgstr "Ü_ber"
-
-#: porthole.glade.h:11
-msgid "A_dv Emerge"
-msgstr "F_ortg. Emerge"
-
-#: porthole.glade.h:12
+#: ../porthole/glade/about.glade.h:7
 msgid "About"
 msgstr "Über"
 
-#: porthole.glade.h:13
-msgid "Advanced Emerge Package"
-msgstr "Paket installieren (fortg. Einstellungen)"
-
-#: porthole.glade.h:14
-msgid "All Packages"
-msgstr "Alle Pakete"
-
-#: porthole.glade.h:15
-msgid "C_lear"
-msgstr "_Löschen"
-
-#: porthole.glade.h:16
-msgid "Cautions "
-msgstr "Hinweise"
-
-#: porthole.glade.h:17
-msgid "Changelog"
-msgstr "Änderungen"
-
-#: porthole.glade.h:19
-msgid "E_merge"
-msgstr "I_nstallieren"
-
-#: porthole.glade.h:20
-msgid "E_merge Package"
-msgstr "Paket i_nstallieren"
-
-#: porthole.glade.h:21
-msgid "Ebuild"
-msgstr "Ebuild"
-
-#: porthole.glade.h:22
-msgid "Emerge Package"
-msgstr "Paket installieren"
-
-#: porthole.glade.h:23
-msgid "Emerge Queue"
-msgstr "Emerge-Warteschlange"
-
-#: porthole.glade.h:24
-msgid "In order to access all the features of Porthole, please run it with root privileges."
-msgstr "Um Zugriff auf alle Funktionen von Porthole zu erhalten, starten Sie es bitte mit Root Rechten."
-
-#: porthole.glade.h:25
-msgid "Information "
-msgstr "Informationen"
-
-#: porthole.glade.h:26
-msgid "Installed Packages"
-msgstr "Installierte Pakete"
-
-#: porthole.glade.h:27
-msgid "Installed files"
-msgstr "Installierte Dateien"
-
-#: porthole.glade.h:28
-msgid "Kill"
-msgstr "Abbrechen"
-
-#: porthole.glade.h:29
-msgid "Main process text"
-msgstr "Hauptprozesstext"
-
-#: porthole.glade.h:30
-msgid "Move _Down"
-msgstr "nach _unten"
-
-#: porthole.glade.h:31
-msgid "Move _Up"
-msgstr "nach _oben"
-
-#: porthole.glade.h:32
-msgid "Not Root"
-msgstr "Nicht Root"
-
-#: porthole.glade.h:33
-msgid "Only _Fetch"
-msgstr "Nur _herunterladen (fetchonly)"
-
-#: porthole.glade.h:34
-msgid "Open Emerge _Log"
-msgstr "Emerge-_Log öffnen"
-
-#: porthole.glade.h:35
-msgid "Please Enter Command to Execute"
-msgstr "Bitte geben Sie den auszuführenden Befehl ein."
-
-#: porthole.glade.h:36
-msgid "Plugin Settings"
-msgstr "Plugin-Einstellungen"
-
-#: porthole.glade.h:37
-msgid "Plugin _Settings"
-msgstr "Plugin-_Einstellungen"
-
-#: porthole.glade.h:38
-msgid "Porthole"
-msgstr "Porthole"
-
-#: porthole.glade.h:39
-msgid "Porthole Terminal"
-msgstr "Porthole Terminal"
-
-#: porthole.glade.h:41
-msgid "Quit"
-msgstr "Beenden"
-
-#: porthole.glade.h:42
-msgid "RUN :"
-msgstr "Ausführen:"
-
-#: porthole.glade.h:43
-msgid "R_eload Database"
-msgstr "Datenbank neu l_aden"
-
-#: porthole.glade.h:44
-msgid "Re-Initialize _Portage"
-msgstr "Portage reinitialisieren"
-
-#: porthole.glade.h:45
-msgid "Refresh the Current View"
-msgstr "Aktuelle Ansicht neu laden"
-
-#: porthole.glade.h:46
-msgid "S_ync"
-msgstr "S_ynchronisieren"
-
-#: porthole.glade.h:47
-msgid "S_ync Tree"
-msgstr "Paketdatenbank s_ynchronisieren"
-
-#: porthole.glade.h:48
-msgid "Save Log _As"
-msgstr "Logdatei speichern _als"
-
-#: porthole.glade.h:49
-msgid "Save _Log"
-msgstr "_Logdatei speichern"
-
-#: porthole.glade.h:50
-msgid "Search Results"
-msgstr "Suchergebnisse"
-
-#: porthole.glade.h:51
-msgid "Search _Descriptions"
-msgstr "_Beschreibungen durchsuchen"
-
-#: porthole.glade.h:52
-msgid "Skip _Queue Entry"
-msgstr "Warteschlangen Eintrag überspringen"
-
-#: porthole.glade.h:54
-msgid "U_nmerge"
-msgstr "D_einstallieren"
-
-#: porthole.glade.h:55
-msgid "U_nmerge Package"
-msgstr "Paket d_einstallieren"
-
-#: porthole.glade.h:56
-msgid "Unmerge Package"
-msgstr "Paket deinstallieren"
-
-#: porthole.glade.h:57
-msgid "Upgradable Packages"
-msgstr "Aktualisierbare Pakete"
-
-#: porthole.glade.h:58
-msgid "Upgrade packages to newest versions"
-msgstr "Pakete auf die neuste Version aktualisieren"
-
-#: porthole.glade.h:59
-msgid "Warnings! "
-msgstr "Warnungen!"
-
-#: porthole.glade.h:60
-msgid "_Actions"
-msgstr "_Befehle"
-
-#: porthole.glade.h:61
-msgid "_Advanced Emerge Package"
-msgstr "_Paket installieren (fortg. Einstellungen)"
-
-#: porthole.glade.h:62
-msgid "_Close Window"
-msgstr "_Fenster schließen"
-
-#: porthole.glade.h:63
-msgid "_Configure Porthole"
-msgstr "_Porthole konfigurieren"
-
-#: porthole.glade.h:64
-msgid "_Contents"
-msgstr "_Inhalt"
-
-#: porthole.glade.h:65
-msgid "_Copy"
-msgstr "_Kopieren"
-
-#: porthole.glade.h:66
-msgid "_Edit"
-msgstr "_Bearbeiten"
-
-#: porthole.glade.h:67
-msgid "_Help"
-msgstr "_Hilfe"
-
-#: porthole.glade.h:68
+#: ../porthole/glade/about.glade.h:8
 msgid "_Homepage"
 msgstr "_Webseite"
 
-#: porthole.glade.h:69
+#: ../porthole/glade/advemerge.glade.h:1
+msgid "  |__"
+msgstr ""
+
+#: ../porthole/glade/advemerge.glade.h:2
+#, fuzzy
+msgid ""
+" --buildpkg (-b)\n"
+"Tells emerge to build binary packages for all ebuilds processed in addition to actually merging the packages.  Useful for maintainers or if you administrate multiple Gentoo Linux systems (build  once,  emerge  tbz2s  everywhere). The  package  will be created in the ${PKGDIR}/All directory.  An alternative for already-merged packages is to use quickpkg which creates a tbz2 from the live filesystem."
+msgstr "Durch das Aktivieren dieser Option wird für jedes verarbeitete Paket zusätzlich ein Binärpaket zu erzeugt. Das ist hilfreich, wenn sie mehrere Gentoo Linux Systeme administrieren (auf einem System installieren und auf den anderen jeweils die tbz2s Pakete für Emerge benutzen). Die Pakete werden im ${PKGDIR}/All Verzeichnis erstellt. Eine Alternative dieser Option um Archive für bereits installierte Pakete im Nachhinein zu erstellen ist die quickpkg Option."
+
+#: ../porthole/glade/advemerge.glade.h:4
+msgid ""
+" --color < y | n >\n"
+"Enable or disable color output.  This option will override NOCOLOR (see make.conf(5)) and may also be used to force color output when stdout is not a tty (by default, color is disabled unless stdout is a tty)."
+msgstr ""
+
+#: ../porthole/glade/advemerge.glade.h:6
+msgid ""
+" --ignore-default-opts\n"
+"Causes EMERGE_DEFAULT_OPTS (see make.conf(5)) to be ignored."
+msgstr ""
+
+#: ../porthole/glade/advemerge.glade.h:8
+msgid ""
+" --newuse (-N)\n"
+"Tells  emerge  to  include  installed  packages  where  USE flags have changed since compilation.  USE flag changes include: \n"
+"\n"
+"  A USE flag was added to a package.\n"
+"    A USE flag was removed from a package.\n"
+"    A USE flag was turned on for a package.\n"
+"    A USE flag was turned off for a package.\n"
+"\n"
+"USE flags may be toggled by your profile as well as your USE and package.use settings."
+msgstr ""
+
+#: ../porthole/glade/advemerge.glade.h:17
+#, fuzzy
+msgid ""
+" --noconfmem\n"
+"Causes  portage  to  disregard merge records indicating that a config file inside of a CONFIG_PROTECT directory has\n"
+"been merged already.  Portage will normally merge those files only once to prevent the user from dealing  with  the\n"
+"same config multiple times.  This flag will cause the file to always be merged."
+msgstr "Veranlasst Portage dazu die Funktion zur Überprüfung auf installierte Konfigurationsdateien auszulassen. Portage installiert diese Dateien normalerweise nur einmal, um dem Benutzer den Aufwand mit ein und denselben Konfigurationsdateien zu ersparen. Diese Option veranlasst Portage dazu, die Dateien dennoch zu installieren."
+
+#: ../porthole/glade/advemerge.glade.h:21
+#, fuzzy
+msgid ""
+" --oneshot (-1)\n"
+"Emerge as normal, but do not add the packages to the world file for later updating."
+msgstr "Installieren, aber die Pakete nicht zum Worldfile für spätere Aktualisierungen hinzufügen."
+
+#: ../porthole/glade/advemerge.glade.h:23
+msgid ""
+"--alphabetical\n"
+"When  displaying  USE  and  other  flag output, combines the enabled and disabled lists into one list and sorts the whole list alphabetically."
+msgstr ""
+
+#: ../porthole/glade/advemerge.glade.h:25
+msgid ""
+"--ask (-a)\n"
+"Before performing the action, display what will take place (server info for --sync, --pretend output for merge, and so  forth),  then ask whether to proceed with the action or abort.  Using --ask is more efficient than using --pretend and then executing the same command without --pretend, as dependencies will only need to be  calculated  once.   WARNING:  If the \"Enter\" key is pressed at the prompt (with no other input), it is interpreted as acceptance of the first choice.  Note that the input buffer is not cleared prior to the prompt, so an accidental press of the \"Enter\" key at any time prior to the prompt will be interpreted as a choice!"
+msgstr ""
+
+#: ../porthole/glade/advemerge.glade.h:27
+#, fuzzy
+msgid ""
+"--buildpkgonly (-B)\n"
+"Creates binary packages for all ebuilds processed without actually merging  the  packages.   This  comes  with  the caveat that all build-time dependencies must already be emerged on the system."
+msgstr "Binärpakete für alle verarbeiteten Pakete erstellen, anstatt die Pakete tatsächlich auf Ihrem System zu installieren. Dies setzt voraus, dass alle Abhängigkeiten des betroffenen Pakets bereits auf Ihrem System vorhanden sein müssen."
+
+#: ../porthole/glade/advemerge.glade.h:29
+msgid ""
+"--columns\n"
+"Used alongside --pretend to cause the package name, new version, and old version to be displayed in an aligned format for easy cut-n-paste."
+msgstr ""
+
+#: ../porthole/glade/advemerge.glade.h:31
+#, fuzzy
+msgid ""
+"--debug (-d)\n"
+"Tells emerge to run the emerge command in --debug mode. In this mode the bash build environment will run with  the -x  option,  causing  it  to output verbose debugging information to stdout.  This also enables a plethora of other output mostly dependency resolution messages)."
+msgstr "Aktivieren Sie diese Option, um das Emerge Kommando im Debug Modus auszuführen. In diesem Modus wird die Bash Installationsumgebung mit der -x Option ausgeführt. Dadurch werden alle Debug Informationen nach stdout ausgegeben. Die Debug Option ist hilfreich, um Bash Syntaxfehler zu finden."
+
+#: ../porthole/glade/advemerge.glade.h:33
+#, fuzzy
+msgid ""
+"--deep (-D)\n"
+"This flag forces emerge to consider the entire dependency tree of packages, instead of checking only the  immediate dependencies of the packages.  As an example, this catches updates in libraries that are not directly listed in the dependencies of a package.  Also see --with-bdeps for behavior with respect to build time dependencies that are not strictly required."
+msgstr "Wenn diese Option zusammen mit der update Option benutzt wird (empfohlen), wird Portage dazu angewiesen die Abhängigkeiten von allen installierten Paketen zu berücksichtigen."
+
+#: ../porthole/glade/advemerge.glade.h:35
+msgid ""
+"--emptytree (-e)\n"
+"Reinstalls  all  world  packages  and their dependencies to the current USE specifications while differing from the installed set of packages as little as possible.  You should run with --pretend first to make sure  the  result  is what you expect."
+msgstr ""
+
+#: ../porthole/glade/advemerge.glade.h:37
+#, fuzzy
+msgid ""
+"--fetch-all-uri (-F)\n"
+"Instead of doing any package building, just perform fetches for all packages (the  main  package  as  well  as  all dependencies), grabbing all potential files."
+msgstr "Nur herunterladen anstatt die Pakete zu installieren. (Ausgewähltes Paket mit allen Abhängigkeiten)"
+
+#: ../porthole/glade/advemerge.glade.h:39
+#, fuzzy
+msgid ""
+"--fetchonly (-f)\n"
+"Instead  of  doing  any  package  building,  just perform fetches for all packages (the main package as well as all dependencies)."
+msgstr "Nur herunterladen anstatt die Pakete zu installieren. (Ausgewähltes Paket mit allen Abhängigkeiten)"
+
+#: ../porthole/glade/advemerge.glade.h:41
+msgid ""
+"--getbinpkg (-g)\n"
+"Using  the server and location defined in PORTAGE_BINHOST (see make.conf(5)), portage will download the information from each binary package found and it will use that information to help build the  dependency  list.   This  option implies -k.  (Use -gK for binary-only merging.)"
+msgstr ""
+
+#: ../porthole/glade/advemerge.glade.h:43
+msgid ""
+"--getbinpkgonly (-G)\n"
+"This option is identical to -g, as above, except it will not use ANY information from the local machine.  All binaries will be downloaded from the remote server without consulting packages existing in the  local  packages  directory."
+msgstr ""
+
+#: ../porthole/glade/advemerge.glade.h:45
+#, fuzzy
+msgid ""
+"--nodeps (-O)\n"
+"Merges  specified  packages  without  merging  any  dependencies.  Note that the build may fail if the dependencies are not satisfied."
+msgstr "Installiert das ausgewählte Paket ohne die Abhängigkeiten zu installieren. Bitte beachten Sie, dass das Paket nicht erfolgreich installiert werden könnte, falls Abhängigkeiten fehlen."
+
+#: ../porthole/glade/advemerge.glade.h:47
+#, fuzzy
+msgid ""
+"--noreplace (-n) \n"
+"Skips the packages specified on the command-line that have already been installed.  Without this option, any  packages,  ebuilds,  or  deps  you specify on the command-line will cause Portage to remerge the package, even if it is already installed.  Note that Portage will not remerge dependencies by default."
+msgstr "Überspringt schon installierte Pakete. Ohne diese Option werden alle Pakete, Ebuilds oder Abhängigkeiten installiert, auch wenn sie schon auf Ihrem System vorhanden sind. Anmerkung: Portage installiert in der Standardeinstellung keine schon auf dem System vorhandene Abhängigkeiten."
+
+#: ../porthole/glade/advemerge.glade.h:49
+msgid ""
+"--nospinner\n"
+"Disables the spinner for the session.  The spinner is active when the terminal device is determined to  be  a  TTY.\n"
+"This flag disables it regardless."
+msgstr ""
+
+#: ../porthole/glade/advemerge.glade.h:52
+#, fuzzy
+msgid ""
+"--onlydeps (-o)\n"
+"Only merge (or pretend to merge) the dependencies of the packages specified, not the packages themselves."
+msgstr "Nur die Abhängigkeiten der ausgewählten Pakete installieren (oder die Vorschau anzeigen), ohne die Pakete an sich zu installieren."
+
+#: ../porthole/glade/advemerge.glade.h:54
+#, fuzzy
+msgid ""
+"--pretend (-p)\n"
+"Instead  of  actually  performing  the  merge, simply display what *would* have been installed if --pretend weren't used. Using --pretend is strongly recommended before installing an unfamiliar package.  In the printout:\n"
+"\n"
+"N = new (not yet installed)\n"
+"S = new SLOT installation (side-by-side versions)\n"
+"U = updating (to another version)\n"
+"D = downgrading (best version seems lower)\n"
+"R = replacing (remerging same version))\n"
+"F = fetch restricted (must be manually downloaded)\n"
+"f = fetch restricted (already downloaded)\n"
+"B = blocked by an already installed package"
+msgstr "Anstatt tatsächlich zu installieren nur anzeigen was installiert *worden wäre*, wenn Sie die Vorschaufunktion nicht aktiviert hätten. Es wird dringend empfohlen die Vorschaufunktion zu benutzen, wenn Sie mit dem betroffenen Paket nicht vertraut sind. Legende: N = neu, U = Aktualisierung vorhanden, UD=downgrade, R = ersetzen, F = manuelles Herunterladen nötig, B = blockiert von einem bereits installierten Paket."
+
+#: ../porthole/glade/advemerge.glade.h:65
+#, fuzzy
+msgid ""
+"--quiet (-q) \n"
+"Results may vary, but the general outcome is a reduced or condensed output of portage displays."
+msgstr "Das Ergebnis könnte abweichen, aber das eigentliche Resultat ist eine reduzierte oder gekürzte Ausgabe des Portage Textes."
+
+#: ../porthole/glade/advemerge.glade.h:67
+msgid ""
+"--tree (-t) \n"
+"Shows the dependency tree for the given target by indenting dependencies.  This is only really useful  in  combination with --emptytree or --update and --deep."
+msgstr ""
+
+#: ../porthole/glade/advemerge.glade.h:69
+msgid ""
+"--update (-u)\n"
+"Updates packages to the best version available, which may not always be the highest version number due  to  masking for  testing  and  development.  This will also update direct dependencies which may not be what you want.  Package atoms specified on the command line are greedy, meaning that unspecific atoms may match multiple installed versions of slotted packages."
+msgstr ""
+
+#: ../porthole/glade/advemerge.glade.h:71
+#, fuzzy
+msgid ""
+"--usepkg (-k)\n"
+"Tells  emerge to use binary packages (from $PKGDIR) if they are available, thus possibly avoiding some time-consuming compiles.  This option is useful for CD installs; you can export PKGDIR=/mnt/cdrom/packages and then  use  this option to have emerge \"pull\" binary packages from the CD in order to satisfy dependencies."
+msgstr "Durch diese Option benutzt Emerge Binärpakete (aus dem Ordner $PKGDIR), sofern auf Ihrem System vorhanden. Diese Option ist hilfreich, um CD Installationen durchzuführen: Sie können den Pfad mit PKGDIR=/mnt/cdrom/packages exportieren und dann diese Option aktivieren, um das Binärpaket von der CD zu benutzen."
+
+#: ../porthole/glade/advemerge.glade.h:73
+msgid ""
+"--usepkgonly (-K)\n"
+" Tells  emerge to only use binary packages (from $PKGDIR).  All the binary packages must be available at the time of\n"
+"dependency calculation or emerge will simply abort.  Portage does not  use  $PORTDIR  when  calculating  dependency\n"
+"information so all masking information is ignored."
+msgstr ""
+
+#: ../porthole/glade/advemerge.glade.h:78
+#, no-c-format
+msgid ""
+"--verbose (-v)\n"
+"Tell emerge to run in verbose mode.  Currently this flag causes emerge to print out GNU info errors, if any, and to show the USE flags that will be used for each package when pretending. The following symbols  are  affixed  to  USE flags in order to indicate their status:\n"
+"\n"
+"    - prefix     = not enabled (either disabled or removed)\n"
+"    * suffix     = transition to or from the enabled state\n"
+"    % suffix     = newly added or removed\n"
+"    () circumfix = forced, masked, or removed"
+msgstr ""
+
+#: ../porthole/glade/advemerge.glade.h:85
+msgid ""
+"--with-bdeps < y | n >\n"
+"In  dependency calculations, pull in build time dependencies that are not strictly required.   This defaults to 'n' for installation actions and 'y' for the --depclean action.  This setting can be added to EMERGE_DEFAULT_OPTS  (see make.conf(5)) and later overridden via the command line."
+msgstr ""
+
+#: ../porthole/glade/advemerge.glade.h:87
+msgid "<b>Command Preview</b>"
+msgstr "<b>Vorschau des Kommandos</b>"
+
+#: ../porthole/glade/advemerge.glade.h:88
+msgid "<b>Emerge Options</b>"
+msgstr "<b>Emerge-Optionen</b>"
+
+#: ../porthole/glade/advemerge.glade.h:89
+msgid "<b>Package Options</b>"
+msgstr "<b>Paket-Optionen</b>"
+
+#: ../porthole/glade/advemerge.glade.h:90
+msgid "Add the selected keyword to your package.keywords file. Changes will affect THIS VERSION only."
+msgstr "Das ausgewählte Keyword der package.keywords Datei hinzufügen. Die Änderungen betreffen nur DIESE VERSION."
+
+#: ../porthole/glade/advemerge.glade.h:91
+msgid "Command Preview Window"
+msgstr "Befehlsvorschaufenster"
+
+#: ../porthole/glade/advemerge.glade.h:92
+msgid "Commit Use Flag modifications to your make.conf file. Changes will affect ALL PACKAGES on your system."
+msgstr "USE-Flag Modifikation in die make.conf speichern. Die Änderungen betreffen ALLE PAKETE auf Ihrem System."
+
+#: ../porthole/glade/advemerge.glade.h:93
+msgid "Commit Use Flag modifications to your package.use file. Changes will affect THIS PACKAGE only."
+msgstr "USE-Flag Modifikation in die make.conf speichern. Die Änderungen betreffen nur DIESES PAKET."
+
+#: ../porthole/glade/advemerge.glade.h:94
+msgid "Keyword to accept"
+msgstr "akzeptiertes Keyword"
+
+#: ../porthole/glade/advemerge.glade.h:95
+msgid "Update make.conf"
+msgstr "make.conf aktualisieren"
+
+#: ../porthole/glade/advemerge.glade.h:96
+msgid "Update package.keywords"
+msgstr "package.keywords aktualisieren"
+
+#: ../porthole/glade/advemerge.glade.h:97
+msgid "Update package.use"
+msgstr "package.use aktualisieren"
+
+#: ../porthole/glade/advemerge.glade.h:98
+msgid "Use Flags"
+msgstr "USE-Flags"
+
+#: ../porthole/glade/advemerge.glade.h:99
+msgid "alphabetical"
+msgstr ""
+
+#: ../porthole/glade/advemerge.glade.h:100
+msgid "ask"
+msgstr ""
+
+#: ../porthole/glade/advemerge.glade.h:101
+msgid "buildpkg"
+msgstr "buildpkg"
+
+#: ../porthole/glade/advemerge.glade.h:102
+msgid "buildpkgonly"
+msgstr "buildpkgonly"
+
+#: ../porthole/glade/advemerge.glade.h:103
+msgid "color  "
+msgstr ""
+
+#: ../porthole/glade/advemerge.glade.h:104
+msgid "columns"
+msgstr ""
+
+#: ../porthole/glade/advemerge.glade.h:105
+msgid "debug"
+msgstr "debug"
+
+#: ../porthole/glade/advemerge.glade.h:106
+msgid "deep"
+msgstr "deep"
+
+#: ../porthole/glade/advemerge.glade.h:107
+msgid "emptytree"
+msgstr "emptytree"
+
+#: ../porthole/glade/advemerge.glade.h:108
+msgid "fetch-all-uri"
+msgstr ""
+
+#: ../porthole/glade/advemerge.glade.h:109
+msgid "fetchonly"
+msgstr "fetchonly"
+
+#: ../porthole/glade/advemerge.glade.h:110
+msgid "getbinpkg"
+msgstr ""
+
+#: ../porthole/glade/advemerge.glade.h:111
+#, fuzzy
+msgid "getbinpkgonly"
+msgstr "buildpkgonly"
+
+#: ../porthole/glade/advemerge.glade.h:112
+msgid "ignore-default-opts"
+msgstr ""
+
+#: ../porthole/glade/advemerge.glade.h:113
+msgid "n"
+msgstr ""
+
+#: ../porthole/glade/advemerge.glade.h:114
+msgid "newuse"
+msgstr ""
+
+#: ../porthole/glade/advemerge.glade.h:115
+msgid "noconfmem"
+msgstr "noconfmem"
+
+#: ../porthole/glade/advemerge.glade.h:116
+msgid "nodeps"
+msgstr "nodeps"
+
+#: ../porthole/glade/advemerge.glade.h:117
+msgid "noreplace"
+msgstr "noreplace"
+
+#: ../porthole/glade/advemerge.glade.h:118
+#: ../porthole/glade/config.glade.h:101
+msgid "nospinner"
+msgstr "nospinner"
+
+#: ../porthole/glade/advemerge.glade.h:119
+msgid "oneshot"
+msgstr "oneshot"
+
+#: ../porthole/glade/advemerge.glade.h:120
+msgid "onlydeps"
+msgstr "onlydeps"
+
+#: ../porthole/glade/advemerge.glade.h:121
+#: ../porthole/glade/config.glade.h:102
+msgid "pretend"
+msgstr "pretend"
+
+#: ../porthole/glade/advemerge.glade.h:122
+msgid "quiet"
+msgstr "quiet"
+
+#: ../porthole/glade/advemerge.glade.h:123
+#, fuzzy
+msgid "tree"
+msgstr "Grün"
+
+#: ../porthole/glade/advemerge.glade.h:124
+msgid "update"
+msgstr "update"
+
+#: ../porthole/glade/advemerge.glade.h:125
+msgid "usepkg"
+msgstr "usepkg"
+
+#: ../porthole/glade/advemerge.glade.h:126
+msgid "usepkgonly"
+msgstr "usepkgonly"
+
+#: ../porthole/glade/advemerge.glade.h:127
+#: ../porthole/glade/config.glade.h:114
+msgid "verbose"
+msgstr "verbose"
+
+#: ../porthole/glade/advemerge.glade.h:128
+msgid "version"
+msgstr "version"
+
+#: ../porthole/glade/advemerge.glade.h:129
+msgid "with-bdeps"
+msgstr ""
+
+#: ../porthole/glade/advemerge.glade.h:130
+msgid "y"
+msgstr ""
+
+#: ../porthole/glade/config.glade.h:1
+msgid " Editor : "
+msgstr " Editor : "
+
+#: ../porthole/glade/config.glade.h:2
+msgid "<b>Advanced Emerge dialog options</b>"
+msgstr "<b>Fortgeschrittene Emerge-Optionen</b>"
+
+#: ../porthole/glade/config.glade.h:3
+msgid "<b>Arch List</b> for display's &amp; options"
+msgstr "<b>Arch-Liste</b> für Anzeigen &amp; Optionen"
+
+#: ../porthole/glade/config.glade.h:4
+msgid "<b>Emerge options</b>"
+msgstr "<b>Emerge Optionen</b>"
+
+#: ../porthole/glade/config.glade.h:5
+msgid "<b>Run Custom Command options</b>"
+msgstr "<b>Optionen um benutzerdefiniertes Kommando auszuführen</b>"
+
+#: ../porthole/glade/config.glade.h:6
+msgid "<b>Web Browser Options</b>"
+msgstr "<b>Web-Browser Optionen</b>"
+
+#: ../porthole/glade/config.glade.h:7
+msgid "Add New"
+msgstr "Hinzufügen"
+
+#: ../porthole/glade/config.glade.h:8
+msgid "Add a new filter expression to the Selected Group"
+msgstr "Der ausgewählten Gruppe eine neue Filterregel hinzufügen"
+
+#: ../porthole/glade/config.glade.h:9
+msgid "Arch-list/Version table"
+msgstr "Arch-Liste/Versionstabelle"
+
+#: ../porthole/glade/config.glade.h:10
+msgid "Available Versions"
+msgstr "Verfügbare Versionen"
+
+#: ../porthole/glade/config.glade.h:11
+msgid "Background"
+msgstr "Hintergrund"
+
+#: ../porthole/glade/config.glade.h:12
+msgid "Background Colour"
+msgstr "Hintergrundfarbe"
+
+#: ../porthole/glade/config.glade.h:13
+msgid "Black"
+msgstr "Schwarz"
+
+#: ../porthole/glade/config.glade.h:14
+msgid "Blue"
+msgstr "Blau"
+
+#: ../porthole/glade/config.glade.h:15
+msgid "Browser : "
+msgstr "Web-Browser : "
+
+#: ../porthole/glade/config.glade.h:16
+msgid "Category View"
+msgstr "Kategorieansicht"
+
+#: ../porthole/glade/config.glade.h:17
+msgid "Caution"
+msgstr "Hinweis"
+
+#: ../porthole/glade/config.glade.h:18
+msgid "Check off all items you would like displayed"
+msgstr "Bitte wählen Sie die Informationen aus, welche Ihnen angezeigt werden sollen."
+
+#: ../porthole/glade/config.glade.h:19
+msgid "Command"
+msgstr "Befehl"
+
+#: ../porthole/glade/config.glade.h:20
+msgid "Current CPU architecture : "
+msgstr "Momentane CPU Architektur : "
+
+#: ../porthole/glade/config.glade.h:21
+msgid "Cyan"
+msgstr "Cyan"
+
+#: ../porthole/glade/config.glade.h:22
+msgid "Default"
+msgstr "Standard"
+
+#: ../porthole/glade/config.glade.h:23
+msgid "Delete"
+msgstr "Löschen"
+
+#: ../porthole/glade/config.glade.h:24
+msgid "Delete the selected filter expression"
+msgstr "Die ausgewählte Filterregel löschen"
+
+#: ../porthole/glade/config.glade.h:26
+msgid "Downgradable Colour"
+msgstr "Downgrade empfohlen"
+
+#: ../porthole/glade/config.glade.h:28
+msgid "Edit"
+msgstr "Editieren"
+
+#: ../porthole/glade/config.glade.h:29
+msgid "Edit the selected filter expression"
+msgstr "Die ausgewählte Filterregel bearbeiten"
+
+#: ../porthole/glade/config.glade.h:31
+msgid "Enable arch-list"
+msgstr "Architekturliste aktivieren"
+
+#: ../porthole/glade/config.glade.h:32
+msgid "Enable make.conf modification"
+msgstr "Geänderte make.conf übernehmen"
+
+#: ../porthole/glade/config.glade.h:33
+msgid "Enter the command for a GUI su client eg. 'gksu' or 'gnomesu'"
+msgstr "Geben Sie den Befehl einer grafischen Oberfläche zu su ein (z.B. 'gksu' oder 'gnomesu')"
+
+#: ../porthole/glade/config.glade.h:34
+msgid "Error"
+msgstr "Fehler"
+
+#: ../porthole/glade/config.glade.h:35
+msgid "Filters"
+msgstr "Filter"
+
+#: ../porthole/glade/config.glade.h:36
+msgid "Font & Colors"
+msgstr "Schriftart & Farbe"
+
+#: ../porthole/glade/config.glade.h:37
+msgid "Font :"
+msgstr "Schriftart:"
+
+#: ../porthole/glade/config.glade.h:38
+msgid "Foreground"
+msgstr "Vordergrund"
+
+#: ../porthole/glade/config.glade.h:39
+msgid "GUI su client :"
+msgstr "Grafische su-Oberfläche:"
+
+#: ../porthole/glade/config.glade.h:40
+msgid "Global"
+msgstr "Global"
+
+#: ../porthole/glade/config.glade.h:41
+msgid "Green"
+msgstr "Grün"
+
+#: ../porthole/glade/config.glade.h:42
+msgid "Homepage URL"
+msgstr "Webseiten URL"
+
+#: ../porthole/glade/config.glade.h:43
+msgid "Info"
+msgstr "Info"
+
+#: ../porthole/glade/config.glade.h:45
+msgid "Installed list"
+msgstr "Liste installierter Programme"
+
+#: ../porthole/glade/config.glade.h:47
+msgid "LANG = "
+msgstr "LANG = "
+
+#: ../porthole/glade/config.glade.h:48
+msgid "License"
+msgstr "Lizenz"
+
+#: ../porthole/glade/config.glade.h:49
+msgid "Line Number"
+msgstr "Zeilennummer"
+
+#: ../porthole/glade/config.glade.h:50
+msgid "Long Descriptions"
+msgstr "Lange Beschreibungen"
+
+#: ../porthole/glade/config.glade.h:51
+msgid "Magenta"
+msgstr "Magenta"
+
+#: ../porthole/glade/config.glade.h:52
+msgid "Main Window"
+msgstr "Hauptfenster"
+
+#: ../porthole/glade/config.glade.h:53
+msgid "More Colours"
+msgstr "Mehr Farben"
+
+#: ../porthole/glade/config.glade.h:54
+msgid "Move"
+msgstr "Verschieben"
+
+#: ../porthole/glade/config.glade.h:55
+msgid "Move the selected filter expression to a different filter group"
+msgstr "Die ausgewählte Filterregel in eine andere Filtergruppe verschieben"
+
+#: ../porthole/glade/config.glade.h:56
+msgid "Normal"
+msgstr "Normal"
+
+#: ../porthole/glade/config.glade.h:57
+msgid "Normal Font Colour"
+msgstr "Normale Schriftfarbe"
+
+#: ../porthole/glade/config.glade.h:58
+msgid "Note"
+msgstr "Anmerkung"
+
+#: ../porthole/glade/config.glade.h:59
+msgid "Package View"
+msgstr "Paketansicht"
+
+#: ../porthole/glade/config.glade.h:60
+msgid ""
+"Please enter the persistent history commands\n"
+"you wish to be pre-typed"
+msgstr ""
+"Bitte geben Sie hier Befehle an, welche gespeichert werden\n"
+"und Ihnen in einer Auswahlliste zur Verfügung stehen."
+
+#: ../porthole/glade/config.glade.h:62
+msgid "Please select the Font colours desired"
+msgstr "Bitte wählen Sie die gewünschten Schriftfarben aus."
+
+#: ../porthole/glade/config.glade.h:63
+msgid "Porthole Configuration"
+msgstr "Porthole Konfiguration"
+
+#: ../porthole/glade/config.glade.h:65
+msgid "Red"
+msgstr "Rot"
+
+#: ../porthole/glade/config.glade.h:66
+msgid "Reset the filters to the defaults"
+msgstr "Die Filter auf den Standard zurücksetzen"
+
+#: ../porthole/glade/config.glade.h:67
+msgid "Sample Window"
+msgstr "Beispielfenster"
+
+#: ../porthole/glade/config.glade.h:68
+msgid "Save the filters to disk"
+msgstr "Die Filter abspeichern"
+
+#: ../porthole/glade/config.glade.h:69
+msgid "Summary View"
+msgstr "Anzeigeoptionen"
+
+#: ../porthole/glade/config.glade.h:70
+msgid "Sync method "
+msgstr "Sync.-Methode"
+
+#: ../porthole/glade/config.glade.h:71
+msgid "Tag"
+msgstr "Tag"
+
+#: ../porthole/glade/config.glade.h:72
+msgid "Terminal"
+msgstr "Terminal"
+
+#: ../porthole/glade/config.glade.h:73
+msgid "Text Font & Colours"
+msgstr "Schriftart & Farben"
+
+#: ../porthole/glade/config.glade.h:74
+msgid "These colours are used by Porthole for highlighting"
+msgstr "Diese Farben werden von Porthole zur Syntaxhervorhebung genutzt."
+
+#: ../porthole/glade/config.glade.h:75
+msgid "These colours are used by emerge for coloured output"
+msgstr "Diese Farben werden von Emerge zur Syntaxhervorhebung genutzt."
+
+#: ../porthole/glade/config.glade.h:76
+msgid "USE Flags"
+msgstr "USE-Flags"
+
+#: ../porthole/glade/config.glade.h:77
+msgid "Upgradable Colour"
+msgstr "Aktualisierung verfügbar"
+
+#: ../porthole/glade/config.glade.h:78
+msgid "Use Custom Browser"
+msgstr "Benutzerdefinierter Web-Browser"
+
+#: ../porthole/glade/config.glade.h:79
+msgid "Use Default"
+msgstr "Standard benutzen"
+
+#: ../porthole/glade/config.glade.h:80
+msgid "Use Flag set +"
+msgstr "USE-Flag + gesetzt"
+
+#: ../porthole/glade/config.glade.h:81
+msgid "Use Flag set -"
+msgstr "USE-Flag - gesetzt"
+
+#: ../porthole/glade/config.glade.h:82
+msgid "WARNING! Make sure you back up your make.conf file (usually /etc/make.conf) before enabling this option!"
+msgstr ""
+"WARNUNG!\n"
+"Vergewissern Sie sich, dass Sie ein Backup Ihrer make.conf Datei gemacht haben (für gewöhnlich /etc/make.conf), bevor Sie diese Option aktivieren!"
+
+#: ../porthole/glade/config.glade.h:83
+msgid "Warning"
+msgstr "Warnung"
+
+#: ../porthole/glade/config.glade.h:84
+msgid "White"
+msgstr "Weiß"
+
+#: ../porthole/glade/config.glade.h:85
+msgid "Yellow"
+msgstr "Gelb"
+
+#: ../porthole/glade/config.glade.h:86
+msgid "checkbutton10"
+msgstr "checkbutton10"
+
+#: ../porthole/glade/config.glade.h:87
+msgid "checkbutton16"
+msgstr "checkbutton16"
+
+#: ../porthole/glade/config.glade.h:88
+msgid "checkbutton17"
+msgstr "checkbutton17"
+
+#: ../porthole/glade/config.glade.h:89
+msgid "checkbutton18"
+msgstr "checkbutton18"
+
+#: ../porthole/glade/config.glade.h:90
+msgid "checkbutton19"
+msgstr "checkbutton19"
+
+#: ../porthole/glade/config.glade.h:91
+msgid "checkbutton20"
+msgstr "checkbutton20"
+
+#: ../porthole/glade/config.glade.h:92
+msgid "checkbutton21"
+msgstr "checkbutton21"
+
+#: ../porthole/glade/config.glade.h:93
+msgid "checkbutton22"
+msgstr "checkbutton22"
+
+#: ../porthole/glade/config.glade.h:94
+msgid "checkbutton9"
+msgstr "checkbutton9"
+
+#: ../porthole/glade/config.glade.h:95
+msgid "command 1:"
+msgstr "Befehl 1:"
+
+#: ../porthole/glade/config.glade.h:96
+msgid "command 2:"
+msgstr "Befehl 2:"
+
+#: ../porthole/glade/config.glade.h:97
+msgid "command 3:"
+msgstr "Befehl 3:"
+
+#: ../porthole/glade/config.glade.h:98
+msgid "command 4:"
+msgstr "Befehl 4:"
+
+#: ../porthole/glade/config.glade.h:99
+msgid "command 5:"
+msgstr "Befehl 5:"
+
+#: ../porthole/glade/config.glade.h:100
+msgid "fetch"
+msgstr "fetch"
+
+#: ../porthole/glade/config.glade.h:103
+msgid "profile"
+msgstr "Profil"
+
+#: ../porthole/glade/config.glade.h:104
+msgid "radiobutton1"
+msgstr "radiobutton1"
+
+#: ../porthole/glade/config.glade.h:105
+msgid "radiobutton2"
+msgstr "radiobutton2"
+
+#: ../porthole/glade/config.glade.h:106
+msgid "radiobutton3"
+msgstr "radiobutton3"
+
+#: ../porthole/glade/config.glade.h:107
+msgid "radiobutton4"
+msgstr "radiobutton4"
+
+#: ../porthole/glade/config.glade.h:108
+msgid "radiobutton5"
+msgstr "radiobutton5"
+
+#: ../porthole/glade/config.glade.h:109
+msgid "radiobutton6"
+msgstr "radiobutton6"
+
+#: ../porthole/glade/config.glade.h:110
+msgid "radiobutton7"
+msgstr "radiobutton7"
+
+#: ../porthole/glade/config.glade.h:111
+msgid "radiobutton8"
+msgstr "radiobutton8"
+
+#: ../porthole/glade/config.glade.h:112
+msgid "radiobutton9"
+msgstr "radiobutton9"
+
+#: ../porthole/glade/config.glade.h:113
+msgid "upgradeonly"
+msgstr "upgradeonly"
+
+#: ../porthole/glade/porthole.glade.h:1
+msgid "<b>Plugin Description</b>"
+msgstr "<b>Plugin Beschreibung</b>"
+
+#: ../porthole/glade/porthole.glade.h:2
+msgid "<b>Plugin List</b>"
+msgstr "<b>Plugin Liste</b>"
+
+#: ../porthole/glade/porthole.glade.h:3
+msgid "<b>Plugin Options</b>"
+msgstr "<b>Plugin Optionen</b>"
+
+#: ../porthole/glade/porthole.glade.h:4
+msgid "A_bout"
+msgstr "Ü_ber"
+
+#: ../porthole/glade/porthole.glade.h:5
+msgid "A_dv Emerge"
+msgstr "F_ortg. Emerge"
+
+#: ../porthole/glade/porthole.glade.h:6
+msgid "Advanced Emerge Package"
+msgstr "Paket installieren (fortg. Einstellungen)"
+
+#: ../porthole/glade/porthole.glade.h:7
+msgid "C_lear"
+msgstr "_Löschen"
+
+#: ../porthole/glade/porthole.glade.h:8
+msgid "Cautions "
+msgstr "Hinweise"
+
+#: ../porthole/glade/porthole.glade.h:9
+msgid "Changelog"
+msgstr "Änderungen"
+
+#: ../porthole/glade/porthole.glade.h:11
+msgid "E_merge"
+msgstr "I_nstallieren"
+
+#: ../porthole/glade/porthole.glade.h:12
+msgid "E_merge Package"
+msgstr "Paket i_nstallieren"
+
+#: ../porthole/glade/porthole.glade.h:13
+msgid "Ebuild"
+msgstr "Ebuild"
+
+#: ../porthole/glade/porthole.glade.h:14
+msgid "Emerge Package"
+msgstr "Paket installieren"
+
+#: ../porthole/glade/porthole.glade.h:15
+msgid "Emerge Queue"
+msgstr "Emerge-Warteschlange"
+
+#: ../porthole/glade/porthole.glade.h:16
+msgid "In order to access all the features of Porthole, please run it with root privileges."
+msgstr "Um Zugriff auf alle Funktionen von Porthole zu erhalten, starten Sie es bitte mit Root Rechten."
+
+#: ../porthole/glade/porthole.glade.h:17
+msgid "Information "
+msgstr "Informationen"
+
+#: ../porthole/glade/porthole.glade.h:18
+msgid "Installed files"
+msgstr "Installierte Dateien"
+
+#: ../porthole/glade/porthole.glade.h:19
+msgid "Kill"
+msgstr "Abbrechen"
+
+#: ../porthole/glade/porthole.glade.h:20
+msgid "Main process text"
+msgstr "Hauptprozesstext"
+
+#: ../porthole/glade/porthole.glade.h:21
+msgid "Move Bottom"
+msgstr ""
+
+#: ../porthole/glade/porthole.glade.h:22
+#, fuzzy
+msgid "Move Top"
+msgstr "nach _oben"
+
+#: ../porthole/glade/porthole.glade.h:23
+msgid "Move _Down"
+msgstr "nach _unten"
+
+#: ../porthole/glade/porthole.glade.h:24
+msgid "Move _Up"
+msgstr "nach _oben"
+
+#: ../porthole/glade/porthole.glade.h:25
+#, fuzzy
+msgid "Moves the selected process to start next"
+msgstr "Die ausgewählte Filterregel in eine andere Filtergruppe verschieben"
+
+#: ../porthole/glade/porthole.glade.h:26
+#, fuzzy
+msgid "Moves the selected process to the end of the queue"
+msgstr "Die ausgewählte Filterregel in eine andere Filtergruppe verschieben"
+
+#: ../porthole/glade/porthole.glade.h:27
+msgid "Not Root"
+msgstr "Nicht Root"
+
+#: ../porthole/glade/porthole.glade.h:28
+msgid "Not yet implemented in this window.                   Set the terminal queue status, ie. Start, Pause or Timer"
+msgstr ""
+
+#: ../porthole/glade/porthole.glade.h:29
+msgid "Not yet implemented.                                     Set run times for commands in the queue"
+msgstr ""
+
+#: ../porthole/glade/porthole.glade.h:30
+msgid "Only _Fetch"
+msgstr "Nur _herunterladen (fetchonly)"
+
+#: ../porthole/glade/porthole.glade.h:31
+msgid "Open Emerge _Log"
+msgstr "Emerge-_Log öffnen"
+
+#: ../porthole/glade/porthole.glade.h:32
+msgid "Pause"
+msgstr ""
+
+#: ../porthole/glade/porthole.glade.h:33
+#, fuzzy
+msgid "Pause any commands in the queue"
+msgstr "Bitte geben Sie den auszuführenden Befehl ein."
+
+#: ../porthole/glade/porthole.glade.h:34
+msgid "Please Enter Command to Execute"
+msgstr "Bitte geben Sie den auszuführenden Befehl ein."
+
+#: ../porthole/glade/porthole.glade.h:35
+msgid "Plugin Settings"
+msgstr "Plugin-Einstellungen"
+
+#: ../porthole/glade/porthole.glade.h:36
+msgid "Plugin _Settings"
+msgstr "Plugin-_Einstellungen"
+
+#: ../porthole/glade/porthole.glade.h:37
+msgid "Porthole"
+msgstr "Porthole"
+
+#: ../porthole/glade/porthole.glade.h:38
+msgid "Porthole Terminal"
+msgstr "Porthole Terminal"
+
+#: ../porthole/glade/porthole.glade.h:40
+#, fuzzy
+msgid "Queue"
+msgstr "_Warteschlange"
+
+#: ../porthole/glade/porthole.glade.h:41
+msgid "Quit"
+msgstr "Beenden"
+
+#: ../porthole/glade/porthole.glade.h:42
+msgid "RUN :"
+msgstr "Ausführen:"
+
+#: ../porthole/glade/porthole.glade.h:43
+msgid "R_eload Database"
+msgstr "Datenbank neu l_aden"
+
+#: ../porthole/glade/porthole.glade.h:44
+msgid "Re-Initialize _Portage"
+msgstr "Portage reinitialisieren"
+
+#: ../porthole/glade/porthole.glade.h:45
+msgid "Refresh the Current View"
+msgstr "Aktuelle Ansicht neu laden"
+
+#: ../porthole/glade/porthole.glade.h:46
+#, fuzzy
+msgid "Resume"
+msgstr "_Wiederaufnehmen"
+
+#: ../porthole/glade/porthole.glade.h:47
+msgid "Resume the queue processes remaining"
+msgstr ""
+
+#: ../porthole/glade/porthole.glade.h:48
+#, fuzzy
+msgid "Run commands in the queue"
+msgstr "Kommandozeileneintrag"
+
+#: ../porthole/glade/porthole.glade.h:49
+msgid "S_ync"
+msgstr "S_ynchronisieren"
+
+#: ../porthole/glade/porthole.glade.h:50
+msgid "S_ync Tree"
+msgstr "Paketdatenbank s_ynchronisieren"
+
+#: ../porthole/glade/porthole.glade.h:51
+msgid "Save Log _As"
+msgstr "Logdatei speichern _als"
+
+#: ../porthole/glade/porthole.glade.h:52
+msgid "Save _Log"
+msgstr "_Logdatei speichern"
+
+#: ../porthole/glade/porthole.glade.h:53
+msgid "Search _Descriptions"
+msgstr "_Beschreibungen durchsuchen"
+
+#: ../porthole/glade/porthole.glade.h:54
+msgid "Skip _Queue Entry"
+msgstr "Warteschlangen Eintrag überspringen"
+
+#: ../porthole/glade/porthole.glade.h:56
+msgid "Temporarily stop any remaining processes from starting"
+msgstr ""
+
+#: ../porthole/glade/porthole.glade.h:57
+msgid "Timer"
+msgstr ""
+
+#: ../porthole/glade/porthole.glade.h:58
+msgid "U_nmerge"
+msgstr "D_einstallieren"
+
+#: ../porthole/glade/porthole.glade.h:59
+msgid "U_nmerge Package"
+msgstr "Paket d_einstallieren"
+
+#: ../porthole/glade/porthole.glade.h:60
+msgid "Unmerge Package"
+msgstr "Paket deinstallieren"
+
+#: ../porthole/glade/porthole.glade.h:61
+msgid "Upgrade packages to newest versions"
+msgstr "Pakete auf die neuste Version aktualisieren"
+
+#: ../porthole/glade/porthole.glade.h:62
+msgid "Warnings! "
+msgstr "Warnungen!"
+
+#: ../porthole/glade/porthole.glade.h:63
+msgid "_Actions"
+msgstr "_Befehle"
+
+#: ../porthole/glade/porthole.glade.h:64
+msgid "_Advanced Emerge Package"
+msgstr "_Paket installieren (fortg. Einstellungen)"
+
+#: ../porthole/glade/porthole.glade.h:65
+msgid "_Close Window"
+msgstr "_Fenster schließen"
+
+#: ../porthole/glade/porthole.glade.h:66
+msgid "_Configure Porthole"
+msgstr "_Porthole konfigurieren"
+
+#: ../porthole/glade/porthole.glade.h:67
+msgid "_Contents"
+msgstr "_Inhalt"
+
+#: ../porthole/glade/porthole.glade.h:68
+msgid "_Copy"
+msgstr "_Kopieren"
+
+#: ../porthole/glade/porthole.glade.h:69
+msgid "_Edit"
+msgstr "_Bearbeiten"
+
+#: ../porthole/glade/porthole.glade.h:70
+msgid "_Help"
+msgstr "_Hilfe"
+
+#: ../porthole/glade/porthole.glade.h:71
 msgid "_Kill Process"
 msgstr "_Prozess abbrechen"
 
-#: porthole.glade.h:70
+#: ../porthole/glade/porthole.glade.h:72
 msgid "_Normal"
 msgstr "_Normal"
 
-#: porthole.glade.h:71
+#: ../porthole/glade/porthole.glade.h:73
 msgid "_Open Log"
 msgstr "_Logdatei öffnen"
 
-#: porthole.glade.h:72
+#: ../porthole/glade/porthole.glade.h:74
 msgid "_Pretend"
 msgstr "_Vorschau (pretend)"
 
-#: porthole.glade.h:73
+#: ../porthole/glade/porthole.glade.h:75
 msgid "_Process"
 msgstr "_Prozess"
 
-#: porthole.glade.h:74
+#: ../porthole/glade/porthole.glade.h:76
 msgid "_Queue"
 msgstr "_Warteschlange"
 
-#: porthole.glade.h:75
+#: ../porthole/glade/porthole.glade.h:77
 msgid "_Remove"
 msgstr "_Entfernen"
 
-#: porthole.glade.h:76
+#: ../porthole/glade/porthole.glade.h:78
 msgid "_Resume"
 msgstr "_Wiederaufnehmen"
 
-#: porthole.glade.h:77
+#: ../porthole/glade/porthole.glade.h:79
 msgid "_Run Custom Command"
 msgstr "_Benutzerdefinierten Befehl ausführen"
 
-#: porthole.glade.h:78
+#: ../porthole/glade/porthole.glade.h:80
 msgid "_Settings"
 msgstr "_Einstellungen"
 
-#: porthole.glade.h:79
+#: ../porthole/glade/porthole.glade.h:81
 msgid "_Skip First Package"
 msgstr "_Erstes Paket überspringen"
 
-#: porthole.glade.h:80
+#: ../porthole/glade/porthole.glade.h:82
 msgid "_Upgrade"
 msgstr "_Aktualisieren"
 
-#: porthole.glade.h:81
+#: ../porthole/glade/porthole.glade.h:83
 msgid "_Upgrade Packages"
 msgstr "_Pakete aktualisieren"
 
-#: porthole.glade.h:82
+#: ../porthole/glade/porthole.glade.h:84
 msgid "_Upgrades Only"
 msgstr "_Nur aktualisieren (upgradeonly)"
 
-#: porthole.glade.h:83
+#: ../porthole/glade/porthole.glade.h:85
 msgid "_Verbose"
 msgstr "_Ausführlich (verbose)"
 
-#: porthole.glade.h:84
+#: ../porthole/glade/porthole.glade.h:86
 msgid "_View:"
 msgstr "_Ansicht:"
 

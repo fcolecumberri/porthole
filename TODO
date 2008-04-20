@@ -4,7 +4,7 @@
 
 * Clean up zombie gksu processes for plugin's needing to run as root.
 
- * (Done) Add a Depricated packges/versions view, scan /var/db/pkg/ for installed packages no
+ * (Done) Add a Deprecated packges/versions view, scan /var/db/pkg/ for installed packages no
    longer in the portage tree and add them to the Installed list and the depricated list.
         -- partially done.  I've added an overlay column to the ebuild table along with info
             about the ebuild path and also mark it as "Obsolete" if if it's installed and not

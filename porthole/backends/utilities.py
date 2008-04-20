@@ -24,13 +24,19 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 """
 
+import datetime
+id = datetime.datetime.now().microsecond
+print "UTILITIES: id initialized to ", id
+
 import os
 from gettext import gettext as _
 
-import utils.debug
-import backends
+from porthole.utils import debug
+from porthole import backends
 portage_lib = backends.portage_lib
-import db
+## circular import problem
+##from porthole.db import userconfigs
+USERCONFIGS = None
 
 # And now for some code stolen from pkgcore :)
 # Copyright: 2005 Brian Harring <ferringb@gmail.com>
@@ -58,43 +64,43 @@ def read_bash(bash_source):
 
 def sort(list):
     """sort in alphabetic instead of ASCIIbetic order"""
-    utils.debug.dprint("BACKENDS Utilities: sort()")
+    debug.dprint("BACKENDS Utilities: sort()")
     spam = [(x[0].upper(), x) for x in list]
     spam.sort()
-    utils.debug.dprint("BACKENDS Utilities: sort(); finished")
+    debug.dprint("BACKENDS Utilities: sort(); finished")
     return [x[1] for x in spam]
 
 def get_sync_info():
     """gets and returns the timestamp info saved during
         the last portage tree sync"""
-    utils.debug.dprint("BACKENDS Utilities: get_sync_info();")
+    debug.dprint("BACKENDS Utilities: get_sync_info();")
     last_sync = _("Unknown") + ' ' # need a space at end of string cause it will get trimmed later
     try:
-        #utils.debug.dprint("BACKENDS Utilities: get_sync_info(); timestamp path = " \
+        #debug.dprint("BACKENDS Utilities: get_sync_info(); timestamp path = " \
         #    + portage_lib.portdir + "/metadata/timestamp")
         f = open(portage_lib.portdir + "/metadata/timestamp")
-        #utils.debug.dprint("BACKENDS Utilities: get_sync_info(); file open")
+        #debug.dprint("BACKENDS Utilities: get_sync_info(); file open")
         data = f.read()
-        #utils.debug.dprint("BACKENDS Utilities: get_sync_info(); file read")
+        #debug.dprint("BACKENDS Utilities: get_sync_info(); file read")
         f.close()
-        #utils.debug.dprint("BACKENDS Utilities: get_sync_info(); file closed")
-        #utils.debug.dprint("BACKENDS Utilities: get_sync_info(); data = " + data)
+        #debug.dprint("BACKENDS Utilities: get_sync_info(); file closed")
+        #debug.dprint("BACKENDS Utilities: get_sync_info(); data = " + data)
         if data:
             try:
-                #utils.debug.dprint("BACKENDS Utilities: get_sync_info(); trying utf_8 encoding")
+                #debug.dprint("BACKENDS Utilities: get_sync_info(); trying utf_8 encoding")
                 last_sync = (str(data).decode('utf_8').encode("utf_8",'replace'))
             except:
                 try:
-                    #utils.debug.dprint("BACKENDS Utilities: get_sync_info(); trying iso-8859-1 encoding")
+                    #debug.dprint("BACKENDS Utilities: get_sync_info(); trying iso-8859-1 encoding")
                     last_sync = (str(data).decode('iso-8859-1').encode('utf_8', 'replace'))
                 except:
-                    utils.debug.dprint("BACKENDS Utilities: get_sync_info(); Failure = unknown encoding")
+                    debug.dprint("BACKENDS Utilities: get_sync_info(); Failure = unknown encoding")
         else:
-            utils.debug.dprint("BACKENDS Utilities: get_sync_info(); No data read")
+            debug.dprint("BACKENDS Utilities: get_sync_info(); No data read")
     except os.error:
-        utils.debug.dprint("BACKENDS Utilities: get_sync_info(); file open or read error")
-        utils.debug.dprint("BACKENDS Utilities: get_sync_info(); error " + str(os.error))
-    utils.debug.dprint("BACKENDS Utilities: get_sync_info(); last_sync = " + last_sync[:-1])
+        debug.dprint("BACKENDS Utilities: get_sync_info(); file open or read error")
+        debug.dprint("BACKENDS Utilities: get_sync_info(); error " + str(os.error))
+    debug.dprint("BACKENDS Utilities: get_sync_info(); last_sync = " + last_sync[:-1])
     return last_sync[:-1]
 
 def reduce_flags(flags):
@@ -103,7 +109,7 @@ def reduce_flags(flags):
     for x in flags:
 
         if x[0] == "+":
-            utils.debug.dprint("BACKENDS Utilities: USE flags should not start " + \
+            debug.dprint("BACKENDS Utilities: USE flags should not start " + \
                 "with a '+': " + x)
             x = x[1:]
             if not x:
@@ -124,14 +130,18 @@ def reduce_flags(flags):
 
 def get_reduced_flags(ebuild):
     """function to get all use flags for an ebuild or package and reduce them to their final setting"""
+    global USERCONFIGS
+    if USERCONFIGS == None:  # avaoid a circular import problem
+        from porthole.db import userconfigs
+        USERCONFIGS = userconfigs
     # Check package.use to see if it applies to this ebuild at all
-    package_use_flags = db.userconfigs.get_user_config('USE', ebuild=ebuild)
-    #utils.debug.dprint("BACKENDS Utilities: get_reduced_flags(); package_use_flags = %s" %str(package_use_flags))
+    package_use_flags = USERCONFIGS.get_user_config('USE', ebuild=ebuild)
+    #debug.dprint("BACKENDS Utilities: get_reduced_flags(); package_use_flags = %s" %str(package_use_flags))
     if package_use_flags != None and package_use_flags != []:
-        #utils.debug.dprint("BACKENDS Utilities: get_reduced_flags(); adding package_use_flags to ebuild_use_flags")
+        #debug.dprint("BACKENDS Utilities: get_reduced_flags(); adding package_use_flags to ebuild_use_flags")
         ebuild_use_flags = reduce_flags(portage_lib.SystemUseFlags + package_use_flags)
     else:
-        #utils.debug.dprint("BACKENDS Utilities: get_reduced_flags(); adding only system_use_flags to ebuild_use_flags")
+        #debug.dprint("BACKENDS Utilities: get_reduced_flags(); adding only system_use_flags to ebuild_use_flags")
         ebuild_use_flags = portage_lib.SystemUseFlags
     return ebuild_use_flags
 

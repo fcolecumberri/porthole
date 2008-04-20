@@ -23,14 +23,14 @@
 
 import os, time
 
-import utils.debug
-from sterminal import SimpleTerminal
-import backends
+from porthole.utils import debug
+from porthole.sterminal import SimpleTerminal
+from porthole import backends
 portage_lib = backends.portage_lib
-import db
-from db.package import Package
-from commonreader import CommonReader
-from utils.utils import get_set_name
+from porthole import db
+from porthole.db.package import Package
+from porthole.readers.commonreader import CommonReader
+from porthole.utils.utils import get_set_name
 
 
 PRIORITIES = {"System": 0, "Sets":1, "World":2, "Dependencies":3}
@@ -63,7 +63,7 @@ class UpgradableListReader(CommonReader):
  
     def run( self ):
         """fill upgrade tree"""
-        utils.debug.dprint("READERS: UpgradableListReader(); process id = %d *******************" %os.getpid())
+        debug.dprint("READERS: UpgradableListReader(); process id = %d *******************" %os.getpid())
         self.get_system_list()
         self.get_sets()
         for key in self.cat_order:
@@ -89,7 +89,7 @@ class UpgradableListReader(CommonReader):
             if self.pkg_dict[key] == {}:
                 pkg = Package("None")
                 self.pkg_dict[key]["None"] = pkg
-        #utils.debug.dprint("READERS: UpgradableListReader(); new pkg_list = " + str(self.pkg_dict))
+        #debug.dprint("READERS: UpgradableListReader(); new pkg_list = " + str(self.pkg_dict))
         # set the thread as finished
         self.done = True
         return
@@ -97,18 +97,18 @@ class UpgradableListReader(CommonReader):
 
 
     def get_system_list( self, emptytree = False ):
-        utils.debug.dprint("READERS: UpgradableListReader; getting system package list")
+        debug.dprint("READERS: UpgradableListReader; getting system package list")
         if emptytree:
             self.terminal = SimpleTerminal(self.system_cmd, need_output=True,  dprint_output='', callback=None)
             self.terminal._run()
-            utils.debug.dprint("READERS: UpgradableListReader; waiting for an 'emerge -ep system'...")
+            debug.dprint("READERS: UpgradableListReader; waiting for an 'emerge -ep system'...")
             while self.terminal.reader.process_running:
                 time.sleep(0.10)
             self.categories["System"] = self.make_list(self.terminal.reader.string)
         else:
             self.categories["System"] = portage_lib.get_system_pkgs()
         self.progress = 2
-        utils.debug.dprint("READERS: UpgradableListReader; new system pkg list %s" %str(self.categories["System"]))
+        debug.dprint("READERS: UpgradableListReader; new system pkg list %s" %str(self.categories["System"]))
 
     def make_list(self, from_string):
         """parse terminal output and return a list"""

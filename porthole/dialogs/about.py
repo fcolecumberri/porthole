@@ -22,25 +22,27 @@
 '''
 
 import gtk, gtk.glade
-import utils.debug
-from loaders.loaders import load_web_page
-from version import version
-import config
+
+from porthole.utils import debug
+from porthole.loaders.loaders import load_web_page
+from porthole.version import version
+from porthole import config
 
 class AboutDialog:
     """Class to hold about dialog and functionality."""
 
     def __init__(self):
         # setup glade
-        self.gladefile = config.Prefs.DATA_PATH + config.Prefs.use_gladefile
-        self.wtree = gtk.glade.XML(self.gladefile, "about_dialog")
+        self.gladefile = config.Prefs.DATA_PATH + 'glade/about.glade' #config.Prefs.use_gladefile
+        self.wtree = gtk.glade.XML(self.gladefile, "about_dialog", config.Prefs.APP)
         # register callbacks
         callbacks = {"on_ok_clicked" : self.ok_clicked,
                      "on_homepage_clicked" : self.homepage_clicked}
         self.wtree.signal_autoconnect(callbacks)
+        self.wtree.get_widget('porthole-about-img').set_from_file(config.Prefs.DATA_PATH + "pixmaps/porthole-about.png")
         window = self.wtree.get_widget("about_dialog")
         window.set_title(_("About Porthole %s") % version)
-        utils.debug.dprint("ABOUT: Showing About dialog")
+        debug.dprint("ABOUT: Showing About dialog")
 
     def ok_clicked(self, widget):
         """Get rid of the about dialog!"""

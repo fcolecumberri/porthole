@@ -23,6 +23,9 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
+import datetime
+id = datetime.datetime.now().microsecond
+print "VERSION_SORT: id initialized to ", id
 
 if __name__ == "__main__":
     
@@ -33,11 +36,11 @@ if __name__ == "__main__":
     from getopt import getopt, GetoptError
 
 import re
-import utils
-from utils.debug import dprint
 
-import config
-#~ from importer import my_import
+
+from porthole.utils.debug import dprint
+from porthole import config
+#~ from porthole.importer import my_import
 #~ comps = config.Prefs.PORTAGE.split('.')
 #~ print comps
 #~ if comps[0] in 'backends':
@@ -47,8 +50,9 @@ import config
     
 #~ portage_lib = my_import(name)
 
-import portagelib as portage_lib
-
+## circular import problem
+##from porthole import backends
+##portage_lib = backends.portage_lib
 
 ############### new code ###############
 
@@ -191,6 +195,8 @@ def get_versions_only(versions):
     """inputs a cat/pkg-version list and returns a version list"""
     #dprint("VERSION_SORT: get_versions()")
     # convert versions into the padded version only list
+    from porthole import backends
+    portage_lib = backends.portage_lib
     vlist = []
     for v in versions:
         #dprint(v)
@@ -222,10 +228,7 @@ def ver_match(versions, range1, range2 = None):
     return match1, match2
 
 if __name__ == "__main__":
-
-
-    utils.debug = True
-
+ 
     versions = ['net-mail/some_package-1.1','net-mail/some_package-1.0',
                 'net-mail/some_package-1.21','net-mail/some_package-1.21.1',
                 'net-mail/some_package-1.1-r1','net-mail/some_package-1.0_pre1',

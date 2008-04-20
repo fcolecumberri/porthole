@@ -49,13 +49,13 @@ import gtk, gtk.glade, gobject
 import pango
 #import signal, os, pty, threading, time, sre, portagelib
 #import datetime, pango, errno
-#from utils import Dispatcher
-#from readers import ProcessOutputReader
 
-from utils.utils import get_treeview_selection
-import utils.debug
-from constants import *
-from dialogs.simple import SingleButtonDialog
+#from porthole.utils import Dispatcher
+#from porthole.readers import ProcessOutputReader
+from porthole.utils.utils import get_treeview_selection
+from porthole.utils import debug
+from porthole.terminal.constants import *
+from porthole.dialogs.simple import SingleButtonDialog
 
 
 class ProcessItem:
@@ -103,7 +103,7 @@ class TerminalQueue:
         self.play_menu = self.wtree.get_widget("resume_queue")
         self.pause_btn = self.wtree.get_widget("pause_button")
         self.pause_menu = self.wtree.get_widget("pause")
-        utils.debug.dprint("TERM_QUEUE: Attempting to change the pause, paly button image colors")
+        debug.dprint("TERM_QUEUE: Attempting to change the pause, paly button image colors")
         """ Set up different colors for the pause & play buttons depending on it's state
             gtk.STATE_NORMAL	State during normal operation.
             gtk.STATE_ACTIVE	State of a currently active widget, such as a depressed button.
@@ -153,10 +153,10 @@ class TerminalQueue:
         # if the last process was killed, check if it's the same thing
         self.resume_string = None
         if self.killed_id:
-            utils.debug.dprint("TERM_QUEUE: add(): self.killed is true")
+            debug.dprint("TERM_QUEUE: add(): self.killed is true")
             if len(self.process_list) and (package_name == self.process_list[0].name and
                     command_string == self.process_list[0].command):
-                utils.debug.dprint("TERM_QUEUE: add(): showing resume dialog")
+                debug.dprint("TERM_QUEUE: add(): showing resume dialog")
                 # The process has been killed, so help the user out a bit
                 message = _("The package you selected is already in the emerge queue,\n" \
                             "but it has been killed. Would you like to resume the emerge?")
@@ -172,7 +172,7 @@ class TerminalQueue:
                 if self.killed_id == self.process_list[0].process_id:
                     self.process_list[0].command += self.resume_string
             else: # clean up the killed process
-                utils.debug.dprint("TERM_QUEUE: add(); removing killed process from the list")
+                debug.dprint("TERM_QUEUE: add(); removing killed process from the list")
                 if len(self.process_list):
                     self.process_list = self.process_list[1:]
                 self.resume_available = False
@@ -180,18 +180,18 @@ class TerminalQueue:
                 self.set_resume(False)
         
         if self.resume_string is None:
-            utils.debug.dprint("TERM_QUEUE: add(): resume is None")
+            debug.dprint("TERM_QUEUE: add(): resume is None")
             # check if the package is already in the emerge queue
             for data in self.process_list:
                 if package_name == data.name and command_string == data.command:
-                    utils.debug.dprint("TERM_QUEUE: add(): repeat command match")
+                    debug.dprint("TERM_QUEUE: add(): repeat command match")
                     # Let the user know it's already in the list
                     #if data == self.process_list[0]:
                     message = _("The package you selected is already in the emerge queue!")
-                    utils.debug.dprint("TERM_QUEUE: add(); gettext result = " + _("Error Adding Package To Queue!"))
+                    debug.dprint("TERM_QUEUE: add(); gettext result = " + _("Error Adding Package To Queue!"))
                     SingleButtonDialog(_("Error Adding Package To Queue!"), None,
                                         message, None, _("OK"))
-                    utils.debug.dprint("TERM_QUEUE: add(): returning from match dialog & returning")
+                    debug.dprint("TERM_QUEUE: add(): returning from match dialog & returning")
                     return  False
         # show the window if it isn't visible
         if  self.new_window:
@@ -237,12 +237,12 @@ class TerminalQueue:
     def start(self, skip_first = True):
         """skips the first item in the process_list,
         returns True if all completed, False if pending commands"""
-        utils.debug.dprint("TERM_QUEUE: start()")
+        debug.dprint("TERM_QUEUE: start()")
         if self.queue_paused:
-            utils.debug.dprint("TERM_QUEUE: start(); queue paused... returning")
+            debug.dprint("TERM_QUEUE: start(); queue paused... returning")
             return False
         if skip_first:
-            utils.debug.dprint("TERM_QUEUE: start();         ==> skipping killed process")
+            debug.dprint("TERM_QUEUE: start();         ==> skipping killed process")
             self.resume_available = False
             if self.term.tab_showing[TAB_QUEUE]:
                 # update the queue tree wait for it to return, it might prevent crashes
@@ -250,9 +250,9 @@ class TerminalQueue:
             # remove process from list
             self.next()
         # check for pending processes, and run them
-        utils.debug.dprint("TERM_QUEUE: start(): process_list = " + str(self.process_list))
+        debug.dprint("TERM_QUEUE: start(): process_list = " + str(self.process_list))
         if len(self.process_list):
-            utils.debug.dprint("TERM_QUEUE: There are pending processes, running now... [" + \
+            debug.dprint("TERM_QUEUE: There are pending processes, running now... [" + \
                     self.process_list[0].name + "]")
             if not self.process_iter:
                 self.process_iter = self.queue_model.get_iter_first()
@@ -261,13 +261,13 @@ class TerminalQueue:
             self.process_id = self.process_list[0].process_id
             self._run(self.process_list[0].command, self.process_list[0].process_id)
         else:
-            utils.debug.dprint("TERM_QUEUE: start(): all processes finished!")
+            debug.dprint("TERM_QUEUE: start(): all processes finished!")
             # re-activate the open/save menu items
             self.save_menu.set_sensitive(True)
             self.save_as_menu.set_sensitive(True)
             self.open_menu.set_sensitive(True)
             return True
-        utils.debug.dprint("TERM_QUEUE: start(); finished... returning")
+        debug.dprint("TERM_QUEUE: start(); finished... returning")
         return False
 
     def next( self):
@@ -280,7 +280,7 @@ class TerminalQueue:
 
     def pause(self, *widget):
         """pauses the queue"""
-        utils.debug.dprint("TERM_QUEUE: pause(); pausing queue, id = " + str(self.process_id+1))
+        debug.dprint("TERM_QUEUE: pause(); pausing queue, id = " + str(self.process_id+1))
         self.queue_paused = True
         self.set_btn_menus()
         if len(self.process_list) > 1:
@@ -294,7 +294,7 @@ class TerminalQueue:
     def items_switch(self, direction):
         """ Switch two adjacent queue items;
             direction is either 1 [down] or -1 [up] """
-        utils.debug.dprint("TERM_QUEUE: Switching queue items.")
+        debug.dprint("TERM_QUEUE: Switching queue items.")
         # get the selected iter
         selected_iter = get_treeview_selection(self.queue_tree)
         # get its path
@@ -323,7 +323,7 @@ class TerminalQueue:
                     self.process_list[pos + direction] = sel
                     break
         else:
-            utils.debug.dprint("TERM_QUEUE: cannot move first or last item")
+            debug.dprint("TERM_QUEUE: cannot move first or last item")
 
         # We're done
         result = self.clicked(self.queue_tree)
@@ -355,14 +355,14 @@ class TerminalQueue:
 
     def clicked(self, *widget):
         """Handle clicks to the queue treeview"""
-        utils.debug.dprint("TERM_QUEUE: clicked()")
+        debug.dprint("TERM_QUEUE: clicked()")
         # get the selected iter
         selected_iter = get_treeview_selection(self.queue_tree)
         # get its path
         try:
             path = self.queue_model.get_path(selected_iter)[0]
         except:
-            utils.debug.dprint("TERM_QUEUE: Couldn't get queue view treeiter path, " \
+            debug.dprint("TERM_QUEUE: Couldn't get queue view treeiter path, " \
                     "there is probably nothing selected.")
             return False
         # if the item is not in the process list
@@ -380,7 +380,7 @@ class TerminalQueue:
                 self.queue_remove.set_sensitive(False)
             else:
                 self.queue_remove.set_sensitive(True)
-            utils.debug.dprint("TERM_QUEUE: clicked(); finished... returning")
+            debug.dprint("TERM_QUEUE: clicked(); finished... returning")
             return True
         # if we reach here it's still in the process list
         # activate the delete item
@@ -400,7 +400,7 @@ class TerminalQueue:
             # enable moving the item
             self.move_up.set_sensitive(True)
             self.move_down.set_sensitive(True)
-        #utils.debug.dprint("TERM_QUEUE: clicked(); finished... returning")
+        #debug.dprint("TERM_QUEUE: clicked(); finished... returning")
         return True
 
     def clear( self ):
@@ -408,16 +408,16 @@ class TerminalQueue:
         self.queue_model.clear()
 
     def locate_id( self, process_id ):
-        utils.debug.dprint("TERM_QUEUE: locate_id(); looking for process_id = " + str(process_id))
+        debug.dprint("TERM_QUEUE: locate_id(); looking for process_id = " + str(process_id))
         self.locate_iter = self.queue_model.get_iter_first()
         while self.queue_model.get_value(self.locate_iter,3) != process_id:
             self.locate_iter = self.queue_model.iter_next(self.locate_iter)
-        utils.debug.dprint("TERM_QUEUE: locate_id(); ended up with locate_iter id = %d, looking for %d" \
+        debug.dprint("TERM_QUEUE: locate_id(); ended up with locate_iter id = %d, looking for %d" \
                 %(self.queue_model.get_value(self.locate_iter,3),process_id))
         return
 
     def set_icon( self, action_type, process_id):
-        utils.debug.dprint("TERM_QUEUE: set_icon(); type = " + str(action_type))
+        debug.dprint("TERM_QUEUE: set_icon(); type = " + str(action_type))
         icon = None
         if action_type == KILLED:
             icon = gtk.STOCK_CANCEL
@@ -432,17 +432,17 @@ class TerminalQueue:
         if icon:
             try:
                 current_id = self.queue_model.get_value(self.process_iter, 3)
-                #utils.debug.dprint("TERM_QUEUE: set_icon(): process_id = %d, queue_model id = %d" %(process_id, current_id))
+                #debug.dprint("TERM_QUEUE: set_icon(): process_id = %d, queue_model id = %d" %(process_id, current_id))
                 if process_id == current_id:
-                    #utils.debug.dprint("TERM_QUEUE: set_icon(): process_id's match")
+                    #debug.dprint("TERM_QUEUE: set_icon(): process_id's match")
                     self.queue_model.set_value(self.process_iter, 0, self.render_icon(icon))
                 else:
-                    #utils.debug.dprint("TERM_QUEUE: set_icon(): process_id's DON'T match")
+                    #debug.dprint("TERM_QUEUE: set_icon(): process_id's DON'T match")
                     self.locate_id(process_id)
-                    #utils.debug.dprint("TERM_QUEUE: set_icon(): back from locate_id()")
+                    #debug.dprint("TERM_QUEUE: set_icon(): back from locate_id()")
                     self.queue_model.set_value(self.locate_iter, 0, self.render_icon(icon))
             except Exception, e:
-                utils.debug.dprint("TERM_QUEUE: set_icon(): blasted #!* exception %s" %e)
+                debug.dprint("TERM_QUEUE: set_icon(): blasted #!* exception %s" %e)
 
     def render_icon(self, icon):
         """ Render an icon for the queue tree """
@@ -459,7 +459,7 @@ class TerminalQueue:
             return self.process_list[0].process_id
 
     def done( self, result):
-        utils.debug.dprint("TERM_QUEUE: done(); result = " + str(result))
+        debug.dprint("TERM_QUEUE: done(); result = " + str(result))
         self.set_process(result)
         # remove process from list
         self.process_list = self.process_list[1:]

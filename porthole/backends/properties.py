@@ -22,6 +22,9 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
+import datetime
+id = datetime.datetime.now().microsecond
+print "PROPERTIES: id initialized to ", id
 
 
 class Properties:

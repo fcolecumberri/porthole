@@ -22,9 +22,11 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-print "initializing config.__init__.py"
+import datetime
+id = datetime.datetime.now().microsecond
+print "CONFIG: id initialized to ", id
 
-from configuration import PortholeConfiguration
+from porthole.config.configuration import PortholeConfiguration
 
 
 Prefs = None # initialize, then create the real one from the porthole startup script PortholePreferences()

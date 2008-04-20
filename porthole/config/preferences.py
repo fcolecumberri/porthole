@@ -4,7 +4,7 @@
     Porthole Utils Package
     Holds common functions for Porthole
 
-    Copyright (C) 2003 - 2005 Fredrik Arnerup, Daniel G. Taylor
+    Copyright (C) 2003 - 2008 Fredrik Arnerup, Daniel G. Taylor
     Brian Dolbec, Wm. F. Wheeler, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify
@@ -22,22 +22,19 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
+import datetime
+id = datetime.datetime.now().microsecond
+print "PREFERENCES: id initialized to ", id
+
 import os 
 from gettext import gettext as _
 
-import sys
-print "config/preferences.py, sys.path = ", sys.path
-
-from version import version
-from _xml.xmlmgr import XMLManager, XMLManagerError
-import utils
-print "utils = ", utils
-import utils.debug
-print "utils.debug = ", utils.debug
-from utils.utils import get_user_home_dir, can_gksu
-mydebug = utils.mydebug
-print "PREFERENCES: utils.mydebug = ", utils.mydebug.debug, " utils.debug.debug = ", utils.debug.debug
-
+from porthole.version import version
+from porthole._xml.xmlmgr import XMLManager, XMLManagerError
+from porthole.utils import debug
+print "PREFERENCES: imported debug.id = ", debug.id
+from porthole.utils.utils import get_user_home_dir, can_gksu
+ 
 class OptionsClass:
     """Blank class to hold options"""
     
@@ -77,7 +74,7 @@ class PortholePreferences:
 
         # check if directory exists, if not create it
         if not os.access(home + "/.porthole", os.F_OK):
-           utils.debug.dprint("PREFS: ~/.porthole does not exist, creating...")
+           debug.dprint("PREFERENCES: ~/.porthole does not exist, creating...")
            os.mkdir(home + "/.porthole")
 
         # open prefs file if we have access to the file  
@@ -268,8 +265,8 @@ class PortholePreferences:
            self.database_size = 7000
         try:
            self.dbtime = dom.getitem('/database/dbtime')
-           #utils.debug.dprint("PREFS: __init__(); self.dbtime =")
-           #utils.debug.dprint(self.dbtime)
+           #debug.dprint("PREFS: __init__(); self.dbtime =")
+           #debug.dprint(self.dbtime)
         except XMLManagerError:
            self.dbtime = 50
         try:
@@ -305,9 +302,9 @@ class PortholePreferences:
                     value = default
             except XMLManagerError:
                 value = default
-                utils.debug.dprint("DEFAULT VALUE: %s = %s" %(option,str(value)))
+                debug.dprint("PREFERENCES: DEFAULT VALUE: %s = %s" %(option,str(value)))
             setattr(self.globals, option, value)
-            utils.debug.dprint("PREFS: PortholePreferences; setting globals.%s = %s" %(option, str(value)))
+            debug.dprint("PREFERENCES: PortholePreferences; setting globals.%s = %s" %(option, str(value)))
         
         if can_gksu(self.globals.su.split(' ')[0]) == False:
             # If the current su option is not valid, try some others.
@@ -331,16 +328,16 @@ class PortholePreferences:
         if New_prefs:
             for option, value in New_prefs:
                 setattr(self, option, value)
-        utils.debug.dprint("PREFS: PortholePreferences;  DATA_PATH = " + self.DATA_PATH)
+        debug.dprint("PREFERENCES: PortholePreferences;  DATA_PATH = " + self.DATA_PATH)
         if self.DATA_PATH == '/usr/share/porthole/': # installed version running
             # find our installed location
             import sys
             self.PACKAGE_DIR = sys.path[0] 
-            utils.debug.dprint("PREFS: PortholePreferences;  PACKAGE_DIR = " + self.PACKAGE_DIR)
+            debug.dprint("PREFERENCES: PortholePreferences;  PACKAGE_DIR = " + self.PACKAGE_DIR)
         else:
             self.PACKAGE_DIR = self.DATA_PATH
-        self.PLUGIN_DIR = self.PACKAGE_DIR + 'plugins/' # could add more dirs later
-        utils.debug.dprint("PREFS: PortholePreferences; PLUGIN_DIR = %s" %self.PLUGIN_DIR)
+        self.PLUGIN_DIR = self.PACKAGE_DIR + '/plugins/' # could add more dirs later
+        debug.dprint("PREFERENCES: PortholePreferences; PLUGIN_DIR = %s" %self.PLUGIN_DIR)
         self.plugins = OptionsClass()
         try:
             option = "active_list"
@@ -348,14 +345,14 @@ class PortholePreferences:
         except XMLManagerError:
             value = []
         setattr(self.plugins, option, value)
-        utils.debug.dprint("PREFS: PortholePreferences; setting plugins.%s = %s" %(option, str(value)))
+        debug.dprint("PREFERENCES: PortholePreferences; setting plugins.%s = %s" %(option, str(value)))
 
         # All prefs now loaded or defaulted
         del dom   # no longer needed, release memory
 
     def save(self):
         """ Save preferences """
-        utils.debug.dprint("PREFS: preferences save()")
+        debug.dprint("PREFERENCES: preferences save()")
         dom = XMLManager(None)
         dom.name = 'portholeprefs'
         dom.version = version
@@ -364,7 +361,7 @@ class PortholePreferences:
         dom.additem('/window/main/xpos', self.main.xpos)
         dom.additem('/window/main/ypos', self.main.ypos)
         dom.additem('/window/main/hpane', self.main.hpane)
-        #utils.debug.dprint("PREFS: save() hpane: %d" %self.main.hpane)
+        #debug.dprint("PREFS: save() hpane: %d" %self.main.hpane)
         dom.additem('/window/main/vpane', self.main.vpane)
         dom.additem('/window/main/maximized', self.main.maximized)
         dom.additem('/window/main/search_desc', self.main.search_desc)
@@ -410,7 +407,7 @@ class PortholePreferences:
         dom.additem('/summary/showlicense', self.summary.showlicense)
         dom.additem('/summary/showurl', self.summary.showurl)
         dom.additem('/database/size', self.database_size)
-        #utils.debug.dprint("PREFS: save(); self.dbtime = %d" %self.dbtime)
+        #debug.dprint("PREFS: save(); self.dbtime = %d" %self.dbtime)
         dom.additem('/database/dbtime', self.dbtime)
         dom.additem('/database/dbtotals', self.dbtotals)
         #dom.additem('/plugins/path_list', self.plugins.path_list)

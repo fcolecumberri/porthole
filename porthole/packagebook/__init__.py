@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: UTF8 -*-
 
 '''
     Porthole's packagebook module

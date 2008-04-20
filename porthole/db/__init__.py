@@ -22,10 +22,10 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-from database import Database, NEW, LOAD, SAVE
-from dbreader import DatabaseReader
-from utils.dispatcher import Dispatcher
-from user_configs import UserConfigs
+from porthole.db.database import Database, NEW, LOAD, SAVE
+from porthole.db.dbreader import DatabaseReader
+from porthole.utils.dispatcher import Dispatcher
+from porthole.db.user_configs import UserConfigs
 
 db = Database(LOAD)
 

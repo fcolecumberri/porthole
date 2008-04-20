@@ -28,20 +28,17 @@ import errno
 import string
 import re
 import datetime
-
 from sys import stderr
-from version import version
-from _xml.xmlmgr import XMLManager, XMLManagerError
-import config
-from gettext import gettext as _
-
 import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk
 import grp
 import pwd, cPickle
+from gettext import gettext as _
 
-
-import debug
+from porthole.version import version
+from porthole._xml.xmlmgr import XMLManager, XMLManagerError
+from porthole import config
+from porthole.utils import debug
 
 def get_icon_for_package(package):
     """Return an icon for a package"""

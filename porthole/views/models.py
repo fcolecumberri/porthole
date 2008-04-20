@@ -24,13 +24,11 @@
 
 import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, gobject
-
-#import utils.debug
-from helpers import *
-from sorts import *
-
 #from gettext import gettext as _
 
+#from porthole.utils import debug
+from porthole.views.helpers import *
+from porthole.views.sorts import *
 
 MODEL_ITEM = {"name": 0,
                         "checkbox": 1,

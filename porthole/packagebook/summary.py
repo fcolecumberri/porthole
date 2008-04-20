@@ -27,15 +27,15 @@ import re
 from types import *
 from gettext import gettext as _
 
-import utils.debug
-from utils import utils
-import backends
+from porthole.utils import debug
+from porthole.utils import utils
+from porthole import backends
 portage_lib = backends.portage_lib
-import db
-import config
-from backends.version_sort import ver_sort
-from backends.utilities import get_reduced_flags
-from loaders.loaders import load_web_page
+from porthole import db
+from porthole import config
+from porthole.backends.version_sort import ver_sort
+from porthole.backends.utilities import get_reduced_flags
+from porthole.loaders.loaders import load_web_page
 
 class Summary(gtk.TextView):
     """ Class to manage display and contents of package info tab """
@@ -238,17 +238,17 @@ class Summary(gtk.TextView):
             modified = False
             for entry in installed:
                 if entry not in ebuilds:
-                    utils.debug.dprint("SUMMARY; create_ebuild_table(): adding %s to ebuild list %s" % (entry, str(ebuilds)))
+                    debug.dprint("SUMMARY; create_ebuild_table(): adding %s to ebuild list %s" % (entry, str(ebuilds)))
                     ebuilds.append(entry)
                     modified = True
             if modified: ebuilds = ver_sort(ebuilds) # otherwise already sorted
             
             if config.Prefs.globals.enable_archlist:
                 archlist = config.Prefs.globals.archlist
-                utils.debug.dprint("SUMMARY: create_ebuild_table: creating archlist enabled table for: " + str(archlist))
+                debug.dprint("SUMMARY: create_ebuild_table: creating archlist enabled table for: " + str(archlist))
             else:
                 archlist = [myarch]
-                utils.debug.dprint("SUMMARY: create_ebuild_table: creating single arch table for: " + str(archlist))
+                debug.dprint("SUMMARY: create_ebuild_table: creating single arch table for: " + str(archlist))
             #if True: # saves an unindent for testing change    
             rows = 1 + len(ebuilds)
             cols = 3 + len(archlist)
@@ -262,7 +262,7 @@ class Summary(gtk.TextView):
             table.attach(boxify(label, "#EEEEEE"), 2, 3, 0, 1)
             x = 2
             for arch in archlist:
-                utils.debug.dprint("SUMMARY: create_ebuild_table: arch is: " + str(arch))
+                debug.dprint("SUMMARY: create_ebuild_table: arch is: " + str(arch))
                 x += 1
                 label = gtk.Label(arch)
                 label.set_padding(3, 3)
@@ -315,7 +315,7 @@ class Summary(gtk.TextView):
                         color = "#ED9191"
                     if ebuild in installed and arch == myarch:
                         color = "#9090EE"
-                    #utils.debug.dprint("SUMMARY: create_ebuild_table(); keyword_unmasked[ebuild] = " + str(keyword_unmasked[ebuild]))
+                    #debug.dprint("SUMMARY: create_ebuild_table(); keyword_unmasked[ebuild] = " + str(keyword_unmasked[ebuild]))
                     if (ebuild in keyword_unmasked and '~' in text and
                                 ('~' + arch in keyword_unmasked[ebuild] or keyword_unmasked[ebuild] == [] )):
                         # take account of package.keywords in text but leave colour unchanged
@@ -443,25 +443,25 @@ class Summary(gtk.TextView):
         self.package = package
         
         # Get the package info
-        #utils.debug.dprint("SUMMARY: get package info")
+        #debug.dprint("SUMMARY: get package info")
         metadata = package.get_metadata()
         installed = self.installed = package.get_installed()
-        utils.debug.dprint("SUMMARY: installed = " + str(installed))
+        debug.dprint("SUMMARY: installed = " + str(installed))
         versions = package.get_versions()
-        utils.debug.dprint("SUMMARY: versions = " + str(versions))
+        debug.dprint("SUMMARY: versions = " + str(versions))
         nonmasked = package.get_versions(include_masked = False)
-        utils.debug.dprint("SUMMARY: nonmasked = " + str(nonmasked))
+        debug.dprint("SUMMARY: nonmasked = " + str(nonmasked))
         
         # added by Tommy
         hardmasked = package.get_hard_masked()
         #keyword_unmasked = portage_lib.get_keyword_unmasked_ebuilds(
         #                    archlist=self.archlist, full_name=package.full_name)
-        utils.debug.dprint("SUMMARY: get package info, name = " + package.full_name)
+        debug.dprint("SUMMARY: get package info, name = " + package.full_name)
         keyword_unmasked = db.userconfigs.get_user_config('KEYWORDS', name=package.full_name)
         package_unmasked = db.userconfigs.get_user_config('UNMASK', name=package.full_name)
         
         best = portage_lib.best(installed + nonmasked)
-        #utils.debug.dprint("SUMMARY: best = %s" %best)
+        #debug.dprint("SUMMARY: best = %s" %best)
         if _ebuild:
             self.ebuild = _ebuild
         else:
@@ -469,11 +469,11 @@ class Summary(gtk.TextView):
                 self.ebuild = package.get_latest_ebuild(True) # get latest masked version
             else:
                 self.ebuild = best
-        #utils.debug.dprint("SUMMARY: getting properties for ebuild version %s" %ebuild)
+        #debug.dprint("SUMMARY: getting properties for ebuild version %s" %ebuild)
         props = package.get_properties(self.ebuild)
         description = props.description
         homepages = props.get_homepages() # may be more than one
-        #utils.debug.dprint("SUMMARY: Summary; getting use flags")
+        #debug.dprint("SUMMARY: Summary; getting use flags")
         use_flags = props.get_use_flags()
         keywords = props.get_keywords()
         licenses = props.license
@@ -492,7 +492,7 @@ class Summary(gtk.TextView):
         system_use_flags = portage_lib.get_portage_environ("USE")
         if system_use_flags:
             system_use_flags = system_use_flags.split()
-            #utils.debug.dprint("SUMMARY: system_use_flags = "+str(system_use_flags))
+            #debug.dprint("SUMMARY: system_use_flags = "+str(system_use_flags))
 
         #############################
         # Begin adding text to tab
@@ -553,23 +553,23 @@ class Summary(gtk.TextView):
     def on_button_press(self, summaryview, event):
         """Button press callback for Summary.
         (note: table clicks are handled in on_table_clicked)"""
-        utils.debug.dprint("SUMMARY: Handling SummaryView button press event")
+        debug.dprint("SUMMARY: Handling SummaryView button press event")
         if event.type != gtk.gdk.BUTTON_PRESS:
-            utils.debug.dprint("SUMMARY: Strange event type got passed to on_button_press() callback...")
-            utils.debug.dprint(event.type)
+            debug.dprint("SUMMARY: Strange event type got passed to on_button_press() callback...")
+            debug.dprint(event.type)
         if event.button == 3: # secondary mouse button
             return self.do_popup()
         else: return False
     
     def do_popup(self):
-        utils.debug.dprint("SUMMARY: do_popup(): pop!")
+        debug.dprint("SUMMARY: do_popup(): pop!")
         return False
     
     def on_table_clicked(self, eventbox, event):
-        utils.debug.dprint("SUMMARY: EventBox clicked, button = " + str(event.button))
-        #utils.debug.dprint(eventbox)
-        #utils.debug.dprint(eventbox.get_parent())
-        utils.debug.dprint([eventbox.ebuild, eventbox.arch, eventbox.text])
+        debug.dprint("SUMMARY: EventBox clicked, button = " + str(event.button))
+        #debug.dprint(eventbox)
+        #debug.dprint(eventbox.get_parent())
+        debug.dprint([eventbox.ebuild, eventbox.arch, eventbox.text])
         if event.button == 1 and eventbox.text == 'version': # left click
             self.selected_ebuild = eventbox.ebuild
             self.show_version(None)
@@ -652,7 +652,7 @@ class Summary(gtk.TextView):
     def on_table_mouse(self, eventbox, event):
         if event.mode != gtk.gdk.CROSSING_NORMAL: return False
         if event.type == gtk.gdk.ENTER_NOTIFY:
-            #utils.debug.dprint("SUMMARY: on_table_mouse(): Enter notify")
+            #debug.dprint("SUMMARY: on_table_mouse(): Enter notify")
             # note: colour should be of form "#xxxxxx" (not name)
             if eventbox.color.startswith('#'):
                 colour = eventbox.color[1:]
@@ -665,13 +665,13 @@ class Summary(gtk.TextView):
                     tempchar = hex(newint)[2]
                     colourlist.append(tempchar)
                 newcolour = ''.join(colourlist)
-                #utils.debug.dprint("old colour = %s" % eventbox.color)
-                #utils.debug.dprint("new colour = %s" % newcolour)
+                #debug.dprint("old colour = %s" % eventbox.color)
+                #debug.dprint("new colour = %s" % newcolour)
                 style = eventbox.get_style().copy()
                 style.bg[gtk.STATE_NORMAL] = gtk.gdk.color_parse(newcolour)
                 eventbox.set_style(style)
         elif event.type == gtk.gdk.LEAVE_NOTIFY:
-            #utils.debug.dprint("SUMMARY: on_table_mouse(): Leave notify")
+            #debug.dprint("SUMMARY: on_table_mouse(): Leave notify")
             style = eventbox.get_style().copy()
             style.bg[gtk.STATE_NORMAL] = gtk.gdk.color_parse(eventbox.color)
             eventbox.set_style(style)
@@ -708,7 +708,7 @@ class Summary(gtk.TextView):
         arch = "~" + portage_lib.get_arch()
         name = self.package.full_name
         string = name + " " + arch + "\n"
-        utils.debug.dprint("Summary: Package view add_keyword(); %s" %string)
+        debug.dprint("Summary: Package view add_keyword(); %s" %string)
         db.userconfigs.set_user_config('KEYWORDS', name=name, add=arch, callback=self.update_callback)
 
     def remove_keyword_ebuild(self, menuitem_widget):
@@ -720,7 +720,7 @@ class Summary(gtk.TextView):
         arch = "~" + portage_lib.get_arch()
         name = self.package.full_name
         string = name + " " + arch + "\n"
-        utils.debug.dprint("Summary: Package view remove_keyword(); %s" %string)
+        debug.dprint("Summary: Package view remove_keyword(); %s" %string)
         db.userconfigs.set_user_config('KEYWORDS', name=name, remove=arch, callback=self.update_callback)
     
     def package_unmask(self, menuitem_widget):

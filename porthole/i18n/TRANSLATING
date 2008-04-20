@@ -50,9 +50,10 @@ British English.
 To test your translation:
 ========================
 
-run the "pocompile" script in the porthole/ directory:
+run the "pocompile" script in the trunk/scripts directory:
+of for the installed version: in the /usr/share/porthole/scripts/ directory
 
-> cd porthole
+> cd ~/trunk/scripts
 > ./pocompile.sh
 
 This will compile all the .po files in porthole/i18n/ into .mo files (which

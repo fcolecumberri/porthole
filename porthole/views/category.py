@@ -25,15 +25,12 @@
 import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, gobject, pango
 import threading, os
-
-from packagebook.depends import DependsTree
-from commontreeview import CommonTreeView
-import utils.debug
-from helpers import *
-
 from gettext import gettext as _
 
-
+from porthole.packagebook.depends import DependsTree
+from porthole.views.commontreeview import CommonTreeView
+from porthole.utils import debug
+from porthole.views.helpers import *
 
 class CategoryView(CommonTreeView):
     """ Self contained treeview to hold categories """
@@ -65,7 +62,7 @@ class CategoryView(CommonTreeView):
         # register default callback
         self.register_callback()
         self.search_cat = False
-        utils.debug.dprint("VIEWS: Category view initialized")
+        debug.dprint("VIEWS: Category view initialized")
 
     def set_search( self, option ):
         self.search_cat = option
@@ -86,7 +83,7 @@ class CategoryView(CommonTreeView):
         else: category = self.last_category
         # has the selection really changed?
         if category != self.last_category:
-            utils.debug.dprint("VIEWS: category change detected")
+            debug.dprint("VIEWS: category change detected")
             # then call the callback if it exists!
             if self._category_changed:
                 self.last_category = category
@@ -97,7 +94,7 @@ class CategoryView(CommonTreeView):
     def populate(self, categories, _sort = True, counts = None):
         """Fill the category tree."""
         self.clear()
-        utils.debug.dprint("VIEWS: Populating category view;") # categories: " + str(categories))
+        debug.dprint("VIEWS: Populating category view;") # categories: " + str(categories))
         last_catmaj = None
         if _sort:
             categories.sort()
@@ -105,7 +102,7 @@ class CategoryView(CommonTreeView):
             self.populate_search(categories, counts)
             return
         for cat in categories:
-            #utils.debug.dprint(" VIEWS: CategoryView.populate(): cat: %s" %cat)
+            #debug.dprint(" VIEWS: CategoryView.populate(): cat: %s" %cat)
             if cat: # != 'virtual':
                 try:
                     catmaj, catmin = cat.split("-")
@@ -115,11 +112,11 @@ class CategoryView(CommonTreeView):
                     self.model.set_value( iter, 0, cat )
                     self.model.set_value( iter, 1, cat )
                     if counts != None: # and counts[cat] != 0:
-                        #utils.debug.dprint("VIEWS: Counts: %s = %s" %(cat, str(counts[cat])))
+                        #debug.dprint("VIEWS: Counts: %s = %s" %(cat, str(counts[cat])))
                         self.model.set_value( iter, 2, str(counts[cat]) )
 
                     #else:
-                    #    utils.debug.dprint(" * VIEWS: CategoryView.populate(): can't split '%s'." % cat)
+                    #    debug.dprint(" * VIEWS: CategoryView.populate(): can't split '%s'." % cat)
                     continue # quick fix to bug posted on forums
                 if catmaj and catmaj != last_catmaj:
                     cat_iter = self.model.insert_before(None, None)
@@ -131,15 +128,15 @@ class CategoryView(CommonTreeView):
                 # store full category name in hidden field
                 self.model.set_value(sub_cat_iter, 1, cat)
                 if counts != None and counts[cat] != 0:
-                    #utils.debug.dprint("VIEWS: Counts: %s = %s" %(cat, str(counts[cat])))
+                    #debug.dprint("VIEWS: Counts: %s = %s" %(cat, str(counts[cat])))
                     self.model.set_value( sub_cat_iter, 2, str(counts[cat]) )
 
     def populate_search( self, categories, counts ):
-        utils.debug.dprint("VIEWS: populating category view with search history")
+        debug.dprint("VIEWS: populating category view with search history")
         for string in categories:
             iter = self.model.insert_before(None, None)
             self.model.set_value( iter, 0, string )
             self.model.set_value( iter, 1, string )
             if counts != None: # and counts[string] != 0:
-                #utils.debug.dprint("VIEWS: Counts: %s = %s" %(cat, str(counts[string])))
+                #debug.dprint("VIEWS: Counts: %s = %s" %(cat, str(counts[string])))
                 self.model.set_value( iter, 2, str(counts[string]) )

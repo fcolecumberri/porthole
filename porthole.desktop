@@ -15,3 +15,4 @@ StartupNotify=true
 Type=Application
 Categories=Application;System;
 GenericName[en_CA]=
+GenericName=

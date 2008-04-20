@@ -22,11 +22,15 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
+import datetime
+id = datetime.datetime.now().microsecond
+print "CONFIGURATION: id initialized to ", id
+
 import re
 from gettext import gettext as _
 
-#import utils.debug
-from _xml.xmlmgr import XMLManager, XMLManagerError
+#from porthole.utils import debug
+from porthole._xml.xmlmgr import XMLManager, XMLManagerError
 
 
 class PortholeConfiguration:

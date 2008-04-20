@@ -1,4 +1,4 @@
-Porthole 0.5.0 (August, 2005)
+Porthole 0.6.0 (April, 2008)
 ===========================
 
 Porthole is a GTK-based frontend for Portage (the Gentoo package
@@ -46,8 +46,8 @@ Optional at runtime:
 
 
 to install:
-> tar xvjf porthole-0.5.0.tar.bz2
-> cd porthole-0.5.0
+> tar xvjf porthole-0.6.0.tar.bz2
+> cd porthole-0.6.0
 > python setup.py install
 
 

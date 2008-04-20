@@ -23,8 +23,8 @@
 
 import os
 
-import utils.debug
-from commonreader import CommonReader
+from porthole.utils import debug
+from porthole.readers.commonreader import CommonReader
 
 class DescriptionReader( CommonReader ):
     """ Read and store package descriptions for searching """
@@ -35,15 +35,15 @@ class DescriptionReader( CommonReader ):
 
     def run( self ):
         """ Load all descriptions """
-        utils.debug.dprint("READERS: DescriptionReader(); process id = %d *****************" %os.getpid())
+        debug.dprint("READERS: DescriptionReader(); process id = %d *****************" %os.getpid())
         self.descriptions = {}
         for name, package in self.packages:
             if self.cancelled: self.done = True; return
             self.descriptions[name] = package.get_description()
             if not self.descriptions[name]:
-                utils.debug.dprint("READERS: DescriptionReader(); No description for " + name)
+                debug.dprint("READERS: DescriptionReader(); No description for " + name)
             self.count += 1
         self.done = True
-        utils.debug.dprint("READERS: DescriptionReader(); Done")
+        debug.dprint("READERS: DescriptionReader(); Done")
 
 

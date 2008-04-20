@@ -1,3 +1,3 @@
-__all__ = ['mainwindow', 'advancedemerge', 'backends', 'config', 'dialogs',
+__all__ = ['mainwindow', 'importer', 'advancedemerge', 'backends', 'config', 'dialogs',
     'loaders', 'package', 'packagebook', 'readers',  'startup', 'sterminal',
-    'terminal', 'utils', 'version', 'views', '_xml']
+    'terminal', 'utils', 'utils.debug', 'version', 'views', '_xml']

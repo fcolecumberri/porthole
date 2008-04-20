@@ -23,21 +23,24 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
+import datetime
+id = datetime.datetime.now().microsecond
+print "ADVEMERGE: id initialized to ", id
+
 import gtk
 import gtk.glade
 from gettext import gettext as _
 
 
-import utils
-import utils.debug
-#import config
-import backends
+from porthole.utils import utils
+from porthole.utils import debug
+from porthole import config
+from porthole import backends
 portage_lib = backends.portage_lib
-import config
-import db
-from backends.version_sort import ver_sort
-from loaders.loaders import load_web_page
-from utils.dispatcher import Dispatcher
+from porthole import db
+from porthole.backends.version_sort import ver_sort
+from porthole.loaders.loaders import load_web_page
+from porthole.utils.dispatcher import Dispatcher
 
 class AdvancedEmergeDialog:
     """Class to perform advanced emerge dialog functionality."""
@@ -51,12 +54,12 @@ class AdvancedEmergeDialog:
         self.arch = portage_lib.get_arch()
         self.system_use_flags = portage_lib.SystemUseFlags
         self.emerge_unmerge = "emerge"
-        self.is_root = utils.utils.is_root()
+        self.is_root = utils.is_root()
         self.package_use_flags = db.userconfigs.get_user_config('USE', package.full_name)
         self.current_verInfo = None
         
         # Parse glade file
-        self.gladefile = config.Prefs.DATA_PATH + "advancedemerge/advemerge.glade"
+        self.gladefile = config.Prefs.DATA_PATH + "glade/advemerge.glade"
         self.wtree = gtk.glade.XML(self.gladefile, "adv_emerge_dialog", config.Prefs.APP)
      
         # register callbacks
@@ -94,7 +97,7 @@ class AdvancedEmergeDialog:
         self.btnMakeConf = self.wtree.get_widget("btnMakeConf")
         self.btnPkgUse = self.wtree.get_widget("btnPkgUse")
         self.btnPkgKeywords = self.wtree.get_widget("btnPkgKeywords")
-        if not (self.is_root or utils.utils.can_gksu()):
+        if not (self.is_root or utils.can_gksu()):
             self.btnMakeConf.hide()
             self.btnPkgUse.hide()
             self.btnPkgKeywords.hide()
@@ -104,8 +107,8 @@ class AdvancedEmergeDialog:
             if isinstance(checkbutton, gtk.CheckButton):
                 checkbutton.connect("toggled", self.on_toggled)
             else:
-                utils.debug.dprint("ADVEMERGE: table2 has child not of type gtk.CheckButton")
-                utils.debug.dprint(checkbutton)
+                debug.dprint("ADVEMERGE: table2 has child not of type gtk.CheckButton")
+                debug.dprint(checkbutton)
         
         if not config.Prefs.advemerge.showuseflags:
             self.use_flags_frame.hide()
@@ -205,7 +208,7 @@ class AdvancedEmergeDialog:
 
     def version_changed(self, widget):
         """ Version has changed, update the dialog window """
-        utils.debug.dprint("ADVEMERGE: changing version")
+        debug.dprint("ADVEMERGE: changing version")
         iter = self.combobox.get_active_iter()
         model = self.combobox.get_model()
         sel_ver = model.get_value(iter, 0)
@@ -219,7 +222,7 @@ class AdvancedEmergeDialog:
     
     def emerge_changed(self, widget):
         """ Swap between emerge and unmerge """
-        utils.debug.dprint("ADVEMERGE: emerge_changed()")
+        debug.dprint("ADVEMERGE: emerge_changed()")
         iter = self.emerge_combobox.get_active_iter()
         model = self.emerge_combobox.get_model()
         self.emerge_unmerge = model.get_value(iter, 0)
@@ -293,7 +296,7 @@ class AdvancedEmergeDialog:
         return False
     
     def on_package_use_commit(self, button_widget):
-        utils.debug.dprint("ADVEMERGE: on_package_use_commit()")
+        debug.dprint("ADVEMERGE: on_package_use_commit()")
         use_flags = self.get_use_flags()
         if not use_flags: return
         addlist = use_flags.split()
@@ -307,7 +310,7 @@ class AdvancedEmergeDialog:
                                                                 remove=removelist, callback=self.reload, parent_window = self.window )
     
     def on_make_conf_commit(self, button_widget):
-        utils.debug.dprint("ADVEMERGE: on_make_conf_commit()")
+        debug.dprint("ADVEMERGE: on_make_conf_commit()")
         use_flags = self.get_use_flags()
         if not use_flags: return
         addlist = use_flags.split()
@@ -324,7 +327,7 @@ class AdvancedEmergeDialog:
         portage_lib.set_make_conf('USE', add=addlist, remove=removelist, callback=package_use_callback )
     
     def on_package_keywords_commit(self, button_widget):
-        utils.debug.dprint("ADVEMERGE: on_package_keywords_commit()")
+        debug.dprint("ADVEMERGE: on_package_keywords_commit()")
         keyword = self.get_keyword()
         if not keyword: return
         addlist = [keyword]
@@ -356,7 +359,7 @@ class AdvancedEmergeDialog:
         self.package.properties.pop(ebuild, None)
         self.system_use_flags = portage_lib.SystemUseFlags
         self.package_use_flags = db.userconfigs.get_user_config('USE', self.package.full_name)
-        #utils.debug.dprint(self.package_use_flags)
+        #debug.dprint(self.package_use_flags)
         
         self.current_verInfo = None
         self.get_versions()
@@ -457,7 +460,7 @@ class AdvancedEmergeDialog:
                verInfo = ver
                break
         if not verInfo:
-            utils.debug.dprint("ADVEMERGE: get_verInfo(); freaking out! what's \"verInfo\"?")
+            debug.dprint("ADVEMERGE: get_verInfo(); freaking out! what's \"verInfo\"?")
             verInfo = "?"
         return verInfo
 
@@ -617,7 +620,7 @@ class AdvancedEmergeDialog:
             checkbox widgets representing the available
             use flags
         """
-        utils.debug.dprint("ADVEMERGE: build_use_flag_widget()")
+        debug.dprint("ADVEMERGE: build_use_flag_widget()")
         UseFlagFrame = self.wtree.get_widget("frameUseFlags")
         button_make_conf = self.wtree.get_widget("button_make_conf")
         button_package_use = self.wtree.get_widget("button_package_use")
@@ -632,7 +635,7 @@ class AdvancedEmergeDialog:
             self.btnPkgUse.hide()
         else:
             UseFlagFrame.show()
-            if self.is_root or utils.utils.can_gksu():
+            if self.is_root or utils.can_gksu():
                 self.btnPkgUse.show()
                 if config.Prefs.advemerge.show_make_conf_button:
                     self.btnMakeConf.show()
@@ -773,7 +776,7 @@ class AdvancedEmergeDialog:
             # Display the entire table
             table.show()
             KeywordsFrame.show()
-            if self.is_root or utils.utils.can_gksu():
+            if self.is_root or utils.can_gksu():
                 self.btnPkgKeywords.show()
         else:
             KeywordsFrame.hide()

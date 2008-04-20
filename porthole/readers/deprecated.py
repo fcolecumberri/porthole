@@ -25,12 +25,12 @@
 import os, time
 from types import *
 
-import utils.debug
-#from sterminal import SimpleTerminal
-import backends
+from porthole.utils import debug
+#from porthole.sterminal import SimpleTerminal
+from porthole import backends
 portage_lib = backends.portage_lib
-from db.package import Package
-from commonreader import CommonReader
+from porthole.db.package import Package
+from porthole.readers.commonreader import CommonReader
 
 class DeprecatedReader(CommonReader):
     """ Read available upgrades and store them in a tuple """
@@ -52,17 +52,17 @@ class DeprecatedReader(CommonReader):
  
     def run( self ):
         """fill upgrade tree"""
-        utils.debug.dprint("READERS: DeprecatedReader; process id = %d *******************" %os.getpid())
+        debug.dprint("READERS: DeprecatedReader; process id = %d *******************" %os.getpid())
         # find deprecated packages
         for cat, packages in self.installed_items:
-            #utils.debug.dprint("READERS: DeprecatedReader; cat = " + str(cat))
+            #debug.dprint("READERS: DeprecatedReader; cat = " + str(cat))
             for name, package in packages.items():
-                #utils.debug.dprint("READERS: DeprecatedReader; name = " + str(name))
+                #debug.dprint("READERS: DeprecatedReader; name = " + str(name))
                 self.count += 1
                 if self.cancelled: self.done = True; return
                 deprecated = package.deprecated
                 if deprecated:
-                    utils.debug.dprint("READERS: DeprecatedReader; found deprecated package: " + package.full_name)
+                    debug.dprint("READERS: DeprecatedReader; found deprecated package: " + package.full_name)
                     self.pkg_dict["Packages"][package.full_name] = package
                     self.pkg_count["Packages"] += 1
                 else:
@@ -72,11 +72,11 @@ class DeprecatedReader(CommonReader):
                         overlay = portage_lib.get_overlay(ebuild)
                         if type(overlay) is IntType: # catch obsolete
                             # add the ebuild to Ebuilds list
-                            utils.debug.dprint("READERS: DeprecatedReader; found deprecated ebuild: " + ebuild)
+                            debug.dprint("READERS: DeprecatedReader; found deprecated ebuild: " + ebuild)
                             self.pkg_dict["Ebuilds"][package.full_name] = package
                             self.pkg_count["Ebuilds"] += 1
 
-        utils.debug.dprint("READERS: DeprecatedReader; done checks, totals next")
+        debug.dprint("READERS: DeprecatedReader; done checks, totals next")
         self.pkg_dict_total = 0
         for key in self.pkg_count:
             self.pkg_dict_total += self.pkg_count[key]
@@ -85,6 +85,6 @@ class DeprecatedReader(CommonReader):
                 self.pkg_dict[key]["None"] = pkg
         # set the thread as finished
         self.done = True
-        utils.debug.dprint("READERS: DeprecatedReader; done :)")
+        debug.dprint("READERS: DeprecatedReader; done :)")
         return
 

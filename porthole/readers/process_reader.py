@@ -25,8 +25,8 @@
 import signal, os, threading, time, gtk
 import errno, string
 
-import utils.debug
-#from utils.dispatcher import Dispatcher
+from porthole.utils import debug
+#from porthole.utils.dispatcher import Dispatcher
 
 class ProcessOutputReader(threading.Thread):
     """ Reads output from processes """
@@ -53,7 +53,7 @@ class ProcessOutputReader(threading.Thread):
 
     def run(self):
         """ Watch for process output """
-        utils.debug.dprint("PROCESS_READER: ProcessOutputReader(); process id = %d" %os.getpid())
+        debug.dprint("PROCESS_READER: ProcessOutputReader(); process id = %d" %os.getpid())
         char = None
         while not self.die:
             if self.process_running or self.file_input:
@@ -63,17 +63,17 @@ class ProcessOutputReader(threading.Thread):
                         char = os.read(self.fd, 1)
                     except OSError, e:
                         if e.args[0] == 5: # 5 = i/o error
-                            utils.debug.dprint("PROCESS_READER: ProcessOutputReader: process finished, closing")
+                            debug.dprint("PROCESS_READER: ProcessOutputReader: process finished, closing")
                             try:
-                                utils.debug.dprint("PROCESS_READER: is self.fd a tty? '%s'" % os.isatty(self.fd))
+                                debug.dprint("PROCESS_READER: is self.fd a tty? '%s'" % os.isatty(self.fd))
                                 os.close(self.fd)
-                                utils.debug.dprint("PROCESS_READER: ProcessOutputReader: closed okay")
+                                debug.dprint("PROCESS_READER: ProcessOutputReader: closed okay")
                             except Exception, e:
                                 # probably already closed
-                                utils.debug.dprint("PROCESS_READER: ProcessOutputReader: couldn't close self.fd. exception: %s" % e)
+                                debug.dprint("PROCESS_READER: ProcessOutputReader: couldn't close self.fd. exception: %s" % e)
                         else:
                             # maybe the process died?
-                            utils.debug.dprint("PROCESS_READER: ProcessOutputReader: .fd OSError: %s" % e)
+                            debug.dprint("PROCESS_READER: ProcessOutputReader: .fd OSError: %s" % e)
                         char = None
                 elif self.file_input:
                     try:
@@ -81,7 +81,7 @@ class ProcessOutputReader(threading.Thread):
                         # system reading large files.  even 2 can hinder gui response
                         char = self.f.read(1)
                     except OSError, e:
-                        utils.debug.dprint("PROCESS_READER: ProcessOutputReader: .f OSError: %s" % e)
+                        debug.dprint("PROCESS_READER: ProcessOutputReader: .f OSError: %s" % e)
                         # maybe the process died?
                         char = None
                 if char:
@@ -99,13 +99,13 @@ class ProcessOutputReader(threading.Thread):
                     if self.dprint_output:
                        self.dprint_string += char
                        if char == '\n':
-                           utils.debug.dprint(self.dprint_output + self.dprint_string[:-1])
+                           debug.dprint(self.dprint_output + self.dprint_string[:-1])
                            self.dprint_string = ''
                 else:
                     # clean up, process is terminated
                     self.process_running = False
                     while self.string != "":
-                        #utils.debug.dprint("PROCESS_READER: ProcessOutputReader: waiting for update to finish")
+                        #debug.dprint("PROCESS_READER: ProcessOutputReader: waiting for update to finish")
                         # wait for update_callback to finish
                         time.sleep(.5)
                     if self.file_input:

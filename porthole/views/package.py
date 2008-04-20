@@ -4,7 +4,7 @@
     Porthole Views
     The view filter classes
 
-    Copyright (C) 2003 - 2006 Fredrik Arnerup, Daniel G. Taylor, Brian Dolbec,
+    Copyright (C) 2003 - 2008    Fredrik Arnerup, Daniel G. Taylor, Brian Dolbec,
     Brian Bockelman, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify
@@ -28,16 +28,16 @@ import os
 from gettext import gettext as _
 
 
-import backends
-import backends.utilities
+from porthole import backends
 portage_lib = backends.portage_lib
-import config
-import db
-from commontreeview import CommonTreeView
-import utils.utils
-import utils.debug
-from helpers import *
-from models import PackageModel, MODEL_ITEM
+from porthole.backends import utilities
+from porthole import config
+from porthole import db
+from porthole.views.commontreeview import CommonTreeView
+from porthole.utils import utils
+from porthole.utils import debug
+from porthole.views.helpers import *
+from porthole.views.models import PackageModel, MODEL_ITEM
 
 PACKAGES = 0
 INSTALLED = 1
@@ -143,7 +143,7 @@ class PackageView(CommonTreeView):
         # setup the treemodels
         self.view_model = {}
         for x in MODEL_NAMES[:-1]:
-            utils.debug.dprint("VIEWS: initializing Package view_model: " + x)
+            debug.dprint("VIEWS: initializing Package view_model: " + x)
             self.view_model[x] = PackageModel()
         self.view_model[MODEL_NAMES[TEMP]] = self.view_model[MODEL_NAMES[PACKAGES]]
         self.view_model[MODEL_NAMES[SEARCH]].size = 0
@@ -156,7 +156,7 @@ class PackageView(CommonTreeView):
         self.connect("button_press_event", self.on_button_press)
         # set default callbacks to nothing
         self.register_callbacks()
-        utils.debug.dprint("VIEWS: Package view initialized")
+        debug.dprint("VIEWS: Package view initialized")
 
     def set_view(self, view):
         """ Set the current view """
@@ -247,7 +247,7 @@ class PackageView(CommonTreeView):
 
     def _set_model(self):
         """ Set the correct treemodel for the current view """
-        utils.debug.dprint("VIEWS: Package_view._set_model(); changing to '" + MODEL_NAMES[self.current_view] + "' view model")
+        debug.dprint("VIEWS: Package_view._set_model(); changing to '" + MODEL_NAMES[self.current_view] + "' view model")
         self.set_model(self.view_model[MODEL_NAMES[self.current_view]])
         if self.current_view in [PACKAGES, SEARCH]:
             #self.remove_model()
@@ -255,10 +255,10 @@ class PackageView(CommonTreeView):
             self.popup_menuitems["select_all"].hide()
             #self.enable_column_sort()
         else:
-            #utils.debug.dprint("VIEWS: Package_view._set_model(); changing to '" + MODEL_NAMES[self.current_view] + "' view")
+            #debug.dprint("VIEWS: Package_view._set_model(); changing to '" + MODEL_NAMES[self.current_view] + "' view")
             self.popup_menuitems["deselect_all"].show()
             self.popup_menuitems["select_all"].show()
-            #utils.debug.dprint("VIEWS: _set_model(); disabling column sort")
+            #debug.dprint("VIEWS: _set_model(); disabling column sort")
         self.enable_column_sort() #disable_column_sort()
 
     def register_callbacks(self, callback = None):
@@ -271,11 +271,11 @@ class PackageView(CommonTreeView):
         self.mainwindow_callback = callback
 
     def on_button_press(self, treeview, event):
-        utils.debug.dprint("VIEWS: Handling PackageView button press event")
+        debug.dprint("VIEWS: Handling PackageView button press event")
         self.event = event # save the event so we can access it in _clicked()
         if event.type != gtk.gdk.BUTTON_PRESS:
-            utils.debug.dprint("VIEWS: Strange event type got passed to on_button_press() callback...")
-            utils.debug.dprint("VIEWS: event.type =  %s" %str(event.type))
+            debug.dprint("VIEWS: Strange event type got passed to on_button_press() callback...")
+            debug.dprint("VIEWS: event.type =  %s" %str(event.type))
         if event.button == 3: # secondary mouse button
             self.dopopup = True # indicate that the popup menu should be displayed.
         else:
@@ -287,21 +287,21 @@ class PackageView(CommonTreeView):
             return True
         else:
             path, col, cellx, celly = pathinfo
-            utils.debug.dprint("VIEWS: pathinfo = %s" %str(pathinfo))
+            debug.dprint("VIEWS: pathinfo = %s" %str(pathinfo))
             #treeview.set_cursor(path, col, MODEL_ITEM["name"]) # Note: sets off _clicked again
         return False
 
     def on_toggled(self, widget, path):
         self.toggle = path
-        utils.debug.dprint("VIEWS: Toggle activated at path '%s'" % path)
+        debug.dprint("VIEWS: Toggle activated at path '%s'" % path)
         self.set_cursor(path) # sets off _clicked
         return True
 
     def add_keyword(self, widget):
         arch = "~" + portage_lib.get_arch()
-        name = utils.utils.get_treeview_selection(self, MODEL_ITEM["package"]).full_name
+        name = utils.get_treeview_selection(self, MODEL_ITEM["package"]).full_name
         string = name + " " + arch + "\n"
-        utils.debug.dprint("VIEWS: Package view add_keyword(); %s" %string)
+        debug.dprint("VIEWS: Package view add_keyword(); %s" %string)
         def callback():
             self.mainwindow_callback("refresh")
         db.userconfigs.set_user_config('KEYWORDS', name=name, add=arch, callback=callback)
@@ -326,10 +326,10 @@ class PackageView(CommonTreeView):
 
     def _clicked(self, treeview, *args):
         """ Handles treeview clicks """
-        utils.debug.dprint("VIEWS: Package view _clicked() signal caught")
+        debug.dprint("VIEWS: Package view _clicked() signal caught")
         # get the selection
-        package = utils.utils.get_treeview_selection(treeview, MODEL_ITEM["package"])
-        #utils.debug.dprint("VIEWS: package = %s" % package.full_name)
+        package = utils.get_treeview_selection(treeview, MODEL_ITEM["package"])
+        #debug.dprint("VIEWS: package = %s" % package.full_name)
         if (not package and not self.toggle) or package.full_name == "None":
             self.mainwindow_callback("package changed", None)
             return False
@@ -340,7 +340,7 @@ class PackageView(CommonTreeView):
             self.view_model[MODEL_NAMES[self.current_view]].set_value(iter, MODEL_ITEM["checkbox"], check)
             package.is_checked = check
             #~ if self.view_model[MODEL_NAMES[self.current_view]].get_value(iter, MODEL_ITEM["package"]) == None:
-                #~ #utils.debug.dprint("VIEWS: _clicked(): Toggling all upgradable deps")
+                #~ #debug.dprint("VIEWS: _clicked(): Toggling all upgradable deps")
                 #~ # package == None for "Upgradable Dependencies" row
                 #~ # so select or deselect all deps
                 #~ iter = self.view_model[MODEL_NAMES[self.current_view]].iter_children(iter)
@@ -351,16 +351,16 @@ class PackageView(CommonTreeView):
             self.toggle = None
             return True # we've got it sorted
         else:
-            #utils.debug.dprint("VIEWS: full_name != _last_package = %d" %(package.full_name != self._last_selected))
+            #debug.dprint("VIEWS: full_name != _last_package = %d" %(package.full_name != self._last_selected))
             #if package.full_name != self._last_selected:
-            #    #utils.debug.dprint("VIEWS: passing package changed back to mainwindow")
+            #    #debug.dprint("VIEWS: passing package changed back to mainwindow")
             #    self.mainwindow_callback("package changed", package)
             self.mainwindow_callback("package changed", package)
         self._last_selected = package.full_name
 
         #pop up menu if was rmb-click
         if self.dopopup:
-            if utils.utils.is_root():
+            if utils.is_root():
                 if package.get_best_ebuild() != package.get_latest_ebuild(): # i.e. no ~arch keyword
                     self.popup_menuitems["add-keyword"].show()
                 else: self.popup_menuitems["add-keyword"].hide()
@@ -383,14 +383,14 @@ class PackageView(CommonTreeView):
             else:
                 self.popup_menuitems["emerge"].hide()
                 self.popup_menuitems["unmerge"].hide()
-                if utils.utils.can_gksu() and \
+                if utils.can_gksu() and \
                         (package.get_best_ebuild() != package.get_latest_ebuild()):
                     self.popup_menuitems["add-keyword"].show()
                 else:
                     self.popup_menuitems["add-keyword"].hide()
                 installed = package.get_installed()
                 havebest = False
-                if installed and utils.utils.can_sudo():
+                if installed and utils.can_sudo():
                     self.popup_menuitems["sudo-unmerge"].show()
                     if package.get_best_ebuild() in installed:
                         havebest = True
@@ -400,7 +400,7 @@ class PackageView(CommonTreeView):
                     self.popup_menuitems["sudo-emerge"].hide()
                     self.popup_menuitems["pretend-emerge"].hide()
                 else:
-                    if utils.utils.can_sudo():
+                    if utils.can_sudo():
                         self.popup_menuitems["sudo-emerge"].show()
                     else:
                         self.popup_menuitems["sudo-emerge"].hide()
@@ -412,10 +412,10 @@ class PackageView(CommonTreeView):
  
     def populate(self, packages, locate_name = None):
         """ Populate the current view with packages """
-        utils.debug.dprint("VIEWS: Populating package view")
-        utils.debug.dprint("VIEWS: PackageView.populate(); process_id = %s" %str(os.getpid()))
+        debug.dprint("VIEWS: Populating package view")
+        debug.dprint("VIEWS: PackageView.populate(); process_id = %s" %str(os.getpid()))
         if not packages:
-            utils.debug.dprint("VIEWS: clearing package view model")
+            debug.dprint("VIEWS: clearing package view model")
             self.get_model().clear()
             return
         # ask info_thread to die, if alive
@@ -423,19 +423,19 @@ class PackageView(CommonTreeView):
         self.model = None
         self.iter = None
         if locate_name:
-            utils.debug.dprint("VIEWS: Selecting " + str(locate_name))
+            debug.dprint("VIEWS: Selecting " + str(locate_name))
         # get the right model
         model = self.get_model()
         if not model:
-            utils.debug.dprint("VIEWS: populate(); FAILED TO GET model!!!!!!")
+            debug.dprint("VIEWS: populate(); FAILED TO GET model!!!!!!")
             return
         self.disable_column_sort()
         model.clear()
-        names = backends.utilities.sort(packages.keys())
+        names = utilities.sort(packages.keys())
         path = None
         locate_count = 0
         for name in names:
-            #utils.debug.dprint("VIEWS: PackageView.populate(); name = %s" %name)
+            #debug.dprint("VIEWS: PackageView.populate(); name = %s" %name)
             # go through each package
             iter = model.insert_before(None, None)
             model.set_value(iter, MODEL_ITEM["package"], packages[name])
@@ -452,7 +452,7 @@ class PackageView(CommonTreeView):
                 else:
                     model.set_value(iter, MODEL_ITEM["text_colour"], '')
                 # get an icon for the package
-                icon = utils.utils.get_icon_for_package(packages[name])
+                icon = utils.get_icon_for_package(packages[name])
                 model.set_value(iter, MODEL_ITEM["icon"],
                                 self.render_icon(icon,
                                 size = gtk.ICON_SIZE_MENU,
@@ -466,7 +466,7 @@ class PackageView(CommonTreeView):
                         #self.mainwindow_callback("set path", path)
         if locate_count == 1: # found unique exact result - select it
             self.set_cursor(path)
-        utils.debug.dprint("VIEWS: starting info_thread")
+        debug.dprint("VIEWS: starting info_thread")
         self.infothread_die = False
         self.get_model().set_sort_column_id(MODEL_ITEM["name"], gtk.SORT_ASCENDING)
         #self.disable_column_sort()
@@ -489,37 +489,37 @@ class PackageView(CommonTreeView):
             try:
                 #gtk.threads_enter()
                 package = model.get_value(iter, MODEL_ITEM["package"])
-                #utils.debug.dprint("VIEWS: populate_info(); getting latest_installed")
+                #debug.dprint("VIEWS: populate_info(); getting latest_installed")
                 latest_installed = package.get_latest_installed()
-                #utils.debug.dprint("VIEWS: populate_info(); latest_installed: %s, getting best_ebuild" %str(latest_installed))
+                #debug.dprint("VIEWS: populate_info(); latest_installed: %s, getting best_ebuild" %str(latest_installed))
                 best_ebuild = package.get_best_dep_ebuild()
-                #utils.debug.dprint("VIEWS: populate_info(); best_dep_ebuild: %s, getting latest_ebuild" %str(best_ebuild))
+                #debug.dprint("VIEWS: populate_info(); best_dep_ebuild: %s, getting latest_ebuild" %str(best_ebuild))
                 latest_ebuild = package.get_latest_ebuild(include_masked = False)
-                #utils.debug.dprint("VIEWS: populate_info(); latest_ebuild: %s" %str(latest_ebuild))
+                #debug.dprint("VIEWS: populate_info(); latest_ebuild: %s" %str(latest_ebuild))
                 try:
                     size = package.get_size()
-                    #utils.debug.dprint("VIEWS: populate_info(); size = " + size)
+                    #debug.dprint("VIEWS: populate_info(); size = " + size)
                     model.set_value(iter, MODEL_ITEM["size"], size) # Size
                 except:
-                    utils.debug.dprint("VIEWS: populate_info(); Had issues getting size for '%s'" % str(package.full_name))
+                    debug.dprint("VIEWS: populate_info(); Had issues getting size for '%s'" % str(package.full_name))
                 model.set_value(iter, MODEL_ITEM["installed"], portage_lib.get_version(latest_installed)) # installed
                 if best_ebuild:
                     model.set_value(iter, MODEL_ITEM["recommended"], portage_lib.get_version(best_ebuild)) #  recommended by portage
-                    #utils.debug.dprint("VIEWS populate_info(): got best ebuild for '%s' = %s" % (package.full_name, best_ebuild))
+                    #debug.dprint("VIEWS populate_info(): got best ebuild for '%s' = %s" % (package.full_name, best_ebuild))
                 elif latest_ebuild:
                     model.set_value(iter, MODEL_ITEM["recommended"], "(" + portage_lib.get_version(latest_ebuild) + ")") # latest
-                    #utils.debug.dprint("VIEWS populate_info(): got latest ebuild for '%s' = %s" % (package.full_name, latest_ebuild))
+                    #debug.dprint("VIEWS populate_info(): got latest ebuild for '%s' = %s" % (package.full_name, latest_ebuild))
                 else:
                     model.set_value(iter, MODEL_ITEM["recommended"], "masked") # hard masked - don't display
-                    #utils.debug.dprint("VIEWS populate_info(): got masked ebuild for '%s' = %s" % (package.full_name, "masked"))
+                    #debug.dprint("VIEWS populate_info(): got masked ebuild for '%s' = %s" % (package.full_name, "masked"))
                 try:
                     model.set_value(iter, MODEL_ITEM["description"], package.get_properties().description) # Description
                 except:
-                    utils.debug.dprint("VIEWS populate_info(): Failed to get item description for '%s'" % package.full_name)
+                    debug.dprint("VIEWS populate_info(): Failed to get item description for '%s'" % package.full_name)
                 self.iter = model.iter_next(iter)
                 #gtk.threads_leave()
             except Exception, e:
-                utils.debug.dprint("VIEWS: populate_info(): Stopping due to exception '%s'" % e)
+                debug.dprint("VIEWS: populate_info(): Stopping due to exception '%s'" % e)
                 #self.iter = model.iter_next(iter)
                 return False # will not be called again
                 #gtk.threads_leave()
@@ -528,21 +528,21 @@ class PackageView(CommonTreeView):
         else: # reached last iter
             #gtk.threads_enter()
             self.queue_draw()
-            #utils.debug.dprint("VIEWS: populate_info(); enabling column sort")
+            #debug.dprint("VIEWS: populate_info(); enabling column sort")
             self.enable_column_sort()
-            utils.debug.dprint("VIEWS: populate_info(); Package info populated")
+            debug.dprint("VIEWS: populate_info(); Package info populated")
             return False # will not be called again
             #gtk.threads_leave()
 
     def deselect_all(self, widget):
         """upgrades view deselect all packages callback"""
-        utils.debug.dprint("VIEWS: deselect_all(); right click menu call")
+        debug.dprint("VIEWS: deselect_all(); right click menu call")
         model = self.get_model()
         model.foreach(self.set_select, False)
 
     def select_all(self, widget):
         """upgrades view deselect all packages callback"""
-        utils.debug.dprint("VIEWS: select_all(); right click menu call")
+        debug.dprint("VIEWS: select_all(); right click menu call")
         model = self.get_model()
         model.foreach(self.set_select, True)
 

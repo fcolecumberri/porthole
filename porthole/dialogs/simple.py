@@ -28,7 +28,7 @@ from gettext import gettext as _
 import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk
 
-#import utils.debug
+#from porthole.utils import debug
 
 class CommonDialog(gtk.Dialog):
     """ A common gtk Dialog class """

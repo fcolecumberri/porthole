@@ -27,3 +27,6 @@ print "initializing utils.__init__.py"
 import debug
 
 mydebug = debug
+
+print "UTILS: mydebug.id = ", mydebug.id
+#print "UTILS: DEBUG.id = ", DEBUG.id

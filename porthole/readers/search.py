@@ -23,8 +23,8 @@
 
 import re, os
 
-import utils.debug
-from commonreader import CommonReader
+from porthole.utils import debug
+from porthole.readers.commonreader import CommonReader
 
 EXCEPTION_LIST = ['.','^','$','*','+','?','(',')','\\','[',']','|','{','}']
 
@@ -49,15 +49,15 @@ class SearchReader( CommonReader ):
     
     
     def run( self ):
-            utils.debug.dprint("READERS: SearchReader(); process id = %d *****************" %os.getpid())
+            debug.dprint("READERS: SearchReader(); process id = %d *****************" %os.getpid())
             Plus_exeption_count = 0
             for char in self.tmp_search_term:
-                #utils.debug.dprint(char)
+                #debug.dprint(char)
                 if char in EXCEPTION_LIST:# =="+":
-                    utils.debug.dprint("READERS: SearchReader();  '%s' exception found" %char)
+                    debug.dprint("READERS: SearchReader();  '%s' exception found" %char)
                     char = "\\" + char
                 self.search_term += char 
-            utils.debug.dprint("READERS: SearchReader(); ===> escaped search_term = :%s" %self.search_term)
+            debug.dprint("READERS: SearchReader(); ===> escaped search_term = :%s" %self.search_term)
             re_object = re.compile(self.search_term, re.I)
             # no need to sort self.db_list; it is already sorted
             for name, data in self.db_list:
@@ -67,13 +67,13 @@ class SearchReader( CommonReader ):
                 if self.search_desc:
                     desc = self.desc_db[name]
                     searchstrings.append(desc)
-                    #utils.debug.dprint("searchstrings type = " + str(type(searchstrings)))
-                    #utils.debug.dprint(searchstrings)
+                    #debug.dprint("searchstrings type = " + str(type(searchstrings)))
+                    #debug.dprint(searchstrings)
                 if True in map(lambda s: bool(re_object.search(s)), searchstrings):
                     self.pkg_count += 1
                     #package_list[name] = data
                     self.package_list[data.full_name] = data
-            utils.debug.dprint("READERS: SearchReader(); found %s entries for search_term: %s" %(self.pkg_count,self.search_term))
+            debug.dprint("READERS: SearchReader(); found %s entries for search_term: %s" %(self.pkg_count,self.search_term))
             self.do_callback()
 
     def do_callback(self):

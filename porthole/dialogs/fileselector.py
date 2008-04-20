@@ -30,7 +30,7 @@
 import pygtk; pygtk.require('2.0')
 import gtk
 
-import utils.debug
+from porthole.utils import debug
 
 class FileSel(gtk.FileSelection):
     def __init__(self, title):
@@ -70,7 +70,7 @@ class FileSelector:
 
     def _save_as_ok_func(filename):
         """file selector callback function"""
-        utils.debug.dprint("FILESELECTOR: Entering _save_as_ok_func")
+        debug.dprint("FILESELECTOR: Entering _save_as_ok_func")
         old_filename = self.filename
         if self.overwrite_confirm and (not self.filename or filename != self.filename):
             if os.path.exists(filename):
@@ -87,11 +87,11 @@ class FileSelector:
         return True
 
     def save_as(self, title):
-        utils.debug.dprint("FILESELECTOR: Entering save_as()")
+        debug.dprint("FILESELECTOR: Entering save_as()")
         return FileSel(title).run(window, self.filename, self._save_as_ok_func)
         
     def get_filename(self, title):
-        utils.debug.dprint("FILESELECTOR: Entering get_filename()")
+        debug.dprint("FILESELECTOR: Entering get_filename()")
         result = FileSel(title).run(window, self.filename, self._save_as_ok_func)
         if result:
             return self.filename

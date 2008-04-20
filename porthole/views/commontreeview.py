@@ -23,12 +23,9 @@
 
 import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk
-
-#import utils.debug
-
 #from gettext import gettext as _
 
-
+#from porthole.utils import debug
 
 class CommonTreeView(gtk.TreeView):
     """ Common functions used by all views """

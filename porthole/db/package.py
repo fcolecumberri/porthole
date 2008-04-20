@@ -4,7 +4,7 @@
     Porthole Package class
     Basic data structure and direct support functions for a gentoo package
 
-    Copyright (C) 2003 - 2006 Fredrik Arnerup, Daniel G. Taylor
+    Copyright (C) 2003 - 2008 Fredrik Arnerup, Daniel G. Taylor
     Brian Dolbec, Wm. F. Wheeler, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify
@@ -22,14 +22,19 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import db
-from backends.version_sort import ver_sort
+import datetime
+id = datetime.datetime.now().microsecond
+print "PACKAGE: id initialized to ", id
 
-import utils.debug
-import backends
+## circular import problem
+##from porthole.db import userconfigs
+from porthole.backends.version_sort import ver_sort
+from porthole.utils import debug
+from porthole import backends
 portage_lib = backends.portage_lib
 
 REFRESH = True
+USERCONFIGS = None
 
 class Package:
     """An entry in the package database"""
@@ -56,8 +61,8 @@ class Package:
 
     def in_list(self, list=None):
         """returns True/False if the package is listed in the list"""
-        #utils.debug.dprint("Package.in_list: %s" %self.full_name)
-        #utils.debug.dprint("Package.in_list: %s" %str(list))
+        #debug.dprint("Package.in_list: %s" %self.full_name)
+        #debug.dprint("Package.in_list: %s" %str(list))
         if self.full_name == "None":
             return False
         if list == "World":
@@ -66,7 +71,7 @@ class Package:
             #  redundant I know, but this method leaves room for adding an "Orphaned"  listing next
             return not self.in_world
         elif list:
-            #utils.debug.dprint("Package.in_list: " + str(self.full_name in list))
+            #debug.dprint("Package.in_list: " + str(self.full_name in list))
             # insert routine for checking if the package is in the specified list
             return self.full_name in list
         return False
@@ -112,12 +117,12 @@ class Package:
         if self.full_name == "None":
             return ''
         vers = self.get_versions()[:] # make a copy in case it is a pointer
-        #utils.debug.dprint("PACKAGE: get_latest_ebuild(); versions: " + str(vers)) 
+        #debug.dprint("PACKAGE: get_latest_ebuild(); versions: " + str(vers)) 
         if include_masked:
-            #utils.debug.dprint("PACKAGE: get_latest_ebuild(); trying portage_lib.best() of versions: " + str(vers)) 
+            #debug.dprint("PACKAGE: get_latest_ebuild(); trying portage_lib.best() of versions: " + str(vers)) 
             return portage_lib.best(vers)
         if self.latest_ebuild == None:
-            #utils.debug.dprint("PACKAGE: get_latest_ebuild(); checking hard masked vers = " + str(vers)) 
+            #debug.dprint("PACKAGE: get_latest_ebuild(); checking hard masked vers = " + str(vers)) 
             for m in self.get_hard_masked(check_unmask = True):
                 while m in vers:
                     vers.remove(m)
@@ -131,7 +136,7 @@ class Package:
             return ''
         if self.best_ebuild == None or refresh:
             self.best_ebuild = portage_lib.get_best_ebuild(self.full_name)
-            #utils.debug.dprint("PACKAGE: get_best_ebuild();  = " + str(self.best_ebuild)) 
+            #debug.dprint("PACKAGE: get_best_ebuild();  = " + str(self.best_ebuild)) 
         return self.best_ebuild
 
     def get_best_dep_ebuild(self, refresh = False):
@@ -143,7 +148,7 @@ class Package:
         if self.best_ebuild == None or refresh:
             best, keyworded, hardmasked = portage_lib.get_dep_ebuild(dep)
             self.best_ebuild = best
-            #utils.debug.dprint("PACKAGE: get_best_ebuild();  = " + str(self.best_ebuild)) 
+            #debug.dprint("PACKAGE: get_best_ebuild();  = " + str(self.best_ebuild)) 
         return self.best_ebuild
 
     def get_default_ebuild(self):
@@ -164,10 +169,10 @@ class Package:
                     self.size = portage_lib.get_size(ebuild)
                 else: 
                     self.size = ''
-                #utils.debug.dprint("PACKAGE: get_size(); returning self.size")
+                #debug.dprint("PACKAGE: get_size(); returning self.size")
                 return self.size
             else: # return the specific ebuild size
-                #utils.debug.dprint("PACKAGE: get_size(); returning portage_lib.get_size(ebuild)")
+                #debug.dprint("PACKAGE: get_size(); returning portage_lib.get_size(ebuild)")
                 self.size = portage_lib.get_size(ebuild)
         return self.size
         
@@ -205,19 +210,19 @@ class Package:
     def get_properties(self, specific_ebuild = None):
         """ Returns properties of specific ebuild.
             If no ebuild specified, get latest ebuild. """
-        #utils.debug.dprint("PACKAGE: get_properties()")
+        #debug.dprint("PACKAGE: get_properties()")
         if self.full_name == "None":
             return ''
         if specific_ebuild == None:
             ebuild = self.get_default_ebuild()
             if not ebuild:
-                utils.debug.dprint("PACKAGE; get_properties(): No ebuild found for %s!" % self.full_name)
+                debug.dprint("PACKAGE; get_properties(): No ebuild found for %s!" % self.full_name)
                 #raise Exception(_('No ebuild found.'))
         else:
-            #utils.debug.dprint("PACKAGE: get_properties(); Using specific ebuild")
+            #debug.dprint("PACKAGE: get_properties(); Using specific ebuild")
             ebuild = specific_ebuild
         if not ebuild in self.properties:
-            #utils.debug.dprint("PACKAGE: geting properties for '%s'" % str(ebuild))
+            #debug.dprint("PACKAGE: geting properties for '%s'" % str(ebuild))
             self.properties[ebuild] = portage_lib.get_properties(ebuild)
         return self.properties[ebuild]
 
@@ -227,9 +232,9 @@ class Package:
             return ''
         # Note: this is slow, especially when include_masked is false
         criterion = include_masked and 'match-all' or 'match-visible'
-        #utils.debug.dprint("PACKAGE: get_versions(); criterion = %s, package = %s" %(str(criterion),self.full_name))
+        #debug.dprint("PACKAGE: get_versions(); criterion = %s, package = %s" %(str(criterion),self.full_name))
         v = portage_lib.get_versions(self.full_name)
-        #utils.debug.dprint("PACKAGE: get_versions(); v = " + str(v))
+        #debug.dprint("PACKAGE: get_versions(); v = " + str(v))
         return v
 
     def get_hard_masked(self, check_unmask = False):
@@ -292,10 +297,14 @@ class Package:
         return self.dep_upgradable
 
     def get_dep_atom(self):
-            atoms = db.userconfigs.get_atom('SETS',self.full_name)
-            if atoms != []:
-                # use the last one in the list
-                return atoms[-1].acpv()
-            else: #
-                return self.full_name
+        global USERCONFIGS
+        if USERCONFIGS == None:  # avaoid a circular import problem
+            from porthole.db import userconfigs
+            USERCONFIGS = userconfigs
+        atoms = USERCONFIGS.get_atom('SETS',self.full_name)
+        if atoms != []:
+            # use the last one in the list
+            return atoms[-1].acpv()
+        else: #
+            return self.full_name
 

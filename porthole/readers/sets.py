@@ -22,13 +22,13 @@
 '''
 import os, types
 
-import utils.debug
-import backends
+from porthole.utils import debug
+from porthole import backends
 portage_lib = backends.portage_lib
-import db
-from db.package import Package
-from commonreader import CommonReader
-from utils.utils import get_set_name
+from porthole import db
+from porthole.db.package import Package
+from porthole.readers.commonreader import CommonReader
+from porthole.utils.utils import get_set_name
 
 class SetListReader(CommonReader):
     """ Convert userconfigs sets to a filename (category) & pkg (package) db (tuple) """
@@ -46,19 +46,19 @@ class SetListReader(CommonReader):
  
     def run( self ):
         """fill SETS tree"""
-        utils.debug.dprint("READERS: SetListReader(); process id = %d *******************" %os.getpid())
-        utils.debug.dprint("READERS: SetListReader(); db.userconfigs is type : " +str(type(db.userconfigs)))
+        debug.dprint("READERS: SetListReader(); process id = %d *******************" %os.getpid())
+        debug.dprint("READERS: SetListReader(); db.userconfigs is type : " +str(type(db.userconfigs)))
         filenames = db.userconfigs.get_source_keys("SETS")
-        utils.debug.dprint("READERS: SetListReader(); filenames are: " + str(filenames))
+        debug.dprint("READERS: SetListReader(); filenames are: " + str(filenames))
         for filename in filenames:
-            utils.debug.dprint("READERS: SetListReader(); filename is: " + filename)
+            debug.dprint("READERS: SetListReader(); filename is: " + filename)
             key =get_set_name(filename)
             if key not in self.pkg_dict.keys():
                 self.pkg_dict[key] = {}
                 self.pkg_count[key] = 0
 
             for atom in db.userconfigs.get_source_atoms('SETS', filename):
-                utils.debug.dprint("READERS: SetListReader(); atom.name is: " + atom.name)
+                debug.dprint("READERS: SetListReader(); atom.name is: " + atom.name)
                 self.count += 1
                 if self.cancelled: self.done = True; return
                 self.pkg_dict[key][atom.name] = db.db.get_package(atom.name)
@@ -72,7 +72,7 @@ class SetListReader(CommonReader):
             if self.pkg_dict[key] == {}:
                 pkg = Package("None")
                 self.pkg_dict[key]["None"] = pkg
-        #utils.debug.dprint("READERS: SetListReader(); new pkg_list = " + str(self.pkg_dict))
+        #debug.dprint("READERS: SetListReader(); new pkg_list = " + str(self.pkg_dict))
         # set the thread as finished
         self.done = True
         return

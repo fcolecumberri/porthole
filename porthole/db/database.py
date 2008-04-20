@@ -22,19 +22,23 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 """
 
+import datetime
+id = datetime.datetime.now().microsecond
+print "DATABASE: id initialized to ", id
+
 import pwd, cPickle, os
 import gobject
-from package import Package
-import backends
-portage_lib = backends.portage_lib
 
-from dbreader import DatabaseReader
-from readers.descriptions import DescriptionReader
-from dbbase import DBBase
-from utils.dispatcher import Dispatcher
-from backends.utilities import get_sync_info
-import utils.debug
-import config
+from porthole.db.package import Package
+from porthole import backends
+portage_lib = backends.portage_lib
+from porthole.db.dbreader import DatabaseReader
+from porthole.readers.descriptions import DescriptionReader
+from porthole.db.dbbase import DBBase
+from porthole.utils.dispatcher import Dispatcher
+from porthole.backends.utilities import get_sync_info
+from porthole.utils import debug
+from porthole import config
 
 
 NEW = 0
@@ -55,7 +59,7 @@ class Database(DBBase):
         self.desc_thread = None
         ## get home directory
         ##home = pwd.getpwuid(os.getuid())[5]
-        self._DBFile = "var/db/porthole/descriptions.db"
+        self._DBFile = "/var/db/porthole/descriptions.db"
         ##del home
         #if action == NEW:
         self.db_init()
@@ -68,17 +72,17 @@ class Database(DBBase):
     def get_package(self, full_name):
         """Get a Package object based on full name."""
         try:
-            #utils.debug.dprint("Database: get_package(); fullname = " + full_name)
+            #debug.dprint("Database: get_package(); fullname = " + full_name)
             category = portage_lib.get_category(full_name)
             name = portage_lib.get_name(full_name)
             if (category in self.categories
                 and name in self.categories[category]):
                 return self.categories[category][name]
             else:
-                utils.debug.dprint("Database: get_package(); fullname not found")
+                debug.dprint("Database: get_package(); fullname not found")
                 return None
         except Exception, e:
-            utils.debug.dprint("Database: get_package(); exception occured: " + e)
+            debug.dprint("Database: get_package(); exception occured: " + e)
             return None
 
     def update_package(self, fullname):
@@ -95,29 +99,29 @@ class Database(DBBase):
         """saves the db to a file"""
         if self.desc_reloaded:
             _db = {'sync_date': get_sync_info(), 'descriptions': self.descriptions}
-            utils.debug.dprint("DATABASE: save() Pickling 'db' to file: " + self._DBFile)
+            debug.dprint("DATABASE: save() Pickling 'db' to file: " + self._DBFile)
             # pickle it baby, yeah!
             cPickle.dump(_db, open(self._DBFile, "w"))
             del _db
         
     def load(self, filename = None):
         """restores the db from a file"""
-        utils.debug.dprint("DATABASE: load() loading 'db' from file: " + self._DBFile)
+        debug.dprint("DATABASE: load() loading 'db' from file: " + self._DBFile)
         _db = None
         # get home directory
         if os.access(self._DBFile, os.F_OK):
             _db = cPickle.load(open(self._DBFile))
         else:
-            utils.debug.dprint("DATABASE: load() file does not exist :" + self._DBFile)
+            debug.dprint("DATABASE: load() file does not exist :" + self._DBFile)
             return -1
         current = get_sync_info()
         if _db['sync_date'] != current:
-            utils.debug.dprint("DATABASE: load() 'db' is out of date")
+            debug.dprint("DATABASE: load() 'db' is out of date")
             return -2
         self.descriptions = _db['descriptions']
         self.desc_loaded = True
         self.desc_mtime = os.stat(self._DBFile).st_mtime
-        utils.debug.dprint("DATABASE: load() file is loaded, mtime = " + str(self.desc_mtime))
+        debug.dprint("DATABASE: load() file is loaded, mtime = " + str(self.desc_mtime))
         del _db
         return 1
         
@@ -135,7 +139,7 @@ class Database(DBBase):
         
     def db_update(self, args):# extra args for dispatcher callback
         """Update the callback to the number of packages read."""
-        #utils.debug.dprint("DB: db_update()")
+        #debug.dprint("DB: db_update()")
         #args ["nodecount", "allnodes_length","done"]
         if args["done"] == False:
             if self.callback:
@@ -155,11 +159,11 @@ class Database(DBBase):
             self.db_thread_running = False
             if self.callback:
                 self.callback(args)
-            utils.debug.dprint("DATABASE: db_update(); db_thread is done...")
-            utils.debug.dprint("DATABASE: db_update(); db_thread.join...")
+            debug.dprint("DATABASE: db_update(); db_thread is done...")
+            debug.dprint("DATABASE: db_update(); db_thread.join...")
             self.db_thread.join()
             self.db_thread_running = False
-            utils.debug.dprint("DATABASE: db_update(); db_thread.join is done...")
+            debug.dprint("DATABASE: db_update(); db_thread.join is done...")
             #del self.db  # clean up the old db
             self.db = self.db_thread.get_db()
             self.categories = self.db.categories
@@ -169,7 +173,7 @@ class Database(DBBase):
             self.pkg_count = self.db.pkg_count
             self.installed_pkg_count = self.db.installed_pkg_count
             del self.db  # clean up
-            utils.debug.dprint("DATABASE: db_update(); db is updated")
+            debug.dprint("DATABASE: db_update(); db is updated")
             self.load_descriptions()
 
     def load_descriptions(self):
@@ -208,7 +212,7 @@ class Database(DBBase):
                     self.desc_callback(args)
                 # kill off the thread
             self.desc_thread.join()
-            utils.debug.dprint("DATABASE: desc_thread_update(); save the db")
+            debug.dprint("DATABASE: desc_thread_update(); save the db")
             self.save()
             return False
         else:
