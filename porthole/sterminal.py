@@ -4,7 +4,7 @@
     sterminal
     Runs a command without a user interface
 
-    Copyright (C) 2003 - 2005 Brian Dolbec, Fredrik Arnerup and Daniel G. Taylor
+    Copyright (C) 2003 - 2008  Brian Dolbec, Fredrik Arnerup and Daniel G. Taylor
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

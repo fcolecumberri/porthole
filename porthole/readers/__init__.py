@@ -4,7 +4,7 @@
     Contains the usually threaded functions/methods for gathering data
     for use in the displays.
 
-    Copyright (C) 2003 - 2005 Fredrik Arnerup, Brian Dolbec, 
+    Copyright (C) 2003 - 2008 Fredrik Arnerup, Brian Dolbec, 
     Daniel G. Taylor and Wm. F. Wheeler, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify

@@ -4,7 +4,7 @@
     PortageLib
     An interface library to Gentoo's Portage
 
-    Copyright (C) 2003 - 2006 Fredrik Arnerup, Daniel G. Taylor,
+    Copyright (C) 2003 - 2008 Fredrik Arnerup, Daniel G. Taylor,
     Wm. F. Wheeler, Brian Dolbec, Tommy Iorns
 
     Copyright(c) 2004, Karl Trygve Kalleberg <karltk@gentoo.org>

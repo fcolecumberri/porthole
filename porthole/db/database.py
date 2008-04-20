@@ -4,7 +4,7 @@
     Package Database
     A database of Gentoo's Portage tree
 
-    Copyright (C) 2003 - 2006 Fredrik Arnerup, Daniel G. Taylor,
+    Copyright (C) 2003 - 2008 Fredrik Arnerup, Daniel G. Taylor,
     Wm. F. Wheeler, Brian Dolbec, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify

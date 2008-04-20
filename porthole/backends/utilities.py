@@ -4,7 +4,7 @@
     Backends Utilities
     helper functions for the portage libraries and/or porthole
 
-    Copyright (C) 2003 - 2006 Fredrik Arnerup, Daniel G. Taylor,
+    Copyright (C) 2003 - 2008 Fredrik Arnerup, Daniel G. Taylor,
     Wm. F. Wheeler, Brian Dolbec, Tommy Iorns
 
     Copyright: 2005 Brian Harring <ferringb@gmail.com>

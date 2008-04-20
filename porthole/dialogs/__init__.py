@@ -4,7 +4,7 @@
     Porthole dialogs module
     Holds common dialog classes/functions for Porthole
 
-    Copyright (C) 2003 - 2006 Fredrik Arnerup, Daniel G. Taylor
+    Copyright (C) 2003 - 2008 Fredrik Arnerup, Daniel G. Taylor
     Brian Dolbec, Wm. F. Wheeler, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify

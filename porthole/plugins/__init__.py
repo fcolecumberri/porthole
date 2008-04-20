@@ -4,7 +4,7 @@
     Porthole Plugin Interface
     Imports and interacts with plugins
 
-    Copyright (C) 2003 - 2005 Brian Bockelman, Brian Dolbec, Tommy Iorns
+    Copyright (C) 2003 - 2008 Brian Bockelman, Brian Dolbec, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

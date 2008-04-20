@@ -2,9 +2,9 @@
 
 """
     
-    Utils importer modules for dynamic module importing.
+    Importer modules for dynamic module importing.
 
-    Copyright (C) 2006 Brian Dolbec
+    Copyright (C) 2006 -2008 Brian Dolbec
 
 
     This program is free software; you can redistribute it and/or modify

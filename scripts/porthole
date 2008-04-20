@@ -4,7 +4,7 @@
     Porthole
     A graphical frontend to Portage
 
-    Copyright (C) 2003 - 2005 Fredrik Arnerup and Daniel G. Taylor,
+    Copyright (C) 2003 - 2008 Fredrik Arnerup and Daniel G. Taylor,
     Brian Dolbec, William F. Wheeler, Brian Bockelman, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify

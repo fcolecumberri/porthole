@@ -4,7 +4,7 @@
     Porthole Summary Class
     Loads package info into a textview and makes it pretty
 
-    Copyright (C) 2003 - 2006 Fredrik Arnerup, Daniel G. Taylor,
+    Copyright (C) 2003 - 2008 Fredrik Arnerup, Daniel G. Taylor,
     Brian Dolbec, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify

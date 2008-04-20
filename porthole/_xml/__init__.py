@@ -3,7 +3,7 @@
 """
     Porthole XML Manager Module
 
-    Copyright (C) 2004 Wm. F. Wheeler
+    Copyright (C) 2004 - 2008 Wm. F. Wheeler
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

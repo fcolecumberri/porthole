@@ -5,7 +5,7 @@
     rules for comparing versions.  The pad_ver() is modified from
     the soon to be implemented portage.vercmp()
 
-    Copyright (C) 2003 - 2004 Fredrik Arnerup, Brian Dolbec, 
+    Copyright (C) 2003 - 2008 Fredrik Arnerup, Brian Dolbec, 
     Daniel G. Taylor and Wm. F. Wheeler
 
     This program is free software; you can redistribute it and/or modify

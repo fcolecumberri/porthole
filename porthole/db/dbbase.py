@@ -3,7 +3,7 @@
 """
     Package Database structure
 
-    Copyright (C) 2003 - 2006 Fredrik Arnerup, Daniel G. Taylor,
+    Copyright (C) 2003 - 2008 Fredrik Arnerup, Daniel G. Taylor,
     Wm. F. Wheeler, Brian Dolbec, Tommy Iorns
 
 

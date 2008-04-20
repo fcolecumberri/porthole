@@ -4,7 +4,7 @@
     Porthole About Dialog
     Shows information about Porthole
 
-    Copyright (C) 2003 - 2004 Fredrik Arnerup and Daniel G. Taylor
+    Copyright (C) 2003 - 2008 Fredrik Arnerup and Daniel G. Taylor
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

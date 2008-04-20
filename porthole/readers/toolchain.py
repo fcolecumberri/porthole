@@ -3,7 +3,7 @@
 '''
     Porthole Reader Class: ToolChain
 
-    Copyright (C) 2006 Brian Dolbec, Heil Van Camp
+    Copyright (C) 2008 Brian Dolbec, Heil Van Camp
     This class is based on Heil's emwrap.sh script for rebuilding your toolchain
 
     This program is free software; you can redistribute it and/or modify

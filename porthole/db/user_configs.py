@@ -4,7 +4,7 @@
     Porthole user_configs module
     Holds all portage user config data functions for Porthole
 
-    Copyright (C) 2006  Brian Dolbec
+    Copyright (C) 2006 - 2008  Brian Dolbec
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
