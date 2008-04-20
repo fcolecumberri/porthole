@@ -109,8 +109,7 @@
 		    <widget class="GtkCheckButton" id="cbBuildPkgOnly">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">--buildpkgonly (-B)
-Creates binary packages for all ebuilds processed without actually merging  the  packages.   This  comes  with  the
-caveat that all build-time dependencies must already be emerged on the system.</property>
+Creates binary packages for all ebuilds processed without actually merging  the  packages.   This  comes  with  the caveat that all build-time dependencies must already be emerged on the system.</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">buildpkgonly</property>
 		      <property name="use_underline">True</property>
@@ -160,9 +159,7 @@ Tells emerge to build binary packages for all ebuilds processed in addition to a
 		    <widget class="GtkCheckButton" id="cbAsk">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">--ask (-a)
-Before performing the action, display what will take place (server info for --sync, --pretend output for merge, and so  forth),  then ask whether to proceed with the action or abort.  Using --ask is more efficient than using --pre‐
-tend and then executing the same command without --pretend, as dependencies will only need to be  calculated  once.
-   WARNING:  If the &quot;Enter&quot; key is pressed at the prompt (with no other input), it is interpreted as acceptance of the first choice.  Note that the input buffer is not cleared prior to the prompt, so an accidental press of the &quot;Enter&quot; key at any time prior to the prompt will be interpreted as a choice!</property>
+Before performing the action, display what will take place (server info for --sync, --pretend output for merge, and so  forth),  then ask whether to proceed with the action or abort.  Using --ask is more efficient than using --pretend and then executing the same command without --pretend, as dependencies will only need to be  calculated  once.   WARNING:  If the &quot;Enter&quot; key is pressed at the prompt (with no other input), it is interpreted as acceptance of the first choice.  Note that the input buffer is not cleared prior to the prompt, so an accidental press of the &quot;Enter&quot; key at any time prior to the prompt will be interpreted as a choice!</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">ask</property>
 		      <property name="use_underline">True</property>
@@ -237,8 +234,7 @@ Tells emerge to run the emerge command in --debug mode. In this mode the bash bu
 		    <widget class="GtkCheckButton" id="cbDeep">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">--deep (-D)
-This flag forces emerge to consider the entire dependency tree of packages, instead of checking only the  immediate
-dependencies of the packages.  As an example, this catches updates in libraries that are not directly listed in the dependencies of a package.  Also see --with-bdeps for behavior with respect to build time dependencies that are not strictly required.</property>
+This flag forces emerge to consider the entire dependency tree of packages, instead of checking only the  immediate dependencies of the packages.  As an example, this catches updates in libraries that are not directly listed in the dependencies of a package.  Also see --with-bdeps for behavior with respect to build time dependencies that are not strictly required.</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">deep</property>
 		      <property name="use_underline">True</property>
@@ -288,8 +284,7 @@ Reinstalls  all  world  packages  and their dependencies to the current USE spec
 		    <widget class="GtkCheckButton" id="cbFetchOnly">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">--fetchonly (-f)
-Instead  of  doing  any  package  building,  just perform fetches for all packages (the main package as well as all
-dependencies).</property>
+Instead  of  doing  any  package  building,  just perform fetches for all packages (the main package as well as all dependencies).</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">fetchonly</property>
 		      <property name="use_underline">True</property>
@@ -414,9 +409,9 @@ Causes EMERGE_DEFAULT_OPTS (see make.conf(5)) to be ignored.</property>
 		    <widget class="GtkCheckButton" id="cbNewUse">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes"> --newuse (-N)
-Tells  emerge  to  include  installed  packages  where  USE flags have changed since compilation.  USE flag changes include:
+Tells  emerge  to  include  installed  packages  where  USE flags have changed since compilation.  USE flag changes include: 
 
-    A USE flag was added to a package.
+  A USE flag was added to a package.
     A USE flag was removed from a package.
     A USE flag was turned on for a package.
     A USE flag was turned off for a package.
@@ -473,8 +468,7 @@ same config multiple times.  This flag will cause the file to always be merged.<
 		    <widget class="GtkCheckButton" id="cbNoDeps">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">--nodeps (-O)
-Merges  specified  packages  without  merging  any  dependencies.  Note that the build may fail if the dependencies aren’t satisfied.
-</property>
+Merges  specified  packages  without  merging  any  dependencies.  Note that the build may fail if the dependencies are not satisfied.</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">nodeps</property>
 		      <property name="use_underline">True</property>
@@ -498,10 +492,8 @@ Merges  specified  packages  without  merging  any  dependencies.  Note that the
 		  <child>
 		    <widget class="GtkCheckButton" id="cbNoReplace">
 		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">--noreplace (-n)
-Skips the packages specified on the command-line that have already been installed.  Without this option, any  pack‐
-ages,  ebuilds,  or  deps  you specify on the command-line will cause Portage to remerge the package, even if it is
-already installed.  Note that Portage will not remerge dependencies by default.</property>
+		      <property name="tooltip" translatable="yes">--noreplace (-n) 
+Skips the packages specified on the command-line that have already been installed.  Without this option, any  packages,  ebuilds,  or  deps  you specify on the command-line will cause Portage to remerge the package, even if it is already installed.  Note that Portage will not remerge dependencies by default.</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">noreplace</property>
 		      <property name="use_underline">True</property>
@@ -789,8 +781,8 @@ Enable or disable color output.  This option will override NOCOLOR (see make.con
 		  <child>
 		    <widget class="GtkCheckButton" id="cbQuiet">
 		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">--quiet (-q)
-Results may vary, but the general outcome is a reduced or condensed output from portage’s displays.</property>
+		      <property name="tooltip" translatable="yes">--quiet (-q) 
+Results may vary, but the general outcome is a reduced or condensed output of portage displays.</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">quiet</property>
 		      <property name="use_underline">True</property>
@@ -815,7 +807,7 @@ Results may vary, but the general outcome is a reduced or condensed output from 
 		    <widget class="GtkEventBox" id="eventbox2">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">--with-bdeps &lt; y | n &gt;
-In  dependency calculations, pull in build time dependencies that are not strictly required.   This defaults to ´n´ for installation actions and ´y´ for the --depclean action.  This setting can be added to EMERGE_DEFAULT_OPTS  (see make.conf(5)) and later overridden via the command line.</property>
+In  dependency calculations, pull in build time dependencies that are not strictly required.   This defaults to 'n' for installation actions and 'y' for the --depclean action.  This setting can be added to EMERGE_DEFAULT_OPTS  (see make.conf(5)) and later overridden via the command line.</property>
 		      <property name="visible_window">True</property>
 		      <property name="above_child">False</property>
 
@@ -1013,7 +1005,7 @@ Updates packages to the best version available, which may not always be the high
 		    <widget class="GtkCheckButton" id="cbTree">
 		      <property name="visible">True</property>
 		      <property name="sensitive">False</property>
-		      <property name="tooltip" translatable="yes">--tree (-t)
+		      <property name="tooltip" translatable="yes">--tree (-t) 
 Shows the dependency tree for the given target by indenting dependencies.  This is only really useful  in  combination with --emptytree or --update and --deep.</property>
 		      <property name="label" translatable="yes">tree</property>
 		      <property name="use_underline">True</property>
