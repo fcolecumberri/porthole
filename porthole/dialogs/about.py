@@ -50,4 +50,4 @@ class AboutDialog:
 
     def homepage_clicked(self, widget):
         """Open Porthole's Homepage!"""
-        load_web_page("http://porthole.sourceforge.net", config.Prefs)
+        load_web_page("http://porthole.sourceforge.net")
