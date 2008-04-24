@@ -57,6 +57,30 @@ except ImportError:
 # File types dictionary used for logic & loading
 Textfile_type = {"changelog": "/ChangeLog", "best_ebuild": ".ebuild", "version_ebuild": ".ebuild"}
 
+def get_textfile(path):
+    debug.dprint("LOADERS: get_textfile(): loading from: " + path)
+    f = open(path)
+    data = f.read(); f.close()
+    return data
+    
+def decode_text(data = None, mode = None):
+    if data == None:
+        return ''
+    text = ''
+    try:
+        debug.dprint("LOADERS: decode_text(); trying utf_8 encoding")
+        text = str(data).decode('utf_8').encode("utf_8",'replace')
+    except:
+        try:
+            debug.dprint("LOADERS: decode_text(); trying iso-8859-1 encoding")
+            text = str(data).decode('iso-8859-1').encode('utf_8', 'replace')
+        except:
+            debug.dprint("LOADERS: decode_text(); Failure = unknown encoding")
+            text = _( "This %s has an encoding method unknown to porthole.\n"
+                            "Please report this to bugs.gentoo.org and porthole's bugtracker"
+                                ) % Textfile_type[mode][1:]
+    return text
+
 def load_textfile(view, package, mode, version = None):
         """ Load and display a text file associated with a package """
         if package:
@@ -108,19 +132,7 @@ def load_textfile(view, package, mode, version = None):
                 data = f.read(); f.close()
 
                 if data != None:
-                    try:
-                        debug.dprint("LOADERS: load_textfile(); trying utf_8 encoding")
-                        view.set_text(str(data).decode('utf_8').encode("utf_8",'replace'))
-                    except:
-                        try:
-                            debug.dprint("LOADERS: load_textfile(); trying iso-8859-1 encoding")
-                            view.set_text(str(data).decode('iso-8859-1').encode('utf_8', 'replace'))
-                        except:
-                            debug.dprint("LOADERS: load_textfile(); Failure = unknown encoding")
-                            view.set_text(_(
-                                "This %s has an encoding method unknown to porthole.\n"
-                                "Please report this to bugs.gentoo.org and porthole's bugtracker"
-                                ) % Textfile_type[mode][1:])
+                    view.set_text(decode_text(data, mode))
                 else:
                     view.set_text(_("%s is Empty") % Textfile_type[mode][1:])
             except:

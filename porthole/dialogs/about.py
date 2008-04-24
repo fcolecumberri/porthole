@@ -24,9 +24,11 @@
 import gtk, gtk.glade
 
 from porthole.utils import debug
-from porthole.loaders.loaders import load_web_page
-from porthole.version import version
+from porthole.loaders.loaders import load_web_page, decode_text, get_textfile
+from porthole.version import version, copyright
 from porthole import config
+from porthole import backends
+portage_lib = backends.portage_lib
 
 class AboutDialog:
     """Class to hold about dialog and functionality."""
@@ -40,6 +42,14 @@ class AboutDialog:
                      "on_homepage_clicked" : self.homepage_clicked}
         self.wtree.signal_autoconnect(callbacks)
         self.wtree.get_widget('porthole-about-img').set_from_file(config.Prefs.DATA_PATH + "pixmaps/porthole-about.png")
+        self.copyright = self.wtree.get_widget('copyright_label')
+        self.copyright.set_label(copyright)
+        self.authorview = self.wtree.get_widget('authorview')
+        self.licenseview = self.wtree.get_widget('licenseview')
+        license_file = portage_lib.portdir + "/licenses/GPL-2"
+        author_file = config.Prefs.AUTHORS
+        self.licenseview.get_buffer().set_text(decode_text(get_textfile(license_file)))
+        self.authorview.get_buffer().set_text(decode_text(get_textfile(author_file)))
         window = self.wtree.get_widget("about_dialog")
         window.set_title(_("About Porthole %s") % version)
         debug.dprint("ABOUT: Showing About dialog")

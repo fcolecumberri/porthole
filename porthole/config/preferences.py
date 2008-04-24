@@ -334,10 +334,15 @@ class PortholePreferences:
             import sys
             self.PACKAGE_DIR = sys.path[0] 
             debug.dprint("PREFERENCES: PortholePreferences;  PACKAGE_DIR = " + self.PACKAGE_DIR)
+            # set the correct path to the AUTHORS file
+            self.AUTHORS = self.DATA_PATH
         else:
             self.PACKAGE_DIR = self.DATA_PATH
+            # running a checkout, set it up one directory. go 2 since the data_path ends in a '/'
+            self.AUTHORS = '/'.join((self.DATA_PATH.split('/'))[:-2] + ["AUTHORS"])
+        debug.dprint("PREFERENCES: PortholePreferences; AUTHORS = " + self.AUTHORS)
         self.PLUGIN_DIR = self.PACKAGE_DIR + '/plugins/' # could add more dirs later
-        debug.dprint("PREFERENCES: PortholePreferences; PLUGIN_DIR = %s" %self.PLUGIN_DIR)
+        debug.dprint("PREFERENCES: PortholePreferences; PLUGIN_DIR = " + self.PLUGIN_DIR)
         self.plugins = OptionsClass()
         try:
             option = "active_list"
