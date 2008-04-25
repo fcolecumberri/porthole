@@ -21,4 +21,4 @@
 
 version = "0.6.0_rc2"
 
-copyright = "Copyright (c) 2003 - 2099"
+copyright = "Copyright (c) 2003 - 2008"
