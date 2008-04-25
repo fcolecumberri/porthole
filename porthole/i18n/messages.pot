@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-04-16 17:28-0700\n"
+"POT-Creation-Date: 2008-04-25 10:08-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -241,12 +241,12 @@ msgstr ""
 msgid "WebRsync"
 msgstr ""
 
-#: ../porthole/db/user_configs.py:310
+#: ../porthole/db/user_configs.py:311
 #, python-format
 msgid "Porthole: Please select the %s file to use"
 msgstr ""
 
-#: ../porthole/dialogs/about.py:44
+#: ../porthole/dialogs/about.py:54
 #, python-format
 msgid "About Porthole %s"
 msgstr ""
@@ -256,7 +256,7 @@ msgid "command line entry"
 msgstr ""
 
 #: ../porthole/dialogs/fileselector.py:77
-#: ../porthole/terminal/terminal.py:1103
+#: ../porthole/terminal/terminal.py:1106
 #, python-format
 msgid "Ovewrite existing file '%s'?"
 msgstr ""
@@ -273,34 +273,34 @@ msgstr ""
 msgid "Loading"
 msgstr ""
 
-#: ../porthole/loaders/loaders.py:121
+#: ../porthole/loaders/loaders.py:79
 #, python-format
 msgid ""
 "This %s has an encoding method unknown to porthole.\n"
 "Please report this to bugs.gentoo.org and porthole's bugtracker"
 msgstr ""
 
-#: ../porthole/loaders/loaders.py:125
+#: ../porthole/loaders/loaders.py:137
 #, python-format
 msgid "%s is Empty"
 msgstr ""
 
-#: ../porthole/loaders/loaders.py:128 ../porthole/loaders/loaders.py:131
+#: ../porthole/loaders/loaders.py:140 ../porthole/loaders/loaders.py:143
 #, python-format
 msgid "%s Not Available"
 msgstr ""
 
-#: ../porthole/loaders/loaders.py:150 ../porthole/packagebook/summary.py:537
+#: ../porthole/loaders/loaders.py:162 ../porthole/packagebook/summary.py:537
 msgid "Not installed"
 msgstr ""
 
-#: ../porthole/loaders/loaders.py:153
+#: ../porthole/loaders/loaders.py:165
 msgid ""
 "No data currently available.\n"
 "The package may not be installed"
 msgstr ""
 
-#: ../porthole/loaders/loaders.py:157
+#: ../porthole/loaders/loaders.py:169
 #, python-format
 msgid ""
 "%(installed_count)i installed files for: %(ebuild)s \n"
@@ -482,58 +482,58 @@ msgstr ""
 msgid "Emerge queue"
 msgstr ""
 
-#: ../porthole/terminal/terminal.py:424
+#: ../porthole/terminal/terminal.py:427
 msgid "***Log Process Killed!"
 msgstr ""
 
-#: ../porthole/terminal/terminal.py:492
+#: ../porthole/terminal/terminal.py:495
 msgid "Confirm: Kill the Running Process"
 msgstr ""
 
-#: ../porthole/terminal/terminal.py:763
+#: ../porthole/terminal/terminal.py:766
 #, python-format
 msgid "*** Log loading complete : %s"
 msgstr ""
 
-#: ../porthole/terminal/terminal.py:787
+#: ../porthole/terminal/terminal.py:790
 msgid "_Cancel"
 msgstr ""
 
-#: ../porthole/terminal/terminal.py:794
+#: ../porthole/terminal/terminal.py:797
 #, python-format
 msgid ""
 "'sudo -p Password: ' requires your user password to perform the command:\n"
 "'%s'"
 msgstr ""
 
-#: ../porthole/terminal/terminal.py:798
+#: ../porthole/terminal/terminal.py:801
 #, python-format
 msgid ""
 "'su' requires the root password to perform the command:\n"
 "'%s'"
 msgstr ""
 
-#: ../porthole/terminal/terminal.py:804
+#: ../porthole/terminal/terminal.py:807
 msgid "Password: "
 msgstr ""
 
-#: ../porthole/terminal/terminal.py:878
+#: ../porthole/terminal/terminal.py:881
 #, python-format
 msgid "*** Total warnings count for merge = %d \n"
 msgstr ""
 
-#: ../porthole/terminal/terminal.py:884
+#: ../porthole/terminal/terminal.py:887
 #, python-format
 msgid "*** Total cautions count for merge = %d \n"
 msgstr ""
 
-#: ../porthole/terminal/terminal.py:1008
+#: ../porthole/terminal/terminal.py:1011
 msgid ""
 "*** Unfortunately, you don't have enough logged information about the listed "
 "packages to calculate estimated build times accurately.\n"
 msgstr ""
 
-#: ../porthole/terminal/terminal.py:1014
+#: ../porthole/terminal/terminal.py:1017
 #, python-format
 msgid ""
 "*** Based on the build history of these packages on your system, I can "
@@ -541,7 +541,7 @@ msgid ""
 "(hours)d hrs, %(minutes)d mins, and %(seconds)d secs.\n"
 msgstr ""
 
-#: ../porthole/terminal/terminal.py:1023
+#: ../porthole/terminal/terminal.py:1026
 msgid ""
 "*** Note: If you have a lot of programs running on your system while "
 "porthole is emerging packages, or if you have changed your hardware since "
@@ -549,51 +549,51 @@ msgid ""
 "inaccurate.\n"
 msgstr ""
 
-#: ../porthole/terminal/terminal.py:1045
+#: ../porthole/terminal/terminal.py:1048
 msgid "*** Unknown File Loading error"
 msgstr ""
 
-#: ../porthole/terminal/terminal.py:1049
+#: ../porthole/terminal/terminal.py:1052
 msgid "*** File Loading... Processing..."
 msgstr ""
 
-#: ../porthole/terminal/terminal.py:1058 ../porthole/terminal/terminal.py:1062
+#: ../porthole/terminal/terminal.py:1061 ../porthole/terminal/terminal.py:1065
 msgid ": Open log File"
 msgstr ""
 
-#: ../porthole/terminal/terminal.py:1167
+#: ../porthole/terminal/terminal.py:1170
 #, python-format
 msgid "*** Loading File : %s"
 msgstr ""
 
-#: ../porthole/terminal/terminal.py:1172
+#: ../porthole/terminal/terminal.py:1175
 #, python-format
 msgid "Cannot open file '%(filename)s': %(errmsg)s"
 msgstr ""
 
-#: ../porthole/terminal/terminal.py:1198
+#: ../porthole/terminal/terminal.py:1201
 #, python-format
 msgid "Cannot back up '%(filename)s' to '%(bak_filename)s': %(errmsg)s"
 msgstr ""
 
-#: ../porthole/terminal/terminal.py:1207
+#: ../porthole/terminal/terminal.py:1210
 #, python-format
 msgid "*** saving file: %s"
 msgstr ""
 
-#: ../porthole/terminal/terminal.py:1241
+#: ../porthole/terminal/terminal.py:1244
 #, python-format
 msgid ""
 "Can't restore backup file '%(filename)s' to '%(bak_filename)s': %(errmsg)s\n"
 "Backup left as '%(bak_filename)s'"
 msgstr ""
 
-#: ../porthole/terminal/terminal.py:1248
+#: ../porthole/terminal/terminal.py:1251
 #, python-format
 msgid "*** File saved : %s"
 msgstr ""
 
-#: ../porthole/terminal/terminal.py:1258
+#: ../porthole/terminal/terminal.py:1261
 #, python-format
 msgid "Save log to '%s'?"
 msgstr ""
@@ -639,51 +639,51 @@ msgstr ""
 msgid "Search History"
 msgstr ""
 
-#: ../porthole/views/depends.py:57 ../porthole/views/depends.py:153
+#: ../porthole/views/depends.py:56 ../porthole/views/depends.py:152
 #: ../porthole/glade/porthole.glade.h:10
 msgid "Dependencies"
 msgstr ""
 
-#: ../porthole/views/depends.py:66
+#: ../porthole/views/depends.py:65
 msgid "Package"
 msgstr ""
 
-#: ../porthole/views/depends.py:75 ../porthole/views/package.py:106
+#: ../porthole/views/depends.py:74 ../porthole/views/package.py:106
 #: ../porthole/glade/config.glade.h:44
 msgid "Installed"
 msgstr ""
 
-#: ../porthole/views/depends.py:85 ../porthole/views/package.py:113
+#: ../porthole/views/depends.py:84 ../porthole/views/package.py:113
 #: ../porthole/glade/config.glade.h:64
 msgid "Recommended"
 msgstr ""
 
-#: ../porthole/views/depends.py:95 ../porthole/glade/config.glade.h:46
+#: ../porthole/views/depends.py:94 ../porthole/glade/config.glade.h:46
 msgid "Keywords"
 msgstr ""
 
-#: ../porthole/views/depends.py:115 ../porthole/views/menus.py:47
+#: ../porthole/views/depends.py:114 ../porthole/views/menus.py:47
 #: ../porthole/views/package.py:68 ../porthole/glade/config.glade.h:30
 msgid "Emerge"
 msgstr ""
 
-#: ../porthole/views/depends.py:117 ../porthole/views/menus.py:49
+#: ../porthole/views/depends.py:116 ../porthole/views/menus.py:49
 #: ../porthole/views/package.py:70
 msgid "Pretend Emerge"
 msgstr ""
 
-#: ../porthole/views/depends.py:119 ../porthole/views/menus.py:51
+#: ../porthole/views/depends.py:118 ../porthole/views/menus.py:51
 #: ../porthole/views/package.py:72
 msgid "Sudo Emerge"
 msgstr ""
 
-#: ../porthole/views/depends.py:125 ../porthole/views/menus.py:57
+#: ../porthole/views/depends.py:124 ../porthole/views/menus.py:57
 #: ../porthole/views/package.py:78
 #, python-format
 msgid "Append with %s to package.keywords"
 msgstr ""
 
-#: ../porthole/views/depends.py:358
+#: ../porthole/views/depends.py:357
 msgid "Porthole Dependency Viewer"
 msgstr ""
 
@@ -716,20 +716,26 @@ msgid "Description"
 msgstr ""
 
 #: ../porthole/glade/about.glade.h:1
-msgid ""
-"A GTK+ frontend to Portage\n"
-"\n"
-"Developed by Fredrik Arnerup, Brian Dolbec,\n"
-"Daniel G. Taylor, Wm. F. Wheeler,\n"
-"Brian Bockelman and Tommy Iorns\n"
-"Copyright (C) 2003 - 2005"
+msgid "A GTK+ frontend to Portage"
 msgstr ""
 
-#: ../porthole/glade/about.glade.h:7
+#: ../porthole/glade/about.glade.h:2
 msgid "About"
 msgstr ""
 
-#: ../porthole/glade/about.glade.h:8
+#: ../porthole/glade/about.glade.h:3
+msgid "Authors"
+msgstr ""
+
+#: ../porthole/glade/about.glade.h:4
+msgid "Copyright (c) 2003 - ????"
+msgstr ""
+
+#: ../porthole/glade/about.glade.h:5 ../porthole/glade/config.glade.h:48
+msgid "License"
+msgstr ""
+
+#: ../porthole/glade/about.glade.h:6
 msgid "_Homepage"
 msgstr ""
 
@@ -1362,10 +1368,6 @@ msgstr ""
 
 #: ../porthole/glade/config.glade.h:47
 msgid "LANG = "
-msgstr ""
-
-#: ../porthole/glade/config.glade.h:48
-msgid "License"
 msgstr ""
 
 #: ../porthole/glade/config.glade.h:49
