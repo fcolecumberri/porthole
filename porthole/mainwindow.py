@@ -1253,7 +1253,7 @@ class MainWindow:
     def load_reader_list(self, reader):
         self.reader_progress = 1
         # package list is not loaded, create dialog and load them
-        self.set_statusbar2(_("Generating '" + reader + "' packages list..."))
+        self.set_statusbar2(_("Generating '%(reader)' packages list...") %reader)
         # create reader thread for loading the packages
         if self.reader_running:
             debug.dprint("MAINWINDOW: load_reader_list(); thread already running!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
@@ -1324,7 +1324,7 @@ class MainWindow:
         else:
             # stsatubar hack, should probably be converted to use a Dispatcher callback
             if self.reader.progress >= 2 and self.reader_progress == 1:
-                self.set_statusbar2(_("Searching for '" + self.reader.reader_type + "' packages..."))
+                self.set_statusbar2(_("Searching for '%s' packages...") %self.reader.reader_type)
                 self.reader_progress = 2
             if self.reader_running:
                 try:
