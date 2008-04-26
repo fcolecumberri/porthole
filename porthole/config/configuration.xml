@@ -43,7 +43,7 @@
       <error-4>^ \* .*Fetch failed for</error-4>
       <error-5>^\!\!\!\sAll ebuilds that could satisfy.*\shave been masked.</error-5>
       <error-6>^\!\!\!\sOne of the following masked packages is required to complete your request\:</error-6>
-      <error-7>^OSError: [Errno </error-7>
+      <error-7>^\sOSError: \[Errno </error-7>
     </error>
     <noterror py_type="list" item_count="0">
     </noterror>
