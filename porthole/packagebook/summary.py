@@ -34,7 +34,7 @@ portage_lib = backends.portage_lib
 from porthole import db
 from porthole import config
 from porthole.backends.version_sort import ver_sort
-from porthole.backends.utilities import get_reduced_flags
+from porthole.backends.utilities import reduce_flags, get_reduced_flags, abs_flag, abs_list, flag_defaults
 from porthole.loaders.loaders import load_web_page
 
 class Summary(gtk.TextView):
@@ -355,36 +355,37 @@ class Summary(gtk.TextView):
             return box
 
         def show_props(ebuild):
-            ebuild_use_flags = get_reduced_flags(ebuild)
             # Use flags
+            ebuild_use_flags = get_reduced_flags(ebuild)
             if use_flags and config.Prefs.summary.showuseflags:
+                #debug.dprint("SUMMARY: SHOW_PROPS(); use_flags = " +str(use_flags))
                 append(_("Use flags: "), "property")
                 first_flag = True
                 for flag in use_flags:
-                    ## this next commented out block is due to the new reduce_flags function, so it is no longer needed
+                    #debug.dprint("SUMMARY: SHOW_PROPS(); flag = " +str(flag))
                     # Check to see if flag applies:
-                    #if flag in ebuild_use_flags and '-' + flag in ebuild_use_flags:
-                        # check to see which comes last (this will be the applicable one)
-                        #ebuild_use_flags.reverse()  # no longer needed
-                        #if ebuild_use_flags.index(flag) # < ebuild_use_flags.index('-' + flag):
-                        #    flag_active = True
-                        #else: # ebuild_use_flags.index('-' + flag):
-                        #    flag_active = False
-                        #ebuild_use_flags.reverse()
-                    if flag in ebuild_use_flags:
+                    flag_active = False
+                    myflag = abs_flag(flag)
+                    if myflag in ebuild_use_flags:
+                        #debug.dprint("SUMMARY: SHOW_PROPS(); flag in ebuild_use_flags = True" )
                         flag_active = True
-                    else:
-                        flag_active = False
-                    
+                    elif '-'+myflag in ebuild_use_flags:
+                        flag = '-' + myflag
                     if not first_flag:
                         append(", ", "value")
                     else:
                         first_flag = False
                     # Added +/- for color impaired folks
                     if flag_active:
-                        append('+' + flag,"useset")
+                        if flag.startswith('+'):
+                            append(flag,"useset")
+                        else:
+                            append('+' + flag,"useset")
                     else:
-                        append('-' + flag,"useunset")
+                        if flag.startswith('-'):
+                            append(flag,"useunset")
+                        else:
+                            append('-' + flag,"useunset")
                 nl(2)
 
             # Keywords
@@ -460,12 +461,13 @@ class Summary(gtk.TextView):
         keyword_unmasked = db.userconfigs.get_user_config('KEYWORDS', name=package.full_name)
         package_unmasked = db.userconfigs.get_user_config('UNMASK', name=package.full_name)
         
-        best = portage_lib.best(installed + nonmasked)
-        #debug.dprint("SUMMARY: best = %s" %best)
+        best = portage_lib.get_best_ebuild(package.full_name)
+        debug.dprint("SUMMARY: best = %s" %best)
         if _ebuild:
             self.ebuild = _ebuild
         else:
             if best == "": # all versions are masked and the package is not installed
+                debug.dprint("SUMMARY: best = '', getting latest ebuild")
                 self.ebuild = package.get_latest_ebuild(True) # get latest masked version
             else:
                 self.ebuild = best
@@ -474,7 +476,7 @@ class Summary(gtk.TextView):
         description = props.description
         homepages = props.get_homepages() # may be more than one
         #debug.dprint("SUMMARY: Summary; getting use flags")
-        use_flags = props.get_use_flags()
+        use_flags = reduce_flags(props.get_use_flags())
         keywords = props.get_keywords()
         licenses = props.license
         slot = unicode(props.get_slot())
@@ -488,12 +490,9 @@ class Summary(gtk.TextView):
             table.remove(tag)
         self.url_tags = []
 
-        # Turn system use flags into a list
-        system_use_flags = portage_lib.get_portage_environ("USE")
-        if system_use_flags:
-            system_use_flags = system_use_flags.split()
-            #debug.dprint("SUMMARY: system_use_flags = "+str(system_use_flags))
-
+        # get system use flags
+        system_use_flags = portage_lib.SystemUseFlags
+        
         #############################
         # Begin adding text to tab
         #############################
