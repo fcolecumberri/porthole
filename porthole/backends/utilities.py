@@ -109,8 +109,7 @@ def reduce_flags(flags):
     for x in flags:
 
         if x[0] == "+":
-            debug.dprint("BACKENDS Utilities: USE flags should not start " + \
-                "with a '+': " + x)
+            #debug.dprint("BACKENDS Utilities: USE flags should not start with a '+': " + x)
             x = x[1:]
             if not x:
                 continue
@@ -127,6 +126,14 @@ def reduce_flags(flags):
 
     return myflags
 
+def flag_defaults(the_list):
+    defaults = []
+    for flag in the_list:
+        if flag[0] in ["+","-"]:
+            if flag[0] == "+":
+                flag = flag[1:]
+            defaults.append(flag)
+    return defaults
 
 def get_reduced_flags(ebuild):
     """function to get all use flags for an ebuild or package and reduce them to their final setting"""
@@ -134,14 +141,31 @@ def get_reduced_flags(ebuild):
     if USERCONFIGS == None:  # avaoid a circular import problem
         from porthole.db import userconfigs
         USERCONFIGS = userconfigs
+    props = portage_lib.get_properties(ebuild)
+    IUSE_defaults = flag_defaults(props.get_use_flags())
+    del props
     # Check package.use to see if it applies to this ebuild at all
     package_use_flags = USERCONFIGS.get_user_config('USE', ebuild=ebuild)
     #debug.dprint("BACKENDS Utilities: get_reduced_flags(); package_use_flags = %s" %str(package_use_flags))
     if package_use_flags != None and package_use_flags != []:
         #debug.dprint("BACKENDS Utilities: get_reduced_flags(); adding package_use_flags to ebuild_use_flags")
-        ebuild_use_flags = reduce_flags(portage_lib.SystemUseFlags + package_use_flags)
+        #debug.dprint("BACKENDS Utilities: get_reduced_flags(); SystemUseFlags = " + str(portage_lib.SystemUseFlags))
+        ebuild_use_flags = reduce_flags(IUSE_defaults + portage_lib.SystemUseFlags + package_use_flags)
     else:
         #debug.dprint("BACKENDS Utilities: get_reduced_flags(); adding only system_use_flags to ebuild_use_flags")
-        ebuild_use_flags = portage_lib.SystemUseFlags
+        ebuild_use_flags = reduce_flags(IUSE_defaults + portage_lib.SystemUseFlags)
+    #debug.dprint("BACKENDS Utilities: get_reduced_flags(); final ebuild_use_flags = %s" %str(ebuild_use_flags))
     return ebuild_use_flags
+
+def abs_flag(flag):
+    if flag[0] in ["+","-"]:
+        return flag[1:]
+    else:
+        return flag
+
+def abs_list(the_list):
+    r=[]
+    for member in the_list:
+        r.append(abs_flag(member))
+    return r
 
