@@ -75,14 +75,15 @@ class Database(DBBase):
             #debug.dprint("Database: get_package(); fullname = " + full_name)
             category = portage_lib.get_category(full_name)
             name = portage_lib.get_name(full_name)
-            if (category in self.categories
-                and name in self.categories[category]):
+            if (category in self.categories and name in self.categories[category]):
                 return self.categories[category][name]
             else:
-                debug.dprint("Database: get_package(); fullname not found")
+                if category != 'virtual':
+                    debug.dprint("DATABASE: get_package(); package not found for: " + name + " original full_name = " + full_name)
+                    #debug.dprint("DATABASE: get_package(); self.categories[category] = " + str(self.categories[category].keys()))
                 return None
         except Exception, e:
-            debug.dprint("Database: get_package(); exception occured: " + e)
+            debug.dprint("DATABASE: get_package(); exception occured: " + e)
             return None
 
     def update_package(self, fullname):
