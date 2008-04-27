@@ -719,7 +719,7 @@ def get_installed_ebuild_path(fullname):
 def reset_use_flags():
     debug.dprint("PORTAGELIB: reset_use_flags();")
     global SystemUseFlags
-    SystemUseFlags = get_portage_environ("USE").split()
+    SystemUseFlags = portage.settings["USE"].split()
 
 def load_emerge_config(trees=None):
     # Taken from /usr/bin/emerge portage-2.1.2.2  ...Brian
@@ -756,7 +756,10 @@ user_config_dir = portage_const.USER_CONFIG_PATH
 
 World = get_world()
 
-SystemUseFlags = get_portage_environ("USE").split()
+#SystemUseFlags = get_portage_environ("USE").split()
+# environ() is filtered now
+SystemUseFlags = portage.settings["USE"].split()
+#debug.dprint("PORTAGELIB: SystemUseFlags = " + str(SystemUseFlags))
 
 virtuals = get_virtuals
 
