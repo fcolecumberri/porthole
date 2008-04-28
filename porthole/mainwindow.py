@@ -1253,7 +1253,7 @@ class MainWindow:
     def load_reader_list(self, reader):
         self.reader_progress = 1
         # package list is not loaded, create dialog and load them
-        self.set_statusbar2(_("Generating '%(reader)' packages list...") %reader)
+        self.set_statusbar2(_("Generating '%s' packages list...") %reader)
         # create reader thread for loading the packages
         if self.reader_running:
             debug.dprint("MAINWINDOW: load_reader_list(); thread already running!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
