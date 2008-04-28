@@ -335,7 +335,7 @@ class PortholePreferences:
             self.PACKAGE_DIR = sys.path[0] 
             debug.dprint("PREFERENCES: PortholePreferences;  PACKAGE_DIR = " + self.PACKAGE_DIR)
             # set the correct path to the AUTHORS file
-            self.AUTHORS = self.DATA_PATH
+            self.AUTHORS = self.DATA_PATH + "AUTHORS"
         else:
             self.PACKAGE_DIR = self.DATA_PATH
             # running a checkout, set it up one directory. go 2 since the data_path ends in a '/'

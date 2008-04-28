@@ -38,7 +38,7 @@ setup( \
             ["porthole/glade/config.glade", "porthole/glade/advemerge.glade",
             "porthole/glade/porthole.glade", "porthole/glade/about.glade"]),
         (datadir,
-            ["scripts/dopot.sh", "scripts/pocompile.sh"]),
+            ["scripts/dopot.sh", "scripts/pocompile.sh", "AUTHORS"]),
         (datadir + "config",
             [ "porthole/config/configuration.xml"]),
         (datadir + "i18n",

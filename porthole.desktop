@@ -1,4 +1,4 @@
-﻿[Desktop Entry]
+[Desktop Entry]
 Version=1.0
 Encoding=UTF-8
 Name=The Porthole Portage Frontend
@@ -14,5 +14,5 @@ Exec=porthole
 StartupNotify=true
 Type=Application
 Categories=Application;System;
-GenericName[en_CA]=
-GenericName=
+GenericName[en_CA]= Porthole
+GenericName= Porthole
