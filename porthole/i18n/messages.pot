@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-04-25 14:27-0700\n"
+"POT-Creation-Date: 2008-04-28 18:08-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1316,7 +1316,7 @@ msgstr ""
 msgid "%s Not Available"
 msgstr ""
 
-#: porthole/loaders/loaders.py:162 porthole/packagebook/summary.py:537
+#: porthole/loaders/loaders.py:162 porthole/packagebook/summary.py:536
 msgid "Not installed"
 msgstr ""
 
@@ -1379,7 +1379,7 @@ msgid "Unsupported use flag"
 msgstr ""
 
 #: porthole/advancedemerge/advemerge.py:736
-#: porthole/packagebook/summary.py:430 porthole/packagebook/depends.py:290
+#: porthole/packagebook/summary.py:431 porthole/packagebook/depends.py:290
 msgid "None"
 msgstr ""
 
@@ -1721,36 +1721,36 @@ msgstr ""
 msgid "N"
 msgstr ""
 
-#: porthole/packagebook/summary.py:361
+#: porthole/packagebook/summary.py:362
 msgid "Use flags: "
 msgstr ""
 
-#: porthole/packagebook/summary.py:392
+#: porthole/packagebook/summary.py:393
 msgid "Keywords: "
 msgstr ""
 
-#: porthole/packagebook/summary.py:404
+#: porthole/packagebook/summary.py:405
 msgid "License: "
 msgstr ""
 
-#: porthole/packagebook/summary.py:416
+#: porthole/packagebook/summary.py:417
 msgid "User Configs: "
 msgstr ""
 
-#: porthole/packagebook/summary.py:512
+#: porthole/packagebook/summary.py:511
 msgid "Long Description: "
 msgstr ""
 
-#: porthole/packagebook/summary.py:533
+#: porthole/packagebook/summary.py:532
 msgid "Installed versions:\n"
 msgstr ""
 
-#: porthole/packagebook/summary.py:542
+#: porthole/packagebook/summary.py:541
 #, python-format
 msgid "Available versions for %s:\n"
 msgstr ""
 
-#: porthole/packagebook/summary.py:546
+#: porthole/packagebook/summary.py:545
 msgid "Properties for version: "
 msgstr ""
 
@@ -1925,7 +1925,8 @@ msgid "Searching for %s"
 msgstr ""
 
 #: porthole/mainwindow.py:1256
-msgid "Generating '%(reader)' packages list..."
+#, python-format
+msgid "Generating '%s' packages list..."
 msgstr ""
 
 #: porthole/mainwindow.py:1327

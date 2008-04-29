@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Porthole VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2005-07-30 15:35+1200\n"
-"PO-Revision-Date: 2008-04-25 16:02-0800\n"
+"PO-Revision-Date: 2008-04-28 18:53-0800\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
 "MIME-Version: 1.0\n"
@@ -253,7 +253,9 @@ msgstr ""
 "Thay vì thực hiện merge, chỉ hiển thị những gì sẽ được cài đặt nếu không dùng pretend. Bạn được khuyên dùng pretend trước khi cài đặt những gói không quen. Để in ra\n"
 "\n"
 "N = new (mới)\n"
+"S = ???\n"
 "U = upgrading (nâng cấp)\n"
+"D = ???\n"
 "R = replacing (thay thế)\n"
 "F = fetch restricted (chỉ lấy về)\n"
 "f = ???\n"
@@ -1335,7 +1337,7 @@ msgid "%s Not Available"
 msgstr "%s không sẵn sàng"
 
 #: porthole/loaders/loaders.py:162
-#: porthole/packagebook/summary.py:537
+#: porthole/packagebook/summary.py:536
 msgid "Not installed"
 msgstr "Chưa cài đặt"
 
@@ -1400,7 +1402,7 @@ msgid "Unsupported use flag"
 msgstr "USE flag khỗng hỗ trợ"
 
 #: porthole/advancedemerge/advemerge.py:736
-#: porthole/packagebook/summary.py:430
+#: porthole/packagebook/summary.py:431
 #: porthole/packagebook/depends.py:290
 msgid "None"
 msgstr "Không"
@@ -1756,37 +1758,37 @@ msgstr "Y"
 msgid "N"
 msgstr "N"
 
-#: porthole/packagebook/summary.py:361
+#: porthole/packagebook/summary.py:362
 msgid "Use flags: "
 msgstr "USE flag: "
 
-#: porthole/packagebook/summary.py:392
+#: porthole/packagebook/summary.py:393
 msgid "Keywords: "
 msgstr "Từ khoá: "
 
-#: porthole/packagebook/summary.py:404
+#: porthole/packagebook/summary.py:405
 msgid "License: "
 msgstr "Giấy phép: "
 
-#: porthole/packagebook/summary.py:416
+#: porthole/packagebook/summary.py:417
 msgid "User Configs: "
 msgstr ""
 
-#: porthole/packagebook/summary.py:512
+#: porthole/packagebook/summary.py:511
 #, fuzzy
 msgid "Long Description: "
 msgstr "Mô tả chi tiết"
 
-#: porthole/packagebook/summary.py:533
+#: porthole/packagebook/summary.py:532
 msgid "Installed versions:\n"
 msgstr "Phiên bản đã cài:\n"
 
-#: porthole/packagebook/summary.py:542
+#: porthole/packagebook/summary.py:541
 #, python-format
 msgid "Available versions for %s:\n"
 msgstr "Phiên bản %s hiện có:\n"
 
-#: porthole/packagebook/summary.py:546
+#: porthole/packagebook/summary.py:545
 msgid "Properties for version: "
 msgstr "Thuộc tính phiên bản: "
 
@@ -1977,8 +1979,9 @@ msgid "Searching for %s"
 msgstr "Đang tìm %s"
 
 #: porthole/mainwindow.py:1256
-msgid "Generating '%(reader)' packages list..."
-msgstr ""
+#, fuzzy, python-format
+msgid "Generating '%s' packages list..."
+msgstr "Đang tìm %s"
 
 #: porthole/mainwindow.py:1327
 #, fuzzy, python-format

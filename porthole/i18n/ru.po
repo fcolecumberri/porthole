@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: Porthole-0.50\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2005-08-07 18:31+1200\n"
-"PO-Revision-Date: 2008-04-25 19:33-0800\n"
+"PO-Revision-Date: 2008-04-28 18:50-0800\n"
 "Last-Translator: \n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -249,7 +249,9 @@ msgstr ""
 "Отобразить что *было бы* установлено, если бы данная настройка не была включена. Рекомендуется использовать данную возможность перед установкой незнакомых пакетов. В выводе используются следующие обозначения:\n"
 "\n"
 "N = новый пакет\n"
+"S = ???\n"
 "U = обновление\n"
+"D = ???\n"
 "R = замена\n"
 "F = автоматическое скачивание ограничено\n"
 "f = ???\n"
@@ -1334,7 +1336,7 @@ msgid "%s Not Available"
 msgstr "%s недоступен"
 
 #: porthole/loaders/loaders.py:162
-#: porthole/packagebook/summary.py:537
+#: porthole/packagebook/summary.py:536
 msgid "Not installed"
 msgstr "Пакет не установлен"
 
@@ -1399,7 +1401,7 @@ msgid "Unsupported use flag"
 msgstr "Неподдерживаемый USE флаг"
 
 #: porthole/advancedemerge/advemerge.py:736
-#: porthole/packagebook/summary.py:430
+#: porthole/packagebook/summary.py:431
 #: porthole/packagebook/depends.py:290
 msgid "None"
 msgstr "Никакие"
@@ -1756,38 +1758,38 @@ msgstr "Y"
 msgid "N"
 msgstr "N"
 
-#: porthole/packagebook/summary.py:361
+#: porthole/packagebook/summary.py:362
 msgid "Use flags: "
 msgstr "Флаги USE: "
 
-#: porthole/packagebook/summary.py:392
+#: porthole/packagebook/summary.py:393
 msgid "Keywords: "
 msgstr "Ключевые слова: "
 
-#: porthole/packagebook/summary.py:404
+#: porthole/packagebook/summary.py:405
 msgid "License: "
 msgstr "Лицензия: "
 
-#: porthole/packagebook/summary.py:416
+#: porthole/packagebook/summary.py:417
 #, fuzzy
 msgid "User Configs: "
 msgstr "Флаги USE: "
 
-#: porthole/packagebook/summary.py:512
+#: porthole/packagebook/summary.py:511
 #, fuzzy
 msgid "Long Description: "
 msgstr "Развернутые описания"
 
-#: porthole/packagebook/summary.py:533
+#: porthole/packagebook/summary.py:532
 msgid "Installed versions:\n"
 msgstr "Установленные версии:\n"
 
-#: porthole/packagebook/summary.py:542
+#: porthole/packagebook/summary.py:541
 #, python-format
 msgid "Available versions for %s:\n"
 msgstr "Доступные версии для %s:\n"
 
-#: porthole/packagebook/summary.py:546
+#: porthole/packagebook/summary.py:545
 msgid "Properties for version: "
 msgstr "Показаны свойства версии: "
 
@@ -1846,22 +1848,27 @@ msgstr "Неизвестно"
 msgid "Metadata file \"%s\" does not exist."
 msgstr "Файл метаданных \"%s\" не существует"
 
+# ignore for now
 #: porthole/backends/pkgcore_lib.py:34
 msgid "Could not find pkgcore module."
 msgstr ""
 
+# ignore for now
 #: porthole/backends/pkgcore_lib.py:38
 msgid "Could not find pkgcore.config module."
 msgstr ""
 
+# ignore for now
 #: porthole/backends/pkgcore_lib.py:42
 msgid "Could not find pkgcore.const module."
 msgstr ""
 
+# ignore for now
 #: porthole/backends/pkgcore_lib.py:46
 msgid "Could not find pkgcore.util.file.read_bash module."
 msgstr ""
 
+# ignore for now
 #: porthole/backends/pkgcore_lib.py:50
 msgid "Could not find pkgcore.package.atom module."
 msgstr ""
@@ -1973,8 +1980,9 @@ msgid "Searching for %s"
 msgstr "Поиск %s"
 
 #: porthole/mainwindow.py:1256
-msgid "Generating '%(reader)' packages list..."
-msgstr ""
+#, fuzzy, python-format
+msgid "Generating '%s' packages list..."
+msgstr "Поиск %s"
 
 #: porthole/mainwindow.py:1327
 #, fuzzy, python-format

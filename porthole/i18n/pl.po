@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Porthole-0.5.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2005-07-30 15:35+1200\n"
-"PO-Revision-Date: 2008-04-25 16:03-0800\n"
+"PO-Revision-Date: 2008-04-28 18:43-0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -52,21 +52,26 @@ msgstr "  |__"
 msgid ""
 " --buildpkg (-b)\n"
 "Tells emerge to build binary packages for all ebuilds processed in addition to actually merging the packages.  Useful for maintainers or if you administrate multiple Gentoo Linux systems (build  once,  emerge  tbz2s  everywhere). The  package  will be created in the ${PKGDIR}/All directory.  An alternative for already-merged packages is to use quickpkg which creates a tbz2 from the live filesystem."
-msgstr "KaÅ¼e emerge oprÃ³cz instalacji pakietÃ³w budowaÄ takÅ¼e spakowane pakiety binarne. Przydatne gdy masz kilka systemÃ³w z Gentoo (kompilujesz raz, instalujesz binarki szybko na wszystkich maszynach. Pakiety bÄdÄ w ${PKGDIR}/All - zazwyczaj /usr/portage/packages/All"
+msgstr ""
+" --buildpkg (-b)\n"
+"KaÅ¼e emerge oprÃ³cz instalacji pakietÃ³w budowaÄ takÅ¼e spakowane pakiety binarne. Przydatne gdy masz kilka systemÃ³w z Gentoo (kompilujesz raz, instalujesz binarki szybko na wszystkich maszynach. Pakiety bÄdÄ w ${PKGDIR}/All - zazwyczaj /usr/portage/packages/All"
 
 #: porthole/glade/advemerge.glade.h:4
+#, fuzzy
 msgid ""
 " --color < y | n >\n"
 "Enable or disable color output.  This option will override NOCOLOR (see make.conf(5)) and may also be used to force color output when stdout is not a tty (by default, color is disabled unless stdout is a tty)."
-msgstr ""
+msgstr " --color < y | n >\n"
 
 #: porthole/glade/advemerge.glade.h:6
+#, fuzzy
 msgid ""
 " --ignore-default-opts\n"
 "Causes EMERGE_DEFAULT_OPTS (see make.conf(5)) to be ignored."
-msgstr ""
+msgstr " --ignore-default-opts\n"
 
 #: porthole/glade/advemerge.glade.h:8
+#, fuzzy
 msgid ""
 " --newuse (-N)\n"
 "Tells  emerge  to  include  installed  packages  where  USE flags have changed since compilation.  USE flag changes include: \n"
@@ -77,7 +82,7 @@ msgid ""
 "    A USE flag was turned off for a package.\n"
 "\n"
 "USE flags may be toggled by your profile as well as your USE and package.use settings."
-msgstr ""
+msgstr " --newuse (-N)\n"
 
 #: porthole/glade/advemerge.glade.h:17
 #, fuzzy
@@ -86,113 +91,140 @@ msgid ""
 "Causes  portage  to  disregard merge records indicating that a config file inside of a CONFIG_PROTECT directory has\n"
 "been merged already.  Portage will normally merge those files only once to prevent the user from dealing  with  the\n"
 "same config multiple times.  This flag will cause the file to always be merged."
-msgstr "Nakazuje portage wielokrotnÄ instalacjÄ plikÃ³w do folderÃ³w oznaczonych jako CONFIG_PROTECT. Normalnie jeÅ¼eli pliki sÄ juÅ¼ tam obecne to nie zostanÄ ponownie zainstalowane."
+msgstr ""
+" --noconfmem\n"
+"Nakazuje portage wielokrotnÄ instalacjÄ plikÃ³w do folderÃ³w oznaczonych jako CONFIG_PROTECT. Normalnie jeÅ¼eli pliki sÄ juÅ¼ tam obecne to nie zostanÄ ponownie zainstalowane."
 
 #: porthole/glade/advemerge.glade.h:21
 #, fuzzy
 msgid ""
 " --oneshot (-1)\n"
 "Emerge as normal, but do not add the packages to the world file for later updating."
-msgstr "Instaluje pakiety normalnie, z tym Å¼e nie dodaje wpisu o pakiecie do profilu world przez co pakiet nie jest brany pod uwagÄ przy wyszukiwaniu aktualizacji"
+msgstr ""
+" --oneshot (-1)\n"
+"Instaluje pakiety normalnie, z tym Å¼e nie dodaje wpisu o pakiecie do profilu world przez co pakiet nie jest brany pod uwagÄ przy wyszukiwaniu aktualizacji"
 
 #: porthole/glade/advemerge.glade.h:23
+#, fuzzy
 msgid ""
 "--alphabetical\n"
 "When  displaying  USE  and  other  flag output, combines the enabled and disabled lists into one list and sorts the whole list alphabetically."
-msgstr ""
+msgstr "--alphabetical\n"
 
 #: porthole/glade/advemerge.glade.h:25
+#, fuzzy
 msgid ""
 "--ask (-a)\n"
 "Before performing the action, display what will take place (server info for --sync, --pretend output for merge, and so  forth),  then ask whether to proceed with the action or abort.  Using --ask is more efficient than using --pretend and then executing the same command without --pretend, as dependencies will only need to be  calculated  once.   WARNING:  If the \"Enter\" key is pressed at the prompt (with no other input), it is interpreted as acceptance of the first choice.  Note that the input buffer is not cleared prior to the prompt, so an accidental press of the \"Enter\" key at any time prior to the prompt will be interpreted as a choice!"
-msgstr ""
+msgstr "--ask (-a)\n"
 
 #: porthole/glade/advemerge.glade.h:27
 #, fuzzy
 msgid ""
 "--buildpkgonly (-B)\n"
 "Creates binary packages for all ebuilds processed without actually merging  the  packages.   This  comes  with  the caveat that all build-time dependencies must already be emerged on the system."
-msgstr "Tworzy pakiety binarne bez ich instalowania. Wszystkie zaleÅ¼noÅci muszÄ byÄ jednak zainstalowane wczeÅniej"
+msgstr ""
+"--buildpkgonly (-B)\n"
+"Tworzy pakiety binarne bez ich instalowania. Wszystkie zaleÅ¼noÅci muszÄ byÄ jednak zainstalowane wczeÅniej"
 
 #: porthole/glade/advemerge.glade.h:29
+#, fuzzy
 msgid ""
 "--columns\n"
 "Used alongside --pretend to cause the package name, new version, and old version to be displayed in an aligned format for easy cut-n-paste."
-msgstr ""
+msgstr "--columns\n"
 
 #: porthole/glade/advemerge.glade.h:31
 #, fuzzy
 msgid ""
 "--debug (-d)\n"
 "Tells emerge to run the emerge command in --debug mode. In this mode the bash build environment will run with  the -x  option,  causing  it  to output verbose debugging information to stdout.  This also enables a plethora of other output mostly dependency resolution messages)."
-msgstr "KaÅ¼e emerge wykonywaÄ operacje w trybie raportowania (debug mode). Przydatne przy wyszukiwaniu bÅÄdÃ³w skÅadniowych poleceÅ basha"
+msgstr ""
+"--debug (-d)\n"
+"KaÅ¼e emerge wykonywaÄ operacje w trybie raportowania (debug mode). Przydatne przy wyszukiwaniu bÅÄdÃ³w skÅadniowych poleceÅ basha"
 
 #: porthole/glade/advemerge.glade.h:33
 #, fuzzy
 msgid ""
 "--deep (-D)\n"
 "This flag forces emerge to consider the entire dependency tree of packages, instead of checking only the  immediate dependencies of the packages.  As an example, this catches updates in libraries that are not directly listed in the dependencies of a package.  Also see --with-bdeps for behavior with respect to build time dependencies that are not strictly required."
-msgstr "W poÅÄczeniu z opcjÄ aktualizacji flaga ta kaÅ¼e emerge sprawdziÄ emerge caÅe drzewo zaleÅ¼noÅci pakietÃ³w a nie tylko bezpoÅrednie zaleÅ¼noÅci. Przydatne przy wyszukiwaniu brakujÄcych zaleÅ¼noÅci nie zaznaczonych w samym instalowanym pakiecie."
+msgstr ""
+"--deep (-D)\n"
+"W poÅÄczeniu z opcjÄ aktualizacji flaga ta kaÅ¼e emerge sprawdziÄ emerge caÅe drzewo zaleÅ¼noÅci pakietÃ³w a nie tylko bezpoÅrednie zaleÅ¼noÅci. Przydatne przy wyszukiwaniu brakujÄcych zaleÅ¼noÅci nie zaznaczonych w samym instalowanym pakiecie."
 
 #: porthole/glade/advemerge.glade.h:35
+#, fuzzy
 msgid ""
 "--emptytree (-e)\n"
 "Reinstalls  all  world  packages  and their dependencies to the current USE specifications while differing from the installed set of packages as little as possible.  You should run with --pretend first to make sure  the  result  is what you expect."
-msgstr ""
+msgstr "--emptytree (-e)\n"
 
 #: porthole/glade/advemerge.glade.h:37
 #, fuzzy
 msgid ""
 "--fetch-all-uri (-F)\n"
 "Instead of doing any package building, just perform fetches for all packages (the  main  package  as  well  as  all dependencies), grabbing all potential files."
-msgstr "Pobiera pakiety bez ich instalacji"
+msgstr ""
+"--fetch-all-uri (-F)\n"
+"Pobiera pakiety bez ich instalacji"
 
 #: porthole/glade/advemerge.glade.h:39
 #, fuzzy
 msgid ""
 "--fetchonly (-f)\n"
 "Instead  of  doing  any  package  building,  just perform fetches for all packages (the main package as well as all dependencies)."
-msgstr "Pobiera pakiety bez ich instalacji"
+msgstr ""
+"--fetchonly (-f)\n"
+"Pobiera pakiety bez ich instalacji"
 
 #: porthole/glade/advemerge.glade.h:41
+#, fuzzy
 msgid ""
 "--getbinpkg (-g)\n"
 "Using  the server and location defined in PORTAGE_BINHOST (see make.conf(5)), portage will download the information from each binary package found and it will use that information to help build the  dependency  list.   This  option implies -k.  (Use -gK for binary-only merging.)"
-msgstr ""
+msgstr "--getbinpkg (-g)\n"
 
 #: porthole/glade/advemerge.glade.h:43
+#, fuzzy
 msgid ""
 "--getbinpkgonly (-G)\n"
 "This option is identical to -g, as above, except it will not use ANY information from the local machine.  All binaries will be downloaded from the remote server without consulting packages existing in the  local  packages  directory."
-msgstr ""
+msgstr "--getbinpkgonly (-G)\n"
 
 #: porthole/glade/advemerge.glade.h:45
 #, fuzzy
 msgid ""
 "--nodeps (-O)\n"
 "Merges  specified  packages  without  merging  any  dependencies.  Note that the build may fail if the dependencies are not satisfied."
-msgstr "Instaluje wybrane pakiety bez zaleÅ¼noÅci. Instalacja moÅ¼e siÄ nie udaÄ jeÅ¼eli brakuje zaleÅ¼noÅci wymaganych przy kompilacji"
+msgstr ""
+"--nodeps (-O)\n"
+"Instaluje wybrane pakiety bez zaleÅ¼noÅci. Instalacja moÅ¼e siÄ nie udaÄ jeÅ¼eli brakuje zaleÅ¼noÅci wymaganych przy kompilacji"
 
 #: porthole/glade/advemerge.glade.h:47
 #, fuzzy
 msgid ""
 "--noreplace (-n) \n"
 "Skips the packages specified on the command-line that have already been installed.  Without this option, any  packages,  ebuilds,  or  deps  you specify on the command-line will cause Portage to remerge the package, even if it is already installed.  Note that Portage will not remerge dependencies by default."
-msgstr "Opuszcza instalacjÄ pakietÃ³w podanych w wierszu poleceÅ, ktÃ³re sÄ juÅ¼ zainstalowane. Normalnie portage instaluje wszystkie pakiety podane w wierszu poleceÅ."
+msgstr ""
+"--noreplace (-n) \n"
+"Opuszcza instalacjÄ pakietÃ³w podanych w wierszu poleceÅ, ktÃ³re sÄ juÅ¼ zainstalowane. Normalnie portage instaluje wszystkie pakiety podane w wierszu poleceÅ."
 
 #: porthole/glade/advemerge.glade.h:49
+#, fuzzy
 msgid ""
 "--nospinner\n"
 "Disables the spinner for the session.  The spinner is active when the terminal device is determined to  be  a  TTY.\n"
 "This flag disables it regardless."
-msgstr ""
+msgstr "--nospinner\n"
 
 #: porthole/glade/advemerge.glade.h:52
 #, fuzzy
 msgid ""
 "--onlydeps (-o)\n"
 "Only merge (or pretend to merge) the dependencies of the packages specified, not the packages themselves."
-msgstr "Instaluje (lub symuluje instalacjÄ) zaleÅ¼noÅci wybranych pakietÃ³w"
+msgstr ""
+"--onlydeps (-o)\n"
+"Instaluje (lub symuluje instalacjÄ) zaleÅ¼noÅci wybranych pakietÃ³w"
 
 #: porthole/glade/advemerge.glade.h:54
 #, fuzzy
@@ -208,44 +240,62 @@ msgid ""
 "F = fetch restricted (must be manually downloaded)\n"
 "f = fetch restricted (already downloaded)\n"
 "B = blocked by an already installed package"
-msgstr "Symuluje instalacjÄ wskazanych pakietÃ³w. U - aktualizacja, R - zastÄpienie, F - pobranie pliku zablokowane, B - pakiet zablokowany przez inny"
+msgstr ""
+"--pretend (-p)\n"
+"Symuluje instalacjÄ wskazanych pakietÃ³w.\n"
+"\n"
+"N - ??\n"
+"S - ???\n"
+"U - aktualizacja\n"
+"D - ???\n"
+"R - zastÄpienie\n"
+"F - pobranie pliku zablokowane\n"
+"f - ???\n"
+"B - pakiet zablokowany przez inny"
 
 #: porthole/glade/advemerge.glade.h:65
 #, fuzzy
 msgid ""
 "--quiet (-q) \n"
 "Results may vary, but the general outcome is a reduced or condensed output of portage displays."
-msgstr "Wyniki mogÄ siÄ zmieniaÄ, lecz ogÃ³lny wynik to skrÃ³cony wynik zwracanyprzez portage"
+msgstr ""
+"--quiet (-q) \n"
+"Wyniki mogÄ siÄ zmieniaÄ, lecz ogÃ³lny wynik to skrÃ³cony wynik zwracanyprzez portage"
 
 #: porthole/glade/advemerge.glade.h:67
+#, fuzzy
 msgid ""
 "--tree (-t) \n"
 "Shows the dependency tree for the given target by indenting dependencies.  This is only really useful  in  combination with --emptytree or --update and --deep."
-msgstr ""
+msgstr "--tree (-t) \n"
 
 #: porthole/glade/advemerge.glade.h:69
+#, fuzzy
 msgid ""
 "--update (-u)\n"
 "Updates packages to the best version available, which may not always be the highest version number due  to  masking for  testing  and  development.  This will also update direct dependencies which may not be what you want.  Package atoms specified on the command line are greedy, meaning that unspecific atoms may match multiple installed versions of slotted packages."
-msgstr ""
+msgstr "--update (-u)\n"
 
 #: porthole/glade/advemerge.glade.h:71
 #, fuzzy
 msgid ""
 "--usepkg (-k)\n"
 "Tells  emerge to use binary packages (from $PKGDIR) if they are available, thus possibly avoiding some time-consuming compiles.  This option is useful for CD installs; you can export PKGDIR=/mnt/cdrom/packages and then  use  this option to have emerge \"pull\" binary packages from the CD in order to satisfy dependencies."
-msgstr "KaÅ¼e emerge stosowaÄ pakiety binarne jeÅ¼eli sÄ dostÄpne, co oszczÄdza czas przeznaczony na kompilacjÄ"
+msgstr ""
+"--usepkg (-k)\n"
+"KaÅ¼e emerge stosowaÄ pakiety binarne jeÅ¼eli sÄ dostÄpne, co oszczÄdza czas przeznaczony na kompilacjÄ"
 
 #: porthole/glade/advemerge.glade.h:73
+#, fuzzy
 msgid ""
 "--usepkgonly (-K)\n"
 " Tells  emerge to only use binary packages (from $PKGDIR).  All the binary packages must be available at the time of\n"
 "dependency calculation or emerge will simply abort.  Portage does not  use  $PORTDIR  when  calculating  dependency\n"
 "information so all masking information is ignored."
-msgstr ""
+msgstr "--usepkgonly (-K)\n"
 
 #: porthole/glade/advemerge.glade.h:78
-#, no-c-format
+#, fuzzy, no-c-format
 msgid ""
 "--verbose (-v)\n"
 "Tell emerge to run in verbose mode.  Currently this flag causes emerge to print out GNU info errors, if any, and to show the USE flags that will be used for each package when pretending. The following symbols  are  affixed  to  USE flags in order to indicate their status:\n"
@@ -254,13 +304,14 @@ msgid ""
 "    * suffix     = transition to or from the enabled state\n"
 "    % suffix     = newly added or removed\n"
 "    () circumfix = forced, masked, or removed"
-msgstr ""
+msgstr "--verbose (-v)\n"
 
 #: porthole/glade/advemerge.glade.h:85
+#, fuzzy
 msgid ""
 "--with-bdeps < y | n >\n"
 "In  dependency calculations, pull in build time dependencies that are not strictly required.   This defaults to 'n' for installation actions and 'y' for the --depclean action.  This setting can be added to EMERGE_DEFAULT_OPTS  (see make.conf(5)) and later overridden via the command line."
-msgstr ""
+msgstr "--with-bdeps < y | n >\n"
 
 #: porthole/glade/advemerge.glade.h:87
 msgid "<b>Command Preview</b>"
@@ -360,7 +411,7 @@ msgstr "getbinpkg"
 
 #: porthole/glade/advemerge.glade.h:111
 msgid "getbinpkgonly"
-msgstr ""
+msgstr "getbinpkgonly"
 
 #: porthole/glade/advemerge.glade.h:112
 msgid "ignore-default-opts"
@@ -1272,7 +1323,7 @@ msgid "%s Not Available"
 msgstr "%s NiedostÄpny"
 
 #: porthole/loaders/loaders.py:162
-#: porthole/packagebook/summary.py:537
+#: porthole/packagebook/summary.py:536
 msgid "Not installed"
 msgstr "Nie zainstalowany"
 
@@ -1337,7 +1388,7 @@ msgid "Unsupported use flag"
 msgstr "Niewspierana flaga USE"
 
 #: porthole/advancedemerge/advemerge.py:736
-#: porthole/packagebook/summary.py:430
+#: porthole/packagebook/summary.py:431
 #: porthole/packagebook/depends.py:290
 msgid "None"
 msgstr "Brak"
@@ -1693,37 +1744,37 @@ msgstr "Y"
 msgid "N"
 msgstr "N"
 
-#: porthole/packagebook/summary.py:361
+#: porthole/packagebook/summary.py:362
 msgid "Use flags: "
 msgstr "Flagi USE: "
 
-#: porthole/packagebook/summary.py:392
+#: porthole/packagebook/summary.py:393
 msgid "Keywords: "
 msgstr "Keywords:"
 
-#: porthole/packagebook/summary.py:404
+#: porthole/packagebook/summary.py:405
 msgid "License: "
 msgstr "Licencja"
 
-#: porthole/packagebook/summary.py:416
+#: porthole/packagebook/summary.py:417
 msgid "User Configs: "
 msgstr ""
 
-#: porthole/packagebook/summary.py:512
+#: porthole/packagebook/summary.py:511
 #, fuzzy
 msgid "Long Description: "
 msgstr "DÅugi opis"
 
-#: porthole/packagebook/summary.py:533
+#: porthole/packagebook/summary.py:532
 msgid "Installed versions:\n"
 msgstr "Zainstalowana wersja:\n"
 
-#: porthole/packagebook/summary.py:542
+#: porthole/packagebook/summary.py:541
 #, python-format
 msgid "Available versions for %s:\n"
 msgstr "DostÄpne wersje dla %s:\n"
 
-#: porthole/packagebook/summary.py:546
+#: porthole/packagebook/summary.py:545
 msgid "Properties for version: "
 msgstr "WÅaÅciwoÅci dla wersji: "
 
@@ -1909,8 +1960,9 @@ msgid "Searching for %s"
 msgstr "Szukam %s"
 
 #: porthole/mainwindow.py:1256
-msgid "Generating '%(reader)' packages list..."
-msgstr ""
+#, fuzzy, python-format
+msgid "Generating '%s' packages list..."
+msgstr "Szukam %s"
 
 #: porthole/mainwindow.py:1327
 #, fuzzy, python-format
