@@ -1065,7 +1065,7 @@ class MainWindow:
             self.current_pkg_name[INDEX_TYPES[mode]] = None
             self.current_pkg_cursor[INDEX_TYPES[mode]] = None
             self.current_pkg_path[INDEX_TYPES[mode]] = None
-            self.package_view.set_view(PACKAGES)
+            #self.package_view.set_view(PACKAGES)
             self.package_view.populate(None)
         elif mode in [SHOW_UPGRADE, SHOW_DEPRECATED, SHOW_SETS]:
             packages = self.pkg_list[INDEX_TYPES[mode]][category]
