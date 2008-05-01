@@ -28,7 +28,7 @@ from gettext import gettext as _
 from porthole.utils import debug
 from porthole import backends
 portage_lib = backends.portage_lib
-from porthole.backends.utilities import get_reduced_flags
+from porthole.backends.utilities import get_reduced_flags, slot_split
 from porthole.db.package import Package
 from porthole import db
 
@@ -42,18 +42,19 @@ class DependAtom:
         self.parent = parent
         self.useflag = ''
         self.name = ''
+        self.slot = ''
         self.complete = False
     
     def __repr__(self): # called by the "print" function
         """Returns a human-readable string representation of the DependAtom
         (used by the "print" statement)."""
-        if self.type == 'DEP': return self.name
-        elif self.type == 'BLOCKER': return '!' + self.name
+        if self.type == 'DEP': return self.get_depname()
+        elif self.type == 'BLOCKER': return '!' + self.get_depname()
         elif self.type == 'OPTION': prefix = '||'
         elif self.type == 'GROUP': prefix = ''
         elif self.type == 'USING': prefix = self.useflag + '?'
         elif self.type == 'NOTUSING': prefix = '!' + self.useflag + '?'
-        elif self.type == 'REVISIONABLE': return '~' + self.name
+        elif self.type == 'REVISIONABLE': return '~' + self.get_depname()
         else: return ''
         if self.children:
             bulk = ', '.join([kid.__repr__() for kid in self.children])
@@ -67,6 +68,7 @@ class DependAtom:
         if (not isinstance(test_atom, DependAtom)
                 or self.type != test_atom.type
                 or self.name != test_atom.name
+                or self.slot != test_atom.slot
                 or self.useflag != test_atom.useflag
                 or self.children != test_atom.children): # children will recurse
             return False
@@ -78,8 +80,8 @@ class DependAtom:
         Returns -1 if being satisfied is irrelevant (e.g. use flag for a
         "USING" DependAtom is not set). Otherwise, the return value can be
         evaluated as True if the dep is satisfied, False if unsatisfied."""
-        if self.type == 'DEP': return portage_lib.get_installed(self.name)
-        elif self.type == 'BLOCKER': return not portage_lib.get_installed(self.name)
+        if self.type == 'DEP': return portage_lib.get_installed(self.get_depname())
+        elif self.type == 'BLOCKER': return not portage_lib.get_installed(self.get_depname())
         elif self.type == 'OPTION': # nonempty if any child is satisfied
             satisfied = []
             for child in self.children:
@@ -106,8 +108,14 @@ class DependAtom:
             else: satisfied = -1
             return satisfied
         elif self.type == 'REVISIONABLE': # nonempty if is satisfied
-            return portage_lib.get_installed('~' + self.name)
-            
+            return portage_lib.get_installed('~' + self.get_depname())
+
+    def get_depname(self):
+        if self.slot == '':
+            return self.name
+        else:
+            return self.name + ':' + self.slot
+
 
 class DependsTree(gtk.TreeStore):
     """Calculate and display dependencies in a treeview"""
@@ -186,7 +194,7 @@ class DependsTree(gtk.TreeStore):
                 add_kids = 1
             
             if add_satisfied or not satisfied: # then add deps to treeview
-                #debug.dprint("DependsTree: atom '%s', type '%s', satisfied '%s'" % (atom.name, atom.type, satisfied))
+                #debug.dprint("DependsTree: atom '%s', type '%s', satisfied '%s'" % (atom.get_depname(), atom.type, satisfied))
                 iter = self.insert_before(parent_iter, None)
                 if atom.type == 'USING':
                     text = _("Using %s") % atom.useflag
@@ -199,11 +207,11 @@ class DependsTree(gtk.TreeStore):
                     add_kids = -1 # add kids but don't expand unsatisfied deps
                     add_satisfied = 1
                 elif atom.type =='DEP':
-                    text = atom.name
+                    text = atom.get_depname()
                     if not satisfied and self.dep_depth < 4:
                         add_kids = 1
                 elif atom.type == 'BLOCKER':
-                    text = "!" + atom.name
+                    text = "!" + atom.get_depname()
                     if not satisfied: icon = gtk.STOCK_DIALOG_WARNING
                 elif atom.type == 'OPTION':
                     text = _("Any of:")
@@ -214,7 +222,7 @@ class DependsTree(gtk.TreeStore):
                     add_kids = -1 # add kids but don't expand unsatisfied deps
                     add_satisfied = 1
                 elif atom.type =='REVISIONABLE':
-                    text = '~' + atom.name
+                    text = '~' + atom.get_depname()
                     if not satisfied and self.dep_depth < 4:
                         add_kids = 1
                 
@@ -252,7 +260,7 @@ class DependsTree(gtk.TreeStore):
                         dep_atomized_list = atomize_depends_list(dep_deps)
                         if dep_atomized_list == None: dep_atomized_list = []
                         #debug.dprint("DependsTree: add_atomized_depends_list(): DEP new atomized_list for: " \
-                        #                                + atom.name + ' = ' + str(dep_atomized_list) + ' ' + dep_ebuild)
+                        #                                + atom.get_depname() + ' = ' + str(dep_atomized_list) + ' ' + dep_ebuild)
                         self.dep_depth += 1
                         self.add_atomized_depends_to_tree(dep_atomized_list, depends_view, iter, add_kids, ebuild = dep_ebuild, is_new_child = True )
                         self.dep_depth -= 1
@@ -260,7 +268,7 @@ class DependsTree(gtk.TreeStore):
 
     def fill_depends_tree(self, treeview, package, ebuild):
         """Fill the dependencies tree for a given ebuild"""
-        #debug.dprint("DependsTree: Updating deps tree for " + package.get_name())
+        #debug.dprint("DependsTree: Updating deps tree for " + package.name)
         #ebuild = package.get_default_ebuild()
         ##depends = portage_lib.get_property(ebuild, "DEPEND").split()
         depends = get_depends(package, ebuild)
@@ -371,15 +379,17 @@ def atomize_depends_list(depends_list, parent = None):
             if item.startswith("!"):
                 #debug.dprint("DependsTree: atomize_depends_list();365 found a BLOCKER dep: " + item)
                 temp_atom.type = "BLOCKER"
-                temp_atom.name = item[1:]
+                item = item[1:]
             elif item.startswith('~'):
                 #debug.dprint("DependsTree: atomize_depends_list();369 found a REVISIONABLE dep: " + item)
                 temp_atom.type = "REVISIONABLE"
-                temp_atom.name = item[1:]
+                item = item[1:]
             else:
                 #debug.dprint("DependsTree: atomize_depends_list();373 found a DEP dep: " + item)
                 temp_atom.type = "DEP"
-                temp_atom.name = item
+            ns = slot_split(item)
+            temp_atom.name = ns[0]
+            temp_atom.slot = ns[1]
             if not filter(lambda a: temp_atom == a, atomized_list):
             # i.e. if temp_atom is not any atom in atomized_list.
             # This is checked by calling DependsAtom.__eq__().

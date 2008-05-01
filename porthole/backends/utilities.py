@@ -169,3 +169,9 @@ def abs_list(the_list):
         r.append(abs_flag(member))
     return r
 
+def slot_split(mydep):
+    colon = mydep.rfind(":")
+    if colon != -1:
+        return [mydep[:colon], mydep[colon+1:]]
+    return [mydep, '']
+
