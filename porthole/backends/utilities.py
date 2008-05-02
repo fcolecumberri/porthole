@@ -74,7 +74,7 @@ def get_sync_info():
     """gets and returns the timestamp info saved during
         the last portage tree sync"""
     debug.dprint("BACKENDS Utilities: get_sync_info();")
-    last_sync = _("Unknown") + ' ' # need a space at end of string cause it will get trimmed later
+    last_sync = _("Unknown") + '  ' # need a space at end of string cause it will get trimmed later
     try:
         #debug.dprint("BACKENDS Utilities: get_sync_info(); timestamp path = " \
         #    + portage_lib.portdir + "/metadata/timestamp")
@@ -97,9 +97,14 @@ def get_sync_info():
                     debug.dprint("BACKENDS Utilities: get_sync_info(); Failure = unknown encoding")
         else:
             debug.dprint("BACKENDS Utilities: get_sync_info(); No data read")
-    except os.error:
-        debug.dprint("BACKENDS Utilities: get_sync_info(); file open or read error")
-        debug.dprint("BACKENDS Utilities: get_sync_info(); error " + str(os.error))
+    #except os.error:
+    except IOError, v:
+        try:
+            (code, message) = v
+        except:
+            code = 0
+            message = v
+        debug.dprint("BACKENDS Utilities: get_sync_info(); I/O Error: " + str(message) + " (" + str(code) + ")")
     debug.dprint("BACKENDS Utilities: get_sync_info(); last_sync = " + last_sync[:-1])
     return last_sync[:-1]
 
