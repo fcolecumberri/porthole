@@ -60,6 +60,7 @@ class Database(DBBase):
         ## get home directory
         ##home = pwd.getpwuid(os.getuid())[5]
         self._DBFile = "/var/db/porthole/descriptions.db"
+        self.valid_sync = False #used for auto-reload disabling
         ##del home
         #if action == NEW:
         self.db_init()
@@ -98,9 +99,10 @@ class Database(DBBase):
 
     def save(self):
         """saves the db to a file"""
-        if self.desc_reloaded:
-            _db = {'sync_date': get_sync_info(), 'descriptions': self.descriptions}
-            debug.dprint("DATABASE: save() Pickling 'db' to file: " + self._DBFile)
+        if self.valid_sync and self.desc_reloaded:
+            sync_time, self.valid_sync = get_sync_info()
+            _db = {'sync_date': sync_time, 'descriptions': self.descriptions}
+            debug.dprint("DATABASE: save(); Pickling 'db' to file: " + self._DBFile)
             # pickle it baby, yeah!
             cPickle.dump(_db, open(self._DBFile, "w"))
             del _db
@@ -109,20 +111,22 @@ class Database(DBBase):
         """restores the db from a file"""
         debug.dprint("DATABASE: load() loading 'db' from file: " + self._DBFile)
         _db = None
-        # get home directory
-        if os.access(self._DBFile, os.F_OK):
+        current, self.valid_sync = get_sync_info()
+        if self.valid_sync and os.access(self._DBFile, os.F_OK):
             _db = cPickle.load(open(self._DBFile))
-        else:
-            debug.dprint("DATABASE: load() file does not exist :" + self._DBFile)
+        elif not self.valid_sync:
+            debug.dprint("DATABASE: load(); Current portage tree did Not return a valid sync timestamp, not loading descriptions from the saved file" )
             return -1
-        current = get_sync_info()
-        if _db['sync_date'] != current:
-            debug.dprint("DATABASE: load() 'db' is out of date")
+        else:
+            debug.dprint("DATABASE: load(); file does not exist :" + self._DBFile)
+            return -1
+        if self.valid_sync and _db['sync_date'] != current:
+            debug.dprint("DATABASE: load(); 'db' is out of date")
             return -2
         self.descriptions = _db['descriptions']
         self.desc_loaded = True
         self.desc_mtime = os.stat(self._DBFile).st_mtime
-        debug.dprint("DATABASE: load() file is loaded, mtime = " + str(self.desc_mtime))
+        debug.dprint("DATABASE: load(); file is loaded, mtime = " + str(self.desc_mtime))
         del _db
         return 1
         

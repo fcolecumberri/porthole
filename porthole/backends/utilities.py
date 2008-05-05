@@ -75,6 +75,7 @@ def get_sync_info():
         the last portage tree sync"""
     debug.dprint("BACKENDS Utilities: get_sync_info();")
     last_sync = _("Unknown") + '  ' # need a space at end of string cause it will get trimmed later
+    valid_sync = False
     try:
         #debug.dprint("BACKENDS Utilities: get_sync_info(); timestamp path = " \
         #    + portage_lib.portdir + "/metadata/timestamp")
@@ -89,10 +90,12 @@ def get_sync_info():
             try:
                 #debug.dprint("BACKENDS Utilities: get_sync_info(); trying utf_8 encoding")
                 last_sync = (str(data).decode('utf_8').encode("utf_8",'replace'))
+                valid_sync = True
             except:
                 try:
                     #debug.dprint("BACKENDS Utilities: get_sync_info(); trying iso-8859-1 encoding")
                     last_sync = (str(data).decode('iso-8859-1').encode('utf_8', 'replace'))
+                    valid_sync = True
                 except:
                     debug.dprint("BACKENDS Utilities: get_sync_info(); Failure = unknown encoding")
         else:
@@ -106,7 +109,7 @@ def get_sync_info():
             message = v
         debug.dprint("BACKENDS Utilities: get_sync_info(); I/O Error: " + str(message) + " (" + str(code) + ")")
     debug.dprint("BACKENDS Utilities: get_sync_info(); last_sync = " + last_sync[:-1])
-    return last_sync[:-1]
+    return last_sync[:-1], valid_sync
 
 def reduce_flags(flags):
     """function to reduce a list of 'USE' flags to their final setting"""

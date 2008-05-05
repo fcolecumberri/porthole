@@ -310,6 +310,7 @@ class MainWindow:
         self.upgrade_view = False
         #self.db_timeout = gobject.timeout_add(100, self.update_db_read)
         self.last_sync = _("Unknown")
+        self.valid_sync = False
         self.get_sync_time()
         self.set_sync_tip()
         self.reload_depth = 0
@@ -350,15 +351,15 @@ class MainWindow:
         # test to reset portage
         #portage_lib.reload_portage()
         portage_lib.reload_world()
+        self.upgrade_view = False
+        #self.db_timeout = gobject.timeout_add(100, self.update_db_read)
+        self.get_sync_time()
+        self.set_sync_tip()
         # load the db
         self.dbtime = 0
         db.db.db_init(True)
         #test = 87/0  # used to test pycrash is functioning
         self.reload = True
-        self.upgrade_view = False
-        #self.db_timeout = gobject.timeout_add(100, self.update_db_read)
-        self.get_sync_time()
-        self.set_sync_tip()
         # set status
         #self.set_statusbar(_("Obtaining package list "))
         self.status_root = _("Reloading database")
@@ -396,7 +397,7 @@ class MainWindow:
     def get_sync_time(self):
         """gets and returns the timestamp info saved during
            the last portage tree sync"""
-        self.last_sync = get_sync_info()
+        self.last_sync, self.valid_sync = get_sync_info()
 
     def set_sync_tip(self):
         """Sets the sync tip for the new or old toolbar API"""
