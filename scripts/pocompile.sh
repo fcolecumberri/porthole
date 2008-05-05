@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Helper script to compile all .po files in the i18n directroy into .mo files.
 # Requires sys-devel/gettext.
 #
