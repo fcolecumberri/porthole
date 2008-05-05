@@ -81,7 +81,8 @@ class PluginManager:
         self.porthole_instance.del_plugin_menuitem(menuitem)
 
     def new_package_tab(self, *args):
-        #I separate the main window from the plugins in case if we ever want to execute the plugins in a separate thread
+        #I separate the main window from the plugins in case if we ever
+        #want to execute the plugins in a separate thread
         return self.porthole_instance.new_plugin_package_tab(*args)
 
     def del_package_tab(self, *args):
@@ -107,6 +108,7 @@ class Plugin:
         self.manager = manager
         initialized = self.initialize_plugin()
         self.enabled = False
+        self.is_installed = None
 
     def initialize_plugin(self):
         try:
@@ -125,13 +127,15 @@ class Plugin:
         except ImportError, e:
             debug.dprint("PLUGIN: initialize_plugin(); ImportError '%s'" % e)
             debug.dprint("PLUGIN: initialize_plugin(); Error loading plugin '%s' in %s" % (self.name, self.path))
-            self.valid = False
+            self.valid = self.is_installed = False
             return False
         debug.dprint("PLUGIN: initialize_plugin(); !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         self.event_table = self.module.event_table
         self.desc = self.module.desc
-        debug.dprint("PLUGIN: event_table = " + str(self.event_table))
-        debug.dprint("PLUGIN: event desc = " + str(self.desc))
+        self.is_installed = self.module.is_installed
+        debug.dprint("PLUGIN: %s event_table = %s" %(self.name, str(self.event_table)))
+        debug.dprint("PLUGIN: %s desc = %s" %(self.name, str(self.desc)))
+        debug.dprint("PLUGIN: %s is_installed = %s" %(self.name, str(self.is_installed)))
 
     def toggle_enabled(self):
         if self.enabled == True:
@@ -151,7 +155,7 @@ class Plugin:
             debug.dprint("PLUGIN: event(): event_table = " + str(self.event_table))
             return a
         if not a:
-            debug.dprint("PLUGIN: event: recieved '%s' as response...")
+            debug.dprint("PLUGIN: event: recieved '%s' as response from %s" %(str(a), self.name))
         return a
         #return self.event_table[event](*args)
 
@@ -184,24 +188,31 @@ class PluginGUI(gtk.Window):
     def create_plugin_list(self):
         """Creates the list-view of the plugins"""
         self.plugin_view = self.wtree.get_widget("plugin_view")
-        self.liststore = gtk.ListStore(bool, str)
+        
+        self.liststore = gtk.ListStore(bool, str, bool)
         self.plugin_view.set_model(self.liststore)
         for i in self.plugin_manager.plugin_list(): 
-            self.liststore.append([i.enabled, i.name])
-        cb_column = gtk.TreeViewColumn()
-        text_column = gtk.TreeViewColumn()
+            debug.dprint("PLUGIN: create_plugin_list(): %s , is_installed = %s" %(i.name, str(i.module.is_installed)))
+            self.liststore.append([i.enabled, i.name, i.module.is_installed])
+        cb_column = gtk.TreeViewColumn(_("Enable"))
+        text_column = gtk.TreeViewColumn(_("Plug-in"))
+        installed_column = gtk.TreeViewColumn(_("Installed"))
         
         cell_tg = gtk.CellRendererToggle()
         cell_tx = gtk.CellRendererText()
-        
+        cell_in = gtk.CellRendererText()
         cb_column.pack_start(cell_tg)
         text_column.pack_start(cell_tx)
+        installed_column.pack_start(cell_in)
         
         self.plugin_view.append_column(cb_column)
         self.plugin_view.append_column(text_column)
+        self.plugin_view.append_column(installed_column)
         
         cb_column.add_attribute(cell_tg,"active",0)
         text_column.add_attribute(cell_tx,"text",1)
+        installed_column.add_attribute(cell_in,"text",2)
+        
         cell_tg.connect("toggled", self.cb_toggled)
         selection = self.plugin_view.get_selection()
         selection.set_mode(gtk.SELECTION_SINGLE)
