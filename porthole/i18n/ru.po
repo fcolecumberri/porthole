@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: Porthole-0.50\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2005-08-07 18:31+1200\n"
-"PO-Revision-Date: 2008-04-28 18:50-0800\n"
+"PO-Revision-Date: 2008-05-05 22:38-0800\n"
 "Last-Translator: \n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -685,6 +685,7 @@ msgstr "Информация"
 #: porthole/glade/config.glade.h:44
 #: porthole/views/package.py:106
 #: porthole/views/depends.py:74
+#: porthole/plugin.py:199
 msgid "Installed"
 msgstr "Установленные"
 
@@ -1402,7 +1403,7 @@ msgstr "Неподдерживаемый USE флаг"
 
 #: porthole/advancedemerge/advemerge.py:736
 #: porthole/packagebook/summary.py:431
-#: porthole/packagebook/depends.py:290
+#: porthole/packagebook/depends.py:298
 msgid "None"
 msgstr "Никакие"
 
@@ -1797,29 +1798,29 @@ msgstr "Показаны свойства версии: "
 msgid "Viewing Dependecy of: "
 msgstr ""
 
-#: porthole/packagebook/depends.py:149
+#: porthole/packagebook/depends.py:157
 msgid "Using "
 msgstr "Используя"
 
-#: porthole/packagebook/depends.py:152
+#: porthole/packagebook/depends.py:160
 msgid "Not Using "
 msgstr "Не используя"
 
-#: porthole/packagebook/depends.py:192
+#: porthole/packagebook/depends.py:200
 #, python-format
 msgid "Using %s"
 msgstr "Используя %s"
 
-#: porthole/packagebook/depends.py:197
+#: porthole/packagebook/depends.py:205
 #, python-format
 msgid "Not Using %s"
 msgstr "Не используя %s"
 
-#: porthole/packagebook/depends.py:209
+#: porthole/packagebook/depends.py:217
 msgid "Any of:"
 msgstr "Любой из:"
 
-#: porthole/packagebook/depends.py:213
+#: porthole/packagebook/depends.py:221
 msgid "All of:"
 msgstr "Все из:"
 
@@ -1873,6 +1874,14 @@ msgstr ""
 msgid "Could not find pkgcore.package.atom module."
 msgstr ""
 
+#: porthole/plugin.py:197
+msgid "Enable"
+msgstr ""
+
+#: porthole/plugin.py:198
+msgid "Plug-in"
+msgstr ""
+
 #: porthole/mainwindow.py:191
 msgid ""
 " Synchronise Package Database \n"
@@ -1919,15 +1928,15 @@ msgstr "Загрузка базы данных"
 msgid "Initializing database. Please wait..."
 msgstr "Инициализация базы данных. Пожалуйста, подождите..."
 
-#: porthole/mainwindow.py:364
+#: porthole/mainwindow.py:365
 msgid "Reloading database"
 msgstr "Перезагрузка базы данных"
 
-#: porthole/mainwindow.py:493
+#: porthole/mainwindow.py:494
 msgid "No root privileges"
 msgstr "Нет привилегий суперпользователя"
 
-#: porthole/mainwindow.py:495
+#: porthole/mainwindow.py:496
 msgid ""
 "In order to access all the features of Porthole,\n"
 "please run it with root privileges."
@@ -1935,75 +1944,99 @@ msgstr ""
 "Для доступа ко всем возможностям Porthole\n"
 " запустите программу с привилегиями суперпользователя"
 
-#: porthole/mainwindow.py:498
+#: porthole/mainwindow.py:499
 msgid "_Ok"
 msgstr "_Ok"
 
-#: porthole/mainwindow.py:520
+#: porthole/mainwindow.py:521
 #, python-format
 msgid "%(base)s: %(count)i packages read"
 msgstr "%(base)s:·%(count)i·пакетов обработано"
 
-#: porthole/mainwindow.py:539
+#: porthole/mainwindow.py:540
 #, python-format
 msgid "%(base)s: Populating tree"
 msgstr "%(base)s:·Заполнение дерева"
 
-#: porthole/mainwindow.py:884
+#: porthole/mainwindow.py:885
 msgid "Upgrade requested"
 msgstr "Запрошено обновление "
 
-#: porthole/mainwindow.py:886
+#: porthole/mainwindow.py:887
 msgid "Do you want to upgrade all packages in your world file?"
 msgstr "Хотите ли вы обновить все пакеты в вашем world-файле?"
 
-#: porthole/mainwindow.py:896
+#: porthole/mainwindow.py:897
 msgid "Upgradable dependencies:"
 msgstr "Зависимости, которые можно обновить"
 
-#: porthole/mainwindow.py:925
+#: porthole/mainwindow.py:926
 msgid "Please Wait!"
 msgstr "Пожалуйста, подождите!"
 
-#: porthole/mainwindow.py:927
+#: porthole/mainwindow.py:928
 msgid "Loading package descriptions..."
 msgstr "Загружаются описания пакетов..."
 
-#: porthole/mainwindow.py:969
+#: porthole/mainwindow.py:970
 #, python-format
 msgid "Searching descriptions for %s"
 msgstr "Поиск описаний для %s"
 
-#: porthole/mainwindow.py:971
+#: porthole/mainwindow.py:972
 #, python-format
 msgid "Searching for %s"
 msgstr "Поиск %s"
 
-#: porthole/mainwindow.py:1256
+#: porthole/mainwindow.py:1257
 #, fuzzy, python-format
 msgid "Generating '%s' packages list..."
 msgstr "Поиск %s"
 
-#: porthole/mainwindow.py:1327
+#: porthole/mainwindow.py:1328
 #, fuzzy, python-format
 msgid "Searching for '%s' packages..."
 msgstr "Поиск %s"
 
-#: porthole/mainwindow.py:1344
+#: porthole/mainwindow.py:1345
 msgid "Building Package List"
 msgstr "Построение списка пакетов"
 
-#: porthole/mainwindow.py:1355
+#: porthole/mainwindow.py:1356
 msgid "Done: "
 msgstr "Поиск завершен: "
 
-#: porthole/mainwindow.py:1368
-#: porthole/mainwindow.py:1374
+#: porthole/mainwindow.py:1369
+#: porthole/mainwindow.py:1375
 #, python-format
 msgid "%(pack)d packages in %(cat)d categories"
 msgstr "%(pack)d·пакетов в·%(cat)d·разделах"
 
-#: porthole/mainwindow.py:1461
+#: porthole/mainwindow.py:1462
 msgid "Confirm: Kill the Running Process in the Terminal"
 msgstr "Подтвердите остановку процесса, запущенного в терминале"
+
+#: ../plugin_projects/trunk/etc-proposals/etc-proposals/__init__.py:35
+msgid "A gtk2 alternative to etc-update or dispatch-conf"
+msgstr ""
+
+#: ../plugin_projects/trunk/etc-proposals/etc-proposals/__init__.py:77
+msgid "Etc-Proposals"
+msgstr ""
+
+#: ../plugin_projects/trunk/profuse/profuse/__init__.py:36
+msgid "Edit USE Variables settings using the Profuse editor"
+msgstr ""
+
+#: ../plugin_projects/trunk/profuse/profuse/__init__.py:75
+msgid "Profuse (root mode)"
+msgstr ""
+
+#: ../plugin_projects/trunk/profuse/profuse/__init__.py:79
+msgid "Profuse (user mode)"
+msgstr ""
+
+#: ../plugin_projects/trunk/profuse/profuse/__init__.py:82
+msgid "Profuse (su mode)"
+msgstr ""
 

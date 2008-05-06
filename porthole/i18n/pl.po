@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Porthole-0.5.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2005-07-30 15:35+1200\n"
-"PO-Revision-Date: 2008-04-28 18:43-0800\n"
+"PO-Revision-Date: 2008-05-05 22:38-0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -672,6 +672,7 @@ msgstr "Informacje"
 #: porthole/glade/config.glade.h:44
 #: porthole/views/package.py:106
 #: porthole/views/depends.py:74
+#: porthole/plugin.py:199
 msgid "Installed"
 msgstr "Zainstalowane"
 
@@ -1389,7 +1390,7 @@ msgstr "Niewspierana flaga USE"
 
 #: porthole/advancedemerge/advemerge.py:736
 #: porthole/packagebook/summary.py:431
-#: porthole/packagebook/depends.py:290
+#: porthole/packagebook/depends.py:298
 msgid "None"
 msgstr "Brak"
 
@@ -1782,29 +1783,29 @@ msgstr "WÅaÅciwoÅci dla wersji: "
 msgid "Viewing Dependecy of: "
 msgstr ""
 
-#: porthole/packagebook/depends.py:149
+#: porthole/packagebook/depends.py:157
 msgid "Using "
 msgstr "UÅ¼ywa"
 
-#: porthole/packagebook/depends.py:152
+#: porthole/packagebook/depends.py:160
 msgid "Not Using "
 msgstr "Nie uÅ¼ywa"
 
-#: porthole/packagebook/depends.py:192
+#: porthole/packagebook/depends.py:200
 #, python-format
 msgid "Using %s"
 msgstr "UÅ¼ywa %s"
 
-#: porthole/packagebook/depends.py:197
+#: porthole/packagebook/depends.py:205
 #, python-format
 msgid "Not Using %s"
 msgstr "Nie uÅ¼ywa %s"
 
-#: porthole/packagebook/depends.py:209
+#: porthole/packagebook/depends.py:217
 msgid "Any of:"
 msgstr "KaÅ¼dy z:"
 
-#: porthole/packagebook/depends.py:213
+#: porthole/packagebook/depends.py:221
 msgid "All of:"
 msgstr "Wszystkie z:"
 
@@ -1853,6 +1854,14 @@ msgstr ""
 msgid "Could not find pkgcore.package.atom module."
 msgstr ""
 
+#: porthole/plugin.py:197
+msgid "Enable"
+msgstr ""
+
+#: porthole/plugin.py:198
+msgid "Plug-in"
+msgstr ""
+
 #: porthole/mainwindow.py:191
 msgid ""
 " Synchronise Package Database \n"
@@ -1899,15 +1908,15 @@ msgstr "ÅadujÄ bazÄ danych"
 msgid "Initializing database. Please wait..."
 msgstr "Uruchamiam bazÄ danych. ProszÄ czekaÄ"
 
-#: porthole/mainwindow.py:364
+#: porthole/mainwindow.py:365
 msgid "Reloading database"
 msgstr "PrzeÅadowujÄ bazÄ danych"
 
-#: porthole/mainwindow.py:493
+#: porthole/mainwindow.py:494
 msgid "No root privileges"
 msgstr "Brak praw roota"
 
-#: porthole/mainwindow.py:495
+#: porthole/mainwindow.py:496
 msgid ""
 "In order to access all the features of Porthole,\n"
 "please run it with root privileges."
@@ -1915,75 +1924,99 @@ msgstr ""
 "By mieÄ dostÄp do wszystkich opcji Porthole\n"
 "uruchom program z prawami roota."
 
-#: porthole/mainwindow.py:498
+#: porthole/mainwindow.py:499
 msgid "_Ok"
 msgstr "_Ok"
 
-#: porthole/mainwindow.py:520
+#: porthole/mainwindow.py:521
 #, python-format
 msgid "%(base)s: %(count)i packages read"
 msgstr "%(base)s: %(count)i pakietÃ³w odczytanych"
 
-#: porthole/mainwindow.py:539
+#: porthole/mainwindow.py:540
 #, python-format
 msgid "%(base)s: Populating tree"
 msgstr "%(base)s: GenerujÄ drzewo"
 
-#: porthole/mainwindow.py:884
+#: porthole/mainwindow.py:885
 msgid "Upgrade requested"
 msgstr "RzÄdanie aktualizacji"
 
-#: porthole/mainwindow.py:886
+#: porthole/mainwindow.py:887
 msgid "Do you want to upgrade all packages in your world file?"
 msgstr "Czy zaktualizowaÄ wszystkie pakiety w pliku world"
 
-#: porthole/mainwindow.py:896
+#: porthole/mainwindow.py:897
 msgid "Upgradable dependencies:"
 msgstr "ZaleÅ¼noÅci do aktualizacji"
 
-#: porthole/mainwindow.py:925
+#: porthole/mainwindow.py:926
 msgid "Please Wait!"
 msgstr "ProszÄ CzekaÄ!"
 
-#: porthole/mainwindow.py:927
+#: porthole/mainwindow.py:928
 msgid "Loading package descriptions..."
 msgstr "ÅadujÄ opisy pakietÃ³w"
 
-#: porthole/mainwindow.py:969
+#: porthole/mainwindow.py:970
 #, python-format
 msgid "Searching descriptions for %s"
 msgstr "PrzeszukujÄ opisy w poszukiwaniu %s"
 
-#: porthole/mainwindow.py:971
+#: porthole/mainwindow.py:972
 #, python-format
 msgid "Searching for %s"
 msgstr "Szukam %s"
 
-#: porthole/mainwindow.py:1256
+#: porthole/mainwindow.py:1257
 #, fuzzy, python-format
 msgid "Generating '%s' packages list..."
 msgstr "Szukam %s"
 
-#: porthole/mainwindow.py:1327
+#: porthole/mainwindow.py:1328
 #, fuzzy, python-format
 msgid "Searching for '%s' packages..."
 msgstr "Szukam %s"
 
-#: porthole/mainwindow.py:1344
+#: porthole/mainwindow.py:1345
 msgid "Building Package List"
 msgstr "BudujÄ listÄ pakietÃ³w"
 
-#: porthole/mainwindow.py:1355
+#: porthole/mainwindow.py:1356
 msgid "Done: "
 msgstr "SkoÅczone: "
 
-#: porthole/mainwindow.py:1368
-#: porthole/mainwindow.py:1374
+#: porthole/mainwindow.py:1369
+#: porthole/mainwindow.py:1375
 #, python-format
 msgid "%(pack)d packages in %(cat)d categories"
 msgstr "%(pack)d pakietÃ³w w %(cat)d kategoriach"
 
-#: porthole/mainwindow.py:1461
+#: porthole/mainwindow.py:1462
 msgid "Confirm: Kill the Running Process in the Terminal"
 msgstr "PotwierdÅº: Zabij aktywne procesy w Terminalu"
+
+#: ../plugin_projects/trunk/etc-proposals/etc-proposals/__init__.py:35
+msgid "A gtk2 alternative to etc-update or dispatch-conf"
+msgstr ""
+
+#: ../plugin_projects/trunk/etc-proposals/etc-proposals/__init__.py:77
+msgid "Etc-Proposals"
+msgstr ""
+
+#: ../plugin_projects/trunk/profuse/profuse/__init__.py:36
+msgid "Edit USE Variables settings using the Profuse editor"
+msgstr ""
+
+#: ../plugin_projects/trunk/profuse/profuse/__init__.py:75
+msgid "Profuse (root mode)"
+msgstr ""
+
+#: ../plugin_projects/trunk/profuse/profuse/__init__.py:79
+msgid "Profuse (user mode)"
+msgstr ""
+
+#: ../plugin_projects/trunk/profuse/profuse/__init__.py:82
+msgid "Profuse (su mode)"
+msgstr ""
 
