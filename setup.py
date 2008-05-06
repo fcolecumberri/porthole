@@ -17,7 +17,8 @@ setup( \
     packages = ['porthole',  'porthole.advancedemerge', 'porthole.backends', 'porthole.config',
                         'porthole.db', 'porthole.dialogs', 'porthole.loaders', 'porthole.packagebook',
                         'porthole.plugins','porthole.loaders', 'porthole.readers', 'porthole.terminal',
-                        'porthole.utils', 'porthole.views', 'porthole._xml'],
+                        'porthole.utils', 'porthole.views', 'porthole._xml', 'porthole.plugins.etc-proposals',
+                        'porthole.plugins.profuse'],
     package_dir = {'porthole':'porthole'},
     scripts = ["scripts/porthole"],
     data_files = [
