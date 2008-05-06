@@ -72,26 +72,26 @@ from gettext import gettext as _
 #gtk.threads_init()
 #gtk.gdk.threads_init()
 
-try:
-    from pycrash.utils import *
-    pycrash_found = True
-    class MyCrash(HTMLPyCrash):
-        def onExceptionRaised(self, time):
-            save_file = LOG_FILE_DIR + "/crash_" + pwd.getpwuid(os.getuid())[0] + ".html"
-            # saveToFile does not yet return a result: feature request submitted
-            self.saveToFile(save_file)
-            err = "*** PORTHOLE: Crash detected! ***\nPlease submit a bug report including\n"
-            err = err + "all debug text from the terminal you ran porthole from.\n"
-            err = err + ("Plus the the file: %s" %save_file)
-            print err
-            dialog = gtk.MessageDialog(None, gtk.DIALOG_MODAL,
-                                       gtk.MESSAGE_ERROR,
-                                       gtk.BUTTONS_OK, _(err));
-            result = dialog.run()
-            dialog.destroy()
+#~ try:
+    #~ from pycrash.utils import *
+    #~ pycrash_found = True
+    #~ class MyCrash(HTMLPyCrash):
+        #~ def onExceptionRaised(self, time):
+            #~ save_file = LOG_FILE_DIR + "/crash_" + pwd.getpwuid(os.getuid())[0] + ".html"
+            #~ # saveToFile does not yet return a result: feature request submitted
+            #~ self.saveToFile(save_file)
+            #~ err = "*** PORTHOLE: Crash detected! ***\nPlease submit a bug report including\n"
+            #~ err = err + "all debug text from the terminal you ran porthole from.\n"
+            #~ err = err + ("Plus the the file: %s" %save_file)
+            #~ print err
+            #~ dialog = gtk.MessageDialog(None, gtk.DIALOG_MODAL,
+                                       #~ gtk.MESSAGE_ERROR,
+                                       #~ gtk.BUTTONS_OK, _(err));
+            #~ result = dialog.run()
+            #~ dialog.destroy()
             
-except ImportError:
-    pycrash_found = False
+#~ except ImportError:
+pycrash_found = False
 
 
 def create_dir(new_dir):
@@ -132,8 +132,8 @@ def set_debug(arg):
     print "Debug printing is enabled = ", debug.debug, "; debug.id = ", debug.id
     debug.debug_target = arg
     print("Debug print filter set to ", debug.debug_target)
-    if not pycrash_found:
-        print("*** PYCRASH MODULE NOT FOUND ***\n*** For best debug info Please emerge >= dev-python/pycrash-0.4pre3 ***")
+    #if not pycrash_found:
+        #print("*** PYCRASH MODULE NOT FOUND ***\n*** For best debug info Please emerge >= dev-python/pycrash-0.4pre3 ***")
 
 def print_version():
     # print version info
