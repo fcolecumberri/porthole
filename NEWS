@@ -28,6 +28,10 @@
     
     * numerous gtk+ updates
     
+    * 2 plug-ins 1) Etc-proposals  2)Profuse included and auto-detect if their target package is available.
+    
+    * numerous bugfixes
+    
     *** It has been so long that I have probably forgotten most of the changes made to list them.
 
 

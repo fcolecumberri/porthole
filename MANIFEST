@@ -63,6 +63,8 @@ porthole/pixmaps/porthole-clock.svg
 porthole/pixmaps/porthole-icon.png
 porthole/pixmaps/porthole.svg
 porthole/plugins/__init__.py
+porthole/plugins/etc-proposals/__init__.py
+porthole/plugins/profuse/__init__.py
 porthole/readers/__init__.py
 porthole/readers/commonreader.py
 porthole/readers/deprecated.py
@@ -124,6 +126,7 @@ porthole/i18n/vi.po
 porthole/i18n/ru.po
 porthole/i18n/pl.po
 porthole/i18n/fr_FR.po
+porthole/i18n/it_IT.po
 scripts/porthole
 scripts/dopot.sh
 scripts/pocompile.sh
