@@ -147,7 +147,7 @@ class MainWindow:
         # save the mainwindow widget to Config for use by other modules as a parent window
         config.Mainwindow = self.mainwindow
         callbacks = {
-            "summary_callback" : self.summary_callback,
+            "action_callback" : self.action_callback,
             "re_init_portage" : self.re_init_portage,
             "set_package_actions_sensitive" : self.set_package_actions_sensitive
         }
@@ -165,7 +165,8 @@ class MainWindow:
         # setup the package treeview
         self.package_view = PackageView()
         #self.package_view.register_callbacks(self.package_changed, None, self.pkg_path_callback)
-        self.package_view.register_callbacks(self.packageview_callback)
+        #self.package_view.register_callbacks(self.packageview_callback)
+        self.package_view.register_callbacks(self.action_callback)
         result = self.wtree.get_widget("package_scrolled_window").add(self.package_view)
         # how should we setup our saved menus?
         if config.Prefs.emerge.pretend:
@@ -407,86 +408,58 @@ class MainWindow:
             self.synctooltip.set_tip(self.widget["btn_sync"], ' '.join([self.sync_tip, self.last_sync[:], '']))
         #self.synctooltip.enable()
         
-        
-    #~ def pkg_path_callback(self, path):
-        #~ """callback function to save the path to the package that
-        #~ matched the name passed to the populate() in PackageView"""
-        #~ self.current_pkg_path["All_Installed"] = path
-        #~ return
-
-    def packageview_callback(self, action = None, arg = None):
+    def action_callback(self, action = None, arg = None):
+        debug.dprint("MAINWINDOW: action_callback(); caller = %s, action = '%s', arg = %s" %(arg['caller'], str(action), str(arg)))
         old_pretend_value = config.Prefs.emerge.pretend
         old_verbose_value = config.Prefs.emerge.verbose
-        package = utils.get_treeview_selection(self.package_view, 2)
-        if action.startswith("emerge"):
-            if "pretend" in action:
-                config.Prefs.emerge.pretend = True
-                config.Prefs.emerge.verbose = True
+        if "adv_emerge" in action:
+            if 'package' in arg:
+                package = arg['package']
+            elif 'full_name' in arg:
+                package = db.db.get_package(arg['full_name'])
             else:
-                config.Prefs.emerge.pretend = False
-            if "sudo" in action:
-                self.emerge_package(package, sudo=True)
-            else:
-                self.emerge_package(package)
-        elif action.startswith("unmerge"):
-            config.Prefs.emerge.pretend = False
-            if "sudo" in action:
-                self.unmerge_package(package, sudo=True)
-            else:
-                self.unmerge_package(package)
-        elif action == "set path":
+                debug.dprint("MAINWINDOW: action_callback(); did not get an expected arg variable for 'adv_emerge' action arg = " + str(arg))
+                return false
+            self.adv_emerge_package( package)
+            return True
+        elif "set path" in action:
             # save the path to the package that matched the name passed
             # to populate() in PackageView... (?)
             x = self.widget["view_filter"].get_active()
-            self.current_pkg_path[x] = arg # arg = path
-        elif action == "package changed":
-            self.package_changed(arg)
-        elif action == "refresh":
+            self.current_pkg_path[x] = arg['path'] # arg = path
+        elif "package changed" in action:
+            self.package_changed(arg['package'])
+            return True
+        elif "refresh" in action:
             self.refresh()
+            return True
+        elif "emerge" in action:
+            commands = ["emerge "]
+        elif  "unmerge" in action:
+            commands = ["emerge --unmerge "]
+        if "pretend" in action:
+            config.Prefs.emerge.pretend = True
         else:
-            debug.dprint("MAINWINDOW package_view callback: unknown action '%s'" % str(action))
+            config.Prefs.emerge.pretend = False
+        if "sudo" in action:
+            commands = ['sudo -p "Password: " '] + commands
+        commands.append(config.Prefs.emerge.get_string())
+        if "ebuild" in arg:
+            commands.append('=' + arg['ebuild'])
+            cp = portage_lib.pkgsplit(arg['ebuild'])[0]
+        elif 'package' in arg:
+            cp = arg['package'].full_name
+            commands.append(arg['package'].full_name)
+        elif 'full_name' in arg:
+            cp = arg['full_name']
+            commands.append(arg['full_name'])
+        else:
+            debug.dprint("MAINWINDOW action_callback(): unknown arg '%s'" % str(arg))
+            return False
+        self.setup_command(portage_lib.get_name(cp), ''.join(commands))
         config.Prefs.emerge.pretend = old_pretend_value
         config.Prefs.emerge.verbose = old_verbose_value
-
-    def summary_callback(self, action = None, arg = None):
-        debug.dprint("MAINWINDOW: summary_callback(): called")
-        old_pretend_value = config.Prefs.emerge.pretend
-        if action.startswith("emerge"):
-            ebuild = arg
-            cp = portage_lib.pkgsplit(ebuild)[0]
-            if "pretend" in action:
-                config.Prefs.emerge.pretend = True
-            else:
-                config.Prefs.emerge.pretend = False
-            if "sudo" in action:
-                self.setup_command( \
-                    portage_lib.get_name(cp),
-                    ''.join(['sudo -p "Password: " emerge',
-                              config.Prefs.emerge.get_string(), '=', ebuild])
-                )
-            else:
-                self.setup_command( \
-                    portage_lib.get_name(cp),
-                    ''.join(["emerge", config.Prefs.emerge.get_string(), '=', ebuild])
-                )
-        elif action.startswith("unmerge"):
-            ebuild = arg
-            cp = portage_lib.pkgsplit(ebuild)[0]
-            config.Prefs.emerge.pretend = False
-            if "sudo" in action:
-                self.setup_command( \
-                    portage_lib.get_name(cp),
-                    ''.join(['sudo -p "Password: " emerge --unmerge',
-                    config.Prefs.emerge.get_string(), '=', ebuild])
-                )
-            else:
-                self.setup_command(
-                    portage_lib.get_name(cp),
-                    ''.join(["emerge --unmerge", config.Prefs.emerge.get_string(), '=', ebuild])
-                )
-        else:
-            debug.dprint("MAINWINDOW package_view callback: unknown action '%s'" % str(action))
-        config.Prefs.emerge.pretend = old_pretend_value
+        return True
 
     def check_for_root(self, *args):
         """figure out if the user can emerge or not..."""

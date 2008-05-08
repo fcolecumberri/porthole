@@ -303,26 +303,22 @@ class PackageView(CommonTreeView):
         string = name + " " + arch + "\n"
         debug.dprint("VIEWS: Package view add_keyword(); %s" %string)
         def callback():
-            self.mainwindow_callback("refresh")
+            self.mainwindow_callback("refresh", {'caller': 'VIEWS: Package view add_keyword()'})
         db.userconfigs.set_user_config('KEYWORDS', name=name, add=arch, callback=callback)
 
     def emerge(self, widget, pretend=None, sudo=None):
-        emergestring = 'emerge'
+        emergestring = ['emerge']
         if pretend:
-            #self.mainwindow_callback("emerge pretend")
-            #return
-            emergestring += ' pretend'
-        #else:
-        #    self.mainwindow_callback("emerge")
+            emergestring.append('pretend')
         if sudo:
-            emergestring += ' sudo'
-        self.mainwindow_callback(emergestring)
+            emergestring.append('sudo')
+        self.mainwindow_callback(emergestring, {'full_name': self._last_selected, 'caller': 'VIEWS: Package view emerge()'})
 
     def unmerge(self, widget, sudo=None):
         if sudo:
-            self.mainwindow_callback("unmerge sudo")
+            self.mainwindow_callback(["unmerge", "sudo"], {'full_name': self._last_selected, 'caller': 'VIEWS: Package view unmerge()'})
         else:
-            self.mainwindow_callback("unmerge")
+            self.mainwindow_callback(["unmerge"], {'full_name': self._last_selected, 'caller': 'VIEWS: Package view unmerge()'})
 
     def _clicked(self, treeview, *args):
         """ Handles treeview clicks """
@@ -331,7 +327,7 @@ class PackageView(CommonTreeView):
         package = utils.get_treeview_selection(treeview, MODEL_ITEM["package"])
         #debug.dprint("VIEWS: package = %s" % package.full_name)
         if (not package and not self.toggle) or package.full_name == "None":
-            self.mainwindow_callback("package changed", None)
+            self.mainwindow_callback("package changed", {'package': None, 'caller': 'VIEWS: Package view _clicked()'})
             return False
         if self.toggle != None : # for upgrade view
             iter = self.get_model().get_iter(self.toggle)
@@ -351,11 +347,7 @@ class PackageView(CommonTreeView):
             self.toggle = None
             return True # we've got it sorted
         else:
-            #debug.dprint("VIEWS: full_name != _last_package = %d" %(package.full_name != self._last_selected))
-            #if package.full_name != self._last_selected:
-            #    #debug.dprint("VIEWS: passing package changed back to mainwindow")
-            #    self.mainwindow_callback("package changed", package)
-            self.mainwindow_callback("package changed", package)
+            self.mainwindow_callback("package changed", {'package': package, 'caller': 'VIEWS: Package view _clicked()'})
         self._last_selected = package.full_name
 
         #pop up menu if was rmb-click

@@ -62,11 +62,11 @@ class PackageNotebook:
         self.ebuild = self.wtree.get_widget("ebuild").get_buffer()
         # summary view
         scroller = self.wtree.get_widget("summary_text_scrolled_window");
-        self.summary = Summary(Dispatcher(self.callbacks["summary_callback"]), self.callbacks["re_init_portage"])
+        self.summary = Summary(Dispatcher(self.callbacks["action_callback"]), self.callbacks["re_init_portage"])
         result = scroller.add(self.summary)
         self.summary.show()
         # setup the dependency treeview
-        self.deps_view = DependsView(self.new_notebook, parent_name, parent_tree)
+        self.deps_view = DependsView(self.new_notebook, parent_name, parent_tree, Dispatcher(self.callbacks["action_callback"]))
         self.dep_window = {'window': None, 'notebook': None, 'callback': None, 'label': None, 'tooltip': None, 'tree': '', 'depth': 0}
         result = self.wtree.get_widget("dependencies_scrolled_window").add(self.deps_view)
         self.notebook.connect("switch-page", self.notebook_changed)

@@ -86,6 +86,8 @@ class Summary(gtk.TextView):
         menuitems["unmerge"].connect("activate", self.unmerge)
         menuitems["sudo-unmerge"] = gtk.MenuItem(_("Sudo Unmerge this ebuild"))
         menuitems["sudo-unmerge"].connect("activate", self.unmerge, True)
+        menuitems["Advanced emerge dialog"] = gtk.MenuItem(_("Advanced Emerge"))
+        menuitems["Advanced emerge dialog"].connect("activate", self.adv_emerge)
         menuitems["add-ebuild-keyword"] = gtk.MenuItem(_("Add %s to package.keywords (for this ebuild only)") % arch)
         menuitems["add-ebuild-keyword"].connect("activate", self.add_keyword_ebuild)
         menuitems["add-keyword"] = gtk.MenuItem(_("Add %s to package.keywords") % arch)
@@ -677,18 +679,18 @@ class Summary(gtk.TextView):
         return False
     
     def emerge(self, menuitem_widget, pretend=None, sudo=None):
-        emergestring = 'emerge'
+        emergestring = ['emerge']
         if pretend:
-            emergestring += ' pretend'
+            emergestring.append('pretend')
         if sudo:
-            emergestring += ' sudo'
-        self.dispatch(emergestring, self.selected_ebuild)
+            emergestring.append('sudo')
+        self.dispatch(emergestring, {'ebuild': self.selected_ebuild, 'caller': 'SUMMARY: emerge()'})
         
     def unmerge(self, menuitem_widget, sudo=None):
         if sudo:
-            self.dispatch("unmerge sudo", self.selected_ebuild)
+            self.dispatch(["unmerge", "sudo"], {'ebuild': self.selected_ebuild, 'caller': 'SUMMARY: unmerge()'})
         else:
-            self.dispatch("unmerge", self.selected_ebuild)
+            self.dispatch(["unmerge"], {'ebuild': self.selected_ebuild, 'caller': 'SUMMARY: unmerge()'})
     
     def update_callback(self):
         # reset package info
@@ -733,4 +735,7 @@ class Summary(gtk.TextView):
     def show_version(self, menuitem_widget):
         ebuild =  self.selected_ebuild
         self.update_package_info(self.package, ebuild)
+
+    def adv_emerge(self, widget):
+        self.dispatch(["adv_emerge"], {'package': self.package, 'caller': 'SUMMARY: adv_emerge()'})
 

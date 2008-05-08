@@ -41,7 +41,7 @@ from porthole import config
 
 class DependsView(CommonTreeView):
     """ Store dependency information """
-    def __init__(self, get_popup, parent_name, parent_tree):
+    def __init__(self, get_popup, parent_name, parent_tree, dispatcher):
         """ Initialize """
         # initialize the treeview
         CommonTreeView.__init__(self)
@@ -50,6 +50,7 @@ class DependsView(CommonTreeView):
         # parents name we are building the dependency tree for, and some history
         self.parent_tree = parent_tree
         self.parent_name = parent_name
+        self.dispatch = dispatcher
         # setup the model
         self.model = DependsTree()
         # setup the column
@@ -117,6 +118,8 @@ class DependsView(CommonTreeView):
         menuitems["pretend-emerge"].connect("activate", self.emerge, True, None)
         menuitems["sudo-emerge --oneshot"] = gtk.MenuItem(_("Sudo Emerge"))
         menuitems["sudo-emerge --oneshot"].connect("activate", self.emerge, None, True)
+        menuitems["Advanced emerge dialog"] = gtk.MenuItem(_("Advanced Emerge"))
+        menuitems["Advanced emerge dialog"].connect("activate", self.adv_emerge)
         #menuitems["unmerge"] = gtk.MenuItem(_("Unmerge"))
         #menuitems["unmerge"].connect("activate", self.unmerge)
         #menuitems["sudo-unmerge"] = gtk.MenuItem(_("Sudo Unmerge"))
@@ -238,7 +241,7 @@ class DependsView(CommonTreeView):
         
         #pop up menu if was rmb-click
         if self.dopopup:
-            if utils.utils.is_root():
+            if utils.is_root():
                 if package.get_best_ebuild() != package.get_latest_ebuild(): # i.e. no ~arch keyword
                     self.popup_menuitems["add-keyword"].show()
                 else: self.popup_menuitems["add-keyword"].hide()
@@ -290,7 +293,6 @@ class DependsView(CommonTreeView):
             self.event = None
             return True
  
-
     def on_button_press(self, widget, event):
         """Catch button events.  When a dbl-click occurs save the widget
             as the source.  When a corresponding button release from the same
@@ -391,7 +393,6 @@ class DependsView(CommonTreeView):
         self.parent_name = name
         self.dep_window['label'].set_text(self.parent_name)
 
-
     def dep_window_callback(self):
         del self.dep_window["window"], self.dep_window["notebook"]
         self.dep_window["window"] = self.dep_window["notebook"] = None
@@ -400,29 +401,22 @@ class DependsView(CommonTreeView):
         self.parent_tree = self.parent_tree[:-1]
         #debug.dprint("********** DependsView: dep_window_callback(); DependsView: dep_window['tree'] = " + str(self.dep_window['tree']))
 
-
-
-    def emerge(self, widget, pretend=None, sudo=None):
-        emergestring = 'emerge'
+    def emerge(self, menuitem_widget, pretend=None, sudo=None):
+        emergestring = ['emerge']
         if pretend:
-            #self.mainwindow_callback("emerge pretend")
-            #return
-            emergestring += ' pretend'
-        #else:
-        #    self.mainwindow_callback("emerge")
+            emergestring.append('pretend')
         if sudo:
-            emergestring += ' sudo'
-        self.mainwindow_callback(emergestring)
+            emergestring.append('sudo')
+        self.dispatch(emergestring, {'caller': "DependsView: emerge()", 'package': utils.get_treeview_selection(self, 2)})
 
     def add_keyword(self, widget):
         arch = "~" + portage_lib.get_arch()
         name = utils.get_treeview_selection(self, 2).full_name
         string = name + " " + arch + "\n"
-        #debug.dprint("DependsView: Package view add_keyword(); %s" %string)
-        def callback():
-            self.mainwindow_callback("refresh")
-        portage_lib.set_user_config('package.keywords', name=name, add=arch, callback=callback)
-        #package = utils.get_treeview_selection(self,2)
-        #package.best_ebuild = package.get_latest_ebuild()
-        #self.mainwindow_callback("refresh")
+        debug.dprint("DependsView: dependsview add_keyword(); %s" %string)
+        db.userconfigs.set_user_config('KEYWORDS', name=name, add=arch, callback=self.update_callback)
+
+    def adv_emerge(self, widget):
+        self.dispatch(["adv_emerge"], {'caller': "DependsView: emerge()", 'package': utils.get_treeview_selection(self, 2)})
+
 
