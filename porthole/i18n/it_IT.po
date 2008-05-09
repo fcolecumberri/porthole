@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: Porthole-0.6.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-04-28 18:08-0700\n"
-"PO-Revision-Date: 2008-05-05 22:36-0800\n"
-"Last-Translator: \n"
+"PO-Revision-Date: 2008-05-06 23:55+0100\n"
+"Last-Translator: unz <unz.snu@gmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -15,7 +15,7 @@ msgstr ""
 
 #: porthole/glade/about.glade.h:1
 msgid "A GTK+ frontend to Portage"
-msgstr "Un Interfaccia GTK+ per Portage"
+msgstr "Un'Interfaccia GTK+ per Portage"
 
 #: porthole/glade/about.glade.h:2
 msgid "About"
@@ -33,7 +33,7 @@ msgstr "Copyright (c) 2003 - 2008"
 #: porthole/glade/about.glade.h:5
 #: porthole/glade/config.glade.h:48
 msgid "License"
-msgstr "License"
+msgstr "Licenza"
 
 #: porthole/glade/about.glade.h:6
 msgid "_Homepage"
@@ -77,7 +77,6 @@ msgstr ""
 "Causes EMERGE_DEFAULT_OPTS (see make.conf(5)) to be ignored."
 
 #: porthole/glade/advemerge.glade.h:8
-#, fuzzy
 msgid ""
 " --newuse (-N)\n"
 "Tells  emerge  to  include  installed  packages  where  USE flags have changed since compilation.  USE flag changes include: \n"
@@ -384,11 +383,11 @@ msgstr "Finestra di Anteprima del Comando"
 
 #: porthole/glade/advemerge.glade.h:92
 msgid "Commit Use Flag modifications to your make.conf file. Changes will affect ALL PACKAGES on your system."
-msgstr "Salva le modifiche della Use Flag sul tuo file make.conf. I cambiamenti saranno applicati su TUTTI I PACCHETTI del tuo sistema."
+msgstr "Salva le modifiche della Variabile USE sul tuo file make.conf. I cambiamenti saranno applicati su TUTTI I PACCHETTI del tuo sistema."
 
 #: porthole/glade/advemerge.glade.h:93
 msgid "Commit Use Flag modifications to your package.use file. Changes will affect THIS PACKAGE only."
-msgstr "Salva le modifiche della Use Flag sul tuo file package.keywords. I cambiamenti riguarderanno solamente QUESTO PACCHETTO."
+msgstr "Salva le modifiche della Variabile USE sul tuo file package.keywords. I cambiamenti riguarderanno solamente QUESTO PACCHETTO."
 
 #: porthole/glade/advemerge.glade.h:94
 msgid "Keyword to accept"
@@ -408,7 +407,7 @@ msgstr "Aggiorna package.use"
 
 #: porthole/glade/advemerge.glade.h:98
 msgid "Use Flags"
-msgstr "Use Flags"
+msgstr "Variabili Use"
 
 #: porthole/glade/advemerge.glade.h:99
 msgid "alphabetical"
@@ -551,7 +550,7 @@ msgstr "<b>Opzioni Avanzate Emerge</b>"
 
 #: porthole/glade/config.glade.h:3
 msgid "<b>Arch List</b> for display's &amp; options"
-msgstr "<b>Lista Arch</b>"
+msgstr "<b>Lista Architetture</b>"
 
 #: porthole/glade/config.glade.h:4
 msgid "<b>Emerge options</b>"
@@ -575,7 +574,7 @@ msgstr "Aggiungi un nuovo filtro al Gruppo Selezionato"
 
 #: porthole/glade/config.glade.h:9
 msgid "Arch-list/Version table"
-msgstr "Tabella Lista Arch/Versioni"
+msgstr "Tabella Lista Architetture/Versioni"
 
 #: porthole/glade/config.glade.h:10
 msgid "Available Versions"
@@ -670,7 +669,7 @@ msgstr "Installa"
 
 #: porthole/glade/config.glade.h:31
 msgid "Enable arch-list"
-msgstr "Abilita arch-list"
+msgstr "Abilita Lista Architetture"
 
 #: porthole/glade/config.glade.h:32
 msgid "Enable make.conf modification"
@@ -766,7 +765,7 @@ msgstr "Sposta"
 
 #: porthole/glade/config.glade.h:55
 msgid "Move the selected filter expression to a different filter group"
-msgstr "Sposta il filtro selezionato su un gruppo di filtri differente"
+msgstr "Sposta il filtro selezionato su di un gruppo di filtri differente"
 
 #: porthole/glade/config.glade.h:56
 msgid "Normal"
@@ -789,6 +788,8 @@ msgid ""
 "Please enter the persistent history commands\n"
 "you wish to be pre-typed"
 msgstr ""
+"Inserisci la cronologia persistente dei comandi\n"
+"che vuoi vengano pre-inseriti"
 
 #: porthole/glade/config.glade.h:62
 msgid "Please select the Font colours desired"
@@ -850,7 +851,7 @@ msgstr "Questi colori sono usati da Emerge per l'output colorato"
 
 #: porthole/glade/config.glade.h:76
 msgid "USE Flags"
-msgstr "USE Flags"
+msgstr "Variabili USE"
 
 #: porthole/glade/config.glade.h:77
 msgid "Upgradable Colour"
@@ -866,15 +867,15 @@ msgstr "Usa Default"
 
 #: porthole/glade/config.glade.h:80
 msgid "Use Flag set +"
-msgstr "Use Flag settata +"
+msgstr "Variabile USE abilitata"
 
 #: porthole/glade/config.glade.h:81
 msgid "Use Flag set -"
-msgstr "Use Flag settata -"
+msgstr "Variabile USE disabilitata"
 
 #: porthole/glade/config.glade.h:82
 msgid "WARNING! Make sure you back up your make.conf file (usually /etc/make.conf) before enabling this option!"
-msgstr "AVVISO! Assicurati di aver fatto una copia di backup del tuo file make.conf (/etc/make.conf) prima di abilitare questa opzione!"
+msgstr "AVVISO! Assicurati di aver fatto una copia di backup del tuo file make.conf  (/etc/make.conf)  prima di abilitare questa opzione!"
 
 #: porthole/glade/config.glade.h:83
 msgid "Warning"
@@ -1040,7 +1041,7 @@ msgstr "E_merge"
 
 #: porthole/glade/porthole.glade.h:12
 msgid "E_merge Package"
-msgstr "Installa Pacchetto"
+msgstr "Installa il Pacchetto"
 
 #: porthole/glade/porthole.glade.h:13
 msgid "Ebuild"
@@ -1092,7 +1093,7 @@ msgstr "Sposta Su"
 
 #: porthole/glade/porthole.glade.h:25
 msgid "Moves the selected process to start next"
-msgstr "Sposta i processi selezionati per p"
+msgstr "Sposta i processi selezionati all'inizio della coda"
 
 #: porthole/glade/porthole.glade.h:26
 msgid "Moves the selected process to the end of the queue"
@@ -1171,7 +1172,7 @@ msgstr "Ricarica il Databas_e"
 
 #: porthole/glade/porthole.glade.h:44
 msgid "Re-Initialize _Portage"
-msgstr "Ri-Inizializza _Portage"
+msgstr "Ricarica _Portage"
 
 #: porthole/glade/porthole.glade.h:45
 msgid "Refresh the Current View"
@@ -1195,7 +1196,7 @@ msgstr "S_incronizza"
 
 #: porthole/glade/porthole.glade.h:50
 msgid "S_ync Tree"
-msgstr "S_incronizza l'Albero"
+msgstr "S_incronizza"
 
 #: porthole/glade/porthole.glade.h:51
 msgid "Save Log _As"
@@ -1448,7 +1449,7 @@ msgstr "   [installato]"
 
 #: porthole/advancedemerge/advemerge.py:696
 msgid "Unsupported use flag"
-msgstr "Use flag non supportata"
+msgstr "Variabile USE non supportata"
 
 #: porthole/advancedemerge/advemerge.py:736
 #: porthole/packagebook/summary.py:431
@@ -1466,7 +1467,7 @@ msgid ""
 "but it has been killed. Would you like to resume the emerge?"
 msgstr ""
 "Il pacchetto che hai selezionato è già in coda per essere disinstallato,\n"
-"ma è stato killato. Vuoi riprendere l'installazione?"
+"ma è stato eliminato. Vuoi riprendere l'installazione?"
 
 #: porthole/terminal/term_queue.py:190
 msgid "The package you selected is already in the emerge queue!"
@@ -1541,7 +1542,7 @@ msgstr "*** Basata sulla cronologia di compilazione di questi pacchetti sul tuo 
 
 #: porthole/terminal/terminal.py:1026
 msgid "*** Note: If you have a lot of programs running on your system while porthole is emerging packages, or if you have changed your hardware since the last time you built some of these packages, this estimate may be inaccurate.\n"
-msgstr ""
+msgstr "*** Nota: Se hai molti programmi in esecuzione sul tuo sistema mentre porthole sta installando i pacchetti, o se hai cambiato il tuo hardware dall'ultima volta che hai compilato alcuni di questi pacchetti, questa stima potrebbe essere inaccurata.\n"
 
 #: porthole/terminal/terminal.py:1048
 msgid "*** Unknown File Loading error"
@@ -1570,17 +1571,17 @@ msgstr "***Caricamento File : %s"
 #: porthole/terminal/terminal.py:1175
 #, python-format
 msgid "Cannot open file '%(filename)s': %(errmsg)s"
-msgstr ""
+msgstr "Non è possibile aprire il file '%(filename)s': %(errmsg)s"
 
 #: porthole/terminal/terminal.py:1201
 #, python-format
 msgid "Cannot back up '%(filename)s' to '%(bak_filename)s': %(errmsg)s"
-msgstr ""
+msgstr "Non è possibile fare il backup di '%(filename)s' a '%(bak_filename)s': %(errmsg)s"
 
 #: porthole/terminal/terminal.py:1210
 #, python-format
 msgid "*** saving file: %s"
-msgstr ""
+msgstr "*** salvataggio del file: %s"
 
 #: porthole/terminal/terminal.py:1244
 #, python-format
@@ -1588,16 +1589,18 @@ msgid ""
 "Can't restore backup file '%(filename)s' to '%(bak_filename)s': %(errmsg)s\n"
 "Backup left as '%(bak_filename)s'"
 msgstr ""
+"Non è possibile recuperare il file di backup  di '%(filename)s' a '%(bak_filename)s': %(errmsg)s\n"
+"Backup lasciato come '%(bak_filename)s'"
 
 #: porthole/terminal/terminal.py:1251
 #, python-format
 msgid "*** File saved : %s"
-msgstr ""
+msgstr "*** File salvato : %s"
 
 #: porthole/terminal/terminal.py:1261
 #, python-format
 msgid "Save log to '%s'?"
-msgstr ""
+msgstr "Salvo il log in '%s'?"
 
 #: porthole/terminal/constants.py:46
 msgid "*** process killed ***\n"
@@ -1641,14 +1644,13 @@ msgstr "About Porthole %s"
 #: porthole/dialogs/command.py:89
 #: porthole/dialogs/command.py:98
 msgid "command line entry"
-msgstr ""
+msgstr "inserimento da linea di comando"
 
 #: porthole/views/package.py:70
 #: porthole/views/depends.py:116
 #: porthole/views/menus.py:49
-#, fuzzy
 msgid "Pretend Emerge"
-msgstr "Pretend Emerge"
+msgstr "Simula Emerge"
 
 #: porthole/views/package.py:72
 #: porthole/views/depends.py:118
@@ -1716,7 +1718,7 @@ msgstr "Visualizzatore delle Dipendenze di Porthole"
 
 #: porthole/utils/utils.py:194
 msgid "Error reading emerge log file.  Check file permissions, or check for corrupt log file."
-msgstr ""
+msgstr "Errore in lettura del file di log di emerge.Controlla i permessi del file o se il file è corrotto."
 
 #: porthole/config/preferences.py:286
 #: porthole/config/preferences.py:320
@@ -1734,14 +1736,12 @@ msgid "Emerge this ebuild"
 msgstr "Installa questo ebuild"
 
 #: porthole/packagebook/summary.py:81
-#, fuzzy
 msgid "Pretend Emerge this ebuild"
-msgstr "Pretend Emerge di questo ebuild"
+msgstr "Simula l'installazione di questo ebuild"
 
 #: porthole/packagebook/summary.py:83
-#, fuzzy
 msgid "Sudo Emerge this ebuild"
-msgstr "Sudo Emerge  di questo ebuild"
+msgstr "Sudo Emerge di questo ebuild"
 
 # this one translated, others not
 #: porthole/packagebook/summary.py:85
@@ -1750,9 +1750,8 @@ msgid "Unmerge this ebuild"
 msgstr "Disinstalla questo ebuild"
 
 #: porthole/packagebook/summary.py:87
-#, fuzzy
 msgid "Sudo Unmerge this ebuild"
-msgstr "Sudo Unmerge  di questo ebuild"
+msgstr "Sudo Unmerge di questo ebuild"
 
 #: porthole/packagebook/summary.py:89
 #, python-format
@@ -1820,7 +1819,7 @@ msgstr "N"
 
 #: porthole/packagebook/summary.py:362
 msgid "Use flags: "
-msgstr "Use flags: "
+msgstr "Variabili USE: "
 
 #: porthole/packagebook/summary.py:393
 msgid "Keywords: "
@@ -1849,7 +1848,7 @@ msgstr "Versioni disponibili per %s:\n"
 
 #: porthole/packagebook/summary.py:545
 msgid "Properties for version: "
-msgstr "Proprietà per versione: "
+msgstr "Proprietà per la versione: "
 
 #: porthole/packagebook/notebook.py:145
 msgid "Viewing Dependecy of: "
@@ -1888,11 +1887,13 @@ msgid ""
 "Could not find portage module.\n"
 "Are you sure this is a Gentoo system?"
 msgstr ""
+"Non trovo il modulo di portage.\n"
+"Sei sicuro di essere su un sistema con installato  Gentoo?"
 
 #: porthole/backends/portagelib.py:548
 #: porthole/backends/pkgcore_lib.py:550
 msgid "No masking reason given"
-msgstr ""
+msgstr "Nessun motivo segnalato per il mascheramento"
 
 #: porthole/backends/utilities.py:77
 #: porthole/mainwindow.py:312
@@ -1902,45 +1903,47 @@ msgstr "Sconosciuto"
 #: porthole/backends/metadata.py:142
 #, python-format
 msgid "Metadata file \"%s\" does not exist."
-msgstr ""
+msgstr "Metadati del file \"%s\" inesistenti."
 
 # ignore for now
 #: porthole/backends/pkgcore_lib.py:34
 msgid "Could not find pkgcore module."
-msgstr ""
+msgstr "Non trovo il modulo pkgcore."
 
 # ignore for now
 #: porthole/backends/pkgcore_lib.py:38
 msgid "Could not find pkgcore.config module."
-msgstr ""
+msgstr "Non trovo il modulo pkgcore.config."
 
 # ignore for now
 #: porthole/backends/pkgcore_lib.py:42
 msgid "Could not find pkgcore.const module."
-msgstr ""
+msgstr "Non trovo il modulo pkgcore.const."
 
 # ignore for now
 #: porthole/backends/pkgcore_lib.py:46
 msgid "Could not find pkgcore.util.file.read_bash module."
-msgstr ""
+msgstr "Non trovo il modulo pkgcore.util.file.read_bash."
 
 #: porthole/backends/pkgcore_lib.py:50
 msgid "Could not find pkgcore.package.atom module."
-msgstr ""
+msgstr "Non trovo il modulo pkgcore.package.atom."
 
 #: porthole/plugin.py:197
 msgid "Enable"
-msgstr ""
+msgstr "Abilita"
 
 #: porthole/plugin.py:198
 msgid "Plug-in"
-msgstr ""
+msgstr "Plug-in"
 
 #: porthole/mainwindow.py:191
 msgid ""
 " Synchronise Package Database \n"
 " The last sync was done:\n"
 msgstr ""
+"Sincronizza il Database dei Pacchetti \n"
+"L'ultima sincronizzazione è stata effettuata il:\n"
 
 #: porthole/mainwindow.py:236
 msgid "All Packages"
@@ -1991,6 +1994,8 @@ msgid ""
 "In order to access all the features of Porthole,\n"
 "please run it with root privileges."
 msgstr ""
+"Per accedere a tutte le caratteristiche di Porthole,\n"
+"eseguilo con i privilegi di root."
 
 #: porthole/mainwindow.py:499
 msgid "_Ok"
@@ -1999,18 +2004,19 @@ msgstr "_Ok"
 #: porthole/mainwindow.py:521
 #, python-format
 msgid "%(base)s: %(count)i packages read"
-msgstr ""
+msgstr "%(base)s: %(count)i pacchetti letti"
 
 #: porthole/mainwindow.py:540
 #, python-format
 msgid "%(base)s: Populating tree"
-msgstr ""
+msgstr "%(base)s: Popolamento alberatura"
 
 #: porthole/mainwindow.py:885
 msgid "Upgrade requested"
 msgstr "Aggiornamenti richiesti"
 
 #: porthole/mainwindow.py:887
+#, fuzzy
 msgid "Do you want to upgrade all packages in your world file?"
 msgstr "Vuoi aggiornare tutti i pacchetti presenti nel tuo file world? "
 
@@ -2062,29 +2068,29 @@ msgstr "%(pack)d pacchetti in %(cat)d categorie"
 
 #: porthole/mainwindow.py:1462
 msgid "Confirm: Kill the Running Process in the Terminal"
-msgstr ""
+msgstr "Confema: Uccidi il Processo in esecuzione nel Terminale"
 
 #: ../plugin_projects/trunk/etc-proposals/etc-proposals/__init__.py:35
 msgid "A gtk2 alternative to etc-update or dispatch-conf"
-msgstr ""
+msgstr "Un'alternativa gtk2 a etc-update o dispatch-conf"
 
 #: ../plugin_projects/trunk/etc-proposals/etc-proposals/__init__.py:77
 msgid "Etc-Proposals"
-msgstr ""
+msgstr "Etc-Proposals"
 
 #: ../plugin_projects/trunk/profuse/profuse/__init__.py:36
 msgid "Edit USE Variables settings using the Profuse editor"
-msgstr ""
+msgstr "Edita le variabili USE utiizzando l'editor Profuse"
 
 #: ../plugin_projects/trunk/profuse/profuse/__init__.py:75
 msgid "Profuse (root mode)"
-msgstr ""
+msgstr "Profuse (modalità root)"
 
 #: ../plugin_projects/trunk/profuse/profuse/__init__.py:79
 msgid "Profuse (user mode)"
-msgstr ""
+msgstr "Profuse (modalità utente)"
 
 #: ../plugin_projects/trunk/profuse/profuse/__init__.py:82
 msgid "Profuse (su mode)"
-msgstr ""
+msgstr "Profuse (modalità su)"
 
