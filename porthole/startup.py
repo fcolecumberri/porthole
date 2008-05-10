@@ -72,27 +72,30 @@ from gettext import gettext as _
 #gtk.threads_init()
 #gtk.gdk.threads_init()
 
-#~ try:
-    #~ from pycrash.utils import *
-    #~ pycrash_found = True
-    #~ class MyCrash(HTMLPyCrash):
-        #~ def onExceptionRaised(self, time):
-            #~ save_file = LOG_FILE_DIR + "/crash_" + pwd.getpwuid(os.getuid())[0] + ".html"
-            #~ # saveToFile does not yet return a result: feature request submitted
-            #~ self.saveToFile(save_file)
-            #~ err = "*** PORTHOLE: Crash detected! ***\nPlease submit a bug report including\n"
-            #~ err = err + "all debug text from the terminal you ran porthole from.\n"
-            #~ err = err + ("Plus the the file: %s" %save_file)
-            #~ print err
-            #~ dialog = gtk.MessageDialog(None, gtk.DIALOG_MODAL,
-                                       #~ gtk.MESSAGE_ERROR,
-                                       #~ gtk.BUTTONS_OK, _(err));
-            #~ result = dialog.run()
-            #~ dialog.destroy()
-            
-#~ except ImportError:
 pycrash_found = False
-
+if sys.version[:3] != '2.5':  # pycrash does not work in correctly in 2.5
+    try:
+        from pycrash.utils import *
+        pycrash_found = True
+        class MyCrash(HTMLPyCrash):
+            def onExceptionRaised(self, time):
+                save_file = LOG_FILE_DIR + "/crash_" + pwd.getpwuid(os.getuid())[0] + ".html"
+                # saveToFile does not yet return a result: feature request submitted
+                self.saveToFile(save_file)
+                err = "*** PORTHOLE: Crash detected! ***\nPlease submit a bug report including\n"
+                err = err + "all debug text from the terminal you ran porthole from.\n"
+                err = err + ("Plus the the file: %s" %save_file)
+                print err
+                dialog = gtk.MessageDialog(None, gtk.DIALOG_MODAL,
+                                           gtk.MESSAGE_ERROR,
+                                           gtk.BUTTONS_OK, _(err));
+                result = dialog.run()
+                dialog.destroy()
+                
+    except ImportError:
+        pass
+else:
+    print "STARTUP: detected python-2.5, disabling pycrash"
 
 def create_dir(new_dir):
     """Creates the directory passed into it"""
