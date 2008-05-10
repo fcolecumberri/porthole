@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: Porthole-0.6.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-04-28 18:08-0700\n"
-"PO-Revision-Date: 2008-05-06 23:55+0100\n"
-"Last-Translator: unz <unz.snu@gmail.com>\n"
+"PO-Revision-Date: 2008-05-09 00:49-0800\n"
+"Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -19,7 +19,7 @@ msgstr "Un'Interfaccia GTK+ per Portage"
 
 #: porthole/glade/about.glade.h:2
 msgid "About"
-msgstr "About"
+msgstr "Soggetto:"
 
 #: porthole/glade/about.glade.h:3
 msgid "Authors"
@@ -643,9 +643,8 @@ msgstr "Descrizione"
 
 # What about 'Colori' or is it 'Colore'
 #: porthole/glade/config.glade.h:26
-#, fuzzy
 msgid "Downgradable Colour"
-msgstr "Downgrade"
+msgstr "Colori degradare"
 
 #: porthole/glade/config.glade.h:27
 #: porthole/views/package.py:120
@@ -1007,7 +1006,7 @@ msgstr "<b>Opzioni Plugin</b>"
 
 #: porthole/glade/porthole.glade.h:4
 msgid "A_bout"
-msgstr "A_bout"
+msgstr "S_oggetto:"
 
 #: porthole/glade/porthole.glade.h:5
 msgid "A_dv Emerge"
@@ -1231,7 +1230,7 @@ msgstr "Timer"
 
 #: porthole/glade/porthole.glade.h:58
 msgid "U_nmerge"
-msgstr "U_nmerge"
+msgstr "Disi_nstalla "
 
 #: porthole/glade/porthole.glade.h:59
 msgid "U_nmerge Package"
@@ -1415,12 +1414,10 @@ msgstr "Configurazioni Avanzate di Installazione per %s"
 msgid "Slot:%s"
 msgstr "Slot:%s"
 
-# just checking... not translated?  or is the same?
 #: porthole/advancedemerge/advemerge.py:134
 #: porthole/advancedemerge/advemerge.py:379
-#, fuzzy
 msgid "   {unavailable}"
-msgstr "   {unavailable}"
+msgstr "   {non disponibile}"
 
 #: porthole/advancedemerge/advemerge.py:136
 #: porthole/advancedemerge/advemerge.py:381
@@ -1435,7 +1432,7 @@ msgstr "   [MASCHERATO]"
 #: porthole/advancedemerge/advemerge.py:141
 #: porthole/advancedemerge/advemerge.py:386
 msgid "   (recommended) (downgrade)"
-msgstr "   (raccomandato) (downgrade)"
+msgstr "   (raccomandato) (degradare)"
 
 #: porthole/advancedemerge/advemerge.py:143
 #: porthole/advancedemerge/advemerge.py:388
@@ -1637,9 +1634,9 @@ msgid "Loading"
 msgstr "Caricamento"
 
 #: porthole/dialogs/about.py:54
-#, fuzzy, python-format
+#, python-format
 msgid "About Porthole %s"
-msgstr "About Porthole %s"
+msgstr "Di Porthole %s"
 
 #: porthole/dialogs/command.py:89
 #: porthole/dialogs/command.py:98
