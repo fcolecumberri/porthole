@@ -221,14 +221,20 @@ class DependsView(CommonTreeView):
         #debug.dprint("DependsView: get_relevant_keywords(); retuning keywords: " + keywords)
         return keywords
 
-
-    def _clicked(self, treeview, *args):
-        """ Handle treeview clicks """
-        model, iter = treeview.get_selection().get_selected()
+    def get_selected(self):
+        """get the selected treeview package and name"""
+        debug.dprint("DependsView: get_selected()")
+        model, iter = self.get_selection().get_selected()
         if iter:
             name = model.get_value(iter, model.column["name"])
             package =  model.get_value(iter, model.column["package"])
-        else: name = self._last_selected
+            return name, package
+        else:
+            return self._last_selected, None
+
+    def _clicked(self, treeview, *args):
+        """ Handle treeview clicks """
+        name, package = self.get_selected()
         # has the selection really changed?
         if name != self._last_selected:
             debug.dprint("DependsView: dependency change detected")
@@ -339,7 +345,8 @@ class DependsView(CommonTreeView):
             #path, col, cellx, celly = pathinfo
             #debug.dprint("DependsView: pathinfo = %s" %str(pathinfo))
             #treeview.set_cursor(path, col, 0) # Note: sets off _clicked again
-            if _do_dep_window:
+            name, package = self.get_selected()
+            if _do_dep_window and package != None:
                 self.do_dep_window(widget)
         return False
 
