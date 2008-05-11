@@ -239,8 +239,8 @@ class DependsView(CommonTreeView):
         # save current selection as last selected
         self._last_selected = name
         
-        #pop up menu if was rmb-click
-        if self.dopopup:
+        #pop up menu if was rmb-click and have a valid package
+        if self.dopopup and package:
             if utils.is_root():
                 if package.get_best_ebuild() != package.get_latest_ebuild(): # i.e. no ~arch keyword
                     self.popup_menuitems["add-keyword"].show()
