@@ -9,7 +9,7 @@ cd ../porthole/i18n
 for ITEM in *.po; do
   ITEM2=${ITEM/.po/}
   LANG=${ITEM2/_??/}
-  mkdir ${LANG}/LC_MESSAGES -p
+  mkdir -p ${LANG}/LC_MESSAGES
   msgfmt ${ITEM} -o ${LANG}/LC_MESSAGES/porthole.mo
 done
 cd ..
