@@ -845,7 +845,7 @@ class MainWindow:
             #debug.dprint(self.packages_list)
             #debug.dprint(self.keyorder)
             for key in self.keyorder:
-                if not self.packages_list[key]:
+                if not self.packages_list[key].in_world:
                         debug.dprint("MAINWINDOW: upgrade_packages(); dependancy selected: " + key)
                         if not self.setup_command(key, emerge_cmd +" --oneshot" +
                                 config.Prefs.emerge.get_string() + key[:]): #use the full name
