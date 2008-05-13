@@ -35,6 +35,7 @@ from porthole.views.commontreeview import CommonTreeView
 from porthole.utils import debug
 from porthole.views.helpers import *
 from porthole import config
+from porthole import db
 
 
 
@@ -421,7 +422,7 @@ class DependsView(CommonTreeView):
         name = utils.get_treeview_selection(self, 2).full_name
         string = name + " " + arch + "\n"
         debug.dprint("DependsView: dependsview add_keyword(); %s" %string)
-        db.userconfigs.set_user_config('KEYWORDS', name=name, add=arch, callback=self.update_callback)
+        db.userconfigs.set_user_config('KEYWORDS', name=name, add=arch, callback=None)
 
     def adv_emerge(self, widget):
         self.dispatch(["adv_emerge"], {'caller': "DependsView: emerge()", 'package': utils.get_treeview_selection(self, 2)})
