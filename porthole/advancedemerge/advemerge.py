@@ -516,6 +516,7 @@ class AdvancedEmergeDialog:
                 if flag_active:
                     flaglist.append('-' + flag)
         flags = ' '.join(flaglist)
+        debug.dprint("ADVEMERGE: get_use_flags(); flags = %s" %str(flags))
         return flags
 
     def get_options(self):
