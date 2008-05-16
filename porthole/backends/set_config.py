@@ -26,12 +26,15 @@
 import sys
 import os
 
-try:
-    #import portage
-    import portage_const
-except ImportError:
-    sys.exit(_('Could not find portage module.\n'
-         'Are you sure this is a Gentoo system?'))
+try: # >=portage 2.2 modules
+    import portage.const as portage_const
+except: # portage 2.1.x modules
+    try:
+        #import portage
+        import portage_const
+    except ImportError:
+        sys.exit(_('Could not find portage module.\n'
+             'Are you sure this is a Gentoo system?'))
 
 #debug = False
 debug = True
@@ -82,6 +85,9 @@ def set_user_config(filename, name='', ebuild='', add=[], remove=[], delete=[]):
                     dprint("SET_CONFIG: removed '%s' from line" % flag)
             for flag in add:
                 if flag not in line:
+                    if flag.startswith('+'):
+                        dprint("SET_CONFIG: removed leading '+' from %s flag" % flag)
+                        flag = flag[1:]
                     line.append(flag)
                     dprint("SET_CONFIG: added '%s' to line" % flag)
             if not line[1:]: # if we've removed everything and added nothing

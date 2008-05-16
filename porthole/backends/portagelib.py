@@ -42,14 +42,19 @@ from porthole.backends.properties import Properties
 from porthole import config
 from porthole.backends.metadata import parse_metadata
 
-try:
+try: # >=portage 2.2 modules
     import portage
-    import portage_const
-    import portage_manifest
-    print >>stderr, ("PORTAGELIB: portage version = " + portage.VERSION)
-except ImportError:
-    exit(_('Could not find portage module.\n'
-         'Are you sure this is a Gentoo system?'))
+    import portage.const as portage_const
+    import portage.manifest as portage_manifest
+except: # portage 2.1.x modules
+    try:
+        import portage
+        import portage_const
+        import portage_manifest
+    except ImportError:
+        exit(_('Could not find portage module.\n'
+             'Are you sure this is a Gentoo system?'))
+print >>stderr, ("PORTAGELIB: portage version = " + portage.VERSION)
 
 thread_id = os.getpid()
 
