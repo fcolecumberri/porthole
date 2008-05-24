@@ -55,8 +55,7 @@ are automatically set here. </li>
 </ul>
 <p>
 Only the options that make sense for installing a package are listed.
-&nbsp;The options that display information
-that Porthole already supplies (e.g. --changelog) were omitted to save
+&nbsp;The options that display information which Porthole already supplies (e.g. --changelog) were omitted to save
 space on the menu and make the interface as simple as
 possible.
 </p>
@@ -64,7 +63,7 @@ possible.
 the results of your selected options.
 </p>
 <div class="figinline">
-<img src="advemerge.png"><br>
+<img style="width: 614px; height: 477px;" alt="Advanced emerge dialog image." src="advemerge.png"><br>
 Figure 1. Advanced Emerge Dialog
 </div>
 <h2>Package Options</h2>
@@ -101,19 +100,16 @@ in the version drop-down list.
 <b>TIP:</b> if you're not sure what a use flag
 does, you can hover the mouse over it for an explanatory tool-tip.
 </div>
-
 <p>The easy way to emerge a package with certain use flags, is to
 select the ones you want, de-select the ones you don't, and click
 "Emerge". However, if you do this the change will only be temporary,
 and the next time the package is updated the use flags will revert to
 their previous settings.</p>
-
 <p>If you wish the use flag settings to persist,
 and&nbsp;want them to apply <span style="font-style: italic;">only</span>
 to the current package, click "Update package.use". Beware! This is
 not thoroughly tested yet. So back up your package.use file (usually
 /etc/portage/package.use) first.</p>
-
 <p>If you want your use flag changes to apply to all packages,
 then click on "Update make.conf". This button&nbsp;is <span style="font-style: italic;">hidden by default</span>,
 due to your make.conf file being much more complex than the package.use
@@ -126,16 +122,13 @@ soul who likes living on the edge and knows how to fix things when they
 go wrong (you're running Gentoo - of course you are!), you can enable
 the button in Porthole's configuration dialog (Settings -&gt;
 Configure Porthole). Good luck.</p>
-
 <h3>Keyword to Accept</h3>
-
 <p>If a version is marked as "unstable", it will need to be
 keyword unmasked. The quick way to do this is to select your CPU
 architecture in the "Keyword to Accept" frame which will appear.
 However, this will also emerge unstable versions of any dependencies
 installed with the package, and as soon as you try to update the
 packages, Portage will downgrade them to the stable versions.</p>
-
 <p>The recommended way to emerge an unstable package is to select
 your CPU architecture as above and then click the button labelled
 "Update package.keywords". Beware! This is not thoroughly tested
@@ -176,6 +169,5 @@ to create new and increasingly difficult numbering schemes faster
 than we can figure out how to sort them.
   </li>
 </ol>
-
 </body>
 </html>
