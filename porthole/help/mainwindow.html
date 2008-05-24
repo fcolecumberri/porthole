@@ -62,11 +62,14 @@ bar, a tool bar, category list pane, package list pane and a tabbed
 package info pane. </p>
 
 <div style="text-align: center;"><img src="mainwindow.png">
+<span style="color: rgb(0, 0, 255);">Figure 1. Porthole's
+Main window</span>
 </div>
 
 <h2>Menu Bar</h2>
 
-<p>The menu bar has four sub-menues: Action, Settings, Help and Active Plugins.
+<p>The menu bar has four sub-menues: Action, Settings, Help and
+Active Plugins.
 &nbsp;Each menu item has a hot key combo to select it from the
 keyboard.
 </p>
@@ -165,7 +168,8 @@ authors and links to home page and help system. </li>
 
 <h3>Active Plugins</h3>
 
-<p>This will be visible only if, and contain a list of active plugins installed</p>
+<p>This will be visible only if, and contain a list of active
+plugins installed</p>
 
 <h2>Tool Bar</h2>
 
@@ -197,8 +201,10 @@ of the last sync by hovering the mouse over it. </li>
   <li><u>Upgrade</u> - Same as Action menu
 Upgrade Packages.</li>
 
-  <li><u>Queue</u> - Will give options to pause, run or set a timer for the terminal queue but is not yet coded in this window. 
-  Please use the buttons on the bottom left of the terminal window.</li>
+  <li><u>Queue</u> - Will give options to pause, run
+or set a timer for the terminal queue but is not yet coded in this
+window. Please use the buttons on the bottom left of the terminal
+window.</li>
 
 </ul>
 
@@ -230,15 +236,21 @@ packages meeting your search criteria, or review previous searches. </li>
 only the packages that portage recommends you upgrade (or downgrade). </li>
 
   <li><u>Deprecated Packages</u> - Display
-only the packages that are no longer in the portage tree or any local overlays. </li>
+only the packages that are no longer in the portage tree or any local
+overlays. </li>
 
-  <li><u>Sets</u> - Display any package sets files and packages contained in them, located in /etc/portage/sets/.  
-  This lets users define package sets rather than create meta package ebuilds similar to gnome-base/gnome. 
-  This works with current portage versions which do net yet have sets support.  
-  Please be advised that this is early code inclusion and may not always follow specific package versions specified.
-  Please file any bugs in porthole bug tracker.   
-  The upgrades listing will also list any sets defined and will list those packages only in their set and be removed from the "World" listing displayed.  
-  Portage will soon be able to wiht package sets and some code is now is testing.  I will update porthole as needed to correctly work with portage's sets.</li>
+  <li><u>Sets</u> - Display any package sets files
+and packages contained in them, located in /etc/portage/sets/. This
+lets users define package sets rather than create meta package ebuilds
+similar to gnome-base/gnome. This works with current portage versions
+which do net yet have sets support. Please be advised that this is
+early code inclusion and may not always follow specific package
+versions specified. Please file any bugs in porthole bug tracker. The
+upgrades listing will also list any sets defined and will list those
+packages only in their set and be removed from the "World" listing
+displayed. Portage will soon be able to wiht package sets and some code
+is now is testing. I will update porthole as needed to correctly work
+with portage's sets.</li>
 
 </ul>
 
@@ -324,7 +336,9 @@ of them, those that don't; in red with a minus sign. </li>
 
   <li>Which license the package is distributed under. </li>
 
-  <li>User Configs. Will display any and all user config definitions for that package defined in any of the /etc/portage/package.* files/directories as well as any package sets</li>
+  <li>User Configs. Will display any and all user config
+definitions for that package defined in any of the
+/etc/portage/package.* files/directories as well as any package sets</li>
 
 </ul>
 
@@ -337,9 +351,12 @@ approximately the same format as that used on <a href="http://packages.gentoo.or
 Stable packages are shown in green with a "+" symbol. Keyword masked
 packages (those not yet deemed&nbsp;stable) are
 shown in yellow with a "~" symbol. Hard masked&nbsp;packages (those
-with known problems) are shown in red with an additional "M". 
-The ebuild versions are now clickable and will set all other information displayed to use that version for display.
-The Overlay column will display a Y/N of whether it is from a local overlay, hovering over the entry will bring up a tooltip of the path the the overlay where this ebuild is located.</p>
+with known problems) are shown in red with an additional "M". The
+ebuild versions are now clickable and will set all other information
+displayed to use that version for display.
+The Overlay column will display a Y/N of whether it is from a local
+overlay, hovering over the entry will bring up a tooltip of the path
+the the overlay where this ebuild is located.</p>
 
 <p>If
 you have already emerged the package, the emerged version or versions
@@ -353,10 +370,9 @@ would change from displaying "M~" to displaying "[(+)]".<br>
 
 </p>
 
-<div class="figright"><img src="dependencies.png"><br>
+<div style="text-align: center;"><img style="width: 614px; height: 236px;" alt="ebuild table with expalantions" src="ebuildtable_explained2.png"><br>
 
-Figure 2. Dependencies Tab
-</div>
+<span style="color: rgb(0, 0, 255);">Figure 2 Ebuild Table.</span></div>
 
 <h3>Dependencies Tab</h3>
 
@@ -376,30 +392,44 @@ dependencies will be ignored, and the icon is changed to your theme's
 "Remove" icon (normally a horizontal line).
 </p>
 
-<p>There are now several columns of information listed about the specific dependency that aid you in determining any needed config changes such as keyword unmasking. 
-The dependency is also double-clickable which will bring up a popup window of that package's details like the one you are already viewing.
-
+<p>There are now several columns of information listed about the
+specific dependency that aid you in determining any needed config
+changes such as keyword unmasking. The dependency is also
+double-clickable which will bring up a popup window of that package's
+details like the one you are already viewing.
 </p>
 
+<div style="text-align: center;"><img src="dependencies.png"><br>
 
-<div class="figright"><img src="depview.png"><br>
+<span style="color: rgb(0, 0, 255);">Figure 3.
+Dependencies Tab</span></div>
 
-Figure 5. Dependency Viewer
-Tab
+<div class="figright"><img style="width: 462px; height: 392px;" alt="Pop-up dependency window image" src="depview.png"><br>
+
+Figure 4. Pop-up Dependency Viewer
 </div>
 
 <h3>Dependency Viewer</h3>
-<p>The dependency viewer is a popup window that contains all the same package if information as the main porthole window.  
-It too can have a popup depency window for any of it's dependecies. 
-Only one dependency popup window is allowed per window, so double-clicking a different depency will change the displayed info in it's viewer.
+
+<p>The dependency viewer is a popup window that contains all the
+same package if information as the main porthole window. It too can
+have a popup depency window for any of it's dependecies. Only one
+dependency popup window is allowed per window, so double-clicking a
+different depency will change the displayed info in it's viewer.
 </p>
 
-<br><br>
-<br><br>
-<div class="figright"><img src="changelog.png"><br>
+<br>
 
-Figure
-3. Change Log Tab
+<br>
+
+<br>
+
+<br>
+
+<div class="figleft"><br>
+<img style="width: 454px; height: 278px;" alt="Changelog tab image" src="changelog.png"><br>
+
+Figure 5. Change Log Tab
 </div>
 
 <h3>Change Log</h3>
@@ -410,11 +440,17 @@ need to upgrade or not. &nbsp;Look here for information on bug
 fixes and new features.
 </p>
 
-<br><br>
-<br><br>
-<div class="figright"><img src="installedfiles.png"><br>
+<br>
 
-Figure 4. Installed Files
+<br>
+
+<br>
+
+<br>
+
+<div class="figright"><img style="width: 440px; height: 259px;" alt="Installed files tab image" src="installedfiles.png"><br>
+
+Figure 6. Installed Files
 Tab
 </div>
 
@@ -434,7 +470,6 @@ used by Emerge to install the package). </p>
 <br>
 
 <hr><a name="notes">Notes:</a>
-
 [1] See <a target="_top" href="termrefs.html">
 Terms &amp; References</a> for more info on portage terms.
 </body>
