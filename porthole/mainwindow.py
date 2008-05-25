@@ -35,7 +35,7 @@ from porthole.utils import utils, debug
 from porthole import config
 from porthole import backends
 portage_lib = backends.portage_lib
-World = portage_lib.World
+#World = portage_lib.settings.get_world
 from porthole.utils.dispatcher import Dispatcher
 from porthole.dialogs.about import AboutDialog
 from porthole.dialogs.command import RunDialog
@@ -314,6 +314,7 @@ class MainWindow:
         self.valid_sync = False
         self.get_sync_time()
         self.set_sync_tip()
+        self.new_sync = False
         self.reload_depth = 0
 
     def reload_db(self, *widget):
@@ -335,7 +336,7 @@ class MainWindow:
             self.reload_depth += 1
             return True
         if self.reload_depth < 4:
-            debug.dprint("MAINWINDOW: reload_db(); failed to kill db thread, exceeded retry depth...continuing anyway")
+            debug.dprint("MAINWINDOW: reload_db(); failed to confirm killing db thread, exceeded retry depth...continuing anyway")
         self.reload_depth = 0
         # upgrades loaded?
         # reset so that it reloads the upgrade list
@@ -351,16 +352,17 @@ class MainWindow:
         self.current_pkg_cursor["Search"] = None
         # test to reset portage
         #portage_lib.reload_portage()
-        portage_lib.reload_world()
+        portage_lib.settings.reload_world()
         self.upgrade_view = False
         #self.db_timeout = gobject.timeout_add(100, self.update_db_read)
         self.get_sync_time()
         self.set_sync_tip()
         # load the db
         self.dbtime = 0
-        db.db.db_init(True)
+        db.db.db_init(self.new_sync)
         #test = 87/0  # used to test pycrash is functioning
         self.reload = True
+        self.new_sync = False
         # set status
         #self.set_statusbar(_("Obtaining package list "))
         self.status_root = _("Reloading database")
@@ -389,9 +391,11 @@ class MainWindow:
     def sync_callback(self):
         """re-initializes portage so it uses the new metadata cache
            then init our db"""
-        self.re_init_portage()
+        #self.re_init_portage()
+        portage_lib.settings.reset()
         # self.reload==False is currently broken for init_data when reloading after a sync
         #self.init_data() 
+        self.new_sync = True
         self.reload_db()
         self.refresh()
 
@@ -1403,7 +1407,7 @@ class MainWindow:
         """re-initializes the imported portage modules in order to see changines in any config files
         e.g. /etc/make.conf USE flags changed"""
         portage_lib.reload_portage()
-        portage_lib.reset_use_flags()
+        ##portage_lib.reset_use_flags()
 ##        if  self.current_pkg_cursor["All_Installed"] != None and self.current_pkg_cursor["All_Installed"][0]: # should fix a type error in set_cursor; from pycrash report
 ##            # reset _last_selected so it thinks this package is new again
 ##            self.package_view._last_selected = None
