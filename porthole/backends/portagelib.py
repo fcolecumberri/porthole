@@ -45,12 +45,12 @@ from porthole.backends.metadata import parse_metadata
 try: # >=portage 2.2 modules
     import portage
     import portage.const as portage_const
-    import portage.manifest as portage_manifest
+    from portage import manifest
 except: # portage 2.1.x modules
     try:
         import portage
         import portage_const
-        import portage_manifest
+        import portage_manifest as manifest
     except ImportError:
         exit(_('Could not find portage module.\n'
              'Are you sure this is a Gentoo system?'))
@@ -275,32 +275,14 @@ def set_make_conf(property, add='', remove='', replace='', callback=None):
     return True
 
 def get_virtuals():
-    return portage.settings.virtuals
+    return settings.settings.virtuals
     
 def reload_portage():
     debug.dprint('PORTAGELIB: reloading portage')
     debug.dprint("PORTAGELIB: old portage version = " + portage.VERSION)
     reload(portage)
     debug.dprint("PORTAGELIB: new portage version = " + portage.VERSION)
-
-
-def get_world():
-        world = []
-        try:
-            file = open("/var/lib/portage/world", "r")
-            world = file.read().split()
-            file.close()
-        except:
-            debug.dprint("PORTAGELIB: get_world(); Failure to locate file: '/var/lib/portage/world'")
-            debug.dprint("PORTAGELIB: get_world(); Trying '/var/cache/edb/world'")
-            try:
-                file = open("/var/cache/edb/world", "r")
-                world = file.read().split()
-                file.close()
-                debug.dprint("PORTAGELIB: get_world(); OK")
-            except:
-                debug.dprint("PORTAGELIB: get_world(); Failed to locate the world file")
-        return world
+    settings.reset()
 
 def get_sets_list( filename ):
     """Get the package list file and turn it into a tuple
@@ -344,13 +326,6 @@ def split_atom_pkg( pkg ):
             version += '-' + cplist[3]
     return [str(cp), ''.join(atoms), version] # hmm ... unicode keeps appearing :(
 
-
-def reload_world():
-    debug.dprint("PORTAGELIB: reset_world();")
-    global World
-    World = get_world()
-
-
 def get_use_flag_dict():
     """ Get all the use flags and return them as a dictionary 
         key = use flag forced to lowercase
@@ -380,17 +355,18 @@ def get_use_flag_dict():
             debug.dprint(data[0].strip())
             debug.dprint(item[index:])
     return dict
-
     
 def get_portage_environ(var):
     """Returns environment variable from portage if possible, else None"""
-    try: temp = portage.config(clone=portage.settings).environ()[var]
+    try: 
+        #temp = portage.config(clone=portage.settings).environ()[var]
+        temp = settings.settings.environ()[var]
     except: temp = None
     return temp
 
 def get_arch():
     """Return host CPU architecture"""
-    return portage.settings["ARCH"]
+    return settings.settings["ARCH"]
 
 def get_name(full_name):
     """Extract name from full name."""
@@ -424,7 +400,7 @@ def get_installed(package_name):
     package_name can be the short package name ('eric'), long package name ('dev-util/eric')
     or a version-matching string ('>=dev-util/eric-2.5.1')
     """
-    return portage.db['/']['vartree'].dep_match(str(package_name))
+    return settings.trees[settings.settings["ROOT"]]["vartree"].dep_match(str(package_name))
 
 def xmatch(*args, **kwargs):
     """Pass arguments on to portage's caching match function.
@@ -437,7 +413,7 @@ def xmatch(*args, **kwargs):
        control-center                       ebuilds for gnome-base/control-center
        >=gnome-base/control-center-2.8.2    only ebuilds with version >= 2.8.2
     """
-    return portage.portdb.xmatch(*args, **kwargs)[:] # make a copy.  needed for <portage-svn-r5382
+    return settings.portdb.xmatch(*args, **kwargs)[:] # make a copy.  needed for <portage-svn-r5382
 
 def get_version(ebuild):
     """Extract version number from ebuild name"""
@@ -461,7 +437,7 @@ def get_hard_masked(full_name):
 	full_name = str(full_name)
 	hardmasked = []
 	try:
-		for x in portage.portdb.mysettings.pmaskdict[full_name]:
+		for x in settings.portdb.mysettings.pmaskdict[full_name]:
 			m = xmatch("match-all",x)
 			for n in m:
 				if n not in hardmasked: hardmasked.append(n)
@@ -469,7 +445,7 @@ def get_hard_masked(full_name):
 		pass
 	hard_masked_nocheck = hardmasked[:]
 	try:
-		for x in portage.portdb.mysettings.punmaskdict[full_name]:
+		for x in settings.portdb.mysettings.punmaskdict[full_name]:
 			m = xmatch("match-all",x)
 			for n in m:
 				while n in hardmasked: hardmasked.remove(n)
@@ -504,10 +480,10 @@ def get_installed_files(ebuild):
 def get_property(ebuild, property):
     """Read a property of an ebuild. Returns a string."""
     # portage.auxdbkeys contains a list of properties
-    if portage.portdb.cpv_exists(ebuild): # if in portage tree
-        return portage.portdb.aux_get(ebuild, [property])[0]
+    if settings.portdb.cpv_exists(ebuild): # if in portage tree
+        return settings.portdb.aux_get(ebuild, [property])[0]
     else:
-        vartree = portage.db['/']['vartree']
+        vartree = settings.trees[settings.settings["ROOT"]]["vartree"]
         if vartree.dbapi.cpv_exists(ebuild): # elif in installed pkg tree
             return vartree.dbapi.aux_get(ebuild, [property])[0]
         else: return ''
@@ -561,10 +537,10 @@ def get_size(mycpv):
     # new code chunks from emerge since the files/digest is no longer, info now in Manifest.
     #debug.dprint( "PORTAGELIB: get_size; mycpv = " + mycpv)
     mysum = [0,'']
-    myebuild = portdb.findname(mycpv)
+    myebuild = settings.portdb.findname(mycpv)
     pkgdir = os.path.dirname(myebuild)
-    mf = portage_manifest.Manifest(pkgdir, settings["DISTDIR"])
-    fetchlist = portdb.getfetchlist(mycpv, mysettings=settings, all=True)[1]
+    mf = manifest.Manifest(pkgdir, settings.settings["DISTDIR"])
+    fetchlist = settings.portdb.getfetchlist(mycpv, mysettings=settings.settings, all=True)[1]
     #debug.dprint( "PORTAGELIB: get_size; fetchlist = " + str(fetchlist))
     try:
         #debug.dprint( "PORTAGELIB: get_size; mf.getDistfilesSize()")
@@ -585,7 +561,7 @@ def get_size(mycpv):
 
 def get_digest(ebuild): ## depricated
     """Returns digest of an ebuild"""
-    mydigest = portage.db['/']['porttree'].dbapi.finddigest(ebuild)
+    mydigest = settings.portdb.finddigest(ebuild)
     digest_file = []
     if mydigest != "":
         try:
@@ -602,23 +578,23 @@ def get_digest(ebuild): ## depricated
 def get_properties(ebuild):
     """Get all ebuild variables in one chunk."""
     ebuild = str(ebuild) #just in case
-    if portage.portdb.cpv_exists(ebuild): # if in portage tree
+    if settings.portdb.cpv_exists(ebuild): # if in portage tree
         try:
-            return Properties(dict(zip(keys, portage.portdb.aux_get(ebuild, portage.auxdbkeys))))
+            return Properties(dict(zip(settings.keys, settings.portdb.aux_get(ebuild, portage.auxdbkeys))))
         except IOError, e: # Sync being performed may delete files
             debug.dprint(" * PORTAGELIB: get_properties(): IOError: %s" % e)
             return Properties()
     else:
-        vartree = portage.db['/']['vartree']
+        vartree = settings.trees[settings.settings["ROOT"]]["vartree"]
         if vartree.dbapi.cpv_exists(ebuild): # elif in installed pkg tree
-            return Properties(dict(zip(keys, vartree.dbapi.aux_get(ebuild, portage.auxdbkeys))))
+            return Properties(dict(zip(settings.keys, vartree.dbapi.aux_get(ebuild, portage.auxdbkeys))))
         else: return Properties()
 
 def get_virtual_dep(atom):
     """returns a resolved virtual dependency.
     contributed by Jason Stubbs, with a little adaptation"""
     # Thanks Jason
-    non_virtual_atom = portage.dep_virtual([atom], portage.settings)[0]
+    non_virtual_atom = portage.dep_virtual([atom], settings.settings)[0]
     if atom == non_virtual_atom:
         # atom,"is a 'new style' virtual (aka regular package)"
         return atom
@@ -630,17 +606,17 @@ def get_virtual_dep(atom):
 def is_overlay(cpv): # lifted from gentoolkit
     """Returns true if the package is in an overlay."""
     try:
-        dir,ovl = portage.portdb.findname2(cpv)
+        dir,ovl = settings.portdb.findname2(cpv)
     except:
         return False
-    return ovl != portdir
+    return ovl != settings.portdir
 
 def get_overlay(cpv):
     """Returns an overlay."""
     if '/' not in cpv:
         return ''
     try:
-        dir,ovl = portage.portdb.findname2(cpv)
+        dir,ovl = settings.portdb.findname2(cpv)
     except:
         ovl = 'Depricated?'
     return ovl
@@ -650,7 +626,7 @@ def get_path(cpv):
     if '/' not in cpv:
         return ''
     try:
-        dir,ovl = portage.portdb.findname2(cpv)
+        dir,ovl = settings.portdb.findname2(cpv)
     except:
         dir = ''
     return dir
@@ -659,13 +635,13 @@ def get_metadata(package):
     """Get the metadata for a package"""
     # we could check the overlay as well,
     # but we are unlikely to find any metadata files there
-    try: return parse_metadata(portdir + "/" + package + "/metadata.xml")
+    try: return parse_metadata(settings.portdir + "/" + package + "/metadata.xml")
     except: return None
 
 def get_system_pkgs(): # lifted from gentoolkit
 	"""Returns a tuple of lists, first list is resolved system packages,
 	second is a list of unresolved packages."""
-	pkglist = settings.packages
+	pkglist = settings.settings.packages
 	resolved = []
 	unresolved = []
 	for x in pkglist:
@@ -687,9 +663,9 @@ def find_best_match(search_key): # lifted from gentoolkit and updated
     full_name = split_atom_pkg(search_key)[0]
     if "virtual" == get_category(full_name):
         #t= get_virtual_dep(search_key)
-        t = portage.db["/"]["vartree"].dep_bestmatch(full_name)
+        t = settings.trees[settings.settings["ROOT"]]["vartree"].dep_bestmatch(full_name)
     else:
-        t = portage.db["/"]["vartree"].dep_bestmatch(search_key)
+        t = settings.trees[settings.settings["ROOT"]]["vartree"].dep_bestmatch(search_key)
     if t:
         #debug.dprint("PORTAGELIB: find_best_match(search_key)=" + search_key + " ==> " + str(t))
         return t
@@ -713,70 +689,95 @@ def split_package_name(name): # lifted from gentoolkit, handles vituals for find
     return r
 
 def get_allnodes():
-    return portage.db['/']['porttree'].getallnodes()[:] # copy
+    return settings.trees[settings.settings["ROOT"]]['porttree'].getallnodes()[:] # copy
         
 def get_installed_list():
-    return portage.db['/']['vartree'].getallnodes()[:] # try copying...
+    return settings.trees[settings.settings["ROOT"]]["vartree"].getallnodes()[:] # try copying...
 
 def get_installed_ebuild_path(fullname):
-    return portage.db['/']['vartree'].getebuildpath(fullname)
+    return settings.trees[settings.settings["ROOT"]]["vartree"].getebuildpath(fullname)
 
-def reset_use_flags():
-    debug.dprint("PORTAGELIB: reset_use_flags();")
-    global SystemUseFlags
-    SystemUseFlags = portage.settings["USE"].split()
+class PortageSettings:
+    def __init__(self):
+        # declare some globals
+        self.portdir = self.portdir_overlay = self.ACCEPT_KEYWORDS = self.user_config_dir = self._world = self.SystemUseFlags = None
+        self.virtuals = self.keys = self.UseFlagDict = None
+        self.settings, self.trees, self.mtimedb = self.load_emerge_config()
+        self.portdb = self.trees[self.settings["ROOT"]]["porttree"].dbapi
+        #self.root_config = self.trees[self.settings["ROOT"]]["root_config"]
+        self.reset()
 
-def load_emerge_config(trees=None):
-    # Taken from /usr/bin/emerge portage-2.1.2.2  ...Brian
-    kwargs = {}
-    for k, envvar in (("config_root", "PORTAGE_CONFIGROOT"), ("target_root", "ROOT")):
-        kwargs[k] = os.environ.get(envvar, None)
-    trees = portage.create_trees(trees=trees, **kwargs)
-    
-    settings = trees["/"]["vartree"].settings
-    
-    for myroot in trees:
-        if myroot != "/":
-            settings = trees[myroot]["vartree"].settings
-            break
-    
-    mtimedbfile = os.path.join("/", portage.CACHE_PATH.lstrip(os.path.sep), "mtimedb")
-    mtimedb = portage.MtimeDB(mtimedbfile)
-    return settings, trees, mtimedb
+    def reset_use_flags(self):
+        debug.dprint("PORTAGELIB: Settings.reset_use_flags();")
+        self.SystemUseFlags = portage.settings["USE"].split()
+        #debug.dprint("PORTAGELIB: Settings.reset_use_flags(); SystemUseFlags = " + str(SystemUseFlags))
 
-settings, trees, mtimedb = load_emerge_config()
-portdb = trees[settings["ROOT"]]["porttree"].dbapi
+    def load_emerge_config(self, trees = None):
+        # Taken from /usr/bin/emerge portage-2.1.2.2  ...Brian
+        kwargs = {}
+        for k, envvar in (("config_root", "PORTAGE_CONFIGROOT"), ("target_root", "ROOT")):
+            kwargs[k] = os.environ.get(envvar, None)
+        trees = portage.create_trees(trees=trees, **kwargs)
+        settings = trees["/"]["vartree"].settings
+        for myroot in trees:
+            if myroot != "/":
+                settings = trees[myroot]["vartree"].settings
+                break
+        mtimedbfile = os.path.join("/", portage.CACHE_PATH.lstrip(os.path.sep), "mtimedb")
+        mtimedb = portage.MtimeDB(mtimedbfile)
+        return settings, trees, mtimedb
 
-#settings = portage.config(clone=portage.settings)
+    def reset(self):
+        """reset remaining run once variables after a sync or other mods"""
+        debug.dprint("PORTAGELIB: reset_globals();")
+        self.settings, self.trees, self.mtimedb = self.load_emerge_config()
+        self.portdb = self.trees[self.settings["ROOT"]]["porttree"].dbapi
+        self.portdir = self.settings.environ()['PORTDIR']
+        # is PORTDIR_OVERLAY always defined?
+        self.portdir_overlay = get_portage_environ('PORTDIR_OVERLAY')
+        self.ACCEPT_KEYWORDS = get_portage_environ("ACCEPT_KEYWORDS")
+        self.user_config_dir = portage_const.USER_CONFIG_PATH
+        self.reload_world()
+        self.reset_use_flags()
+        self.virtuals = self.settings.virtuals
+        # lower case is nicer
+        self.keys = [key.lower() for key in portage.auxdbkeys]
+        self.UseFlagDict = get_use_flag_dict()
+        return
 
-portdir = portage.config(clone=portage.settings).environ()['PORTDIR']
-# is PORTDIR_OVERLAY always defined?
-portdir_overlay = get_portage_environ('PORTDIR_OVERLAY')
+    def reload_config(self):
+        """Reload the whole config from scratch"""
+        self.settings, self.trees, self.mtimedb = self.load_emerge_config(self.trees)
+        self.portdb = self.trees[self.settings["ROOT"]]["porttree"].dbapi
 
-ACCEPT_KEYWORDS = get_portage_environ("ACCEPT_KEYWORDS")
 
-user_config_dir = portage_const.USER_CONFIG_PATH
+    def reload_world(self):
+        debug.dprint("PORTAGELIB: reset_world();")
+        world = []
+        try:
+            file = open("/var/lib/portage/world", "r")
+            world = file.read().split()
+            file.close()
+        except:
+            debug.dprint("PORTAGELIB: get_world(); Failure to locate file: '/var/lib/portage/world'")
+            debug.dprint("PORTAGELIB: get_world(); Trying '/var/cache/edb/world'")
+            try:
+                file = open("/var/cache/edb/world", "r")
+                world = file.read().split()
+                file.close()
+                debug.dprint("PORTAGELIB: get_world(); OK")
+            except:
+                debug.dprint("PORTAGELIB: get_world(); Failed to locate the world file")
+        self._world = world
 
-# Run it once for sake of efficiency
+    def get_world(self):
+        return self._world
 
-World = get_world()
+settings = PortageSettings()
 
-#SystemUseFlags = get_portage_environ("USE").split()
-# environ() is filtered now
-SystemUseFlags = portage.settings["USE"].split()
-#debug.dprint("PORTAGELIB: SystemUseFlags = " + str(SystemUseFlags))
-
-virtuals = get_virtuals
-
-# lower case is nicer
-keys = [key.lower() for key in portage.auxdbkeys]
-
-# Run it once for sake of efficiency
-UseFlagDict = get_use_flag_dict()
-
-# debug code follows WFW
-#polibkeys = UseFlagDict.keys()
-#polibkeys.sort()
-#for polibkey in polibkeys:
-#    print polibkey, ':', UseFlagDict[polibkey]
+## debug code follows WFW
+##polibkeys = UseFlagDict.keys()
+##polibkeys.sort()
+##for polibkey in polibkeys:
+##    print polibkey, ':', UseFlagDict[polibkey]
 
