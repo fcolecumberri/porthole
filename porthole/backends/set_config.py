@@ -4,7 +4,8 @@
     Set_config
     A config file saving module for porthole
 
-    Copyright (C) 2005 - 2008 Brian Dolbec, Tommy Iorns
+    Copyright (C) 2005 - 2008 Brian Dolbec, Tommy Iorns,
+                            Gunnar Wrobel <wrobel@gentoo.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,10 +22,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 """
 
-
-
-import sys
-import os
+import sys, os, os.path, codecs, re
 
 try: # >=portage 2.2 modules
     import portage.const as portage_const
@@ -45,6 +43,15 @@ def dprint(message):
     """Print debug message if debug is true."""
     if debug:
         print message
+
+def remove_flag(flag, line):
+    # just in case there are multiple entries for the same flag
+    if not line:
+        return line
+    while flag in line:
+        line.remove(flag)
+        dprint("SET_CONFIG: remove_flag(); removed '%s' from line" % flag)
+    return line
 
 def set_user_config(filename, name='', ebuild='', add=[], remove=[], delete=[]):
     """
@@ -74,22 +81,27 @@ def set_user_config(filename, name='', ebuild='', add=[], remove=[], delete=[]):
     # Check if there is already a line to append to
     for line in config:
         if not line: continue
-        dprint("SET_CONFIG: checking line: "  + str(line) )
+        #dprint("SET_CONFIG: checking line: "  + str(line) )
         if line[0] == name and line[0] not in remove:
             done = True
             dprint("SET_CONFIG: found line for '%s'" % name)
             for flag in remove:
-                # just in case there are multiple entries for the same flag
-                while flag in line:
-                    line.remove(flag)
-                    dprint("SET_CONFIG: removed '%s' from line" % flag)
+                line = remove_flag(flag, line)
             for flag in add:
+                if flag.startswith('+'):
+                    dprint("SET_CONFIG: FIXME! removed leading '+' from %s flag" % flag)
+                    flag = flag[1:]
+                # check for and remove existing occurance(s) of flag
+                line = remove_flag(flag, line)
                 if flag not in line:
-                    if flag.startswith('+'):
-                        dprint("SET_CONFIG: removed leading '+' from %s flag" % flag)
-                        flag = flag[1:]
                     line.append(flag)
                     dprint("SET_CONFIG: added '%s' to line" % flag)
+                elif '+' + flag in line:
+                    dprint("SET_CONFIG: removing existing '+' from '%s' flag" % flag)
+                    line = remove_flag('+' + flag, line)
+                    line.append(flag)
+                    dprint("SET_CONFIG: added '%s' flag" % flag)
+                
             if not line[1:]: # if we've removed everything and added nothing
                 config[config.index(line)] = []
         elif line[0] in remove:
@@ -134,51 +146,6 @@ def set_user_config(filename, name='', ebuild='', add=[], remove=[], delete=[]):
     configfile.close()
     return True
 
-def get_make_conf(want_linelist=False, savecopy=False):
-    """
-    Parses /etc/make.conf into a dictionary of items with
-    dict[setting] = properties string
-    
-    If want_linelist is True, the list of lines read from make.conf will also
-    be returned.
-    
-    If savecopy is true, a copy of make.conf is saved in make.conf.bak.
-    """
-    dprint("PORTAGELIB: get_make_conf()")
-    file = open(portage_const.MAKE_CONF_FILE, 'r')
-    if savecopy:
-        file2 = open(portage_const.MAKE_CONF_FILE + '.bak', 'w')
-        file2.write(file.read())
-        file.close()
-        file2.close()
-        return True
-    lines = file.readlines()
-    file.close()
-    linelist = []
-    for line in lines:
-        strippedline = line.strip()
-        if strippedline.startswith('#'):
-            linelist.append([strippedline])
-        elif '=' in strippedline:
-            splitline = strippedline.split('=', 1)
-            if '"' in splitline[0] or "'" in splitline[0]:
-                dprint(" * PORTAGELIB: get_make_conf(): couldn't handle line '%s'. Ignoring" % line)
-                linelist.append([strippedline])
-            else:
-                linelist.append(splitline)
-            #linelist.append([splitline[0]])
-            #linelist[-1].append('='.join(splitline[1:])) # might have been another '='
-        else:
-            dprint(" * PORTAGELIB: get_make_conf(): couldn't handle line '%s'. Ignoring" % line)
-            linelist.append([strippedline])
-    dict = {}
-    for line in linelist:
-        if len(line) == 2:
-            dict[line[0]] = line[1].strip('"') # line[1] should be of form '"settings"'
-    if want_linelist:
-        return dict, linelist
-    return dict
-
 def set_make_conf(property, add=[], remove=[], replace=''):
     """
     Sets a variable in make.conf.
@@ -193,55 +160,245 @@ def set_make_conf(property, add=[], remove=[], replace=''):
     e.g. set_make_conf('PORTAGE_NICENESS', replace='15')
     """
     dprint("SET_CONFIG: set_make_conf()")
-    dict, linelist = get_make_conf(True)
-    if not property in dict:
-        dprint("SET_CONFIG: set_make_conf(): dict does not have key '%s'. Creating..." % property)
-        dict[property] = ''
     if not os.access(portage_const.MAKE_CONF_FILE, os.W_OK):
         dprint(" * SET_CONFIG: set_make_conf(): no write access to '%s'. " \
               "Perhaps the user is not root?" % portage_const.MAKE_CONF_FILE)
         return False
-    propline = dict[property]
-    splitline = propline.split()
+    makefile = MakeConf(portage_const.MAKE_CONF_FILE)
+    values = makefile.read_property(property)
     if remove:
         for element in remove:
-            while element in splitline:
-                splitline.remove(element)
+            while element in values:
+                values.remove(element)
                 dprint("SET_CONFIG: removed '%s' from %s" % (element, property))
     if add:
+        if not property in makefile.properties:
+            dprint("SET_CONFIG: set_make_conf(): makefile does not have key '%s'. Creating..." % property)
+            makefile.add_string_property(property, "")
         for element in add:
-            if element not in splitline:
-                splitline.append(element)
+            if element not in values:
+                values.append(element)
                 dprint("SET_CONFIG: added '%s' to %s" % (element, property))
+        values.sort()
     if replace:
-        splitline = [replace]
+        values = [replace]
         dprint("SET_CONFIG: setting %s to '%s'" % (property, replace))
-    joinedline = ' '.join(splitline)
     # Now write to make.conf, keeping comments, unparsed lines and line order intact
-    done = False
-    for line in linelist:
-        if line[0].strip() == property:
-            if line[0] in remove:
-                linelist.remove(line)
-                dprint("SET_CONFIG: removed '%s'" % property)
+    if not makefile.backup_file(): # just saves a copy with ".bak" on the end
+        return False
+    return makefile.write_property(property, values)
+
+
+class MakeConf:
+    """Make_config
+    A /etc/make.conf file parsing, modifying, saving class module for porthole
+
+    Copyright (C) 2005 - 2008 Brian Dolbec,
+        Gunnar Wrobel <wrobel@gentoo.org>
+
+    Much of the following code is derived from code used in layman
+        # Author(s): Gunnar Wrobel <wrobel@gentoo.org>
+    And then modified and extended for porthole's use by Brian Dolbec
+    """
+    # define some re's
+    regex = {'USE': re.compile('USE\s*=\s*"([^"]*)"'),
+                    'PORTDIR_OVERLAY': re.compile('PORTDIR_OVERLAY\s*=\s*"([^"]*)"'),
+                    'PORTAGE_NICENESS': re.compile('PORTAGE_NICENESS\s*=\s*([0-9]*)\s*\n')
+    }
+
+    def __init__(self, path, config = None, overlays = None):
+
+        self.path = path
+        self.config = config
+        if self.config:
+            self.storage = config['storage']
+        else:
+            self.storage = ''
+        self.data = ''
+        self.db = overlays
+        self.overlays = []
+        self.extra = []
+        self.properties = []
+
+    def create_re(self, property):
+        """creates the property reg expression and saves it to 
+        the regex dictionary for use"""
+        if not property in self.regex:
+            self.regex[property] = re.compile(('%s\s*=\s*"([^"]*)"') %property)
+
+    def add_overlay(self, overlay):
+        '''Add an overlay to make.conf.'''
+        self.overlays.append(overlay)
+        self.write_overlay()
+
+    def delete_overlay(self, overlay):
+        '''Delete an overlay from make.conf.'''
+        self.overlays = [i
+                         for i in self.overlays
+                         if i.name != overlay.name]
+        self.write_overlay()
+
+    def read_overlay(self):
+        '''Read the list of registered overlays from /etc/make.conf.'''
+        if self.data == '':
+            self.content()
+        if self.data > '':
+            overlays = self.regex['PORTDIR_OVERLAY'].search(self.data)
+            if not overlays:
+                raise Exception('MAKE_CONF: read_overlay(); Did not find a PORTDIR_OVERLAY entry in file ' +
+                                self.path +'! Did you specify the correct file?')
+            overlays = [i.strip()
+                        for i in overlays.group(1).split('\n')
+                        if i.strip()]
+
+            if self.db == None: # we do not have the layman db
+                return overlays
+            for i in overlays:
+                if i[:len(self.storage)] == self.storage:
+                    oname = os.path.basename(i)
+                    if  oname in self.db.keys():
+                        self.overlays.append(self.db[oname])
+                    else:
+                        # These are additional overlays that we dont know
+                        # anything about. The user probably added them manually
+                        self.extra.append(i)
+                else:
+                    # These are additional overlays that we dont know anything
+                    # about. The user probably added them manually
+                    self.extra.append(i)
+        return self.overlays + self.extra
+
+    def read_property(self, property):
+        '''Read the list of USE flags from /etc/make.conf.'''
+        if self.data == '':
+            self.content()
+        if property not in self.regex:
+            self.create_re(property)
+        if self.data > '':
+            mylist = self.regex[property].search(self.data)
+            if not mylist:
+                raise Exception('MAKE_CONF: read_property(); Did not find a ' + property + ' entry in file ' +
+                                self.path +'! Did you specify the correct file?')
+            values = [i.strip()
+                        for i in mylist.group(1).split()
+                        if i.strip()]
+            while '\\' in values:
+                values.remove('\\')
+        else:
+            values = []
+            self.data = property + '=""\n'
+        #dprint("SET_CONFIG: MakeConf read_property \n%s %s = %s" % (property, len(values), values))
+        return values
+
+    def write_overlay(self):
+        '''  Write the list of registered overlays to /etc/make.conf.'''
+        def prio_sort(a, b):
+            '''Sort by priority.'''
+            if a.priority < b.priority:
+                return -1
+            elif a.priority > b.priority:
+                return 1
+            return 0
+
+        self.overlays.sort(prio_sort)
+
+        paths = []
+        for i in self.overlays:
+            paths.append(path((self.storage, i.name, )))
+        overlays = 'PORTDIR_OVERLAY="\n'
+        overlays += '\n'.join(paths) + '\n'
+        overlays += '$PORTDIR_OVERLAY\n'
+        overlays += '\n'.join(self.extra)
+        overlays += '"'
+        content = self.OVERLAY_re.sub(overlays, self.data)
+        if not self.OVERLAY_re.search(content):
+            raise Exception('MAKE_CONF: write_overlay(); failed to set a proper PORTDIR_OVERLAY entry '
+                            'in file ' + self.path +'! Did not overwrite the file.')
+        self.write_file(content)
+        return True
+
+    def write_file(self, content, backup = False):
+        """Write the content to the pre-determined path"""
+        path = self.path
+        if backup:
+            path += '.bak'
+        try:
+            make_conf = codecs.open(path, 'w', 'utf-8')
+            make_conf.write(content)
+            make_conf.close()
+        except Exception, error:
+            raise Exception('MAKE_CONF: write_file(); Failed to write "' + path + '".\nError was:\n'
+                            + str(error))
+        return True
+
+    def write_property(self, property, values):
+        '''  Write the list of property values to /etc/make.conf.'''
+        #dprint("SET_CONFIG: MakeConf write_property \n%s' %s = %s" % (property, len(values), values))
+        new = property +'="'
+        line = ''
+        for i in values:
+            if len(line) > 60:
+                new += line + '\n'
+                line = i + ' '
             else:
-                line[1] = '"' + joinedline + '"'
-            done = True
-    if not done:
-        while linelist and len(linelist[-1]) == 1 and linelist[-1][0].strip() == '': # blank line
-            linelist.pop(-1)
-        linelist.append([property, '"' + joinedline + '"'])
-        dprint("SET_CONFIG: appended property '%s'" % property)
-        linelist.append(['']) # blank line
-    joinedlist = ['='.join(line) for line in linelist]
-    make_conf = '\n'.join(joinedlist)
-    if not make_conf.endswith('\n'):
-        make_conf += '\n'
-    get_make_conf(savecopy=True) # just saves a copy with ".bak" on the end
-    file = open(portage_const.MAKE_CONF_FILE, 'w')
-    file.write(make_conf)
-    file.close()
-    return True
+                line += i + ' '
+        new += line +'"\n'
+        #dprint("SET_CONFIG: MakeConf write_property \n%s' = %s" % (property, new))
+        content = self.regex[property].sub(new, self.data)
+        if not self.regex[property].search(content):
+            raise Exception('MAKE_CONF: write_property(); failed to set a proper ' + property +' entry '
+                            'in file ' + self.path +'! Did not overwrite the file.')
+        self.write_file(content)
+        return True
+
+    def content(self):
+        '''Returns the content of the /etc/make.conf file.'''
+        if os.path.isfile(self.path):
+            try:
+                make_conf = codecs.open(self.path, 'r', 'utf-8')
+                self.data = make_conf.read()
+                make_conf.close()
+            except Exception, error:
+                raise Exception('MAKE_CONF: content(); Failed to read "' + self.path + '".\nError was:\n'
+                                + str(error))
+            self.get_property_list()
+
+    def backup_file(self):
+        """backs up the file specified by the initialized path"""
+        self.content()
+        self.write_file(self.data, backup = True)
+        return True
+
+    def get_property_list(self):
+        """returns a list of the detected properties in the file"""
+        if self.data == '':
+            self.content()
+        self.properties = []
+        lines = self.data.split('\n')
+        for line in lines:
+            if not line.startswith('#'):
+                if '=' in line:
+                    self.properties.append(line.split('=')[0])
+
+    def get_properties(self):
+        """Parses /etc/make.conf into a dictionary of items with
+            dict[setting] = properties list"""
+        if not self.properties:
+            self.get_property_list()
+        for propertiy in self.properties:
+                if property == 'PORTDIR_OVERLAY':
+                    dict[property] = self.read_overlay()
+                else:
+                    dict[property] = self.read_property(property)
+        return dict
+
+    def add_string_property(self, property, value):
+        """Adds the new property and its value to the loaded file data"""
+        self.data += ('\n' +property + '=' + value +'\n')
+
+    def add_num_property(self, property, value):
+        """Adds the new property and its value to the loaded file data"""
+        self.data += ('\n' +property + '=' + str(value) +'\n')
 
 
 if __name__ == "__main__":
