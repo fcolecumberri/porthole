@@ -78,8 +78,8 @@ def get_sync_info():
     valid_sync = False
     try:
         #debug.dprint("BACKENDS Utilities: get_sync_info(); timestamp path = " \
-        #    + portage_lib.portdir + "/metadata/timestamp")
-        f = open(portage_lib.portdir + "/metadata/timestamp")
+        #    + portage_lib.settings.portdir + "/metadata/timestamp")
+        f = open(portage_lib.settings.portdir + "/metadata/timestamp")
         #debug.dprint("BACKENDS Utilities: get_sync_info(); file open")
         data = f.read()
         #debug.dprint("BACKENDS Utilities: get_sync_info(); file read")
@@ -113,6 +113,7 @@ def get_sync_info():
 
 def reduce_flags(flags):
     """function to reduce a list of 'USE' flags to their final setting"""
+    #debug.dprint("BACKENDS Utilities: reduce_flags(); flags = %s" %str(flags))
     myflags = []
     for x in flags:
 
@@ -126,7 +127,8 @@ def reduce_flags(flags):
             try:
                 myflags.remove(x[1:])
             except ValueError:
-                pass
+                debug.dprint("BACKENDS Utilities: reduce_flags(); x[0] == '-', flag %s not found"  %str(x[1:]))
+                myflags.append(x)
             #continue
 
         if x not in myflags:
@@ -149,20 +151,24 @@ def get_reduced_flags(ebuild):
     if USERCONFIGS == None:  # avaoid a circular import problem
         from porthole.db import userconfigs
         USERCONFIGS = userconfigs
-    props = portage_lib.get_properties(ebuild)
-    IUSE_defaults = flag_defaults(props.get_use_flags())
-    del props
+    #~ props = portage_lib.get_properties(ebuild)
+    #~ IUSE_defaults = flag_defaults(props.get_use_flags())
+    #~ debug.dprint("BACKENDS Utilities: get_reduced_flags(); IUSE_defaults = %s" %str(IUSE_defaults))
+    #~ debug.dprint("BACKENDS Utilities: get_reduced_flags(); SystemUseFlags = " + str(portage_lib.settings.SystemUseFlags))
+    #~ del props
     # Check package.use to see if it applies to this ebuild at all
     package_use_flags = USERCONFIGS.get_user_config('USE', ebuild=ebuild)
-    #debug.dprint("BACKENDS Utilities: get_reduced_flags(); package_use_flags = %s" %str(package_use_flags))
+    debug.dprint("BACKENDS Utilities: get_reduced_flags(); package_use_flags = %s" %str(package_use_flags))
     if package_use_flags != None and package_use_flags != []:
         #debug.dprint("BACKENDS Utilities: get_reduced_flags(); adding package_use_flags to ebuild_use_flags")
-        #debug.dprint("BACKENDS Utilities: get_reduced_flags(); SystemUseFlags = " + str(portage_lib.SystemUseFlags))
-        ebuild_use_flags = reduce_flags(IUSE_defaults + portage_lib.SystemUseFlags + package_use_flags)
+        #debug.dprint("BACKENDS Utilities: get_reduced_flags(); SystemUseFlags = " + str(portage_lib.settings.SystemUseFlags))
+        #ebuild_use_flags = reduce_flags(IUSE_defaults + portage_lib.settings.SystemUseFlags + package_use_flags)
+        ebuild_use_flags = reduce_flags(portage_lib.settings.SystemUseFlags + package_use_flags)
     else:
         #debug.dprint("BACKENDS Utilities: get_reduced_flags(); adding only system_use_flags to ebuild_use_flags")
-        ebuild_use_flags = reduce_flags(IUSE_defaults + portage_lib.SystemUseFlags)
-    #debug.dprint("BACKENDS Utilities: get_reduced_flags(); final ebuild_use_flags = %s" %str(ebuild_use_flags))
+        #ebuild_use_flags = reduce_flags(IUSE_defaults + portage_lib.settings.SystemUseFlags)
+        ebuild_use_flags = reduce_flags(portage_lib.settings.SystemUseFlags)
+    debug.dprint("BACKENDS Utilities: get_reduced_flags(); final ebuild_use_flags = %s" %str(ebuild_use_flags))
     return ebuild_use_flags
 
 def abs_flag(flag):
