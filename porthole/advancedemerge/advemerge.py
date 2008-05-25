@@ -39,6 +39,7 @@ from porthole import backends
 portage_lib = backends.portage_lib
 from porthole import db
 from porthole.backends.version_sort import ver_sort
+from porthole.backends.utilities import get_reduced_flags, abs_list, abs_flag
 from porthole.loaders.loaders import load_web_page
 from porthole.utils.dispatcher import Dispatcher
 
@@ -52,7 +53,7 @@ class AdvancedEmergeDialog:
         self.setup_command = setup_command
         self.re_init_portage = re_init_portage
         self.arch = portage_lib.get_arch()
-        self.system_use_flags = portage_lib.SystemUseFlags
+        self.system_use_flags = portage_lib.settings.SystemUseFlags
         self.emerge_unmerge = "emerge"
         self.is_root = utils.is_root()
         self.package_use_flags = db.userconfigs.get_user_config('USE', package.full_name)
@@ -97,7 +98,8 @@ class AdvancedEmergeDialog:
         self.btnMakeConf = self.wtree.get_widget("btnMakeConf")
         self.btnPkgUse = self.wtree.get_widget("btnPkgUse")
         self.btnPkgKeywords = self.wtree.get_widget("btnPkgKeywords")
-        if not (self.is_root or utils.can_gksu()):
+        if not self.is_root and not utils.can_gksu():
+            debug.dprint("ADVEMERGE: self.is_root = $s, utils.can_gksu = %s" %(self.is_root, utils.can_gksu))
             self.btnMakeConf.hide()
             self.btnPkgUse.hide()
             self.btnPkgKeywords.hide()
@@ -308,6 +310,7 @@ class AdvancedEmergeDialog:
                 removelist.append('-' + item)
         okay = db.userconfigs.set_user_config('USE', name=self.package.full_name, add=addlist,
                                                                 remove=removelist, callback=self.reload, parent_window = self.window )
+        self.version_changed(button_widget)
     
     def on_make_conf_commit(self, button_widget):
         debug.dprint("ADVEMERGE: on_make_conf_commit()")
@@ -325,6 +328,7 @@ class AdvancedEmergeDialog:
         package_use_callback = Dispatcher( db.userconfigs.set_user_config,\
                 'USE', self.package.full_name, '', '', removelist, self.reload )
         portage_lib.set_make_conf('USE', add=addlist, remove=removelist, callback=package_use_callback )
+        self.version_changed(button_widget)
     
     def on_package_keywords_commit(self, button_widget):
         debug.dprint("ADVEMERGE: on_package_keywords_commit()")
@@ -357,7 +361,7 @@ class AdvancedEmergeDialog:
             #~ del self.package.properties[ebuild]
         # Remove properties object so everything's recalculated
         self.package.properties.pop(ebuild, None)
-        self.system_use_flags = portage_lib.SystemUseFlags
+        self.system_use_flags = portage_lib.settings.SystemUseFlags
         self.package_use_flags = db.userconfigs.get_user_config('USE', self.package.full_name)
         #debug.dprint(self.package_use_flags)
         
@@ -445,7 +449,7 @@ class AdvancedEmergeDialog:
             info["installed"] = ebuild in installed
             info["slot"] = props.get_slot()
             info["keywords"] = props.get_keywords()
-            info["use_flags"] = props.get_use_flags()
+            info["use_flags"] = abs_list(props.get_use_flags())
             info["stable"] = ebuild in nonmasked
             info["hard_masked"] = ebuild in hardmasked
             info["available"] = ebuild in portage_versions
@@ -491,22 +495,11 @@ class AdvancedEmergeDialog:
             verInfo = self.get_verInfo(sel_ver)
             ebuild = verInfo["name"]
         flaglist = []
-        if ebuild in self.package_use_flags: #.has_key(ebuild):
-            ebuild_use_flags = self.system_use_flags + self.package_use_flags[ebuild]
-        else:
-            ebuild_use_flags = self.system_use_flags
+        ebuild_use_flags = get_reduced_flags(ebuild)
         for child in self.ufList:
             flag = child[1]
-            if flag in ebuild_use_flags and '-' + flag in ebuild_use_flags:
-                # check to see which comes last (this will be the applicable one)
-                ebuild_use_flags.reverse()
-                if ebuild_use_flags.index(flag) < ebuild_use_flags.index('-' + flag):
+            if flag in ebuild_use_flags:
                     flag_active = True
-                else:
-                    flag_active = False
-                ebuild_use_flags.reverse()
-            elif flag in ebuild_use_flags:
-                flag_active = True
             else:
                 flag_active = False
             if child[0].get_active():
@@ -665,23 +658,12 @@ class AdvancedEmergeDialog:
         # and attach to table
         col = 0
         row = 0
-        if ebuild in self.package_use_flags: #.has_key(ebuild):
-            ebuild_use_flags = self.system_use_flags + self.package_use_flags[ebuild]
-        else:
-            ebuild_use_flags = self.system_use_flags
+        ebuild_use_flags = get_reduced_flags(ebuild)
         for flag in use_flags:
-            if flag in ebuild_use_flags and '-' + flag in ebuild_use_flags:
-                # check to see which comes last (this will be the applicable one)
-                ebuild_use_flags.reverse()
-                if ebuild_use_flags.index(flag) < ebuild_use_flags.index('-' + flag):
-                    flag_active = True
-                else:
-                    flag_active = False
-                ebuild_use_flags.reverse()
-            elif flag in ebuild_use_flags:
+            flag_active = False
+            myflag = abs_flag(flag)
+            if myflag in ebuild_use_flags:
                 flag_active = True
-            else:
-                flag_active = False
             button = gtk.CheckButton(flag)
             button.set_active(flag_active)
             self.ufList.append([button, flag])
@@ -692,7 +674,7 @@ class AdvancedEmergeDialog:
             # we'll trap the error
 
             try:
-                self.tooltips.set_tip(button, portage_lib.UseFlagDict[flag.lower()][2])
+                self.tooltips.set_tip(button, portage_lib.settings.UseFlagDict[flag.lower()][2])
             except KeyError:
                 self.tooltips.set_tip(button, _('Unsupported use flag'))
             table.attach(button, col, col+1, row, row+1)
