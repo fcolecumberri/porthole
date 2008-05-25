@@ -128,6 +128,12 @@ def environment():
         env["FEATURES"] += ", notitles"
     else:
         env ["FEATURES"] = "notitles"
+    if "PORTAGE_ELOG_SYSTEM" in env:
+        modules = env["PORTAGE_ELOG_SYSTEM"].split()
+        if 'echo' in modules:
+            modules.remove('echo')
+            env["PORTAGE_ELOG_SYSTEM"] = ' '.join(modules)
+            debug.dprint("UTILS: environment(); Found 'echo' in PORTAGE_ELOG_SYSTEM. Removed for porthole's use only, it now is: " + str(env["PORTAGE_ELOG_SYSTEM"]))
     #env["NOCOLOR"] = "true"
     #debug.dprint(env)
     return env
