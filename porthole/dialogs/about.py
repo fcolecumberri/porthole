@@ -46,7 +46,7 @@ class AboutDialog:
         self.copyright.set_label(copyright)
         self.authorview = self.wtree.get_widget('authorview')
         self.licenseview = self.wtree.get_widget('licenseview')
-        license_file = portage_lib.portdir + "/licenses/GPL-2"
+        license_file = portage_lib.settings.portdir + "/licenses/GPL-2"
         author_file = config.Prefs.AUTHORS
         self.licenseview.get_buffer().set_text(decode_text(get_textfile(license_file)))
         self.authorview.get_buffer().set_text(decode_text(get_textfile(author_file)))

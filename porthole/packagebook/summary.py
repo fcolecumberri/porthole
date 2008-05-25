@@ -58,7 +58,7 @@ class Summary(gtk.TextView):
         tagtable = self.create_tag_table()
         self.buffer = gtk.TextBuffer(tagtable)
         self.set_buffer(self.buffer)
-        self.license_dir = "file://"+ portage_lib.portdir + "/licenses/"
+        self.license_dir = "file://"+ portage_lib.settings.portdir + "/licenses/"
         self.package = None
         self.ebuild = None
         self.config_types = db.userconfigs.get_types()
@@ -286,7 +286,7 @@ class Summary(gtk.TextView):
                     overlay_label = gtk.Label(_("Obsolete"))
                     label_color = "#ED9191"
                 else:
-                    if overlay != portage_lib.portdir:
+                    if overlay != portage_lib.settings.portdir:
                         overlay_label = gtk.Label(_("Y"))
                     else:
                         overlay_label = gtk.Label(_("N"))
@@ -493,7 +493,7 @@ class Summary(gtk.TextView):
         self.url_tags = []
 
         # get system use flags
-        system_use_flags = portage_lib.SystemUseFlags
+        system_use_flags = portage_lib.settings.SystemUseFlags
         
         #############################
         # Begin adding text to tab

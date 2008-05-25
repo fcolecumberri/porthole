@@ -114,13 +114,13 @@ def load_textfile(view, package, mode, version = None):
                 debug.dprint("loaders:load_textfile(); try opening & reading the file")
                 if mode == "changelog":
                     try:
-                        f = open(portage_lib.portdir + package_file)
+                        f = open(portage_lib.settings.portdir + package_file)
                     except:
                         # need to add multiple overlay support
-                        f = open(portage_lib.portdir_overlay + package_file)
+                        f = open(portage_lib.settings.portdir_overlay + package_file)
                 #~ elif portage_lib.is_overlay(ebuild):
                     #~ debug.dprint("LOADERS: load_textfile(); loading from an overlay")
-                    #~ f = open(portage_lib.portdir_overlay + package_file)
+                    #~ f = open(portage_lib.settings.portdir_overlay + package_file)
                 elif mode == "version_ebuild":
                     #debug.dprint("LOADERS: load_textfile(): version_ebiuld, getting path for: " + ebuild)
                     path = portage_lib.get_path(version)
@@ -128,7 +128,7 @@ def load_textfile(view, package, mode, version = None):
                     f = open(path)
                 else:
                     debug.dprint("LOADERS: load_textfile(): loading from the portage tree")
-                    f = open(portage_lib.portdir + package_file)
+                    f = open(portage_lib.settings.portdir + package_file)
                 data = f.read(); f.close()
 
                 if data != None:

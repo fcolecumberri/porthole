@@ -181,7 +181,7 @@ class DependsTree(gtk.TreeStore):
             self.parent_use_flags[self.dep_depth] = get_reduced_flags(ebuild)
             #debug.dprint(" * DependsTree: add_atomized_depends_list(): parent_use_flags = reduced: " + str(self.parent_use_flags[self.dep_depth]))
         elif is_new_child:
-            self.parent_use_flags[self.dep_depth] = portage_lib.SystemUseFlags
+            self.parent_use_flags[self.dep_depth] = portage_lib.settings.SystemUseFlags
             #debug.dprint(" * DependsTree: add_atomized_depends_list(): parent_use_flags = system only")
         for atom in atomized_depends_list:
             dep_atomized_list = []

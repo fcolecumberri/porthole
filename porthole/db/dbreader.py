@@ -63,7 +63,7 @@ class DatabaseReader(threading.Thread):
         #self.new_installed_Semaphore = threading.Semaphore()
         self.installed_list = None
         self.allnodes_length = 0  # used for calculating the progress bar
-        self.world = portage_lib.get_world()
+        self.world = portage_lib.settings.get_world()
 
     def please_die(self):
         """ Tell the thread to die """

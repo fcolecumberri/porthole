@@ -134,7 +134,7 @@ class UserConfigs:
             self.sources[mytype] = {}
         for file in CONFIG_FILES:
             debug.dprint("USER_CONFIGS: __init__(); file = " + file)
-            self.load(os.path.join(portage_lib.user_config_dir,file))
+            self.load(os.path.join(portage_lib.settings.user_config_dir,file))
 
     def load(self, myfilename, recursive = True):
         lines = []
@@ -298,12 +298,12 @@ class UserConfigs:
         if mytype not in CONFIG_TYPES:
             debug.dprint("USER_CONFIGS: set_user_config(): unsupported config mytype '%s'" % mytype)
             return False
-        config_path = portage_lib.user_config_dir
+        config_path = portage_lib.settings.user_config_dir
         # get an existing atom if one exists.  pass both name and ebuild, no need to check which one, I think
         atom = self.get_atom(mytype, name, ebuild)
         if atom == None or atom == []: # get a target file
             file = target = CONFIG_FILES[CONFIG_TYPES.index(mytype)]
-            target_path = os.path.join(portage_lib.user_config_dir, target)
+            target_path = os.path.join(portage_lib.settings.user_config_dir, target)
             if os.path.isdir(target_path): # Then bring up a file selector dialog
                 if parent_window == None:
                     parent_window = config.Mainwindow
