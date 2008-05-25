@@ -55,7 +55,7 @@ class Package:
         self.latest_installed = None
         self.size = None
         self.digest_file = None
-        self.in_world = full_name in portage_lib.World
+        self.in_world = full_name in portage_lib.settings.get_world()
         self.is_checked = False
         self.deprecated = False
 
@@ -82,7 +82,7 @@ class Package:
         if self.full_name == "None":
             return
         self.is_upgradeable(REFRESH)
-        self.in_world = full_name in portage_lib.World
+        self.in_world = full_name in portage_lib.settings.get_world()
 
     def get_installed(self, refresh = False):
         """Returns a list of all installed ebuilds."""
