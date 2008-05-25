@@ -31,7 +31,7 @@ from gettext import gettext as _
 from porthole.utils import debug
 from porthole import backends
 portage_lib = backends.portage_lib
-World = portage_lib.World
+#World = portage_lib.settings.get_world()
 from porthole import config
 from porthole.utils.dispatcher import Dispatcher
 from porthole.packagebook.summary import Summary
