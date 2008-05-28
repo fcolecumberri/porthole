@@ -102,6 +102,8 @@ porthole/help/custcmd.html
 porthole/help/custcmd.png
 porthole/help/customize.html
 porthole/help/dependencies.png
+porthole/help/depview.png
+porthole/help/ebuildtable_explained2.png 
 porthole/help/index.html
 porthole/help/install.html
 porthole/help/installedfiles.png
@@ -118,6 +120,7 @@ porthole/help/termwindow.png
 porthole/help/toc.html
 porthole/help/unmerge.html
 porthole/help/update.html
+porthole/help/upgradeables.png
 porthole/help/warningtab.png
 porthole/i18n/messages.pot
 porthole/i18n/TRANSLATING
