@@ -1714,7 +1714,7 @@ msgstr "Remasquer cet ebuild"
 
 #: porthole/packagebook/summary.py:101
 #, fuzzy
-msgid "Show the propeties for this ebuild"
+msgid "Show the properties for this ebuild"
 msgstr "Emerge cet ebuild avec sudo"
 
 #: porthole/packagebook/summary.py:209

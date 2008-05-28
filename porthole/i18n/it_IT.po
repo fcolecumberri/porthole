@@ -1778,7 +1778,7 @@ msgid "Remask this ebuild"
 msgstr "Rimaschera questo ebuild"
 
 #: porthole/packagebook/summary.py:101
-msgid "Show the propeties for this ebuild"
+msgid "Show the properties for this ebuild"
 msgstr "Guarda le proprietà per questo ebuild"
 
 #: porthole/packagebook/summary.py:209

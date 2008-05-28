@@ -1709,7 +1709,7 @@ msgstr "Zamaskuj tego ebuilda"
 
 #: porthole/packagebook/summary.py:101
 #, fuzzy
-msgid "Show the propeties for this ebuild"
+msgid "Show the properties for this ebuild"
 msgstr "Sudo Instalacja tego ebuilda"
 
 #: porthole/packagebook/summary.py:209

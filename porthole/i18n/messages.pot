@@ -1685,7 +1685,7 @@ msgid "Remask this ebuild"
 msgstr ""
 
 #: porthole/packagebook/summary.py:101
-msgid "Show the propeties for this ebuild"
+msgid "Show the properties for this ebuild"
 msgstr ""
 
 #: porthole/packagebook/summary.py:209

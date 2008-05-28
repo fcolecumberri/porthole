@@ -100,7 +100,7 @@ class Summary(gtk.TextView):
         menuitems["package-unmask"].connect("activate", self.package_unmask)
         menuitems["un-package-unmask"] = gtk.MenuItem(_("Remask this ebuild"))
         menuitems["un-package-unmask"].connect("activate", self.un_package_unmask)
-        menuitems["show_props"] = gtk.MenuItem(_("Show the propeties for this ebuild"))
+        menuitems["show_props"] = gtk.MenuItem(_("Show the properties for this ebuild"))
         menuitems["show_props"].connect("activate", self.show_version)
         
         for item in menuitems.values():

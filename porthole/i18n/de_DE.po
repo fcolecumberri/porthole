@@ -1697,7 +1697,7 @@ msgstr "Dieses Ebuild wieder maskieren"
 
 #: porthole/packagebook/summary.py:101
 #, fuzzy
-msgid "Show the propeties for this ebuild"
+msgid "Show the properties for this ebuild"
 msgstr "Ebuild mit Sudo emergen"
 
 #: porthole/packagebook/summary.py:209
