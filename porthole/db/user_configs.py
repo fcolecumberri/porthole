@@ -304,20 +304,21 @@ class UserConfigs:
         if atom == None or atom == []: # get a target file
             file = target = CONFIG_FILES[CONFIG_TYPES.index(mytype)]
             target_path = os.path.join(portage_lib.settings.user_config_dir, target)
+            debug.dprint("USER_CONFIGS: set_user_config(): target_path = " + target_path)
             if os.path.isdir(target_path): # Then bring up a file selector dialog
                 if parent_window == None:
                     parent_window = config.Mainwindow
-                file_picker = FileSelector(parent_window, target_path)
+                file_picker = FileSelector(parent_window, os.path.join(target_path, target), overwrite_confirm = False)
                 file = file_picker.get_filename(_("Porthole: Please select the %s file to use") \
                                                                 %(target))
                 file = os.path.join(target_path, file)
             else:
                 file = target_path
-            #debug.dprint("USER_CONFIGS: set_user_config(): got a filename :) file = " + file)
+            debug.dprint("USER_CONFIGS: set_user_config(): got a filename :) file = " + file)
 
         else: # found one
             file = atom[0].file
-            #debug.dprint("USER_CONFIGS: set_user_config(): found an atom :) file = " + file)
+            debug.dprint("USER_CONFIGS: set_user_config(): found an atom :) file = " + file)
         self.set_file = file
 
         if isinstance(add, list):
@@ -376,18 +377,28 @@ class UserConfigs:
         temp_sources[mytype] = {}
         lines = []
         lines = read_bash(file)
-        self.atomize(lines, file, temp_db, temp_sources)
+        if lines:
+            self.atomize(lines, file, temp_db, temp_sources)
+            temp_sources[mytype][file].sort(cmp)
+            new_length = len(temp_sources[mytype][file])
+        else:
+            new_length = 0
         # get all atoms matching the correct file
-        old_file_atoms = self.sources[mytype][file]
-        old_file_atoms.sort(cmp)
+        if file in self.sources[mytype]:
+            old_file_atoms = self.sources[mytype][file]
+            old_file_atoms.sort(cmp)
+        else:
+            old_file_atoms =  []
         old_length = len(old_file_atoms)
-        temp_sources[mytype][file].sort(cmp)
-        new_length = len(temp_sources[mytype][file])
         #debug.dprint(" * USER_CONFIGS: reload_file(): old atoms : " + str(old_file_atoms))
         for a in old_file_atoms:
             # delete the old record
             self.db[mytype][a.name].remove(a)
-        del self.sources[mytype][file]
+        if file in self.sources[mytype]:
+            del self.sources[mytype][file]
+        if new_length == 0:
+            return
+        # update with the new info
         self.sources[mytype][file] = temp_sources[mytype][file]
         for a in temp_sources[mytype][file]:
             # index by name
