@@ -158,7 +158,7 @@ def get_reduced_flags(ebuild):
     #~ del props
     # Check package.use to see if it applies to this ebuild at all
     package_use_flags = USERCONFIGS.get_user_config('USE', ebuild=ebuild)
-    debug.dprint("BACKENDS Utilities: get_reduced_flags(); package_use_flags = %s" %str(package_use_flags))
+    #debug.dprint("BACKENDS Utilities: get_reduced_flags(); package_use_flags = %s" %str(package_use_flags))
     if package_use_flags != None and package_use_flags != []:
         #debug.dprint("BACKENDS Utilities: get_reduced_flags(); adding package_use_flags to ebuild_use_flags")
         #debug.dprint("BACKENDS Utilities: get_reduced_flags(); SystemUseFlags = " + str(portage_lib.settings.SystemUseFlags))
@@ -168,7 +168,7 @@ def get_reduced_flags(ebuild):
         #debug.dprint("BACKENDS Utilities: get_reduced_flags(); adding only system_use_flags to ebuild_use_flags")
         #ebuild_use_flags = reduce_flags(IUSE_defaults + portage_lib.settings.SystemUseFlags)
         ebuild_use_flags = reduce_flags(portage_lib.settings.SystemUseFlags)
-    debug.dprint("BACKENDS Utilities: get_reduced_flags(); final ebuild_use_flags = %s" %str(ebuild_use_flags))
+    #debug.dprint("BACKENDS Utilities: get_reduced_flags(); final ebuild_use_flags = %s" %str(ebuild_use_flags))
     return ebuild_use_flags
 
 def abs_flag(flag):

@@ -20,6 +20,6 @@
 """
 from gettext import gettext as _
 
-version = "0.6.0_rc3"
+version = "0.6.0_rc4"
 
 copyright = _("Copyright (c) 2003 - 2008")
