@@ -55,6 +55,7 @@ import gtk, gtk.glade, gobject
 import pango
 import signal, os, pty, threading, time #, re
 import datetime, pango, errno
+from base64 import b64encode, b64decode
 
 #import dbus
 #import dbus.service
@@ -133,7 +134,9 @@ class ProcessManager: #dbus.service.Object):
         self.LF_check = True #False
         #self.cr_count = 0
         self.line_num = 0
-
+        self.badpassword_check = False
+        self.badpassword_linenum = 0
+ 
 
     def reset_buffer_update(self):
         # clear process output buffer
@@ -310,15 +313,15 @@ class ProcessManager: #dbus.service.Object):
 
     def new_window_state(self, widget, event):
         """set the minimized variable to change the title to the same as the statusbar text"""
-        debug.dprint("TERMINAL: window state event: %s" % event.new_window_state) # debug print statements
+        #debug.dprint("TERMINAL: window state event: %s" % event.new_window_state) # debug print statements
         #debug.dprint(event.changed_mask
         state = event.new_window_state
         if state & gtk.gdk.WINDOW_STATE_ICONIFIED:
-            debug.dprint("TERMINAL: new_window_state; event = minimized")
+            #debug.dprint("TERMINAL: new_window_state; event = minimized")
             self.minimized = True
             self.window.set_title(self.status_text)
         elif self.minimized:
-            debug.dprint("TERMINAL: new_window_state; event = unminimized")
+            #debug.dprint("TERMINAL: new_window_state; event = unminimized")
             self.minimized = False
             self.window.set_title(self.title)
         return False
@@ -535,8 +538,22 @@ class ProcessManager: #dbus.service.Object):
             overwrite = True
         else:
             overwrite = False
+        # check for a failed password
+        #debug.dprint("TERMINAL: newline(); self.line_num = %d, self.badpassword_linenum = %d, check = %s" \
+        #                    %(self.line_num, self.badpassword_linenum,str(self.badpassword_check)))
+        if self.badpassword_check and self.badpassword_linenum == self.line_num:
+            debug.dprint("TERMINAL: newline(); checking for a bad password...")
+            #if self.line_buffer.startswith("Sorry, try again."):
+            if  config.Config.isBadPassword(self.line_buffer):
+                debug.dprint("TERMINAL: newline(); found a bad password...deleting bad password")
+                if hasattr(self, 'password'):
+                    #delete it so it gets a new one
+                    del self.password
+            # check is done reset to False
+            self.badpassword_check = False
+            debug.dprint("TERMINAL: newline(); bad password check complete...resetting bad_password_check = False")
         #if config.Config.isEmerge(self.process_buffer):
-        if config.Config.isEmerge(self.line_buffer):
+        elif config.Config.isEmerge(self.line_buffer):
             # add the pkg info to all other tabs to identify fom what
             # pkg messages came from but no need to show it if it isn't
             tag = 'emerge'
@@ -626,6 +643,7 @@ class ProcessManager: #dbus.service.Object):
             self.term.append(TAB_PROCESS, self.process_buffer, tag)
         self.process_buffer = ''  # reset buffer
         self.line_buffer = ''
+        self.line_num += 1
 
     def update(self):
         """ Add text to the buffer """
@@ -774,14 +792,7 @@ class ProcessManager: #dbus.service.Object):
         """ Pops up a dialog asking for the users password """
         if hasattr(self, 'password'): # have already entered password, forward it
             debug.dprint("TERMINAL: do_password_popup: forwarding previously-entered password to sudo")
-            if self.reader.fd:
-                try:
-                    os.write(self.reader.fd, self.password + '\n')
-                except OSError:
-                    debug.dprint(" * TERMINAL: forward_password(): Error forwarding password!")
-                self.term.append(TAB_PROCESS, '********')
-            else:
-                debug.dprint("TERMINAL: do_password_popup: reader has no open file descriptor, skipping")
+            self.forward_password()
             return
         debug.dprint("TERMINAL: do_password_popup: asking for user's password")
         dialog = gtk.Dialog("Password Required",
@@ -807,7 +818,7 @@ class ProcessManager: #dbus.service.Object):
         label = gtk.Label(_("Password: "))
         entry = gtk.Entry()
         entry.set_property("visibility", False) # password mode
-        entry.connect("activate", self.forward_password, dialog)
+        entry.connect("activate", self.get_password_cb, dialog)
         hbox.pack_start(label, expand=False)
         hbox.pack_start(entry, expand=True)
         dialog.vbox.pack_start(hbox)
@@ -824,17 +835,26 @@ class ProcessManager: #dbus.service.Object):
             # reset resume to false since emerge had not been called yet
             self.set_resume(False)
 
-    def forward_password(self, entrywidget, entrydialog):
+    def get_password_cb(self, entrywidget, entrydialog):
+        """ Callback to get new password from the entry dialog"""
+        self.password = b64encode(entrywidget.get_text())
+        self.forward_password()
+        entrydialog.response(1)
+
+    def forward_password(self):
         """ Callback to pass a password to the terminal process """
-        password = entrywidget.get_text()
         if self.reader.fd:
             try:
-                os.write(self.reader.fd, password + '\n')
+                os.write(self.reader.fd, b64decode(self.password) + '\n')
             except OSError:
                 debug.dprint(" * TERMINAL: forward_password(): Error forwarding password!")
-            self.password = password
             self.term.append(TAB_PROCESS, '********')
-        entrydialog.response(1)
+            # set flag to watch for a bad password string
+            self.badpassword_check = True
+            self.badpassword_linenum = self.line_num + 1
+            debug.dprint(" * TERMINAL: forward_password(): setting badpassword_check = True")
+        else:
+            debug.dprint("TERMINAL: forward_password(): reader has no open file descriptor, skipping")
     
     def on_pty_keypress(self, widget, event):
         """Catch keypresses in the terminal process window, and forward
@@ -916,8 +936,8 @@ class ProcessManager: #dbus.service.Object):
             self.reader.string = ''
             self.reset_buffer_update()
             # remove stored password
-            if hasattr(self, 'password'):
-                del self.password
+            #if hasattr(self, 'password'):
+                #del self.password
             debug.dprint("TERMINAL: process_done; self.killed = True, returning")
             return
             
