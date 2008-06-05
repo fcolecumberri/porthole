@@ -47,7 +47,7 @@ class PortholeConfiguration:
         # Handle all the regular expressions.  They will be compiled
         # within this object for the sake of efficiency.
         
-        filterlist = ['info', 'warning', 'error', 'caution', 'needaction']
+        filterlist = ['info', 'warning', 'error', 'caution', 'needaction', 'badpassword']
         for filter in filterlist:
             patternlist = dom.getitem(''.join(['/re_filters/',filter])) # e.g. '/re_filters/info'
             attrname = ''.join([filter, '_re_list'])
@@ -68,43 +68,75 @@ class PortholeConfiguration:
     def isInfo(self, teststring):
         ''' Parse string, return true if it matches info
             reg exp and its not in the reg exp notlist'''
+        result = False
+        go1 = True
         for regexp in self.info_re_list:
             if regexp.match(teststring):
                 for regexpi in self.info_re_notlist:
                     if regexpi.match(teststring):
-                        return False    # excluded, no match
-                return True
-        return False
+                        # excluded, no match
+                        go1= False
+                        break
+                if go1:
+                    result = True
+                break
+            else:
+                continue
+        return result
 
     def isWarning(self, teststring):
         ''' Parse string, return true if it matches warning reg exp '''
+        result = False
+        go1 = True
         for regexp in self.warning_re_list:
             if regexp.match(teststring):
                 for regexpi in self.warning_re_notlist:
                     if regexpi.match(teststring):
-                        return False    # excluded, no match
-                return True
-        return False
+                        # excluded, no match
+                        go1= False
+                        break
+                if go1:
+                    result = True
+                break
+            else:
+                continue
+        return result
 
     def isCaution(self, teststring):
         ''' Parse string, return true if matches caution regexp '''
+        result = False
+        go1 = True
         for regexp in self.caution_re_list:
             if regexp.match(teststring):
                 for regexpi in self.caution_re_notlist:
                     if regexpi.match(teststring):
-                        return False    # excluded, no match
-                return True
-        return False
+                        # excluded, no match
+                        go1= False
+                        break
+                if go1:
+                    result = True
+                break
+            else:
+                continue
+        return result
 
     def isError(self, teststring):
         ''' Parse string, return true if belongs in error tab '''
+        result = False
+        go1 = True
         for regexp in self.error_re_list:
             if regexp.match(teststring):
                 for regexpi in self.error_re_notlist:
                     if regexpi.match(teststring):
-                        return False    # excluded, no match
-                return True
-        return False
+                        # excluded, no match
+                        go1= False
+                        break
+                if go1:
+                    result = True
+                break
+            else:
+                continue
+        return result
 
     def isEmerge(self, teststring):
         ''' Parse string, return true if it is the initial emerge line '''
@@ -118,10 +150,28 @@ class PortholeConfiguration:
         Returns True if teststring matches the pre-set criteria for notification of an
         action the user is recommended to take, such as etc-update or revdep-rebuild.
         '''
+        result = False
+        go1 = True
         for regexp in self.needaction_re_list:
             if regexp.match(teststring):
                 for regexpi in self.needaction_re_notlist:
                     if regexpi.match(teststring):
-                        return False    # excluded, no match
-                return True
-        return False
+                        # excluded, no match
+                        go1= False
+                        break
+                if go1:
+                    result = True
+                break
+            else:
+                continue
+        return result
+
+    def isBadPassword(self, teststring):
+        ''' Parse string, return true if belongs in error tab '''
+        result = False
+        for regexp in self.badpassword_re_list:
+            #print "isBadPassword checking for: ", regexp.pattern
+            if regexp.match(teststring):
+                result = True
+                break #regexp
+        return result
