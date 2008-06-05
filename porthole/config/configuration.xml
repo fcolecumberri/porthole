@@ -66,5 +66,53 @@
     </needaction>
     <notneedaction py_type="list" item_count="0">
     </notneedaction>
+    <badpassword py_type="list" item_count="44">
+      <badpassword-1>^Sorry, try again.</badpassword-1>
+      <badpassword-2>^Just what do you think you're doing Dave?</badpassword-2>
+      <badpassword-3>^ It can only be attributed to human error.</badpassword-3>
+      <badpassword-4>^That's something I cannot allow to happen.</badpassword-4>
+      <badpassword-5>^My mind is going. I can feel it.</badpassword-5>
+      <badpassword-6>^Sorry about this, I know it's a bit silly.</badpassword-6>
+      <badpassword-7>^Take a stress pill and think things over.</badpassword-7>
+      <badpassword-8>^This mission is too important for me to allow you to jeopardize it.</badpassword-8>
+      <badpassword-9>^I feel much better now.</badpassword-9>
+      <badpassword-10>^Where did you learn to type?</badpassword-10>
+      <badpassword-11>^Wrong!  You cheating scum!</badpassword-11>
+      <badpassword-12>^And you call yourself a Rocket Scientist!</badpassword-12>
+      <badpassword-13>^No soap, honkie-lips.</badpassword-13>
+      <badpassword-14>^Are you on drugs?</badpassword-14>
+      <badpassword-15>^My pet ferret can type better than you!</badpassword-15>
+      <badpassword-16>^You type like i drive.</badpassword-16>
+      <badpassword-17>^Do you think like you type?</badpassword-17>
+      <badpassword-18>^Your mind just hasn't been the same since the electro-shock, has it?</badpassword-18>
+      <badpassword-19>^Maybe if you used more than just two fingers...</badpassword-19>
+      <badpassword-20>^BOB says:  You seem to have forgotten your passwd, enter another!</badpassword-20>
+      <badpassword-21>^stty: unknown mode: doofus</badpassword-21>
+      <badpassword-22>^I can't hear you -- I'm using the scrambler.</badpassword-22>
+      <badpassword-23>^The more you drive -- the dumber you get.</badpassword-23>
+      <badpassword-24>^Listen, broccoli brains, I don't have time to listen to this trash.</badpassword-24>
+      <badpassword-25>^Listen, burrito brains, I don't have time to listen to this trash.</badpassword-25>
+      <badpassword-26>^I've seen penguins that can type better than that.</badpassword-26>
+      <badpassword-27>^Have you considered trying to match wits with a rutabaga?</badpassword-27>
+      <badpassword-28>^You speak an infinite deal of nothing</badpassword-28>
+      <badpassword-29>^You silly, twisted boy you.</badpassword-29>
+      <badpassword-30>^He has fallen in the water!</badpassword-30>
+      <badpassword-31>^We'll all be murdered in our beds!</badpassword-31>
+      <badpassword-32>^You can't come in. Our tiger has got flu</badpassword-32>
+      <badpassword-33>^You'll starve!</badpassword-33>
+      <badpassword-34>^... and it used to be so popular...</badpassword-34>
+      <badpassword-35>^Pauses for audience applause, not a sausage</badpassword-35>
+      <badpassword-36>^Hold it up to the light --- not a brain in sight!</badpassword-36>
+      <badpassword-37>^Have a gorilla...</badpassword-37>
+      <badpassword-38>^There must be cure for it!</badpassword-38>
+      <badpassword-39>^There's a lot of it about, you know.</badpassword-39>
+      <badpassword-40>^You do that again and see what happens...</badpassword-40>
+      <badpassword-41>^Ying Tong Iddle I Po</badpassword-41>
+      <badpassword-42>^Harm can come to a young lad like that!</badpassword-42>
+      <badpassword-43>^It's only your word against mine.</badpassword-43>
+      <badpassword-44>^I think ... err ... I think ... I think I'll go home</badpassword-44>
+    </badpassword>
+    <notbadpassword py_type="list" item_count="0">
+    </notbadpassword>
   </re_filters>
 </portholeconfig>
