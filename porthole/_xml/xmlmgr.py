@@ -64,13 +64,7 @@ try:
     from xml.dom.minidom import parse, getDOMImplementation
 except Exception, e:
     print >> sys.stderr, "*** Error loading xml.dom.minidom. Original exception was: %s" % e
-try:
-    from xml.dom.ext import PrettyPrint
-except Exception, e:
-    print >> sys.stderr, "*** Error importing module 'ext' from /dev-python/pyxml!"
-    print >> sys.stderr, "*** check that the package is installed or re-emerge package to correct the error"
-    print >> sys.stderr, "*** Also note that if you are using python 2.4, porthole requires >=pyxml-0.8.4."
-    print >> sys.stderr, "*** Original exception was: %s" % e
+
 
 class XMLManagerError(Exception):
    """XML Manager Error exception class"""
@@ -303,22 +297,25 @@ class XMLManager:
       for node in nodelist:
          attrib = node.getAttribute('py_type')
 
+        # added lstrip() and rstrip() to node text values to 
+        # prevent errors reloading values from a saved file via the minidom 
+        # built-in writexml().  This eliminates the need for pyxml's PrettyPrint
          if attrib == 'none':
             temp_list.append(None)
          elif attrib in ['','str']:
-            temp_list.append(str(self.__NodeText(node.childNodes)))
+            temp_list.append(str((self.__NodeText(node.childNodes).lstrip()).rstrip()))
          elif attrib == 'unicode':
-            temp_list.append(unicode(self.__NodeText(node.childNodes))) 
+            temp_list.append(unicode((self.__NodeText(node.childNodes).lstrip()).rstrip()))
          elif attrib == 'int':
-            temp_list.append(int(self.__NodeText(node.childNodes))) 
+            temp_list.append(int((self.__NodeText(node.childNodes).lstrip()).rstrip())) 
          elif attrib == 'long':
-            temp_list.append(long(self.__NodeText(node.childNodes))) 
+            temp_list.append(long((self.__NodeText(node.childNodes).lstrip()).rstrip()))
          elif attrib == 'float':
-            temp_list.append(float(self.__NodeText(node.childNodes))) 
+            temp_list.append(float((self.__NodeText(node.childNodes).lstrip()).rstrip())) 
          elif attrib == 'complex':
-            temp_list.append(complex(self.__NodeText(node.childNodes))) 
+            temp_list.append(complex((self.__NodeText(node.childNodes).lstrip()).rstrip()))
          elif attrib == 'bool':
-            temp_list.append(self.__NodeText(node.childNodes)=='True') 
+            temp_list.append((self.__NodeText(node.childNodes).lstrip()).rstrip()=='True') 
          elif attrib == 'list':
             count = int(node.getAttribute('item_count'))
             y = 1
@@ -388,7 +385,8 @@ class XMLManager:
       # Now create element to hold the item
 
       self.__InsertValue(node, path[-1], value)
- 
+
+
    def save(self, destination):
       """ Save XML document to disk
           Parameters: 
@@ -396,5 +394,5 @@ class XMLManager:
           Returns: nothing (except satisfaction ;) )
       """
       file = open(destination,"w")
-      PrettyPrint(self.__dom, file)
+      self.__dom.writexml(file, addindent='\t', newl='\n')
       file.close()
