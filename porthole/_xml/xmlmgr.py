@@ -102,9 +102,15 @@ class XMLManager:
           Returns: xmlmanager object instance
       """
       if source != None:
-         self.__dom = parse(source)
-         self.name = self.__dom.documentElement.tagName
-         self.version = self.__dom.documentElement.getAttribute('ver')
+         try:
+            self.__dom = parse(source)
+            self.name = self.__dom.documentElement.tagName
+            self.version = self.__dom.documentElement.getAttribute('ver')
+         except: # possibly a bad/empty file
+            print >> sys.stderr, "XMLMGR: Error loading preferences file %s.  Setting to None to load default settings" %source
+            self.__dom = None
+            self.name = "xml_mgr"
+            self.version = "1"
       else:
          self.__dom = None
          self.name = "xml_mgr"
