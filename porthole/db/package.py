@@ -63,7 +63,7 @@ class Package:
         """returns True/False if the package is listed in the list"""
         #debug.dprint("Package.in_list: %s" %self.full_name)
         #debug.dprint("Package.in_list: %s" %str(list))
-        if self.full_name == "None":
+        if self.full_name == _("None"):
             return False
         if list == "World":
             return self.in_world
@@ -79,14 +79,14 @@ class Package:
 
     def update_info(self):
         """Update the package info"""
-        if self.full_name == "None":
+        if self.full_name == _("None"):
             return
         self.is_upgradeable(REFRESH)
         self.in_world = full_name in portage_lib.settings.get_world()
 
     def get_installed(self, refresh = False):
         """Returns a list of all installed ebuilds."""
-        if self.full_name == "None":
+        if self.full_name == _("None"):
             return []
         if self.installed_ebuilds == None or refresh:
             self.installed_ebuilds = portage_lib.get_installed(self.full_name)
@@ -94,7 +94,7 @@ class Package:
     
     def get_name(self):
         """Return name portion of a package"""
-        if self.full_name == "None":
+        if self.full_name == _("None"):
             return self.full_name
         if self.name == None:
             self.name = portage_lib.get_name(self.full_name)
@@ -102,7 +102,7 @@ class Package:
 
     def get_category(self):
         """Return category portion of a package"""
-        if self.full_name == "None":
+        if self.full_name == _("None"):
             return ''
         if self.category == None:
             self.category = portage_lib.get_category(self.full_name)
@@ -114,7 +114,7 @@ class Package:
         # Note: doesn't return hard-masked packages by default, unless in package.unmask
         # unstable packages however ARE returned. To return the best version for a system,
         # taking into account keywords and masking, use get_best_ebuild().
-        if self.full_name == "None":
+        if self.full_name == _("None"):
             return ''
         vers = self.get_versions()[:] # make a copy in case it is a pointer
         #debug.dprint("PACKAGE: get_latest_ebuild(); versions: " + str(vers)) 
@@ -132,7 +132,7 @@ class Package:
     def get_best_ebuild(self, refresh = False):
         """Return best visible ebuild (taking account of package.keywords, .mask and .unmask.
         If all ebuilds are masked for your architecture, returns ''."""
-        if self.full_name == "None":
+        if self.full_name == _("None"):
             return ''
         if self.best_ebuild == None or refresh:
             self.best_ebuild = portage_lib.get_best_ebuild(self.full_name)
@@ -142,7 +142,7 @@ class Package:
     def get_best_dep_ebuild(self, refresh = False):
         """Return best visible ebuild (taking account of package.keywords, .mask and .unmask.
         If all ebuilds are masked for your architecture, returns ''."""
-        if self.full_name == "None":
+        if self.full_name == _("None"):
             return ''
         dep = self.get_dep_atom()
         if self.best_ebuild == None or refresh:
@@ -152,7 +152,7 @@ class Package:
         return self.best_ebuild
 
     def get_default_ebuild(self):
-        if self.full_name == "None":
+        if self.full_name == _("None"):
             return ''
         return (self.get_best_ebuild() or
                 self.get_latest_ebuild() or
@@ -160,7 +160,7 @@ class Package:
                 self.get_latest_installed())
 
     def get_size(self, ebuild = None):
-        if self.full_name == "None":
+        if self.full_name == _("None"):
             return ''
         if ebuild or self.size == None or self.size == '':
             if not ebuild:
@@ -177,14 +177,14 @@ class Package:
         return self.size
         
     def get_digest(self):
-        if self.full_name == "None":
+        if self.full_name == _("None"):
             return ''
         if self.digest_file == None:
             self.digest_file = portage_lib.get_digest( self.get_latest_ebuild() )
         return self.digest_file
 
     def get_latest_installed(self, refresh = False):
-        if self.full_name == "None":
+        if self.full_name == _("None"):
             return ''
         if self.latest_installed == None or refresh:
             installed_ebuilds = self.get_installed(refresh )
@@ -203,7 +203,7 @@ class Package:
 
     def get_metadata(self):
         """Get a package's metadata, if there is any"""
-        if self.full_name == "None":
+        if self.full_name == _("None"):
             return ''
         return portage_lib.get_metadata(self.full_name)
 
@@ -211,7 +211,7 @@ class Package:
         """ Returns properties of specific ebuild.
             If no ebuild specified, get latest ebuild. """
         #debug.dprint("PACKAGE: get_properties()")
-        if self.full_name == "None":
+        if self.full_name == _("None"):
             return ''
         if specific_ebuild == None:
             ebuild = self.get_default_ebuild()
@@ -228,7 +228,7 @@ class Package:
 
     def get_versions(self, include_masked = True):
         """Returns all available ebuilds for the package"""
-        if self.full_name == "None":
+        if self.full_name == _("None"):
             return ''
         # Note: this is slow, especially when include_masked is false
         criterion = include_masked and 'match-all' or 'match-visible'
@@ -240,7 +240,7 @@ class Package:
     def get_hard_masked(self, check_unmask = False):
         """Returns all versions hard masked by package.mask.
         if check_unmask is True, it excludes packages in package.unmask"""
-        if self.full_name == "None":
+        if self.full_name == _("None"):
             return ''
         if self.hard_masked_nocheck == None:
             self.hard_masked_nocheck, self.hard_masked = portage_lib.get_hard_masked(self.full_name)
@@ -254,7 +254,7 @@ class Package:
         If portage wants to downgrade the package, returns -1.
         Else, returns 0.
         """
-        if self.full_name == "None":
+        if self.full_name == _("None"):
             return 0
         if self.upgradable == None or refresh:
             best = self.get_best_ebuild(refresh)
@@ -277,7 +277,7 @@ class Package:
         If portage wants to downgrade the package, returns -1.
         Else, returns 0.
         """
-        if self.full_name == "None":
+        if self.full_name == _("None"):
             return 0
         if dep == None:
             dep = self.get_dep_atom()
