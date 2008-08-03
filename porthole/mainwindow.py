@@ -73,6 +73,8 @@ INDEX_TYPES = ["All", "Installed", "Search", "Upgradable", "Deprecated", "Sets"]
 GROUP_SELECTABLE = [SHOW_UPGRADE, SHOW_DEPRECATED , SHOW_SETS]
 ON = True
 OFF = False
+# create the translated reader type names
+READER_NAMES = {"Deprecated": _("Deprecated"), "Sets": _("Sets"), "Upgradable": _("Upgradable")}
 
 def check_glade():
         """determine the libglade version installed
@@ -335,7 +337,7 @@ class MainWindow:
             self.reload_db_timeout = gobject.timeout_add(50, self.reload_db)
             self.reload_depth += 1
             return True
-        if self.reload_depth < 4:
+        if self.reload_depth >= 4:
             debug.dprint("MAINWINDOW: reload_db(); failed to confirm killing db thread, exceeded retry depth...continuing anyway")
         self.reload_depth = 0
         # upgrades loaded?
@@ -634,7 +636,7 @@ class MainWindow:
                 debug.dprint("MAINWINDOW: setup_command(); callback set to self.reload_db")
                 #callback = self.package_update
             #ProcessWindow(command, env, config.Prefs, callback)
-            self.process_manager.add(package_name, command, callback, "Porthole Main Window")
+            self.process_manager.add(package_name, command, callback, _("Porthole Main Window"))
         else:
             debug.dprint("MAINWINDOW: Must be root user to run command '%s' " % command)
             #self.sorry_dialog = utils.SingleButtonDialog(_("You are not root!"),
@@ -1065,7 +1067,7 @@ class MainWindow:
     def package_changed(self, package):
         """Catch when the user changes packages."""
         debug.dprint("MAINWINDOW: package_changed()")
-        if not package or package.full_name == "None":
+        if not package or package.full_name == _("None"):
             self.clear_package_detail()
             self.current_pkg_name[INDEX_TYPES[0]] = ''
             self.current_pkg_cursor[INDEX_TYPES[0]] = self.package_view.get_cursor()
@@ -1231,7 +1233,7 @@ class MainWindow:
     def load_reader_list(self, reader):
         self.reader_progress = 1
         # package list is not loaded, create dialog and load them
-        self.set_statusbar2(_("Generating '%s' packages list...") %reader)
+        self.set_statusbar2(_("Generating '%s' packages list...") %READER_NAMES[reader])
         # create reader thread for loading the packages
         if self.reader_running:
             debug.dprint("MAINWINDOW: load_reader_list(); thread already running!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
@@ -1278,6 +1280,7 @@ class MainWindow:
             if reader_type in ["Upgradable", "Deprecated", "Sets"]:
                 self.pkg_list[reader_type] = self.reader.pkg_dict
                 self.pkg_count[reader_type] = self.reader.pkg_count
+                debug.dprint("MAINWINDOW: update_reader_thread(): pkg_count = " + str(self.pkg_count))
                 self.loaded[reader_type] = True
                 self.view_filter_changed(self.widget["view_filter"])
                 if self.loaded_callback[reader_type]:
@@ -1302,7 +1305,7 @@ class MainWindow:
         else:
             # stsatubar hack, should probably be converted to use a Dispatcher callback
             if self.reader.progress >= 2 and self.reader_progress == 1:
-                self.set_statusbar2(_("Searching for '%s' packages...") %self.reader.reader_type)
+                self.set_statusbar2(_("Searching for '%s' packages...") %READER_NAMES[self.reader.reader_type])
                 self.reader_progress = 2
             if self.reader_running:
                 try:
