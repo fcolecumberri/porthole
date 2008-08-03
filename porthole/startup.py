@@ -31,7 +31,7 @@ gobject.threads_init()
 # now for the rest
 
 # setup our path so we can load our custom modules
-import sys, os
+import sys, os, thread
 
 # Add path to portage module if 
 # missing from path (ref bug # 924100)
@@ -157,6 +157,7 @@ def insert_path():
 def main():
     """start the porthole frontend"""
     try:
+        print "STARTUP: main(); thread id = ", thread.get_ident()
         print "STARTUP: main(); importing config"
         from porthole import config
         print "STARTUP: config.id = ", config.id
