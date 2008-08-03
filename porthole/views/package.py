@@ -326,7 +326,7 @@ class PackageView(CommonTreeView):
         # get the selection
         package = utils.get_treeview_selection(treeview, MODEL_ITEM["package"])
         #debug.dprint("VIEWS: package = %s" % package.full_name)
-        if (not package and not self.toggle) or package.full_name == "None":
+        if (not package and not self.toggle) or package.full_name == _("None"):
             self.mainwindow_callback("package changed", {'package': None, 'caller': 'VIEWS: Package view _clicked()'})
             return False
         if self.toggle != None : # for upgrade view
@@ -433,7 +433,7 @@ class PackageView(CommonTreeView):
             model.set_value(iter, MODEL_ITEM["package"], packages[name])
             model.set_value(iter,MODEL_ITEM["name"], name)
             upgradable = 0
-            if name != "None":
+            if name != _("None"):
                 model.set_value(iter, MODEL_ITEM["checkbox"], (packages[name].is_checked))
                 model.set_value(iter, MODEL_ITEM["world"], (packages[name].in_world))
                 upgradable = packages[name].is_dep_upgradable()
@@ -477,7 +477,7 @@ class PackageView(CommonTreeView):
         iter = self.iter
         #gtk.threads_leave()
         #while iter and not (self.infothread_die):
-        if iter and not model.get_value(iter,MODEL_ITEM["name"]) == "None":
+        if iter and not model.get_value(iter,MODEL_ITEM["name"]) == _("None"):
             try:
                 #gtk.threads_enter()
                 package = model.get_value(iter, MODEL_ITEM["package"])
@@ -539,7 +539,7 @@ class PackageView(CommonTreeView):
         model.foreach(self.set_select, True)
 
     def set_select(self, model, path, iter, selected):
-        if model.get_value(iter,MODEL_ITEM["name"]) != "None":
+        if model.get_value(iter,MODEL_ITEM["name"]) != _("None"):
             model.set_value(iter, MODEL_ITEM["checkbox"], selected)
             model.get_value(iter, MODEL_ITEM["package"]).is_checked = selected
     
