@@ -21,7 +21,9 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import threading
+#import dummy_threading as _threading
+import threading, thread
+from sys import stderr
 
 class CommonReader(threading.Thread):
     """ Common data reading class that works in a seperate thread """
@@ -36,6 +38,8 @@ class CommonReader(threading.Thread):
         self.cancelled = False
         # quit even if thread is still running
         self.setDaemon(1)
+        print >>stderr,  "threading.enumerate() = ",threading.enumerate()
+        print >>stderr, "this thread is :", thread.get_ident(), ' current thread ', threading.currentThread()
 
     def please_die( self ):
         """ Tell the thread to die """

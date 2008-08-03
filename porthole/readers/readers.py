@@ -120,8 +120,8 @@ class UpgradableListReader(CommonReader):
         for key in self.pkg_count:
             self.upgrade_total += self.pkg_count[key]
             if self.upgradables[key] == {}:
-                pkg = _portage_lib.Package("None")
-                self.upgradables[key]["None"] = pkg
+                pkg = _portage_lib.Package(_("None"))
+                self.upgradables[key][_("None")] = pkg
         # set the thread as finished
         self.done = True
         return

@@ -21,7 +21,9 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import os, time
+import os, time, thread, threading
+from sys import stderr
+from gettext import gettext as _
 
 from porthole.utils import debug
 from porthole.sterminal import SimpleTerminal
@@ -33,7 +35,7 @@ from porthole.readers.commonreader import CommonReader
 from porthole.utils.utils import get_set_name
 
 
-PRIORITIES = {"System": 0, "Sets":1, "World":2, "Dependencies":3}
+PRIORITIES = {_("System"): 0, _("Sets"):1, _("World"):2, _("Dependencies"):3}
 
 
 class UpgradableListReader(CommonReader):
@@ -50,20 +52,22 @@ class UpgradableListReader(CommonReader):
         self.progress = 1
         # beginnings of multiple listings for packages in priority order
         # lists could be passed into the function and result in the following
-        # eg self.categories = ["Tool Chain", "System", "Sets", "World", "Dependencies"]
-        self.cat_order = ["System", "World", "Dependencies"]
-        self.categories = {"System":None, "World":"World", "Dependencies":"Dependencies"}
+        # eg self.categories = ["Tool Chain", _("System"), _("Sets"), _("World"), _("Dependencies")]
+        self.cat_order = [_("System"), _("World"), _("Dependencies")]
+        self.categories = {_("System"):None, _("World"):"World", _("Dependencies"):"Dependencies"}
         self.pkg_dict = {}
         self.pkg_count = {}
         self.count = 0
         self.pkg_dict_total = 0
         # command lifted fom emwrap and emwrap.sh
         self.system_cmd = "emerge -ep --nocolor --nospinner system | cut -s -f2 -d ']'| cut -f1 -d '[' | sed 's/^[ ]\+//' | sed 's/[ ].*$//'"
-
+        #self.start = self.run
  
     def run( self ):
         """fill upgrade tree"""
         debug.dprint("READERS: UpgradableListReader(); process id = %d *******************" %os.getpid())
+        print >>stderr,  "READERS: UpgradableListReader(); threading.enumerate() = ",threading.enumerate()
+        print >>stderr, "READERS: UpgradableListReader(); this thread is :", thread.get_ident(), ' current thread ', threading.currentThread()
         self.get_system_list()
         self.get_sets()
         for key in self.cat_order:
@@ -87,9 +91,11 @@ class UpgradableListReader(CommonReader):
         for key in self.pkg_count:
             self.pkg_dict_total += self.pkg_count[key]
             if self.pkg_dict[key] == {}:
-                pkg = Package("None")
-                self.pkg_dict[key]["None"] = pkg
-        #debug.dprint("READERS: UpgradableListReader(); new pkg_list = " + str(self.pkg_dict))
+                pkg = Package(_("None"))
+                self.pkg_dict[key][_("None")] = pkg
+                self.pkg_count[key] = 0
+        debug.dprint("READERS: UpgradableListReader(); new pkg_dict = " + str(self.pkg_dict))
+        debug.dprint("READERS: UpgradableListReader(); new pkg_counts = " + str(self.pkg_count))
         # set the thread as finished
         self.done = True
         return
@@ -104,11 +110,11 @@ class UpgradableListReader(CommonReader):
             debug.dprint("READERS: UpgradableListReader; waiting for an 'emerge -ep system'...")
             while self.terminal.reader.process_running:
                 time.sleep(0.10)
-            self.categories["System"] = self.make_list(self.terminal.reader.string)
+            self.categories[_("System")] = self.make_list(self.terminal.reader.string)
         else:
-            self.categories["System"] = portage_lib.get_system_pkgs()
+            self.categories[_("System")] = portage_lib.get_system_pkgs()
         self.progress = 2
-        debug.dprint("READERS: UpgradableListReader; new system pkg list %s" %str(self.categories["System"]))
+        debug.dprint("READERS: UpgradableListReader; new system pkg list %s" %str(self.categories[_("System")]))
 
     def make_list(self, from_string):
         """parse terminal output and return a list"""
@@ -124,8 +130,8 @@ class UpgradableListReader(CommonReader):
         sets_list = []
         for key in db.userconfigs.get_source_keys("SETS"):
             name = get_set_name(key)
-            self.categories["Sets-"+name] = db.userconfigs.get_source_cplist("SETS", key)
-            sets_list.append("Sets-"+name)
-        self.cat_order = ["System"] + sets_list + ["World", "Dependencies"]
+            self.categories[_("Sets")+"-"+name] = db.userconfigs.get_source_cplist("SETS", key)
+            sets_list.append(_("Sets")+"-"+name)
+        self.cat_order = [_("System")] + sets_list + [_("World"), _("Dependencies")]
         return #sets_lists
                 

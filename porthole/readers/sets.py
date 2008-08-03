@@ -70,8 +70,8 @@ class SetListReader(CommonReader):
         for key in self.pkg_count:
             self.pkg_dict_total += self.pkg_count[key]
             if self.pkg_dict[key] == {}:
-                pkg = Package("None")
-                self.pkg_dict[key]["None"] = pkg
+                pkg = Package(_("None"))
+                self.pkg_dict[key][_("None")] = pkg
         #debug.dprint("READERS: SetListReader(); new pkg_list = " + str(self.pkg_dict))
         # set the thread as finished
         self.done = True

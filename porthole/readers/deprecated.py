@@ -81,8 +81,8 @@ class DeprecatedReader(CommonReader):
         for key in self.pkg_count:
             self.pkg_dict_total += self.pkg_count[key]
             if self.pkg_dict[key] == {}:
-                pkg = Package("None")
-                self.pkg_dict[key]["None"] = pkg
+                pkg = Package(_("None"))
+                self.pkg_dict[key][_("None")] = pkg
         # set the thread as finished
         self.done = True
         debug.dprint("READERS: DeprecatedReader; done :)")
