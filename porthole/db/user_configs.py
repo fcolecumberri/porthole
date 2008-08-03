@@ -45,13 +45,12 @@ CONFIG_FILES = ['package.use', 'package.keywords', 'package.mask', 'package.unma
 
 def get_type(file):
     if file:
-        parts = file.split('/')
-        if parts[-1] not in CONFIG_FILES:
-            parts = parts[:-1]
-        if parts[-1] not in CONFIG_FILES:
+        mytype = set(file.split("/")).intersection(CONFIG_FILES)
+        if len(mytype) == 0:
             debug.dprint("USER_CONFIGS: get_type(); failed to determine config type for: " + file)
+            return "Uknown"
         else:
-            return CONFIG_TYPES[CONFIG_FILES.index(parts[-1])]
+            return CONFIG_TYPES[CONFIG_FILES.index(mytype.pop())]
 
 def compare_atoms(a=None, b=None):
     """Function to comare two (ConfigAtom)s and return a value representing the probable match
