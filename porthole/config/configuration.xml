@@ -36,7 +36,7 @@
       <notwarning-8>^\*\*\*$</notwarning-8>
       <notwarning-9>^checking maximum warning verbosity option... -Wall for C</notwarning-9>
     </notwarning>
-    <error py_type="list" item_count="7">
+    <error py_type="list" item_count="9">
       <error-1>^ \* .*failed\.</error-1>
       <error-2>^\!\!\!\s[Ee]rror calculating dependencies.*[Pp]lease correct</error-2>
       <error-3>^\!\!\!\s[Ee]rror\:.*\sconflicts with another package</error-3>
@@ -44,6 +44,8 @@
       <error-5>^\!\!\!\sAll ebuilds that could satisfy.*\shave been masked.</error-5>
       <error-6>^\!\!\!\sOne of the following masked packages is required to complete your request\:</error-6>
       <error-7>^\sOSError: \[Errno </error-7>
+      <error-8>.*Error: The above package list contains packages which cannot be</error-8>
+      <error-9>.* installed at the same time on the same system.</error-9>
     </error>
     <noterror py_type="list" item_count="0">
     </noterror>
