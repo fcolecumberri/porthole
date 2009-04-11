@@ -103,7 +103,7 @@ class CategoryView(CommonTreeView):
             self.populate_search(categories, counts)
             return
         for cat in categories:
-            debug.dprint(" VIEWS: CategoryView.populate(): cat: %s" %cat)
+            #debug.dprint(" VIEWS: CategoryView.populate(): cat: %s" %cat)
             if cat: # != 'virtual':
                 try:
                     catmaj, catmin = cat.split("-")
@@ -113,7 +113,7 @@ class CategoryView(CommonTreeView):
                     self.model.set_value( iter, 0, cat )
                     self.model.set_value( iter, 1, cat )
                     if counts != None: # and counts[cat] != 0:
-                        debug.dprint("VIEWS: Counts: %s = %s" %(cat, str(counts[cat])))
+                        #debug.dprint("VIEWS: Counts: %s = %s" %(cat, str(counts[cat])))
                         self.model.set_value( iter, 2, str(counts[cat]) )
 
                     #else:
@@ -130,7 +130,7 @@ class CategoryView(CommonTreeView):
                     last_catmaj = catmaj
                 elif counts != None: # add the count to the catmaj
                     count = int(self.model.get_value( cat_iter, 2 ))
-                    debug.dprint("VIEWS: catmaj counts: %s" %(str(count)))
+                    #debug.dprint("VIEWS: catmaj counts: %s" %(str(count)))
                     self.model.set_value( cat_iter, 2, str(count + counts[cat]) )
                 sub_cat_iter = self.model.insert_before(cat_iter, None)
                 self.model.set_value(sub_cat_iter, 0, catmin)
