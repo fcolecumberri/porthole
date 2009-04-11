@@ -53,7 +53,7 @@ class TerminalNotebook:
                                          TAB_QUEUE:None}
         self.tab = [] #[None, None, None, None]
         self.visible_tablist = []
-        self.tab_showing = [True, False, False, False, True] # initialize to default state
+        self.tab_showing = [True, False, False, False, False] # initialize to default state
         self.current_tab = 0
         self.vadjustment = [] #[None, None, None, None, None]
         self.vhandler_id = [] #[None, None, None, None, None]
@@ -67,7 +67,7 @@ class TerminalNotebook:
         self.caution_tab = self.notebook.get_nth_page(TAB_CAUTION)
         self.info_tab = self.notebook.get_nth_page(TAB_INFO)
         self.queue_tab = self.notebook.get_nth_page(TAB_QUEUE)
-        #self.notebook.remove_page(TAB_QUEUE)
+        self.notebook.remove_page(TAB_QUEUE)
         self.notebook.remove_page(TAB_INFO)
         self.notebook.remove_page(TAB_CAUTION)
         self.notebook.remove_page(TAB_WARNING)
@@ -155,6 +155,8 @@ class TerminalNotebook:
 
     def show_tab(self, tab):
         """ Create the label for the tab and show it """
+        if self.tab_showing[tab]:
+            return
         # this hbox will hold the icon and label
         hbox = gtk.HBox()
         icon = gtk.Image()
