@@ -165,7 +165,7 @@ class ProcessManager: #dbus.service.Object):
             debug.dprint("TERMINAL: show_window(): buffers cleared... clearing queue model...")
             self.process_queue.clear()
             debug.dprint("TERMINAL: show_window(): queue model cleared")
-            for tab in [TAB_WARNING, TAB_CAUTION, TAB_INFO, TAB_QUEUE]:
+            for tab in [TAB_WARNING, TAB_CAUTION, TAB_INFO]: #, TAB_QUEUE]:
                 self.term.hide_tab(tab)
             # re-set base values for textviews
             attributes = gtk.TextView().get_default_attributes()
@@ -240,7 +240,9 @@ class ProcessManager: #dbus.service.Object):
                      "on_play_queue_button_clicked" : self.process_queue.restart,
                      "on_timer_button_clicked" : self.process_queue.timer,
                      "on_timer_activate" : self.process_queue.timer,
-                     "on_pause_button_clicked" : self.process_queue.pause}
+                     "on_pause_button_clicked" : self.process_queue.pause,
+                     "on_pause_activate" : self.process_queue.pause
+                     }
         self.wtree.signal_autoconnect(callbacks)
 
         # initialize to None
@@ -285,7 +287,7 @@ class ProcessManager: #dbus.service.Object):
         #~ sender_name = self.dbus_if.GetNameOwner(sender)
         #~ self.add(name, command, self.reply , sendername + " (" +sender + ")")
 
-    def add( self, name, command, callback, sender = 'Non-DBus' ):
+    def add( self, name, command, callback, sender = _('Non-DBus') ):
         # show the window if it isn't visible
         if not self.window_visible:
             self.show_window()
@@ -802,7 +804,7 @@ class ProcessManager: #dbus.service.Object):
         dialog.vbox.set_spacing(10)
         #dialog.set_has_separator(False)
         dialog.set_border_width(10)
-        command = self.process_queue.process_list[0].command
+        command = self.process_queue.get_command()
         if command.startswith('sudo '):
             command = command[21:]
             label = gtk.Label(_("'sudo -p Password: ' requires your user password to perform the command:\n'%s'")
