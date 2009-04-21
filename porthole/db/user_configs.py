@@ -150,7 +150,7 @@ class UserConfigs:
     def atomize(self, lines, source, db = None, sources = None):
         """takes a list of items and creates db records of the package and values"""
         mytype = get_type(source)
-        debug.dprint("USER_CONFIGS: atomize(); mytype = " + mytype)
+        debug.dprint("USER_CONFIGS: atomize(); mytype = " + str(mytype))
         for line in lines:
             values = line.split()
             name,atoms, version = portage_lib.split_atom_pkg( values[0] )
