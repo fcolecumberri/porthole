@@ -514,12 +514,12 @@ class AdvancedEmergeDialog:
 
     def get_options(self):
         """ Create keyword list from option checkboxes """
-        List = [('cbAlphabetical', '--alphabetical', '--alphabetical'),
+        List = [('cbAlphabetical', '--alphabetical ', '--alphabetical '),
                 #('cbAsk', 'a', '--ask'),
                 ('cbBuildPkg', '-b ', '--buildpkg '),
                 ('cbBuildPkgOnly', '-B ', '--buildpkgonly '),
-                ('cbColorY', '--color y', '--color y' ),
-                ('cbColorN', '--color n', '--color n' ),
+                ('cbColorY', '--color y ', '--color y ' ),
+                ('cbColorN', '--color n ', '--color n ' ),
                 ('cbDebug', '-d ', '--debug '),
                 ('cbDeep', '-D ', '--deep '),
                 ('cbEmptyTree', '-e ', '--emptytree '),
@@ -527,8 +527,8 @@ class AdvancedEmergeDialog:
                 ('cbFetchAllUri', '-F ', '--fetch-all-uri '),
                 ('cbBinPkg', '-g ', '--getbinpkg '),
                 ('cbBinPkgOnly', '-G ', '--getbinpkgonly '),
-                ('cbIgnoreDefaultOptions',  '--ignore-default-opts', '--ignore-default-opts'),
-                ('cbNewUse', '-N', '--newuse'),
+                ('cbIgnoreDefaultOptions',  '--ignore-default-opts ', '--ignore-default-opts '),
+                ('cbNewUse', '-N ', '--newuse '),
                 ('cbNoConfMem', '--noconfmem ', '--noconfmem '),
                 ('cbNoDeps', '-O ', '--nodeps '),
                 ('cbNoReplace', '-n ', '--noreplace '),
@@ -537,13 +537,13 @@ class AdvancedEmergeDialog:
                 ('cbOnlyDeps', '-o ', '--onlydeps '),
                 ('cbPretend','-p ', '--pretend '),
                 ('cbQuiet', '-q ', '--quiet '),
-                ('cbTree', '-t', '--tree'),
+                ('cbTree', '-t ', '--tree '),
                 ('cbUpdate','-u ', '--update '),
                 ('cbUsePkg', '-k ', '--usepkg '),
                 ('cbUsePkgOnly', '-K ', '--usepkgonly '),
                 ('cbVerbose', '-v ', '--verbose '),
-                ('cbWithBDepsY', '--with-bdeps y', '--with-bdeps y'),
-                ('cbWithBDepsY', '--with-bdeps n', '--with-bdeps n')
+                ('cbWithBDepsY', '--with-bdeps y ', '--with-bdeps y '),
+                ('cbWithBDepsY', '--with-bdeps n ', '--with-bdeps n ')
                 ]
         options = ''
         for Name, ShortOption, LongOption in List:
