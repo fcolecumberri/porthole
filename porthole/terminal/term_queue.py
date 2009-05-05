@@ -47,6 +47,7 @@
 import pygtk; pygtk.require('2.0')
 import gtk, gtk.glade, gobject
 import pango
+from types import *
 #import signal, os, pty, threading, time, sre, portagelib
 #import datetime, pango, errno
 
@@ -56,6 +57,8 @@ from porthole.utils.utils import get_treeview_selection
 from porthole.utils import debug
 from porthole.terminal.constants import *
 from porthole.dialogs.simple import SingleButtonDialog
+
+FUNCTIONTYPES = [FunctionType, MethodType, BuiltinFunctionType, BuiltinMethodType]
 
 class QueueModel(gtk.ListStore):
     def __init__(self):
@@ -80,15 +83,48 @@ class QueueModel(gtk.ListStore):
                                 'killed_id': 8
                                 }
 
-    def copy(self, path):
+    def copy(self, path,  mytype = 'tuple'):
         """perform a data copy
             return a tuple of the data in the correct order
         """
-        iter = self.get_iter_at_path(path)
-        myval = []
-        for i in self.column:
-            myval.append(self.get_value(iter, self.column[i]))
-        return tuple(myval)
+        #debug.dprint("QueueModel: copy(); mytype = " + mytype)
+        iter = self.get_iter(path)
+        if mytype == 'tuple':
+            myval = []
+            for i in self.column:
+                myval.append(self.get_value(iter, self.column[i]))
+            return tuple(myval)
+        elif mytype == 'dict':
+            myval = {}
+            for i in self.column:
+                myval[i] = self.get_value(iter, self.column[i])
+            return myval
+
+    def get_column_list(self):
+        """retrun a dictionary of the column names and position in the data structure
+        """
+        return self.column.copy()
+
+    def set_data(self, iter, data):
+        if iter:
+            if type(data) is DictType:
+                debug.dprint("QueueModel: set_data(); DictType data['icon'] type = " + str(type(data['icon'])))
+                for i in data:
+                    self.set_value(iter,self.column[i], data[i])
+            elif type(data) is ListType:
+                debug.dprint("QueueModel: set_data(); ListType data = " + str(data))
+                #if type(data[self.column['icon']]) is NoneType:
+                self.set_value(iter, self.column['icon'], data[self.column['icon']])
+                self.set_value(iter, self.column['name'], data[self.column['name']])
+                self.set_value(iter, self.column['command'], data[self.column['command']])
+                self.set_value(iter, self.column['id'], data[self.column['id']])
+                self.set_value(iter, self.column['sender'], data[self.column['sender']])
+                self.set_value(iter, self.column['callback'], data[self.column['callback']])
+                self.set_value(iter, self.column['completed'], data[self.column['completed']])
+            return True
+        else:
+            return False
+
 
 class ProcessItem:
     def __init__(self, name, command, process_id, callback = None, sender = 'Non-DBus'):
@@ -237,14 +273,8 @@ class TerminalQueue:
         if self.resume_string is None:
             # add to the queue tab
             insert_iter = self.queue_model.insert_before(None, None)
-            self.queue_model.set_value(insert_iter, self.queue_model.column['icon'], None)
-            self.queue_model.set_value(insert_iter, self.queue_model.column['name'], str(package_name))
-            self.queue_model.set_value(insert_iter, self.queue_model.column['command'], str(command_string))
-            self.queue_model.set_value(insert_iter, self.queue_model.column['id'], self.next_id)
-            self.queue_model.set_value(insert_iter, self.queue_model.column['sender'], str(sender))
-            self.queue_model.set_value(insert_iter, self.queue_model.column['callback'], callback)
-            self.queue_model.set_value(insert_iter, self.queue_model.column['sender'], str(sender))
-            self.queue_model.set_value(insert_iter, self.queue_model.column['completed'], False)
+            self.queue_model.set_data(insert_iter,{'icon':None, 'name':str(package_name), 'command':str(command_string),
+                                                                            'id':self.next_id, 'sender':str(sender), 'callback':callback, 'completed': False})
             self.next_id += 1
             if self.queue_paused:
                 self.set_icon(PAUSED, self.process_id+1)
@@ -369,15 +399,24 @@ class TerminalQueue:
         if (not direction and path > 0) or \
             (direction and path < len(self.queue_model)):
             # get the selected value
-            selected = self.queue_model[path]
+            selected = self.queue_model.copy(path, 'dict')
             # get the adjacent value
-            prev = self.queue_model[path + direction]
-            temp2 =  (prev[0], prev[1], prev[2], prev[3], prev[4])
+            prev_iter = self.queue_model.get_iter(path + direction)
+            prev = self.queue_model.copy(path + direction, 'dict')
             # store selected temporarily so it's not overwritten
-            temp = (selected[0], selected[1], selected[2], selected[3], selected[4])
+            temp = selected.copy()
+            #col = self.queue_model.get_column_list()
+            prev_id = prev["id"]
+            prev_icon = prev["icon"]
+            sel_id = selected["id"]
+            sel_icon = selected["icon"]
+            temp["id"] = prev_id
+            prev["id"] = sel_id
+            temp["icon"] = prev_icon
+            prev["icon"] = sel_icon
             # switch sides and make sure the original is still selected
-            self.queue_model[path] = temp2
-            self.queue_model[path + direction] = temp
+            self.queue_model.set_data(selected_iter, prev)
+            self.queue_model.set_data(prev_iter, temp)
             self.queue_tree.get_selection().select_path(path + direction)
         else:
             debug.dprint("TERM_QUEUE: cannot move first or last item")
