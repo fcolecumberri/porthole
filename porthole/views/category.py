@@ -94,7 +94,7 @@ class CategoryView(CommonTreeView):
     def populate(self, categories, _sort = True, counts = None):
         """Fill the category tree."""
         self.clear()
-        debug.dprint("VIEWS: Populating category view;") # categories: " + str(categories))
+        debug.dprint("VIEWS: Populating category view; categories: " + str(categories))
         last_catmaj = None
         last_catmaj_iter = None
         if _sort:
@@ -106,7 +106,7 @@ class CategoryView(CommonTreeView):
             #debug.dprint(" VIEWS: CategoryView.populate(): cat: %s" %cat)
             if cat: # != 'virtual':
                 try:
-                    catmaj, catmin = cat.split("-")
+                    catmaj, catmin = cat.split("-",1)
                 except:
                     # if cat in ["System", "World", "Dependencies"]:
                     iter = self.model.insert_before(None, None)

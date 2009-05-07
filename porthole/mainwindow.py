@@ -1183,7 +1183,7 @@ class MainWindow:
         catpath = None
         if  cat and '-' in cat: # x in [SHOW_INSTALLED, SHOW_ALL, SHOW_UPGRADE] and
             # find path of category
-            catmaj, catmin = cat.split("-")
+            catmaj, catmin = cat.split("-",1)
             debug.dprint("catmaj, catmin = %s, %s" % (catmaj, catmin))
             while iter:
                 debug.dprint("value at iter %s: %s" % (iter, model.get_value(iter, 0)))
