@@ -539,19 +539,22 @@ def get_size(mycpv):
     """ Returns size of package to fetch. """
     #This code to calculate size of downloaded files was taken from /usr/bin/emerge - BB
     # new code chunks from emerge since the files/digest is no longer, info now in Manifest.
-    #debug.dprint( "PORTAGELIB: get_size; mycpv = " + mycpv)
+    debug.dprint( "PORTAGELIB: get_size; mycpv = " + mycpv)
     mysum = [0,'']
     myebuild = settings.portdb.findname(mycpv)
     pkgdir = os.path.dirname(myebuild)
     mf = manifest.Manifest(pkgdir, settings.settings["DISTDIR"])
+    debug.dprint( "PORTAGELIB: get_size; Attempting to get fetchlist")
     try:
-        fetchlist = settings.portdb.getFetchMap(mycpv, mysettings=settings.settings, all=True)[1]
-        #debug.dprint( "PORTAGELIB: get_size; fetchlist = " + str(fetchlist))
-    #try:
+        if portage.VERSION >= '2.1.6':# newer portage
+            fetchlist = settings.portdb.getFetchMap(mycpv) 
+        else:
+            debug.dprint( "PORTAGELIB: get_size; Trying old fetchlist call")
+            fetchlist = settings.portdb.getfetchlist(mycpv, mysettings=settings.settings, all=True)[1]
         #debug.dprint( "PORTAGELIB: get_size; mf.getDistfilesSize()")
         mysum[0] = mf.getDistfilesSize(fetchlist)
         mystr = str(mysum[0]/1024)
-        #debug.dprint( "PORTAGELIB: get_size; mystr = " + mystr)
+        debug.dprint( "PORTAGELIB: get_size; mystr = " + mystr)
         mycount=len(mystr)
         while (mycount > 3):
             mycount-=3
@@ -561,6 +564,7 @@ def get_size(mycpv):
         mysum[1] = "Unknown (missing digest)"
         debug.dprint( "PORTAGELIB: get_size; Exception: " + str(e)  )
         debug.dprint( "PORTAGELIB: get_size; ebuild: " + str(mycpv))
+        debug.dprint( "PORTAGELIB: get_size; fetchlist = " + str(fetchlist))
     #debug.dprint( "PORTAGELIB: get_size; returning mysum[1] = " + mysum[1])
     return mysum[1]
 
