@@ -565,7 +565,7 @@ class AdvancedEmergeDialog:
         # Build use flag string
         use_flags = self.get_use_flags(verInfo["name"])
         if len(use_flags) > 0:
-            use_flags = "USE='" + use_flags + "' "
+            use_flags = 'USE="' + use_flags + '" '
             self.btnPkgUse.set_sensitive(True)
             self.btnMakeConf.set_sensitive(True)
         else:
