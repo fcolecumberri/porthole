@@ -53,6 +53,8 @@ class Database(DBBase):
         self.desc_loaded = False
         self.desc_reloaded = False
         self.db_thread_running = False
+        self.db_init_waiting = False
+        self.db_init_new_sync = False
         self.db_thread = None
         self.callback = None
         self.desc_callback = None
@@ -135,12 +137,19 @@ class Database(DBBase):
         self.callback = callback
 
     def db_init(self, new_sync = False):
-        self.db_thread_running = True
-        self.db_thread = DatabaseReader(Dispatcher(self.db_update))
-        self.db_thread.start()
-        if new_sync:
-            # force a reload
-            self.desc_loaded = False
+        if self.db_thread_running:
+            self.db_thread_cancell()
+            # set the init is waiting flag
+            self.db_init_waiting = True
+            self.db_init_new_sync = new_sync
+        else:
+            self.db_thread_running = True
+            self.db_thread = DatabaseReader(Dispatcher(self.db_update))
+            self.db_thread.start()
+            self.db_init_new_sync = False
+            if new_sync:
+                # force a reload
+                self.desc_loaded = False
         
     def db_update(self, args):# extra args for dispatcher callback
         """Update the callback to the number of packages read."""
@@ -180,6 +189,9 @@ class Database(DBBase):
             del self.db  # clean up
             debug.dprint("DATABASE: db_update(); db is updated")
             self.load_descriptions()
+        if self.db_init_waiting:
+            self.db_init_waiting = False
+            self.db_init(self.db_init_new_sync)
 
     def load_descriptions(self):
         if not self.desc_loaded:
@@ -228,6 +240,6 @@ class Database(DBBase):
 
     def db_thread_cancell(self):
         if self.db_thread_running:
-            self.db_thread.please_die(self.db_thread_done)
+            self.db_thread.please_die()
 
 

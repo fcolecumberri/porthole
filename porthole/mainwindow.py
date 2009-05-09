@@ -321,32 +321,7 @@ class MainWindow:
 
     def reload_db(self, *widget):
         debug.dprint("MAINWINDOW: reload_db() callback")
-        if (db.db.db_thread_running or self.reader_running) and self.reload_depth <4:
-            if db.db.db_thread_running:
-                try:
-                    debug.dprint("MAINWINDOW: reload_db(); killing db thread")
-                    db.db.db_thread_cancell()
-                except:
-                    debug.dprint("MAINWINDOW: reload_db(); failed to kill db thread, depth = " + str(self.reload_depth))
-            else: # self.reader_running
-                debug.dprint("MAINWINDOW: reload_db(); killing upgrades thread")
-                self.reader.please_die()
-                self.reader_running = False
-            self.progress_done(True)
-            # set this function to re-run after some time for the thread to stop
-            self.reload_db_timeout = gobject.timeout_add(200, self.reload_db)
-            self.reload_depth += 1
-            return True
-        if self.reload_depth >= 4:
-            debug.dprint("MAINWINDOW: reload_db(); failed to confirm killing db thread, exceeded retry depth...continuing anyway")
-        self.reload_depth = 0
-        # upgrades loaded?
-        # reset so that it reloads the upgrade list
-        #self.loaded["Upgradable"] = False
-        #self.reader_cancelled = False
-        # upgrade loading callback
-        #self.loaded_callback["Upgradable"] = None
-        #self.pkg_list["Upgradable"] = {}
+        self.progress_done(True)
         for x in self.loaded_resets:
             self.loaded[x] = False
         for i in ["All", "Installed"]:
@@ -356,11 +331,10 @@ class MainWindow:
         #portage_lib.reload_portage()
         portage_lib.settings.reload_world()
         self.upgrade_view = False
-        #self.db_timeout = gobject.timeout_add(100, self.update_db_read)
         self.get_sync_time()
         self.set_sync_tip()
         # load the db
-        self.dbtime = 0
+        #self.dbtime = 0
         db.db.db_init(self.new_sync)
         #test = 87/0  # used to test pycrash is functioning
         self.reload = True
