@@ -95,13 +95,23 @@ class DependsView(CommonTreeView):
         # Setup the keyword Column
         self._keyword_column = gtk.TreeViewColumn(_("Keywords"))
         self.append_column(self._keyword_column)
-        text_lkeyword = gtk.CellRendererText()
-        self._keyword_column.pack_start(text_latest, expand = False)
-        self._keyword_column.add_attribute(text_latest, "text", self.model.column["keyword"])
+        text_keyword = gtk.CellRendererText()
+        self._keyword_column.pack_start(text_keyword, expand = False)
+        self._keyword_column.add_attribute(text_keyword, "text", self.model.column["keyword"])
         #self._keyword_column.set_cell_data_func(text_keyword, self.cell_data_func, None)
         self._keyword_column.set_resizable(True)
         self._keyword_column.set_min_width(10)
         #self._keyword_column.set_sort_column_id(self.model.column["keyword"])
+        # Setup the required USE flags  Column
+        self._required_use_column = gtk.TreeViewColumn(_("Required USE"))
+        self.append_column(self._required_use_column)
+        text_use = gtk.CellRendererText()
+        self._required_use_column.pack_start(text_use, expand = False)
+        self._required_use_column.add_attribute(text_use, "text", self.model.column["required_use"])
+        #self._required_use_column.set_cell_data_func(text_use, self.cell_data_func, None)
+        self._required_use_column.set_resizable(True)
+        self._required_use_column.set_min_width(12)
+        #self._required_use_column.set_sort_column_id(self.model.column["required_use"])
 
         self._last_selected = None
         self.connect("cursor-changed", self._clicked)

@@ -189,3 +189,9 @@ def slot_split(mydep):
         return [mydep[:colon], mydep[colon+1:]]
     return [mydep, '']
 
+def use_required_split(mydep):
+    brace = mydep.find("[")
+    if brace != -1:
+        brace2 = mydep.rfind("]")
+        return [mydep[:brace], mydep[brace+1:brace2]]
+    return [mydep, '']

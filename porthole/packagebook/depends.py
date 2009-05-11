@@ -28,7 +28,7 @@ from gettext import gettext as _
 from porthole.utils import debug
 from porthole import backends
 portage_lib = backends.portage_lib
-from porthole.backends.utilities import get_reduced_flags, slot_split
+from porthole.backends.utilities import get_reduced_flags, slot_split, use_required_split
 from porthole.db.package import Package
 from porthole import db
 
@@ -43,18 +43,26 @@ class DependAtom:
         self.useflag = ''
         self.name = ''
         self.slot = ''
+        self.required_use = ''
         self.complete = False
     
     def __repr__(self): # called by the "print" function
         """Returns a human-readable string representation of the DependAtom
         (used by the "print" statement)."""
-        if self.type == 'DEP': return self.get_depname()
-        elif self.type == 'BLOCKER': return '!' + self.get_depname()
+        #debug.dprint("DependAtom: __repr__(); "  + self.get_depname() + self.get_required_use())
+        if self.type == 'DEP': 
+            #debug.dprint("DependAtom: __repr__(); type = DEP, "  + self.get_depname() + self.get_required_use())
+            return self.get_depname() + self.get_required_use()
+        elif self.type == 'BLOCKER': 
+            #debug.dprint("DependAtom: __repr__(); type = BLOCKER, "  + self.get_depname() + self.get_required_use())
+            return '!' + self.get_depname() + self.get_required_use()
         elif self.type == 'OPTION': prefix = '||'
         elif self.type == 'GROUP': prefix = ''
         elif self.type == 'USING': prefix = self.useflag + '?'
         elif self.type == 'NOTUSING': prefix = '!' + self.useflag + '?'
-        elif self.type == 'REVISIONABLE': return '~' + self.get_depname()
+        elif self.type == 'REVISIONABLE':
+            #debug.dprint("DependAtom: __repr__(); type = REVISIONABLE, "  + self.get_depname() + self.get_required_use())
+            return '~' + self.get_depname() + self.get_required_use()
         else: return ''
         if self.children:
             bulk = ', '.join([kid.__repr__() for kid in self.children])
@@ -70,6 +78,7 @@ class DependAtom:
                 or self.name != test_atom.name
                 or self.slot != test_atom.slot
                 or self.useflag != test_atom.useflag
+                or self.required_use != test_atom.required_use
                 or self.children != test_atom.children): # children will recurse
             return False
         else: return True
@@ -116,19 +125,27 @@ class DependAtom:
         else:
             return self.name + ':' + self.slot
 
+    def get_required_use(self):
+        if self.required_use == '':
+            debug.dprint("DependAtom: get_required_use(); no use")
+            return ''
+        else:
+            debug.dprint("DependAtom: get_required_use(); required_use = " + self.required_use)
+            return "[" + self.required_use +"]"
 
 class DependsTree(gtk.TreeStore):
     """Calculate and display dependencies in a treeview"""
     def __init__(self):
         """Initialize the TreeStore object"""
         gtk.TreeStore.__init__(self, gobject.TYPE_STRING,   # depend name
-                                gtk.gdk.Pixbuf,                   # icon to display
-                                gobject.TYPE_PYOBJECT,     # package object
-                                gobject.TYPE_BOOLEAN,     # is_satisfied
+                                gtk.gdk.Pixbuf,                      # icon to display
+                                gobject.TYPE_PYOBJECT,   # package object
+                                gobject.TYPE_BOOLEAN,    # is_satisfied
                                 gobject.TYPE_STRING,        # package name
                                 gobject.TYPE_STRING,        # installed version
                                 gobject.TYPE_STRING,        # latest recommended version
-                                gobject.TYPE_STRING)        # keyword
+                                gobject.TYPE_STRING,       # keyword
+                                gobject.TYPE_STRING)        # use flags required to be enabled
         self.column = {
             "depend" : 0,
             "icon" : 1,
@@ -138,7 +155,7 @@ class DependsTree(gtk.TreeStore):
             "installed" : 5,
             "latest" : 6,
             "keyword":7,
-            "atom": 8
+            "required_use":8
         }
         self.dep_depth = 0
         self.parent_use_flags = {}
@@ -231,6 +248,7 @@ class DependsTree(gtk.TreeStore):
                                       size = gtk.ICON_SIZE_MENU, detail = None))
                 self.set_value(iter, self.column["depend"], text)
                 self.set_value(iter, self.column["satisfied"], bool(satisfied))
+                self.set_value(iter, self.column["required_use"], atom.get_required_use())
                 if atom.type in ['DEP', 'BLOCKER', 'REVISIONABLE']:
                     depname = portage_lib.get_full_name(atom.name)
                     if not depname:
@@ -310,17 +328,17 @@ def atomize_depends_list(depends_list, parent = None):
     temp_atom = None
     while depends_list:
         item = depends_list[0]
-        #debug.dprint("DependsTree: atomize_depends_list();298 start of while loop, item = " + str(item) + ", parent = " +str(parent))
+        #debug.dprint("DependsTree: atomize_depends_list();321 start of while loop, item = " + str(item) + ", parent = " +str(parent))
         if item.startswith("||"):
             temp_atom = DependAtom(parent)
             temp_atom.type = 'OPTION'
             if item != "||":
                 depends_list[0] = item[2:]
-                #debug.dprint("DependsTree: atomize_depends_list();304 item != ||, item[2:] = " + str(item[2:]) + ", parent = " +str(parent))
+                #debug.dprint("DependsTree: atomize_depends_list();327 item != ||, item[2:] = " + str(item[2:]) + ", parent = " +str(parent))
             else:
                 depends_list.pop(0)
             item = depends_list[0]
-            #debug.dprint("DependsTree: atomize_depends_list();308 new item = " + str(item) + ", parent = " +str(parent))
+            #debug.dprint("DependsTree: atomize_depends_list();331 new item = " + str(item) + ", parent = " +str(parent))
         elif item.endswith("?"):
             temp_atom = DependAtom(parent)
             if item.startswith("!"):
@@ -332,35 +350,35 @@ def atomize_depends_list(depends_list, parent = None):
             depends_list.pop(0)
             item = depends_list[0]
         if item.startswith("("):
-            #debug.dprint("DependsTree: atomize_depends_list();320 item.startswith '(', item = " + item + ", parent = " +str(parent) \
+            #debug.dprint("DependsTree: atomize_depends_list();343 item.startswith '(', item = " + item + ", parent = " +str(parent) \
             #                                + ", temp_atom = " +str(temp_atom))
             if temp_atom is None: # two '(' in a row. Need to create temp_atom
-                #debug.dprint("DependsTree: atomize_depends_list();323 item.startswith '(', new temp_atom for parent: " +str(parent))
+                #debug.dprint("DependsTree: atomize_depends_list();346 item.startswith '(', new temp_atom for parent: " +str(parent))
                 temp_atom = DependAtom(parent)
                 temp_atom.type = 'GROUP'
             if item != "(":
                 depends_list[0] = item[1:]
-                #debug.dprint("DependsTree: atomize_depends_list();328 item != '(': new depends_list[0]= " +str(depends_list[0]))
+                #debug.dprint("DependsTree: atomize_depends_list();351 item != '(': new depends_list[0]= " +str(depends_list[0]))
             else:
-                #debug.dprint("DependsTree: atomize_depends_list();330 next recursion level, depends_list: "+str(depends_list))
-                #debug.dprint("DependsTree: atomize_depends_list();331 next recursion level, temp_atom: "+str(temp_atom))
+                #debug.dprint("DependsTree: atomize_depends_list();353 next recursion level, depends_list: "+str(depends_list))
+                #debug.dprint("DependsTree: atomize_depends_list();354 next recursion level, temp_atom: "+str(temp_atom))
                 group, depends_list = split_group(depends_list)
                 temp_atom.children = atomize_depends_list(group, temp_atom)
                 if not filter(lambda a: temp_atom == a, atomized_list):
                 # i.e. if temp_atom is not any atom in atomized_list.
                 # This is checked by calling DependAtom.__eq__().
-                    #debug.dprint("DependsTree: atomize_depends_list();337 ')'-1, atomized_list.append(temp_atom) = " + str(temp_atom) + ", parent = " +str(parent))
+                    #debug.dprint("DependsTree: atomize_depends_list();360 ')'-1, atomized_list.append(temp_atom) = " + str(temp_atom) + ", parent = " +str(parent))
                     atomized_list.append(temp_atom)
                 temp_atom = None
                 continue
-                #debug.dprint("DependsTree: atomize_depends_list();341 item = '(': new depends_list[0]= " +str(depends_list[0]))
-            #debug.dprint("DependsTree: atomize_depends_list();342 next recursion level, depends_list: "+str(depends_list))
-            #debug.dprint("DependsTree: atomize_depends_list();343 next recursion level, temp_atom: "+str(temp_atom))
+                #debug.dprint("DependsTree: atomize_depends_list();364 item = '(': new depends_list[0]= " +str(depends_list[0]))
+            #debug.dprint("DependsTree: atomize_depends_list();365 next recursion level, depends_list: "+str(depends_list))
+            #debug.dprint("DependsTree: atomize_depends_list();366 next recursion level, temp_atom: "+str(temp_atom))
             temp_atom.children = atomize_depends_list(depends_list, temp_atom)
             if not filter(lambda a: temp_atom == a, atomized_list):
             # i.e. if temp_atom is not any atom in atomized_list.
             # This is checked by calling DependAtom.__eq__().
-                #debug.dprint("DependsTree: atomize_depends_list();348 ')'-1, atomized_list.append(temp_atom) = " + str(temp_atom) + ", parent = " +str(parent))
+                #debug.dprint("DependsTree: atomize_depends_list();371 ')'-1, atomized_list.append(temp_atom) = " + str(temp_atom) + ", parent = " +str(parent))
                 atomized_list.append(temp_atom)
             temp_atom = None
             continue
@@ -369,7 +387,7 @@ def atomize_depends_list(depends_list, parent = None):
                 depends_list[0] = item[1:]
             else:
                 depends_list.pop(0)
-                #debug.dprint("DependsTree: atomize_depends_list();357 finished recursion level, returning atomized list") 
+                #debug.dprint("DependsTree: atomize_depends_list();380 finished recursion level, returning atomized list") 
             return atomized_list
         else: # hopefully a nicely formatted dependency
             if filter(lambda a: a in item, ['(', '|', ')', '?']):
@@ -377,27 +395,30 @@ def atomize_depends_list(depends_list, parent = None):
                     "Please report this to the authorities. (item = %s)" % item)
             temp_atom = DependAtom(parent)
             if item.startswith("!"):
-                #debug.dprint("DependsTree: atomize_depends_list();365 found a BLOCKER dep: " + item)
+                #debug.dprint("DependsTree: atomize_depends_list();388 found a BLOCKER dep: " + item)
                 temp_atom.type = "BLOCKER"
                 item = item[1:]
             elif item.startswith('~'):
-                #debug.dprint("DependsTree: atomize_depends_list();369 found a REVISIONABLE dep: " + item)
+                #debug.dprint("DependsTree: atomize_depends_list();392 found a REVISIONABLE dep: " + item)
                 temp_atom.type = "REVISIONABLE"
                 item = item[1:]
             else:
-                #debug.dprint("DependsTree: atomize_depends_list();373 found a DEP dep: " + item)
+                #debug.dprint("DependsTree: atomize_depends_list();396 found a DEP dep: " + item)
                 temp_atom.type = "DEP"
-            ns = slot_split(item)
+            nu = use_required_split(item)
+            ns = slot_split(nu[0])
+            #debug.dprint("DependsTree: atomize_depends_list();400 REQUIRED USE flags for dep: " + str(nu))
             temp_atom.name = ns[0]
             temp_atom.slot = ns[1]
+            temp_atom.required_use = nu[1]
             if not filter(lambda a: temp_atom == a, atomized_list):
             # i.e. if temp_atom is not any atom in atomized_list.
             # This is checked by calling DependsAtom.__eq__().
-                #debug.dprint("DependsTree: atomize_depends_list();379 ')'-2, atomized_list.append(temp_atom) = " + str(temp_atom) + ", parent = " +str(parent))
+                #debug.dprint("DependsTree: atomize_depends_list();407 ')'-2, atomized_list.append(temp_atom) = " + str(temp_atom) + ", parent = " +str(parent))
                 atomized_list.append(temp_atom)
             temp_atom = None
             depends_list.pop(0)
-    #debug.dprint("DependsTree: atomize_depends_list();383 finished recursion level, returning atomized list")
+    #debug.dprint("DependsTree: atomize_depends_list();411 finished recursion level, returning atomized list")
     return atomized_list
     
 def split_group(dep_list):
