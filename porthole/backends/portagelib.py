@@ -399,7 +399,7 @@ def get_full_name(ebuild):
 def get_installed(package_name):
     """Extract installed versions from package_name.
     package_name can be the short package name ('eric'), long package name ('dev-util/eric')
-    or a version-matching string ('>=dev-util/eric-2.5.1')
+    or a version-matching string ('>=dev-util/eric-2.5.1:2[flag1 flag2]')
     """
     return settings.trees[settings.settings["ROOT"]]["vartree"].dep_match(str(package_name))
 
