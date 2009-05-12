@@ -89,8 +89,8 @@ class DependAtom:
         Returns -1 if being satisfied is irrelevant (e.g. use flag for a
         "USING" DependAtom is not set). Otherwise, the return value can be
         evaluated as True if the dep is satisfied, False if unsatisfied."""
-        if self.type == 'DEP': return portage_lib.get_installed(self.get_depname())
-        elif self.type == 'BLOCKER': return not portage_lib.get_installed(self.get_depname())
+        if self.type == 'DEP': return portage_lib.get_installed(self.get_depname() + self.get_required_use())
+        elif self.type == 'BLOCKER': return not portage_lib.get_installed(self.get_depname() + self.get_required_use())
         elif self.type == 'OPTION': # nonempty if any child is satisfied
             satisfied = []
             for child in self.children:
@@ -117,7 +117,7 @@ class DependAtom:
             else: satisfied = -1
             return satisfied
         elif self.type == 'REVISIONABLE': # nonempty if is satisfied
-            return portage_lib.get_installed('~' + self.get_depname())
+            return portage_lib.get_installed('~' + self.get_depname() + self.get_required_use())
 
     def get_depname(self):
         if self.slot == '':
@@ -127,10 +127,10 @@ class DependAtom:
 
     def get_required_use(self):
         if self.required_use == '':
-            debug.dprint("DependAtom: get_required_use(); no use")
+            #debug.dprint("DependAtom: get_required_use(); no use")
             return ''
         else:
-            debug.dprint("DependAtom: get_required_use(); required_use = " + self.required_use)
+            #debug.dprint("DependAtom: get_required_use(); required_use = " + self.required_use)
             return "[" + self.required_use +"]"
 
 class DependsTree(gtk.TreeStore):
