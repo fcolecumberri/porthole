@@ -1071,6 +1071,7 @@ class MainWindow:
         self.clear_package_detail()
         cat = None #self.current_cat_name["All_Installed"]
         pack = None #self.current_pkg_name["All_Installed"]
+        sort_categories = False
 
         if x in (SHOW_INSTALLED, SHOW_ALL):
             if x == SHOW_ALL:
@@ -1115,6 +1116,7 @@ class MainWindow:
                 self.package_view.set_view(DEPRECATED)
             else:
                 self.package_view.set_view(SETS)
+                sort_categories = True
             if not self.loaded[INDEX_TYPES[x]]:
                 debug.dprint("MAINWINDOW: view_filter_changed(); calling load_reader_list('" + INDEX_TYPES[x] + "') reader_running = %s ********************************" %self.reader_running)
                 self.load_reader_list(INDEX_TYPES[x])
@@ -1123,7 +1125,7 @@ class MainWindow:
                 debug.dprint("MAINWINDOW: view_filter_changed(); back from load_reader_list('" + INDEX_TYPES[x] + "')")
             else:
                 debug.dprint("MAINWINDOW: view_filter_changed(); calling category_view.populate() with categories:" + str(self.pkg_list[INDEX_TYPES[x]].keys()))
-                self.category_view.populate(self.pkg_list[INDEX_TYPES[x]].keys(), False, self.pkg_count[INDEX_TYPES[x]])
+                self.category_view.populate(self.pkg_list[INDEX_TYPES[x]].keys(), sort_categories, self.pkg_count[INDEX_TYPES[x]])
             #self.package_view.set_view(UPGRADABLE)
             debug.dprint("MAINWINDOW: view_filter_changed(); init package_view")
             self.package_view._init_view()
