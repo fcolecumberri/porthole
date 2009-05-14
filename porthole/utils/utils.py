@@ -221,5 +221,4 @@ def info_check(command_string):
 
 def get_set_name(file):
         if file:
-            parts = file.split('/')
-            return parts[-1]
+            return file.split('/sets/')[-1].replace("/","-")
