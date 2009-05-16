@@ -65,10 +65,16 @@ def read_bash(bash_source):
 def sort(list):
     """sort in alphabetic instead of ASCIIbetic order"""
     debug.dprint("BACKENDS Utilities: sort()")
-    spam = [(x[0].upper(), x) for x in list]
-    spam.sort()
-    debug.dprint("BACKENDS Utilities: sort(); finished")
-    return [x[1] for x in spam]
+    try:
+        spam = [(x[0].upper(), x) for x in list]
+        spam.sort()
+        debug.dprint("BACKENDS Utilities: sort(); finished")
+        return [x[1] for x in spam]
+    except:
+                debug.dprint("BACKENDS Utilities: sort(); failed for some reason, probably an index error so I'll print the list too: ")
+                debug.dprint("BACKENDS Utilities: sort(); list = " + str(list))
+                return [_('None')] # so it doesn't crash
+
 
 def get_sync_info():
     """gets and returns the timestamp info saved during
