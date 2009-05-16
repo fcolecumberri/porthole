@@ -86,7 +86,7 @@ class Database(DBBase):
                     #debug.dprint("DATABASE: get_package(); self.categories[category] = " + str(self.categories[category].keys()))
                 return None
         except Exception, e:
-            debug.dprint("DATABASE: get_package(); exception occured: " + e)
+            debug.dprint("DATABASE: get_package(); exception occured: " + str(e))
             return None
 
     def update_package(self, fullname):
