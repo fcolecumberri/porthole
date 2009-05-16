@@ -1110,13 +1110,13 @@ class MainWindow:
         elif x in [SHOW_UPGRADE, SHOW_DEPRECATED, SHOW_SETS]:
             debug.dprint("MAINWINDOW: view_filter_changed(); '" + INDEX_TYPES[x] + "' selected")
             cat_scroll.show();
+            sort_categories = True  # all need to be sorted for them to be displayed in the tree correctly
             if x == SHOW_UPGRADE:
                 self.package_view.set_view(UPGRADABLE)
             elif x == SHOW_DEPRECATED:
                 self.package_view.set_view(DEPRECATED)
             else:
                 self.package_view.set_view(SETS)
-                sort_categories = True
             if not self.loaded[INDEX_TYPES[x]]:
                 debug.dprint("MAINWINDOW: view_filter_changed(); calling load_reader_list('" + INDEX_TYPES[x] + "') reader_running = %s ********************************" %self.reader_running)
                 self.load_reader_list(INDEX_TYPES[x])
