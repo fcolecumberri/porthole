@@ -39,7 +39,8 @@ MODEL_ITEM = {"name": 0,
                         "size": 6,
                         "installed": 7,
                         "recommended": 8,
-                        "description": 9}
+                        "description": 9
+                        }
 
 
 def PackageModel():
@@ -60,5 +61,16 @@ def PackageModel():
     store.set_sort_func(MODEL_ITEM["recommended"], latest_sort_func)
     store.set_sort_func(MODEL_ITEM["installed"], installed_sort_func)
     return store
+
+C_ITEM = {"short_name": 0,
+                                    "full_name": 1,
+                                    "count": 2
+                                    }
+
+def CategoryModel():
+        model = gtk.TreeStore(gobject.TYPE_STRING,       # 0 partial category name
+                                   gobject.TYPE_STRING,                         # 1 full category name
+                                   gobject.TYPE_STRING)                         # 2 pkg count, use string so it can be blank
+        return model
 
 
