@@ -430,10 +430,10 @@ class PackageView(CommonTreeView):
             #debug.dprint("VIEWS: PackageView.populate(); name = %s" %name)
             # go through each package
             iter = model.insert_before(None, None)
-            model.set_value(iter, MODEL_ITEM["package"], packages[name])
             model.set_value(iter,MODEL_ITEM["name"], name)
             upgradable = 0
             if name != _("None"):
+                model.set_value(iter, MODEL_ITEM["package"], packages[name])
                 model.set_value(iter, MODEL_ITEM["checkbox"], (packages[name].is_checked))
                 model.set_value(iter, MODEL_ITEM["world"], (packages[name].in_world))
                 upgradable = packages[name].is_dep_upgradable()
