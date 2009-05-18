@@ -143,7 +143,7 @@ class CategoryView(CommonTreeView):
                         self.model.set_value( parent_iter[i+1], C_ITEM["count"], str(0) )
                     else:   # last one, short_name, i == max_level
                         # child row
-                        debug.dprint(" VIEWS: CategoryView.populate(): i = " + str(i) + " 161 end child row '"+ cat_split[i] + "' for: " + full_name)
+                        #debug.dprint(" VIEWS: CategoryView.populate(): i = " + str(i) + " 161 end child row '"+ cat_split[i] + "' for: " + full_name)
                         #debug.dprint(" VIEWS: CategoryView.populate():162 parent_iter = " +str(parent_iter))
                         parent_iter = parent_iter[:i+1]
                         last_full_names.append(full_name)

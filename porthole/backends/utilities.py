@@ -68,7 +68,7 @@ def sort(list):
     try:
         spam = [(x[0].upper(), x) for x in list]
         spam.sort()
-        debug.dprint("BACKENDS Utilities: sort(); finished")
+        #debug.dprint("BACKENDS Utilities: sort(); finished")
         return [x[1] for x in spam]
     except:
                 debug.dprint("BACKENDS Utilities: sort(); failed for some reason, probably an index error so I'll print the list too: ")

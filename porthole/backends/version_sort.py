@@ -67,8 +67,8 @@ fill_size = 3
 def pad_ver(vlist):
     """pads the version string so all number sequences are the same
        length for acurate sorting, borrowed & modified code from new portage vercmp()"""
-    dprint("VERSION_SORT:  pad_ver();  vlist[]")
-    dprint(vlist)
+    #dprint("VERSION_SORT:  pad_ver();  vlist[]")
+    #dprint(vlist)
     # short circuit for  list of 1
     #if len(vlist) == 1:
     #    return vlist
