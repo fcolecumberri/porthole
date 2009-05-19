@@ -122,6 +122,7 @@ class ProcessManager: #dbus.service.Object):
         self.window_visible = False
         self.task_completed = True
         self.confirm = False
+        self.status_text = ''
         # filename and serial #
         self.directory = None
         self.filename = None
@@ -235,7 +236,10 @@ class ProcessManager: #dbus.service.Object):
                      "on_process_text_key_press_event" : self.on_pty_keypress,
                      "on_move_up" : self.process_queue.move_item_up,
                      "on_move_down" : self.process_queue.move_item_down,
+                     "on_move_top": self.process_queue.move_item_top,
+                     "on_move_bottom": self.process_queue.move_item_bottom,
                      "on_remove" : self.process_queue.remove_item,
+                     "on_clear_queue": self.process_queue.clear,
                      "on_resume_queue_activate" : self.process_queue.restart,
                      "on_play_queue_button_clicked" : self.process_queue.restart,
                      "on_timer_button_clicked" : self.process_queue.timer,

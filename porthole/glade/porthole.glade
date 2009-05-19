@@ -1257,7 +1257,7 @@
 			  <signal name="activate" handler="on_resume1_activate" last_modification_time="Thu, 19 Feb 2004 08:05:32 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image536">
+			    <widget class="GtkImage" id="image714">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-refresh</property>
 			      <property name="icon_size">1</property>
@@ -1316,7 +1316,7 @@
 			  <signal name="activate" handler="on_kill" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image537">
+			    <widget class="GtkImage" id="image715">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-cancel</property>
 			      <property name="icon_size">1</property>
@@ -1343,7 +1343,7 @@
 			  <signal name="activate" handler="on_save_log" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image538">
+			    <widget class="GtkImage" id="image716">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-save</property>
 			      <property name="icon_size">1</property>
@@ -1364,7 +1364,7 @@
 			  <signal name="activate" handler="on_save_log_as" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image539">
+			    <widget class="GtkImage" id="image717">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-save-as</property>
 			      <property name="icon_size">1</property>
@@ -1385,7 +1385,7 @@
 			  <signal name="activate" handler="on_open_log" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image540">
+			    <widget class="GtkImage" id="image718">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-open</property>
 			      <property name="icon_size">1</property>
@@ -1412,7 +1412,7 @@
 			  <signal name="activate" handler="on_quit" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image541">
+			    <widget class="GtkImage" id="image719">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-close</property>
 			      <property name="icon_size">1</property>
@@ -1447,7 +1447,7 @@
 			  <accelerator key="C" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image542">
+			    <widget class="GtkImage" id="image720">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-copy</property>
 			      <property name="icon_size">1</property>
@@ -1474,7 +1474,7 @@
 			  <signal name="activate" handler="on_clear" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image543">
+			    <widget class="GtkImage" id="image721">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-clear</property>
 			      <property name="icon_size">1</property>
@@ -1516,7 +1516,7 @@
 			  <signal name="activate" handler="on_pause_activate" last_modification_time="Thu, 08 Dec 2005 06:32:56 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image544">
+			    <widget class="GtkImage" id="image722">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-media-pause</property>
 			      <property name="icon_size">1</property>
@@ -1538,7 +1538,7 @@
 			  <signal name="activate" handler="on_resume_queue_activate" last_modification_time="Thu, 08 Dec 2005 06:32:56 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image545">
+			    <widget class="GtkImage" id="image723">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-media-play</property>
 			      <property name="icon_size">1</property>
@@ -1579,6 +1579,28 @@
 		      </child>
 
 		      <child>
+			<widget class="GtkImageMenuItem" id="move_top">
+			  <property name="visible">True</property>
+			  <property name="tooltip" translatable="yes">Moves the selected process to start next</property>
+			  <property name="label" translatable="yes">Move Top</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_move_top" last_modification_time="Mon, 18 May 2009 18:22:17 GMT"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image725">
+			      <property name="visible">True</property>
+			      <property name="stock">gtk-goto-top</property>
+			      <property name="icon_size">1</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
 			<widget class="GtkImageMenuItem" id="move_up1">
 			  <property name="visible">True</property>
 			  <property name="sensitive">False</property>
@@ -1587,7 +1609,7 @@
 			  <signal name="activate" handler="on_move_up" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image547">
+			    <widget class="GtkImage" id="image726">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-go-up</property>
 			      <property name="icon_size">1</property>
@@ -1609,7 +1631,7 @@
 			  <signal name="activate" handler="on_move_down" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image548">
+			    <widget class="GtkImage" id="image727">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-go-down</property>
 			      <property name="icon_size">1</property>
@@ -1628,34 +1650,12 @@
 			  <property name="tooltip" translatable="yes">Moves the selected process to the end of the queue</property>
 			  <property name="label" translatable="yes">Move Bottom</property>
 			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_move_bottom_activate" last_modification_time="Thu, 08 Dec 2005 06:41:39 GMT"/>
+			  <signal name="activate" handler="on_move_bottom" last_modification_time="Mon, 18 May 2009 18:22:27 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image549">
+			    <widget class="GtkImage" id="image728">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-goto-bottom</property>
-			      <property name="icon_size">1</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkImageMenuItem" id="move_top">
-			  <property name="visible">True</property>
-			  <property name="tooltip" translatable="yes">Moves the selected process to start next</property>
-			  <property name="label" translatable="yes">Move Top</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_move_top_activate" last_modification_time="Thu, 08 Dec 2005 06:41:39 GMT"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image550">
-			      <property name="visible">True</property>
-			      <property name="stock">gtk-goto-top</property>
 			      <property name="icon_size">1</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
@@ -1676,14 +1676,37 @@
 			<widget class="GtkImageMenuItem" id="remove1">
 			  <property name="visible">True</property>
 			  <property name="sensitive">False</property>
+			  <property name="tooltip" translatable="yes">Removes selected queue item(s)</property>
 			  <property name="label" translatable="yes">_Remove</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_remove" last_modification_time="Sun, 22 Feb 2004 15:44:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image551">
+			    <widget class="GtkImage" id="image729">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-delete</property>
+			      <property name="icon_size">1</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkImageMenuItem" id="clear_queue">
+			  <property name="visible">True</property>
+			  <property name="tooltip" translatable="yes">Clears the entire queue</property>
+			  <property name="label" translatable="yes">Clear</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_clear_queue" last_modification_time="Mon, 18 May 2009 03:25:20 GMT"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image730">
+			      <property name="visible">True</property>
+			      <property name="stock">gtk-clear</property>
 			      <property name="icon_size">1</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
@@ -1753,7 +1776,6 @@
 		      <child>
 			<widget class="GtkTextView" id="process_text">
 			  <property name="visible">True</property>
-			  <property name="tooltip" translatable="yes">Main process text</property>
 			  <property name="can_focus">True</property>
 			  <property name="editable">False</property>
 			  <property name="overwrite">False</property>
