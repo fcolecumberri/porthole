@@ -114,13 +114,14 @@ class QueueModel(gtk.ListStore):
             elif type(data) is ListType:
                 debug.dprint("QueueModel: set_data(); ListType data = " + str(data))
                 #if type(data[self.column['icon']]) is NoneType:
-                self.set_value(iter, self.column['icon'], data[self.column['icon']])
-                self.set_value(iter, self.column['name'], data[self.column['name']])
-                self.set_value(iter, self.column['command'], data[self.column['command']])
-                self.set_value(iter, self.column['id'], data[self.column['id']])
-                self.set_value(iter, self.column['sender'], data[self.column['sender']])
-                self.set_value(iter, self.column['callback'], data[self.column['callback']])
-                self.set_value(iter, self.column['completed'], data[self.column['completed']])
+                self.set(iter, self.column['icon'], data[self.column['icon']],
+                                    self.column['name'], data[self.column['name']],
+                                    self.column['command'], data[self.column['command']],
+                                    self.column['id'], data[self.column['id']],
+                                    self.column['sender'], data[self.column['sender']],
+                                    self.column['callback'], data[self.column['callback']],
+                                    self.column['completed'], data[self.column['completed']]
+                            )
             return True
         else:
             return False
@@ -172,7 +173,9 @@ class TerminalQueue:
         # initialize the model
         self.queue_model = QueueModel()
         # initialize some variables
+        self.task_completed = True
         self.clear()
+        self.paused = False
         # catch clicks to the queue tree
         self.queue_tree.connect("cursor-changed", self.clicked)
         # setup the queue treeview
@@ -258,13 +261,17 @@ class TerminalQueue:
             self.new_window = False
         if self.resume_string is None:
             # add to the queue tab
-            insert_iter = self.queue_model.insert_before(None, None)
+            insert_iter = self.queue_model.append() #insert_before(None, None)
             self.queue_model.set_data(insert_iter,{'icon':None, 'name':str(package_name), 'command':str(command_string),
                                                                             'id':self.next_id, 'sender':str(sender), 'callback':callback, 'completed': False})
-            self.next_id += 1
-            if self.queue_paused:
+            if self.queue_paused and self.paused_iter == None:
                 self.paused_id = self.process_id+1
+                if self.process_iter:
+                    self.paused_iter = self.queue_model.iter_next(self.process_iter)
+                elif self.next_id == 1:
+                    self.paused_iter = self.queue_model.get_iter_first()
                 self.set_icon(PAUSED, self.paused_id)
+            self.next_id += 1
         # show the queue tab!
         self.show_queue()
         self.qmenu_items["clear_queue"].set_sensitive(True)
@@ -293,8 +300,9 @@ class TerminalQueue:
         debug.dprint("TERM_QUEUE: restart()")
         self.queue_paused = False
         self.set_btn_menus()
-        self.set_icon(PENDING, self.paused_id)
+        self.set_icon(PENDING, self.paused_id, self.paused_path)
         if self.task_completed:
+            debug.dprint("TERM_QUEUE: restart(); task is completed, calling start()")
             self.start(False)
 
     # skip_first needs to be true for the menu callback
@@ -364,15 +372,20 @@ class TerminalQueue:
 
     def pause(self, *widget):
         """pauses the queue"""
-        debug.dprint("TERM_QUEUE: pause(); pausing queue at id = " + str(self.process_id+1))
+        if self.queue_paused:
+            debug.dprint("TERM_QUEUE: pause(); queue already paused")
+            return True
+        self.paused_id = self.process_id + 1
+        debug.dprint("TERM_QUEUE: pause(); pausing queue at id = " + str(self.paused_id))
         self.queue_paused = True
         self.set_btn_menus()
-        path = self.queue_model.get_path(self.process_iter)[0]
-        iter = self.queue_model.get_iter(path +1)
-        id = self.queue_model.get_value(iter, self.queue_model.column['id'])
-        self.set_icon(PAUSED, id)
-        self.paused_id = id
-        return
+        self.paused_path = self.queue_model.get_path(self.process_iter)[0] +1
+        if self.paused_path < len(self.queue_model):
+            self.paused_iter = self.queue_model.get_iter(self.paused_path)
+            if self.paused_iter:
+                self.set_icon(PAUSED, self.paused_id)
+        debug.dprint("TERM_QUEUE: pause(); queue paused... returning, paused_iter = " + str(self.paused_iter))
+        return True
 
     def timer(self, *widget):
         """a queue timer"""
@@ -390,31 +403,26 @@ class TerminalQueue:
         # only move down if it's not the last entry
         if (not direction and path > 0) or \
             (direction and path < len(self.queue_model)):
-            # get the selected value
-            selected = self.queue_model.copy(path, 'dict')
-            # get the adjacent value
-            prev_iter = self.queue_model.get_iter(path + direction)
-            prev = self.queue_model.copy(path + direction, 'dict')
-            # store selected temporarily so it's not overwritten
-            temp = selected.copy()
-            #col = self.queue_model.get_column_list()
-            prev_id = prev["id"]
-            prev_icon = prev["icon"]
-            sel_id = selected["id"]
-            sel_icon = selected["icon"]
-            temp["id"] = prev_id
-            prev["id"] = sel_id
-            temp["icon"] = prev_icon
-            prev["icon"] = sel_icon
-            # switch sides and make sure the original is still selected
-            self.queue_model.set_data(selected_iter, prev)
-            self.queue_model.set_data(prev_iter, temp)
+            # get the adjacent values
+            destination_iter = self.queue_model.get_iter(path + direction)
+            destination_id = self.queue_model.get_value(destination_iter, self.queue_model.column['id']) 
+            destination_icon = self.queue_model.get_value(destination_iter, self.queue_model.column['icon'])
+            sel_id = self.queue_model.get_value(selected_iter, self.queue_model.column['id']) 
+            sel_icon = self.queue_model.get_value(selected_iter, self.queue_model.column['icon'])
+            # switch places and make sure the original is still selected
+            self.queue_model.swap(selected_iter, destination_iter)
+            self.queue_model.set_value(selected_iter, self.queue_model.column['id'], destination_id)
+            self.queue_model.set_value(destination_iter, self.queue_model.column['id'], sel_id)
+            if self.paused_path == path or self.paused_path == path + direction:
+                self.queue_model.set_value(selected_iter, self.queue_model.column['icon'], destination_icon)
+                self.queue_model.set_value(destination_iter, self.queue_model.column['icon'], sel_icon)
             self.queue_tree.get_selection().select_path(path + direction)
         else:
             debug.dprint("TERM_QUEUE: cannot move first or last item")
 
-        # We're done
+        # We're done, reset queue moves
         result = self.clicked(self.queue_tree)
+        del path, selected_iter, destination_iter, sel_id, sel_icon, destination_id, destination_icon
 
     def move_item_up(self, widget):
         """ Move selected queue item up in the queue """
@@ -426,11 +434,47 @@ class TerminalQueue:
 
     def move_item_top(self, widget):
         debug.dprint("TERM_QUEUE: move_item_top()")
-        pass
+        # pause the queue so it does not get messed up while we are moving things
+        paused = self.pause()
+        debug.dprint("TERM_QUEUE: move_item_top(); back from paused, paused_iter = " + str(self.paused_iter))
+        # get the selected iter
+        selected_iter = get_treeview_selection(self.queue_tree)
+        if not selected_iter:
+            debug.dprint("TERM_QUEUE: move_item_top(); selected_iter == None, returning, no selection active")
+            return False
+        path = self.queue_model.get_path(selected_iter)[0]
+        self.queue_model.move_before(selected_iter, self.paused_iter)
+        #self.queue_model.set_value(self.paused_iter, self.queue_model.column['icon'], None)str(int(self.paused_id +1)), self.paused_path+1)
+        self.set_icon(PENDING, str(int(self.paused_id +1)), self.paused_path+1)
+        self.paused_iter = selected_iter.copy()
+        self.renum_ids(self.paused_path, self.paused_id)
+        self.set_icon(PAUSED,self.paused_id, self.paused_path)
+        # We're done, reset queue moves
+        result = self.clicked(self.queue_tree)
+        del path, paused, selected_iter
 
     def move_item_bottom(self, widget):
         debug.dprint("TERM_QUEUE: move_item_bottom()")
-        pass
+        # pause the queue so it does not get messed up while we are moving things
+        paused = self.pause()
+        debug.dprint("TERM_QUEUE: move_item_top(); back from paused, paused_iter = " + str(self.paused_iter))
+        # get the selected iter
+        selected_iter = get_treeview_selection(self.queue_tree)
+        if not selected_iter:
+            debug.dprint("TERM_QUEUE: move_item_top(); selected_iter == None, returning, no selection active")
+            return False
+        path = self.queue_model.get_path(selected_iter)[0]
+        id = self.queue_model.get_value(selected_iter,  self.queue_model.column['id'])
+        end_iter = self.queue_model.get_iter(self.next_id-2)
+        self.queue_model.move_after(selected_iter, end_iter)
+        if path == self.paused_path:
+            self.set_icon(PAUSED, self.paused_id, self.paused_path)
+            self.queue_model.set_value(selected_iter, self.queue_model.column['icon'], None)
+            self.paused_iter = self.queue_model.get_iter(self.paused_path)
+        self.renum_ids(path, id)
+        # We're done, reset queue moves
+        result = self.clicked(self.queue_tree)
+        del end_iter, selected_iter, id, path, paused
 
     def remove_item(self, widget):
         """ Remove the selected item from the queue """
@@ -454,6 +498,7 @@ class TerminalQueue:
                     self.set_icon(PAUSED, id, path)
         self.set_menu_state()
         # We're done
+        del name, id, selected_iter, path
 
     def renum_ids(self, path, id):
         if not id or not path:
@@ -463,6 +508,7 @@ class TerminalQueue:
             self.queue_model.set_value(iter, self.queue_model.column['id'], id)
             iter = self.queue_model.iter_next(iter)
             id += 1
+        del iter
 
     def clicked(self, *widget):
         """Handle clicks to the queue treeview"""
@@ -475,6 +521,7 @@ class TerminalQueue:
         except:
             debug.dprint("TERM_QUEUE: Couldn't get queue view treeiter path, " \
                     "there is probably nothing selected.")
+            del selected_iter
             return False
         # if the item is already run
         # don't make the controls sensitive and return
@@ -490,6 +537,7 @@ class TerminalQueue:
                 state.append(True)
             self.set_queue_moves(state)
             debug.dprint("TERM_QUEUE: clicked(); finished... returning")
+            del selected_iter, id, name, killed, state
             return True
         # if we reach here it's still needs to be processed
         # set the correct directions sensitive
@@ -517,10 +565,15 @@ class TerminalQueue:
         state.append(True)
         self.set_queue_moves(state)
         #debug.dprint("TERM_QUEUE: clicked(); finished... returning")
+        del selected_iter, id, name, killed, state
         return True
 
     def clear( self, *widget ):
         debug.dprint("TERM_QUEUE: clear();")
+        # check that task are completed
+        if not self.task_completed:
+            self.pause()
+            return
         self.queue_model.clear()
         self.set_queue_moves([False, False, False, False, False, False])
         if not widget:
@@ -528,6 +581,8 @@ class TerminalQueue:
         self.process_id = 0
         self.next_id = 1
         self.paused_id = None
+        self.paused_iter = None
+        self.paused_path = None
         self.process_iter = None
         self.last_run_iter = None
         self.task_completed = True
@@ -542,9 +597,17 @@ class TerminalQueue:
 
     def locate_id( self, process_id ):
         debug.dprint("TERM_QUEUE: locate_id(); looking for process_id = " + str(process_id))
-        self.locate_iter = self.queue_model.get_iter_first()
-        while self.queue_model.get_value(self.locate_iter,self.queue_model.column['id']) != process_id:
-            self.locate_iter = self.queue_model.iter_next(self.locate_iter)
+        # try to be smart about it
+        path = process_id -1
+        try:
+            self.locate_iter = self.queue_model.get_iter(path)
+            if not self.queue_model.get_value(self.locate_iter,self.queue_model.column['id']) == process_id:
+                raise "ID mismatch, something is out of sink"
+        except e:
+            debug.dprint("TERM_QUEUE: locate_id(); execption raised = " + str(e))
+            self.locate_iter = self.queue_model.get_iter_first()
+            while self.queue_model.get_value(self.locate_iter,self.queue_model.column['id']) != process_id:
+                self.locate_iter = self.queue_model.iter_next(self.locate_iter)
         debug.dprint("TERM_QUEUE: locate_id(); ended up with locate_iter id = %d, looking for %d" \
                 %(self.queue_model.get_value(self.locate_iter,self.queue_model.column['id']),process_id))
         return
@@ -613,10 +676,11 @@ class TerminalQueue:
         else:
             self.last_run_iter = self.queue_model.get_iter_first()
         self.task_completed = True
-        # get the next process
-        self.next()
-        # check for pending processes, and run them
-        self.start(False)
+        if not self.paused:
+            # get the next process
+            self.next()
+            # check for pending processes, and run them
+            self.start(False)
         if self.term.tab_showing[TAB_QUEUE]:
             # update the queue tree
             wait_for = self.clicked()
