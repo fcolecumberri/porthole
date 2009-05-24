@@ -810,12 +810,21 @@ class ProcessManager: #dbus.service.Object):
         dialog.set_border_width(10)
         command = self.process_queue.get_command()
         #if command.startswith('sudo '):
-        if command.startswith('sudo ') or 'sudo -p "Password:'  in command:
+        if 'sudo -p "Password:'  in command:
             command = command[command.index('sudo -p "Password:')+21:]
             label = gtk.Label(_("'sudo -p Password: ' requires your user password to perform the command:\n'%s'")
                             % command)
-        elif command.startswith('su ') or 'su -c ' in command:
+        elif command.startswith('sudo '):
+            command = command[command.index('sudo ')+5:]
+            label = gtk.Label(_("'sudo: ' requires your user password to perform the command:\n'%s'")
+                            % command)
+            
+        elif 'su -c ' in command:
             command = command[command.index('su -c ')+6:]
+            label = gtk.Label(_("'su' requires the root password to perform the command:\n'%s'")
+                            % command)
+        elif command.startswith('su '):
+            command = command[command.index('su ')+3:]
             label = gtk.Label(_("'su' requires the root password to perform the command:\n'%s'")
                             % command)
         else:
