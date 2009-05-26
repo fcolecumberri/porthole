@@ -80,12 +80,12 @@ class TerminalNotebook:
             view = self.wtree.get_widget(x)
             self.view += [view]
             self.last_text += ['\n']
-            if x == "process_text" or config.Prefs.terminal.all_tabs_use_custom_colors:
-                fg, bg, weight = config.Prefs.TAG_DICT['default']
-                font = config.Prefs.terminal.font
-                if bg: view.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse(bg))
-                if fg: view.modify_text(gtk.STATE_NORMAL, gtk.gdk.color_parse(fg))
-                if font: view.modify_font(pango.FontDescription(font))
+            #if x == "process_text" or config.Prefs.terminal.all_tabs_use_custom_colors:
+            fg, bg, weight = config.Prefs.TAG_DICT['default']
+            font = config.Prefs.terminal.font
+            if bg: view.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse(bg))
+            if fg: view.modify_text(gtk.STATE_NORMAL, gtk.gdk.color_parse(fg))
+            if font: view.modify_font(pango.FontDescription(font))
         del buff
         widget_labels = ["scrolledwindow2", "scrolledwindow8", "scrolledwindow7",
                          "scrolledwindow5", "scrolledwindow4"]
