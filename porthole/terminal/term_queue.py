@@ -436,14 +436,18 @@ class TerminalQueue:
         debug.dprint("TERM_QUEUE: move_item_top()")
         # pause the queue so it does not get messed up while we are moving things
         paused = self.pause()
-        debug.dprint("TERM_QUEUE: move_item_top(); back from paused, paused_iter = " + str(self.paused_iter))
+        my_paused_id = self.queue_model.get_value(self.paused_iter, self.queue_model.column['id'])
+        debug.dprint("TERM_QUEUE: move_item_top(); back from paused, paused_iter, id = " + str(self.paused_iter) + ", " + str(my_paused_id)
         # get the selected iter
         selected_iter = get_treeview_selection(self.queue_tree)
         if not selected_iter:
             debug.dprint("TERM_QUEUE: move_item_top(); selected_iter == None, returning, no selection active")
             return False
         #path = self.queue_model.get_path(selected_iter)[0]
-        self.queue_model.move_before(selected_iter, self.paused_iter)
+        try:
+            self.queue_model.move_before(selected_iter, self.paused_iter)
+        except:
+            debug.dprint("TERM_QUEUE: move_item_top(); exception moving selected_iter before paused_iter")
         debug.dprint("TERM_QUEUE: move_item_top(); paused_id, paused_path = " + str(self.paused_id) + ", " + str(self.paused_path))
         self.set_icon(PENDING, self.paused_id, self.paused_path+1)
         self.paused_iter = selected_iter.copy()
@@ -489,9 +493,12 @@ class TerminalQueue:
             debug.dprint("TERM_QUEUE: remove_item(); id = " + str(id) + " next_id = " + str(self.next_id) + " paused_id = " + str(self.paused_id))
             self.queue_model.remove(selected_iter)
             # iters are no longer valid.  reset them
-            self.locate_id(self.process_id)
-            self.process_iter = self.locate_iter.copy()
-            self.last_run_iter = self.locate_iter.copy()
+            if self.process_id:
+                self.locate_id(self.process_id)
+                self.process_iter = self.locate_iter.copy()
+                self.last_run_iter = self.locate_iter.copy()
+            if self.queue_paused:
+                self.paused_iter = self.queue_model.get_iter(self.paused_path)
             self.next_id -= 1
             if id < self.next_id:
                 self.renum_ids(path, id)
@@ -504,11 +511,14 @@ class TerminalQueue:
     def renum_ids(self, path, id):
         if not id or  path == None:
             return
-        iter = self.queue_model.get_iter(path)
-        while iter:
-            self.queue_model.set_value(iter, self.queue_model.column['id'], id)
-            iter = self.queue_model.iter_next(iter)
-            id += 1
+        try:
+            iter = self.queue_model.get_iter(path)
+            while iter:
+                self.queue_model.set_value(iter, self.queue_model.column['id'], id)
+                iter = self.queue_model.iter_next(iter)
+                id += 1
+        except:
+            debug.dprint("TERM_QUEUE: renum_ids; exception raised during renumber, path, id = " +str(path) + ", " + str(id))
         del iter
 
     def clicked(self, *widget):
@@ -547,21 +557,21 @@ class TerminalQueue:
         if id == self.process_id + 1 or path == 0:
             # set move_top and move_up
             state = [False, False]
-            debug.dprint("TERM_QUEUE: clicked(); 549 set top,up to False,False")
+            debug.dprint("TERM_QUEUE: clicked(); 550 set top,up to False,False")
             if id == self.next_id - 1:
                 # set move_down and move_bottom
                 state += [False, False]
-                debug.dprint("TERM_QUEUE: clicked(); 553 set down,bottom to False,False")
+                debug.dprint("TERM_QUEUE: clicked(); 554 set down,bottom to False,False")
             else:
                 state += [True, True]
-                debug.dprint("TERM_QUEUE: clicked();  556 set top,up to True,True")
+                debug.dprint("TERM_QUEUE: clicked();  557 set down,bottom to True,True")
         elif id == self.next_id - 1:
             state = [True, True, False, False]
-            debug.dprint("TERM_QUEUE: clicked();559 set top,up,down,bottom to True,True,False,False")
+            debug.dprint("TERM_QUEUE: clicked();560 set top,up,down,bottom to True,True,False,False")
         else:
             # enable moving the item
             state = [True, True, True, True]
-            debug.dprint("TERM_QUEUE: clicked(); 563 set full move True,True,True,True")
+            debug.dprint("TERM_QUEUE: clicked(); 564 set full move True,True,True,True")
         # activate the delete item in state
         state.append(True)
         self.set_queue_moves(state)
@@ -604,10 +614,12 @@ class TerminalQueue:
         path = int(process_id) -1
         try:
             self.locate_iter = self.queue_model.get_iter(path)
-            if not self.queue_model.get_value(self.locate_iter,self.queue_model.column['id']) == process_id:
-                raise "ID mismatch, something is out of sink"
-        except Exception, e:
-            debug.dprint("TERM_QUEUE: locate_id(); execption raised = " + str(e))
+            id = self.queue_model.get_value(self.locate_iter,self.queue_model.column['id'])
+            if id != process_id:
+                #debug.dprint("TERM_QUEUE: locate_id(); ID mismatch, something is out of sink")
+                raise Exception("ID mismatch", id, process_id)
+        except Exception as e:
+            debug.dprint("TERM_QUEUE: locate_id(); execption raised = " + str(e) + " ^^^ path = " + str(path))
             self.locate_iter = self.queue_model.get_iter_first()
             while self.queue_model.get_value(self.locate_iter,self.queue_model.column['id']) != process_id:
                 try:
