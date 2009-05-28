@@ -437,7 +437,7 @@ class TerminalQueue:
         # pause the queue so it does not get messed up while we are moving things
         paused = self.pause()
         my_paused_id = self.queue_model.get_value(self.paused_iter, self.queue_model.column['id'])
-        debug.dprint("TERM_QUEUE: move_item_top(); back from paused, paused_iter, id = " + str(self.paused_iter) + ", " + str(my_paused_id)
+        debug.dprint("TERM_QUEUE: move_item_top(); back from paused, paused_iter, id = " + str(self.paused_iter) + ", " + str(my_paused_id))
         # get the selected iter
         selected_iter = get_treeview_selection(self.queue_tree)
         if not selected_iter:
