@@ -416,6 +416,7 @@ class TerminalQueue:
             if self.paused_path == path or self.paused_path == path + direction:
                 self.queue_model.set_value(selected_iter, self.queue_model.column['icon'], destination_icon)
                 self.queue_model.set_value(destination_iter, self.queue_model.column['icon'], sel_icon)
+                self.paused_iter = self.queue_model.get_iter(self.paused_path)
             self.queue_tree.get_selection().select_path(path + direction)
         else:
             debug.dprint("TERM_QUEUE: cannot move first or last item")
@@ -462,20 +463,28 @@ class TerminalQueue:
         debug.dprint("TERM_QUEUE: move_item_bottom()")
         # pause the queue so it does not get messed up while we are moving things
         paused = self.pause()
-        debug.dprint("TERM_QUEUE: move_item_top(); back from paused, paused_iter = " + str(self.paused_iter))
+        my_paused_id = self.queue_model.get_value(self.paused_iter, self.queue_model.column['id'])
+        debug.dprint("TERM_QUEUE: move_item_bottom(); back from paused, paused_iter, id = " + str(self.paused_iter) + ", " + str(my_paused_id))
         # get the selected iter
         selected_iter = get_treeview_selection(self.queue_tree)
         if not selected_iter:
             debug.dprint("TERM_QUEUE: move_item_top(); selected_iter == None, returning, no selection active")
             return False
         path = self.queue_model.get_path(selected_iter)[0]
-        id = self.queue_model.get_value(selected_iter,  self.queue_model.column['id'])
-        end_iter = self.queue_model.get_iter(self.next_id-2)
-        self.queue_model.move_after(selected_iter, end_iter)
+        try:
+            id = self.queue_model.get_value(selected_iter,  self.queue_model.column['id'])
+            end_iter = self.queue_model.get_iter(self.next_id-2)
+            self.queue_model.move_after(selected_iter, end_iter)
+        except Exception as e:
+            debug.dprint("TERM_QUEUE: move_item_bottom(); exception moving selected_iter, exception :" + str(e))
         if path == self.paused_path:
+            debug.dprint("TERM_QUEUE: move_item_bottom(); detected paused item moved, resetting paused_iter, etc., path, paused_path = "  + str(path) + ", " + str(self.paused_path))
             self.set_icon(PAUSED, self.paused_id, self.paused_path)
-            self.queue_model.set_value(selected_iter, self.queue_model.column['icon'], None)
-            self.paused_iter = self.queue_model.get_iter(self.paused_path)
+            try:
+                self.queue_model.set_value(selected_iter, self.queue_model.column['icon'], None)
+                self.paused_iter = self.queue_model.get_iter(self.paused_path)
+            except Exception as e:
+                debug.dprint("TERM_QUEUE: move_item_bottom(); exception resetting paused_iter, exception :" + str(e))
         self.renum_ids(path, id)
         # We're done, reset queue moves
         result = self.clicked(self.queue_tree)
