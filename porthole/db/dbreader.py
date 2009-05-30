@@ -3,7 +3,7 @@
 """
     Dbreader, class for reading the portage tree and building a porthole database
 
-    Copyright (C) 2003 - 2008 Fredrik Arnerup, Daniel G. Taylor,
+    Copyright (C) 2003 - 2009 Fredrik Arnerup, Daniel G. Taylor,
     Wm. F. Wheeler, Brian Dolbec, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify
