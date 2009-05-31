@@ -68,19 +68,27 @@ class AdvancedEmergeDialog:
                      "on_help_clicked" : self.help_clicked,
                      "on_cancel_clicked" : self.cancel_clicked,
                      #"on_cbAsk_clicked": self.Ask_clicked,
-                     "on_cbOnlyDeps_clicked" : self.onlydeps_check,
-                     "on_cbNoDeps_clicked" : self.nodeps_check,
-                     "on_cbQuiet_clicked" : self.quiet_check,
-                     "on_cbVerbose_clicked" : self.verbose_check,
-                     "on_cbBuildPkg_clicked" : self.buildpkg_check,
-                     "on_cbBuildPkgOnly_clicked" : self.buildpkgonly_check,
-                     "on_cbUsePkg_clicked" : self.usepkg_check,
-                     "on_cbUsePkgOnly_clicked" : self.usepkgonly_check,
+                     "on_cbOnlyDeps_clicked" : (self.set_one_of, 'cbOnlyDeps', 'cbNoDeps'),
+                     "on_cbNoDeps_clicked" : (self.set_one_of, 'cbNoDeps', 'cbOnlyDeps'),
+                     "on_cbQuiet_clicked" : (self.set_one_of, 'cbQuiet', 'cbVerbose'),
+                     "on_cbVerbose_clicked" : (self.set_one_of, 'cbVerbose', 'cbQuiet'),
+                     "on_cbBuildPkg_clicked" : (self.set_one_of, 'cbBuildPkg', 'cbBuildPkgOnly'),
+                     "on_cbBuildPkgOnly_clicked" : (self.set_one_of, 'cbBuildPkgOnly', 'cbBuildPkg'),
+                     "on_cbUsePkg_clicked" : (self.set_one_of, 'cbUsePkg', 'cbUsePkgOnly'),
+                     "on_cbUsePkgOnly_clicked" : (self.set_one_of, 'cbUsePkgOnly', 'cbUsePkg'),
                      "on_cmbVersion_changed" : self.version_changed,
                      "on_cmbEmerge_changed" : self.emerge_changed,
                      "on_btnPkgUse_clicked" : self.on_package_use_commit,
                      "on_btnMakeConf_clicked" : self.on_make_conf_commit,
                      "on_btnPkgKeywords_clicked" : self.on_package_keywords_commit,
+                     "on_cbColorY_clicked": (self.set_one_of, 'cbColorY', 'cbColorN'),
+                     "on_cbColorN_clicked": (self.set_one_of, 'cbColorN', 'cbColorY'),
+                     "on_cbColumns_clicked": (self.set_all, 'cbColumns','cbPretend'),
+                     'on_cbWithBDepsY_clicked': (self.set_one_of, 'cbWithBDepsY', 'cbWithBDepsN'),
+                     'on_cbWithBDepsN_clicked': (self.set_one_of, 'cbWithBDepsN', 'cbWithBDepsY'),
+                     'on_cbGetBinPkg_clicked': (self.set_one_of, 'cbGetBinPkg', 'cbGetBinPkgOnly'),
+                     'on_cbGetBinPkgOnly_clicked': (self.set_one_of, 'cbGetBinPkgOnly', 'cbGetBinPkg' ),
+                     "on_toggled": self.on_toggled
         }
         
         self.wtree.signal_autoconnect(callbacks)
@@ -230,68 +238,18 @@ class AdvancedEmergeDialog:
         self.emerge_unmerge = model.get_value(iter, 0)
         self.display_emerge_command()
 
-    def color_y_check(self, widget):
-        """ If color y is selected, disable color n """
+    def set_all(self, widget, *args):
         if widget.get_active():
-            self.wtree.get_widget("cbColorN").set_active(False)
+            for x in args:
+                self.wtree.get_widget(x).set_active(True)
+            return False
 
-    def color_n_check(self, widget):
-        """ If color n is selected, disable color y """
+    def set_one_of(self, widget, *args):
         if widget.get_active():
-            self.wtree.get_widget("cbColorY").set_active(False)
-
-    def _check(self, widget):
-        """ If color y is selected, disable color n """
-        if widget.get_active():
-            self.wtree.get_widget("cbColorN").set_active(False)
-
-
-    def quiet_check(self, widget):
-        """ If quiet is selected, disable verbose """
-        if widget.get_active():
-            self.wtree.get_widget("cbVerbose").set_active(False)
-
-
-    def verbose_check(self, widget):
-        """ If verbose is selected, disable quiet """
-        if widget.get_active():
-            self.wtree.get_widget("cbQuiet").set_active(False)
-
-
-    def nodeps_check(self, widget):
-        """ If nodeps is selected, disable onlydeps """
-        if widget.get_active():
-            self.wtree.get_widget("cbOnlyDeps").set_active(False)
-
-
-    def onlydeps_check(self, widget):
-        """ If onlydeps is selected, disable nodeps """
-        if widget.get_active():
-            self.wtree.get_widget("cbNoDeps").set_active(False)
-
-
-    def buildpkg_check(self, widget):
-        """ If buildpkg is selected, disable buildpkgonly """
-        if widget.get_active():
-            self.wtree.get_widget("cbBuildPkgOnly").set_active(False)
-
-
-    def buildpkgonly_check(self, widget):
-        """ If buildpkgonly is selected, disable buildpkg """
-        if widget.get_active():
-            self.wtree.get_widget("cbBuildPkg").set_active(False)
-
-
-    def usepkg_check(self, widget):
-        """ If usepkg is selected, disable usepkgonly """
-        if widget.get_active():
-            self.wtree.get_widget("cbUsePkgOnly").set_active(False)
-
-
-    def usepkgonly_check(self, widget):
-        """ If usepkgonly is selected, disable usepkg """
-        if widget.get_active():
-            self.wtree.get_widget("cbUsePkg").set_active(False)
+            self.wtree.get_widget(args[0]).set_active(True)
+            for x in args[1:]:
+                self.wtree.get_widget(x).set_active(False)
+            return False
 
     def on_toggled(self, widget):
         self.display_emerge_command()
@@ -515,7 +473,7 @@ class AdvancedEmergeDialog:
     def get_options(self):
         """ Create keyword list from option checkboxes """
         List = [('cbAlphabetical', '--alphabetical ', '--alphabetical '),
-                #('cbAsk', 'a', '--ask'),
+                ('cbAsk', 'a', '--ask '),
                 ('cbBuildPkg', '-b ', '--buildpkg '),
                 ('cbBuildPkgOnly', '-B ', '--buildpkgonly '),
                 ('cbColorY', '--color y ', '--color y ' ),
@@ -525,8 +483,8 @@ class AdvancedEmergeDialog:
                 ('cbEmptyTree', '-e ', '--emptytree '),
                 ('cbFetchOnly', '-f ', '--fetchonly '),
                 ('cbFetchAllUri', '-F ', '--fetch-all-uri '),
-                ('cbBinPkg', '-g ', '--getbinpkg '),
-                ('cbBinPkgOnly', '-G ', '--getbinpkgonly '),
+                ('cbGetBinPkg', '-g ', '--getbinpkg '),
+                ('cbGetBinPkgOnly', '-G ', '--getbinpkgonly '),
                 ('cbIgnoreDefaultOptions',  '--ignore-default-opts ', '--ignore-default-opts '),
                 ('cbNewUse', '-N ', '--newuse '),
                 ('cbNoConfMem', '--noconfmem ', '--noconfmem '),
@@ -536,6 +494,7 @@ class AdvancedEmergeDialog:
                 ('cbOneShot', '--oneshot ', '--oneshot '),
                 ('cbOnlyDeps', '-o ', '--onlydeps '),
                 ('cbPretend','-p ', '--pretend '),
+                ('cbColumns', '--columns ', '--columns '),
                 ('cbQuiet', '-q ', '--quiet '),
                 ('cbTree', '-t ', '--tree '),
                 ('cbUpdate','-u ', '--update '),
@@ -543,7 +502,7 @@ class AdvancedEmergeDialog:
                 ('cbUsePkgOnly', '-K ', '--usepkgonly '),
                 ('cbVerbose', '-v ', '--verbose '),
                 ('cbWithBDepsY', '--with-bdeps y ', '--with-bdeps y '),
-                ('cbWithBDepsY', '--with-bdeps n ', '--with-bdeps n ')
+                ('cbWithBDepsN', '--with-bdeps n ', '--with-bdeps n ')
                 ]
         options = ''
         for Name, ShortOption, LongOption in List:

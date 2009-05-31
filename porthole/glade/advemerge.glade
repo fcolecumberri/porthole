@@ -181,7 +181,7 @@ Before performing the action, display what will take place (server info for --sy
 		  </child>
 
 		  <child>
-		    <widget class="GtkCheckButton" id="cbAlpabetical">
+		    <widget class="GtkCheckButton" id="cbAlphabetical">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">--alphabetical
 When  displaying  USE  and  other  flag output, combines the enabled and disabled lists into one list and sorts the whole list alphabetically.</property>
@@ -669,6 +669,7 @@ Used alongside --pretend to cause the package name, new version, and old version
 			  <property name="inconsistent">False</property>
 			  <property name="draw_indicator">True</property>
 			  <signal name="clicked" handler="on_cbColumns_clicked" last_modification_time="Sat, 21 Apr 2007 13:59:10 GMT"/>
+			  <signal name="toggled" handler="on_toggled" last_modification_time="Sun, 31 May 2009 08:03:58 GMT"/>
 			</widget>
 			<packing>
 			  <property name="padding">0</property>
@@ -737,7 +738,8 @@ Enable or disable color output.  This option will override NOCOLOR (see make.con
 			      <property name="active">False</property>
 			      <property name="inconsistent">False</property>
 			      <property name="draw_indicator">True</property>
-			      <signal name="clicked" handler="on_cbWithBDepsY_clicked" last_modification_time="Sat, 21 Apr 2007 14:04:02 GMT"/>
+			      <signal name="clicked" handler="on_cbColorY_clicked" last_modification_time="Sun, 31 May 2009 07:22:38 GMT"/>
+			      <signal name="toggled" handler="on_toggled" last_modification_time="Sun, 31 May 2009 08:02:58 GMT"/>
 			    </widget>
 			    <packing>
 			      <property name="padding">0</property>
@@ -757,7 +759,8 @@ Enable or disable color output.  This option will override NOCOLOR (see make.con
 			      <property name="active">False</property>
 			      <property name="inconsistent">False</property>
 			      <property name="draw_indicator">True</property>
-			      <signal name="clicked" handler="on_cbWithBDepsN_clicked" last_modification_time="Sat, 21 Apr 2007 14:03:46 GMT"/>
+			      <signal name="clicked" handler="on_cbColorN_clicked" last_modification_time="Sun, 31 May 2009 07:23:59 GMT"/>
+			      <signal name="toggled" handler="on_toggled" last_modification_time="Sun, 31 May 2009 08:03:39 GMT"/>
 			    </widget>
 			    <packing>
 			      <property name="padding">0</property>
@@ -854,6 +857,7 @@ In  dependency calculations, pull in build time dependencies that are not strict
 			      <property name="inconsistent">False</property>
 			      <property name="draw_indicator">True</property>
 			      <signal name="clicked" handler="on_cbWithBDepsY_clicked" last_modification_time="Sat, 21 Apr 2007 14:04:02 GMT"/>
+			      <signal name="toggled" handler="on_toggled" last_modification_time="Sun, 31 May 2009 08:04:23 GMT"/>
 			    </widget>
 			    <packing>
 			      <property name="padding">0</property>
@@ -874,6 +878,7 @@ In  dependency calculations, pull in build time dependencies that are not strict
 			      <property name="inconsistent">False</property>
 			      <property name="draw_indicator">True</property>
 			      <signal name="clicked" handler="on_cbWithBDepsN_clicked" last_modification_time="Sat, 21 Apr 2007 14:03:46 GMT"/>
+			      <signal name="toggled" handler="on_toggled" last_modification_time="Sun, 31 May 2009 08:04:40 GMT"/>
 			    </widget>
 			    <packing>
 			      <property name="padding">0</property>
@@ -1004,9 +1009,9 @@ Updates packages to the best version available, which may not always be the high
 		  <child>
 		    <widget class="GtkCheckButton" id="cbTree">
 		      <property name="visible">True</property>
-		      <property name="sensitive">False</property>
 		      <property name="tooltip" translatable="yes">--tree (-t) 
 Shows the dependency tree for the given target by indenting dependencies.  This is only really useful  in  combination with --emptytree or --update and --deep.</property>
+		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">tree</property>
 		      <property name="use_underline">True</property>
 		      <property name="relief">GTK_RELIEF_NORMAL</property>
