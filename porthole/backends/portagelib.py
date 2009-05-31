@@ -591,7 +591,10 @@ def get_properties(ebuild):
         try:
             return Properties(dict(zip(settings.keys, settings.portdb.aux_get(ebuild, portage.auxdbkeys))))
         except IOError, e: # Sync being performed may delete files
-            debug.dprint(" * PORTAGELIB: get_properties(): IOError: %s" % e)
+            debug.dprint(" * PORTAGELIB: get_properties(): IOError: %s" % str(e))
+            return Properties()
+        except Exception, e:
+            debug.dprint(" * PORTAGELIB: get_properties(): Exception: %s" %str( e))
             return Properties()
     else:
         vartree = settings.trees[settings.settings["ROOT"]]["vartree"]
