@@ -1,14 +1,16 @@
 --------------------------------------------------------------------------------
 |                          TODO list for Porthole:                             |
 --------------------------------------------------------------------------------
+* update to python-2.6 minimum requirement
+
+* remove hard coded emerge commands and make them loadable from a file.  This will then allow for
+    different package managers or wrappers to be used in place of emerge.
+
+* separate out the USE flag building widget and keywords widget from the advanced emerge dialog to be
+    useable in other places like another tab in the package notebook for easier changes.
 
 * Clean up zombie gksu processes for plugin's needing to run as root.
 
- * (Done) Add a Deprecated packges/versions view, scan /var/db/pkg/ for installed packages no
-   longer in the portage tree and add them to the Installed list and the depricated list.
-        -- partially done.  I've added an overlay column to the ebuild table along with info
-            about the ebuild path and also mark it as "Obsolete" if if it's installed and not
-            in any of the defined trees.
 
   / (In Progress) Preferences Dialog:
       (Done) sync options (e.g. websync)
@@ -58,11 +60,6 @@
 
  * Indication of unstable packages in package view (bug [1222366])
 
-  * (done) Central database (perhaps persistant across sessions) of "Package" objects
-   (i.e. don't keep them in TreeView objects)
-   Perhaps check on startup to see if the portage database has changed since
-   porthole was closed last, and update then (i.e. only when necessary).
-   
    (pending) Porthole could keep track of changes while running, and thus wouldn't have
    to reload information so much.
    (done = now saves a description db after a sync) This could help for fast description searching (RFE [998428]), and would
@@ -97,14 +94,11 @@ Porthole Release Feature Schedule
 
 Release 0.4.?
 
-(done) - Updating the info for a selected package in a separate thread may make the gui more responsive
 - Faster dependency calculations by only partially loading the tree
 - USE flags & features editor(s) (being worked on)
-- Look into caching the allnodes package list as portage-2.0.51 and newer no longer caches virtuals
 - Remove the view selector and integrate them with the categories. 
-(done?) Code the clipboard functions, more needed still.
 (in progress) begin adding right click menus for many areas
-- Make the package versions and use flags mouse & right click sensitive to bring up context sensitive
+- (in progress)Make the package versions and use flags mouse & right click sensitive to bring up context sensitive
   menus for changing use flag status or displaying properties for different ebuilds, etc.
 (in progress) Change the masked version display to indicate keyword masked/hard masked or /etc/portage.* listed
 
