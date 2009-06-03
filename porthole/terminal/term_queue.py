@@ -236,7 +236,8 @@ class TerminalQueue:
                     self.queue_model.set_value(self.process_iter, self.queue_model.column['command'], str(command))
             else: # clean up the killed process
                 self.cleanup()
-        
+                skip_first = True
+
         if self.resume_string is None:
             debug.dprint("TERM_QUEUE: add(): resume is None")
             # check if the package is already in the emerge queue
@@ -287,8 +288,6 @@ class TerminalQueue:
         self.resume_available = False
         self.killed_id = None
         self.set_resume(False)
-        skip_first = True
-
 
     def show_queue(self):
         #if not self.term.tab_showing[TAB_QUEUE]:
@@ -475,7 +474,7 @@ class TerminalQueue:
             id = self.queue_model.get_value(selected_iter,  self.queue_model.column['id'])
             end_iter = self.queue_model.get_iter(self.next_id-2)
             self.queue_model.move_after(selected_iter, end_iter)
-        except Exception as e:
+        except Exception, e:
             debug.dprint("TERM_QUEUE: move_item_bottom(); exception moving selected_iter, exception :" + str(e))
         if path == self.paused_path:
             debug.dprint("TERM_QUEUE: move_item_bottom(); detected paused item moved, resetting paused_iter, etc., path, paused_path = "  + str(path) + ", " + str(self.paused_path))
@@ -483,7 +482,7 @@ class TerminalQueue:
             try:
                 self.queue_model.set_value(selected_iter, self.queue_model.column['icon'], None)
                 self.paused_iter = self.queue_model.get_iter(self.paused_path)
-            except Exception as e:
+            except Exception, e:
                 debug.dprint("TERM_QUEUE: move_item_bottom(); exception resetting paused_iter, exception :" + str(e))
         self.renum_ids(path, id)
         # We're done, reset queue moves
@@ -627,7 +626,7 @@ class TerminalQueue:
             if id != process_id:
                 #debug.dprint("TERM_QUEUE: locate_id(); ID mismatch, something is out of sink")
                 raise Exception("ID mismatch", id, process_id)
-        except Exception as e:
+        except Exception, e:
             debug.dprint("TERM_QUEUE: locate_id(); execption raised = " + str(e) + " ^^^ path = " + str(path))
             self.locate_iter = self.queue_model.get_iter_first()
             while self.queue_model.get_value(self.locate_iter,self.queue_model.column['id']) != process_id:
