@@ -49,8 +49,13 @@ class EmergeOptions(OptionsClass):
         self.pretend = False
         self.fetch = False
         self.verbose = False
-        self.upgradeonly = False
+        self.update = False
         self.nospinner = True # currently hidden
+        self.noreplace = True
+        self.oneshot = False
+        # not really used for emerge options
+        # we use our own internal seach, just here for convienience
+        #self.search_descriptions1 = False
 
     def get_string(self):
         """ Return currently set options in a string """
@@ -58,9 +63,10 @@ class EmergeOptions(OptionsClass):
         if self.pretend:   opt_string += '--pretend '
         if self.fetch:     opt_string += '--fetchonly '
         if self.verbose:   opt_string += '--verbose '
-        # upgradeonly does not have the desired effect when passed to emerge.
-        #if self.upgradeonly: opt_string += '--upgradeonly '
+        if self.update: opt_string += '--update '
         if self.nospinner: opt_string += '--nospinner '
+        if self.noreplace: opt_string += '--noreplace '
+        if self.oneshot: opt_string += '--oneshot '
         return opt_string
 
 class PortholePreferences:
@@ -202,7 +208,7 @@ class PortholePreferences:
                 fw = fontweight
             self.TAG_DICT[tag_name] = [fc, bc, fw]
         
-        emergeoptions = ['pretend', 'fetch', 'verbose', 'upgradeonly', 'nospinner']
+        emergeoptions = ['pretend', 'fetch', 'verbose', 'update', 'nospinner', 'noreplace', 'oneshot'] # 'search_descriptions']
         self.emerge = EmergeOptions()
         for option in emergeoptions:
             try:
@@ -263,16 +269,16 @@ class PortholePreferences:
            self.database_size = dom.getitem('/database/size')
         except XMLManagerError:
            self.database_size = 7000
-        try:
-           self.dbtime = dom.getitem('/database/dbtime')
-           #debug.dprint("PREFS: __init__(); self.dbtime =")
-           #debug.dprint(self.dbtime)
-        except XMLManagerError:
-           self.dbtime = 50
-        try:
-           self.dbtotals = dom.getitem('/database/dbtotals')
-        except XMLManagerError:
-           self.dbtotals = []
+        #~ try:
+           #~ self.dbtime = dom.getitem('/database/dbtime')
+           #~ #debug.dprint("PREFS: __init__(); self.dbtime =")
+           #~ #debug.dprint(self.dbtime)
+        #~ except XMLManagerError:
+           #~ self.dbtime = 50
+        #~ try:
+           #~ self.dbtotals = dom.getitem('/database/dbtotals')
+        #~ except XMLManagerError:
+           #~ self.dbtotals = []
         
         self.plugins = OptionsClass()
         
@@ -394,8 +400,11 @@ class PortholePreferences:
         dom.additem('/emerge/options/pretend', self.emerge.pretend)
         dom.additem('/emerge/options/fetch', self.emerge.fetch)
         dom.additem('/emerge/options/verbose', self.emerge.verbose)
-        dom.additem('/emerge/options/upgradeonly', self.emerge.upgradeonly)
+        dom.additem('/emerge/options/update', self.emerge.update)
         dom.additem('/emerge/options/nospinner', self.emerge.nospinner)
+        dom.additem('/emerge/options/noreplace', self.emerge.noreplace)
+        dom.additem('/emerge/options/oneshot', self.emerge.oneshot)
+        #dom.additem('/emerge/options/search_descriptions1', self.emerge.search_descriptions1)
         dom.additem('/advemerge/showuseflags', self.advemerge.showuseflags)
         dom.additem('/advemerge/showkeywords', self.advemerge.showkeywords)
         dom.additem('/advemerge/show_make_conf_button', self.advemerge.show_make_conf_button)
@@ -413,8 +422,8 @@ class PortholePreferences:
         dom.additem('/summary/showurl', self.summary.showurl)
         dom.additem('/database/size', self.database_size)
         #debug.dprint("PREFS: save(); self.dbtime = %d" %self.dbtime)
-        dom.additem('/database/dbtime', self.dbtime)
-        dom.additem('/database/dbtotals', self.dbtotals)
+        #dom.additem('/database/dbtime', self.dbtime)
+        #dom.additem('/database/dbtotals', self.dbtotals)
         #dom.additem('/plugins/path_list', self.plugins.path_list)
         dom.additem('/globals/LANG', self.globals.LANG)
         dom.additem('/globals/enable_archlist', self.globals.enable_archlist)
