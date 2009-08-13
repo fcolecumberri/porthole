@@ -266,10 +266,10 @@ class ProcessManager: #dbus.service.Object):
         # set keyboard focus to process tab
         self.wtree.get_widget("process_text").grab_focus()
         # set the custom timer icon
-        self.wtree.get_widget('timer_button_img').set_from_file(config.Prefs.DATA_PATH + "pixmaps/porthole-clock-20x20.png")
+        #self.wtree.get_widget('timer_button_img').set_from_file(config.Prefs.DATA_PATH + "pixmaps/porthole-clock-20x20.png")
         self.timer_btn = self.wtree.get_widget('timer_button')
         self.timer_btn.set_sensitive(False)
-        self.wtree.get_widget('timer_image').set_from_file(config.Prefs.DATA_PATH + "pixmaps/porthole-clock-20x20.png")
+        #self.wtree.get_widget('timer_image').set_from_file(config.Prefs.DATA_PATH + "pixmaps/porthole-clock-20x20.png")
         self.timer_menuitem = self.wtree.get_widget('timer')
         self.timer_menuitem.set_sensitive(False)
         # start the reader
