@@ -112,6 +112,7 @@ class MainWindow:
         # setup glade
         self.gladefile = config.Prefs.DATA_PATH + config.Prefs.use_gladefile
         self.wtree = gtk.glade.XML(self.gladefile, "main_window", config.Prefs.APP)
+        option = 'empty'
         # register callbacks  note: gtk.mainquit deprecated
         callbacks = {
             "on_main_window_destroy" : self.goodbye,
@@ -126,11 +127,7 @@ class MainWindow:
             "on_help_contents" : self.help_contents,
             "on_about" : self.about,
             "view_filter_changed" : self.view_filter_changed,
-            "on_pretend1_activate" : self.pretend_set,
-            "on_fetch_activate" : self.fetch_set,
-            "on_verbose_activate" : self.verbose_set,
             "on_search_descriptions1_activate" : self.search_set,
-            "on_upgradeonly_activate" : self.upgradeonly_set,
             "on_open_log" : self.open_log,
             "on_run_custom" : self.custom_run,
             "on_reload_db" : self.reload_db,
@@ -171,16 +168,13 @@ class MainWindow:
         self.package_view.register_callbacks(self.action_callback)
         result = self.wtree.get_widget("package_scrolled_window").add(self.package_view)
         # how should we setup our saved menus?
-        if config.Prefs.emerge.pretend:
-            self.wtree.get_widget("pretend1").set_active(True)
-        if config.Prefs.emerge.fetch:
-            self.wtree.get_widget("fetch").set_active(True)
-        if config.Prefs.emerge.upgradeonly :
-            self.wtree.get_widget("upgradeonly").set_active(True)
-        if config.Prefs.emerge.verbose:
-            self.wtree.get_widget("verbose4").set_active(True)
-        if config.Prefs.main.search_desc:
-            self.wtree.get_widget("search_descriptions1").set_active(True)
+        settings = ["pretend", "fetch", "update", "verbose", "noreplace", "oneshot"] # "search_descriptions1"]
+        for option in settings:
+            widget = self.wtree.get_widget(option)
+            state = getattr(config.Prefs.emerge, option) or False
+            debug.dprint("MAINWINDOW: __init__(); option = %s, state = %s" %(option, str(state)))
+            widget.set_active(state)
+            widget.connect("activate", self.emerge_setting_set, option)
         # setup a convienience tuple
         self.tool_widgets = ["emerge_package1","adv_emerge_package1","unmerge_package1","btn_emerge",
                      "btn_adv_emerge","btn_unmerge", "btn_sync", "view_refresh", "view_filter"]
@@ -560,22 +554,23 @@ class MainWindow:
 
     def db_save_variables(self):
         """recalulates and stores persistent database variables into the prefernces"""
-        config.Prefs.database_size = db.db.db_thread.allnodes_length
-        # store only the last 10 reload times
-        if len(config.Prefs.dbtotals)==10:
-            config.Prefs.dbtotals = config.Prefs.dbtotals[1:]+[str(self.dbtime)]
-        else:
-            config.Prefs.dbtotals += [str(self.dbtime)]
-        # calculate the average time to use for the progress bar calculations
-        total = 0
-        count = 0
-        for time in config.Prefs.dbtotals:
-            total += int(time)
-            count += 1
-        #debug.dprint("MAINWINDOW: db_save_variables(); total = %d : count = %d" %(total,count))
-        config.Prefs.dbtime = int(total/count)
-        debug.dprint("MAINWINDOW: db_save_variables(); dbtime = %d" %self.dbtime)
-        debug.dprint("MAINWINDOW: db_save_variables(); new average load time = %d cycles" %config.Prefs.dbtime)
+        debug.dprint("MAINWINDOW: db_save_variables(); DEPRECATED function!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        #~ config.Prefs.database_size = db.db.db_thread.allnodes_length
+        #~ # store only the last 10 reload times
+        #~ if len(config.Prefs.dbtotals)==10:
+            #~ config.Prefs.dbtotals = config.Prefs.dbtotals[1:]+[str(self.dbtime)]
+        #~ else:
+            #~ config.Prefs.dbtotals += [str(self.dbtime)]
+        #~ # calculate the average time to use for the progress bar calculations
+        #~ total = 0
+        #~ count = 0
+        #~ for time in config.Prefs.dbtotals:
+            #~ total += int(time)
+            #~ count += 1
+        #~ #debug.dprint("MAINWINDOW: db_save_variables(); total = %d : count = %d" %(total,count))
+        #~ config.Prefs.dbtime = int(total/count)
+        #~ debug.dprint("MAINWINDOW: db_save_variables(); dbtime = %d" %self.dbtime)
+        #~ debug.dprint("MAINWINDOW: db_save_variables(); new average load time = %d cycles" %config.Prefs.dbtime)
 
 
     def setup_command(self, package_name, command, run_anyway=False):
@@ -621,36 +616,13 @@ class MainWindow:
             return False
         return True
    
-    def pretend_set(self, widget):
-        """Set whether or not we are going to use the --pretend flag"""
-        config.Prefs.emerge.pretend = widget.get_active()
+    def emerge_setting_set(self, widget, option='null'):
+        """Set whether or not we are going to use the --oneshot flag"""
+        debug.dprint("MAINWINDOW: emerge_setting_set(%s)" %option)
+        debug.dprint("MAINWINDOW: emerge_setting_set; " + str(widget) + " " + option)
+        setattr(config.Prefs.emerge, option, widget.get_active())
+        #config.Prefs.emerge.oneshot = widget.get_active()
 
-    def fetch_set(self, widget):
-        """Set whether or not we are going to use the --fetchonly flag"""
-        config.Prefs.emerge.fetch = widget.get_active()
-
-    def verbose_set(self, widget):
-        """Set whether or not we are going to use the --verbose flag"""
-        config.Prefs.emerge.verbose = widget.get_active()
-
-    def upgradeonly_set(self, widget):
-        """Set whether or not we are going to use the --upgradeonly flag"""
-        config.Prefs.emerge.upgradeonly = widget.get_active()
-        # reset the upgrades list due to the change
-        self.loaded["Upgradable"] = False
-        if hasattr(self, "widget") and self.widget["view_filter"].get_active() == SHOW_UPGRADE:
-            if self.reader_running: # aargh, kill it
-                self.reader.please_die()
-                debug.dprint("MAINWINDOW: joining reader thread...")
-                self.reader.join()
-                debug.dprint("MAINWINDOW: finished!")
-                self.reader_running = False
-            #debug.dprint("MAINWINDOW: upgradeonly_set()...reload Upgradable view")
-            self.package_view.clear()
-            self.set_package_actions_sensitive(False, None)
-            # update the views by calling view_filter_changed
-            self.view_filter_changed(self.widget["view_filter"])
-            self.reload_view(None)
 
     def search_set(self, widget):
         """Set whether or not to search descriptions"""
@@ -815,9 +787,9 @@ class MainWindow:
                 return
             debug.dprint("MAINWINDOW: upgrade_packages(); packages were selected")
             if self.is_root or config.Prefs.emerge.pretend:
-                emerge_cmd = "emerge --noreplace"
+                emerge_cmd = "emerge "
             elif utils.can_sudo():
-                emerge_cmd = 'sudo -p "Password: " emerge --noreplace'
+                emerge_cmd = 'sudo -p "Password: " emerge '
             else: # can't sudo, not root
                 # display not root dialog and return.
                 self.check_for_root()
@@ -1218,8 +1190,7 @@ class MainWindow:
         if reader == "Deprecated":
             self.reader = DeprecatedReader(db.db.installed.items())
         elif reader == "Upgradable":
-            self.reader = UpgradableListReader(db.db.installed.items(),
-                                                    config.Prefs.emerge.upgradeonly)
+            self.reader = UpgradableListReader(db.db.installed.items())
         elif reader == "Sets":
             self.reader = SetListReader()
 

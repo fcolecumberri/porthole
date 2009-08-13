@@ -40,11 +40,11 @@ PRIORITIES = {_("System"): 0, _("Sets"):1, _("World"):2, _("Dependencies"):3}
 
 class UpgradableListReader(CommonReader):
     """ Read available upgrades and store them in a tuple """
-    def __init__( self, installed, upgrade_only, sets = None ):
+    def __init__( self, installed, sets = None ):
         """ Initialize """
         CommonReader.__init__(self)
         self.installed_items = installed
-        self.upgrade_only = upgrade_only
+        ##self.upgrade_only = upgradeonly
         self.sets = sets
         self.reader_type = "Upgradable"
         #self.world = []
@@ -73,7 +73,7 @@ class UpgradableListReader(CommonReader):
         for key in self.cat_order:
             self.pkg_dict[key] = {}
             self.pkg_count[key] = 0
-        upgradeflag = self.upgrade_only and True or False
+        ##upgradeflag = self.upgrade_only and True or False
         # find upgradable packages
         for cat, packages in self.installed_items:
             for name, package in packages.items():
@@ -81,7 +81,7 @@ class UpgradableListReader(CommonReader):
                 if self.cancelled: self.done = True; return
                 upgradable = package.is_upgradable()
                 # if upgradable: # is_upgradable() = 1 for upgrade, -1 for downgrade
-                if upgradable == 1 or (not self.upgrade_only and upgradable == -1):
+                if upgradable == 1 or upgradable == -1:
                     for key in self.cat_order:
                         if package.in_list(self.categories[key]):
                             self.pkg_dict[key][package.full_name] = package
