@@ -617,7 +617,7 @@ class MainWindow:
         return True
    
     def emerge_setting_set(self, widget, option='null'):
-        """Set whether or not we are going to use the --oneshot flag"""
+        """Set whether or not we are going to use an emerge option"""
         debug.dprint("MAINWINDOW: emerge_setting_set(%s)" %option)
         debug.dprint("MAINWINDOW: emerge_setting_set; " + str(widget) + " " + option)
         setattr(config.Prefs.emerge, option, widget.get_active())
@@ -799,8 +799,10 @@ class MainWindow:
             for key in self.keyorder:
                 if not self.packages_list[key].in_world:
                         debug.dprint("MAINWINDOW: upgrade_packages(); dependancy selected: " + key)
-                        if not self.setup_command(key, emerge_cmd +" --oneshot" +
-                                config.Prefs.emerge.get_string() + key[:]): #use the full name
+                        options = config.Prefs.emerge.get_string()
+                        if "--oneshot" not in options:
+                            options.append(" --oneshot ")
+                        if not self.setup_command(key, emerge_cmd  + options + key[:]): #use the full name
                             return
                 elif not self.setup_command(key, emerge_cmd +
                                 config.Prefs.emerge.get_string() + ' ' + key[:]): #use the full name
