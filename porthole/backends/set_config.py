@@ -61,11 +61,11 @@ def set_user_config(filename, name='', ebuild='', add=[], remove=[], delete=[]):
     If <name> and <ebuild> are not given then lines starting with something in
     remove are removed, and items in <add> are added as new lines.
     """
-    dprint("SET_CONFIG: set_user_config(): '%s'" % file)
-    config_path = portage_const.USER_CONFIG_PATH
-    if not os.access(config_path, os.W_OK):
+    dprint("SET_CONFIG: set_user_config(): filename = '%s'" % filename)
+    #config_path = portage_const.USER_CONFIG_PATH
+    if not os.access(os.path.split(filename)[0], os.W_OK):
         dprint(" * SET_CONFIG: set_user_config(): no write access to '%s'. " \
-              "Perhaps the user is not root?" % config_path)
+              "Perhaps the user is not root?" % os.path.split(filename)[0])
         return False
     #dprint(" * SET_CONFIG: set_user_config(): filename = " + filename)
     if os.access(filename, os.F_OK): # if file exists
@@ -409,7 +409,7 @@ if __name__ == "__main__":
     from getopt import getopt, GetoptError
 
     try:
-        opts, args = getopt(argv[1:], "lvdf:n:e:a:r:p:R:", ["local", "version", "debug"])
+        opts, args = getopt(argv[1:], "lvdf:n:e:a:r:p:R:P", ["local", "version", "debug"])
     except GetoptError, e:
         print >>stderr, e.msg
         exit(1)
@@ -455,7 +455,7 @@ if __name__ == "__main__":
         elif opt in ('-R'):
             replace = arg
             dprint("replace = %s" % str(replace))
-    
+
     if 'make.conf' in file:
         set_make_conf(property, add, remove, replace)
     else:
