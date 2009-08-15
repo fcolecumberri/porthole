@@ -46,11 +46,14 @@ try: # >=portage 2.2 modules
     import portage
     import portage.const as portage_const
     from portage import manifest
+    from portage._emerge.actions import load_emerge_config as _load_emerge_config
+    PORTAGE22 = True
 except: # portage 2.1.x modules
     try:
         import portage
         import portage_const
         import portage_manifest as manifest
+        PORTAGE22 = False
     except ImportError:
         exit(_('Could not find portage module.\n'
              'Are you sure this is a Gentoo system?'))
@@ -714,6 +717,10 @@ class PortageSettings:
         # declare some globals
         self.portdir = self.portdir_overlay = self.ACCEPT_KEYWORDS = self.user_config_dir = self._world = self.SystemUseFlags = None
         self.virtuals = self.keys = self.UseFlagDict = None
+        if PORTAGE22: # then use the imported module
+            self.my_load_emerge_config = _load_emerge_config
+        else: # use the one copied from the non importable emerge
+            self.my_load_emerge_config = self.load_emerge_config
         #self.settings, self.trees, self.mtimedb = self.load_emerge_config()
         #self.portdb = self.trees[self.settings["ROOT"]]["porttree"].dbapi
         #self.root_config = self.trees[self.settings["ROOT"]]["root_config"]
@@ -742,12 +749,13 @@ class PortageSettings:
     def reset(self):
         """reset remaining run once variables after a sync or other mods"""
         debug.dprint("PORTAGELIB: reset_globals();")
-        self.settings, self.trees, self.mtimedb = self.load_emerge_config()
+        self.settings, self.trees, self.mtimedb = self.my_load_emerge_config()
         self.portdb = self.trees[self.settings["ROOT"]]["porttree"].dbapi
         #self.db=self.portdb.auxdbmodule._db_module
         #print >>stderr, self.db.__dict__.keys()
         #self.db.dbapi2.check_same_thread  = False
         self.portdir = self.settings.environ()['PORTDIR']
+        self.config_root = self.settings['PORTAGE_CONFIGROOT']
         # is PORTDIR_OVERLAY always defined?
         self.portdir_overlay = get_portage_environ('PORTDIR_OVERLAY')
         self.ACCEPT_KEYWORDS = get_portage_environ("ACCEPT_KEYWORDS")
@@ -762,7 +770,7 @@ class PortageSettings:
 
     def reload_config(self):
         """Reload the whole config from scratch"""
-        self.settings, self.trees, self.mtimedb = self.load_emerge_config(self.trees)
+        self.settings, self.trees, self.mtimedb = self.my_load_emerge_config(self.trees)
         self.portdb = self.trees[self.settings["ROOT"]]["porttree"].dbapi
 
 

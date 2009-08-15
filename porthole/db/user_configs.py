@@ -133,17 +133,20 @@ class UserConfigs:
             self.sources[mytype] = {}
         for file in CONFIG_FILES:
             debug.dprint("USER_CONFIGS: __init__(); file = " + file)
-            self.load(os.path.join(portage_lib.settings.user_config_dir,file))
+            self.load(os.path.join(portage_lib.settings.config_root, portage_lib.settings.user_config_dir,file))
 
     def load(self, myfilename, recursive = True):
         lines = []
+        debug.dprint("USER_CONFIGS: load(); myfilename = %s, recursive = %s, isdir = %s" %(myfilename, str(recursive), str(os.path.isdir(myfilename))))
         if recursive and os.path.isdir(myfilename):
             dirlist = os.listdir(myfilename)
             dirlist.sort()
+            debug.dprint("USER_CONFIGS: load(); dirlist = %s" %str(dirlist))
             for f in dirlist:
                 if not f.startswith("."):
                     self.load(os.path.join(myfilename, f), recursive)
         else:
+            debug.dprint("USER_CONFIGS: load(); not a directory... so load the file: %s" %myfilename)
             lines = read_bash(myfilename)
             self.atomize(lines, myfilename, self.db, self.sources)
 
