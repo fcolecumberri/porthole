@@ -136,6 +136,9 @@ class Plugin:
         debug.dprint("PLUGIN: %s event_table = %s" %(self.name, str(self.event_table)))
         debug.dprint("PLUGIN: %s desc = %s" %(self.name, str(self.desc)))
         debug.dprint("PLUGIN: %s is_installed = %s" %(self.name, str(self.is_installed)))
+        if not self.is_installed:
+            self.enabled = False
+            self.event("disable")
 
     def toggle_enabled(self):
         if self.enabled == True:
@@ -193,6 +196,8 @@ class PluginGUI(gtk.Window):
         self.plugin_view.set_model(self.liststore)
         for i in self.plugin_manager.plugin_list(): 
             debug.dprint("PLUGIN: create_plugin_list(): %s , is_installed = %s" %(i.name, str(i.module.is_installed)))
+            if not i.module.is_installed:
+                i.enabled = False
             self.liststore.append([i.enabled, i.name, i.module.is_installed])
         cb_column = gtk.TreeViewColumn(_("Enable"))
         text_column = gtk.TreeViewColumn(_("Plug-in"))
