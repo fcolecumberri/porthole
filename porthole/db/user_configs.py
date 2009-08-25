@@ -40,8 +40,8 @@ from porthole.utils import debug
 ## set up this module to act as a user configs data server,
 ## watch the user configs for changes and auto update
 
-CONFIG_TYPES = ['USE', 'KEYWORDS', 'MASK', 'UNMASK', 'SETS']
-CONFIG_FILES = ['package.use', 'package.keywords', 'package.mask', 'package.unmask', 'sets']
+CONFIG_TYPES = ['USE', 'KEYWORDS', 'MASK', 'UNMASK', 'SETS', 'PROVIDED']
+CONFIG_FILES = ['package.use', 'package.keywords', 'package.mask', 'package.unmask', 'sets', 'package.provided']
 
 def get_type(file):
     if file:
