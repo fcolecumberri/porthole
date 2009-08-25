@@ -1,6 +1,11 @@
 --------------------------------------------------------------------------------
 |                          TODO list for Porthole:                             |
 --------------------------------------------------------------------------------
+* integrate the use of  'portage.mtimedb["resume"]'  into porthole's info.  The file is
+    @  /var/cache/edb/mtimedb (it's python pickle format).
+    dol-sen: FYI, there is support for 2 resume lists. The second is
+    portage.mtimedb["resume_backup"].
+
 * update to python-2.6 minimum requirement
 
 * remove hard coded emerge commands and make them loadable from a file.  This will then allow for
