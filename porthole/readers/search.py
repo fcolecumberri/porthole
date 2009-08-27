@@ -65,7 +65,10 @@ class SearchReader( CommonReader ):
                 self.count += 1
                 searchstrings = [name]
                 if self.search_desc:
-                    desc = self.desc_db[name]
+                    try:
+                        desc = self.desc_db[name]
+                    except KeyError: # perhaps the description db is stale?
+                        desc = ''
                     searchstrings.append(desc)
                     #debug.dprint("searchstrings type = " + str(type(searchstrings)))
                     #debug.dprint(searchstrings)
