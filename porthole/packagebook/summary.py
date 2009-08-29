@@ -44,10 +44,12 @@ class Summary(gtk.TextView):
         gtk.TextView.__init__(self)
         self.re_init_portage = re_init_portage
         # get the preferences we need
-        self.enable_archlist = config.Prefs.globals.enable_archlist
-        self.archlist = config.Prefs.globals.archlist
+        #self.enable_archlist = config.Prefs.globals.enable_archlist
+        #self.archlist = config.Prefs.globals.archlist
         self.dispatch = dispatcher
         self.myarch = portage_lib.get_arch()
+        #self.selected_arch = None
+        self.selected_arch = self.myarch
         self.tooltips = gtk.Tooltips()
         self.set_wrap_mode(gtk.WRAP_WORD)
         self.set_editable(False)
@@ -72,9 +74,13 @@ class Summary(gtk.TextView):
         self.underlined_url = False
         self.reset_cursor = 'Please'
         
-        # create popup menu for rmb-click
-        arch = "~" + portage_lib.get_arch()
-        menu = gtk.Menu()
+        self.createmenu()
+        self.dopopup = None
+        self.selected_ebuild = None
+        #self.selected_arch = None
+        self.connect("button_press_event", self.on_button_press)
+
+    def createmenu(self):
         menuitems = {}
         menuitems["emerge"] = gtk.MenuItem(_("Emerge this ebuild"))
         menuitems["emerge"].connect("activate", self.emerge)
@@ -88,11 +94,7 @@ class Summary(gtk.TextView):
         menuitems["sudo-unmerge"].connect("activate", self.unmerge, True)
         menuitems["Advanced emerge dialog"] = gtk.MenuItem(_("Advanced Emerge"))
         menuitems["Advanced emerge dialog"].connect("activate", self.adv_emerge)
-        menuitems["add-ebuild-keyword"] = gtk.MenuItem(_("Add %s to package.keywords (for this ebuild only)") % arch)
-        menuitems["add-ebuild-keyword"].connect("activate", self.add_keyword_ebuild)
-        menuitems["add-keyword"] = gtk.MenuItem(_("Add %s to package.keywords") % arch)
-        menuitems["add-keyword"].connect("activate", self.add_keyword)
-        menuitems["remove-keyword"] = gtk.MenuItem(_("Remove %s from package.keywords") % arch)
+        menuitems["remove-keyword"] = gtk.MenuItem(_("Remove this arch from package.keywords") ) #% self.arch(True))
         menuitems["remove-keyword"].connect("activate", self.remove_keyword)
         menuitems["remove-keyword-ebuild"] = gtk.MenuItem(_("Remove ebuild keyword from package.keywords") )
         menuitems["remove-keyword-ebuild"].connect("activate", self.remove_keyword_ebuild)
@@ -103,16 +105,49 @@ class Summary(gtk.TextView):
         menuitems["show_props"] = gtk.MenuItem(_("Show the properties for this ebuild"))
         menuitems["show_props"].connect("activate", self.show_version)
         
+        if not config.Prefs.globals.enable_archlist:
+            menuitems["add-ebuild-keyword"] = gtk.MenuItem(_("Add %s to package.keywords (for this ebuild only)" ) % self.myarch)
+            menuitems["add-ebuild-keyword"].connect("activate", self.add_keyword_ebuild, self.myarch)
+            menuitems["add-keyword"] = gtk.MenuItem(_("Add this arch to package.keywords") ) #% self.arch(True))
+            menuitems["add-keyword"].connect("activate", self.add_keyword)
+        else:
+            menuitems["add-ebuild-keyword"] = gtk.MenuItem(_("Add to package.keywords (for this ebuild only)" ) )
+            menuitems["add-keyword"] = gtk.MenuItem(_("Add to package.keywords") ) 
+            archlist = config.Prefs.globals.archlist
+            key = '~'
+            keywordmenu = {}
+            keywordmenuitems = {}
+            for item_name, callback in [["add-ebuild-keyword", self.add_keyword_ebuild], ["add-keyword", self.add_keyword]]:
+                keyworditems = {}
+                for arch in archlist:
+                    keyworditems[arch] = gtk.MenuItem(key + arch)
+                    keyworditems[arch].connect("activate", callback, arch)
+                keywordmenuitems[item_name] = keyworditems
+                    
+                keywordmenu[item_name] = gtk.Menu()
+                for item in keyworditems.values():
+                    keywordmenu[item_name].append(item)
+                    item.show()
+                menuitems[item_name].set_submenu(keywordmenu[item_name])
+        
+        # create popup menu for rmb-click
+        menu = gtk.Menu()
+       
         for item in menuitems.values():
             menu.append(item)
             item.show()
         
         self.popup_menu = menu
         self.popup_menuitems = menuitems
-        self.dopopup = None
-        self.selected_ebuild = None
-        self.selected_arch = None
-        self.connect("button_press_event", self.on_button_press)
+        self.keyword_menu = keywordmenu
+        self.keyword_menuitems = keywordmenuitems
+        
+        return
+
+    def arch(self, keyword = False):
+        if keyword:
+            return "~" + self.selected_arch
+        return self.selected_arch
 
     def create_tag_table(self):
         """ Define all markup tags """
@@ -458,7 +493,7 @@ class Summary(gtk.TextView):
         # added by Tommy
         hardmasked = package.get_hard_masked()
         #keyword_unmasked = portage_lib.get_keyword_unmasked_ebuilds(
-        #                    archlist=self.archlist, full_name=package.full_name)
+        #                    archlist=config.Prefs.globals.archlist, full_name=package.full_name)
         debug.dprint("SUMMARY: get package info, name = " + package.full_name)
         keyword_unmasked = db.userconfigs.get_user_config('KEYWORDS', name=package.full_name)
         package_unmasked = db.userconfigs.get_user_config('UNMASK', name=package.full_name)
@@ -578,26 +613,57 @@ class Summary(gtk.TextView):
             self.do_table_popup(eventbox, event)
         return True
     
+    def do_keyword_menuitems(self, ebuild):
+        # handle keywords submenu arch availability
+        keys = self.package.get_properties(ebuild).get_keywords()
+        hide_list = list(set(config.Prefs.globals.keyworded_archlist).difference(set(keys)))
+        debug.dprint("SUMMARY: do_keyword_menuitems(); keys = %s, hide_list = %s" %(str(keys),str(hide_list)))
+        for arch in config.Prefs.globals.archlist:
+            if '~'+arch in hide_list:
+                for menu in ["add-ebuild-keyword", "add-keyword"]:
+                    debug.dprint("SUMMARY: do_keyword_menuitems(); hiding %s, %s" %(menu, arch))
+                    self.keyword_menuitems[menu][arch].hide()
+            else:
+                for menu in ["add-ebuild-keyword", "add-keyword"]:
+                    debug.dprint("SUMMARY: do_keyword_menuitems(); showing %s, %s" %(menu, arch))
+                    self.keyword_menuitems[menu][arch].show()
+                    if arch == self.myarch:
+                        self.keyword_menuitems[menu][arch].select()
+
     def do_table_popup(self, eventbox, event):
         self.selected_ebuild = eventbox.ebuild
         self.selected_arch = eventbox.arch
+        
+        # inteligently show/hide keywords submenu archs
+        self.do_keyword_menuitems(eventbox.ebuild)
+
         # moved these from is_root bit as we can sudo them now
         if utils.is_root() or utils.can_gksu():
             if '~' in eventbox.text:
                 self.popup_menuitems["add-keyword"].show()
-            else: self.popup_menuitems["add-keyword"].hide()
+                self.popup_menuitems["add-ebuild-keyword"].show()
+            else: 
+                self.popup_menuitems["add-keyword"].hide()
+                self.popup_menuitems["add-ebuild-keyword"].hide()
             if '(+)' in eventbox.text:
                 self.popup_menuitems["remove-keyword"].show()
-            else: self.popup_menuitems["remove-keyword"].hide()
+                self.popup_menuitems["remove-keyword-ebuild"].show()
+            else:
+                self.popup_menuitems["remove-keyword"].hide()
+                self.popup_menuitems["remove-keyword-ebuild"].hide()
             if 'M' in eventbox.text:
                 self.popup_menuitems["package-unmask"].show()
-            else: self.popup_menuitems["package-unmask"].hide()
+            else:
+                self.popup_menuitems["package-unmask"].hide()
             if '[' in eventbox.text:
                 self.popup_menuitems["un-package-unmask"].show()
-            else: self.popup_menuitems["un-package-unmask"].hide()
+            else:
+                self.popup_menuitems["un-package-unmask"].hide()
         else:
             self.popup_menuitems["add-keyword"].hide()
+            self.popup_menuitems["add-ebuild-keyword"].hide()
             self.popup_menuitems["remove-keyword"].hide()
+            self.popup_menuitems["remove-keyword-ebuild"].hide()
             self.popup_menuitems["package-unmask"].hide()
             self.popup_menuitems["un-package-unmask"].hide()
         if utils.is_root():
@@ -700,17 +766,17 @@ class Summary(gtk.TextView):
         self.update_package_info(self.package)
         self.re_init_portage()
     
-    def add_keyword_ebuild(self, menuitem_widget):
-        arch = "~" + portage_lib.get_arch()
+    def add_keyword_ebuild(self, menuitem_widget, arch):
+        #arch = self.arch(True)
         ebuild = "=" + self.selected_ebuild
-        db.userconfigs.set_user_config('KEYWORDS', ebuild=ebuild, add=arch, callback=self.update_callback)
+        db.userconfigs.set_user_config('KEYWORDS', ebuild=ebuild, add="~"+arch, callback=self.update_callback)
 
-    def add_keyword(self, widget):
-        arch = "~" + portage_lib.get_arch()
+    def add_keyword(self, widget, arch):
+        #arch = self.arch(True)
         name = self.package.full_name
         string = name + " " + arch + "\n"
         debug.dprint("Summary: Package view add_keyword(); %s" %string)
-        db.userconfigs.set_user_config('KEYWORDS', name=name, add=arch, callback=self.update_callback)
+        db.userconfigs.set_user_config('KEYWORDS', name=name, add="~"+arch, callback=self.update_callback)
 
     def remove_keyword_ebuild(self, menuitem_widget):
         #arch = "~" + portage_lib.get_arch()
@@ -718,7 +784,7 @@ class Summary(gtk.TextView):
         db.userconfigs.set_user_config('KEYWORDS', ebuild=ebuild, remove=ebuild, callback=self.update_callback)
 
     def remove_keyword(self, menuitem_widget):
-        arch = "~" + portage_lib.get_arch()
+        arch = self.arch(True)
         name = self.package.full_name
         string = name + " " + arch + "\n"
         debug.dprint("Summary: Package view remove_keyword(); %s" %string)

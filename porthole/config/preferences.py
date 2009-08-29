@@ -311,6 +311,10 @@ class PortholePreferences:
                 debug.dprint("PREFERENCES: DEFAULT VALUE: %s = %s" %(option,str(value)))
             setattr(self.globals, option, value)
             debug.dprint("PREFERENCES: PortholePreferences; setting globals.%s = %s" %(option, str(value)))
+        # create a keyworded archlist
+        self.globals.keyworded_archlist = []
+        for arch in self.globals.archlist:
+            self.globals.keyworded_archlist.append('~'+arch)
         
         if can_gksu(self.globals.su.split(' ')[0]) == False:
             # If the current su option is not valid, try some others.
