@@ -127,7 +127,7 @@ def set_user_config(filename, name='', ebuild='', add=[], remove=[], delete=[]):
                     return
                 cp = cplist[0] + "/" + cplist[1]
                 dprint("SET_CONFIG: couldn't find '%s', trying '%s' in stead" % (ebuild, cp))
-                return set_user_config(file, name=cp, remove=remove)
+                return set_user_config(filename, name=cp, remove=remove)
         else: # package.mask/unmask: list of names to add
             config.extend([[item] for item in add])
             dprint("SET_CONFIG: added %d lines to %s" % (len(add), file))
