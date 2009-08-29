@@ -1,6 +1,8 @@
 --------------------------------------------------------------------------------
 |                          TODO list for Porthole:                             |
 --------------------------------------------------------------------------------
+* more USE flag bugs to fix... 
+
 * integrate the use of  'portage.mtimedb["resume"]'  into porthole's info.  The file is
     @  /var/cache/edb/mtimedb (it's python pickle format).
     dol-sen: FYI, there is support for 2 resume lists. The second is
