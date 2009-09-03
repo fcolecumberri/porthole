@@ -1,6 +1,9 @@
 --------------------------------------------------------------------------------
 |                          TODO list for Porthole:                             |
 --------------------------------------------------------------------------------
+
+* add more package.mask/unmask menu options to the ebuild table right click menus
+
 * more USE flag bugs to fix... 
 
 * integrate the use of  'portage.mtimedb["resume"]'  into porthole's info.  The file is
