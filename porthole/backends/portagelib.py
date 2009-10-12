@@ -372,6 +372,19 @@ def get_arch():
     """Return host CPU architecture"""
     return settings.settings["ARCH"]
 
+def get_cpv_use(cpv):
+    """uses portage to determine final USE flags and settings for an emerge"""
+    debug.dprint("PORTAGELIB: get_cpv_use(); cpv = " + cpv)
+    myuse = None
+    settings.settings.unlock()
+    settings.settings.setcpv(cpv, use_cache=True, mydb=settings.portdb)
+    myuse = settings.settings['PORTAGE_USE'].split()
+    debug.dprint("PORTAGELIB: get_cpv_use(); type(myuse), myuse = " + str(type(myuse)) + str(myuse))
+    # reset cpv filter
+    settings.settings.reset()
+    settings.settings.lock()
+    return myuse
+
 def get_name(full_name):
     """Extract name from full name."""
     return full_name.split('/')[1]
@@ -532,8 +545,10 @@ def get_archlist():
 
 def get_masking_reason(ebuild):
     """Strips trailing \n from, and returns the masking reason given by portage"""
-    reason = portage.getmaskingreason(ebuild)
+    reason, location = portage.getmaskingreason(ebuild, settings=settings.settings, portdb=settings.portdb,  return_location=True)
     if not reason: return _('No masking reason given')
+    if location != None:
+        reason += "in file: " + location
     if reason.endswith("\n"):
         reason = reason[:-1]
     return reason
@@ -732,7 +747,7 @@ class PortageSettings:
         #debug.dprint("PORTAGELIB: Settings.reset_use_flags(); SystemUseFlags = " + str(SystemUseFlags))
 
     def load_emerge_config(self, trees = None):
-        # Taken from /usr/bin/emerge portage-2.1.2.2  ...Brian
+        # Taken from /usr/bin/emerge portage-2.1.2.2  ...Brian  >=portage-2.2* it is import-able
         kwargs = {}
         for k, envvar in (("config_root", "PORTAGE_CONFIGROOT"), ("target_root", "ROOT")):
             kwargs[k] = os.environ.get(envvar, None)
