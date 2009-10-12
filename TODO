@@ -1,10 +1,26 @@
 --------------------------------------------------------------------------------
 |                          TODO list for Porthole:                             |
 --------------------------------------------------------------------------------
+* add an comment input dialog to get user comments for user config entries
 
-* add more package.mask/unmask menu options to the ebuild table right click menus
+* Done, add more package.mask/unmask menu options to the ebuild table right click menus
 
-* more USE flag bugs to fix... 
+* Done, more USE flag bugs to fix... 
+{<dol-sen> A nice API for that would be nice ;)  , hint, hint
+<dol-sen> it would cut the time more again not having to create the output and re-parse it
+<dol-sen> just get the python structure, list, tuple, whatever
+<zmedico> why don't you use config.setcpv()?
+<zmedico> that's how portage does it
+<dol-sen> because I didn't know abuot it :)  thanks
+<zmedico> after setcpv, get config['PORTAGE_USE']
+<zmedico> and that has the enabled flags
+<dol-sen> thank you again, I owe you for that...
+<zmedico> you have to pass a portdbapi into setcpv, as the mydb argument
+<dol-sen> already have it in the backend code, thanks
+<dol-sen> I'll check out the epydocs more
+<zmedico> cool
+}
+
 
 * integrate the use of  'portage.mtimedb["resume"]'  into porthole's info.  The file is
     @  /var/cache/edb/mtimedb (it's python pickle format).
