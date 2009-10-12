@@ -201,3 +201,11 @@ def use_required_split(mydep):
         brace2 = mydep.rfind("]")
         return [mydep[:brace], mydep[brace+1:brace2]]
     return [mydep, '']
+
+def filter_flags(myuse):
+    # clean out some environment flags, since they will most probably be confusing for the user
+    for f in ['amd64',  'x86', 'elibc_glibc', 'kernel_linux', 'multilib', 'userland_GNU']:
+        if f in myuse: 
+            myuse.remove(f)
+    debug.dprint("BACKENDS Utilities:  filter_flags(); filtered myuse = " + str(myuse))
+    return myuse

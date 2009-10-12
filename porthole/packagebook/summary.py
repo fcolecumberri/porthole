@@ -32,9 +32,10 @@ from porthole.utils import utils
 from porthole import backends
 portage_lib = backends.portage_lib
 from porthole import db
+from porthole.db.user_configs import CONFIG_MASK_ATOMS
 from porthole import config
 from porthole.backends.version_sort import ver_sort
-from porthole.backends.utilities import reduce_flags, get_reduced_flags, abs_flag, abs_list, flag_defaults
+from porthole.backends.utilities import reduce_flags, get_reduced_flags, abs_flag, abs_list, flag_defaults, filter_flags
 from porthole.loaders.loaders import load_web_page
 
 class Summary(gtk.TextView):
@@ -98,13 +99,12 @@ class Summary(gtk.TextView):
         menuitems["remove-keyword"].connect("activate", self.remove_keyword)
         menuitems["remove-keyword-ebuild"] = gtk.MenuItem(_("Remove ebuild keyword from package.keywords") )
         menuitems["remove-keyword-ebuild"].connect("activate", self.remove_keyword_ebuild)
-        menuitems["package-unmask"] = gtk.MenuItem(_("Unmask this ebuild"))
-        menuitems["package-unmask"].connect("activate", self.package_unmask)
         menuitems["un-package-unmask"] = gtk.MenuItem(_("Remask this ebuild"))
         menuitems["un-package-unmask"].connect("activate", self.un_package_unmask)
         menuitems["show_props"] = gtk.MenuItem(_("Show the properties for this ebuild"))
         menuitems["show_props"].connect("activate", self.show_version)
-        
+
+        # create keyword submenus
         if not config.Prefs.globals.enable_archlist:
             menuitems["add-ebuild-keyword"] = gtk.MenuItem(_("Add %s to package.keywords (for this ebuild only)" ) % self.myarch)
             menuitems["add-ebuild-keyword"].connect("activate", self.add_keyword_ebuild, self.myarch)
@@ -118,21 +118,22 @@ class Summary(gtk.TextView):
             keywordmenu = {}
             keywordmenuitems = {}
             key = '~'
-            for item_name, callback in [["add-ebuild-keyword", self.add_keyword_ebuild], ["add-keyword", self.add_keyword]]:
-                keyworditems = {}
-                for arch in archlist:
-                    keyworditems[arch] = gtk.MenuItem(key + arch)
-                    keyworditems[arch].connect("activate", callback, arch)
-                keywordmenuitems[item_name] = keyworditems
-                    
-                keywordmenu[item_name] = gtk.Menu()
-                for item in keyworditems.values():
-                    keywordmenu[item_name].append(item)
-                    item.show()
-                menuitems[item_name].set_submenu(keywordmenu[item_name])
+            entries =  [["add-ebuild-keyword", self.add_keyword_ebuild], ["add-keyword", self.add_keyword]]
+            self.create_submenu(entries, archlist, key, keywordmenu, keywordmenuitems, menuitems)
             self.keyword_menu = keywordmenu
             self.keyword_menuitems = keywordmenuitems
-        
+                
+        # create mask/unmask submenus
+        menuitems["package-mask"] = gtk.MenuItem(_("Mask this ebuild or package"))
+        menuitems["package-unmask"] = gtk.MenuItem(_("Unmask this ebuild or package"))
+        key = ''
+        submenu = {}
+        submenuitems = {}
+        entries = [["package-mask", self.package_mask], ["package-unmask", self.package_unmask]]
+        self.create_submenu(entries, CONFIG_MASK_ATOMS, key, submenu, submenuitems, menuitems)
+        self.mask_menu = submenu
+        self.mask_menuitems = submenuitems
+
         # create popup menu for rmb-click
         menu = gtk.Menu()
        
@@ -144,6 +145,33 @@ class Summary(gtk.TextView):
         self.popup_menuitems = menuitems
         
         return
+
+    def create_submenu(self, menulist, sublist, key, mysubmenu= None,
+                                            mymenuitems = None, myparentmenuitems = None):
+        """create a submenu and attach to
+        pointers
+            @mysubmenu
+            @mymenuitems
+            @myparentmenuitems
+        input parameters
+            @menulist = nested lists [[menu-entry-name1, callback1], [[menu-entry-name2, callback2]]
+            @sublist = list of submenu entry values to display
+            @key = the key to prepend to the sublist values to create, eg:
+                        '~' for keywords,
+                        '' (null string) for mask/unmask atoms
+        """
+        for item_name, callback in menulist:
+            myitems = {}
+            for x in sublist:
+                myitems[x] = gtk.MenuItem(key + x)
+                myitems[x].connect("activate", callback, x)
+            mymenuitems[item_name] = myitems
+                
+            mysubmenu[item_name] = gtk.Menu()
+            for item in myitems.values():
+                mysubmenu[item_name].append(item)
+                item.show()
+            myparentmenuitems[item_name].set_submenu(mysubmenu[item_name])
 
     def arch(self, keyword = False):
         if keyword:
@@ -397,34 +425,17 @@ class Summary(gtk.TextView):
             ebuild_use_flags = get_reduced_flags(ebuild)
             if use_flags and config.Prefs.summary.showuseflags:
                 #debug.dprint("SUMMARY: SHOW_PROPS(); use_flags = " +str(use_flags))
-                append(_("Use flags: "), "property")
-                first_flag = True
-                for flag in use_flags:
-                    #debug.dprint("SUMMARY: SHOW_PROPS(); flag = " +str(flag))
-                    # Check to see if flag applies:
-                    flag_active = False
-                    myflag = abs_flag(flag)
-                    if myflag in ebuild_use_flags:
-                        #debug.dprint("SUMMARY: SHOW_PROPS(); flag in ebuild_use_flags = True" )
-                        flag_active = True
-                    elif '-'+myflag in ebuild_use_flags:
-                        flag = '-' + myflag
-                    if not first_flag:
-                        append(", ", "value")
-                    else:
-                        first_flag = False
-                    # Added +/- for color impaired folks
-                    if flag_active:
-                        if flag.startswith('+'):
-                            append(flag,"useset")
-                        else:
-                            append('+' + flag,"useset")
-                    else:
-                        if flag.startswith('-'):
-                            append(flag,"useunset")
-                        else:
-                            append('-' + flag,"useunset")
+                append(_("IUSE: "), "property")
+                append(", ".join(filter_flags(iuse)))
+                nl()
+                append(_("Use flags settings: "), "property")
+                show_flags(filter_flags(use_flags), ebuild_use_flags)
+                nl()
+                append(_("Final environment Use flags: "), "property")
+                final_use = portage_lib.get_cpv_use(ebuild)
+                show_flags(filter_flags(final_use), ebuild_use_flags,  id_overrides=True)
                 nl(2)
+                
 
             # Keywords
             if keywords and config.Prefs.summary.showkeywords:
@@ -450,7 +461,76 @@ class Summary(gtk.TextView):
                         append_url(license, self.license_dir + license, "blue")
                         x += 1
                 nl()
-        
+
+        def show_flags( use_flags, ebuild_use_flags, id_overrides=False, first_flag=True):
+            """runs through the list of flags and formats and prints them"""
+            #debug.dprint("SUMMARY: SHOW_PROPS(),show_flags(); use_flags = " +str( use_flags) + ", ebuild_use_flags = " + str(ebuild_use_flags))
+            #first_flag = True
+            if id_overrides:
+                full_list = abs_list(iuse)
+            else:
+            	full_list = []
+            for flag in use_flags:
+                if id_overrides:
+                    debug.dprint("SUMMARY: SHOW_PROPS(),show_flags(); flag = " +str(flag) + " " + str(full_list))
+                else:
+                    debug.dprint("SUMMARY: SHOW_PROPS(),show_flags(); flag = " +str(flag))
+                # Check to see if flag applies:
+                flag_active = False
+                myflag = abs_flag(flag)
+                if myflag in ebuild_use_flags:
+                    debug.dprint("SUMMARY: SHOW_PROPS(),show_flags(); flag in ebuild_use_flags = True" )
+                    flag_active = True
+                elif '-'+myflag in ebuild_use_flags:
+                    flag = '-' + myflag
+                if not first_flag:
+                    append(", ", "value")
+                else:
+                    first_flag = False
+                show_flag(flag, flag_active, id_overrides)
+                if myflag in full_list:
+                    full_list.remove(myflag)
+                else:
+                    debug.dprint("SUMMARY: SHOW_PROPS(),show_flags(); flag in full_list: "  + myflag)
+            if id_overrides and len(full_list):
+                # print remaining flags
+                for flag in full_list:
+                    if not first_flag:
+                        append(", ", "value")
+                    flag_override = False
+                    if flag in ebuild_use_flags:
+                        debug.dprint("SUMMARY: SHOW_PROPS(),show_flags(); flag_override = True" )
+                        flag_override = True
+                    elif '-'+flag in ebuild_use_flags:
+                        flag = '-' + flag
+                    show_flag(flag, False, flag_override)
+
+        def show_flag(flag, flag_active, id_overrides):
+                # Added +/- for color impaired folks
+                if not id_overrides:
+                    if flag_active:
+                        if flag.startswith('+'):
+                            append(flag,"useset")
+                        else:
+                            append('+' + flag,"useset")
+                    else:
+                        if flag.startswith('-'):
+                            append(flag,"useunset")
+                        else:
+                            append('-' + flag,"useunset")
+                else: # id the overrides
+                    #if flag_active:
+                    if flag.startswith('+'):
+                        append("(" + flag +")","useset")
+                    elif not flag.startswith('-'):
+                        append('+' + flag,"useset")
+                    else:
+                        if flag.startswith('-'):
+                            append("(" + flag +")", "useunset")
+                        else:
+                            append('-' + flag,"useunset")
+
+
         def show_configs(ebuild):
             append(_("User Configs: "), "property")
             nl()
@@ -511,10 +591,11 @@ class Summary(gtk.TextView):
                 self.ebuild = best
         #debug.dprint("SUMMARY: getting properties for ebuild version %s" %ebuild)
         props = package.get_properties(self.ebuild)
+        iuse = props.get_use_flags()
         description = props.description
         homepages = props.get_homepages() # may be more than one
         #debug.dprint("SUMMARY: Summary; getting use flags")
-        use_flags = reduce_flags(props.get_use_flags())
+        use_flags = reduce_flags(iuse)
         keywords = props.get_keywords()
         licenses = props.license
         slot = unicode(props.get_slot())
@@ -668,8 +749,10 @@ class Summary(gtk.TextView):
                 self.popup_menuitems["package-unmask"].hide()
             if '[' in eventbox.text:
                 self.popup_menuitems["un-package-unmask"].show()
+                self.popup_menuitems["package-mask"].hide()
             else:
                 self.popup_menuitems["un-package-unmask"].hide()
+                self.popup_menuitems["package-mask"].show()
         else:
             self.popup_menuitems["add-keyword"].hide()
             self.popup_menuitems["add-ebuild-keyword"].hide()
@@ -801,11 +884,24 @@ class Summary(gtk.TextView):
         debug.dprint("Summary: Package view remove_keyword(); %s" %string)
         db.userconfigs.set_user_config('KEYWORDS', name=name, remove=arch, callback=self.update_callback)
     
-    def package_unmask(self, menuitem_widget):
-        ebuild = "=" + self.selected_ebuild
+    def package_mask(self, widget, atoms):
+        if atoms == 'all': 
+            ebuild = portage_lib.get_full_name(self.selected_ebuild)
+        else:
+            ebuild = atoms + self.selected_ebuild
+        # TODO add reasons info to entry
+        debug.dprint("Summary: Package view  package_mask(); %s" %ebuild)
+        db.userconfigs.set_user_config('MASK', add=ebuild, callback=self.update_callback)
+
+    def package_unmask(self, widget, atoms):
+        if atoms == 'all': 
+            ebuild = portage_lib.get_full_name(self.selected_ebuild)
+        else:
+            ebuild = atoms + self.selected_ebuild
+        debug.dprint("Summary: Package view  package_unmask(); %s" %ebuild)
         db.userconfigs.set_user_config('UNMASK', add=ebuild, callback=self.update_callback)
     
-    def un_package_unmask(self, menuitem_widget):
+    def un_package_unmask(self, widget):
         ebuild = "=" + self.selected_ebuild
         db.userconfigs.set_user_config('UNMASK', remove=ebuild, callback=self.update_callback)
     
