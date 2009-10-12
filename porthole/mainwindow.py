@@ -801,7 +801,7 @@ class MainWindow:
                         debug.dprint("MAINWINDOW: upgrade_packages(); dependancy selected: " + key)
                         options = config.Prefs.emerge.get_string()
                         if "--oneshot" not in options:
-                            options.append(" --oneshot ")
+                            options = options + " --oneshot "
                         if not self.setup_command(key, emerge_cmd  + options + key[:]): #use the full name
                             return
                 elif not self.setup_command(key, emerge_cmd +
