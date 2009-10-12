@@ -22,7 +22,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 """
 
-import sys, os, os.path, codecs, re
+import sys, os, os.path, codecs, re, datetime
 
 try: # >=portage 2.2 modules
     import portage.const as portage_const
@@ -36,13 +36,76 @@ except: # portage 2.1.x modules
 
 #debug = False
 debug = True
-version = 1.0
-
+version = 1.1
 
 def dprint(message):
     """Print debug message if debug is true."""
     if debug:
         print message
+
+def Header(filename):
+    """creates a file creation header including:
+        # filename
+        # name of this program filename
+        # program version
+        # date & time of creation
+        # login username"""
+    
+    header = "#########################################################################\n" + \
+            ("# $Header: %s created by Porthole's set_config.py v: %s, %s, %s Exp $\n" \
+            %(filename, str(version), datetime.datetime.today().strftime("%Y/%m/%d %H:%M:%S"), os.getlogin()))
+    dprint("SET_CONFIG: Header(); new header:\n%s" % header)
+    dprint("SET_CONFIG: Header(); end header:")
+    return header
+
+
+def get_configlines(filename):
+    """gets the contents of the input filename if it exists and returns the lines as a list.
+        if the file did not exist then it initializes the list with a creation header"""
+    if os.access(filename, os.F_OK): # if file exists
+        dprint("SET_CONFIG:  get_configlines(); filename -- os.access OK:%s" % filename)
+        configfile = open(filename, 'r')
+        configlines = configfile.readlines()
+        configfile.close()
+    else:
+        dprint("SET_CONFIG:  get_configlines(); new file: %s" % filename)
+        configlines = Header(filename).split('\n')
+    return configlines
+
+def chk_permission(filename):
+    """checks for write permission on input filename"""
+    if not os.access(os.path.split(filename)[0], os.W_OK):
+        dprint(" * SET_CONFIG: set_user_config(): no write access to '%s'. " \
+              "Perhaps the user is not root?" % os.path.split(filename)[0])
+        return False
+    return True
+
+def group_by_blanklines(configlines):
+    """group lines by separation blank lines to keep entries and their comments together
+        input: list of text lines
+        returns a tuple of lists""" 
+    x=0
+    groups={}
+    groups[x]=[]
+    for s in configlines:
+        groups[x].append(s)
+        if s == '\n':
+            x += 1
+            groups[x]=[]
+    return groups
+
+def rm_dbl_nl(a):
+    """removes multiple consecutive null string list entries and returns a cleaned list
+            @a = input list"""
+    dprint("SET_CONFIG: rm_dbl_nl(); a= %s" %str(a))
+    r=[]
+    for x in range(len(a)-1):
+        if a[x] == '' and a[x+1] == '':
+            continue
+        r.append(a[x])
+    r.append(a[x+1])
+    dprint("SET_CONFIG: rm_dbl_nl(); returning r= %s" %str(r))
+    return r
 
 def remove_flag(flag, line):
     # just in case there are multiple entries for the same flag
@@ -53,7 +116,7 @@ def remove_flag(flag, line):
         dprint("SET_CONFIG: remove_flag(); removed '%s' from line" % flag)
     return line
 
-def set_user_config(filename, name='', ebuild='', add=[], remove=[], delete=[]):
+def set_user_config(filename, name='', ebuild='', comment = '', add=[], remove=[], delete=[]):
     """
     Adds <name> or '=' + <ebuild> to <filename> with flags <add>.
     If an existing entry is found, items in <remove> are removed and <add> is added.
@@ -62,18 +125,10 @@ def set_user_config(filename, name='', ebuild='', add=[], remove=[], delete=[]):
     remove are removed, and items in <add> are added as new lines.
     """
     dprint("SET_CONFIG: set_user_config(): filename = '%s'" % filename)
-    #config_path = portage_const.USER_CONFIG_PATH
-    if not os.access(os.path.split(filename)[0], os.W_OK):
-        dprint(" * SET_CONFIG: set_user_config(): no write access to '%s'. " \
-              "Perhaps the user is not root?" % os.path.split(filename)[0])
+    if not chk_permission(filename):
         return False
-    #dprint(" * SET_CONFIG: set_user_config(): filename = " + filename)
-    if os.access(filename, os.F_OK): # if file exists
-        configfile = open(filename, 'r')
-        configlines = configfile.readlines()
-        configfile.close()
-    else:
-        configlines = ['']
+    dprint(" * SET_CONFIG: set_user_config(): filename = " + filename)
+    configlines = get_configlines(filename)
     config = [line.split() for line in configlines]
     if not name:
         name =  ebuild
@@ -132,14 +187,27 @@ def set_user_config(filename, name='', ebuild='', add=[], remove=[], delete=[]):
             config.extend([[item] for item in add])
             dprint("SET_CONFIG: added %d lines to %s" % (len(add), file))
         done = True
-    # remove blank lines
-    while [] in config:
-        config.remove([])
-    while [''] in config:
-        config.remove([''])
     # add one blank line to end (so we end with a \n)
     config.append([''])
     configlines = [' '.join(line) for line in config]
+    configlines = rm_dbl_nl(configlines)
+    configtext = '\n'.join(configlines)
+    configfile = open(filename, 'w')
+    configfile.write(configtext)
+    configfile.close()
+    return True
+
+def set_package_mask(filename, name='', ebuild='', comment='', add=[], remove=[]):
+    """routine to handle adding/removing entries in package.mask files which should have multple lines to add/delete"""
+    dprint("SET_CONFIG:  set_package_mask(): filename = '%s'" % filename)
+    if not chk_permission(filename):
+        return False
+    #dprint(" * SET_CONFIG: set_package_mask(): filename = " + filename)
+    configlines =  get_configlines(filename)
+    groups = group_by_blanklines(configlines)
+    
+    # do some more stuff
+    
     configtext = '\n'.join(configlines)
     configfile = open(filename, 'w')
     configfile.write(configtext)
@@ -409,7 +477,7 @@ if __name__ == "__main__":
     from getopt import getopt, GetoptError
 
     try:
-        opts, args = getopt(argv[1:], "lvdf:n:e:a:r:p:R:P", ["local", "version", "debug"])
+        opts, args = getopt(argv[1:], "lvdf:n:e:a:r:p:c:R:P", ["local", "version", "debug"])
     except GetoptError, e:
         print >>stderr, e.msg
         exit(1)
@@ -421,6 +489,7 @@ if __name__ == "__main__":
     remove = []
     property = ''
     replace = ''
+    comment = ''
 
     for opt, arg in opts:
         dprint(str(opt) + ' ' + str(arg))
@@ -455,8 +524,13 @@ if __name__ == "__main__":
         elif opt in ('-R'):
             replace = arg
             dprint("replace = %s" % str(replace))
+        elif opt in ('-c'):
+            comment = arg
+            dprint("comment = %s" % str(comment))
 
     if 'make.conf' in file:
         set_make_conf(property, add, remove, replace)
+    elif 'package.mask' in file:
+        set_package_mask(file, name, ebuild, comment, remove)
     else:
-        set_user_config(file, name, ebuild, add, remove)
+        set_user_config(file, name, ebuild, comment, add, remove)

@@ -43,6 +43,9 @@ from porthole.utils import debug
 CONFIG_TYPES = ['USE', 'KEYWORDS', 'MASK', 'UNMASK', 'SETS', 'PROVIDED']
 CONFIG_FILES = ['package.use', 'package.keywords', 'package.mask', 'package.unmask', 'sets', 'package.provided']
 
+ # 'all' being a special atom to be replaced with no leading atom and no version info
+CONFIG_MASK_ATOMS = ['=',  '<', '>', '<=', '>=', 'all']
+
 def get_type(file):
     if file:
         mytype = set(file.split("/")).intersection(CONFIG_FILES)
@@ -289,7 +292,7 @@ class UserConfigs:
                         dict[ebuild] = atom.value[:]
         return dict
 
-    def set_user_config( self, mytype, name='', ebuild='', add='', remove='', callback=None, parent_window = None):
+    def set_user_config( self, mytype, name='', ebuild='', add='', remove='', callback=None, parent_window = None, *comment):
         """
         Adds <name> or '=' + <ebuild> to <file> with flags <add>.
         If an existing entry is found, items in <remove> are removed and <add> is added.
@@ -337,6 +340,8 @@ class UserConfigs:
                 commandlist.append('-n %s' %name)
             if ebuild != '':
                 commandlist.append('-e %s' %ebuild)
+            comment = '' # for now. TODO add comment input dialog
+            commandlist.append('-c %s' %comment)
             if add != '':
                 items = add.split()
                 for item in items:
@@ -354,7 +359,7 @@ class UserConfigs:
         else:
             add = add.split()
             remove = remove.split()
-            set_config.set_user_config(file, name, ebuild, add, remove)
+            set_config.set_user_config(file, name, ebuild, comment, add, remove)
             self.set_config_callback()
         return True
 
