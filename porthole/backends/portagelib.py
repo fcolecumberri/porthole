@@ -44,11 +44,16 @@ from porthole.backends.metadata import parse_metadata
 
 try: # >=portage 2.2 modules
     import portage
+    #print "PORTAGELIB: imported portage-2.2"
     import portage.const as portage_const
-    from portage import manifest
-    from portage._emerge.actions import load_emerge_config as _load_emerge_config
+    #print "PORTAGELIB: imported portage.const module"
+    import portage.manifest as manifest
+    #print "PORTAGELIB: imported portage-2.2 manifest"
+    from _emerge.actions import load_emerge_config as _load_emerge_config
     PORTAGE22 = True
+    print "PORTAGELIB: imported portage-2.2 modules"
 except: # portage 2.1.x modules
+    print "PORTAGELIB: importing portage-2.1 modules"
     try:
         import portage
         import portage_const
@@ -799,11 +804,11 @@ class PortageSettings:
         debug.dprint("PORTAGELIB: reset_world();")
         world = []
         try:
-            file = open("/var/lib/portage/world", "r")
+            file = open(portage.WORLD_FILE) #"/var/lib/portage/world", "r")
             world = file.read().split()
             file.close()
         except:
-            debug.dprint("PORTAGELIB: get_world(); Failure to locate file: '/var/lib/portage/world'")
+            debug.dprint("PORTAGELIB: get_world(); Failure to locate file: '%s'" %portage.WORLD_FILE)
             debug.dprint("PORTAGELIB: get_world(); Trying '/var/cache/edb/world'")
             try:
                 file = open("/var/cache/edb/world", "r")
