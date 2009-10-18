@@ -202,10 +202,23 @@ def use_required_split(mydep):
         return [mydep[:brace], mydep[brace+1:brace2]]
     return [mydep, '']
 
-def filter_flags(myuse):
+def filter_flags(myuse, use_expand_hidden, usemasked, useforced):
     # clean out some environment flags, since they will most probably be confusing for the user
-    for f in ['amd64',  'x86', 'elibc_glibc', 'kernel_linux', 'multilib', 'userland_GNU']:
-        if f in myuse: 
-            myuse.remove(f)
+    for f in use_expand_hidden:
+        f=f.lower() + "_"
+        for x in myuse:
+            if f in x:
+                myuse.remove(x)
+    # clean out any arch's
+    archlist = portage_lib.get_archlist()
+    for a in myuse[:]:
+        if a in archlist:
+            myuse.remove(a)
+    # dbl check if any from usemasked  or useforced are still there
+    masked = usemasked + useforced
+    for a in myuse[:]:
+        if a in masked:
+            debug.dprint("BACKENDS Utilities:  filter_flags(); found " + str(a) + " in usemask... removing")
+            myuse.remove(a)
     debug.dprint("BACKENDS Utilities:  filter_flags(); filtered myuse = " + str(myuse))
     return myuse

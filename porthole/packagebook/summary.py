@@ -423,18 +423,27 @@ class Summary(gtk.TextView):
         def show_props(ebuild):
             # Use flags
             ebuild_use_flags = get_reduced_flags(ebuild)
+            # parent module defined use_flags
             if use_flags and config.Prefs.summary.showuseflags:
                 #debug.dprint("SUMMARY: SHOW_PROPS(); use_flags = " +str(use_flags))
-                append(_("IUSE: "), "property")
-                append(", ".join(filter_flags(iuse)))
-                nl()
-                append(_("Use flags settings: "), "property")
-                show_flags(filter_flags(use_flags), ebuild_use_flags)
-                nl()
-                append(_("Final environment Use flags: "), "property")
-                final_use = portage_lib.get_cpv_use(ebuild)
-                show_flags(filter_flags(final_use), ebuild_use_flags,  id_overrides=True)
-                nl(2)
+                final_use, use_expand_hidden, usemasked, useforced = portage_lib.get_cpv_use(ebuild)
+                iuse_output = False
+                myflags = filter_flags(iuse, use_expand_hidden, usemasked, useforced)
+                if myflags != []:
+                    iuse_output = True
+                    append(_("IUSE: "), "property")
+                    append(", ".join(myflags))
+                    nl()
+                myflags = filter_flags(use_flags, use_expand_hidden, usemasked, useforced)
+                if myflags != []:
+                    append(_("Use flags settings: "), "property")
+                    show_flags(myflags, ebuild_use_flags)
+                    nl()
+                myflags = filter_flags(final_use,  use_expand_hidden, usemasked, useforced)
+                if myflags != [] or iuse_output:
+                    append(_("Final environment Use flags: "), "property")
+                    show_flags(myflags, ebuild_use_flags,  id_overrides=True)
+                    nl(2)
                 
 
             # Keywords
@@ -497,6 +506,8 @@ class Summary(gtk.TextView):
                 for flag in full_list:
                     if not first_flag:
                         append(", ", "value")
+                    else:
+                        first_flag = False
                     flag_override = False
                     if flag in ebuild_use_flags:
                         debug.dprint("SUMMARY: SHOW_PROPS(),show_flags(); flag_override = True" )

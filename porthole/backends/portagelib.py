@@ -380,10 +380,15 @@ def get_cpv_use(cpv):
     settings.settings.setcpv(cpv, use_cache=True, mydb=settings.portdb)
     myuse = settings.settings['PORTAGE_USE'].split()
     debug.dprint("PORTAGELIB: get_cpv_use(); type(myuse), myuse = " + str(type(myuse)) + str(myuse))
+    #use_expand_hidden =  settings.settings._get_implicit_iuse()
+    use_expand_hidden = settings.settings["USE_EXPAND_HIDDEN"].split()
+    debug.dprint("PORTAGELIB: get_cpv_use(); type(use_expand_hidden), use_expand_hidden = " + str(type(use_expand_hidden)) + str(use_expand_hidden))
+    usemask = list(settings.settings.usemask)
+    useforce =  list(settings.settings.useforce)
     # reset cpv filter
     settings.settings.reset()
     settings.settings.lock()
-    return myuse
+    return myuse, use_expand_hidden, usemask, useforce
 
 def get_name(full_name):
     """Extract name from full name."""
@@ -537,11 +542,12 @@ def get_dep_ebuild(dep):
 
 def get_archlist():
     """lists the architectures accepted by portage as valid keywords"""
-    list = portage.archlist[:]
-    for entry in list:
-        if entry.startswith("~"):
-            list.remove(entry)
-    return list
+    return settings.settings["PORTAGE_ARCHLIST"].split()
+    #~ list = portage.archlist[:]
+    #~ for entry in list:
+        #~ if entry.startswith("~"):
+            #~ list.remove(entry)
+    #~ return list
 
 def get_masking_reason(ebuild):
     """Strips trailing \n from, and returns the masking reason given by portage"""
