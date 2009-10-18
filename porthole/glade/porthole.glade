@@ -426,6 +426,8 @@
                 <child>
                   <widget class="GtkToolButton" id="btn_sync">
                     <property name="visible">True</property>
+                    <property name="has_tooltip">True</property>
+                    <property name="tooltip" translatable="yes">Not yet set...</property>
                     <property name="label" translatable="yes">S_ync</property>
                     <property name="use_underline">True</property>
                     <property name="stock_id">gtk-refresh</property>
@@ -439,6 +441,7 @@
                 <child>
                   <widget class="GtkToolButton" id="btn_upgrade">
                     <property name="visible">True</property>
+                    <property name="has_tooltip">True</property>
                     <property name="tooltip" translatable="yes">Upgrade packages to newest versions</property>
                     <property name="label" translatable="yes">_Upgrade</property>
                     <property name="use_underline">True</property>
