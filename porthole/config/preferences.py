@@ -87,6 +87,7 @@ class PortholePreferences:
         # or simply create an empty XML doc
 
         if os.access(self.__PFILE, os.F_OK):
+           debug.dprint("PREFERENCES: loading preferences from file: %s..." % self.__PFILE)
            dom = XMLManager(self.__PFILE)
         else:
            dom = XMLManager(None)
@@ -304,6 +305,8 @@ class PortholePreferences:
         for option, default in globaloptions:
             try:
                 value = dom.getitem(''.join(['/globals/', option]))
+                if type(value) == StringType: # remove xml indent padding
+                   value = value.strip()
                 if value == "emerge sync": # upgrade from depricated action 'sync'
                     value = default
             except XMLManagerError:
