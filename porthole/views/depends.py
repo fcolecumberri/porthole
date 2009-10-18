@@ -404,7 +404,7 @@ class DependsView(CommonTreeView):
             tip = tip +'\n' + ('    ' *  x) + '|__' + self.parent_tree[x]
             #debug.dprint("********** DependsView: set_tip_tree(); x = " + str(x))
             x += 1
-        self.dep_window['tooltip'].set_tip(self.dep_window['event_box'], tip)
+        self.dep_window['label'].set_tooltip_text(tip)
         return
 
     def set_label(self, name):

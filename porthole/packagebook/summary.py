@@ -51,7 +51,7 @@ class Summary(gtk.TextView):
         self.myarch = portage_lib.get_arch()
         #self.selected_arch = None
         self.selected_arch = self.myarch
-        self.tooltips = gtk.Tooltips()
+        #self.tooltips = gtk.Tooltips()
         self.set_wrap_mode(gtk.WRAP_WORD)
         self.set_editable(False)
         self.set_cursor_visible(False)
@@ -357,7 +357,8 @@ class Summary(gtk.TextView):
                     label_color = "#EEEEEE"
                 overlay_label.set_padding(3, 3)
                 box = boxify(overlay_label, label_color)
-                self.tooltips.set_tip(box, overlay)
+                box.set_has_tooltip(True)
+                box.set_tooltip_text(overlay)
                 # attach version, slot and overlay columns
                 table.attach(boxify(ver_label, label_color, ebuild, '.', "version"), 0, 1, y, y+1)
                 table.attach(boxify(slot_label, label_color), 1, 2, y, y+1)
@@ -391,7 +392,8 @@ class Summary(gtk.TextView):
                     label = gtk.Label(text)
                     box = boxify(label, color=color, ebuild=ebuild, arch=arch, text=text)
                     if "M" in text or "[" in text:
-                        self.tooltips.set_tip(box, portage_lib.get_masking_reason(ebuild))
+                        box.set_has_tooltip(True)
+                        box.set_tooltip_text(portage_lib.get_masking_reason(ebuild))
                     table.attach(box, x, x+1, y, y+1)
             table.set_row_spacings(1)
             table.set_col_spacings(1)

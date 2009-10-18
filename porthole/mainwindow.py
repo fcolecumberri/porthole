@@ -184,7 +184,7 @@ class MainWindow:
             if not self.widget[x]:
                 debug.dprint("MAINWINDOW: __init__(); Failure to obtain widget '%s'" %x)
         # get an empty tooltip
-        self.synctooltip = gtk.Tooltips()
+        ##self.synctooltip = gtk.Tooltips()
         self.sync_tip = _(" Synchronise Package Database \n The last sync was done:\n")
         # set the sync label to the saved one set in the options
         self.widget["btn_sync"].set_label(config.Prefs.globals.Sync_label)
@@ -376,11 +376,12 @@ class MainWindow:
 
     def set_sync_tip(self):
         """Sets the sync tip for the new or old toolbar API"""
-        if self.new_toolbar_API:
-            self.widget["btn_sync"].set_tooltip(self.synctooltip, ' '.join([self.sync_tip, self.last_sync[:-1], '']))
-        else:
-            self.synctooltip.set_tip(self.widget["btn_sync"], ' '.join([self.sync_tip, self.last_sync[:], '']))
-        #self.synctooltip.enable()
+        ##if self.new_toolbar_API:
+        self.widget["btn_sync"].set_has_tooltip(True) #self.synctooltip)
+        self.widget["btn_sync"].set_tooltip_text(' '.join([self.sync_tip, self.last_sync[:], '']))
+        ##else:
+        ##    self.synctooltip.set_text(' '.join([self.sync_tip, self.last_sync[:], '']))
+        ##self.synctooltip.enable()
         
     def action_callback(self, action = None, arg = None):
         debug.dprint("MAINWINDOW: action_callback(); caller = %s, action = '%s', arg = %s" %(arg['caller'], str(action), str(arg)))

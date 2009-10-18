@@ -126,7 +126,7 @@ class AdvancedEmergeDialog:
             self.keywords_frame.hide()
         
         # Make tool tips available
-        self.tooltips = gtk.Tooltips()
+        #self.tooltips = gtk.Tooltips()
       
         # Build version combo list
         self.get_versions()
@@ -631,11 +631,11 @@ class AdvancedEmergeDialog:
             # Use lower case flag, since that is how it is stored
             # in the UseFlagDict.  In case flag doesn't exist
             # we'll trap the error
-
+            button.set_has_tooltip(True)
             try:
-                self.tooltips.set_tip(button, portage_lib.settings.UseFlagDict[flag.lower()][2])
+                button.set_tooltip_text(portage_lib.settings.UseFlagDict[flag.lower()][2])
             except KeyError:
-                self.tooltips.set_tip(button, _('Unsupported use flag'))
+                button.set_tooltip_text(_('Unsupported use flag'))
             table.attach(button, col, col+1, row, row+1)
             # connect to on_toggled so we can show changes
             button.connect("toggled", self.on_toggled)
