@@ -18,6 +18,14 @@
     
     * New dependency pop-up window when a dependency is dbl-clicked.
     
+    * Re-vamp of the Summary View USE flag output.  porthhole now obtains final ebuild environment
+        settings for the flags.  It should now be a 100% match to emerge output.
+    
+    * New, updated "Settings" menu options to the most probably used emerge options.
+    
+    * Upgrades now possibly require some additional "Settings" menu options to be set manually
+        for now.  To avaoid multiple emerges for a package the --noreplace and --update options should be set.
+    
     * New Sets and Deprecated views for better package management.
     
     * bug fix the terminal display losing the gcc output.

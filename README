@@ -25,7 +25,7 @@ Also Please report the version of porthole you experienced the bug in
 ==========================
 
 The easiest and recommended way of installing Porthole is by using the
-ebuild that is available from the webpage. We assume you know how to
+ebuild that is available from the webpage or portage tree. We assume you know how to
 put ebuilds in the portage overlay. If not, please consult the
 documentation and forums on the Gentoo web site (http://www.gentoo.org),
 or follow the instructions on the Gentoo Wiki at 
@@ -38,11 +38,7 @@ Porthole requires:
 >=python-2.3
 >=PyGTK-2.4
 >=libglade-2.5.0
->=pyxml-0.8.3
 and, of course, Portage
-
-Optional at runtime:
->=pycrash-0.4_pre3
 
 
 to install:
@@ -57,6 +53,7 @@ to install:
 
 Webpage: http://porthole.sourceforge.net/
 
-Daniel G. Taylor	<dgt84@users.sourceforge.net>
-Fredrik Arnerup		<farnerup@users.sourceforge.net>
 Brian Dolbec		<dol-sen@users.sourceforge.net>
+
+innactive:  Fredrik Arnerup	<farnerup@users.sourceforge.net>
+retired:  Daniel G. Taylor	<dgt84@users.sourceforge.net>

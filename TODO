@@ -5,7 +5,7 @@
 
 * Done, add more package.mask/unmask menu options to the ebuild table right click menus
 
-* Done, more USE flag bugs to fix... 
+* Done, more USE flag bugs to fix... irc snippit:
 {<dol-sen> A nice API for that would be nice ;)  , hint, hint
 <dol-sen> it would cut the time more again not having to create the output and re-parse it
 <dol-sen> just get the python structure, list, tuple, whatever
