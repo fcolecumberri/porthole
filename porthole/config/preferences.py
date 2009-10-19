@@ -28,6 +28,7 @@ print "PREFERENCES: id initialized to ", id
 
 import os 
 from gettext import gettext as _
+from types import *
 
 from porthole.version import version
 from porthole._xml.xmlmgr import XMLManager, XMLManagerError
