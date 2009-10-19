@@ -804,7 +804,7 @@ class PortageSettings:
         debug.dprint("PORTAGELIB: reset_world();")
         world = []
         try:
-            file = open(portage.WORLD_FILE) #"/var/lib/portage/world", "r")
+            file = open(os.path.join('/', portage.WORLD_FILE), "r") #"/var/lib/portage/world", "r")
             world = file.read().split()
             file.close()
         except:
