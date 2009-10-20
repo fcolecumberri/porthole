@@ -142,7 +142,7 @@ class PackageNotebook:
             #self.dep_window['depth'] += 1 # increase the depth number since it is a new window
             v_box = gtk.VBox()
             h_box = gtk.HBox()
-            label1 = gtk.Label(_("Viewing Dependecy of: "))
+            label1 = gtk.Label(_("Viewing Dependency of: "))
             h_box.pack_start(label1, False, False, 0)
             self.dep_window['label'] = gtk.Label()
             h_box.pack_start(self.dep_window['label'], expand=False, fill=False)
