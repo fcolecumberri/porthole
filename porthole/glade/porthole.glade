@@ -176,6 +176,7 @@
                         <property name="label" translatable="yes">Re-Initialize _Portage</property>
                         <property name="visible">True</property>
                         <property name="use_stock">False</property>
+                        <signal name="activate" handler="on_re_init_portage"/>
                         <accelerator key="Z" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                         <child internal-child="image">
                           <widget class="GtkImage" id="image9">
