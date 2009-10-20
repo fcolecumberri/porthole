@@ -662,6 +662,11 @@ def get_overlay(cpv):
         ovl = 'Depricated?'
     return ovl
 
+def get_overlay_name(ovl):
+    if ovl in settings.repos:
+        return settings.repos[ovl]
+    return "????"
+
 def get_path(cpv):
     """Returns a path to the specified category/package-version"""
     if '/' not in cpv:
@@ -792,13 +797,23 @@ class PortageSettings:
         # lower case is nicer
         self.keys = [key.lower() for key in portage.auxdbkeys]
         self.UseFlagDict = get_use_flag_dict()
+        self.create_repos()
         return
+
+    def create_repos(self):
+        # reverse the treemap's key:data for easy name lookup
+        t = self.portdb.treemap
+        n = {}
+        for x in t.keys():
+            n[t[x]] = x
+        self.repos = n
+
 
     def reload_config(self):
         """Reload the whole config from scratch"""
         self.settings, self.trees, self.mtimedb = self.my_load_emerge_config(self.trees)
         self.portdb = self.trees[self.settings["ROOT"]]["porttree"].dbapi
-
+        self.create_repos()
 
     def reload_world(self):
         debug.dprint("PORTAGELIB: reset_world();")
