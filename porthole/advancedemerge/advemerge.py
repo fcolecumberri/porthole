@@ -473,7 +473,7 @@ class AdvancedEmergeDialog:
     def get_options(self):
         """ Create keyword list from option checkboxes """
         List = [('cbAlphabetical', '--alphabetical ', '--alphabetical '),
-                ('cbAsk', 'a', '--ask '),
+                ('cbAsk', '-a ', '--ask '),
                 ('cbBuildPkg', '-b ', '--buildpkg '),
                 ('cbBuildPkgOnly', '-B ', '--buildpkgonly '),
                 ('cbColorY', '--color y ', '--color y ' ),
