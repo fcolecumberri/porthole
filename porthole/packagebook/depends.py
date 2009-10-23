@@ -390,7 +390,7 @@ def atomize_depends_list(depends_list, parent = None):
                 #debug.dprint("DependsTree: atomize_depends_list();380 finished recursion level, returning atomized list") 
             return atomized_list
         else: # hopefully a nicely formatted dependency
-            if filter(lambda a: a in item, ['(', '|', ')', '?']):
+            if filter(lambda a: a in item, ['(', '|', ')']):  # , '?']): remove '?' from the list due to required USE flags that may have it. 
                 debug.dprint(" *** DEPENDS: atomize_depends_list: ILLEGAL ITEM!!! " + \
                     "Please report this to the authorities. (item = %s)" % item)
             temp_atom = DependAtom(parent)
