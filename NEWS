@@ -28,6 +28,9 @@
     
     * New Sets and Deprecated views for better package management.
     
+    * Newly recoded config saving so that it creates file headers and comments for any user config
+        changes done through porthole.
+    
     * bug fix the terminal display losing the gcc output.
     
     * new queue pause and run icons/functions, a timer is not yet implememnted.
