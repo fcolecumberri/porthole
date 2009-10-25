@@ -624,6 +624,7 @@ class AdvancedEmergeDialog:
             if myflag in ebuild_use_flags:
                 flag_active = True
             button = gtk.CheckButton(flag)
+            button.set_use_underline(False)
             button.set_active(flag_active)
             self.ufList.append([button, flag])
 
