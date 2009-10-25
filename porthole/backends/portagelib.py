@@ -335,7 +335,7 @@ def split_atom_pkg( pkg ):
             version += '-' + cplist[3]
     return [str(cp), ''.join(atoms), version] # hmm ... unicode keeps appearing :(
 
-def get_use_flag_dict():
+def get_use_flag_dict(portdir):
     """ Get all the use flags and return them as a dictionary 
         key = use flag forced to lowercase
         data = list[0] = 'local' or 'global'
@@ -346,14 +346,14 @@ def get_use_flag_dict():
 
     # process standard use flags
 
-    List = portage.grabfile('/usr/portage/profiles/use.desc')
+    List = portage.grabfile(portdir + '/profiles/use.desc')
     for item in List:
         index = item.find(' - ')
         dict[item[:index].strip().lower()] = ['global', '', item[index+3:]]
 
     # process local (package specific) use flags
 
-    List = portage.grabfile('/usr/portage/profiles/use.local.desc')
+    List = portage.grabfile(portdir + '/profiles/use.local.desc')
     for item in List:
         index = item.find(' - ')
         data = item[:index].lower().split(':')
@@ -796,7 +796,7 @@ class PortageSettings:
         self.virtuals = self.settings.virtuals
         # lower case is nicer
         self.keys = [key.lower() for key in portage.auxdbkeys]
-        self.UseFlagDict = get_use_flag_dict()
+        self.UseFlagDict = get_use_flag_dict(self.portdir)
         self.create_repos()
         return
 
