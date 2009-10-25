@@ -116,9 +116,9 @@ class AdvancedEmergeDialog:
         for checkbutton in self.wtree.get_widget("table2").get_children():
             if isinstance(checkbutton, gtk.CheckButton):
                 checkbutton.connect("toggled", self.on_toggled)
-            else:
-                debug.dprint("ADVEMERGE: table2 has child not of type gtk.CheckButton")
-                debug.dprint(checkbutton)
+            #else:
+            #    debug.dprint("ADVEMERGE: table2 has child not of type gtk.CheckButton")
+            #    debug.dprint(checkbutton)
         
         if not config.Prefs.advemerge.showuseflags:
             self.use_flags_frame.hide()
