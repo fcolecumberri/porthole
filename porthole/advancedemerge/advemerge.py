@@ -440,7 +440,7 @@ class AdvancedEmergeDialog:
                         # so: re-mask it (for use with package.keywords button)
                         return "-~" + self.arch
                     keyword = ''
-                if verInfo["stable"]: return ''
+                if verInfo["stable"] and keyword == self.arch: return ''
                 return keyword.strip()
         return ''
 
@@ -685,30 +685,28 @@ class AdvancedEmergeDialog:
         button_added = False
         clickable_button = False
         for keyword in keywords:
-            if keyword[0] == '~':
-                if (keyword[1:] == self.arch) or \
+            if keyword[0] == '~' and (keyword[1:] == self.arch) or \
                         (config.Prefs.globals.enable_archlist and 
-                            (keyword[1:] in config.Prefs.globals.archlist)):
-                    button = gtk.RadioButton(rbGroup, keyword)
-                    self.kwList.append([button, keyword])
-                    table.attach(button, col, col+1, row, row+1)
-                    # connect to on_toggled so we can show changes
-                    button.connect("toggled", self.on_toggled)
-                    button.show()
-                    button_added = True
-                    clickable_button = True
-                    if keyword[1:] == self.arch and self.current_verInfo["stable"]:
-                        # i.e. package has been keyword unmasked already
-                        button.set_active(True)
+                            ((keyword[1:] in config.Prefs.globals.archlist) or  (keyword in config.Prefs.globals.archlist))):
+                button = gtk.RadioButton(rbGroup, keyword, use_underline=False)
+                self.kwList.append([button, keyword])
+                table.attach(button, col, col+1, row, row+1)
+                # connect to on_toggled so we can show changes
+                button.connect("toggled", self.on_toggled)
+                button.show()
+                button_added = True
+                clickable_button = True
+                if keyword[1:] == self.arch and self.current_verInfo["stable"]:
+                    # i.e. package has been keyword unmasked already
+                    button.set_active(True)
             else:
-                if (keyword == self.arch) or \
-                        (config.Prefs.globals.enable_archlist and 
-                            (keyword in config.Prefs.globals.archlist)):
-                    label = gtk.Label(keyword)
-                    label.set_alignment(.05, .5)
-                    table.attach(label, col, col+1, row, row+1)
-                    label.show()
-                    button_added = True
+                #if (keyword == self.arch)
+                label = gtk.Label(keyword)
+                label.set_alignment(.05, .5)
+                label.set_use_underline(False)
+                table.attach(label, col, col+1, row, row+1)
+                label.show()
+                button_added = True
             # Increment col & row counters
             if button_added:
                 col += 1
