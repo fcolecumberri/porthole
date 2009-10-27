@@ -440,7 +440,7 @@ class AdvancedEmergeDialog:
                         # so: re-mask it (for use with package.keywords button)
                         return "-~" + self.arch
                     keyword = ''
-                if verInfo["stable"] and keyword == self.arch: return ''
+                if verInfo["stable"] and keyword in portage_lib.settings.settings["ACCEPT_KEYWORDS"]: return ''
                 return keyword.strip()
         return ''
 
