@@ -16,7 +16,8 @@
     
     * Improved dependency listings with much more info presented about their status and needs.
     
-    * New dependency pop-up window when a dependency is dbl-clicked.
+    * New dependency pop-up window when a dependency is dbl-clicked.  Multiple levels of dependencies
+        can be followed with additional popups
     
     * Re-vamp of the Summary View USE flag output.  porthhole now obtains final ebuild environment
         settings for the flags.  It should now be a 100% match to emerge output.
@@ -30,6 +31,9 @@
     
     * Newly recoded config saving so that it creates file headers and comments for any user config
         changes done through porthole.
+        
+    * Newly redone right click menus in the Summary view with better mask/unmask, keyword acceptance
+       and submenu options for controlling version selection, etc..
     
     * bug fix the terminal display losing the gcc output.
     
@@ -42,6 +46,13 @@
     * 2 plug-ins 1) Etc-proposals  2)Profuse included and auto-detect if their target package is available.
     
     * numerous bugfixes
+    
+    * fix advanced emerge keyword acceptance and turn off underline for hot key use so a '_' in a
+        keyword will display correctly.
+    
+    * fix USE flag display by turning off label underline support used for hotkey shortcuts.
+    
+    * update dependency crunching code to allow '?' due to required USE flag conditionals.
     
     *** It has been so long that I have probably forgotten most of the changes made to list them.
 
