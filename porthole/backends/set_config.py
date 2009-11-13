@@ -22,8 +22,9 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 """
 
-import sys, os, os.path, codecs, re, datetime
+import sys, os, os.path, codecs, re, datetime, time
 
+import portage
 try: # >=portage 2.2 modules
     import portage.const as portage_const
 except: # portage 2.1.x modules
@@ -43,7 +44,7 @@ def dprint(message):
     if debug:
         print message
 
-def Header(filename):
+def Header(filename, username):
     """creates a file creation header including:
         # filename
         # name of this program filename
@@ -51,15 +52,29 @@ def Header(filename):
         # date & time of creation
         # login username"""
     
-    header = "#########################################################################\n" + \
-            ("# $Header: %s created by Porthole's set_config.py v: %s, %s, %s Exp $\n" \
-            %(filename, str(version), datetime.datetime.today().strftime("%Y/%m/%d %H:%M:%S"), os.getlogin()))
+    dprint("SET_CONFIG: Header(); new file header")
+    dt = 'UNKNOWN'
+    loops = 0
+    not_done = True
+    while loops < 10 and not_done:
+        try:
+            dt = datetime.datetime.today().strftime("%Y/%m/%d %H:%M:%S")
+            not_done = False
+        except: # I got a "Resource temporarily unavailable/-6"  error once so
+            dprint("SET_CONFIG: Header(); new header failure: loop # " + str(loops))
+            loops += 1
+            #time.sleep(.5)
+    header = ("# $Header: %s created by Porthole's set_config.py v: %s, %s, %s Exp $\n" \
+                %(filename, str(version), dt, username))
+
+    header = "#########################################################################\n" + header
+
     dprint("SET_CONFIG: Header(); new header:\n%s" % header)
     dprint("SET_CONFIG: Header(); end header:")
     return header
 
 
-def get_configlines(filename):
+def get_configlines(filename, username):
     """gets the contents of the input filename if it exists and returns the lines as a list.
         if the file did not exist then it initializes the list with a creation header"""
     if os.access(filename, os.F_OK): # if file exists
@@ -69,14 +84,24 @@ def get_configlines(filename):
         configfile.close()
     else:
         dprint("SET_CONFIG:  get_configlines(); new file: %s" % filename)
-        configlines = Header(filename).split('\n')
+        configlines = Header(filename, username).split('\n')
     return configlines
 
 def chk_permission(filename):
     """checks for write permission on input filename"""
-    if not os.access(os.path.split(filename)[0], os.W_OK):
-        dprint(" * SET_CONFIG: set_user_config(): no write access to '%s'. " \
-              "Perhaps the user is not root?" % os.path.split(filename)[0])
+    if (not os.path.exists(filename) and not os.access(os.path.split(filename)[0], os.W_OK)) or \
+            (os.path.exists(filename) and not os.access(filename, os.W_OK)) or os.path.isdir(filename):
+        msg = ("%s. Some dumb programmer screwed up these debug messages!  Please file a bug report." %filename)
+        if os.path.isdir(filename):
+            msg = ('%s. file is a directory.' %filename)
+        elif os.path.isfile(filename):
+            msg = ('%s. no write access to file' %filename)
+        elif not os.access(os.path.split(filename)[0], os.W_OK):
+            if not os.path.exists(os.path.split(filename)[0]):
+                msg = ('%s. directory does not exist.' %os.path.split(filename)[0])
+            else:
+                msg = ('%s. no write access in directory' %os.path.split(filename)[0])
+        dprint(" * SET_CONFIG:  chk_permission(): no write access to " + msg)
         return False
     return True
 
@@ -116,7 +141,7 @@ def remove_flag(flag, line):
         dprint("SET_CONFIG: remove_flag(); removed '%s' from line" % flag)
     return line
 
-def set_user_config(filename, name='', ebuild='', comment = '', add=[], remove=[], delete=[]):
+def set_user_config(filename, name='', ebuild='', comment = '', username='', add=[], remove=[], delete=[]):
     """
     Adds <name> or '=' + <ebuild> to <filename> with flags <add>.
     If an existing entry is found, items in <remove> are removed and <add> is added.
@@ -128,7 +153,7 @@ def set_user_config(filename, name='', ebuild='', comment = '', add=[], remove=[
     if not chk_permission(filename):
         return False
     dprint(" * SET_CONFIG: set_user_config(): filename = " + filename)
-    configlines = get_configlines(filename)
+    configlines = get_configlines(filename, username)
     config = [line.split() for line in configlines]
     if not name:
         name =  ebuild
@@ -197,13 +222,13 @@ def set_user_config(filename, name='', ebuild='', comment = '', add=[], remove=[
     configfile.close()
     return True
 
-def set_package_mask(filename, name='', ebuild='', comment='', add=[], remove=[]):
+def set_package_mask(filename, name='', ebuild='', comment='', username='', add=[], remove=[]):
     """routine to handle adding/removing entries in package.mask files which should have multple lines to add/delete"""
     dprint("SET_CONFIG:  set_package_mask(): filename = '%s'" % filename)
     if not chk_permission(filename):
         return False
     #dprint(" * SET_CONFIG: set_package_mask(): filename = " + filename)
-    configlines =  get_configlines(filename)
+    configlines =  get_configlines(filename, username)
     groups = group_by_blanklines(configlines)
     
     # do some more stuff
@@ -228,11 +253,14 @@ def set_make_conf(property, add=[], remove=[], replace=''):
     e.g. set_make_conf('PORTAGE_NICENESS', replace='15')
     """
     dprint("SET_CONFIG: set_make_conf()")
-    if not os.access(portage_const.MAKE_CONF_FILE, os.W_OK):
-        dprint(" * SET_CONFIG: set_make_conf(): no write access to '%s'. " \
-              "Perhaps the user is not root?" % portage_const.MAKE_CONF_FILE)
-        return False
-    makefile = MakeConf(portage_const.MAKE_CONF_FILE)
+    try:
+        filename = os.path.join(portage.root, portage_const.MAKE_CONF_FILE)
+    except:  # in case it isn't fixed in the portage version imported
+        filename = os.path.join(str(portage.root), portage_const.MAKE_CONF_FILE)
+    if not os.access(filename, os.W_OK):
+            dprint(" * SET_CONFIG: set_make_conf(): no write access to '%s'. " \
+                  "Perhaps the user is not root?" % os.path.split(filename))
+    makefile = MakeConf(filename)
     values = makefile.read_property(property)
     if remove:
         for element in remove:
@@ -477,7 +505,7 @@ if __name__ == "__main__":
     from getopt import getopt, GetoptError
 
     try:
-        opts, args = getopt(argv[1:], "lvdf:n:e:a:r:p:c:R:P", ["local", "version", "debug"])
+        opts, args = getopt(argv[1:], "lvdf:n:e:a:r:p:c:u:R:P", ["local", "version", "debug"])
     except GetoptError, e:
         print >>stderr, e.msg
         exit(1)
@@ -490,6 +518,7 @@ if __name__ == "__main__":
     property = ''
     replace = ''
     comment = ''
+    username = ''
 
     for opt, arg in opts:
         dprint(str(opt) + ' ' + str(arg))
@@ -527,10 +556,13 @@ if __name__ == "__main__":
         elif opt in ('-c'):
             comment = arg
             dprint("comment = %s" % str(comment))
+        elif opt in ('-u'):
+            username = arg
+            dprint("username = %s" % str(username))
 
     if 'make.conf' in file:
         set_make_conf(property, add, remove, replace)
     elif 'package.mask' in file:
-        set_package_mask(file, name, ebuild, comment, remove)
+        set_package_mask(file, name, ebuild, comment, username, add, remove)
     else:
-        set_user_config(file, name, ebuild, comment, add, remove)
+        set_user_config(file, name, ebuild, comment, username, add, remove)
