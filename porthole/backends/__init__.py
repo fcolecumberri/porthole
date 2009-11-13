@@ -29,7 +29,7 @@ print "BACKENDS: id initialized to ", id
 import time
 
 from porthole import config
-from porthole.importer import my_import
+#from porthole.importer import my_import
 
 while config.Prefs == None:
     print "BACKENDS: waiting for config.Prefs"
@@ -46,6 +46,6 @@ if config.Prefs.PORTAGE == "portagelib":
 print "BACKENDS: portage_lib import complete :", portage_lib
 
 del config
-del my_import
+#del my_import
 
 
