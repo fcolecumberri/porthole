@@ -72,123 +72,6 @@ thread_id = thread.get_ident()
 if is_root(): # then import some modules and run it directly
     import set_config
 
-def get_user_config(file, name=None, ebuild=None):
-    """ depricated function. this is now part of the db.user_configs module
-    Function for parsing package.use, package.mask, package.unmask
-    and package.keywords.
-    
-    Returns /etc/portage/<file> as a dictionary of ebuilds, with
-    dict[ebuild] = list of flags.
-    If name is given, it will be parsed for ebuilds with xmatch('match-all'),
-    and only those ebuilds will be returned in dict.
-    
-    If <ebuild> is given, it will be matched against each line in <file>.
-    For package.use/keywords, a list of applicable flags is returned.
-    For package.mask/unmask, a list containing the matching lines is returned.
-    """
-    debug.dprint("PORTAGELIB: DEPRICATED FUNCTION! get_user_config('%s'), PLEASE update the code calling this function to use db.userconfigs.get_user_config()" % file)
-    maskfiles = ['package.mask', 'package.unmask']
-    otherfiles = ['package.use', 'package.keywords']
-    package_files = otherfiles + maskfiles
-    if file not in package_files:
-        debug.dprint(" * PORTAGELIB: get_user_config(): unsupported config file '%s'" % file)
-        return None
-    filename = '/'.join([portage_const.USER_CONFIG_PATH, file])
-    if not os.access(filename, os.R_OK):
-        debug.dprint(" * PORTAGELIB: get_user_config(): no read access on '%s'?" % file)
-        return {}
-    configfile = open(filename, 'r')
-    configlines = configfile.readlines()
-    configfile.close()
-    config = [line.split() for line in configlines]
-    # e.g. [['media-video/mplayer', 'real', '-v4l'], [app-portage/porthole', 'sudo']]
-    dict = {}
-    if ebuild is not None:
-        result = []
-        for line in config:
-            if line and line[0]:
-                if line[0].startswith('#'):
-                    continue
-                match = xmatch('match-list', line[0], mylist=[ebuild])
-                if match:
-                    if file in maskfiles: result.extend(line[0]) # package.mask/unmask
-                    else: result.extend(line[1:]) # package.use/keywords
-        return result
-    if name:
-        target = xmatch('match-all', name)
-        for line in config:
-            if line and line[0]:
-                if line[0].startswith('#'):
-                    continue
-                ebuilds = xmatch('match-all', line[0])
-                for ebuild in ebuilds:
-                    if ebuild in target:
-                        dict[ebuild] = line[1:]
-    else:
-        for line in config:
-            if line and line[0]:
-                if line[0].startswith('#'):
-                    continue
-                ebuilds = xmatch('match-all', line[0])
-                for ebuild in ebuilds:
-                    dict[ebuild] = line[1:]
-    return dict
-
-def set_user_config( file, name='', ebuild='', add='', remove='', callback=None):
-    """depricated function. this is now part of the db.user_configs module
-    Function for parsing package.use, package.mask, package.unmask
-    and package.keywords.
-
-    Adds <name> or '=' + <ebuild> to <file> with flags <add>.
-    If an existing entry is found, items in <remove> are removed and <add> is added.
-    
-    If <name> and <ebuild> are not given then lines starting with something in
-    remove are removed, and items in <add> are added as new lines.
-    """
-    debug.dprint("PORTAGELIB: DEPRICATED FUNCTION! set_user_config(); depricated update calling code to use the db.user_configs module")
-    command = ''
-    maskfiles = ['package.mask', 'package.unmask']
-    otherfiles = ['package.use', 'package.keywords']
-    package_files = otherfiles + maskfiles
-    if file not in package_files:
-        debug.dprint(" * PORTAGELIB: set_user_config(); unsupported config file '%s'" % file)
-        return False
-    if isinstance(add, list):
-        add = ' '.join(add)
-    if isinstance(remove, list):
-        remove = ' '.join(remove)
-    config_path = portage_const.USER_CONFIG_PATH
-    if not os.access(config_path, os.W_OK):
-        commandlist = [config.Prefs.globals.su, '"python', config.Prefs.DATA_PATH + 'backends/set_config.py -d -f %s' %file]
-        if name != '':
-            commandlist.append('-n %s' %name)
-        if ebuild != '':
-            commandlist.append('-e %s' %ebuild)
-        if add != '':
-            items = add.split()
-            for item in items:
-                commandlist.append('-a %s' % item)
-        if remove != '':
-            items = remove.split()
-            for item in items:
-                commandlist.append('-r %s' % item)
-        command = ' '.join(commandlist) + '"'
-        debug.dprint(" * PORTAGELIB: set_user_config(); command = %s" %command )
-        if not callback: callback = reload_portage
-        app = SimpleTerminal(command, False, dprint_output='SET_USER_CONFIG CHILD APP: ', callback=Dispatcher(callback))
-        app._run()
-    else:
-        add = add.split()
-        remove = remove.split()
-        set_config.set_user_config(file, name, ebuild, add, remove)
-        if callback: callback()
-        else: reload_portage()
-    # This is slow, but otherwise portage doesn't notice the change.
-    #reload_portage()
-    # Note: could perhaps just update portage.settings.
-    # portage.settings.pmaskdict, punmaskdict, pkeywordsdict, pusedict
-    # or portage.portdb.mysettings ?
-    return True
 
 def get_make_conf(want_linelist=False, savecopy=False):
     """
@@ -201,7 +84,7 @@ def get_make_conf(want_linelist=False, savecopy=False):
     If savecopy is true, a copy of make.conf is saved in make.conf.bak.
     """
     debug.dprint("PORTAGELIB: get_make_conf()")
-    file = open(portage_const.MAKE_CONF_FILE, 'r')
+    file = open(os.path.join(portage.root, portage_const.MAKE_CONF_FILE), 'r')
     if savecopy:
         file2 = open(portage_const.MAKE_CONF_FILE + '.bak', 'w')
         file2.write(file.read())
@@ -257,8 +140,7 @@ def set_make_conf(property, add='', remove='', replace='', callback=None):
         remove = ' '.join(remove)
     if isinstance(replace, list):
         replace = ' '.join(replace)
-    config_path = portage_const.USER_CONFIG_PATH
-    if not os.access(portage_const.MAKE_CONF_FILE, os.W_OK):
+    if not os.access(os.path.join(portage.root, portage_const.MAKE_CONF_FILE), os.W_OK):
         command = (config.Prefs.globals.su + ' "python ' + config.Prefs.DATA_PATH + 'backends/set_config.py -d -f %s ' %file)
         command = (command + '-p %s ' % property)
         if add != '':
@@ -752,9 +634,6 @@ class PortageSettings:
             self.my_load_emerge_config = _load_emerge_config
         else: # use the one copied from the non importable emerge
             self.my_load_emerge_config = self.load_emerge_config
-        #self.settings, self.trees, self.mtimedb = self.load_emerge_config()
-        #self.portdb = self.trees[self.settings["ROOT"]]["porttree"].dbapi
-        #self.root_config = self.trees[self.settings["ROOT"]]["root_config"]
         self.reset()
 
     def reset_use_flags(self):
