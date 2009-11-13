@@ -83,7 +83,7 @@ from porthole.version import version
 from porthole.terminal.term_queue import TerminalQueue
 from porthole.terminal.constants import *
 from porthole.terminal.notebook import TerminalNotebook
-from porthole.terminal.fileselector import FileSel
+from porthole.dialogs.fileselector import FileSelector2
 from porthole import config
 
 class ProcessManager: #dbus.service.Object):
@@ -103,7 +103,7 @@ class ProcessManager: #dbus.service.Object):
         #services = dbus_if.ListNames()
         
         if log_mode:
-            self.title = "Porthole Log Viewer"
+            self.title = _("Porthole Log Viewer")
         else:
             self.title = "Porthole-Terminal"
             debug.dprint(self.title)
@@ -1090,20 +1090,20 @@ class ProcessManager: #dbus.service.Object):
             self.set_statusbar(_("*** File Loading... Processing...")) 
             return True;
 
-    def do_open(self, widget):
+    def do_open(self, widget, window=None):
         """opens the file selector for file to open"""
         debug.dprint("LOG: Entering do_open")
         if not self.directory:
             self.set_directory()
-        try:
-            FileSel(self.title + _(": Open log File")).run(self.window,
-                                                        self.directory+"*.log",
-                                                        self.open_ok_func)
-        except:
-            FileSel(self.title + _(": Open log File")).run(None,
-                                                        self.directory+"*.log",
-                                                        self.open_ok_func)
+        dialog = FileSelector2(window, self.directory, overwrite_confirm = False, filter = '*.log')
+        debug.dprint("LOG: do_open(); dialog created.")
+        filename = dialog.get_filename(self.title + _(": Open log File"), 'open')
+        debug.dprint("LOG: do_open(); dialog filename = %s" %filename)
+        if filename:
+            self.open_ok_func(filename)
+            debug.dprint("LOG: do_open(); back from  self.open_ok_func(filename).")
         debug.dprint("LOG: leaving do_open")
+        return
 
     def do_save_as(self, widget):
         """determine buffer to save as and saves it"""
@@ -1130,9 +1130,13 @@ class ProcessManager: #dbus.service.Object):
 
     def save_as_buffer(self):
         debug.dprint("LOG: Entering save_as_buffer")
-        return FileSel(self.title + ": Save File").run(self.window,
-                                                           self.filename,
-                                                           self.save_as_ok_func)
+        target = os.path.join(self.directory, self.filename)
+        debug.dprint("LOG: save_as_buffer(); self.directory = %s, self.filename = %s" %(str(self.directory), self.filename))
+        dialog = FileSelector2(self.window, target, overwrite_confirm = True, filter = '*.%s' %self.buffer_type)
+        self.filename = dialog.get_filename(self.title + _(": Save File"), 'save')
+        if self.filename:
+            self.save_as_ok_func(self.filename)
+        return
 
     def save_as_ok_func(self, filename):
         """file selector callback function"""
@@ -1164,14 +1168,6 @@ class ProcessManager: #dbus.service.Object):
             # no directory was specified, so we are making one up
             debug.dprint("LOG: directory not specified, setting to default: %s" %config.Prefs.LOG_FILE_DIR)
             self.directory = config.Prefs.LOG_FILE_DIR
-            ##self.directory = get_user_home_dir()
-            ##if os.access(self.directory + "/.porthole", os.F_OK):
-            ##    if not os.access(self.directory + "/.porthole/logs", os.F_OK):
-            ##        debug.dprint("LOG: Creating logs directory in " + self.directory +
-            ##               "/.porthole/logs")
-            ##        os.mkdir(self.directory + "/.porthole/logs")
-            ##    self.directory += "/.porthole/logs/"
-                #os.chdir(self.directory)
  
     def pretty_name(self):
         """pre-assigns generic filename & serial #"""
@@ -1232,7 +1228,8 @@ class ProcessManager: #dbus.service.Object):
 
         bak_filename = self.filename + "~"
         try:
-            os.rename(self.filename, bak_filename)
+            if os.path.exists(self.filename):
+                os.rename(self.filename, bak_filename)
         except (OSError, IOError), (errnum, errmsg):
             if errnum != errno.ENOENT:
                 d = {"filename" : self.filename, "bak_filename" : bak_filename, "errmsg" : errmsg}

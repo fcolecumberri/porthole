@@ -32,7 +32,7 @@ from porthole.backends.utilities import read_bash, reduce_flags
 from porthole.backends import set_config
 from porthole.utils.dispatcher import Dispatcher
 from porthole.sterminal import SimpleTerminal
-from porthole.dialogs.fileselector import FileSelector
+from porthole.dialogs.fileselector import FileSelector2 #as FileSelector
 from porthole import backends
 portage_lib = backends.portage_lib
 from porthole.utils import debug
@@ -311,15 +311,19 @@ class UserConfigs:
         # get an existing atom if one exists.  pass both name and ebuild, no need to check which one, I think
         atom = self.get_atom(mytype, name, ebuild)
         if atom == None or atom == []: # get a target file
+            if add == '' and remove != '': # then there is no need to create a new file entry
+                # this call was probably to check and remove an existing entry if it existed.
+                return True
             file = target = CONFIG_FILES[CONFIG_TYPES.index(mytype)]
             target_path = os.path.join(config_path, target)
             debug.dprint("USER_CONFIGS: set_user_config(): target_path = " + target_path)
             if os.path.isdir(target_path): # Then bring up a file selector dialog
                 if parent_window == None:
                     parent_window = config.Mainwindow
-                file_picker = FileSelector(parent_window, os.path.join(target_path, target), overwrite_confirm = False)
-                file = file_picker.get_filename(_("Porthole: Please select the %s file to use") \
-                                                                %(target))
+                file_picker = FileSelector2(parent_window, os.path.join(target_path, target), overwrite_confirm = False)
+                file = file_picker.get_filename(_("Porthole: Please select the %s file to use") %(target),
+                                                                    'save')
+                if file == '': return False
                 file = os.path.join(target_path, file)
             else:
                 file = target_path
@@ -341,7 +345,9 @@ class UserConfigs:
             if ebuild != '':
                 commandlist.append('-e %s' %ebuild)
             comment = '' # for now. TODO add comment input dialog
-            commandlist.append('-c %s' %comment)
+            if comment != '':
+                commandlist.append('-c %s' %comment)
+            commandlist.append('-u %s' %os.getenv("LOGNAME"))
             if add != '':
                 items = add.split()
                 for item in items:
