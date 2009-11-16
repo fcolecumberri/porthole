@@ -144,7 +144,7 @@ class FileSelector2:
         else:
             self.dialog.set_current_name(self.target)
         show_all = gtk.FileFilter()
-        show_all.add_pattern('*.*')
+        show_all.add_pattern('*')
         show_all.set_name('All')
         self.dialog.add_filter(show_all)
         if self.filter: # add a specified filter string
