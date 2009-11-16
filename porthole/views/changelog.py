@@ -18,17 +18,15 @@ import os.path
 #import logging
 
 from porthole.utils import debug
-from porthole.views.lazyview import LazyView
 from porthole.views.list import ListView
 from porthole import backends
 portage_lib = backends.portage_lib
 
-class ChangeLogView (ListView, LazyView):
+class ChangeLogView (ListView):
 
     def __init__ (self):
 
         ListView.__init__(self, self._get_fn)
-        LazyView.__init__(self)
 
         self.set_editable(False)
         self.set_cursor_visible(False)
