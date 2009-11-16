@@ -33,7 +33,7 @@ from gettext import gettext as _
 from porthole._xml.xmlmgr import XMLManager, XMLManagerError
 
 
-class PortholeConfiguration:
+class PortholeConfiguration(object):
     """ Holds all of Porthole's developer configurable settings """
     def __init__(self):
         self.DATA_PATH = ''

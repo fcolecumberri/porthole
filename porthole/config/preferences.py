@@ -36,7 +36,7 @@ from porthole.utils import debug
 print "PREFERENCES: imported debug.id = ", debug.id
 from porthole.utils.utils import get_user_home_dir, can_gksu
  
-class OptionsClass:
+class OptionsClass(object):
     """Blank class to hold options"""
     
     def __repr__(self):
