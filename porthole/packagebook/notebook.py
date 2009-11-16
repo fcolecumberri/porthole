@@ -40,6 +40,7 @@ from porthole.packagebook.summary import Summary
 from porthole.views.depends import DependsView
 from porthole.views.commontreeview import CommonTreeView
 from porthole.views.highlight import HighlightView
+from porthole.views.changelog import ChangeLogView
 from porthole.packagebook.depends import DependsTree
 from porthole.plugin import PluginGUI, PluginManager
 from porthole.loaders.loaders import *
@@ -60,7 +61,12 @@ class PackageNotebook(object):
         self.plugin_package_tabs = plugin_package_tabs
         self.notebook = self.wtree.get_widget("notebook")
         self.installed_window = self.wtree.get_widget("installed_files_scrolled_window")
-        self.changelog = self.wtree.get_widget("changelog").get_buffer()
+        #self.changelog = self.wtree.get_widget("changelog").get_buffer()
+        self.changelog_scrolledwindow = self.wtree.get_widget('changelog_scrolled_window')
+        self.changelog = ChangeLogView()
+        self.changelog_scrolledwindow.add(self.changelog)
+        self.changelog_scrolledwindow.show_all()
+        #
         self.installed_files = self.wtree.get_widget("installed_files").get_buffer()
         #self.ebuild = self.wtree.get_widget("ebuild").get_buffer()
         self.ebuild_scrolledwindow = self.wtree.get_widget('ebuild_scrolled_window')
@@ -108,7 +114,8 @@ class PackageNotebook(object):
         elif index == 2:
             if not self.loaded["changelog"]:
                 # fill in the change log
-                load_textfile(self.changelog, package, "changelog")
+                #load_textfile(self.changelog, package, "changelog")
+                self.changelog.update(self.summary.ebuild, True)
                 self.loaded["changelog"] = True
         elif index == 3:
             debug.dprint("PackageNotebook notebook_changed(); load installed files for: " + str(self.summary.ebuild))

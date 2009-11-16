@@ -705,14 +705,7 @@
                     <property name="vscrollbar_policy">automatic</property>
                     <property name="shadow_type">in</property>
                     <child>
-                      <widget class="GtkTextView" id="changelog">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="editable">False</property>
-                        <property name="left_margin">10</property>
-                        <property name="right_margin">10</property>
-                        <property name="cursor_visible">False</property>
-                      </widget>
+                      <placeholder/>
                     </child>
                   </widget>
                   <packing>
