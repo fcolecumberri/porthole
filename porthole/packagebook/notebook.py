@@ -25,6 +25,8 @@
 import threading, re #, types
 import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, gtk.glade, gobject, pango
+
+
 import os, sys
 from gettext import gettext as _
 
@@ -37,6 +39,7 @@ from porthole.utils.dispatcher import Dispatcher
 from porthole.packagebook.summary import Summary
 from porthole.views.depends import DependsView
 from porthole.views.commontreeview import CommonTreeView
+from porthole.views.highlight import HighlightView
 from porthole.packagebook.depends import DependsTree
 from porthole.plugin import PluginGUI, PluginManager
 from porthole.loaders.loaders import *
@@ -48,7 +51,7 @@ ON = True
 OFF = False
 
 
-class PackageNotebook:
+class PackageNotebook(object):
     """Contains all functions for managing a packages detailed views"""
 
     def __init__( self,  wtree, callbacks, plugin_package_tabs, parent_name = '', parent_tree = []):
@@ -59,7 +62,12 @@ class PackageNotebook:
         self.installed_window = self.wtree.get_widget("installed_files_scrolled_window")
         self.changelog = self.wtree.get_widget("changelog").get_buffer()
         self.installed_files = self.wtree.get_widget("installed_files").get_buffer()
-        self.ebuild = self.wtree.get_widget("ebuild").get_buffer()
+        #self.ebuild = self.wtree.get_widget("ebuild").get_buffer()
+        self.ebuild_scrolledwindow = self.wtree.get_widget('ebuild_scrolled_window')
+        self.ebuild = HighlightView(portage_lib.get_path, ['gentoo', 'shell'])
+        self.ebuild_scrolledwindow.add(self.ebuild)
+        self.ebuild_scrolledwindow.show_all()
+        
         # summary view
         scroller = self.wtree.get_widget("summary_text_scrolled_window");
         self.summary = Summary(Dispatcher(self.callbacks["action_callback"]), self.callbacks["re_init_portage"])
@@ -113,7 +121,8 @@ class PackageNotebook:
             debug.dprint("PackageNotebook notebook_changed(); self.summary.ebuild = " + str(self.summary.ebuild))
             if not self.loaded["ebuild"] or self.loaded_version["ebuild"] != self.summary.ebuild:
                 #load_textfile(self.ebuild, package, "best_ebuild")
-                load_textfile(self.ebuild, package, "version_ebuild", self.summary.ebuild)
+                #load_textfile(self.ebuild, package, "version_ebuild", self.summary.ebuild)
+                self.ebuild.update(self.summary.ebuild, True)
                 self.loaded["ebuild"] = True
                 self.loaded_version["ebuild"] = self.summary.ebuild
         else:
