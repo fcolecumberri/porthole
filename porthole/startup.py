@@ -23,7 +23,7 @@
 '''
 import datetime
 id = datetime.datetime.now().microsecond
-print "STARTUP: id initialized to ", id
+#print "STARTUP: id initialized to ", id
 
 # proper way to enable threading.  Do this first before any other code
 import gobject
@@ -99,7 +99,7 @@ def local():
     # if opt in ("-l", "--local"):
     # running a local version (i.e. not installed in /usr/*)
     import os
-    print "STARTUP: local(); setting to local paths"
+    #print "STARTUP: local(); setting to local paths"
     DATA_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+"/porthole/"
     #DATA_PATH = getcwd() + "/"
     i18n_DIR = DATA_PATH + 'i18n'
@@ -108,13 +108,14 @@ def local():
 def set_debug(arg):
     from porthole.utils import debug
     debug.set_debug(True)
-    print "Debug printing is enabled = ", debug.debug, "; debug.id = ", debug.id
+    #print "Debug printing is enabled = ", debug.debug, "; debug.id = ", debug.id
     debug.debug_target = arg
-    print("Debug print filter set to ", debug.debug_target)
+    #print("Debug print filter set to ", debug.debug_target)
 
 def print_version():
     # print version info
-    print "Porthole " + version
+    from porthole.version import version
+    print "Porthole ", version
     sys.exit(0)
 
 def set_backend(arg):
@@ -125,17 +126,17 @@ def set_backend(arg):
 
 def insert_path():
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    print(sys.path)
+    #print(sys.path)
 
 
 def main():
     """start the porthole frontend"""
     try:
-        print "STARTUP: main(); thread id = ", thread.get_ident()
-        print "STARTUP: main(); importing config"
+        #print "STARTUP: main(); thread id = ", thread.get_ident()
+        #print "STARTUP: main(); importing config"
         from porthole import config
-        print "STARTUP: config.id = ", config.id
-        print "STARTUP: main(); importing config.preferences"
+        #print "STARTUP: config.id = ", config.id
+        #print "STARTUP: main(); importing config.preferences"
         from porthole.config import preferences
     except ImportError, e:
         import_error(e)
@@ -148,14 +149,14 @@ def main():
         ["LOG_FILE_DIR",LOG_FILE_DIR],
         ["PORTAGE", BACKEND]
     ]
-    print "STARTUP: main(); loading preferences"
+    #print "STARTUP: main(); loading preferences"
     config.Prefs = preferences.PortholePreferences(prefs_additions)
     #print config.Prefs
-    print "STARTUP: main(); importing version"
+    #print "STARTUP: main(); importing version"
     from porthole.version import version
-    print "STARTUP: main(); importing utils"
+    #print "STARTUP: main(); importing utils"
     from porthole.utils import debug
-    print "PORTHOLE: importing MainWindow"
+    #print "PORTHOLE: importing MainWindow"
     from porthole.mainwindow import MainWindow
 
     locale.setlocale (locale.LC_ALL, '')
