@@ -19,7 +19,60 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 """
 from gettext import gettext as _
+import os
 
-version = "0.6.0"
+#version = "0.6.0"
 
 copyright = _("Copyright (c) 2003 - 2009")
+
+version ="svn-"
+
+svn_info = {}
+
+
+def get_svn_info(prop):
+    global svn_info
+    if svn_info == {}:
+        info = ''
+        st = ''
+        branch = ''
+        try:
+            from subprocess import Popen, PIPE
+            # back up to trunk to catch all relevant svn data
+            mp= os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            os.chdir(mp)
+            branch = os.path.split(mp)[1]
+            info = Popen(["svn","info"],stdout=PIPE).communicate()[0].split('\n')
+            st = Popen(["svn","st"],stdout=PIPE).communicate()[0].split('\n')
+        except:
+            print "Error importing subprocess module"
+            #from os import popen, PIPE
+
+        for item in info:
+            if item:
+                values = item.split(':')
+                svn_info[values[0]] = values[1]
+        mods = []
+        for line in st:
+            if line.startswith('M'):
+                mods.append(line.split()[1])
+            elif line.startswith('A'):
+                mods.append('+' + line.split()[1])
+            elif line.startswith('D'):
+                mods.append('-' + line.split()[1])
+        svn_info['mod-files'] = mods
+        svn_info['branch'] = branch
+    return svn_info[prop]
+
+def get_version():
+    global version
+    if 'svn' in version:
+        rev = get_svn_info('Revision').strip()
+        login = os.getenv("LOGNAME")
+        version = version + get_svn_info('branch') + "-rev:" + rev + "--"+login
+        mods = get_svn_info('mod-files')
+        if mods:
+            version = version + "\nModified files: " + ", ".join(mods)
+    return version
+    
+version = get_version()
