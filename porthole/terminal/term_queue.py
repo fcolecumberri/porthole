@@ -629,13 +629,16 @@ class TerminalQueue:
         except Exception, e:
             debug.dprint("TERM_QUEUE: locate_id(); execption raised = " + str(e) + " ^^^ path = " + str(path))
             self.locate_iter = self.queue_model.get_iter_first()
-            while self.queue_model.get_value(self.locate_iter,self.queue_model.column['id']) != process_id:
-                try:
-                    self.locate_iter = self.queue_model.iter_next(self.locate_iter)
-                except StopIteration:
-                    break
+            if self.locate_iter:
+                while self.queue_model.get_value(self.locate_iter,self.queue_model.column['id']) != process_id:
+                    try:
+                        self.locate_iter = self.queue_model.iter_next(self.locate_iter)
+                    except StopIteration:
+                        break
+            else:
+                debug.dprint("TERM_QUEUE: locate_id();  failed to get a self.locate_iter from get_iter_first()")
         debug.dprint("TERM_QUEUE: locate_id(); ended up with locate_iter id = %d, looking for %d" \
-                %(self.queue_model.get_value(self.locate_iter,self.queue_model.column['id']),process_id))
+                    %(self.queue_model.get_value(self.locate_iter,self.queue_model.column['id']),process_id))
         return
 
     def set_icon( self, action_type, process_id, *path):
