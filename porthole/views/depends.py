@@ -30,7 +30,7 @@ from gettext import gettext as _
 from porthole.utils import utils
 from porthole import backends
 portage_lib = backends.portage_lib
-from porthole.packagebook.depends import DependsTree
+from porthole.packagebook.dependstree import DependsTree
 from porthole.views.commontreeview import CommonTreeView
 from porthole.utils import debug
 from porthole.views.helpers import *

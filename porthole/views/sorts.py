@@ -28,7 +28,6 @@ import threading, os
 from gettext import gettext as _
 
 from porthole.utils import utils
-from porthole.packagebook.depends import DependsTree
 #from porthole.utils import debug
 from porthole.views.helpers import *
 

@@ -42,7 +42,6 @@ from porthole.dialogs.command import RunDialog
 from porthole.dialogs.simple import SingleButtonDialog, YesNoDialog
 from porthole.dialogs.configure import ConfigDialog
 from porthole.packagebook.notebook import PackageNotebook
-from porthole.packagebook.depends import DependsTree
 from porthole.terminal.terminal import ProcessManager
 from porthole.views.category import CategoryView
 from porthole.views.package import PackageView, PACKAGES, SEARCH, UPGRADABLE, DEPRECATED, SETS, BLANK, TEMP

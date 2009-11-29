@@ -27,7 +27,6 @@ import gtk, gobject, pango
 import threading, os
 from gettext import gettext as _
 
-from porthole.packagebook.depends import DependsTree
 from porthole.views.commontreeview import CommonTreeView
 from porthole.utils import debug
 from porthole.views.helpers import *
