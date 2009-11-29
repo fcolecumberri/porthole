@@ -41,7 +41,6 @@ from porthole.views.depends import DependsView
 from porthole.views.commontreeview import CommonTreeView
 from porthole.views.highlight import HighlightView
 from porthole.views.changelog import ChangeLogView
-from porthole.packagebook.depends import DependsTree
 from porthole.plugin import PluginGUI, PluginManager
 from porthole.loaders.loaders import *
 from porthole.backends.version_sort import ver_match
