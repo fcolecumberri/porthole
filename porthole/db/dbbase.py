@@ -24,7 +24,7 @@
 
 
 
-class DBBase:
+class DBBase(object):
     def __init__(self):
         # category dictionary with sorted lists of packages
         self.categories = {}
