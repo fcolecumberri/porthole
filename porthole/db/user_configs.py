@@ -338,6 +338,7 @@ class UserConfigs:
             add = ' '.join(add)
         if isinstance(remove, list):
             remove = ' '.join(remove)
+        #debug.dprint("USER_CONFIGS: set_user_config(): add: %s,\n remove: %s " %(add,remove))
         if not os.access(config_path, os.W_OK):
             commandlist = [config.Prefs.globals.su, '"python', set_config.__file__ + ' -d -f ' + file]
             if name != '':
@@ -365,7 +366,8 @@ class UserConfigs:
         else:
             add = add.split()
             remove = remove.split()
-            set_config.set_user_config(file, name, ebuild, comment, add, remove)
+            debug.dprint("USER_CONFIGS: set_user_config(): add: %s,\n remove: %s " %(str(add),str(remove)))
+            set_config.set_user_config(filename=file, name=name, ebuild=ebuild, comment=comment, username=os.getenv("LOGNAME"), add=add, remove=remove)
             self.set_config_callback()
         return True
 

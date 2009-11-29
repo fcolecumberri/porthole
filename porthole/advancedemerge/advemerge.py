@@ -266,6 +266,7 @@ class AdvancedEmergeDialog:
                 removelist.append(item[1:])
             else:
                 removelist.append('-' + item)
+        #debug.dprint("ADVEMERGE: on_package_use_commit(); addlist:%s,\n removelist:%s" %(str(addlist), str(removelist)))
         okay = db.userconfigs.set_user_config('USE', name=self.package.full_name, add=addlist,
                                                                 remove=removelist, callback=self.reload, parent_window = self.window )
         self.version_changed(button_widget)

@@ -150,6 +150,7 @@ def set_user_config(filename, name='', ebuild='', comment = '', username='', add
     remove are removed, and items in <add> are added as new lines.
     """
     dprint("SET_CONFIG: set_user_config(): filename = '%s'" % filename)
+    dprint("SET_CONFIG: set_user_config(): add=%s, remove=%s, delete=%s" %(str(add), str(remove), str(delete)))
     if not chk_permission(filename):
         return False
     dprint(" * SET_CONFIG: set_user_config(): filename = " + filename)
@@ -164,12 +165,12 @@ def set_user_config(filename, name='', ebuild='', comment = '', username='', add
         #dprint("SET_CONFIG: checking line: "  + str(line) )
         if line[0] == name and line[0] not in remove:
             done = True
-            dprint("SET_CONFIG: found line for '%s'" % name)
+            dprint("SET_CONFIG: set_user_config(); found line for '%s'" % name)
             for flag in remove:
                 line = remove_flag(flag, line)
             for flag in add:
                 if flag.startswith('+'):
-                    dprint("SET_CONFIG: FIXME! removed leading '+' from %s flag" % flag)
+                    dprint("SET_CONFIG: set_user_config(); FIXME! removed leading '+' from %s flag" % flag)
                     flag = flag[1:]
                 # check for and remove existing occurance(s) of flag
                 line = remove_flag(flag, line)
