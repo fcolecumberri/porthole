@@ -35,7 +35,9 @@ class DependAtom:
     """Dependency Atom Class.
     Important methods: __repr__(), __eq__(), is_satisfied().
     """
-    def __init__(self, atom = '', name='', parent='', mytype='', cmp='', slot='', useflag='', req_use=''):
+    def __init__(self, atom = '', name='', parent='', mytype='',
+        cmp='', slot='', useflag='', req_use=''
+        ):
         self.atom = atom
         self.mytype = mytype
         self.children = []
@@ -55,17 +57,20 @@ class DependAtom:
         (used by the "print" statement)."""
         #debug.dprint("DependAtom: __repr__(); "  + self.get_depname() + self.get_required_use())
         if self.mytype == 'DEP': 
-            #debug.dprint("DependAtom: __repr__(); mytype = DEP, "  + self.get_depname() + self.get_required_use())
+            #debug.dprint("DependAtom: __repr__(); mytype = DEP, "  + \
+                #self.get_depname() + self.get_required_use())
             return self.get_depname() + self.get_required_use()
         elif self.mytype == 'BLOCKER': 
-            #debug.dprint("DependAtom: __repr__(); mytype = BLOCKER, "  + self.get_depname() + self.get_required_use())
+            #debug.dprint("DependAtom: __repr__(); mytype = BLOCKER, "  + \
+                #self.get_depname() + self.get_required_use())
             return '!' + self.get_depname() + self.get_required_use()
         elif self.mytype == 'OPTION': prefix = '||'
         elif self.mytype == 'GROUP': prefix = ''
         elif self.mytype == 'USING': prefix = self.useflag + '?'
         elif self.mytype == 'NOTUSING': prefix = '!' + self.useflag + '?'
         elif self.mytype == 'REVISIONABLE':
-            #debug.dprint("DependAtom: __repr__(); mytype = REVISIONABLE, "  + self.get_depname() + self._required_use())
+            #debug.dprint("DependAtom: __repr__(); mytype = REVISIONABLE, "  + \
+                #self.get_depname() + self._required_use())
             return '~' + self.get_depname() + self.get_required_use()
         else: return ''
         if self.children:
@@ -148,7 +153,7 @@ class DependAtom:
     def _REVISIONABLE_is_satisfied(self, use_flags):
         """ self.mytype == 'REVISIONABLE'
         @rtype: nonempty if is satisfied"""
-        return portage_lib.get_installed('~' + self.get_depname() + self.get_required_use())
+        return portage_lib.get_installed(self.get_depname() + self.get_required_use())
 
     def _OPTION_is_satisfied(self, use_flags):
         """ self.mytype == 'OPTION' 
@@ -160,7 +165,38 @@ class DependAtom:
         return satisfied
 
     def get_depname(self):
-        return self.name + self._slot()
+        return getattr(self, '_%s_name' % self.mytype)()
+
+    def _USING_name(self):
+        """ self.mytype == 'USING'"""
+        return _("Using %s") % self.useflag
+
+    def _NOTUSING_name(self):
+        """self.mytype == 'NOTUSING'"""
+        return _("Not Using %s") % self.useflag
+
+    def _DEP_name(self):
+        """ self.mytype =='DEP'"""
+        if self.cmp == "=*":
+            return "=" + self.name + "*" + self._slot()
+        return self.cmp + self.name + self._slot()
+        
+
+    def _BLOCKER_name(self):
+        """ self.mytype == 'BLOCKER'"""
+        return "!" + self._DEP_name()
+
+    def _OPTION_name(self):
+        """self.mytype == 'OPTION'"""
+        return _("Any of:")
+
+    def _GROUP_name(self):
+        """ self.mytype == 'GROUP'"""
+        return _("All of:")
+
+    def _REVISIONABLE_name(self):
+        """ self.mytype =='REVISIONABLE'"""
+        return'~' + self._DEP_name()
 
     def _slot(self):
         if self.slot != '':
@@ -193,7 +229,8 @@ class DepCache(object):
         try:
             atom = self.cache[mytype+mydep]
             atom.add_parent(parent)
-            debug.dprint("DEPENDS: DepCache.get_atom(); Yay! got an existing cache atom: " + mytype + mydep)
+            debug.dprint("DEPENDS: DepCache.get_atom(); Yay! got an existing cache atom: " + \
+                mytype + mydep)
         except KeyError:
             name, cmp, slot, use = dep_split(mydep)
             atom = self.cache[mytype+mydep] = DependAtom(atom=mydep, mytype=mytype,
@@ -248,28 +285,35 @@ def atomize_depends_list(depends_list, parent = None):
             #debug.dprint("DependsTree: atomize_depends_list();343 item.startswith '(', item = " \
                 #+ item + ", parent = " +str(parent) + ", temp_atom = " +str(temp_atom))
             if temp_atom is None: # two '(' in a row. Need to create temp_atom
-                #debug.dprint("DependsTree: atomize_depends_list();346 item.startswith '(', new temp_atom for parent: " \
-                    #+str(parent))
+                #debug.dprint("DependsTree: atomize_depends_list();346 item.startswith" + \
+                    #'(', new temp_atom for parent: " + str(parent))
                 temp_atom = DependAtom(mytype='GROUP',parent=parent)
             if item != "(":
                 depends_list[0] = item[1:]
-                #debug.dprint("DependsTree: atomize_depends_list();351 item != '(': new depends_list[0]= " +str(depends_list[0]))
+                #debug.dprint("DependsTree: atomize_depends_list();351 item != '(': new depends_list[0]= " + \
+                    #str(depends_list[0]))
             else:
-                #debug.dprint("DependsTree: atomize_depends_list();353 next recursion level, depends_list: "+str(depends_list))
-                #debug.dprint("DependsTree: atomize_depends_list();354 next recursion level, temp_atom: "+str(temp_atom))
+                #debug.dprint("DependsTree: atomize_depends_list();353 next " + \
+                    #"recursion level, depends_list: " + str(depends_list))
+                #debug.dprint("DependsTree: atomize_depends_list();354 next " + \
+                    #"recursion level, temp_atom: "+str(temp_atom))
                 group, depends_list = split_group(depends_list)
                 temp_atom.children = atomize_depends_list(group, temp_atom)
                 if not filter(lambda a: temp_atom == a, atomized_list):
                 # i.e. if temp_atom is not any atom in atomized_list.
                 # This is checked by calling DependAtom.__eq__().
-                    #debug.dprint("DependsTree: atomize_depends_list();360 ')'-1, atomized_list.append(temp_atom) = " 
+                    #debug.dprint("DependsTree: atomize_depends_list();360 ')'-1, " + \
+                        #"atomized_list.append(temp_atom) = " + \
                         #+ str(temp_atom) + ", parent = " +str(parent))
                     atomized_list.append(temp_atom)
                 temp_atom = None
                 continue
-                #debug.dprint("DependsTree: atomize_depends_list();364 item = '(': new depends_list[0]= " +str(depends_list[0]))
-            #debug.dprint("DependsTree: atomize_depends_list();365 next recursion level, depends_list: "+str(depends_list))
-            #debug.dprint("DependsTree: atomize_depends_list();366 next recursion level, temp_atom: "+str(temp_atom))
+                #debug.dprint("DependsTree: atomize_depends_list();364 item = '(':" + \
+                    #" new depends_list[0]= " +str(depends_list[0]))
+            #debug.dprint("DependsTree: atomize_depends_list();365 next recursion " + \
+                #"level, depends_list: "+str(depends_list))
+            #debug.dprint("DependsTree: atomize_depends_list();366 next recursion " + \
+                #"level, temp_atom: "+str(temp_atom))
             temp_atom.children = atomize_depends_list(depends_list, temp_atom)
             if not filter(lambda a: temp_atom == a, atomized_list):
                 # i.e. if temp_atom is not any atom in atomized_list.
@@ -284,10 +328,12 @@ def atomize_depends_list(depends_list, parent = None):
                 depends_list[0] = item[1:]
             else:
                 depends_list.pop(0)
-                #debug.dprint("DependsTree: atomize_depends_list();283 finished recursion level, returning atomized list") 
+                #debug.dprint("DependsTree: atomize_depends_list();283 finished" + \ 
+                    #" recursion level, returning atomized list") 
             return atomized_list
         else: # hopefully a nicely formatted dependency
-            if filter(lambda a: a in item, ['(', '|', ')']):  # , '?']): remove '?' from the list due to required USE flags that may have it. 
+            if filter(lambda a: a in item, ['(', '|', ')']): 
+                #  removed '?' from the list due to required USE flags that may have it. 
                 debug.dprint(" *** DEPENDS: atomize_depends_list: ILLEGAL ITEM!!! " + \
                     "Please report this to the authorities. (item = %s)" % item)
             if item.startswith("!"):
@@ -295,24 +341,28 @@ def atomize_depends_list(depends_list, parent = None):
                 item_type = "BLOCKER"
                 item = item[1:]
             elif item.startswith('~'):
-                #debug.dprint("DependsTree: atomize_depends_list();297 found a REVISIONABLE dep: " + item)
+                #debug.dprint("DependsTree: atomize_depends_list();297 found a " + \
+                    #"REVISIONABLE dep: " + item)
                 item_type = "REVISIONABLE"
                 item = item[1:]
             else:
-                #debug.dprint("DependsTree: atomize_depends_list();301 found a DEP dep: type=%s, val=%s"  %(type(item),str(item)))
+                #debug.dprint("DependsTree: atomize_depends_list();301 found a DEP dep: " + \
+                    #"type=%s, val=%s"  %(type(item),str(item)))
                 item_type = "DEP"
-            #debug.dprint("DependsTree: atomize_depends_list();303 item type=%s, val='%s'"  %(type(item),str(item)))
+            #debug.dprint("DependsTree: atomize_depends_list();303 item type=%s, " + \
+                #val='%s'"  %(type(item),str(item)))
             temp_atom = depcache.get_atom(mydep=item, mytype=item_type, parent=parent)
 
             if not filter(lambda a: temp_atom == a, atomized_list):
                 # i.e. if temp_atom is not any atom in atomized_list.
                 # This is checked by calling DependsAtom.__eq__().
-                #debug.dprint("DependsTree: atomize_depends_list();407 ')'-2, atomized_list.append(temp_atom) = " \
-                    #+ str(temp_atom) + ", parent = " +str(parent))
+                #debug.dprint("DependsTree: atomize_depends_list();407 ')'-2," + \
+                    #"atomized_list.append(temp_atom) = " + str(temp_atom) + ", parent = " +str(parent))
                 atomized_list.append(temp_atom)
             temp_atom = None
             depends_list.pop(0)
-    #debug.dprint("DependsTree: atomize_depends_list();411 finished recursion level, returning atomized list")
+    #debug.dprint("DependsTree: atomize_depends_list();411 finished recursion level," + \
+        #"returning atomized list")
     return atomized_list
     
 def split_group(dep_list):
@@ -321,7 +371,8 @@ def split_group(dep_list):
     group = []
     remainder = []
     if dep_list[0] != '(':
-        debug.dprint("DependsTree: split_group();dep_list passed does not start with a '(', returning")
+        debug.dprint("DependsTree: split_group();dep_list passed does not " + \
+            "start with a '(', returning")
         return group, dep_list
     dep_list.pop(0)
     nest_level = 0

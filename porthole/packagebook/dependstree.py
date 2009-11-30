@@ -30,7 +30,7 @@ from porthole import backends
 portage_lib = backends.portage_lib
 from porthole.backends.utilities import get_reduced_flags, slot_split, use_required_split, get_sync_info
 from porthole import db
-from porthole.packagebook.depends import  atomize_depends_list, get_depends
+from porthole.packagebook.depends import  atomize_depends_list, get_depends, depcache
 
 
 
@@ -98,7 +98,8 @@ class DependsTree(gtk.TreeStore):
         #debug.dprint(" * DependsTree: add_atomized_depends_list(): new depth level = " + str(self.dep_depth))
         if ebuild and is_new_child:
             self.parent_use_flags[self.dep_depth] = get_reduced_flags(ebuild)
-            #debug.dprint(" * DependsTree: add_atomized_depends_list(): parent_use_flags = reduced: " + str(self.parent_use_flags[self.dep_depth]))
+            #debug.dprint(" * DependsTree: add_atomized_depends_list(): parent_use_flags = reduced: " \
+                #+ str(self.parent_use_flags[self.dep_depth]))
         elif is_new_child:
             self.parent_use_flags[self.dep_depth] = portage_lib.settings.SystemUseFlags
             #debug.dprint(" * DependsTree: add_atomized_depends_list(): parent_use_flags = system only")
@@ -113,37 +114,11 @@ class DependsTree(gtk.TreeStore):
                 add_kids = 1
             
             if add_satisfied or not satisfied: # then add deps to treeview
-                #debug.dprint("DependsTree: atom '%s', mytype '%s', satisfied '%s'" % (atom.get_depname(), atom.mytype, satisfied))
+                #debug.dprint("DependsTree: atom '%s', mytype '%s', satisfied '%s'" \
+                    #% (atom.get_depname(), atom.mytype, satisfied))
                 iter = self.insert_before(parent_iter, None)
-                if atom.mytype == 'USING':
-                    text = _("Using %s") % atom.useflag
-                    if satisfied == -1: icon = gtk.STOCK_REMOVE # -1 ==> irrelevant
-                    add_kids = -1 # add kids but don't expand unsatisfied deps
-                    add_satisfied = 1
-                elif atom.mytype == 'NOTUSING':
-                    text = _("Not Using %s") % atom.useflag
-                    if satisfied == -1: icon = gtk.STOCK_REMOVE # -1 ==> irrelevant
-                    add_kids = -1 # add kids but don't expand unsatisfied deps
-                    add_satisfied = 1
-                elif atom.mytype =='DEP':
-                    text = atom.get_depname()
-                    if not satisfied and self.dep_depth < 4:
-                        add_kids = 1
-                elif atom.mytype == 'BLOCKER':
-                    text = "!" + atom.get_depname()
-                    if not satisfied: icon = gtk.STOCK_DIALOG_WARNING
-                elif atom.mytype == 'OPTION':
-                    text = _("Any of:")
-                    add_kids = -1 # add kids but don't expand unsatisfied deps
-                    add_satisfied = 1
-                elif atom.mytype == 'GROUP':
-                    text = _("All of:")
-                    add_kids = -1 # add kids but don't expand unsatisfied deps
-                    add_satisfied = 1
-                elif atom.mytype =='REVISIONABLE':
-                    text = '~' + atom.get_depname()
-                    if not satisfied and self.dep_depth < 4:
-                        add_kids = 1
+                text = atom.get_depname()
+                add_kids, add_satisfied, icon = getattr(self, "_%s_" %atom.mytype)(satisfied, add_satisfied, icon)
                 
                 if icon:
                     self.set_value(iter, self.column["icon"], depends_view.render_icon(icon,
@@ -152,9 +127,10 @@ class DependsTree(gtk.TreeStore):
                 self.set_value(iter, self.column["satisfied"], bool(satisfied))
                 self.set_value(iter, self.column["required_use"], atom.get_required_use())
                 if atom.mytype in ['DEP', 'BLOCKER', 'REVISIONABLE']:
-                    depname = portage_lib.get_full_name(atom.name)
+                    depname = atom.name #portage_lib.get_full_name(atom.name)
                     if not depname:
-                        debug.dprint(" * DependsTree: add_atomized_depends_list(): No depname found for '%s'" % atom.name or atom.useflag)
+                        debug.dprint(" * DependsTree: add_atomized_depends_list():" + \
+                            "No depname found for '%s'" % atom.name or atom.useflag)
                         continue
                     #pack = Package(depname)
                     pack = db.db.get_package(depname)
@@ -166,8 +142,9 @@ class DependsTree(gtk.TreeStore):
                     self.add_atomized_depends_to_tree(atom.children, depends_view, iter, add_kids)
                 elif add_kids  > 0 and not satisfied and self.dep_depth <= 4:
                     # be carefull of depth
-                    best,keyworded,masked  = portage_lib.get_dep_ebuild(atom.__repr__())
-                    #debug.dprint("DependsTree: add_atomized_depends_list(): results = " + ', '.join([best,keyworded,masked]))
+                    best, keyworded, masked  = portage_lib.get_dep_ebuild(atom.atom) #__repr__())
+                    #debug.dprint("DependsTree: add_atomized_depends_list(): results = " + \
+                        #', '.join([best,keyworded,masked]))
                     # get the least unstable dep_ebuild that satisfies the dep
                     if best != '':
                         dep_ebuild = best
@@ -180,9 +157,10 @@ class DependsTree(gtk.TreeStore):
                         dep_atomized_list = atomize_depends_list(dep_deps)
                         if dep_atomized_list == None: dep_atomized_list = []
                         #debug.dprint("DependsTree: add_atomized_depends_list(): DEP new atomized_list for: " \
-                        #                                + atom.get_depname() + ' = ' + str(dep_atomized_list) + ' ' + dep_ebuild)
+                            #+ atom.get_depname() + ' = ' + str(dep_atomized_list) + ' ' + dep_ebuild)
                         self.dep_depth += 1
-                        self.add_atomized_depends_to_tree(dep_atomized_list, depends_view, iter, add_kids, ebuild = dep_ebuild, is_new_child = True )
+                        self.add_atomized_depends_to_tree(dep_atomized_list,
+                            depends_view, iter, add_kids, ebuild = dep_ebuild, is_new_child = True)
                         self.dep_depth -= 1
                     #del best,keyworded,masked
 
@@ -191,6 +169,8 @@ class DependsTree(gtk.TreeStore):
         #debug.dprint("DependsTree: Updating deps tree for " + package.name)
         #ebuild = package.get_default_ebuild()
         ##depends = portage_lib.get_property(ebuild, "DEPEND").split()
+        # first reset the DepCache
+        depcache.reset()
         depends = get_depends(package, ebuild)
         self.clear()
         if depends:
@@ -212,8 +192,51 @@ class DependsTree(gtk.TreeStore):
             #self.add_depends_to_tree(depends, treeview)
             atomized_depends = atomize_depends_list(depends)
             #debug.dprint(atomized_depends)
-            self.add_atomized_depends_to_tree(atomized_depends, treeview, ebuild = ebuild, is_new_child = True)
+            self.add_atomized_depends_to_tree(atomized_depends, treeview,
+                ebuild = ebuild, is_new_child = True)
         else:
             parent_iter = self.insert_before(None, None)
             self.set_value(parent_iter, self.column["depend"], _("None"))
         treeview.set_model(self)
+
+    def _USING_(self, satisfied, add_satisfied, icon):
+        """ atom.mytype == 'USING'"""
+        #add_kids = -1 # add kids but don't expand unsatisfied deps
+        #add_satisfied = 1
+        if satisfied == -1: 
+            return -1, 1, gtk.STOCK_REMOVE # -1 ==> irrelevant
+        return -1, 1, gtk.STOCK_YES
+
+    def _NOTUSING_(self, satisfied, add_satisfied, icon):
+        """ atom.mytype == 'NOTUSING'"""
+        #add_kids = -1 # add kids but don't expand unsatisfied deps
+        #add_satisfied = 1
+        if satisfied == -1:
+            return -1, 1, gtk.STOCK_REMOVE # -1 ==> irrelevant
+        return -1, 1, gtk.STOCK_YES
+
+    def _DEP_(self, satisfied, add_satisfied, icon):
+        """ atom.mytype =='DEP'"""
+        if not satisfied and self.dep_depth < 4:
+            return 1, 1,  gtk.STOCK_NO
+        return 0, 1 ,  gtk.STOCK_YES
+
+    def _BLOCKER_(self, satisfied, add_satisfied, icon):
+        """ atom.mytype == 'BLOCKER'"""
+        if not satisfied:
+            return 0, add_satisfied, gtk.STOCK_DIALOG_WARNING
+        return 0, add_satisfied, gtk.STOCK_YES
+
+    def _OPTION_(self, satisfied, add_satisfied, icon):
+        """ atom.mytype == 'OPTION'"""
+        return -1, 1, icon
+
+    def _GROUP_(self, satisfied, add_satisfied, icon):
+        """ atom.mytype == 'GROUP'"""
+        return -1, 1, icon
+
+    def _REVISIONABLE_(self, add_satisfied, satisfied, icon):
+        """ atom.mytype =='REVISIONABLE'"""
+        if not satisfied and self.dep_depth < 4:
+            return 1, add_satisfied, icon
+        return 0, add_satisfied, icon
