@@ -113,34 +113,34 @@ class DependsTree(gtk.TreeStore):
                 add_kids = 1
             
             if add_satisfied or not satisfied: # then add deps to treeview
-                #debug.dprint("DependsTree: atom '%s', type '%s', satisfied '%s'" % (atom.get_depname(), atom.type, satisfied))
+                #debug.dprint("DependsTree: atom '%s', mytype '%s', satisfied '%s'" % (atom.get_depname(), atom.mytype, satisfied))
                 iter = self.insert_before(parent_iter, None)
-                if atom.type == 'USING':
+                if atom.mytype == 'USING':
                     text = _("Using %s") % atom.useflag
                     if satisfied == -1: icon = gtk.STOCK_REMOVE # -1 ==> irrelevant
                     add_kids = -1 # add kids but don't expand unsatisfied deps
                     add_satisfied = 1
-                elif atom.type == 'NOTUSING':
+                elif atom.mytype == 'NOTUSING':
                     text = _("Not Using %s") % atom.useflag
                     if satisfied == -1: icon = gtk.STOCK_REMOVE # -1 ==> irrelevant
                     add_kids = -1 # add kids but don't expand unsatisfied deps
                     add_satisfied = 1
-                elif atom.type =='DEP':
+                elif atom.mytype =='DEP':
                     text = atom.get_depname()
                     if not satisfied and self.dep_depth < 4:
                         add_kids = 1
-                elif atom.type == 'BLOCKER':
+                elif atom.mytype == 'BLOCKER':
                     text = "!" + atom.get_depname()
                     if not satisfied: icon = gtk.STOCK_DIALOG_WARNING
-                elif atom.type == 'OPTION':
+                elif atom.mytype == 'OPTION':
                     text = _("Any of:")
                     add_kids = -1 # add kids but don't expand unsatisfied deps
                     add_satisfied = 1
-                elif atom.type == 'GROUP':
+                elif atom.mytype == 'GROUP':
                     text = _("All of:")
                     add_kids = -1 # add kids but don't expand unsatisfied deps
                     add_satisfied = 1
-                elif atom.type =='REVISIONABLE':
+                elif atom.mytype =='REVISIONABLE':
                     text = '~' + atom.get_depname()
                     if not satisfied and self.dep_depth < 4:
                         add_kids = 1
@@ -151,7 +151,7 @@ class DependsTree(gtk.TreeStore):
                 self.set_value(iter, self.column["depend"], text)
                 self.set_value(iter, self.column["satisfied"], bool(satisfied))
                 self.set_value(iter, self.column["required_use"], atom.get_required_use())
-                if atom.type in ['DEP', 'BLOCKER', 'REVISIONABLE']:
+                if atom.mytype in ['DEP', 'BLOCKER', 'REVISIONABLE']:
                     depname = portage_lib.get_full_name(atom.name)
                     if not depname:
                         debug.dprint(" * DependsTree: add_atomized_depends_list(): No depname found for '%s'" % atom.name or atom.useflag)
