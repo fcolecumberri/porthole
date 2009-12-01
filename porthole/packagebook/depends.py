@@ -36,11 +36,11 @@ class DependAtom:
     Important methods: __repr__(), __eq__(), is_satisfied().
     """
     def __init__(self, atom = '', name='', mytype='',
-        cmp='', slot='', useflag='', req_use=''
+        cmp='', slot='', useflag='', req_use='', children=[]
         ):
         self.atom = atom
         self.mytype = mytype
-        self.children = []
+        self.children = children
         self.useflag = useflag
         self.name = name
         self.slot = slot
@@ -54,13 +54,13 @@ class DependAtom:
         if self.mytype == 'DEP': 
             return self.get_depname() + self.get_required_use()
         elif self.mytype == 'BLOCKER': 
-            return '!' + self.get_depname() + self.get_required_use()
+            return  self.get_depname() + self.get_required_use()
         elif self.mytype == 'OPTION': prefix = '||'
         elif self.mytype == 'GROUP': prefix = ''
         elif self.mytype == 'USING': prefix = self.useflag + '?'
         elif self.mytype == 'NOTUSING': prefix = '!' + self.useflag + '?'
         elif self.mytype == 'REVISIONABLE':
-            return '~' + self.get_depname() + self.get_required_use()
+            return self.get_depname() + self.get_required_use()
         else: return ''
         if self.children:
             bulk = ', '.join([kid.__repr__() for kid in self.children])
@@ -68,16 +68,14 @@ class DependAtom:
         elif prefix: return ''.join([prefix,'[]'])
         else: return ''
     
-    def __eq__(self, test_atom): # "atomA == atomB" <==> "atomA.__eq__(atomB)"
-        """Returns True if the test_atom is equivalent to self
+    def __eq__(self, other): # "atomA == atomB" <==> "atomA.__eq__(atomB)"
+        """Returns True if the other is equivalent to self
         (used by the statement "atomA == atomB")"""
-        if (not isinstance(test_atom, DependAtom)
-                or self.mytype != test_atom.mytype
-                or self.name != test_atom.name
-                or self.slot != test_atom.slot
-                or self.useflag != test_atom.useflag
-                or self.required_use != test_atom.required_use
-                or self.children != test_atom.children): # children will recurse
+        if (not isinstance(other, DependAtom)
+                or self.mytype != other.mytype
+                or self.atom != other.atom
+                or self.useflag != other.useflag
+                or self.children != other.children): # children will recurse
             return False
         else: return True
 
@@ -209,14 +207,17 @@ class DepCache(object):
         self.tree_mtime = None
         self.cache = {}
 
-    def get_atom(self, mydep='', mytype=''):
+    def get_atom(self,  mydep='', mytype='',
+                            useflag='', children=[]):
+        key = mytype + mydep + useflag + str(children)
+        debug.dprint("DEPENDS: DepCache.get_atom(); children = %s" % str(children))
         try:
-            atom = self.cache[mytype+mydep]
-            debug.dprint("DEPENDS: DepCache.get_atom(); Yay! got an existing cache atom: " + \
-                mytype + mydep)
+            atom = self.cache[key]
+            debug.dprint("DEPENDS: DepCache.get_atom(); Yay! got an existing cache atom: %s" \
+                % key)
         except KeyError:
             name, cmp, slot, use = dep_split(mydep)
-            atom = self.cache[mytype+mydep] = DependAtom(atom=mydep, mytype=mytype,
+            atom = self.cache[key] = DependAtom(atom=mydep, mytype=mytype,
                                                         name=name, cmp=cmp, slot=slot,req_use=use)
         return atom
 
@@ -298,43 +299,46 @@ def atomize_depends_list(depends_list):
                                             mytype=item_type))
             temp_atom = None
             depends_list.pop(0)
-    #debug.dprint("DependsTree: atomize_depends_list();411 finished recursion level," + \
+    #debug.dprint("Depends: atomize_depends_list();411 finished recursion level," + \
         #"returning atomized list")
     return atomized_list
     
 def split_group(dep_list):
     """separate out the ( ) grouped dependencies"""
-    #debug.dprint("DependsTree: split_group(); starting")
+    #debug.dprint("Depends: split_group(); starting")
     group = []
     remainder = []
     if dep_list[0] != '(':
-        debug.dprint("DependsTree: split_group();dep_list passed does not " + \
+        debug.dprint("Depends: split_group();dep_list passed does not " + \
             "start with a '(', returning")
         return group, dep_list
     dep_list.pop(0)
     nest_level = 0
     while dep_list:
         x = dep_list[0]
-        #debug.dprint("DependsTree: split_group(); x = " + x)
+        #debug.dprint("Depends: split_group(); x = " + x)
         if x in '(':
                 nest_level += 1
-                #debug.dprint("DependsTree: split_group(); nest_level = " + str(nest_level))
+                #debug.dprint("Depends: split_group(); nest_level = " + str(nest_level))
         elif x in ')':
             if nest_level == 0:
                 dep_list.pop(0)
                 break
             else:
                 nest_level -= 1
-                #debug.dprint("DependsTree: split_group(); nest_level = " + str(nest_level))
+                #debug.dprint("Depends: split_group(); nest_level = " + str(nest_level))
         group.append(x)
         dep_list.pop(0)
-    #debug.dprint("DependsTree: split_group(); dep_list parsed, group = " + str(group))
-    #debug.dprint("DependsTree: split_group(); dep_list parsed, remainder = " + str(dep_list))
+    #debug.dprint("Depends: split_group(); dep_list parsed, group = " + str(group))
+    #debug.dprint("Depends: split_group(); dep_list parsed, remainder = " + str(dep_list))
     return group, dep_list
 
 def get_depends(package, ebuild):
     if package == None or ebuild == None:
         return ''
-    return (package.get_properties(ebuild).depend.split() +
-                   package.get_properties(ebuild).rdepend.split() +
-                   package.get_properties(ebuild).pdepend.split())
+    props = package.get_properties(ebuild)
+    deps = ' '.join([props.depend,
+                   props.rdepend,
+                   props.pdepend])
+    debug.dprint("Depends: get_depends(); deps = "+ str(deps))
+    return deps.split()
