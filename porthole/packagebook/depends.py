@@ -228,6 +228,8 @@ class DepCache(object):
 # create and initialize our DependAtom cache
 depcache = DepCache()
 
+dep_dict = {}
+
 def atomize_depends_list(depends_list):
     """Takes a list of the form:
     portage.portdb.aux_get(<ebuild>, ["DEPEND"]).split()
@@ -236,7 +238,15 @@ def atomize_depends_list(depends_list):
     will return, meaning we can recursively pass the unparsed part of the
     list back to ourselves...
     """
-    global depcache
+    global depcache, dep_dict
+    depstr= ','.join(depends_list)
+    debug.dprint("DEPENDS: atomize_depends_list(); depstr= " + depstr)
+    if not depstr in dep_dict:
+        dep_dict[depstr] = 1
+    else:
+        dep_dict[depstr] += 1
+        debug.dprint("DEPENDS: atomize_depends_list(); another occurance " + \
+                "of %s: # %d" % (depstr, dep_dict[depstr]))
     atomized_list = []
     temp_atom = None
     while depends_list:
