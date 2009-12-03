@@ -216,6 +216,8 @@ def comparators_split(mydep):
     return (mydep, cmp)
 
 def dep_split(mydep):
+    if mydep == '':
+        return '','','',''
     mydep, use = use_required_split(mydep)
     mydep, slot = slot_split(mydep)
     mydep, cmp = comparators_split(mydep)
