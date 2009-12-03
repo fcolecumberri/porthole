@@ -86,10 +86,7 @@ class DependAtom:
         return not self == other
         
     def __hash__(self):
-        kids = []
-        for kid in self.children:
-            kids.append(kid.__hash__())
-        return hash((self.mytype, self.useflag, self.atom, tuple(kids)))
+        return hash((self.mytype, self.useflag, self.atom, tuple(self.children)))
 
     def is_satisfied(self, use_flags):
         """Currently returns an object of variable DEPEND type, indicating whether
