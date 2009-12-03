@@ -28,8 +28,11 @@ from porthole.utils import debug
 from porthole import backends
 portage_lib = backends.portage_lib
 from porthole.backends.utilities import get_reduced_flags, dep_split, get_sync_info
+#from porthole.utils.enable import Enabler
 from porthole.db.package import Package
 from porthole import db
+#import datetime
+
 
 class DependAtom:
     """Dependency Atom Class.
@@ -83,7 +86,10 @@ class DependAtom:
         return not self == other
         
     def __hash__(self):
-        return hash((self.atom, tuple(self.useflag), self.required_use, self.slot))
+        kids = []
+        for kid in self.children:
+            kids.append(kid.__hash__())
+        return hash((self.mytype, self.useflag, self.atom, tuple(kids)))
 
     def is_satisfied(self, use_flags):
         """Currently returns an object of variable DEPEND type, indicating whether
@@ -203,152 +209,196 @@ class DepCache(object):
     type DepAtoms it will only confuse things"""
 
     def __init__(self):
-        self.reset()
-        self.tree_mtime = None
+        #self.reset()
+        #self.tree_mtime = None
         self.cache = {}
 
-    def get_atom(self,  mydep='', mytype='',
+    def add(self,  mydep='', mytype='',
                             useflag='', children=[]):
-        key = mytype + mydep + useflag + str(children)
-        debug.dprint("DEPENDS: DepCache.get_atom(); children = %s" % str(children))
+        
+        kids = []
+        for kid in children:
+            kids.append(kid.__hash__())
+        key = tuple((mytype, useflag, mydep, tuple(kids)))
         try:
             atom = self.cache[key]
-            debug.dprint("DEPENDS: DepCache.get_atom(); Yay! got an existing cache atom: %s" \
-                % key)
         except KeyError:
             name, cmp, slot, use = dep_split(mydep)
-            atom = self.cache[key] = DependAtom(atom=mydep, mytype=mytype,
-                                                        name=name, cmp=cmp, slot=slot,req_use=use)
-        return atom
+            atom = DependAtom(atom=mydep, mytype=mytype, useflag=useflag,
+                    name=name, cmp=cmp, slot=slot,req_use=use, children=children)
+            self.cache[key] = atom
+        return key
+
+    def get(self, key):
+        try:
+            atom = self.cache[key]
+            return atom
+        except KeyError:
+            return None
 
     def reset(self):
-        self.tree_mtime, self.valid = get_sync_info()
+        #debug.dprint("DEPENDS: DepCache.reset()")
+        #self.tree_mtime, self.valid = get_sync_info()
         self.cache = {}
 
-# create and initialize our DependAtom cache
-depcache = DepCache()
 
-dep_dict = {}
-
-def atomize_depends_list(depends_list):
-    """Takes a list of the form:
-    portage.portdb.aux_get(<ebuild>, ["DEPEND"]).split()
-    and arranges it into a list of nested list-like DependAtom()s.
-    if more closing brackets are encountered than opening ones then it
-    will return, meaning we can recursively pass the unparsed part of the
-    list back to ourselves...
-    """
-    global depcache, dep_dict
-    depstr= ','.join(depends_list)
-    debug.dprint("DEPENDS: atomize_depends_list(); depstr= " + depstr)
-    if not depstr in dep_dict:
-        dep_dict[depstr] = 1
-    else:
-        dep_dict[depstr] += 1
-        debug.dprint("DEPENDS: atomize_depends_list(); another occurance " + \
-                "of %s: # %d" % (depstr, dep_dict[depstr]))
-    atomized_list = []
-    temp_atom = None
-    while depends_list:
-        item = depends_list[0]
-        if item.startswith("||"):
-            temp_atom = DependAtom(mytype='OPTION')
-            if item != "||":
-                depends_list[0] = item[2:]
-            else:
-                depends_list.pop(0)
-            item = depends_list[0]
-        elif item.endswith("?"):
-            if item.startswith("!"):
-                temp_atom = DependAtom(mytype ='NOTUSING', useflag=item[1:-1])
-            else:
-                temp_atom = DependAtom(mytype ='USING', useflag=item[:-1])
-            depends_list.pop(0)
-            item = depends_list[0]
-        if item.startswith("("):
-            if temp_atom is None: # two '(' in a row. Need to create temp_atom
-                temp_atom = DependAtom(mytype='GROUP')
-            if item != "(":
-                depends_list[0] = item[1:]
-            else:
-                group, depends_list = split_group(depends_list)
-                temp_atom.children = atomize_depends_list(group)
-                if not filter(lambda a: temp_atom == a, atomized_list):
-                # i.e. if temp_atom is not any atom in atomized_list.
-                # This is checked by calling DependAtom.__eq__().
-                    atomized_list.append(temp_atom)
-                temp_atom = None
-                continue
-            temp_atom.children = atomize_depends_list(depends_list)
-            if not filter(lambda a: temp_atom == a, atomized_list):
-                # i.e. if temp_atom is not any atom in atomized_list.
-                # This is checked by calling DependAtom.__eq__().
-                atomized_list.append(temp_atom)
-            temp_atom = None
-            continue
-        elif item.startswith(")"):
-            if item != ")":
-                depends_list[0] = item[1:]
-            else:
-                depends_list.pop(0)
-            return atomized_list
-        else: # hopefully a nicely formatted dependency
-            if filter(lambda a: a in item, ['(', '|', ')']): 
-                #  removed '?' from the list due to required USE flags that may have it. 
-                debug.dprint(" *** DEPENDS: atomize_depends_list: DEPENDS PARSE ERROR!!! " + \
-                    "Please report this to the authorities. (item = %s)" % item)
-            if item.startswith("!"):
-                item_type = "BLOCKER"
-                item = item[1:]
-            elif item.startswith('~'):
-                item_type = "REVISIONABLE"
-                item = item[1:]
-            else:
-                item_type = "DEP"
-            atomized_list.append(depcache.get_atom(mydep=item,
-                                            mytype=item_type))
-            temp_atom = None
-            depends_list.pop(0)
-    #debug.dprint("Depends: atomize_depends_list();411 finished recursion level," + \
-        #"returning atomized list")
-    return atomized_list
+class Depends(object):
     
-def split_group(dep_list):
-    """separate out the ( ) grouped dependencies"""
-    #debug.dprint("Depends: split_group(); starting")
-    group = []
-    remainder = []
-    if dep_list[0] != '(':
-        debug.dprint("Depends: split_group();dep_list passed does not " + \
-            "start with a '(', returning")
-        return group, dep_list
-    dep_list.pop(0)
-    nest_level = 0
-    while dep_list:
-        x = dep_list[0]
-        #debug.dprint("Depends: split_group(); x = " + x)
-        if x in '(':
-                nest_level += 1
-                #debug.dprint("Depends: split_group(); nest_level = " + str(nest_level))
-        elif x in ')':
-            if nest_level == 0:
-                dep_list.pop(0)
-                break
-            else:
-                nest_level -= 1
-                #debug.dprint("Depends: split_group(); nest_level = " + str(nest_level))
-        group.append(x)
-        dep_list.pop(0)
-    #debug.dprint("Depends: split_group(); dep_list parsed, group = " + str(group))
-    #debug.dprint("Depends: split_group(); dep_list parsed, remainder = " + str(dep_list))
-    return group, dep_list
+    def __init__(self):
+        # classwide atom cache
+        self.cache = DepCache()
+        self.flags = []
 
-def get_depends(package, ebuild):
-    if package == None or ebuild == None:
-        return ''
-    props = package.get_properties(ebuild)
-    deps = ' '.join([props.depend,
-                   props.rdepend,
-                   props.pdepend])
-    debug.dprint("Depends: get_depends(); deps = "+ str(deps))
-    return deps.split()
+    
+    def parse(self, depends_list):
+        """Takes a list of the form:
+        portage.portdb.aux_get(<ebuild>, ["DEPEND"]).split()
+        and arranges it into a list of nested list-like DependAtom()s.
+        if more closing brackets are encountered than opening ones then it
+        will return, meaning we can recursively pass the unparsed part of the
+        list back to ourselves...
+        """
+        atomized_set = set()
+        while depends_list:
+            item_type = useflag = ''
+            children = []
+            a_key = None
+            item = depends_list[0]
+            if item.startswith("||"):
+                item_type = 'OPTION'
+                if item != "||":
+                    depends_list[0] = item[2:]
+                else:
+                    depends_list.pop(0)
+                item = depends_list[0]
+            elif item.endswith("?"):
+                if item.startswith("!"):
+                    item_type = 'NOTUSING'
+                    useflag=item[1:-1]
+                else:
+                    item_type = 'USING'
+                    useflag=item[:-1]
+                depends_list.pop(0)
+                item = depends_list[0]
+            if item.startswith("("):
+                if item_type == '': # two '(' in a row. Need to create a new atom?
+                    item_type = 'GROUP'
+                if item != "(":
+                    depends_list[0] = item[1:]
+                else:
+                    group, depends_list = self.split_group(depends_list)
+                    children = self.parse(group)
+                    a_key = self.cache.add(mytype=item_type,
+                                            useflag=useflag, children=children)
+                    atomized_set.add(a_key)
+                    a_key = None
+                    continue
+                children = self.parse(depends_list)
+                a_key = cache.add(mytype=item_type,
+                                        useflag=useflag, children=children)
+                atomized_set.add(a_key)
+                a_key = None
+                continue
+            elif item.startswith(")"):
+                if item != ")":
+                    depends_list[0] = item[1:]
+                else:
+                    depends_list.pop(0)
+                return self._atomized_list(atomized_set)
+            else: # hopefully a nicely formatted dependency
+                #if filter(lambda a: a in item, ['(', '|', ')']):             <== EAPI 3 will kill this [flag1(+), flag2(-)]
+                    #  removed '?' from the list due to required USE flags that may have it. 
+                    #~ debug.dprint(" *** DEPENDS: atomize_depends_list: DEPENDS PARSE ERROR!!! " + \
+                        #~ "Please report this to the authorities. (item = %s)" % item)
+                if item.startswith("!"):
+                    item_type = "BLOCKER"
+                    item = item[1:]
+                elif item.startswith('~'):
+                    item_type = "REVISIONABLE"
+                    item = item[1:]
+                else:
+                    item_type = "DEP"
+                
+                a_key = self.cache.add(mydep=item, mytype=item_type)
+                atomized_set.add(a_key)
+                a_key = None
+                depends_list.pop(0)
+        #~ debug.dprint("Depends: atomize_depends_list(); finished recursion level," + \
+            #~ "returning atomized list")
+        return self._atomized_list(atomized_set)
+
+    def _atomized_list(self, a_set):
+        a_list = []
+        while a_set:
+            key = a_set.pop()
+            atom = self.cache.get(key)
+            if atom:
+                a_list.append(atom)
+        #if a_list:
+        #    a_list.reverse()
+        return a_list
+        
+
+    def split_group(self, dep_list):
+        """separate out the ( ) grouped dependencies"""
+        #debug.dprint("Depends: split_group(); starting")
+        group = []
+        remainder = []
+        if dep_list[0] != '(':
+            debug.dprint("Depends: split_group();dep_list passed does not " + \
+                "start with a '(', returning")
+            return group, dep_list
+        dep_list.pop(0)
+        nest_level = 0
+        while dep_list:
+            x = dep_list[0]
+            #debug.dprint("Depends: split_group(); x = " + x)
+            if x in '(':
+                    nest_level += 1
+                    #debug.dprint("Depends: split_group(); nest_level = " + str(nest_level))
+            elif x in ')':
+                if nest_level == 0:
+                    dep_list.pop(0)
+                    break
+                else:
+                    nest_level -= 1
+                    #debug.dprint("Depends: split_group(); nest_level = " + str(nest_level))
+            group.append(x)
+            dep_list.pop(0)
+        #debug.dprint("Depends: split_group(); dep_list parsed, group = " + str(group))
+        #debug.dprint("Depends: split_group(); dep_list parsed, remainder = " + str(dep_list))
+        return group, dep_list
+
+    def get_depends(self, package, ebuild):
+        if package == None or ebuild == None:
+            return ''
+        props = package.get_properties(ebuild)
+        deps = props.depend
+        #debug.dprint("Depends: get_depends(); depend=" + deps + "\n")
+        if props.rdepend not in deps:
+            #debug.dprint("Depends: get_depends(); joining rdepend=" + props.rdepend + "\n")
+            deps = ' '.join([deps, props.rdepend])
+        if props.pdepend not in deps:
+            #debug.dprint("Depends: get_depends(); joining pdepend=" + props.pdepend + "\n")
+            deps = ' '.join([deps, props.pdepend])
+        deps = deps.split()
+        if self.flags:
+            deps = self._filter_flags(deps)
+        #debug.dprint("Depends: get_depends(); deps = \n"+ str(deps))
+        return deps
+
+    def _filter_flags(self, depends):
+        """remove !bootstrap? entries"""
+        for flag in self.flags:
+            x = 0
+            while x < len(depends):
+                if depends[x] == flag:
+                    depends.pop(x) # remove flag
+                    depends.pop(x) # remove (
+                    level = 1
+                    while level:
+                        if depends[x] == "(": level += 1
+                        if depends[x] == ")": level -= 1
+                        depends.pop(x)
+                else: x += 1
+        return depends

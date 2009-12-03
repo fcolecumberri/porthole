@@ -28,11 +28,13 @@ from gettext import gettext as _
 from porthole.utils import debug
 from porthole import backends
 portage_lib = backends.portage_lib
-from porthole.backends.utilities import get_reduced_flags, slot_split, use_required_split, get_sync_info
+from porthole.backends.utilities import get_reduced_flags, slot_split, \
+    use_required_split, get_sync_info
 from porthole import db
-from porthole.packagebook.depends import  atomize_depends_list, get_depends, depcache
+from porthole.packagebook.depends import  Depends
 
-
+# used for timing some sections of code
+#import datetime  
 
 
 class DependsTree(gtk.TreeStore):
@@ -61,6 +63,8 @@ class DependsTree(gtk.TreeStore):
         }
         self.dep_depth = 0
         self.parent_use_flags = {}
+        self.dep_parser = Depends()
+        self.dep_parser.flags.append("!bootstrap?")
         
     def parse_depends_list(self, depends_list, parent = None):
         """Read through the depends list and order it nicely
@@ -127,12 +131,12 @@ class DependsTree(gtk.TreeStore):
                 self.set_value(iter, self.column["satisfied"], bool(satisfied))
                 self.set_value(iter, self.column["required_use"], atom.get_required_use())
                 if atom.mytype in ['DEP', 'BLOCKER', 'REVISIONABLE']:
-                    depname = atom.name #portage_lib.get_full_name(atom.name)
+                    depname = portage_lib.get_full_name(atom.name)
+                    #debug.dprint(" * DependsTree: add_atomized_depends_list(): depname=" + depname)
                     if not depname:
                         debug.dprint(" * DependsTree: add_atomized_depends_list():" + \
                             "No depname found for '%s'" % atom.name or atom.useflag)
                         continue
-                    #pack = Package(depname)
                     pack = db.db.get_package(depname)
                     self.set_value(iter, self.column["package"], pack)
                 #debug.dprint("DependsTree: add_atomized_depends_list(): add_kids = " \
@@ -153,8 +157,8 @@ class DependsTree(gtk.TreeStore):
                     else:
                         dep_ebuild = masked
                     if dep_ebuild:
-                        dep_deps = get_depends(pack, dep_ebuild)
-                        dep_atomized_list = atomize_depends_list(dep_deps)
+                        dep_deps = self.dep_parser.get_depends(pack, dep_ebuild)
+                        dep_atomized_list = self.dep_parser.parse(dep_deps)
                         if dep_atomized_list == None: dep_atomized_list = []
                         #debug.dprint("DependsTree: add_atomized_depends_list(): DEP new atomized_list for: " \
                             #+ atom.get_depname() + ' = ' + str(dep_atomized_list) + ' ' + dep_ebuild)
@@ -170,34 +174,29 @@ class DependsTree(gtk.TreeStore):
         #ebuild = package.get_default_ebuild()
         ##depends = portage_lib.get_property(ebuild, "DEPEND").split()
         # first reset the DepCache
-        depcache.reset()
-        depends = get_depends(package, ebuild)
+        #start = datetime.datetime.now() #.microsecond
+        self.dep_parser.cache.reset()
+        depends = self.dep_parser.get_depends(package, ebuild)
         self.clear()
         if depends:
             #debug.dprint("DependsTree: depends = %s" % depends)
-            # remove !bootstrap? entries:
-            x = 0
-            while x < len(depends):
-                if depends[x] == "!bootstrap?":
-                    depends.pop(x) # remove !bootstrap?
-                    depends.pop(x) # remove (
-                    level = 1
-                    while level:
-                        if depends[x] == "(": level += 1
-                        if depends[x] == ")": level -= 1
-                        depends.pop(x)
-                else: x += 1
-            #debug.dprint("DependsTree: reduced depends = " + str(depends))
             self.depends_list = []
             #self.add_depends_to_tree(depends, treeview)
-            atomized_depends = atomize_depends_list(depends)
+            #debug.dprint("DependsTree: calling self.dep_parser.parse(); ebuild=%s reduced depends = %s " \
+            #        % (ebuild, str(depends)))
+            atomized_depends = self.dep_parser.parse(depends)
+            #end = datetime.datetime.now() #.microsecond
             #debug.dprint(atomized_depends)
             self.add_atomized_depends_to_tree(atomized_depends, treeview,
                 ebuild = ebuild, is_new_child = True)
+            #end2 = datetime.datetime.now() #.microsecond
         else:
             parent_iter = self.insert_before(None, None)
             self.set_value(parent_iter, self.column["depend"], _("None"))
+            #end = end2 = datetime.datetime.now() #.microsecond
         treeview.set_model(self)
+        #debug.dprint("DependsTree: Timing self.dep_parser; ebuild=%s time= %s" % (ebuild, end-start))
+        #debug.dprint("DependsTree: Timing self.dep_parser; complete parse & tree, time= %s" % (end2-start))
 
     def _USING_(self, satisfied, add_satisfied, icon):
         """ atom.mytype == 'USING'"""
