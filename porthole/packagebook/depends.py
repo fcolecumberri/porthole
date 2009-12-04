@@ -213,10 +213,7 @@ class DepCache(object):
     def add(self,  mydep='', mytype='',
                             useflag='', children=[]):
         
-        kids = []
-        for kid in children:
-            kids.append(kid.__hash__())
-        key = tuple((mytype, useflag, mydep, tuple(kids)))
+        key = tuple((mytype, useflag, mydep, tuple(children)))
         try:
             atom = self.cache[key]
         except KeyError:
