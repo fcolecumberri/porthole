@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
 '''
-    Porthole Depends TreeModel
-    Calculates and stores package dependency information
+    Porthole Depends parsing and associated class definitions
+    retieves parses and stores package dependency information.
 
-    Copyright (C) 2003 - 2008 Fredrik Arnerup, Daniel G. Taylor,
+    Copyright (C) 2003 - 2009 Fredrik Arnerup, Daniel G. Taylor,
     Brian Dolbec, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify
@@ -36,6 +36,7 @@ import datetime
 #from exceptions import Exception
 
 class DuplicateAtom(Exception):
+    """Exception type definition. Duplicate Atom"""
     def __init__(self):
         pass
     
@@ -44,8 +45,8 @@ class DuplicateAtom(Exception):
 
 
 class DependKey(object):
-    """Key generator class to be subclassed for generating unique keys
-    for use in hash functions and dictionary keys"""
+    """Key generator class to be subclassed. Used for generating unique keys
+    for use in hash functions and as dictionary keys"""
 
     def __init__(self):
         pass
@@ -217,6 +218,9 @@ class DependAtom(DependKey):
         return satisfied
 
     def get_depname(self):
+        """Returns the dependecy name properly formatted according to 
+        the atom's mytype.
+        """
         return getattr(self, '_%s_name' % self.mytype)()
 
     def _USING_name(self):
@@ -256,6 +260,7 @@ class DependAtom(DependKey):
         return ''
 
     def get_required_use(self):
+        """@rtype string of the useflag requirements for the package"""
         if self.required_use == '':
             return ''
         else:
@@ -263,11 +268,16 @@ class DependAtom(DependKey):
 
 
 class DepCache(DependKey):
-    """Dependency atom cache """
+    """Dependency atom cache and methods/functions for creating, adding,
+    and retrieving DependAtom instances and controlling their re-use
+    
+    Important methods/functions:
+        add(), get(), reset()
+    """
 
     def __init__(self):
         #self.tree_mtime = None
-        self.cache = {}
+        self._cache = {}
 
     def add(self,  mydep='', mytype='',
                 parent='', useflag='', children=[]):
@@ -279,11 +289,13 @@ class DepCache(DependKey):
         @param mydep: string  ie. '>=app-portage/porthole-0.6.0'
         @param parent: tuple containing a unigue id
         @param children: list of child atom keys
+        
+        @rtype key: a DependKey generated key used to reference the DependAtom instance
         """
 
         key = self.get_key(mytype, useflag, mydep, parent, children)
         try:
-            atom = self.cache[key]
+            atom = self._cache[key]
             if atom.mytype in ['USING', 'NOTUSING']:
                 #debug.dprint("DepCache: re-using atom" + " %s, %s" % (mytype,useflag))
                 if children:
@@ -294,37 +306,62 @@ class DepCache(DependKey):
                 # force a new atom.
                 #raise DuplicateAtom
                 #debug.dprint("DepCache: FORCING a new atom: type=" + mytype )
-                self.new(key, mydep, mytype, useflag, children)
+                self._new(key, mydep, mytype, useflag, children)
         except KeyError:
-            self.new(key, mydep, mytype, useflag, children)
+            self._new(key, mydep, mytype, useflag, children)
         #~ except DuplicateAtom:
             #~ self.new(key, mydep, mytype, useflag, children)
         return key
 
-    def new(self, key, mydep='', mytype='',
+    def _new(self, key, mydep='', mytype='',
                 useflag='', children=[]):
+        """Creates a new DependAtom instance with supplied
+        data and Adds it to the cache. Normally called by the add().
+        
+        @param key: a DependKey generated key used to reference the DependAtom with 
+                    in the cache dict or control atoms set.
+        Please refer to the add() for all other input parameter details.
+        """
         #debug.dprint("DepCache: new atom: %s, %s, %s " %(mytype, useflag, mydep))
         name, cmp, slot, use = dep_split(mydep)
         atom = DependAtom(atom=mydep, mytype=mytype, useflag=useflag,
                 name=name, cmp=cmp, slot=slot,req_use=use, children=children)
-        self.cache[key] = atom
+        self._cache[key] = atom
         return
 
 
     def get(self, key):
+        """Returns the cached DependAtom associated with 'key'
+        
+        @param key: DependKey generated key used to refeernce
+                    the stored DependAtom
+        @rtype atom: The DependAtom instance requested.
+        """
         try:
-            atom = self.cache[key]
+            atom = self._cache[key]
             return atom
         except KeyError:
             return None
 
     def reset(self):
+        """Resets the cache to empty.  A must for each
+        new package/ebuild to be parsed"""
         #debug.dprint("DEPENDS: DepCache.reset()")
         #self.tree_mtime, self.valid = get_sync_info()
-        self.cache = {}
+        self._cache = {}
 
 
 class Depends(object):
+    """Depends class for reading and parsing DEPEND atom strings as
+    supplied by the package manager for any package and ebuild.
+    It will return an organized list of DependAtom instances ready for use
+    in a Dependency viewer or any other application the DependAtom model
+    is suitable
+    
+    Important 
+        @variable:flags: a list of USE flags to be filtered out and not parsed.
+        @methods/functions: get_depends(), parse()
+    """
     
     def __init__(self):
         # classwide atom cache
@@ -333,13 +370,20 @@ class Depends(object):
 
     
     def parse(self, depends_list, parent=''):
-        """Takes a list of the form:
+        """DEPENDS string parsing function. Takes a list of the form:
         portage.portdb.aux_get(<ebuild>, ["DEPEND"]).split()
         and arranges it into a list of nested list-like DependAtom()s.
         if more closing brackets are encountered than opening ones then it
         will return, meaning we can recursively pass the unparsed part of the
         list back to ourselves...
+        
+        @param depends_list: of the form:
+                portage.portdb.aux_get(<ebuild>, ["DEPEND"]).split()
+        @param parent: string if a unique parent DependAtom ID that any DependAtoms
+                created from this code instance belong to.
+        @rtype a nested list of DependAtom instances ready for use.
         """
+        
         atomized_set = set()
         I_am = None
         while depends_list:
@@ -415,6 +459,12 @@ class Depends(object):
         return self._atomized_list(atomized_set)
 
     def _atomized_list(self, a_set):
+        """converts a set of atom keys into a list of DependAtom instances
+        
+        @param a_set: set of DependKey keys for conversion
+        @rtype a_list: the list of DependAtom instances referenced by the keys
+        """
+        
         a_list = []
         while a_set:
             key = a_set.pop()
@@ -427,7 +477,13 @@ class Depends(object):
         
 
     def split_group(self, dep_list):
-        """separate out the ( ) grouped dependencies"""
+        """separate out the ( ) grouped dependencies from a dependency list
+        
+        @param dep_list: the list of dependencies to split
+        @rtype group: list of dependency members contained within the group
+        @rtype dep_list: the remainder of the dendency list supplied for splitting
+        """
+        
         #debug.dprint("Depends: split_group(); starting")
         group = []
         remainder = []
@@ -457,6 +513,17 @@ class Depends(object):
         return group, dep_list
 
     def get_depends(self, package, ebuild):
+        """Returns a list of DEPEND atoms for a given package and ebuild
+        
+        Optionally it will return a list stripped of any predefined flags
+        and their dependencies.  ie. Depends.flags = ['!bootstrap!']
+        
+        @param package: porthole.db.package.Package object
+        @param ebuild: specific ebuild version of the 
+               package to get the dependency list for
+        @rtype deps: a list of depends atom strings
+        """
+        
         if package == None or ebuild == None:
             return ''
         props = package.get_properties(ebuild)
@@ -475,7 +542,11 @@ class Depends(object):
         return deps
 
     def _filter_flags(self, depends):
-        """remove !bootstrap? entries"""
+        """Remove any flag enabled dependency entries from depends list
+        
+        @param depends: list of DEPEND atom strings
+        @rtype depends: list of DEPEND atom strings ready for parsing.
+        """
         for flag in self.flags:
             x = 0
             while x < len(depends):
