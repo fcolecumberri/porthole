@@ -31,19 +31,72 @@ from porthole.backends.utilities import get_reduced_flags, dep_split, get_sync_i
 #from porthole.utils.enable import Enabler
 from porthole.db.package import Package
 from porthole import db
-#import datetime
+import datetime
+
+#from exceptions import Exception
+
+class DuplicateAtom(Exception):
+    def __init__(self):
+        pass
+    
+    def __str__(self):
+        return "Group or Option type Atoms are not re-useable"
 
 
-class DependAtom:
+class DependKey(object):
+    """Key generator class to be subclassed for generating unique keys
+    for use in hash functions and dictionary keys"""
+
+    def __init__(self):
+        pass
+    
+    def get_key(self, mytype, useflag, atom, parent, children):
+        """Generates a key based on the mytype parameter
+        
+        @param mytype:string = one of  ['USING', 'NOTUSING', 'OPTION', 'GROUP',...]
+        @param useflag: string  ie.  'ffmpeg'
+        @param atom: string  ie. '>=app-portage/porthole-0.6.0'
+        @param parent: tuple containing a unigue id
+        
+        @rtype key: tuple of values
+        """
+        
+        if mytype in ['USING', 'NOTUSING']:
+            #debug.dprint("DependKey: ['USING', 'NOTUSING'], mytype = " + mytype)
+            return ((mytype, useflag, atom, parent))
+        elif mytype in ['OPTION', 'GROUP']:
+            #debug.dprint("DependKey: ['OPTION', 'GROUP'], mytype = " + mytype)
+            return ((mytype, useflag, atom, parent, tuple(children)))
+        else:  # is a package DependAtom, so type checking is not neccessary
+            #debug.dprint("DependKey: Package Dep, mytype = " + mytype)
+            return ((mytype, useflag, atom))
+
+
+class DependAtom(DependKey):
     """Dependency Atom Class.
     Important methods: __repr__(), __eq__(), is_satisfied().
+    
+        @param atom: string  ie. '>=app-portage/porthole-0.6.0'
+        @param name: string  ie. 'app-portage/porthole-0.6.0'
+        @param mytpe: string = one of  ['USING', 'NOTUSING', 'OPTION', 'GROUP',...]
+        @param parent: tuple containing a unigue id of the parent DependAtom
+        @param cmp: string containing any of the comparators from the atom string
+        @param slot: string of the package slot
+        @param useflag: string  ie.  'ffmpeg'
+        @param req_use: string of any required use flag conditionals for package
+        @param children: list of child DependAtom keys
     """
-    def __init__(self, atom = '', name='', mytype='',
-        cmp='', slot='', useflag='', req_use='', children=[]
+    def __init__(self, atom = '', name='', mytype='', parent='',
+        cmp='', slot='', useflag='', req_use='', children=None
         ):
+        
         self.atom = atom
         self.mytype = mytype
-        self.children = children
+        self.parent = parent
+        if children:
+            self.children = children
+        else:
+            self.children = []
         self.useflag = useflag
         self.name = name
         self.slot = slot
@@ -54,6 +107,7 @@ class DependAtom:
     def __repr__(self): # called by the "print" function
         """Returns a human-readable string representation of the DependAtom
         (used by the "print" statement)."""
+        
         if self.mytype == 'DEP': 
             return self.get_depname() + self.get_required_use()
         elif self.mytype == 'BLOCKER': 
@@ -65,11 +119,11 @@ class DependAtom:
         elif self.mytype == 'REVISIONABLE':
             return self.get_depname() + self.get_required_use()
         else: return ''
-        if self.children:
-            bulk = ', '.join([kid.__repr__() for kid in self.children])
-            return ''.join([prefix,'[',bulk,']'])
-        elif prefix: return ''.join([prefix,'[]'])
-        else: return ''
+        #~ if self.children:
+            #~ bulk = ', '.join([kid.__repr__() for kid in self.children])
+            #~ return ''.join([prefix,'[',bulk,']'])
+        #~ elif prefix: return ''.join([prefix,'[]'])
+        #~ else: return ''
     
     def __eq__(self, other): # "atomA == atomB" <==> "atomA.__eq__(atomB)"
         """Returns True if the other is equivalent to self
@@ -78,6 +132,7 @@ class DependAtom:
                 or self.mytype != other.mytype
                 or self.atom != other.atom
                 or self.useflag != other.useflag
+                or self.parent != other.parent
                 or self.children != other.children): # children will recurse
             return False
         else: return True
@@ -86,7 +141,7 @@ class DependAtom:
         return not self == other
         
     def __hash__(self):
-        return hash((self.mytype, self.useflag, self.atom, tuple(self.children)))
+        return hash(self.get_key(self.mytype, self.useflag, self.atom, self.parent, self.children))
 
     def is_satisfied(self, use_flags):
         """Currently returns an object of variable DEPEND type, indicating whether
@@ -101,16 +156,19 @@ class DependAtom:
 
     def _DEP_is_satisfied(self, use_flags):
         """ self.mytype == 'DEP
+        @param use_flags: string of space separated use flags
         @rtype: non-empty if satisfied'"""
         return portage_lib.get_installed(self.get_depname() + self.get_required_use())
 
     def _BLOCKER_is_satisfied(self, use_flags):
         """ self.mytype == 'BLOCKER
+        @param use_flags: string of space separated use flags
         @rtype: non-empty if satisfied????'"""
         return not portage_lib.get_installed(self.get_depname() + self.get_required_use())
 
     def _GROUP_is_satisfied(self, use_flags):
         """ self.mytype == 'GROUP'
+        @param use_flags: string of space separated use flags
         @rtype: integer
         @rval: 0 if not satisfied, 1 if satisfied"""
         satisfied = 1
@@ -120,6 +178,7 @@ class DependAtom:
 
     def _USING_is_satisfied(self, use_flags):
         """ self.mytype == 'USING' 
+        @param use_flags: string of space separated use flags
         @rtype: integer
         @rval: -1 if not using, 0 if not satisfied, 1 if satisfied"""
         if self.useflag in use_flags:
@@ -131,6 +190,7 @@ class DependAtom:
 
     def _NOTUSING_is_satisfied(self, use_flags):
         """ self.mytype == 'NOTUSING' 
+        @param use_flags: string of space separated use flags
         @rtype: integer
         @rval: -1 if using, 0 if not satisfied, 1 if satisfied"""
         if self.useflag not in use_flags:
@@ -142,11 +202,13 @@ class DependAtom:
 
     def _REVISIONABLE_is_satisfied(self, use_flags):
         """ self.mytype == 'REVISIONABLE'
+        @param use_flags: string of space separated use flags
         @rtype: nonempty if is satisfied"""
         return portage_lib.get_installed(self.get_depname() + self.get_required_use())
 
     def _OPTION_is_satisfied(self, use_flags):
         """ self.mytype == 'OPTION' 
+        @param use_flags: string of space separated use flags
         @rtype: nonempty if any child is satisfied"""
         satisfied = []
         for child in self.children:
@@ -200,28 +262,54 @@ class DependAtom:
             return "[" + self.required_use +"]"
 
 
-class DepCache(object):
-    """Dependency cache only applies to final DEP's
-    do not store any of [ 'OPTION', 'NOTUSING', 'USING', 'GROUP' ]
-    type DepAtoms it will only confuse things"""
+class DepCache(DependKey):
+    """Dependency atom cache """
 
     def __init__(self):
-        #self.reset()
         #self.tree_mtime = None
         self.cache = {}
 
     def add(self,  mydep='', mytype='',
-                            useflag='', children=[]):
+                parent='', useflag='', children=[]):
+        """Add a new DependAtom to the cache if it does not already exist.
+        Or returns an existing DependAtom depending on the atom.mytype
         
-        key = tuple((mytype, useflag, mydep, tuple(children)))
+        @param mytpe: string = one of  ['USING', 'NOTUSING', 'OPTION', 'GROUP',...]
+        @param useflag: string  ie.  'ffmpeg'
+        @param mydep: string  ie. '>=app-portage/porthole-0.6.0'
+        @param parent: tuple containing a unigue id
+        @param children: list of child atom keys
+        """
+
+        key = self.get_key(mytype, useflag, mydep, parent, children)
         try:
             atom = self.cache[key]
+            if atom.mytype in ['USING', 'NOTUSING']:
+                #debug.dprint("DepCache: re-using atom" + " %s, %s" % (mytype,useflag))
+                if children:
+                    #debug.dprint("DepCache: re-using atom, adding more children " +
+                    #                        "to %s, %s" % (mytype,useflag))
+                    atom.children = list(set(atom.children).union(set(children)))
+            elif atom.mytype in ['OPTION', 'GROUP']:
+                # force a new atom.
+                #raise DuplicateAtom
+                #debug.dprint("DepCache: FORCING a new atom: type=" + mytype )
+                self.new(key, mydep, mytype, useflag, children)
         except KeyError:
-            name, cmp, slot, use = dep_split(mydep)
-            atom = DependAtom(atom=mydep, mytype=mytype, useflag=useflag,
-                    name=name, cmp=cmp, slot=slot,req_use=use, children=children)
-            self.cache[key] = atom
+            self.new(key, mydep, mytype, useflag, children)
+        #~ except DuplicateAtom:
+            #~ self.new(key, mydep, mytype, useflag, children)
         return key
+
+    def new(self, key, mydep='', mytype='',
+                useflag='', children=[]):
+        #debug.dprint("DepCache: new atom: %s, %s, %s " %(mytype, useflag, mydep))
+        name, cmp, slot, use = dep_split(mydep)
+        atom = DependAtom(atom=mydep, mytype=mytype, useflag=useflag,
+                name=name, cmp=cmp, slot=slot,req_use=use, children=children)
+        self.cache[key] = atom
+        return
+
 
     def get(self, key):
         try:
@@ -244,7 +332,7 @@ class Depends(object):
         self.flags = []
 
     
-    def parse(self, depends_list):
+    def parse(self, depends_list, parent=''):
         """Takes a list of the form:
         portage.portdb.aux_get(<ebuild>, ["DEPEND"]).split()
         and arranges it into a list of nested list-like DependAtom()s.
@@ -253,6 +341,7 @@ class Depends(object):
         list back to ourselves...
         """
         atomized_set = set()
+        I_am = None
         while depends_list:
             item_type = useflag = ''
             children = []
@@ -280,15 +369,19 @@ class Depends(object):
                 if item != "(":
                     depends_list[0] = item[1:]
                 else:
+                    if not I_am:
+                        I_am = tuple((parent, datetime.datetime.now()))
                     group, depends_list = self.split_group(depends_list)
-                    children = self.parse(group)
-                    a_key = self.cache.add(mytype=item_type,
+                    children = self.parse(group, I_am)
+                    a_key = self.cache.add(mytype=item_type, parent=I_am,
                                             useflag=useflag, children=children)
                     atomized_set.add(a_key)
                     a_key = None
                     continue
-                children = self.parse(depends_list)
-                a_key = cache.add(mytype=item_type,
+                if not I_am:
+                    I_am = tuple((parent, datetime.datetime.now()))
+                children = self.parse(depends_list, I_am)
+                a_key = cache.add(mytype=item_type, parent=I_am,
                                         useflag=useflag, children=children)
                 atomized_set.add(a_key)
                 a_key = None
@@ -300,7 +393,7 @@ class Depends(object):
                     depends_list.pop(0)
                 return self._atomized_list(atomized_set)
             else: # hopefully a nicely formatted dependency
-                #if filter(lambda a: a in item, ['(', '|', ')']):             <== EAPI 3 will kill this [flag1(+), flag2(-)]
+                #if filter(lambda a: a in item, ['(', '|', ')']):<== EAPI 3 will kill this [flag1(+), flag2(-)]
                     #  removed '?' from the list due to required USE flags that may have it. 
                     #~ debug.dprint(" *** DEPENDS: atomize_depends_list: DEPENDS PARSE ERROR!!! " + \
                         #~ "Please report this to the authorities. (item = %s)" % item)
