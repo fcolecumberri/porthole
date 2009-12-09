@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: Porthole-0.5.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-10-18 20:49-0700\n"
-"PO-Revision-Date: 2009-10-20 22:38-0800\n"
-"Last-Translator: Brian Dolbec <dol-sen@sourceforge.net>\n"
+"PO-Revision-Date: 2009-12-09 21:09+0100\n"
+"Last-Translator: Arkadiusz Kowalski <0.akowalski@gmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -19,7 +19,7 @@ msgstr ""
 
 #: porthole/glade/about.glade.h:1
 msgid "A GTK+ frontend to Portage"
-msgstr "Graficzna nakÅadka w GTK+ na Portage"
+msgstr "Graficzna nakładka w GTK+ na Portage"
 
 #: porthole/glade/about.glade.h:2
 msgid "About"
@@ -27,7 +27,7 @@ msgstr "O Programie"
 
 #: porthole/glade/about.glade.h:3
 msgid "Authors"
-msgstr ""
+msgstr "Autorzy"
 
 #: porthole/glade/about.glade.h:4
 msgid "Copyright (c) 2003 - 2008"
@@ -44,30 +44,31 @@ msgstr "_Strona Projektu"
 
 #: porthole/glade/advemerge.glade.h:1
 msgid "  |__"
-msgstr "  |__"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:2
-#, fuzzy
 msgid ""
 " --buildpkg (-b)\n"
 "Tells emerge to build binary packages for all ebuilds processed in addition to actually merging the packages.  Useful for maintainers or if you administrate multiple Gentoo Linux systems (build  once,  emerge  tbz2s  everywhere). The  package  will be created in the ${PKGDIR}/All directory.  An alternative for already-merged packages is to use quickpkg which creates a tbz2 from the live filesystem."
 msgstr ""
 " --buildpkg (-b)\n"
-"KaÅ¼e emerge oprÃ³cz instalacji pakietÃ³w budowaÄ takÅ¼e spakowane pakiety binarne. Przydatne gdy masz kilka systemÃ³w z Gentoo (kompilujesz raz, instalujesz binarki szybko na wszystkich maszynach. Pakiety bÄdÄ w ${PKGDIR}/All - zazwyczaj /usr/portage/packages/All"
+"Każe emerge oprócz instalacji pakietów budować także spakowane pakiety binarne. Przydatne gdy masz kilka systemów z Gentoo (kompilujesz raz, instalujesz binarki szybko na wszystkich maszynach. Pakiety będą w ${PKGDIR}/All - zazwyczaj /usr/portage/packages/All"
 
 #: porthole/glade/advemerge.glade.h:4
-#, fuzzy
 msgid ""
 " --color < y | n >\n"
 "Enable or disable color output.  This option will override NOCOLOR (see make.conf(5)) and may also be used to force color output when stdout is not a tty (by default, color is disabled unless stdout is a tty)."
-msgstr " --color < y | n >\n"
+msgstr ""
+" --color < y | n >\n"
+"Włącza lub wyłącza kolorowanie wyjścia. Ta opcja nadpisze NOCOLOR (zobacz make.conf(5)) i może być również używana aby wymusić kolorowanie składni wyjścia gdy standardowym wyjściem nie jest tty (domyślnie kolorowanie jest wyłączone jeżeli standardowym wyjściem nie jest tty)."
 
 #: porthole/glade/advemerge.glade.h:6
-#, fuzzy
 msgid ""
 " --ignore-default-opts\n"
 "Causes EMERGE_DEFAULT_OPTS (see make.conf(5)) to be ignored."
-msgstr " --ignore-default-opts\n"
+msgstr ""
+" --ignore-default-opts\n"
+"Powoduje, że EMERGE_DEFAULT_OPTS (zobacz make.conf(5)) jest ignorowane."
 
 #: porthole/glade/advemerge.glade.h:8
 #, fuzzy
@@ -84,7 +85,6 @@ msgid ""
 msgstr " --newuse (-N)\n"
 
 #: porthole/glade/advemerge.glade.h:17
-#, fuzzy
 msgid ""
 " --noconfmem\n"
 "Causes  portage  to  disregard merge records indicating that a config file inside of a CONFIG_PROTECT directory has\n"
@@ -92,16 +92,15 @@ msgid ""
 "same config multiple times.  This flag will cause the file to always be merged."
 msgstr ""
 " --noconfmem\n"
-"Nakazuje portage wielokrotnÄ instalacjÄ plikÃ³w do folderÃ³w oznaczonych jako CONFIG_PROTECT. Normalnie jeÅ¼eli pliki sÄ juÅ¼ tam obecne to nie zostanÄ ponownie zainstalowane."
+"Nakazuje portage wielokrotną instalację plików do folderów oznaczonych jako CONFIG_PROTECT. Normalnie jeżeli pliki są już tam obecne to nie zostaną ponownie zainstalowane."
 
 #: porthole/glade/advemerge.glade.h:21
-#, fuzzy
 msgid ""
 " --oneshot (-1)\n"
 "Emerge as normal, but do not add the packages to the world file for later updating."
 msgstr ""
 " --oneshot (-1)\n"
-"Instaluje pakiety normalnie, z tym Å¼e nie dodaje wpisu o pakiecie do profilu world przez co pakiet nie jest brany pod uwagÄ przy wyszukiwaniu aktualizacji"
+"Instaluje pakiety normalnie, z tym że nie dodaje wpisu o pakiecie do profilu world przez co pakiet nie jest brany pod uwagę przy wyszukiwaniu aktualizacji"
 
 #: porthole/glade/advemerge.glade.h:23
 #, fuzzy
@@ -118,13 +117,12 @@ msgid ""
 msgstr "--ask (-a)\n"
 
 #: porthole/glade/advemerge.glade.h:27
-#, fuzzy
 msgid ""
 "--buildpkgonly (-B)\n"
 "Creates binary packages for all ebuilds processed without actually merging  the  packages.   This  comes  with  the caveat that all build-time dependencies must already be emerged on the system."
 msgstr ""
 "--buildpkgonly (-B)\n"
-"Tworzy pakiety binarne bez ich instalowania. Wszystkie zaleÅ¼noÅci muszÄ byÄ jednak zainstalowane wczeÅniej"
+"Tworzy pakiety binarne bez ich instalowania. Wszystkie zależności muszą być jednak zainstalowane wcześniej"
 
 #: porthole/glade/advemerge.glade.h:29
 #, fuzzy
@@ -134,22 +132,20 @@ msgid ""
 msgstr "--columns\n"
 
 #: porthole/glade/advemerge.glade.h:31
-#, fuzzy
 msgid ""
 "--debug (-d)\n"
 "Tells emerge to run the emerge command in --debug mode. In this mode the bash build environment will run with  the -x  option,  causing  it  to output verbose debugging information to stdout.  This also enables a plethora of other output mostly dependency resolution messages)."
 msgstr ""
 "--debug (-d)\n"
-"KaÅ¼e emerge wykonywaÄ operacje w trybie raportowania (debug mode). Przydatne przy wyszukiwaniu bÅÄdÃ³w skÅadniowych poleceÅ basha"
+"Każe emerge wykonywać operacje w trybie raportowania (debug mode). Przydatne przy wyszukiwaniu błędów składniowych poleceń basha"
 
 #: porthole/glade/advemerge.glade.h:33
-#, fuzzy
 msgid ""
 "--deep (-D)\n"
 "This flag forces emerge to consider the entire dependency tree of packages, instead of checking only the  immediate dependencies of the packages.  As an example, this catches updates in libraries that are not directly listed in the dependencies of a package.  Also see --with-bdeps for behavior with respect to build time dependencies that are not strictly required."
 msgstr ""
 "--deep (-D)\n"
-"W poÅÄczeniu z opcjÄ aktualizacji flaga ta kaÅ¼e emerge sprawdziÄ emerge caÅe drzewo zaleÅ¼noÅci pakietÃ³w a nie tylko bezpoÅrednie zaleÅ¼noÅci. Przydatne przy wyszukiwaniu brakujÄcych zaleÅ¼noÅci nie zaznaczonych w samym instalowanym pakiecie."
+"W połączeniu z opcją aktualizacji flaga ta każe emerge sprawdzić emerge całe drzewo zależności pakietów a nie tylko bezpośrednie zależności. Przydatne przy wyszukiwaniu brakujących zależności nie zaznaczonych w samym instalowanym pakiecie."
 
 #: porthole/glade/advemerge.glade.h:35
 #, fuzzy
@@ -191,22 +187,20 @@ msgid ""
 msgstr "--getbinpkgonly (-G)\n"
 
 #: porthole/glade/advemerge.glade.h:45
-#, fuzzy
 msgid ""
 "--nodeps (-O)\n"
 "Merges  specified  packages  without  merging  any  dependencies.  Note that the build may fail if the dependencies are not satisfied."
 msgstr ""
 "--nodeps (-O)\n"
-"Instaluje wybrane pakiety bez zaleÅ¼noÅci. Instalacja moÅ¼e siÄ nie udaÄ jeÅ¼eli brakuje zaleÅ¼noÅci wymaganych przy kompilacji"
+"Instaluje wybrane pakiety bez zależności. Instalacja może się nie udać jeżeli brakuje zależności wymaganych przy kompilacji"
 
 #: porthole/glade/advemerge.glade.h:47
-#, fuzzy
 msgid ""
 "--noreplace (-n) \n"
 "Skips the packages specified on the command-line that have already been installed.  Without this option, any  packages,  ebuilds,  or  deps  you specify on the command-line will cause Portage to remerge the package, even if it is already installed.  Note that Portage will not remerge dependencies by default."
 msgstr ""
 "--noreplace (-n) \n"
-"Opuszcza instalacjÄ pakietÃ³w podanych w wierszu poleceÅ, ktÃ³re sÄ juÅ¼ zainstalowane. Normalnie portage instaluje wszystkie pakiety podane w wierszu poleceÅ."
+"Opuszcza instalację pakietów podanych w wierszu poleceń, które są już zainstalowane. Normalnie portage instaluje wszystkie pakiety podane w wierszu poleceń."
 
 #: porthole/glade/advemerge.glade.h:49
 #, fuzzy
@@ -217,16 +211,14 @@ msgid ""
 msgstr "--nospinner\n"
 
 #: porthole/glade/advemerge.glade.h:52
-#, fuzzy
 msgid ""
 "--onlydeps (-o)\n"
 "Only merge (or pretend to merge) the dependencies of the packages specified, not the packages themselves."
 msgstr ""
 "--onlydeps (-o)\n"
-"Instaluje (lub symuluje instalacjÄ) zaleÅ¼noÅci wybranych pakietÃ³w"
+"Instaluje (lub symuluje instalację) zależności wybranych pakietów"
 
 #: porthole/glade/advemerge.glade.h:54
-#, fuzzy
 msgid ""
 "--pretend (-p)\n"
 "Instead  of  actually  performing  the  merge, simply display what *would* have been installed if --pretend weren't used. Using --pretend is strongly recommended before installing an unfamiliar package.  In the printout:\n"
@@ -241,25 +233,24 @@ msgid ""
 "B = blocked by an already installed package"
 msgstr ""
 "--pretend (-p)\n"
-"Symuluje instalacjÄ wskazanych pakietÃ³w.\n"
+"Symuluje instalację wskazanych pakietów.\n"
 "\n"
 "N - ??\n"
 "S - ???\n"
 "U - aktualizacja\n"
 "D - ???\n"
-"R - zastÄpienie\n"
+"R - zastąpienie\n"
 "F - pobranie pliku zablokowane\n"
 "f - ???\n"
 "B - pakiet zablokowany przez inny"
 
 #: porthole/glade/advemerge.glade.h:65
-#, fuzzy
 msgid ""
 "--quiet (-q) \n"
 "Results may vary, but the general outcome is a reduced or condensed output of portage displays."
 msgstr ""
 "--quiet (-q) \n"
-"Wyniki mogÄ siÄ zmieniaÄ, lecz ogÃ³lny wynik to skrÃ³cony wynik zwracanyprzez portage"
+"Wyniki mogą się zmieniać, lecz ogólny wynik to skrócony wynik zwracanyprzez portage"
 
 #: porthole/glade/advemerge.glade.h:67
 #, fuzzy
@@ -276,13 +267,12 @@ msgid ""
 msgstr "--update (-u)\n"
 
 #: porthole/glade/advemerge.glade.h:71
-#, fuzzy
 msgid ""
 "--usepkg (-k)\n"
 "Tells  emerge to use binary packages (from $PKGDIR) if they are available, thus possibly avoiding some time-consuming compiles.  This option is useful for CD installs; you can export PKGDIR=/mnt/cdrom/packages and then  use  this option to have emerge \"pull\" binary packages from the CD in order to satisfy dependencies."
 msgstr ""
 "--usepkg (-k)\n"
-"KaÅ¼e emerge stosowaÄ pakiety binarne jeÅ¼eli sÄ dostÄpne, co oszczÄdza czas przeznaczony na kompilacjÄ"
+"Każe emerge stosować pakiety binarne jeżeli są dostępne, co oszczędza czas przeznaczony na kompilację"
 
 #: porthole/glade/advemerge.glade.h:73
 #, fuzzy
@@ -314,7 +304,7 @@ msgstr "--with-bdeps < y | n >\n"
 
 #: porthole/glade/advemerge.glade.h:87
 msgid "<b>Command Preview</b>"
-msgstr "<b>PodglÄd Polecenia</b>"
+msgstr "<b>Podgląd Polecenia</b>"
 
 #: porthole/glade/advemerge.glade.h:88
 msgid "<b>Emerge Options</b>"
@@ -322,23 +312,23 @@ msgstr "<b>Opcje Emerge</b>"
 
 #: porthole/glade/advemerge.glade.h:89
 msgid "<b>Package Options</b>"
-msgstr "<b>Opcje PakietÃ³w</b>"
+msgstr "<b>Opcje Pakietów</b>"
 
 #: porthole/glade/advemerge.glade.h:90
 msgid "Add the selected keyword to your package.keywords file. Changes will affect THIS VERSION only."
-msgstr "Dodaj zaznaczony keyword do twojego pliku package.keywords. Zmiany bÄdÄ dotyczyÄ tylko tej wersji."
+msgstr "Dodaj zaznaczony keyword do twojego pliku package.keywords. Zmiany będą dotyczyć tylko tej wersji."
 
 #: porthole/glade/advemerge.glade.h:91
 msgid "Command Preview Window"
-msgstr "Okno PodglÄdu Polecenia"
+msgstr "Okno Podglądu Polecenia"
 
 #: porthole/glade/advemerge.glade.h:92
 msgid "Commit Use Flag modifications to your make.conf file. Changes will affect ALL PACKAGES on your system."
-msgstr "WprowadÅº zmiany flag USE do make.conf. Zmiany dotyczyÄ bÄdÄ wszystkich pakietÃ³w."
+msgstr "Wprowadź zmiany flag USE do make.conf. Zmiany dotyczyć będą wszystkich pakietów."
 
 #: porthole/glade/advemerge.glade.h:93
 msgid "Commit Use Flag modifications to your package.use file. Changes will affect THIS PACKAGE only."
-msgstr "WprowadÅº zmiany flag USE do pliku package.use. Zmiany dotyczyÄ bÄdÄ tylko tego pakiety"
+msgstr "Wprowadź zmiany flag USE do pliku package.use. Zmiany dotyczyć będą tylko tego pakietu."
 
 #: porthole/glade/advemerge.glade.h:94
 msgid "Keyword to accept"
@@ -504,7 +494,7 @@ msgstr "<b>Zaawansowane opcje Emerge</b>"
 
 #: porthole/glade/config.glade.h:3
 msgid "<b>Arch List</b> for display's &amp; options"
-msgstr "<b>Lista architektÃ³r</b> ??? for display's &amp; options"
+msgstr "<b>Lista architektór</b> ??? for display's &amp; options"
 
 #: porthole/glade/config.glade.h:4
 msgid "<b>Emerge options</b>"
@@ -512,11 +502,11 @@ msgstr "<b>Opcje emerge</b>"
 
 #: porthole/glade/config.glade.h:5
 msgid "<b>Run Custom Command options</b>"
-msgstr "<b>Opcje niestandardowych poleceÅ</b>"
+msgstr "<b>Opcje niestandardowych poleceń</b>"
 
 #: porthole/glade/config.glade.h:6
 msgid "<b>Web Browser Options</b>"
-msgstr "<b>Opcje przeglÄdarki</b>"
+msgstr "<b>Opcje przeglądarki</b>"
 
 #: porthole/glade/config.glade.h:7
 msgid "Add New"
@@ -532,15 +522,15 @@ msgstr "Arch-list/Version table"
 
 #: porthole/glade/config.glade.h:10
 msgid "Available Versions"
-msgstr "DostÄpne wersje"
+msgstr "Dostępne wersje"
 
 #: porthole/glade/config.glade.h:11
 msgid "Background"
-msgstr "TÅo"
+msgstr "Tło"
 
 #: porthole/glade/config.glade.h:12
 msgid "Background Colour"
-msgstr "Kolor tÅa"
+msgstr "Kolor tła"
 
 #: porthole/glade/config.glade.h:13
 msgid "Black"
@@ -552,7 +542,7 @@ msgstr "Niebieski"
 
 #: porthole/glade/config.glade.h:15
 msgid "Browser : "
-msgstr "PrzeglÄdarka"
+msgstr "Przeglądarka"
 
 #: porthole/glade/config.glade.h:16
 msgid "Category View"
@@ -564,7 +554,7 @@ msgstr "Uwaga"
 
 #: porthole/glade/config.glade.h:18
 msgid "Check off all items you would like displayed"
-msgstr "Odznacz opcje, ktÃ³re majÄ byÄ wyÅwietlane"
+msgstr "Odznacz opcje, które mają być wyświetlane"
 
 #: porthole/glade/config.glade.h:19
 #: porthole/terminal/term_queue.py:195
@@ -577,11 +567,11 @@ msgstr "Architektura procesora"
 
 #: porthole/glade/config.glade.h:21
 msgid "Cyan"
-msgstr "BrÄzowy"
+msgstr "Brązowy"
 
 #: porthole/glade/config.glade.h:22
 msgid "Default"
-msgstr "DomyÅlny"
+msgstr "Domyślny"
 
 #: porthole/glade/config.glade.h:23
 msgid "Delete"
@@ -598,7 +588,7 @@ msgstr "Opis"
 
 #: porthole/glade/config.glade.h:26
 msgid "Downgradable Colour"
-msgstr "Kolor obniÅ¼onych wersji"
+msgstr "Kolor obniżonych wersji"
 
 #: porthole/glade/config.glade.h:27
 #: porthole/views/package.py:120
@@ -611,30 +601,30 @@ msgstr "Edytuj"
 
 #: porthole/glade/config.glade.h:29
 msgid "Edit the selected filter expression"
-msgstr "Edytuj filtrs"
+msgstr ""
 
 #: porthole/glade/config.glade.h:30
 #: porthole/views/package.py:68
 #: porthole/views/menus.py:47
 #: porthole/views/depends.py:126
 msgid "Emerge"
-msgstr "Emerge"
+msgstr ""
 
 #: porthole/glade/config.glade.h:31
 msgid "Enable arch-list"
-msgstr "WÅÄcz listÄ architektÃ³r"
+msgstr "Włącz listę architektur"
 
 #: porthole/glade/config.glade.h:32
 msgid "Enable make.conf modification"
-msgstr "WÅÄcz modyfikacje make.conf"
+msgstr "Włącz modyfikacje make.conf"
 
 #: porthole/glade/config.glade.h:33
 msgid "Enter the command for a GUI su client eg. 'gksu' or 'gnomesu'"
-msgstr "Podaj komendÄ GUI dla su (np. 'gksu', 'kdesu', 'gnomesu')"
+msgstr "Podaj komendę GUI dla su (np. 'gksu', 'kdesu', 'gnomesu')"
 
 #: porthole/glade/config.glade.h:34
 msgid "Error"
-msgstr "BÅÄd"
+msgstr "Błąd"
 
 #: porthole/glade/config.glade.h:35
 msgid "Filters"
@@ -650,11 +640,11 @@ msgstr "Czcionka :"
 
 #: porthole/glade/config.glade.h:38
 msgid "Foreground"
-msgstr "TÅo paneli"
+msgstr "Tło paneli"
 
 #: porthole/glade/config.glade.h:39
 msgid "GUI su client :"
-msgstr "NakÅadka GUI na su"
+msgstr "Nakładka GUI na su"
 
 #: porthole/glade/config.glade.h:40
 msgid "Global"
@@ -681,7 +671,7 @@ msgstr "Zainstalowane"
 
 #: porthole/glade/config.glade.h:45
 msgid "Installed list"
-msgstr "Lista zainstalowanych pakietÃ³w"
+msgstr "Lista zainstalowanych pakietów"
 
 #: porthole/glade/config.glade.h:46
 #: porthole/views/depends.py:96
@@ -698,7 +688,7 @@ msgstr "Numer wiersza"
 
 #: porthole/glade/config.glade.h:50
 msgid "Long Descriptions"
-msgstr "DÅugi opis"
+msgstr "Długi opis"
 
 #: porthole/glade/config.glade.h:51
 msgid "Magenta"
@@ -706,19 +696,19 @@ msgstr "Magenta"
 
 #: porthole/glade/config.glade.h:52
 msgid "Main Window"
-msgstr "GÅÃ³wne okno"
+msgstr "Główne okno"
 
 #: porthole/glade/config.glade.h:53
 msgid "More Colours"
-msgstr "WiÄcej kolorÃ³w"
+msgstr "Więcej kolorów"
 
 #: porthole/glade/config.glade.h:54
 msgid "Move"
-msgstr "PrzenieÅ"
+msgstr "Przenieś"
 
 #: porthole/glade/config.glade.h:55
 msgid "Move the selected filter expression to a different filter group"
-msgstr "PrzenieÅ filtr do innej grupy"
+msgstr "Przenieś filtr do innej grupy"
 
 #: porthole/glade/config.glade.h:56
 msgid "Normal"
@@ -734,15 +724,15 @@ msgstr "Notka"
 
 #: porthole/glade/config.glade.h:59
 msgid "Package View"
-msgstr "Lista pakietÃ³w"
+msgstr "Lista pakietów"
 
 #: porthole/glade/config.glade.h:60
 msgid ""
 "Please enter the persistent history commands\n"
 "you wish to be pre-typed"
 msgstr ""
-"WprowadÅº polecenia,\n"
-"ktÃ³re majÄ byÄ trzymane w pamiÄci"
+"Wprowadź polecenia,\n"
+"które mają być trzymane w pamięci"
 
 #: porthole/glade/config.glade.h:62
 msgid "Please select the Font colours desired"
@@ -764,11 +754,11 @@ msgstr "Czerwony"
 
 #: porthole/glade/config.glade.h:66
 msgid "Reset the filters to the defaults"
-msgstr "DomyÅlne ustawienia filtrÃ³w"
+msgstr "Domyślne ustawienia filtrów"
 
 #: porthole/glade/config.glade.h:67
 msgid "Sample Window"
-msgstr "Okno przykÅadowe"
+msgstr "Okno przykładowe"
 
 #: porthole/glade/config.glade.h:68
 msgid "Save the filters to disk"
@@ -780,7 +770,7 @@ msgstr "Widok podsumowania"
 
 #: porthole/glade/config.glade.h:70
 msgid "Sync method "
-msgstr "Typ synchronizacji drzewa pakietÃ³w"
+msgstr "Typ synchronizacji drzewa pakietów"
 
 #: porthole/glade/config.glade.h:71
 msgid "Tag"
@@ -796,11 +786,11 @@ msgstr "Ustawienia czcionki"
 
 #: porthole/glade/config.glade.h:74
 msgid "These colours are used by Porthole for highlighting"
-msgstr "Te kolory stosowane sÄ przez Porthole do podÅwietlania"
+msgstr "Te kolory stosowane są przez Porthole do podświetlania"
 
 #: porthole/glade/config.glade.h:75
 msgid "These colours are used by emerge for coloured output"
-msgstr "Te kolory stosowane sÄ przez emerge do kolorowania tekstu"
+msgstr "Te kolory stosowane są przez emerge do kolorowania tekstu"
 
 #: porthole/glade/config.glade.h:76
 msgid "USE Flags"
@@ -808,27 +798,27 @@ msgstr "Flagi USE"
 
 #: porthole/glade/config.glade.h:77
 msgid "Upgradable Colour"
-msgstr "Kolor aktualizowane pakietu"
+msgstr ""
 
 #: porthole/glade/config.glade.h:78
 msgid "Use Custom Browser"
-msgstr "UÅ¼yj innej przeglÄdarki"
+msgstr "Użyj innej przeglądarki"
 
 #: porthole/glade/config.glade.h:79
 msgid "Use Default"
-msgstr "UÅ¼yj domyÅlnej"
+msgstr "Użyj domyślnej"
 
 #: porthole/glade/config.glade.h:80
 msgid "Use Flag set +"
-msgstr "Flaga wÅÄczona (+)"
+msgstr "Flaga włączona (+)"
 
 #: porthole/glade/config.glade.h:81
 msgid "Use Flag set -"
-msgstr "Flaga wyÅÄczona (-)"
+msgstr "Flaga wyłączona (-)"
 
 #: porthole/glade/config.glade.h:82
 msgid "WARNING! Make sure you back up your make.conf file (usually /etc/make.conf) before enabling this option!"
-msgstr "UWAGA: zrÃ³b kopiÄ zapasowÄ /etc/make.conf zanim wÅÄczysz tÄ opcjÄ"
+msgstr "UWAGA: zrób kopię zapasową /etc/make.conf zanim włączysz tę opcję"
 
 #: porthole/glade/config.glade.h:83
 msgid "Warning"
@@ -836,11 +826,11 @@ msgstr "Uwaga"
 
 #: porthole/glade/config.glade.h:84
 msgid "White"
-msgstr "BiaÅy"
+msgstr "Biały"
 
 #: porthole/glade/config.glade.h:85
 msgid "Yellow"
-msgstr "ÃÂ»Ã³Åty"
+msgstr "Żółty"
 
 #: porthole/glade/config.glade.h:86
 #, fuzzy
@@ -889,19 +879,19 @@ msgstr "Polecenie 1:"
 
 #: porthole/glade/config.glade.h:97
 msgid "command 2:"
-msgstr "Polecenie 2"
+msgstr "Polecenie 2:"
 
 #: porthole/glade/config.glade.h:98
 msgid "command 3:"
-msgstr "Polecenie 3"
+msgstr "Polecenie 3:"
 
 #: porthole/glade/config.glade.h:99
 msgid "command 4:"
-msgstr "Polecenie 4"
+msgstr "Polecenie 4:"
 
 #: porthole/glade/config.glade.h:100
 msgid "command 5:"
-msgstr "Polecenie 5"
+msgstr "Polecenie 5:"
 
 #: porthole/glade/config.glade.h:101
 msgid "fetch"
@@ -957,7 +947,7 @@ msgstr "<b>Lista wtyczek</b>"
 
 #: porthole/glade/porthole.glade.h:3
 msgid "<b>Plugin Options</b>"
-msgstr "<b>Opcja wtyczek</b>"
+msgstr "<b>Opcje wtyczki</b>"
 
 #: porthole/glade/porthole.glade.h:4
 msgid "A_dv Emerge"
@@ -977,7 +967,7 @@ msgstr "Changelog"
 
 #: porthole/glade/porthole.glade.h:8
 msgid "Clears the entire queue"
-msgstr ""
+msgstr "Czyści kolejkę"
 
 #: porthole/glade/porthole.glade.h:9
 #: porthole/readers/upgradeables.py:38
@@ -987,7 +977,7 @@ msgstr ""
 #: porthole/views/depends.py:58
 #: porthole/views/depends.py:166
 msgid "Dependencies"
-msgstr "ZaleÅ¼noÅci"
+msgstr "Zależności"
 
 #: porthole/glade/porthole.glade.h:10
 msgid "E_merge"
@@ -1007,7 +997,7 @@ msgstr "Kolejka instalacji"
 
 #: porthole/glade/porthole.glade.h:14
 msgid "In order to access all the features of Porthole, please run it with root privileges."
-msgstr "By mieÄ dostÄp do wszystkich opcji uruchom program z prawami roota "
+msgstr "By mieć dostęp do wszystkich opcji uruchom program z prawami roota. "
 
 #: porthole/glade/porthole.glade.h:15
 msgid "Information "
@@ -1018,32 +1008,28 @@ msgid "Installed files"
 msgstr "Zainstalowane pliki"
 
 #: porthole/glade/porthole.glade.h:17
-#, fuzzy
 msgid "Move _Bottom"
-msgstr "W dÃ³Å"
+msgstr "W dół"
 
 #: porthole/glade/porthole.glade.h:18
 msgid "Move _Down"
-msgstr "W dÃ³Å"
+msgstr "W dół"
 
 #: porthole/glade/porthole.glade.h:19
-#, fuzzy
 msgid "Move _Top"
-msgstr "W gÃ³rÄ"
+msgstr "W górę"
 
 #: porthole/glade/porthole.glade.h:20
 msgid "Move _Up"
-msgstr "W gÃ³rÄ"
+msgstr "W górę"
 
 #: porthole/glade/porthole.glade.h:21
-#, fuzzy
 msgid "Moves the selected process to start next"
-msgstr "PrzenieÅ filtr do innej grupy"
+msgstr "Przenieś zaznaczone zadanie, aby startowało jako następne"
 
 #: porthole/glade/porthole.glade.h:22
-#, fuzzy
 msgid "Moves the selected process to the end of the queue"
-msgstr "PrzenieÅ filtr do innej grupy"
+msgstr "Przenieś zaznaczone zadanie na koniec kolejki"
 
 #: porthole/glade/porthole.glade.h:23
 msgid "Not Root"
@@ -1051,24 +1037,23 @@ msgstr "NIE ROOT"
 
 #: porthole/glade/porthole.glade.h:24
 msgid "Not yet implemented in this window.                   Set the terminal queue status, ie. Start, Pause or Timer"
-msgstr ""
+msgstr "Nie zaimplementowane w tym oknie.                 Ustaw status kolejki terminalu, np start, pauza"
 
 #: porthole/glade/porthole.glade.h:25
 msgid "Not yet implemented.                                     Set run times for commands in the queue"
-msgstr ""
+msgstr "Jeszcze nie zaimplementowane.                     Ustaw czasy dla komend w kolejce"
 
 #: porthole/glade/porthole.glade.h:26
 msgid "Not yet set..."
-msgstr ""
+msgstr "Jeszcze nie ustawione..."
 
 #: porthole/glade/porthole.glade.h:27
 msgid "Only _Fetch"
 msgstr "Tylko pobierz"
 
 #: porthole/glade/porthole.glade.h:28
-#, fuzzy
 msgid "Pause any commands in the queue"
-msgstr "Podaj polecenie do wykonania"
+msgstr "Pauzuje zadania w kolejce"
 
 #: porthole/glade/porthole.glade.h:29
 msgid "Please Enter Command to Execute"
@@ -1076,7 +1061,7 @@ msgstr "Podaj polecenie do wykonania"
 
 #: porthole/glade/porthole.glade.h:30
 msgid "Plugin Settings"
-msgstr "Ustawienia wtyczki"
+msgstr "Ustawienia wtyczek"
 
 #: porthole/glade/porthole.glade.h:31
 msgid "Plugin _Settings"
@@ -1109,26 +1094,24 @@ msgid "Re-Initialize _Portage"
 msgstr "Zrestartuj Portage"
 
 #: porthole/glade/porthole.glade.h:38
-#, fuzzy
 msgid "Re_sume"
-msgstr "WznÃ³w"
+msgstr "Wznów"
 
 #: porthole/glade/porthole.glade.h:39
 msgid "Refresh the Current View"
-msgstr "OdÅwierz listÄ"
+msgstr "Odświerz listę"
 
 #: porthole/glade/porthole.glade.h:40
 msgid "Removes selected queue item(s)"
-msgstr ""
+msgstr "Usuwa zaznaczony element z kolejki"
 
 #: porthole/glade/porthole.glade.h:41
 msgid "Resume the queue processes remaining"
-msgstr ""
+msgstr "Kontynuuje procesy pozostałe w kolejce"
 
 #: porthole/glade/porthole.glade.h:42
-#, fuzzy
 msgid "Run commands in the queue"
-msgstr "wpis wiersza poleceÅ"
+msgstr "Uruchom zadania czekające w kolejce"
 
 #: porthole/glade/porthole.glade.h:43
 msgid "S_ync"
@@ -1147,9 +1130,8 @@ msgid "Search _Descriptions"
 msgstr "Opis wyszukiwania"
 
 #: porthole/glade/porthole.glade.h:47
-#, fuzzy
 msgid "Skip _Queue Item"
-msgstr "OpuÅÄ zakolejkowane wpisy"
+msgstr "Opuść zakolejkowany wpis"
 
 #: porthole/glade/porthole.glade.h:48
 #: porthole/terminal/constants.py:48
@@ -1158,12 +1140,11 @@ msgstr "Podsumowanie"
 
 #: porthole/glade/porthole.glade.h:49
 msgid "Temporarily stop any remaining processes from starting"
-msgstr ""
+msgstr "Chwilowo wstrzymuje pozostałe procesy przed uruchomieniem"
 
 #: porthole/glade/porthole.glade.h:50
-#, fuzzy
 msgid "Ti_mer"
-msgstr "Emerge"
+msgstr ""
 
 #: porthole/glade/porthole.glade.h:51
 msgid "U_nmerge"
@@ -1198,31 +1179,28 @@ msgid "_Help"
 msgstr "Pomoc"
 
 #: porthole/glade/porthole.glade.h:59
-#, fuzzy
 msgid "_Kill"
-msgstr "Zabij"
+msgstr ""
 
 #: porthole/glade/porthole.glade.h:60
 msgid "_Kill Process"
 msgstr "Zabij Proces"
 
 #: porthole/glade/porthole.glade.h:61
-#, fuzzy
 msgid "_Noreplace"
-msgstr "noreplace"
+msgstr ""
 
 #: porthole/glade/porthole.glade.h:62
 msgid "_Normal"
 msgstr "Normalny"
 
 #: porthole/glade/porthole.glade.h:63
-#, fuzzy
 msgid "_Oneshot"
-msgstr "oneshot"
+msgstr ""
 
 #: porthole/glade/porthole.glade.h:64
 msgid "_Open Log"
-msgstr "OtwÃ³rz log"
+msgstr "Otwórz log"
 
 #: porthole/glade/porthole.glade.h:65
 msgid "_Pretend"
@@ -1238,7 +1216,7 @@ msgstr "Kolejka"
 
 #: porthole/glade/porthole.glade.h:68
 msgid "_Resume"
-msgstr "WznÃ³w"
+msgstr "Wznów"
 
 #: porthole/glade/porthole.glade.h:69
 msgid "_Settings"
@@ -1246,12 +1224,11 @@ msgstr "Ustawienia"
 
 #: porthole/glade/porthole.glade.h:70
 msgid "_Skip First Package"
-msgstr "OpÃ³Åc pierwszy pakiet"
+msgstr "Pomiń pierwszy pakiet"
 
 #: porthole/glade/porthole.glade.h:71
-#, fuzzy
 msgid "_Update"
-msgstr "update"
+msgstr "Aktualizuj"
 
 #: porthole/glade/porthole.glade.h:72
 msgid "_Upgrade"
@@ -1259,7 +1236,7 @@ msgstr "Aktualizuj"
 
 #: porthole/glade/porthole.glade.h:73
 msgid "_Verbose"
-msgstr "SzczegÃ³Åy"
+msgstr "Szczegóły"
 
 #: porthole/glade/porthole.glade.h:74
 msgid "_View:"
@@ -1267,41 +1244,41 @@ msgstr "Zobacz:"
 
 #: porthole/utils/utils.py:200
 msgid "Error reading emerge log file.  Check file permissions, or check for corrupt log file."
-msgstr "BÅÄd odczytu logÃ³w emerge. SprawdÅº uprawnienia oraz poprawnoÅÄ danych zawartych w pliku logÃ³w"
+msgstr "Błąd odczytu logów emerge. Sprawdź uprawnienia oraz poprawność danych zawartych w pliku logów"
 
 #: porthole/plugin.py:202
 msgid "Enable"
-msgstr ""
+msgstr "Aktywuj"
 
 #: porthole/plugin.py:203
 msgid "Plug-in"
-msgstr ""
+msgstr "Wtyczka"
 
 #: porthole/packagebook/notebook.py:145
 msgid "Viewing Dependency of: "
-msgstr ""
+msgstr "Podgląd Zależności:"
 
 #: porthole/packagebook/depends.py:174
 msgid "Using "
-msgstr "UÅ¼ywa"
+msgstr "Używa"
 
 #: porthole/packagebook/depends.py:177
 msgid "Not Using "
-msgstr "Nie uÅ¼ywa"
+msgstr "Nie używa"
 
 #: porthole/packagebook/depends.py:217
 #, python-format
 msgid "Using %s"
-msgstr "UÅ¼ywa %s"
+msgstr "Używa %s"
 
 #: porthole/packagebook/depends.py:222
 #, python-format
 msgid "Not Using %s"
-msgstr "Nie uÅ¼ywa %s"
+msgstr "Nie używa %s"
 
 #: porthole/packagebook/depends.py:234
 msgid "Any of:"
-msgstr "KaÅ¼dy z:"
+msgstr "Każdy z:"
 
 #: porthole/packagebook/depends.py:238
 msgid "All of:"
@@ -1351,7 +1328,7 @@ msgstr "Zainstaluj tego ebuilda"
 
 #: porthole/packagebook/summary.py:88
 msgid "Pretend Emerge this ebuild"
-msgstr "Symuluj instalacjÄ tego ebuilda"
+msgstr "Symuluj instalację tego ebuilda"
 
 #: porthole/packagebook/summary.py:90
 msgid "Sudo Emerge this ebuild"
@@ -1372,22 +1349,20 @@ msgid "Advanced Emerge"
 msgstr "Zaawansowane opcje instalacji"
 
 #: porthole/packagebook/summary.py:98
-#, fuzzy
 msgid "Remove this arch from package.keywords"
-msgstr "UsuÅ %s z package.keywords"
+msgstr "Usuń z package.keywords"
 
 #: porthole/packagebook/summary.py:100
 msgid "Remove ebuild keyword from package.keywords"
-msgstr "UsuÅ  z package.keywords"
+msgstr "Usuń z package.keywords"
 
 #: porthole/packagebook/summary.py:102
 msgid "Remask this ebuild"
 msgstr "Zamaskuj tego ebuilda"
 
 #: porthole/packagebook/summary.py:104
-#, fuzzy
 msgid "Show the properties for this ebuild"
-msgstr "Sudo Instalacja tego ebuilda"
+msgstr "Pokaż właściwości tego ebuilda"
 
 #: porthole/packagebook/summary.py:109
 #, python-format
@@ -1395,29 +1370,24 @@ msgid "Add %s to package.keywords (for this ebuild only)"
 msgstr "Dodaj %s do package.keywords (dla tego ebuilda)"
 
 #: porthole/packagebook/summary.py:111
-#, fuzzy
 msgid "Add this arch to package.keywords"
-msgstr "Dodaj z %s do package.keywords"
+msgstr "Dodaj do package.keywords"
 
 #: porthole/packagebook/summary.py:115
-#, fuzzy
 msgid "Add to package.keywords (for this ebuild only)"
-msgstr "Dodaj %s do package.keywords (dla tego ebuilda)"
+msgstr "Dodaj do package.keywords (dla tego ebuilda)"
 
 #: porthole/packagebook/summary.py:116
-#, fuzzy
 msgid "Add to package.keywords"
-msgstr "Dodaj z %s do package.keywords"
+msgstr "Dodaj do package.keywords"
 
 #: porthole/packagebook/summary.py:127
-#, fuzzy
 msgid "Mask this ebuild or package"
-msgstr "UsuÅ maskowanie tego ebuilda"
+msgstr "Maskuj ten ebuild lub pakiet"
 
 #: porthole/packagebook/summary.py:128
-#, fuzzy
 msgid "Unmask this ebuild or package"
-msgstr "UsuÅ maskowanie tego ebuilda"
+msgstr "Usuń maskowanie tego ebuilda lub pakietu"
 
 #: porthole/packagebook/summary.py:275
 #, python-format
@@ -1438,11 +1408,11 @@ msgstr ""
 
 #: porthole/packagebook/summary.py:349
 msgid "Ebuild version no longer supported"
-msgstr ""
+msgstr "Ta wersja ebuild nie jest już dostępna"
 
 #: porthole/packagebook/summary.py:350
 msgid "Obsolete"
-msgstr ""
+msgstr "Przestarzałe"
 
 #: porthole/packagebook/summary.py:354
 msgid "Y"
@@ -1457,30 +1427,28 @@ msgid "IUSE: "
 msgstr ""
 
 #: porthole/packagebook/summary.py:441
-#, fuzzy
 msgid "Use flags settings: "
-msgstr "Flagi USE: "
+msgstr "Ustawienia flag USE: "
 
 #: porthole/packagebook/summary.py:446
 msgid "Final environment Use flags: "
-msgstr ""
+msgstr "Flagi USE ostatecznego środowiska: "
 
 #: porthole/packagebook/summary.py:453
 msgid "Keywords: "
-msgstr "Keywords:"
+msgstr "Keywords: "
 
 #: porthole/packagebook/summary.py:465
 msgid "License: "
-msgstr "Licencja"
+msgstr "Licencja: "
 
 #: porthole/packagebook/summary.py:548
 msgid "User Configs: "
 msgstr ""
 
 #: porthole/packagebook/summary.py:643
-#, fuzzy
 msgid "Long Description: "
-msgstr "DÅugi opis"
+msgstr "Długi opis: "
 
 #: porthole/packagebook/summary.py:664
 msgid "Installed versions:\n"
@@ -1494,11 +1462,11 @@ msgstr "Nie zainstalowany"
 #: porthole/packagebook/summary.py:673
 #, python-format
 msgid "Available versions for %s:\n"
-msgstr "DostÄpne wersje dla %s:\n"
+msgstr "Dostępne wersje dla %s:\n"
 
 #: porthole/packagebook/summary.py:677
 msgid "Properties for version: "
-msgstr "WÅaÅciwoÅci dla wersji: "
+msgstr "Właściwości dla wersji: "
 
 #: porthole/backends/metadata.py:142
 #, python-format
@@ -1507,23 +1475,23 @@ msgstr "Plik Metadanych \"%s\" nie istnieje"
 
 #: porthole/backends/pkgcore_lib.py:34
 msgid "Could not find pkgcore module."
-msgstr ""
+msgstr "Nie mogę znaleźć modułu pkgcore."
 
 #: porthole/backends/pkgcore_lib.py:38
 msgid "Could not find pkgcore.config module."
-msgstr ""
+msgstr "Nie mogę znaleźć modułu pkgcore.config."
 
 #: porthole/backends/pkgcore_lib.py:42
 msgid "Could not find pkgcore.const module."
-msgstr ""
+msgstr "Nie mogę znaleźć modułu pkgcore.const."
 
 #: porthole/backends/pkgcore_lib.py:46
 msgid "Could not find pkgcore.util.file.read_bash module."
-msgstr ""
+msgstr "Nie mogę znaleźć modułu pkgcore.util.file.read_bash"
 
 #: porthole/backends/pkgcore_lib.py:50
 msgid "Could not find pkgcore.package.atom module."
-msgstr ""
+msgstr "Nie mogę znaleźć modułu pkgcore.package.atom."
 
 #: porthole/backends/pkgcore_lib.py:56
 #: porthole/backends/set_config.py:34
@@ -1532,7 +1500,7 @@ msgid ""
 "Could not find portage module.\n"
 "Are you sure this is a Gentoo system?"
 msgstr ""
-"Nie mogÄ znaleÅÄ Portage\n"
+"Nie mogę znaleźć Portage\n"
 " Czy to Gentoo?"
 
 #: porthole/backends/pkgcore_lib.py:550
@@ -1559,32 +1527,32 @@ msgstr "Slot:%s"
 #: porthole/advancedemerge/advemerge.py:144
 #: porthole/advancedemerge/advemerge.py:341
 msgid "   {unavailable}"
-msgstr " {niedostÄpny}"
+msgstr "   {niedostępny}"
 
 #: porthole/advancedemerge/advemerge.py:146
 #: porthole/advancedemerge/advemerge.py:343
 msgid "   (unstable)"
-msgstr " (niestabilny)"
+msgstr "   (niestabilny)"
 
 #: porthole/advancedemerge/advemerge.py:148
 #: porthole/advancedemerge/advemerge.py:345
 msgid "   [MASKED]"
-msgstr " [ZAMASKOWANY]"
+msgstr "   [ZAMASKOWANY]"
 
 #: porthole/advancedemerge/advemerge.py:151
 #: porthole/advancedemerge/advemerge.py:348
 msgid "   (recommended) (downgrade)"
-msgstr " (zalecane) (obniÅ¼enie wersji)"
+msgstr "   (zalecane) (obniżenie wersji)"
 
 #: porthole/advancedemerge/advemerge.py:153
 #: porthole/advancedemerge/advemerge.py:350
 msgid "   (recommended)"
-msgstr " (zalecane)"
+msgstr "   (zalecane)"
 
 #: porthole/advancedemerge/advemerge.py:156
 #: porthole/advancedemerge/advemerge.py:353
 msgid "   [installed]"
-msgstr " [zainstalowane]"
+msgstr "   [zainstalowane]"
 
 #: porthole/advancedemerge/advemerge.py:638
 msgid "Unsupported use flag"
@@ -1607,17 +1575,17 @@ msgid ""
 "The package you selected is already in the emerge queue,\n"
 "but it has been killed. Would you like to resume the emerge?"
 msgstr ""
-"Pakiet, ktÃ³ry wybraÅeÅ jest juÅ¼ w kolejce do instalacji\n"
-", lecz zostaÅ usuniÄty. WstrzymaÄ instalacjÄ?"
+"Pakiet, który wybrałeś jest już w kolejce do instalacji,\n"
+"lecz został usunięty. Wstrzymać instalację?"
 
 #: porthole/terminal/term_queue.py:252
 msgid "The package you selected is already in the emerge queue!"
-msgstr "Zaznaczony pakiet jest juÅ¼ w kolejce do instalacji"
+msgstr "Zaznaczony pakiet jest już w kolejce do instalacji!"
 
 #: porthole/terminal/term_queue.py:253
 #: porthole/terminal/term_queue.py:254
 msgid "Error Adding Package To Queue!"
-msgstr "BÅÄd przy dodawaniu pakietu do kolejki"
+msgstr "Błąd przy dodawaniu pakietu do kolejki!"
 
 #: porthole/terminal/term_queue.py:255
 msgid "OK"
@@ -1629,11 +1597,11 @@ msgstr "*** proces zabity ***\n"
 
 #: porthole/terminal/constants.py:47
 msgid "*** process completed ***\n"
-msgstr "*** proces zakoÅczony ***\n"
+msgstr "*** proces zakończony ***\n"
 
 #: porthole/terminal/constants.py:48
 msgid "Warnings"
-msgstr "OstrzeÅ¼enia"
+msgstr "Ostrzeżenia"
 
 #: porthole/terminal/constants.py:48
 msgid "Cautions"
@@ -1641,24 +1609,24 @@ msgstr "Uwagi"
 
 #: porthole/terminal/constants.py:48
 msgid "Emerge queue"
-msgstr "Kolejka pakietÃ³w do instalacji"
+msgstr "Kolejka pakietów do instalacji"
 
 #: porthole/terminal/terminal.py:294
 msgid "Non-DBus"
-msgstr ""
+msgstr "Nie-DBus"
 
 #: porthole/terminal/terminal.py:436
 msgid "***Log Process Killed!"
-msgstr "***Zabity proces LogÃ³w!"
+msgstr "***Zabity proces Logów!"
 
 #: porthole/terminal/terminal.py:504
 msgid "Confirm: Kill the Running Process"
-msgstr "PotwierdÅº: Zabij aktywny proces"
+msgstr "Potwierdź: Zabij aktywny proces"
 
 #: porthole/terminal/terminal.py:790
 #, python-format
 msgid "*** Log loading complete : %s"
-msgstr "*** Åadowanie LogÃ³w zakoÅczone: %s"
+msgstr "*** Ładowanie Logów zakończone : %s"
 
 #: porthole/terminal/terminal.py:807
 msgid "_Cancel"
@@ -1670,16 +1638,16 @@ msgid ""
 "'sudo -p Password: ' requires your user password to perform the command:\n"
 "'%s'"
 msgstr ""
-"'Sudo' wymaga twojego hasÅa by wykonaÄ operacjÄ:\n"
+"'Sudo' wymaga twojego hasła by wykonać operację:\n"
 " '%s'"
 
 #: porthole/terminal/terminal.py:819
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "'sudo: ' requires your user password to perform the command:\n"
 "'%s'"
 msgstr ""
-"'Sudo' wymaga twojego hasÅa by wykonaÄ operacjÄ:\n"
+"'sudo' wymaga twojego hasła by wykonać operację:\n"
 " '%s'"
 
 #: porthole/terminal/terminal.py:824
@@ -1689,26 +1657,26 @@ msgid ""
 "'su' requires the root password to perform the command:\n"
 "'%s'"
 msgstr ""
-"'su' wymaga hasÅa roota by wykonaÄ polecenie:\n"
+"'su' wymaga hasła roota by wykonać polecenie:\n"
 "'%s'"
 
 #: porthole/terminal/terminal.py:831
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "Password Required to perform the command:\n"
 "'%s'"
 msgstr ""
-"'Sudo' wymaga twojego hasÅa by wykonaÄ operacjÄ:\n"
-" '%s'"
+"Hasło wymagane do wykonania polecenia:\n"
+"'%s'"
 
 #: porthole/terminal/terminal.py:836
 msgid "Password: "
-msgstr "HasÅo: "
+msgstr "Hasło: "
 
 #: porthole/terminal/terminal.py:919
 #, python-format
 msgid "*** Total warnings count for merge = %d \n"
-msgstr "*** Suma ostrzeÅ¼eÅ dla instalacji = %d \n"
+msgstr "*** Suma ostrzeżeń dla instalacji = %d \n"
 
 #: porthole/terminal/terminal.py:925
 #, python-format
@@ -1717,55 +1685,55 @@ msgstr "*** Suma uwag dla instalacji = %d \n"
 
 #: porthole/terminal/terminal.py:1049
 msgid "*** Unfortunately, you don't have enough logged information about the listed packages to calculate estimated build times accurately.\n"
-msgstr "*** Niestety nie masz doÅÄ informacji w logach by wyliczyÄ bardziej dokÅadny czas kompilacji.\n"
+msgstr "*** Niestety nie masz dość informacji w logach by wyliczyć bardziej dokładny czas kompilacji.\n"
 
 #: porthole/terminal/terminal.py:1055
 #, python-format
 msgid "*** Based on the build history of these packages on your system, I can estimate that emerging them usually takes, on average, %(days)d days, %(hours)d hrs, %(minutes)d mins, and %(seconds)d secs.\n"
-msgstr "*** KorzystajÄc z logÃ³w mogÄ okreÅliÄ Åredni czas kompilacji danego pakietu - %(days)d dni, %(hours)d godzin, %(minutes)d minut i %(seconds)d sekund.\n"
+msgstr "*** Korzystając z logów mogę określić średni czas kompilacji danego pakietu - %(days)d dni, %(hours)d godzin, %(minutes)d minut i %(seconds)d sekund.\n"
 
 #: porthole/terminal/terminal.py:1064
 msgid "*** Note: If you have a lot of programs running on your system while porthole is emerging packages, or if you have changed your hardware since the last time you built some of these packages, this estimate may be inaccurate.\n"
-msgstr "*** Notka: DuÅ¼e obciÄÅ¼enie systemu przez inne aplikacje moÅ¼e wydÅuÅ¼yÄ czas kompilacji.\n"
+msgstr "*** Notka: Duże obciążenie systemu przez inne aplikacje może wydłużyć czas kompilacji.\n"
 
 #: porthole/terminal/terminal.py:1086
 msgid "*** Unknown File Loading error"
-msgstr "*** Nieznany bÅÄd Åadowania PlikÃ³w"
+msgstr "*** Nieznany błąd ładowania plików"
 
 #: porthole/terminal/terminal.py:1090
 msgid "*** File Loading... Processing..."
-msgstr "*** Åadowanie PlikÃ³w... "
+msgstr "*** Ładowanie Plików... "
 
 #: porthole/terminal/terminal.py:1099
 #: porthole/terminal/terminal.py:1103
 msgid ": Open log File"
-msgstr ": OtwÃ³rz plik logÃ³w"
+msgstr ": Otwórz plik logów"
 
 #: porthole/terminal/terminal.py:1144
 #: porthole/dialogs/fileselector.py:78
 #, python-format
 msgid "Ovewrite existing file '%s'?"
-msgstr "Nadpisz istniejÄcy plik '%s'?"
+msgstr "Nadpisz istniejący plik '%s'?"
 
 #: porthole/terminal/terminal.py:1208
 #, python-format
 msgid "*** Loading File : %s"
-msgstr "*** ÅadujÄ Plik : %s"
+msgstr "*** Ładuję Plik : %s"
 
 #: porthole/terminal/terminal.py:1213
 #, python-format
 msgid "Cannot open file '%(filename)s': %(errmsg)s"
-msgstr "Nie mogÄ otworzyÄ pliku  '%(filename)s': %(errmsg)s"
+msgstr "Nie mogę otworzyć pliku  '%(filename)s': %(errmsg)s"
 
 #: porthole/terminal/terminal.py:1239
 #, python-format
 msgid "Cannot back up '%(filename)s' to '%(bak_filename)s': %(errmsg)s"
-msgstr "Nie mogÄ skopiowaÄ '%(filename)s' jako '%(bak_filename)s': %(errmsg)s"
+msgstr "Nie mogę skopiować '%(filename)s' jako '%(bak_filename)s': %(errmsg)s"
 
 #: porthole/terminal/terminal.py:1248
 #, python-format
 msgid "*** saving file: %s"
-msgstr "*** zapisujÄ plik: %s"
+msgstr "*** zapisuję plik: %s"
 
 #: porthole/terminal/terminal.py:1282
 #, python-format
@@ -1773,7 +1741,7 @@ msgid ""
 "Can't restore backup file '%(filename)s' to '%(bak_filename)s': %(errmsg)s\n"
 "Backup left as '%(bak_filename)s'"
 msgstr ""
-"Nie mogÄ przywrÃ³ciÄ pliku z kopii '%(filename)s' jako '%(bak_filename)s': %(errmsg)s\n"
+"Nie mogę przywrócić pliku z kopii '%(filename)s' jako '%(bak_filename)s': %(errmsg)s\n"
 "Plik kopii zostawiony jako '%(bak_filename)s'"
 
 #: porthole/terminal/terminal.py:1289
@@ -1784,7 +1752,7 @@ msgstr "*** Plik zapisany: %s"
 #: porthole/terminal/terminal.py:1299
 #, python-format
 msgid "Save log to '%s'?"
-msgstr "ZapisaÄ logi do pliku '%s'?"
+msgstr "Zapisać logi do pliku '%s'?"
 
 #: porthole/loaders/loaders.py:79
 #, python-format
@@ -1792,8 +1760,8 @@ msgid ""
 "This %s has an encoding method unknown to porthole.\n"
 "Please report this to bugs.gentoo.org and porthole's bugtracker"
 msgstr ""
-"Ten %s ma nieznany dla porthole system kodowanie\n"
-" ZgÅoÅ bÅÄd na bugs.gentoo.org i na bugtracku porthole"
+"Ten %s ma nieznany dla porthole system kodowania.\n"
+"Zgłoś błąd na bugs.gentoo.org i na bugtracku porthole"
 
 #: porthole/loaders/loaders.py:137
 #, python-format
@@ -1804,15 +1772,15 @@ msgstr "%s nie jest Pusty"
 #: porthole/loaders/loaders.py:143
 #, python-format
 msgid "%s Not Available"
-msgstr "%s NiedostÄpny"
+msgstr "%s Niedostępny"
 
 #: porthole/loaders/loaders.py:165
 msgid ""
 "No data currently available.\n"
 "The package may not be installed"
 msgstr ""
-"Brak dostÄpnych danych\n"
-" Pakiet moÅ¼e byÄ nie zainstalowany"
+"Brak dostępnych danych\n"
+"Pakiet może być nie zainstalowany"
 
 #: porthole/loaders/loaders.py:169
 #, python-format
@@ -1820,6 +1788,8 @@ msgid ""
 "%(installed_count)i installed files for: %(ebuild)s \n"
 "\n"
 msgstr ""
+"%(installed_count)i zainstalowanych plików dla: %(ebuild)s \n"
+"\n"
 
 #: porthole/config/preferences.py:294
 #: porthole/config/preferences.py:334
@@ -1831,9 +1801,9 @@ msgid "WebRsync"
 msgstr "WebRsync"
 
 #: porthole/db/user_configs.py:321
-#, fuzzy, python-format
+#, python-format
 msgid "Porthole: Please select the %s file to use"
-msgstr "Porthole: Wybierz kolor czcionki  %s"
+msgstr "Porthole: Wybierz plik %s "
 
 #: porthole/readers/upgradeables.py:38
 #: porthole/readers/upgradeables.py:56
@@ -1871,22 +1841,21 @@ msgstr "_Nie"
 
 #: porthole/dialogs/simple.py:71
 msgid "Loading"
-msgstr "ÅadujÄ"
+msgstr "Ładuję"
 
 #: porthole/dialogs/command.py:89
 #: porthole/dialogs/command.py:98
 msgid "command line entry"
-msgstr "wpis wiersza poleceÅ"
+msgstr "wpis wiersza poleceń"
 
 #: porthole/dialogs/about.py:54
 #, python-format
 msgid "About Porthole %s"
-msgstr "Porthole %s"
+msgstr "Porthole - informacje %s"
 
 #: porthole/version.py:25
-#, fuzzy
 msgid "Copyright (c) 2003 - 2009"
-msgstr "Copyright (c) 2003 - 2008"
+msgstr "Copyright (c) 2003 - 2009"
 
 #: porthole/views/package.py:70
 #: porthole/views/menus.py:49
@@ -1945,35 +1914,31 @@ msgid "Search History"
 msgstr "Szukaj w Historii"
 
 #: porthole/views/depends.py:67
-#, fuzzy
 msgid "Package"
-msgstr "Pakiety"
+msgstr "Pakiet"
 
 #: porthole/views/depends.py:106
 msgid "Required USE"
 msgstr ""
 
 #: porthole/views/depends.py:377
-#, fuzzy
 msgid "Porthole Dependency Viewer"
-msgstr "PrzeglÄdarka LogÃ³w"
+msgstr "Przeglądarka Zależności Porthole"
 
 #: porthole/mainwindow.py:77
-#, fuzzy
 msgid "Deprecated"
-msgstr "pretend"
+msgstr "Przestarzałe"
 
 #: porthole/mainwindow.py:77
-#, fuzzy
 msgid "Upgradable"
-msgstr "Aktualizuj"
+msgstr "Do aktualizacji"
 
 #: porthole/mainwindow.py:188
 msgid ""
 " Synchronise Package Database \n"
 " The last sync was done:\n"
 msgstr ""
-"Aktualizacja Drzewa PakietÃ³w\n"
+" Aktualizacja Drzewa Pakietów\n"
 " Ostatnia aktualizacja:\n"
 
 #: porthole/mainwindow.py:233
@@ -1993,9 +1958,8 @@ msgid "Upgradable Packages"
 msgstr "Pakiety do aktualizacji"
 
 #: porthole/mainwindow.py:234
-#, fuzzy
 msgid "Deprecated Packages"
-msgstr "Aktualizuj Pakiety"
+msgstr "Przestarzałe pakiety"
 
 #: porthole/mainwindow.py:251
 msgid "Active Plugins"
@@ -2003,15 +1967,15 @@ msgstr "Aktywne Wtyczki"
 
 #: porthole/mainwindow.py:264
 msgid "Loading database"
-msgstr "ÅadujÄ bazÄ danych"
+msgstr "Ładuję bazę danych"
 
 #: porthole/mainwindow.py:265
 msgid "Initializing database. Please wait..."
-msgstr "Uruchamiam bazÄ danych. ProszÄ czekaÄ"
+msgstr "Uruchamiam bazę danych. Proszę czekać..."
 
 #: porthole/mainwindow.py:338
 msgid "Reloading database"
-msgstr "PrzeÅadowujÄ bazÄ danych"
+msgstr "Przeładowuję bazę danych"
 
 #: porthole/mainwindow.py:442
 msgid "No root privileges"
@@ -2022,7 +1986,7 @@ msgid ""
 "In order to access all the features of Porthole,\n"
 "please run it with root privileges."
 msgstr ""
-"By mieÄ dostÄp do wszystkich opcji Porthole\n"
+"By mieć dostęp do wszystkich opcji Porthole\n"
 "uruchom program z prawami roota."
 
 #: porthole/mainwindow.py:447
@@ -2032,42 +1996,41 @@ msgstr "_Ok"
 #: porthole/mainwindow.py:469
 #, python-format
 msgid "%(base)s: %(count)i packages read"
-msgstr "%(base)s: %(count)i pakietÃ³w odczytanych"
+msgstr "%(base)s: %(count)i pakietów odczytanych"
 
 #: porthole/mainwindow.py:488
 #, python-format
 msgid "%(base)s: Populating tree"
-msgstr "%(base)s: GenerujÄ drzewo"
+msgstr "%(base)s: Generuję drzewo"
 
 #: porthole/mainwindow.py:609
-#, fuzzy
 msgid "Porthole Main Window"
-msgstr "GÅÃ³wne okno"
+msgstr "Główne okno"
 
 #: porthole/mainwindow.py:813
 msgid "Upgrade requested"
-msgstr "RzÄdanie aktualizacji"
+msgstr "Rządanie aktualizacji"
 
 #: porthole/mainwindow.py:815
 msgid "Do you want to upgrade all packages in your world file?"
-msgstr "Czy zaktualizowaÄ wszystkie pakiety w pliku world"
+msgstr "Czy zaktualizować wszystkie pakiety w pliku world?"
 
 #: porthole/mainwindow.py:825
 msgid "Upgradable dependencies:"
-msgstr "ZaleÅ¼noÅci do aktualizacji"
+msgstr "Zależności do aktualizacji:"
 
 #: porthole/mainwindow.py:854
 msgid "Please Wait!"
-msgstr "ProszÄ CzekaÄ!"
+msgstr "Proszę Czekać!"
 
 #: porthole/mainwindow.py:856
 msgid "Loading package descriptions..."
-msgstr "ÅadujÄ opisy pakietÃ³w"
+msgstr "Ładuję opisy pakietów..."
 
 #: porthole/mainwindow.py:898
 #, python-format
 msgid "Searching descriptions for %s"
-msgstr "PrzeszukujÄ opisy w poszukiwaniu %s"
+msgstr "Przeszukuję opisy w poszukiwaniu %s"
 
 #: porthole/mainwindow.py:900
 #, python-format
@@ -2075,32 +2038,32 @@ msgid "Searching for %s"
 msgstr "Szukam %s"
 
 #: porthole/mainwindow.py:1187
-#, fuzzy, python-format
+#, python-format
 msgid "Generating '%s' packages list..."
-msgstr "Szukam %s"
+msgstr "Tworzę '%s' listę pakietów..."
 
 #: porthole/mainwindow.py:1258
-#, fuzzy, python-format
+#, python-format
 msgid "Searching for '%s' packages..."
-msgstr "Szukam %s"
+msgstr "Szukam '%s' pakietów..."
 
 #: porthole/mainwindow.py:1275
 msgid "Building Package List"
-msgstr "BudujÄ listÄ pakietÃ³w"
+msgstr "Buduję listę pakietów"
 
 #: porthole/mainwindow.py:1286
 msgid "Done: "
-msgstr "SkoÅczone: "
+msgstr "Skończone: "
 
 #: porthole/mainwindow.py:1299
 #: porthole/mainwindow.py:1305
 #, python-format
 msgid "%(pack)d packages in %(cat)d categories"
-msgstr "%(pack)d pakietÃ³w w %(cat)d kategoriach"
+msgstr "%(pack)d pakietów w %(cat)d kategoriach"
 
 #: porthole/mainwindow.py:1392
 msgid "Confirm: Kill the Running Process in the Terminal"
-msgstr "PotwierdÅº: Zabij aktywne procesy w Terminalu"
+msgstr "Potwierdź: Zabij aktywne procesy w terminalu"
 
 #~ msgid "upgradeonly"
 #~ msgstr "upgradeonly"
