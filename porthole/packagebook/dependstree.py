@@ -63,11 +63,12 @@ class DependsTree(gtk.TreeStore):
             "required_use":8
         }
         self.dep_depth = 0
-        self.max_depth = 3
+        self.max_depth = 1
         self.parent_use_flags = {}
         self.dep_parser = Depends()
         self.dep_parser.flags.append("!bootstrap?")
-        
+
+
     def parse_depends_list(self, depends_list, parent = None):
         """Read through the depends list and order it nicely
            Returns a list of (parent, dep, satisfied) for each dep"""
@@ -96,7 +97,7 @@ class DependsTree(gtk.TreeStore):
                     using_list = False
                     parent = None
         return new_list + use_list
-                    
+
 
     def add_atomized_depends_to_tree(self, atomized_depends_list, depends_view,
             parent_iter=None, add_satisfied=1, ebuild = None, is_new_child = False, 
@@ -167,21 +168,32 @@ class DependsTree(gtk.TreeStore):
         debug.dprint("DependsTree: update_kids() 167: add_kids = "  + str(add_kids) +
             " add_satisfied = " + str(add_satisfied) + " depth=%d, dep-depth=%d" %(depth, dep_depth))
         # add kids if we should
-        if add_kids < 0 and add_satisfied != -1: # and depth <= self.max_depth:# or
-                    #atom.mytype in  ['OPTION', 'GROUP', 'LAZY', 'USING', 'NOTUSING']):
-            #if atom.mytype not in ['OPTION', 'GROUP', 'LAZY', 'USING', 'NOTUSING']:
-            debug.dprint(" * DependsTree: update_kids():173 adding kids")
-            self.add_atomized_depends_to_tree(atom.children, depends_view, iter,
+        if add_kids < 0 and add_satisfied != -1: 
+            if depth <= self.max_depth:
+                debug.dprint(" * DependsTree: update_kids():172 adding kids")
+                self.add_atomized_depends_to_tree(atom.children, depends_view, iter,
                     add_kids, is_new_child = True, depth=depth+1, )
-            #else:
-            #    debug.dprint(" * DependsTree: update_row():177 adding lazy kids")
-            #    self._add_lazy(atom, depends_view, iter, add_kids=0, depth=depth)
+                #
+            else:
+                debug.dprint(" * DependsTree: update_row():177 adding lazy kids, parent=%s" %(atom.mytype+
+                    atom.useflag+atom.atom+atom.parent))
+                self._add_lazy(atom, depends_view, iter, add_kids=0, depth=depth)
+        #~ elif add_kids < 0 and add_satisfied == -1:
+            #~ if depth <= self.max_depth:
+                #~ debug.dprint(" * DependsTree: update_kids():181 adding kids")
+                #~ self.add_atomized_depends_to_tree(atom.children, depends_view, iter,
+                    #~ add_kids, is_new_child = True, depth=depth+1, )
+                #~ #
+            #~ else:
+                #~ debug.dprint(" * DependsTree: update_row():186 adding lazy kids")
+                #~ self._add_lazy(atom, depends_view, iter, add_kids=0, depth=depth)
+            
         elif add_kids  > 0 and not satisfied and depth <= self.max_depth:
-            debug.dprint(" * DependsTree: update_kids():180 adding kids")
+            debug.dprint(" * DependsTree: update_kids():190 adding kids")
             self._add_kids(atom, depends_view, iter, add_kids, depth,
                 self.get_value(iter, self.column["package"]), dep_depth)
         elif add_kids > 0 and not satisfied:
-            debug.dprint(" * DependsTree: update_kids(): 184 adding lazy kids")
+            debug.dprint(" * DependsTree: update_kids(): 194 adding lazy kids")
             self._add_lazy(atom, depends_view, iter, add_kids, depth)
         return
 
@@ -208,7 +220,7 @@ class DependsTree(gtk.TreeStore):
         """Add a lazy dependency placeholder to be filled in when it's parent
         tree node is expanded
         """
-        if atom.mytype == "LAZY":
+        if atom.mytype in ["LAZY", "OPTION", "GROUP", "USING", " NOTUSING"]:
             dep_ebuild = ' '
         else:
             dep_ebuild = self._get_ebuild(atom)
@@ -222,6 +234,8 @@ class DependsTree(gtk.TreeStore):
                 add_satisfied=1, depends_view= depends_view)
             #self.add_atomized_depends_to_tree(mylist, depends_view, iter,
             #    add_kids, ebuild=dep_ebuild, is_new_child=True, depth=depth+1)
+        else:
+            debug.dprint("DependsTree: _add_lazy(): Failed to get dep_ebuild for key=%s, lazy_atom=%s" %(key,str(lazy_atom)))
         return
 
 
@@ -244,6 +258,9 @@ class DependsTree(gtk.TreeStore):
             dep_ebuild = masked
         return dep_ebuild
 
+
+    def expand_lazy(self, treeview, iter, path):
+        debug.dprint("DependsTree:  expand_lazy(): activated by  'test-expand-row'")
 
     def fill_depends_tree(self, treeview, package, ebuild):
         """Fill the dependencies tree for a given ebuild"""
