@@ -53,7 +53,7 @@ class DependsView(CommonTreeView):
         self.parent_name = parent_name
         self.dispatch = dispatcher
         # setup the model
-        self.model = DependsTree()
+        self.model = DependsTree(self.populate_info)
         # setup the column
         column = gtk.TreeViewColumn(_("Dependencies"))
         pixbuf = gtk.CellRendererPixbuf()
@@ -115,6 +115,7 @@ class DependsView(CommonTreeView):
 
         self._last_selected = None
         self.connect("cursor-changed", self._clicked)
+        self.connect( "test-expand-row" , self.expand_row)
         self.connect("button_press_event", self.on_button_press)
         
         
@@ -165,20 +166,25 @@ class DependsView(CommonTreeView):
         #title = self.get_column(0).get_title()
         self.get_column(0).set_title(_("Dependencies") + ":  " + str(ebuild)) #package.get_default_ebuild()))
         self.model.fill_depends_tree(treeview, package, ebuild)
-        self.model.foreach(self.populate_info)
+        #self.model.foreach(self.populate_info)
+
+    def expand_row(self, treeview, iter, path):
+        self.model.expand_lazy(treeview, iter, path)
+
 
     def populate_info(self, model, path, iter):
         """ Populate the current view with packages """
-        #debug.dprint("DependsView: DependsView.populate_info()")
+        debug.dprint("DependsView: DependsView.populate_info()")
         if model.get_value(iter, model.column["depend"]): # == "None":
-                #debug.dprint("DependsView: populate_info(); dependency name = " + model.get_value(iter, model.column["depend"]))
+                debug.dprint("DependsView: populate_info(); dependency name = " + model.get_value(iter, model.column["depend"]))
                 try:
                     package = model.get_value(iter, model.column["package"])
                     name = package.full_name
+                    debug.dprint("DependsView: populate_info(); found package: " + name)
                     latest_installed = package.get_latest_installed()
-                    #debug.dprint("DependsView: populate_info(); latest_installed: %s, getting best_ebuild" %str(latest_installed))
+                    debug.dprint("DependsView: populate_info(); latest_installed: %s, getting best_ebuild" %str(latest_installed))
                     best_ebuild, keyworded_ebuild, masked_ebuild = portage_lib.get_dep_ebuild(model.get_value(iter,model.column["depend"]))
-                    #debug.dprint("DependsView: populate_info(); best_ebuild: %s, getting latest_ebuild" %str(best_ebuild))
+                    debug.dprint("DependsView: populate_info(); best_ebuild: %s, getting latest_ebuild" %str(best_ebuild))
                     #latest_ebuild = package.get_latest_ebuild(False) # include_masked = False
                     #debug.dprint("DependsView: populate_info(); latest_ebuild: %s" %str(latest_ebuild))
                     model.set_value(iter, model.column["installed"], portage_lib.get_version(latest_installed)) # installed

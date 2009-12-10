@@ -31,7 +31,7 @@ portage_lib = backends.portage_lib
 from porthole.backends.utilities import get_reduced_flags, slot_split, \
     use_required_split, get_sync_info
 from porthole import db
-from porthole.packagebook.depends import  Depends
+from porthole.packagebook.depends import  Depends, LAZYNAME
 
 # used for timing some sections of code
 #import datetime  
@@ -39,8 +39,11 @@ from porthole.packagebook.depends import  Depends
 
 class DependsTree(gtk.TreeStore):
     """Calculate and display dependencies in a treeview"""
-    def __init__(self):
-        """Initialize the TreeStore object"""
+    def __init__(self, populate_info):
+        """Initialize the TreeStore object
+        
+        @param populate_info: function supplied to add aditional info to the treeview row
+        """
         gtk.TreeStore.__init__(self, 
                 gobject.TYPE_STRING,       # depend name
                 gtk.gdk.Pixbuf,            # icon to display
@@ -50,7 +53,10 @@ class DependsTree(gtk.TreeStore):
                 gobject.TYPE_STRING,       # installed version
                 gobject.TYPE_STRING,       # latest recommended version
                 gobject.TYPE_STRING,       # keyword
-                gobject.TYPE_STRING)       # use flags required to be enabled
+                gobject.TYPE_STRING,       # use flags required to be enabled
+                gobject.TYPE_PYOBJECT      # atom key
+        )
+       
         self.column = {
             "depend" : 0,
             "icon" : 1,
@@ -60,8 +66,10 @@ class DependsTree(gtk.TreeStore):
             "installed" : 5,
             "latest" : 6,
             "keyword":7,
-            "required_use":8
+            "required_use":8,
+            "atom_key":9
         }
+        self.populate_info = populate_info
         self.dep_depth = 0
         self.max_depth = 1
         self.parent_use_flags = {}
@@ -99,36 +107,37 @@ class DependsTree(gtk.TreeStore):
         return new_list + use_list
 
 
-    def add_atomized_depends_to_tree(self, atomized_depends_list, depends_view,
+    def _add_list(self, atomized_depends_list, depends_view,
             parent_iter=None, add_satisfied=1, ebuild = None, is_new_child = False, 
             depth=0, dep_depth=0):
         """Add atomized dependencies to the tree"""
-        debug.dprint(" * DependsTree: add_atomized_depends_list() 105: new depth level = "
+        #debug.dprint(" * DependsTree: add_atomized_depends_list() 110: new depth level = "
             + str(depth))
         if ebuild and is_new_child:
             self.parent_use_flags[depth] = get_reduced_flags(ebuild)
-            #debug.dprint(" * DependsTree: add_atomized_depends_list(): parent_use_flags = reduced: " 
-                #+ str(self.parent_use_flags[depth]))
+            #debug.dprint(" * DependsTree: add_atomized_depends_list():" +
+                #" parent_use_flags = reduced: " + str(self.parent_use_flags[depth]))
         elif is_new_child: # and atomized_depends_list[0].mytype not in ['LAZY']:
             self.parent_use_flags[depth] = portage_lib.settings.SystemUseFlags
-            debug.dprint(" * DependsTree: add_atomized_depends_list(): 112, is_new_child  parent_use_flags = system only")
-        #~ elif is_new_child and atomized_depends_list[0].mytype in ['LAZY']:
-            #~ debug.dprint(" * DependsTree: add_atomized_depends_list(): found LAZY atom")
-            #~ satified = 0
-            #~ add_kids, add_satisfied = self.update_row(iter, atom, satisfied, add_satisfied, depends_view)
-            #~ return
+            #debug.dprint(" * DependsTree: add_atomized_depends_list(): 122, is_new_child " +
+            #    " parent_use_flags = system only")
         for atom in atomized_depends_list:
-            dep_atomized_list = []
             satisfied = atom.is_satisfied(self.parent_use_flags[depth])
             
             if add_satisfied or not satisfied: # then add deps to treeview
-                debug.dprint("DependsTree:add_atomized_depends_to_tree(); 124 atom '%s', mytype '%s', satisfied '%s'" 
-                    % (atom.get_depname(), atom.mytype, satisfied))
+                #debug.dprint(
+                #    "DependsTree:_add_list(); 129 atom '%s', mytype '%s', satisfied '%s'"
+                #        % (atom.get_depname(), atom.mytype, satisfied))
+                if satisfied == []:
+                    satisfied = False
                 iter = self.insert_before(parent_iter, None)
-                add_kids, add_satisfied = self.update_row(iter, atom, satisfied, add_satisfied, depends_view)
-                debug.dprint("DependsTree:add_atomized_depends_to_tree(); 128 atom '%s', mytype '%s', satisfied '%s'" 
-                    % (atom.get_depname(), atom.mytype, satisfied))
-                self.update_kids(atom, add_kids, add_satisfied, satisfied, depth, dep_depth, depends_view, iter)
+                add_kids, add_satisfied = self.update_row(iter, atom, satisfied,
+                    add_satisfied, depends_view)
+                #debug.dprint(
+                #    "DependsTree:_add_list(); 136 atom '%s', mytype '%s', add_kids=%s satisfied '%s'"
+                #    % (atom.get_depname(), atom.mytype, add_kids, satisfied))
+                self.update_kids(atom, add_kids, add_satisfied, satisfied, depth,
+                    dep_depth, depends_view, iter)
         return
 
     def update_row(self, iter, atom, satisfied, add_satisfied, depends_view):
@@ -145,7 +154,8 @@ class DependsTree(gtk.TreeStore):
             icon = gtk.STOCK_NO
             add_kids = 1
         text = atom.get_depname()
-        add_kids, add_satisfied, icon = getattr(self, "_%s_" %atom.mytype)(satisfied, add_satisfied, icon)
+        add_kids, add_satisfied, icon = \
+            getattr(self, "_%s_" %atom.mytype)(satisfied, add_satisfied, icon)
         
         if icon:
             self.set_value(iter, self.column["icon"], depends_view.render_icon(icon,
@@ -153,47 +163,36 @@ class DependsTree(gtk.TreeStore):
         self.set_value(iter, self.column["depend"], text)
         self.set_value(iter, self.column["satisfied"], bool(satisfied))
         self.set_value(iter, self.column["required_use"], atom.get_required_use())
+        self.set_value(iter, self.column["atom_key"], atom.key)
         if atom.mytype in ['DEP', 'BLOCKER', 'REVISIONABLE']:
-            depname = portage_lib.get_full_name(atom.name)
-            debug.dprint(" * DependsTree: update_row(): depname=" + depname)
-            if not depname:
-                debug.dprint(" * DependsTree: 159 update_row():" +
-                    "No depname found for '%s'" % atom.name or atom.useflag)
-                return
-            pack = db.db.get_package(depname)
+            pack = self._get_package(atom)
             self.set_value(iter, self.column["package"], pack)
+            # treeview's populate_info() callback
+            gobject.idle_add(self.populate_info,self, self.get_path(iter), iter)
         return add_kids, add_satisfied
 
-    def update_kids(self, atom, add_kids, add_satisfied, satisfied, depth, dep_depth, depends_view, iter):
-        debug.dprint("DependsTree: update_kids() 167: add_kids = "  + str(add_kids) +
-            " add_satisfied = " + str(add_satisfied) + " depth=%d, dep-depth=%d" %(depth, dep_depth))
+    def update_kids(self, atom, add_kids, add_satisfied, satisfied,
+                    depth, dep_depth, depends_view, iter):
+        #debug.dprint("DependsTree: update_kids() 176: add_kids = "  + str(add_kids) +
+        #    " add_satisfied = " + str(add_satisfied) + " depth=%d, dep-depth=%d"
+            %(depth, dep_depth))
         # add kids if we should
         if add_kids < 0 and add_satisfied != -1: 
             if depth <= self.max_depth:
-                debug.dprint(" * DependsTree: update_kids():172 adding kids")
-                self.add_atomized_depends_to_tree(atom.children, depends_view, iter,
+                #debug.dprint(" * DependsTree: update_kids():182 adding kids")
+                self._add_list(atom.children, depends_view, iter,
                     add_kids, is_new_child = True, depth=depth+1, )
                 #
             else:
-                debug.dprint(" * DependsTree: update_row():177 adding lazy kids, parent=%s" %(atom.mytype+
-                    atom.useflag+atom.atom+atom.parent))
+                #debug.dprint(" * DependsTree: update_row():187 adding lazy kids, parent=%s"
+                #    %(atom.mytype+atom.useflag+atom.atom+atom.parent))
                 self._add_lazy(atom, depends_view, iter, add_kids=0, depth=depth)
-        #~ elif add_kids < 0 and add_satisfied == -1:
-            #~ if depth <= self.max_depth:
-                #~ debug.dprint(" * DependsTree: update_kids():181 adding kids")
-                #~ self.add_atomized_depends_to_tree(atom.children, depends_view, iter,
-                    #~ add_kids, is_new_child = True, depth=depth+1, )
-                #~ #
-            #~ else:
-                #~ debug.dprint(" * DependsTree: update_row():186 adding lazy kids")
-                #~ self._add_lazy(atom, depends_view, iter, add_kids=0, depth=depth)
-            
         elif add_kids  > 0 and not satisfied and depth <= self.max_depth:
-            debug.dprint(" * DependsTree: update_kids():190 adding kids")
+            #debug.dprint(" * DependsTree: update_kids():195 adding kids")
             self._add_kids(atom, depends_view, iter, add_kids, depth,
                 self.get_value(iter, self.column["package"]), dep_depth)
         elif add_kids > 0 and not satisfied:
-            debug.dprint(" * DependsTree: update_kids(): 194 adding lazy kids")
+            #debug.dprint(" * DependsTree: update_kids(): 195 adding lazy kids")
             self._add_lazy(atom, depends_view, iter, add_kids, depth)
         return
 
@@ -208,11 +207,14 @@ class DependsTree(gtk.TreeStore):
             dep_deps = self.dep_parser.get_depends(pack, dep_ebuild)
             dep_atomized_list = self.dep_parser.parse(dep_deps)
             if dep_atomized_list == None: dep_atomized_list = []
-            #debug.dprint("DependsTree: _add_kids(): DEP new atomized_list for: " 
-                #+ atom.get_depname() + ' = ' + str(dep_atomized_list) + ' ' + dep_ebuild)
-            self.add_atomized_depends_to_tree(dep_atomized_list, depends_view, iter,
+            #debug.dprint("DependsTree: _add_kids(): new atomized_list for: " 
+            #    +atom.get_depname()+' = '+str(dep_atomized_list)+' '+str(dep_ebuild))
+            self._add_list(dep_atomized_list, depends_view, iter,
                 add_kids, ebuild = dep_ebuild, is_new_child = True, depth=depth+1,
                 dep_depth=dep_depth)
+        else:
+            debug.dprint("DependsTree: _add_kids(): Failed to get dep_ebuild for " +
+                "atom=%s" %(atom.atom))
         return
 
 
@@ -228,14 +230,16 @@ class DependsTree(gtk.TreeStore):
         if dep_ebuild:
             key = self.dep_parser.cache.add_lazy(atom)
             lazy_atom = self.dep_parser.cache.get(key)
-            debug.dprint("DependsTree: _add_lazy():key=%s, lazy_atom=%s" %(key,str(lazy_atom)))
+            #debug.dprint("DependsTree: _add_lazy():key=%s, lazy_atom=%s"
+                #%(key,str(lazy_atom)))
             kid_iter = self.insert_before(iter, None)
             add_kids, add_satisfied = self.update_row(kid_iter, lazy_atom, satisfied=0,
                 add_satisfied=1, depends_view= depends_view)
-            #self.add_atomized_depends_to_tree(mylist, depends_view, iter,
+            #self._add_list(mylist, depends_view, iter,
             #    add_kids, ebuild=dep_ebuild, is_new_child=True, depth=depth+1)
         else:
-            debug.dprint("DependsTree: _add_lazy(): Failed to get dep_ebuild for key=%s, lazy_atom=%s" %(key,str(lazy_atom)))
+            debug.dprint("DependsTree: _add_lazy(): Failed to get dep_ebuild for " +
+                "atom=%s" %(atom.atom))
         return
 
 
@@ -244,7 +248,8 @@ class DependsTree(gtk.TreeStore):
         """
         
         if not atom.atom:
-            debug.dprint("DependsTree:  _get_ebuild(): atom.atom = Null for atom:%s" %atom.__repr__())
+            debug.dprint("DependsTree:  _get_ebuild(): atom.atom = Null for atom:%s"
+                %atom.__repr__())
             return None
         best, keyworded, masked  = portage_lib.get_dep_ebuild(atom.atom) #__repr__())
         #debug.dprint("DependsTree:  _get_ebuild(): results = " + \
@@ -260,7 +265,31 @@ class DependsTree(gtk.TreeStore):
 
 
     def expand_lazy(self, treeview, iter, path):
-        debug.dprint("DependsTree:  expand_lazy(): activated by  'test-expand-row'")
+        #debug.dprint("DependsTree:  expand_lazy(): activated by  'test-expand-row'")
+        # first find out if there are already kids to expand
+        kid_iter = self.iter_children(iter)
+        if kid_iter:
+            # determine if it a lazy atom
+            if self.get_value(kid_iter, self.column["depend"]) != LAZYNAME:
+                return True
+            else:
+                # delete the lazy atom
+                valid = self.remove(kid_iter)
+                if valid:
+                    debug.dprint("DependsTree:  expand_lazy(); kid_iter still" +
+                        " valid after lazy_atom removed")
+        # get the atom to expand
+        key = self.get_value(iter, self.column["atom_key"])
+        atom = self.dep_parser.cache.get(key)
+        # check if there are kids already populated
+        if atom.children:
+            self._add_list(atom.children, treeview, parent_iter=iter,
+                is_new_child = True)
+        else:
+            pack = self._get_package(atom)
+            self._add_kids(atom=atom, depends_view=treeview, iter=iter,
+                add_kids=True, depth=0, pack=pack, dep_depth=0)
+        return True
 
     def fill_depends_tree(self, treeview, package, ebuild):
         """Fill the dependencies tree for a given ebuild"""
@@ -274,12 +303,13 @@ class DependsTree(gtk.TreeStore):
             #debug.dprint("DependsTree: depends = %s" % depends)
             self.depends_list = []
             #self.add_depends_to_tree(depends, treeview)
-            #debug.dprint("DependsTree: calling self.dep_parser.parse(); ebuild=%s reduced depends = %s " 
+            #debug.dprint("DependsTree: calling self.dep_parser.parse();" +
+                #" ebuild=%s reduced depends = %s " 
             #        % (ebuild, str(depends)))
             atomized_depends = self.dep_parser.parse(depends)
             #end = datetime.datetime.now() #.microsecond
             #debug.dprint(atomized_depends)
-            self.add_atomized_depends_to_tree(atomized_depends, treeview,
+            self._add_list(atomized_depends, treeview,
                 ebuild = ebuild, is_new_child = True)
             #end2 = datetime.datetime.now() #.microsecond
         else:
@@ -287,8 +317,19 @@ class DependsTree(gtk.TreeStore):
             self.set_value(parent_iter, self.column["depend"], _("None"))
             #end = end2 = datetime.datetime.now() #.microsecond
         treeview.set_model(self)
-        #debug.dprint("DependsTree: Timing self.dep_parser; ebuild=%s time= %s" % (ebuild, end-start))
-        #debug.dprint("DependsTree: Timing self.dep_parser; complete parse & tree, time= %s" % (end2-start))
+        #debug.dprint("DependsTree: Timing self.dep_parser; ebuild=%s time= %s"
+            #% (ebuild, end-start))
+        #debug.dprint("DependsTree: Timing self.dep_parser; complete parse & tree," +
+            #" time= %s" % (end2-start))
+
+    def _get_package(self, atom):
+        name = portage_lib.split_atom_pkg(atom.name)[0]
+        #debug.dprint(" * DependsTree: _get_package(): name=" + name)
+        if not name:
+            debug.dprint(" * DependsTree: _get_package():" +
+                "No depname found for '%s'" % atom.name or atom.useflag)
+            return None
+        return db.db.get_package(name)
 
 
     def _USING_(self, satisfied, add_satisfied, icon):

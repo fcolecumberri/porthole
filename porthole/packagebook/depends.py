@@ -35,6 +35,9 @@ import datetime
 
 #from exceptions import Exception
 
+
+LAZYNAME = "Loading dependencies..."
+
 class DuplicateAtom(Exception):
     """Exception type definition. Duplicate Atom"""
     def __init__(self):
@@ -107,6 +110,7 @@ class DependAtom(DependKey):
         self.slot = slot
         self.required_use = req_use
         self.cmp = cmp
+        self.key = None
         self.complete = False
 
     def __repr__(self): # called by the "print" function
@@ -124,11 +128,11 @@ class DependAtom(DependKey):
         elif self.mytype == 'REVISIONABLE':
             return self.get_depname() + self.get_required_use()
         else: return ''
-        #~ if self.children:
-            #~ bulk = ', '.join([kid.__repr__() for kid in self.children])
-            #~ return ''.join([prefix,'[',bulk,']'])
-        #~ elif prefix: return ''.join([prefix,'[]'])
-        #~ else: return ''
+        if self.children:
+            bulk = ', '.join([kid.__repr__() for kid in self.children])
+            return ''.join([prefix,'[',bulk,']'])
+        elif prefix: return ''.join([prefix,'[]'])
+        else: return ''
 
     def __eq__(self, other): # "atomA == atomB" <==> "atomA.__eq__(atomB)"
         """Returns True if the other is equivalent to self
@@ -338,8 +342,8 @@ class DepCache(DependKey):
         parent = self.get_key(mytype=atom.mytype, useflag=atom.useflag,
                 atom=atom.atom, parent=atom.parent, children=atom.children)
         mytype="LAZY"
-        useflag="Loading dependencies..."
-        mydep="Loading dependencies..."
+        useflag= LAZYNAME
+        mydep= LAZYNAME
         key = self.get_key(mytype=mytype, useflag=useflag, atom=mydep,
                 parent=parent, children=[])
         # move the parents children to the LAZY's Children and make the LAZY atom the
@@ -362,6 +366,7 @@ class DepCache(DependKey):
         name, cmp, slot, use = dep_split(mydep)
         atom = DependAtom(atom=mydep, mytype=mytype, useflag=useflag, parent=parent,
                 name=name, cmp=cmp, slot=slot,req_use=use, children=children)
+        atom.key = key
         self._cache[key] = atom
         return
 
