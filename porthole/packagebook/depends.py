@@ -39,7 +39,7 @@ class DuplicateAtom(Exception):
     """Exception type definition. Duplicate Atom"""
     def __init__(self):
         pass
-    
+
     def __str__(self):
         return "Group or Option type Atoms are not re-useable"
 
@@ -50,7 +50,7 @@ class DependKey(object):
 
     def __init__(self):
         pass
-    
+
     def get_key(self, mytype, useflag, atom, parent, children):
         """Generates a key based on the mytype parameter
         
@@ -68,6 +68,9 @@ class DependKey(object):
         elif mytype in ['OPTION', 'GROUP']:
             #debug.dprint("DependKey: ['OPTION', 'GROUP'], mytype = " + mytype)
             return ((mytype, useflag, atom, parent, tuple(children)))
+        elif mytype in ['LAZY']:
+            #debug.dprint("DependKey: ['LAZY'], mytype = " + mytype)
+            return ((mytype, atom, parent))
         else:  # is a package DependAtom, so type checking is not neccessary
             #debug.dprint("DependKey: Package Dep, mytype = " + mytype)
             return ((mytype, useflag, atom))
@@ -87,6 +90,7 @@ class DependAtom(DependKey):
         @param req_use: string of any required use flag conditionals for package
         @param children: list of child DependAtom keys
     """
+
     def __init__(self, atom = '', name='', mytype='', parent='',
         cmp='', slot='', useflag='', req_use='', children=None
         ):
@@ -125,7 +129,7 @@ class DependAtom(DependKey):
             #~ return ''.join([prefix,'[',bulk,']'])
         #~ elif prefix: return ''.join([prefix,'[]'])
         #~ else: return ''
-    
+
     def __eq__(self, other): # "atomA == atomB" <==> "atomA.__eq__(atomB)"
         """Returns True if the other is equivalent to self
         (used by the statement "atomA == atomB")"""
@@ -140,7 +144,7 @@ class DependAtom(DependKey):
 
     def __ne__(self, other):
         return not self == other
-        
+
     def __hash__(self):
         return hash(self.get_key(self.mytype, self.useflag, self.atom, self.parent, self.children))
 
@@ -153,7 +157,6 @@ class DependAtom(DependKey):
         evaluated as True if the dep is satisfied, False if unsatisfied.
         """
         return getattr(self, '_%s_is_satisfied' % self.mytype)(use_flags)
-        
 
     def _DEP_is_satisfied(self, use_flags):
         """ self.mytype == 'DEP
@@ -185,7 +188,9 @@ class DependAtom(DependKey):
         if self.useflag in use_flags:
             satisfied = 1
             for child in self.children:
-                if not child.is_satisfied(use_flags): satisfied = 0
+                if not child.is_satisfied(use_flags):
+                    satisfied = 0
+                    break
         else: satisfied = -1
         return satisfied
 
@@ -217,6 +222,9 @@ class DependAtom(DependKey):
             if a: satisfied.append(a)
         return satisfied
 
+    def _LAZY_is_satisfied(self, useflags):
+        return 0
+
     def get_depname(self):
         """Returns the dependecy name properly formatted according to 
         the atom's mytype.
@@ -236,7 +244,6 @@ class DependAtom(DependKey):
         if self.cmp == "=*":
             return "=" + self.name + "*" + self._slot()
         return self.cmp + self.name + self._slot()
-        
 
     def _BLOCKER_name(self):
         """ self.mytype == 'BLOCKER'"""
@@ -253,6 +260,11 @@ class DependAtom(DependKey):
     def _REVISIONABLE_name(self):
         """ self.mytype =='REVISIONABLE'"""
         return'~' + self._DEP_name()
+
+    def _LAZY_name(self):
+        """ self.mytype =='LAZY'"""
+        return self.atom
+
 
     def _slot(self):
         if self.slot != '':
@@ -280,7 +292,7 @@ class DepCache(DependKey):
         self._cache = {}
 
     def add(self,  mydep='', mytype='',
-                parent='', useflag='', children=[]):
+                parent='', useflag='', children=None):
         """Add a new DependAtom to the cache if it does not already exist.
         Or returns an existing DependAtom depending on the atom.mytype
         
@@ -292,7 +304,6 @@ class DepCache(DependKey):
         
         @rtype key: a DependKey generated key used to reference the DependAtom instance
         """
-
         key = self.get_key(mytype, useflag, mydep, parent, children)
         try:
             atom = self._cache[key]
@@ -302,19 +313,44 @@ class DepCache(DependKey):
                     #debug.dprint("DepCache: re-using atom, adding more children " +
                     #                        "to %s, %s" % (mytype,useflag))
                     atom.children = list(set(atom.children).union(set(children)))
-            elif atom.mytype in ['OPTION', 'GROUP']:
+            elif atom.mytype in ['OPTION', 'GROUP', 'LAZY']:
                 # force a new atom.
                 #raise DuplicateAtom
                 #debug.dprint("DepCache: FORCING a new atom: type=" + mytype )
-                self._new(key, mydep, mytype, useflag, children)
+                self._new(key=key, mydep=mydep, mytype=mytype, useflag=useflag,
+                        children=children)
         except KeyError:
-            self._new(key, mydep, mytype, useflag, children)
+            self._new(key=key, mydep=mydep, mytype=mytype, useflag=useflag,
+                    children=children)
         #~ except DuplicateAtom:
-            #~ self.new(key, mydep, mytype, useflag, children)
+            #~ self._new(key=key, mydep=mydep, mytype=mytype, useflag=useflag,
+                        #~ children=children)
+        return key
+
+
+    def add_lazy(self,  atom):
+        """Add a new LAZY DependAtom to the cache.
+        
+        @param atom: The parent atom instance to be used to link with
+        
+        @rtype key: a DependKey generated key used to reference the DependAtom instance
+        """
+        parent = self.get_key(mytype=atom.mytype, useflag=atom.useflag,
+                atom=atom.atom, parent=atom.parent, children=atom.children)
+        mytype="LAZY"
+        useflag="Loading dependencies..."
+        mydep="Loading dependencies..."
+        key = self.get_key(mytype=mytype, useflag=useflag, atom=mydep,
+                parent=parent, children=[])
+        # move the parents children to the LAZY's Children and make the LAZY atom the
+        # child
+        self._new(key=key, mydep=mydep, mytype=mytype, useflag=useflag, parent=parent,
+                children=[])
+        #atom.children = key
         return key
 
     def _new(self, key, mydep='', mytype='',
-                useflag='', children=[]):
+                useflag='', parent='', children=None):
         """Creates a new DependAtom instance with supplied
         data and Adds it to the cache. Normally called by the add().
         
@@ -324,11 +360,10 @@ class DepCache(DependKey):
         """
         #debug.dprint("DepCache: new atom: %s, %s, %s " %(mytype, useflag, mydep))
         name, cmp, slot, use = dep_split(mydep)
-        atom = DependAtom(atom=mydep, mytype=mytype, useflag=useflag,
+        atom = DependAtom(atom=mydep, mytype=mytype, useflag=useflag, parent=parent,
                 name=name, cmp=cmp, slot=slot,req_use=use, children=children)
         self._cache[key] = atom
         return
-
 
     def get(self, key):
         """Returns the cached DependAtom associated with 'key'
@@ -357,18 +392,17 @@ class Depends(object):
     It will return an organized list of DependAtom instances ready for use
     in a Dependency viewer or any other application the DependAtom model
     is suitable
-    
+
     Important 
         @variable:flags: a list of USE flags to be filtered out and not parsed.
         @methods/functions: get_depends(), parse()
     """
-    
+
     def __init__(self):
         # classwide atom cache
         self.cache = DepCache()
         self.flags = []
 
-    
     def parse(self, depends_list, parent=''):
         """DEPENDS string parsing function. Takes a list of the form:
         portage.portdb.aux_get(<ebuild>, ["DEPEND"]).split()
@@ -383,7 +417,6 @@ class Depends(object):
                 created from this code instance belong to.
         @rtype a nested list of DependAtom instances ready for use.
         """
-        
         atomized_set = set()
         I_am = None
         while depends_list:
@@ -459,12 +492,11 @@ class Depends(object):
         return self._atomized_list(atomized_set)
 
     def _atomized_list(self, a_set):
-        """converts a set of atom keys into a list of DependAtom instances
-        
+        """Converts a set of atom keys into a list of DependAtom instances
+
         @param a_set: set of DependKey keys for conversion
         @rtype a_list: the list of DependAtom instances referenced by the keys
         """
-        
         a_list = []
         while a_set:
             key = a_set.pop()
@@ -474,16 +506,14 @@ class Depends(object):
         #if a_list:
         #    a_list.reverse()
         return a_list
-        
 
     def split_group(self, dep_list):
-        """separate out the ( ) grouped dependencies from a dependency list
-        
+        """Separate out the ( ) grouped dependencies from a dependency list
+
         @param dep_list: the list of dependencies to split
         @rtype group: list of dependency members contained within the group
         @rtype dep_list: the remainder of the dendency list supplied for splitting
         """
-        
         #debug.dprint("Depends: split_group(); starting")
         group = []
         remainder = []
@@ -523,7 +553,6 @@ class Depends(object):
                package to get the dependency list for
         @rtype deps: a list of depends atom strings
         """
-        
         if package == None or ebuild == None:
             return ''
         props = package.get_properties(ebuild)
