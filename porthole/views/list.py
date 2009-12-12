@@ -3,12 +3,12 @@
 """ File: porthole/views/hightlight.py
 This file is part of the Porthole, a graphical portage-frontend.
 
-Copyright (C) 2006-2009 René 'Necoro' Neumann
+Copyright (C) 2006-2009  RenÃ© 'Necoro' Neumann
 This is free software.  You may redistribute copies of it under the terms of
 the GNU General Public License version 2.
 There is NO WARRANTY, to the extent permitted by law.
 
-Written by René 'Necoro' Neumann <necoro@necoro.net>
+Written by  RenÃ© 'Necoro' Neumann <necoro@necoro.net>
 Adapted to Porthole by, Brian Dolbec <dol-sen@users.sourceforge.net>
 """
 from __future__ import absolute_import, with_statement
@@ -38,7 +38,7 @@ class ListView (gtk.TextView, LazyView):
         return x
 
     def set_text (self, text):
-        #debug.dprint("LISTVIEW: set_text: " + text[:max(len(text),500)])
+        debug.dprint("LISTVIEW: set_text: " + text[:max(len(text),500)])
         self.get_buffer().set_text(text)
 
     def _get_content (self):
