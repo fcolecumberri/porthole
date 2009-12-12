@@ -481,7 +481,7 @@ class Summary(gtk.TextView):
             if id_overrides:
                 full_list = abs_list(iuse)
             else:
-            	full_list = []
+                full_list = []
             for flag in use_flags:
                 if id_overrides:
                     debug.dprint("SUMMARY: SHOW_PROPS(),show_flags(); flag = " +str(flag) + " " + str(full_list))
