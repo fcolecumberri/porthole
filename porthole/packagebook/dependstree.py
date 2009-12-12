@@ -112,7 +112,7 @@ class DependsTree(gtk.TreeStore):
             depth=0, dep_depth=0):
         """Add atomized dependencies to the tree"""
         #debug.dprint(" * DependsTree: add_atomized_depends_list() 110: new depth level = "
-            + str(depth))
+            #+ str(depth))
         if ebuild and is_new_child:
             self.parent_use_flags[depth] = get_reduced_flags(ebuild)
             #debug.dprint(" * DependsTree: add_atomized_depends_list():" +
@@ -175,7 +175,7 @@ class DependsTree(gtk.TreeStore):
                     depth, dep_depth, depends_view, iter):
         #debug.dprint("DependsTree: update_kids() 176: add_kids = "  + str(add_kids) +
         #    " add_satisfied = " + str(add_satisfied) + " depth=%d, dep-depth=%d"
-            %(depth, dep_depth))
+        #    %(depth, dep_depth))
         # add kids if we should
         if add_kids < 0 and add_satisfied != -1: 
             if depth <= self.max_depth:
@@ -273,11 +273,13 @@ class DependsTree(gtk.TreeStore):
             if self.get_value(kid_iter, self.column["depend"]) != LAZYNAME:
                 return True
             else:
+                lazy_key = self.get_value(kid_iter, self.column["atom_key"])
                 # delete the lazy atom
                 valid = self.remove(kid_iter)
                 if valid:
                     debug.dprint("DependsTree:  expand_lazy(); kid_iter still" +
                         " valid after lazy_atom removed")
+                self.dep_parser.cache.pop(lazy_key)
         # get the atom to expand
         key = self.get_value(iter, self.column["atom_key"])
         atom = self.dep_parser.cache.get(key)
