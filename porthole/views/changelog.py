@@ -3,33 +3,63 @@
 """ File: porthole/views/changelog.py
 This file is part of the Porthole, a graphical portage-frontend.
 
-Copyright (C) 2006-2009 René 'Necoro' Neumann
+Copyright (C) 2009 Brian Dolbec <dol-sen>
 This is free software.  You may redistribute copies of it under the terms of
 the GNU General Public License version 2.
 There is NO WARRANTY, to the extent permitted by law.
 
-Written by René 'Necoro' Neumann <necoro@necoro.net>
-Adapted to Porthole by, Brian Dolbec <dol-sen@users.sourceforge.net>
+Written by, Brian Dolbec <dol-sen@users.sourceforge.net>
 """
 #from __future__ import absolute_import, with_statement
 
 import os.path
-#import gtk
 #import logging
+import re
 
 from porthole.utils import debug
 from porthole.views.list import ListView
+from porthole.views.markup import MarkupView
 from porthole import backends
 portage_lib = backends.portage_lib
+from porthole.loaders.loaders import load_web_page
 
-class ChangeLogView (ListView):
+
+class ChangeLogView (ListView, MarkupView):
+    """ChangeLog subclass which adds bug# highlighting and opening in
+    the defined webbrowser
+    
+    example use:
+    from porthole.views.changelog import ChangeLogView
+    myview = ChangeLogView()
+    myview.update(ebuild)
+    
+    """
+
+    bug_re = re.compile(r'\d\d\d\d+')
+    atom_re = re.compile(r'\S+\-\d+\.\d+\S')
+    word_re = [atom_re, bug_re]
+    word_fn = ['atom', 'bug']
+    new_ver_re = re.compile(r'(?P<atom>\*.*) (?P<date>\(.*\))')
+    update_re = re.compile(r'(?P<date>\d\d [A-Z][a-z][a-z] \d\d\d\d;) (?P<developer>.*[<]\S+[>]) (?P<atom>.*)')
+    # could probably tweak the code to not require the update_re and use update_re2 and search the
+    # remaining text for atoms, bug's
+    update_re2 = re.compile(r'(?P<date>\d\d [A-Z][a-z][a-z] \d\d\d\d;) (?P<developer>.*[<]\S+[>])')
+    all = re.compile(r'(?P<text>.*)')
+    re_list = [new_ver_re, update_re, update_re2, all]
+    re_fn = ['new_ver', 'update',  'update2', 'all']
 
     def __init__ (self):
 
         ListView.__init__(self, self._get_fn)
+        MarkupView.__init__(self)
 
-        self.set_editable(False)
-        self.set_cursor_visible(False)
+        self.bugzilla_url = "http://bugs.gentoo.org/show_bug.cgi?id="
+        self.bugs = {}
+        self.bug_id = 0
+        
+        self.indent = ' '*4
+
+
 
     def _get_fn(self, cpv):
         """Returns a path to the specified category/package-version ChangeLog"""
@@ -38,14 +68,77 @@ class ChangeLogView (ListView):
             return os.path.join(dir, "ChangeLog")
         return ''
 
-    def set_text (self, text):
-        #debug.dprint(": set_text: " + text[:max(len(text),500)])
-        self.get_buffer().set_text(text)
+    def set_text(self, text):
+        debug.dprint("ChangeLogView: set_text(); len(text) = %d" %len(text))
+        self.buffer.set_text('')
+        if not text:
+            return
+        lines = text.split('\n')
+        while lines[0].startswith('#'):
+            self.append(lines[0], "header")
+            self.nl()
+            lines = lines[1:]
+        for line in lines:
+            found = None
+            x = -1
+            while not found and x < len(self.re_list)-1:
+                if line == '\n':
+                    self.nl()
+                    break
+                x += 1
+                found = (self.re_list[x]).match(line.strip())
+                #debug.dprint("ChangeLogView: set_text(), checking for: %s" %self.re_fn[x])
+            if found and found.groupdict():
+                mydict = found.groupdict()
+                #debug.dprint("ChangeLogView: set_text(), mydict = %s" %str(mydict))
+            # process the parts
+            getattr(self, '_%s_' %self.re_fn[x])(mydict)
+        return
 
-    def _get_content (self):
-        try:
-            debug.dprint("LISTVIEW: filename to load: " + self.get_fn(self.pkg))
-            with open(self.get_fn(self.pkg)) as f:
-                return f.readlines()
-        except IOError, e:
-            return "Error: %s" % e.strerror
+    def _new_ver_(self, parts):
+        #debug.dprint("ChangeLogView: _new_ver_(), parts = %s" %str(parts))
+        self.append(parts['atom'], 'new_ver')
+        self.append_date(parts['date'])
+        self.nl()
+        return
+
+    def _update_(self, parts):
+        #debug.dprint("ChangeLogView: _update_(), parts = %s" %str(parts))
+        self.append_date(parts['date'], self.indent)
+        self.append(' ') 
+        self.append_developer(parts['developer'])
+        self.append(' ')
+        self.append_atom(parts['atom'])
+        self.nl()
+
+    def _update2_(self, parts):
+        #debug.dprint("ChangeLogView: _update2_(), parts = %s" %str(parts))
+        self.append_date(parts['date'], self.indent)
+        self.append(' ') 
+        self.append_developer(parts['developer'])
+        self.nl()
+        return
+
+    def _all_(self, parts):
+        #debug.dprint("ChangeLogView: _all_(), parts = %s" %str(parts))
+        words = parts['text'].split()
+        self.append(self.indent[:-1])
+        #debug.dprint("ChangeLogView: _all_(), words = %s" %str(words))
+        for word in words:
+            self.append(' ')  # spacer between words
+            found = None
+            x = -1
+            while not found and x < len(self.word_re)-1:
+                x += 1
+                found = (self.word_re[x]).search(word)
+                #debug.dprint("ChangeLogView: _all_(), checking for: %s" %self.word_fn[x])
+            if found and found.group():
+                #debug.dprint("ChangeLogView: _all_(), found = %s, %s" %(self.word_fn[x], found.group()))
+                # process the parts
+                getattr(self, 'append_%s' %self.word_fn[x])(word)
+            else:
+                #debug.dprint("ChangeLogView: _all_(), adding as text: " + word)
+                self.append(word, 'normal')
+        self.nl()
+        return
+
