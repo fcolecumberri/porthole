@@ -279,7 +279,7 @@ class DependsTree(gtk.TreeStore):
                 if valid:
                     debug.dprint("DependsTree:  expand_lazy(); kid_iter still" +
                         " valid after lazy_atom removed")
-                self.dep_parser.cache.pop(lazy_key)
+                self.dep_parser.cache.remove(lazy_key)
         # get the atom to expand
         key = self.get_value(iter, self.column["atom_key"])
         atom = self.dep_parser.cache.get(key)

@@ -383,6 +383,13 @@ class DepCache(DependKey):
         except KeyError:
             return None
 
+    def remove(self, key):
+        try:
+            self._cache.pop(key)
+        except KeyError:
+            pass
+        return
+
     def reset(self):
         """Resets the cache to empty.  A must for each
         new package/ebuild to be parsed"""
