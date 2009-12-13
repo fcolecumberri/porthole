@@ -118,7 +118,8 @@ class DependsView(CommonTreeView):
         self.connect( "test-expand-row" , self.expand_row)
         self.connect("button_press_event", self.on_button_press)
         
-        
+        # make it easier to read across columns
+        self.set_rules_hint(True)
         
         # create popup menu for rmb-click
         arch = "~" + portage_lib.get_arch()
