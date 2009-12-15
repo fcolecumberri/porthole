@@ -98,12 +98,16 @@ def local():
     global DATA_PATH, i18n_DIR, RUN_LOCAL
     # if opt in ("-l", "--local"):
     # running a local version (i.e. not installed in /usr/*)
-    import os
     #print "STARTUP: local(); setting to local paths"
     DATA_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+"/porthole/"
     #DATA_PATH = getcwd() + "/"
     i18n_DIR = DATA_PATH + 'i18n'
     RUN_LOCAL = True
+
+location = os.path.abspath(__file__)
+if "site-packages" not in location:
+    local()
+    
 
 def set_debug(arg):
     from porthole.utils import debug
