@@ -99,6 +99,11 @@ class Database(DBBase):
         if (category in self.installed and name in self.installed[category]):
             self.installed[category][name].update_info()
 
+    def update(self, pkg):
+        """callback function to update an individual package
+            after a successfull install action was detected"""
+        raise NotImplementedError
+
     def save(self):
         """saves the db to a file"""
         if self.valid_sync and self.desc_reloaded:
