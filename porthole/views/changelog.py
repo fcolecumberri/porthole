@@ -35,7 +35,7 @@ class ChangeLogView (ListView, MarkupView):
     
     """
 
-    bug_re = re.compile(r'\d\d\d\d+')
+    bug_re = re.compile(r'\d{4,}')
     atom_re = re.compile(r'\S+\-\d+\.\d+\S')
     word_re = [atom_re, bug_re]
     word_fn = ['atom', 'bug']
