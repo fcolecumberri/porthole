@@ -442,6 +442,6 @@ class DependsView(CommonTreeView):
         db.userconfigs.set_user_config('KEYWORDS', name=name, add=arch, callback=None)
 
     def adv_emerge(self, widget):
-        self.dispatch(["adv_emerge"], {'caller': "DependsView: emerge()", 'package': utils.get_treeview_selection(self, 2)})
+        self.dispatch("adv_emerge", {'caller': "DependsView: emerge()", 'package': utils.get_treeview_selection(self, 2)})
 
 

@@ -924,5 +924,5 @@ class Summary(gtk.TextView):
         self.update_package_info(self.package, ebuild)
 
     def adv_emerge(self, widget):
-        self.dispatch(["adv_emerge"], {'package': self.package, 'caller': 'SUMMARY: adv_emerge()'})
+        self.dispatch("adv_emerge", {'package': self.package, 'caller': 'SUMMARY: adv_emerge()'})
 
