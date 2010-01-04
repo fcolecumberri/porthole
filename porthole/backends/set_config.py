@@ -141,16 +141,20 @@ def remove_flag(flag, line):
         dprint("SET_CONFIG: remove_flag(); removed '%s' from line" % flag)
     return line
 
-def set_user_config(filename, name='', ebuild='', comment = '', username='', add=[], remove=[], delete=[]):
+def set_user_config(filename, name='', ebuild='', comment = '', 
+    username='', add=[], remove=[], delete=[]):
     """
     Adds <name> or '=' + <ebuild> to <filename> with flags <add>.
-    If an existing entry is found, items in <remove> are removed and <add> is added.
+    If an existing entry is found, items in <remove> are removed
+    and <add> is added.
     
-    If <name> and <ebuild> are not given then lines starting with something in
-    remove are removed, and items in <add> are added as new lines.
+    If <name> and <ebuild> are not given then lines starting with 
+    something in remove are removed, and items in <add> are added
+    as new lines.
     """
     dprint("SET_CONFIG: set_user_config(): filename = '%s'" % filename)
-    dprint("SET_CONFIG: set_user_config(): add=%s, remove=%s, delete=%s" %(str(add), str(remove), str(delete)))
+    dprint("SET_CONFIG: set_user_config(): add=%s, remove=%s, delete=%s"
+        %(str(add), str(remove), str(delete)))
     if not chk_permission(filename):
         return False
     dprint(" * SET_CONFIG: set_user_config(): filename = " + filename)
@@ -170,7 +174,8 @@ def set_user_config(filename, name='', ebuild='', comment = '', username='', add
                 line = remove_flag(flag, line)
             for flag in add:
                 if flag.startswith('+'):
-                    dprint("SET_CONFIG: set_user_config(); FIXME! removed leading '+' from %s flag" % flag)
+                    dprint("SET_CONFIG: set_user_config(); FIXME! removed leading " +
+                        "'+' from %s flag" % flag)
                     flag = flag[1:]
                 # check for and remove existing occurance(s) of flag
                 line = remove_flag(flag, line)
@@ -259,8 +264,8 @@ def set_make_conf(property, add=[], remove=[], replace=''):
     except:  # in case it isn't fixed in the portage version imported
         filename = os.path.join(str(portage.root), portage_const.MAKE_CONF_FILE)
     if not os.access(filename, os.W_OK):
-            dprint(" * SET_CONFIG: set_make_conf(): no write access to '%s'. " \
-                  "Perhaps the user is not root?" % os.path.split(filename))
+        dprint(" * SET_CONFIG: set_make_conf(): no write access to '%s'. " \
+            "Perhaps the user is not root?" % os.path.split(filename))
     makefile = MakeConf(filename)
     values = makefile.read_property(property)
     if remove:
