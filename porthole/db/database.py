@@ -102,7 +102,7 @@ class Database(DBBase):
     def update(self, pkg):
         """callback function to update an individual package
             after a successfull install action was detected"""
-        raise NotImplementedError
+        raise NotImplemented
 
     def save(self):
         """saves the db to a file"""
