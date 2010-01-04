@@ -67,8 +67,13 @@ def get_icon_for_upgrade_package(package):
 def is_root():
     """Returns true if process runs as root."""
     return os.geteuid() == 0
-    
+
 write_access = is_root()
+
+def can_root():
+    """Returns true if process runs as root."""
+    return os.getuid() == 0
+
 
 def read_access():
     """Return true if user is root or a member of the portage group."""
