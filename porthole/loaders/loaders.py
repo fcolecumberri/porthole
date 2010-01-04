@@ -38,14 +38,15 @@ try:
     try:
         import gnomevfs
     except: # try the depricated module
-        import gnome.vfs
+        #no it's too old now ##  import gnome.vfs
+        pass
 except ImportError:
     # no gnome module
     #print >>stderr, ('Module "gnome" not found. '
     #                 'You will not be able to use gnome to open web pages.')
     debug.dprint('LOADERS: Module "gnome" not found. '
            'You will not be able to use gnome to open web pages.')
-    
+
 # get the standard webbrowser module
 try:
     import webbrowser
