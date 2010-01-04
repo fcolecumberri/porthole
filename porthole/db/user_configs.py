@@ -253,7 +253,8 @@ class UserConfigs:
         othertypes = ['USE', 'KEYWORDS']
         package_types = othertypes + masktypes
         if mytype not in package_types:
-            #debug.dprint("USER_CONFIGS: get_user_config(): unsupported config mytype '%s'" % mytype)
+            #debug.dprint("USER_CONFIGS: get_user_config(): unsupported " +
+                #"config mytype '%s'" % mytype)
             return None
         atoms = self.get_atom(mytype, name, ebuild)
         dict = {}
@@ -292,55 +293,79 @@ class UserConfigs:
                         dict[ebuild] = atom.value[:]
         return dict
 
-    def set_user_config( self, mytype, name='', ebuild='', add='', remove='', callback=None, parent_window = None, *comment):
+    def set_user_config( self, mytype, name='', ebuild='', add='', remove='',
+        callback=None, parent_window = None, *comment):
         """
         Adds <name> or '=' + <ebuild> to <file> with flags <add>.
-        If an existing entry is found, items in <remove> are removed and <add> is added.
+        If an existing entry is found, items in <remove> 
+        are removed and <add> is added.
         
-        If <name> and <ebuild> are not given then lines starting with something in
-        remove are removed, and items in <add> are added as new lines.
+        If <name> and <ebuild> are not given then lines starting with 
+        something in remove are removed, and items in <add> are added
+        as new lines.
         """
         #debug.dprint("USER_CONFIGS: set_user_config()")
         self.set_callback = callback
         self.set_type = mytype
         command = ''
         if mytype not in CONFIG_TYPES:
-            debug.dprint("USER_CONFIGS: set_user_config(): unsupported config mytype '%s'" % mytype)
+            debug.dprint("USER_CONFIGS: set_user_config(): unsupported " +
+                "config mytype '%s'" % mytype)
             return False
-        config_path = os.path.join(portage_lib.settings.config_root, portage_lib.settings.user_config_dir)
-        # get an existing atom if one exists.  pass both name and ebuild, no need to check which one, I think
+        config_path = os.path.join(portage_lib.settings.config_root, 
+            portage_lib.settings.user_config_dir)
+        # get an existing atom if one exists.  pass both name and ebuild, 
+        # no need to check which one, I think
         atom = self.get_atom(mytype, name, ebuild)
         if atom == None or atom == []: # get a target file
-            if add == '' and remove != '': # then there is no need to create a new file entry
-                # this call was probably to check and remove an existing entry if it existed.
+            if add == '' and remove != '': 
+                # then there is no need to create a new file entry
+                # this call was probably to check and remove 
+                # an existing entry if it existed.
                 return True
             file = target = CONFIG_FILES[CONFIG_TYPES.index(mytype)]
             target_path = os.path.join(config_path, target)
-            debug.dprint("USER_CONFIGS: set_user_config(): target_path = " + target_path)
+            debug.dprint("USER_CONFIGS: set_user_config(): target_path = " +
+                target_path)
             if os.path.isdir(target_path): # Then bring up a file selector dialog
                 if parent_window == None:
                     parent_window = config.Mainwindow
-                file_picker = FileSelector2(parent_window, os.path.join(target_path, target), overwrite_confirm = False)
-                file = file_picker.get_filename(_("Porthole: Please select the %s file to use") %(target),
-                                                                    'save')
+                file_picker = FileSelector2(parent_window,
+                    os.path.join(target_path, target), overwrite_confirm=False)
+                file = file_picker.get_filename(
+                    _("Porthole: Please select the %s file to use") %(target),
+                    'save')
                 if file == '': return False
                 file = os.path.join(target_path, file)
             else:
                 file = target_path
-            debug.dprint("USER_CONFIGS: set_user_config(): got a filename :) file = " + file)
+            debug.dprint("USER_CONFIGS: set_user_config(): got a filename :) " +
+                "file = " + file)
 
         else: # found one
             file = atom[0].file
-            debug.dprint("USER_CONFIGS: set_user_config(): found an atom :) file = " + file)
+            debug.dprint("USER_CONFIGS: set_user_config(): found an atom :) " +
+                "file = " + file)
         self.set_file = file
 
         if isinstance(add, list):
             add = ' '.join(add)
         if isinstance(remove, list):
             remove = ' '.join(remove)
-        #debug.dprint("USER_CONFIGS: set_user_config(): add: %s,\n remove: %s " %(add,remove))
-        if not os.access(config_path, os.W_OK):
-            commandlist = [config.Prefs.globals.su, '"python', set_config.__file__ + ' -d -f ' + file]
+        #debug.dprint("USER_CONFIGS: set_user_config(): add: " +
+            #"%s,\n remove: %s " %(add,remove))
+        if os.getuid == 0 or os.access(config_path, os.W_OK):
+            add = add.split()
+            remove = remove.split()
+            debug.dprint("USER_CONFIGS: set_user_config(): add: " +
+                "%s,\n remove: %s " %(str(add),str(remove)))
+            set_config.set_user_config(filename=file, name=name, ebuild=ebuild,
+                comment=comment, username=priviliges.USER, 
+                add=add, remove=remove)
+            self.set_config_callback()
+        else:
+            commandlist = [config.Prefs.globals.su, '"python', 
+                set_config.__file__ + ' -d -f ' + file]
             if name != '':
                 commandlist.append('-n %s' %name)
             if ebuild != '':
@@ -358,18 +383,16 @@ class UserConfigs:
                 for item in items:
                     commandlist.append('-r %s' % item)
             command = ' '.join(commandlist) + '"'
-            debug.dprint(" * USER_CONFIGS: set_user_config(): command = %s" %command )
+            debug.dprint(" * USER_CONFIGS: set_user_config(): command = %s"
+                %command )
             # add code to update_config()
             mycallback = self.set_config_callback #portage_lib.reload_portage
-            app = SimpleTerminal(command, False, dprint_output='SET_USER_CONFIG CHILD APP: ', callback=Dispatcher(mycallback))
+            app = SimpleTerminal(command, False, 
+                dprint_output='SET_USER_CONFIG CHILD APP: ', 
+                callback=Dispatcher(mycallback))
             app._run()
-        else:
-            add = add.split()
-            remove = remove.split()
-            debug.dprint("USER_CONFIGS: set_user_config(): add: %s,\n remove: %s " %(str(add),str(remove)))
-            set_config.set_user_config(filename=file, name=name, ebuild=ebuild, comment=comment, username=os.getenv("LOGNAME"), add=add, remove=remove)
-            self.set_config_callback()
         return True
+
 
     def set_config_callback(self, *args):
         debug.dprint(" * USER_CONFIGS: set_config_callback():" )
@@ -381,13 +404,15 @@ class UserConfigs:
         # or portage.portdb.mysettings ?
         portage_lib.reload_portage()
         if self.set_callback:
-            debug.dprint(" * USER_CONFIGS: set_config_callback(): doing self.set_callback()" )
+            debug.dprint(" * USER_CONFIGS: set_config_callback(): " +
+                "doing self.set_callback()" )
             self.set_callback()
 
 
     def reload_file(self, mytype, file):
         """reload a config file due to changes"""
-        debug.dprint(" * USER_CONFIGS: reload_file(): mytype = " + mytype + ", file = " + file )
+        debug.dprint(" * USER_CONFIGS: reload_file(): mytype = " + mytype +
+            ", file = " + file )
         #return # for now
         # load the file to a temp_db
         temp_db = {}
@@ -409,7 +434,8 @@ class UserConfigs:
         else:
             old_file_atoms =  []
         old_length = len(old_file_atoms)
-        #debug.dprint(" * USER_CONFIGS: reload_file(): old atoms : " + str(old_file_atoms))
+        #debug.dprint(" * USER_CONFIGS: reload_file(): old atoms : " + 
+            #str(old_file_atoms))
         for a in old_file_atoms:
             # delete the old record
             self.db[mytype][a.name].remove(a)
