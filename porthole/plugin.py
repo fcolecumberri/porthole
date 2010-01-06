@@ -195,6 +195,7 @@ class PluginGUI(gtk.Window):
         self.liststore = gtk.ListStore(bool, str, bool)
         self.plugin_view.set_model(self.liststore)
         for i in self.plugin_manager.plugin_list(): 
+            debug.dprint("PLUGIN: create_plugin_list(): plugin_list=" + str(self.plugin_manager.plugin_list()))
             debug.dprint("PLUGIN: create_plugin_list(): %s , is_installed = %s" %(i.name, str(i.module.is_installed)))
             if not i.module.is_installed:
                 i.enabled = False
