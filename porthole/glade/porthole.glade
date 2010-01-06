@@ -28,7 +28,7 @@
                   <widget class="GtkMenu" id="menuitem1_menu">
                     <child>
                       <widget class="GtkImageMenuItem" id="emerge_package1">
-                        <property name="label">E_merge Package</property>
+                        <property name="label" translatable="yes">E_merge Package</property>
                         <property name="visible">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">False</property>
@@ -45,7 +45,7 @@
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="adv_emerge_package1">
-                        <property name="label">_Advanced Emerge Package</property>
+                        <property name="label" translatable="yes">_Advanced Emerge Package</property>
                         <property name="visible">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">False</property>
@@ -62,7 +62,7 @@
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="unmerge_package1">
-                        <property name="label">U_nmerge Package</property>
+                        <property name="label" translatable="yes">U_nmerge Package</property>
                         <property name="visible">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">False</property>
@@ -84,7 +84,7 @@
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="sync_tree1">
-                        <property name="label">S_ync Tree</property>
+                        <property name="label" translatable="yes">S_ync Tree</property>
                         <property name="visible">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">False</property>
@@ -101,7 +101,7 @@
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="upgrade_packages1">
-                        <property name="label">_Upgrade Packages</property>
+                        <property name="label" translatable="yes">_Upgrade Packages</property>
                         <property name="visible">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">False</property>
@@ -123,7 +123,7 @@
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="open_log">
-                        <property name="label">Open Emerge _Log</property>
+                        <property name="label" translatable="yes">Open Emerge _Log</property>
                         <property name="visible">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">False</property>
@@ -140,7 +140,7 @@
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="run_custom">
-                        <property name="label">_Run Custom Command</property>
+                        <property name="label" translatable="yes">_Run Custom Command</property>
                         <property name="visible">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">False</property>
@@ -157,7 +157,7 @@
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="reload_db">
-                        <property name="label">R_eload Database</property>
+                        <property name="label" translatable="yes">R_eload Database</property>
                         <property name="visible">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">False</property>
@@ -304,7 +304,7 @@
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="configure_porthole">
-                        <property name="label">_Configure Porthole</property>
+                        <property name="label" translatable="yes">_Configure Porthole</property>
                         <property name="visible">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">False</property>
@@ -331,7 +331,7 @@
                   <widget class="GtkMenu" id="menuitem4_menu">
                     <child>
                       <widget class="GtkImageMenuItem" id="contents2">
-                        <property name="label">_Contents</property>
+                        <property name="label" translatable="yes">_Contents</property>
                         <property name="visible">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">False</property>
