@@ -21,7 +21,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
-import sys
+import sys, os
 from getopt import getopt, GetoptError
 
 print "Porthole: python version = ", sys.version
@@ -37,21 +37,38 @@ def usage():
     print "  --debug string\tOutput debugging information to stderr (terminal)"
     print "             " + tabs + "string, ALL = all debug text printed.  Any other string will"
     print "             " + tabs + "print only those texts containing 'string'"
-    print "             " + tabs + "Also if PyCrash-0.4pre3 or newer is found it will use it"
-    print "             " + tabs + "to try to save additional crash info to send in for debugging"
-    print "  -b, [portage, pkgcore, dbus]  select one of the backends"
-    print "  -p, --pkgcore" + tabs + "Use the pkgcore (aka portage-ng, portage-3) code"
+    print "  -b, --backend [portage, pkgcore, dbus]  select one of the backends"
+    print "  -n, --no-privileges\t forces porthole to NOT try to run with root privileges"
+    print "  -u, --user [name]  the user to run as for certain operations.  Optionals and"
+    print "                     automatically set if not specified."
+
    
 if __name__ == "__main__":
+    
     try:
-        opts, args = getopt(sys.argv[1:], 'lvd:b:hp', ["local", "version", "debug=",
-                                              "backend=", "help", "pkgcore"])
+        opts, args = getopt(sys.argv[1:], 'lvd:b:hnu:', ["local", "version", "debug=",
+                                              "backend=", "help", "no-priveledges", "user=", "path="])
         #print opts
         #print args
     except GetoptError, e:
         print >> sys.stderr, e.msg
         usage()
         sys.exit(1)
+
+    no_user = False
+
+    for opt, arg in opts:
+        if opt in ("-n", "--no-priveledges"):
+            no_user = True
+        elif opt in ("-u", "--user"):
+            no_user = True
+            pass
+        elif opt in ("-h", "--help"):
+            usage()
+        elif opt in ("--path"):
+            os.environ['PATH'] = arg
+ 
+
     # run thru the options and set the DATA_PATH & imported modules properly
     # bug ==> any porthole script can be used to load both --local and installed modules
     RUN_LOCAL = False
@@ -63,8 +80,10 @@ if __name__ == "__main__":
             print "importing local modules"
             #print sys.path
             import os
-            #print "dir = ", os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            sys.path.insert(0, (os.path.dirname(os.path.dirname(os.path.abspath(__file__))))) #+"/porthole"))
+            #print "dir = ", os.path.dirname(
+                #os.path.dirname(os.path.abspath(__file__)))
+            sys.path.insert(0, (os.path.dirname(
+                os.path.dirname(os.path.abspath(__file__)))))
             #print "\n"
             #print sys.path
             from porthole.startup import *
@@ -78,22 +97,19 @@ if __name__ == "__main__":
         insert_path()
 
     for opt, arg in opts:
-        if opt in ("-p", "--pkgcore"):
-            startup.BACKEND = choices["pkgcore"]
+        #print "opt, arg ", opt, arg, type(arg)
         if opt in ("-b"):
             if arg in choices:
                 set_backend(arg)
             else:
                 useage()
-
-    for opt, arg in opts:
-        #print "opt, arg ", opt, arg, type(arg)
-        if opt in ("-v", "--version"):
+        elif opt in ("-v", "--version"):
             print_version()
         elif opt in ("-d", "--debug"):
             set_debug(arg)
-        elif opt in ("-h", "--help"):
-            usage()
+        elif opt in ("-u", "--user"):
+            print "Porthole: --user = ", arg
+            set_user(arg)
     print "starting main()"
     main()
     sys.exit()
