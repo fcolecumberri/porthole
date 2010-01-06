@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Porthole-0.5.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-10-18 20:49-0700\n"
-"PO-Revision-Date: 2009-12-09 21:09+0100\n"
-"Last-Translator: Arkadiusz Kowalski <0.akowalski@gmail.com>\n"
+"POT-Creation-Date: 2010-01-05 23:45-0800\n"
+"PO-Revision-Date: 2010-01-05 23:52-0800\n"
+"Last-Translator: Brian Dolbec <dol-sen@sourceforge.net>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -606,7 +606,7 @@ msgstr ""
 #: porthole/glade/config.glade.h:30
 #: porthole/views/package.py:68
 #: porthole/views/menus.py:47
-#: porthole/views/depends.py:126
+#: porthole/views/depends.py:128
 msgid "Emerge"
 msgstr ""
 
@@ -663,7 +663,7 @@ msgid "Info"
 msgstr "Informacje"
 
 #: porthole/glade/config.glade.h:44
-#: porthole/plugin.py:204
+#: porthole/plugin.py:205
 #: porthole/views/package.py:106
 #: porthole/views/depends.py:76
 msgid "Installed"
@@ -793,6 +793,7 @@ msgid "These colours are used by emerge for coloured output"
 msgstr "Te kolory stosowane są przez emerge do kolorowania tekstu"
 
 #: porthole/glade/config.glade.h:76
+#: porthole/glade/porthole.glade.h:55
 msgid "USE Flags"
 msgstr "Flagi USE"
 
@@ -975,7 +976,7 @@ msgstr "Czyści kolejkę"
 #: porthole/readers/upgradeables.py:57
 #: porthole/readers/upgradeables.py:135
 #: porthole/views/depends.py:58
-#: porthole/views/depends.py:166
+#: porthole/views/depends.py:168
 msgid "Dependencies"
 msgstr "Zależności"
 
@@ -984,310 +985,332 @@ msgid "E_merge"
 msgstr "Emerge"
 
 #: porthole/glade/porthole.glade.h:11
+msgid "E_merge Package"
+msgstr "Instaluj Pakiet"
+
+#: porthole/glade/porthole.glade.h:12
 msgid "Ebuild"
 msgstr "Ebuild"
 
-#: porthole/glade/porthole.glade.h:12
+#: porthole/glade/porthole.glade.h:13
 msgid "Emerge Package"
 msgstr "Instaluj Pakiet"
 
-#: porthole/glade/porthole.glade.h:13
+#: porthole/glade/porthole.glade.h:14
 msgid "Emerge Queue"
 msgstr "Kolejka instalacji"
 
-#: porthole/glade/porthole.glade.h:14
+#: porthole/glade/porthole.glade.h:15
 msgid "In order to access all the features of Porthole, please run it with root privileges."
 msgstr "By mieć dostęp do wszystkich opcji uruchom program z prawami roota. "
 
-#: porthole/glade/porthole.glade.h:15
+#: porthole/glade/porthole.glade.h:16
 msgid "Information "
 msgstr "Informacje "
 
-#: porthole/glade/porthole.glade.h:16
+#: porthole/glade/porthole.glade.h:17
 msgid "Installed files"
 msgstr "Zainstalowane pliki"
 
-#: porthole/glade/porthole.glade.h:17
+#: porthole/glade/porthole.glade.h:18
 msgid "Move _Bottom"
 msgstr "W dół"
 
-#: porthole/glade/porthole.glade.h:18
+#: porthole/glade/porthole.glade.h:19
 msgid "Move _Down"
 msgstr "W dół"
 
-#: porthole/glade/porthole.glade.h:19
+#: porthole/glade/porthole.glade.h:20
 msgid "Move _Top"
 msgstr "W górę"
 
-#: porthole/glade/porthole.glade.h:20
+#: porthole/glade/porthole.glade.h:21
 msgid "Move _Up"
 msgstr "W górę"
 
-#: porthole/glade/porthole.glade.h:21
+#: porthole/glade/porthole.glade.h:22
 msgid "Moves the selected process to start next"
 msgstr "Przenieś zaznaczone zadanie, aby startowało jako następne"
 
-#: porthole/glade/porthole.glade.h:22
+#: porthole/glade/porthole.glade.h:23
 msgid "Moves the selected process to the end of the queue"
 msgstr "Przenieś zaznaczone zadanie na koniec kolejki"
 
-#: porthole/glade/porthole.glade.h:23
+#: porthole/glade/porthole.glade.h:24
 msgid "Not Root"
 msgstr "NIE ROOT"
 
-#: porthole/glade/porthole.glade.h:24
+#: porthole/glade/porthole.glade.h:25
 msgid "Not yet implemented in this window.                   Set the terminal queue status, ie. Start, Pause or Timer"
 msgstr "Nie zaimplementowane w tym oknie.                 Ustaw status kolejki terminalu, np start, pauza"
 
-#: porthole/glade/porthole.glade.h:25
+#: porthole/glade/porthole.glade.h:26
 msgid "Not yet implemented.                                     Set run times for commands in the queue"
 msgstr "Jeszcze nie zaimplementowane.                     Ustaw czasy dla komend w kolejce"
 
-#: porthole/glade/porthole.glade.h:26
+#: porthole/glade/porthole.glade.h:27
 msgid "Not yet set..."
 msgstr "Jeszcze nie ustawione..."
 
-#: porthole/glade/porthole.glade.h:27
+#: porthole/glade/porthole.glade.h:28
 msgid "Only _Fetch"
 msgstr "Tylko pobierz"
 
-#: porthole/glade/porthole.glade.h:28
+#: porthole/glade/porthole.glade.h:29
+msgid "Open Emerge _Log"
+msgstr "OtwÃ³rz logi emerge"
+
+#: porthole/glade/porthole.glade.h:30
 msgid "Pause any commands in the queue"
 msgstr "Pauzuje zadania w kolejce"
 
-#: porthole/glade/porthole.glade.h:29
+#: porthole/glade/porthole.glade.h:31
 msgid "Please Enter Command to Execute"
 msgstr "Podaj polecenie do wykonania"
 
-#: porthole/glade/porthole.glade.h:30
+#: porthole/glade/porthole.glade.h:32
 msgid "Plugin Settings"
 msgstr "Ustawienia wtyczek"
 
-#: porthole/glade/porthole.glade.h:31
+#: porthole/glade/porthole.glade.h:33
 msgid "Plugin _Settings"
 msgstr "Ustawienia wtyczki"
 
-#: porthole/glade/porthole.glade.h:32
+#: porthole/glade/porthole.glade.h:34
 msgid "Porthole"
 msgstr "Porthole"
 
-#: porthole/glade/porthole.glade.h:33
+#: porthole/glade/porthole.glade.h:35
 msgid "Porthole Terminal"
 msgstr "Terminal Porthole"
 
-#: porthole/glade/porthole.glade.h:34
+#: porthole/glade/porthole.glade.h:36
 #: porthole/terminal/constants.py:48
 msgid "Process"
 msgstr "Proces"
 
-#: porthole/glade/porthole.glade.h:35
+#: porthole/glade/porthole.glade.h:37
 #, fuzzy
 msgid "Queue"
 msgstr "Kolejka"
 
-#: porthole/glade/porthole.glade.h:36
+#: porthole/glade/porthole.glade.h:38
 msgid "RUN :"
 msgstr "Uruchom: "
 
-#: porthole/glade/porthole.glade.h:37
+#: porthole/glade/porthole.glade.h:39
+msgid "R_eload Database"
+msgstr "PrzeÅaduj bazÄ"
+
+#: porthole/glade/porthole.glade.h:40
 msgid "Re-Initialize _Portage"
 msgstr "Zrestartuj Portage"
 
-#: porthole/glade/porthole.glade.h:38
+#: porthole/glade/porthole.glade.h:41
 msgid "Re_sume"
 msgstr "Wznów"
 
-#: porthole/glade/porthole.glade.h:39
+#: porthole/glade/porthole.glade.h:42
 msgid "Refresh the Current View"
 msgstr "Odświerz listę"
 
-#: porthole/glade/porthole.glade.h:40
+#: porthole/glade/porthole.glade.h:43
 msgid "Removes selected queue item(s)"
 msgstr "Usuwa zaznaczony element z kolejki"
 
-#: porthole/glade/porthole.glade.h:41
+#: porthole/glade/porthole.glade.h:44
 msgid "Resume the queue processes remaining"
 msgstr "Kontynuuje procesy pozostałe w kolejce"
 
-#: porthole/glade/porthole.glade.h:42
+#: porthole/glade/porthole.glade.h:45
 msgid "Run commands in the queue"
 msgstr "Uruchom zadania czekające w kolejce"
 
-#: porthole/glade/porthole.glade.h:43
+#: porthole/glade/porthole.glade.h:46
 msgid "S_ync"
 msgstr "Sync"
 
-#: porthole/glade/porthole.glade.h:44
+#: porthole/glade/porthole.glade.h:47
+msgid "S_ync Tree"
+msgstr "Synchronizuj Drzewo"
+
+#: porthole/glade/porthole.glade.h:48
 msgid "Save Log _As"
 msgstr "Zapisz log jako"
 
-#: porthole/glade/porthole.glade.h:45
+#: porthole/glade/porthole.glade.h:49
 msgid "Save _Log"
 msgstr "Zapisz log"
 
-#: porthole/glade/porthole.glade.h:46
+#: porthole/glade/porthole.glade.h:50
 msgid "Search _Descriptions"
 msgstr "Opis wyszukiwania"
 
-#: porthole/glade/porthole.glade.h:47
+#: porthole/glade/porthole.glade.h:51
 msgid "Skip _Queue Item"
 msgstr "Opuść zakolejkowany wpis"
 
-#: porthole/glade/porthole.glade.h:48
+#: porthole/glade/porthole.glade.h:52
 #: porthole/terminal/constants.py:48
 msgid "Summary"
 msgstr "Podsumowanie"
 
-#: porthole/glade/porthole.glade.h:49
+#: porthole/glade/porthole.glade.h:53
 msgid "Temporarily stop any remaining processes from starting"
 msgstr "Chwilowo wstrzymuje pozostałe procesy przed uruchomieniem"
 
-#: porthole/glade/porthole.glade.h:50
+#: porthole/glade/porthole.glade.h:54
 msgid "Ti_mer"
 msgstr ""
 
-#: porthole/glade/porthole.glade.h:51
+#: porthole/glade/porthole.glade.h:56
 msgid "U_nmerge"
 msgstr "Odinstaluj"
 
-#: porthole/glade/porthole.glade.h:52
+#: porthole/glade/porthole.glade.h:57
+msgid "U_nmerge Package"
+msgstr "Odinstaluj pakiet"
+
+#: porthole/glade/porthole.glade.h:58
 msgid "Unmerge Package"
 msgstr "Odinstaluj Pakiet"
 
-#: porthole/glade/porthole.glade.h:53
+#: porthole/glade/porthole.glade.h:59
 msgid "Upgrade packages to newest versions"
 msgstr "Aktualizuj pakiety do najnowszych wersji"
 
-#: porthole/glade/porthole.glade.h:54
+#: porthole/glade/porthole.glade.h:60
 msgid "Warnings! "
 msgstr "Uwaga! "
 
-#: porthole/glade/porthole.glade.h:55
+#: porthole/glade/porthole.glade.h:61
 msgid "_Actions"
 msgstr "Akcje"
 
-#: porthole/glade/porthole.glade.h:56
+#: porthole/glade/porthole.glade.h:62
+msgid "_Advanced Emerge Package"
+msgstr "Zaawansowane opcje instalacji"
+
+#: porthole/glade/porthole.glade.h:63
 msgid "_Close Window"
 msgstr "Zamknij Okno"
 
-#: porthole/glade/porthole.glade.h:57
+#: porthole/glade/porthole.glade.h:64
+msgid "_Configure Porthole"
+msgstr "Konfiguracja Porthole"
+
+#: porthole/glade/porthole.glade.h:65
+msgid "_Contents"
+msgstr "TreÅÄ"
+
+#: porthole/glade/porthole.glade.h:66
 msgid "_Edit"
 msgstr "Edytuj"
 
-#: porthole/glade/porthole.glade.h:58
+#: porthole/glade/porthole.glade.h:67
 msgid "_Help"
 msgstr "Pomoc"
 
-#: porthole/glade/porthole.glade.h:59
+#: porthole/glade/porthole.glade.h:68
 msgid "_Kill"
 msgstr ""
 
-#: porthole/glade/porthole.glade.h:60
+#: porthole/glade/porthole.glade.h:69
 msgid "_Kill Process"
 msgstr "Zabij Proces"
 
-#: porthole/glade/porthole.glade.h:61
+#: porthole/glade/porthole.glade.h:70
 msgid "_Noreplace"
 msgstr ""
 
-#: porthole/glade/porthole.glade.h:62
+#: porthole/glade/porthole.glade.h:71
 msgid "_Normal"
 msgstr "Normalny"
 
-#: porthole/glade/porthole.glade.h:63
+#: porthole/glade/porthole.glade.h:72
 msgid "_Oneshot"
 msgstr ""
 
-#: porthole/glade/porthole.glade.h:64
+#: porthole/glade/porthole.glade.h:73
 msgid "_Open Log"
 msgstr "Otwórz log"
 
-#: porthole/glade/porthole.glade.h:65
+#: porthole/glade/porthole.glade.h:74
 msgid "_Pretend"
 msgstr "Symuluj"
 
-#: porthole/glade/porthole.glade.h:66
+#: porthole/glade/porthole.glade.h:75
 msgid "_Process"
 msgstr "Proces"
 
-#: porthole/glade/porthole.glade.h:67
+#: porthole/glade/porthole.glade.h:76
 msgid "_Queue"
 msgstr "Kolejka"
 
-#: porthole/glade/porthole.glade.h:68
+#: porthole/glade/porthole.glade.h:77
 msgid "_Resume"
 msgstr "Wznów"
 
-#: porthole/glade/porthole.glade.h:69
+#: porthole/glade/porthole.glade.h:78
+msgid "_Run Custom Command"
+msgstr "Wykonaj Polecenie"
+
+#: porthole/glade/porthole.glade.h:79
 msgid "_Settings"
 msgstr "Ustawienia"
 
-#: porthole/glade/porthole.glade.h:70
+#: porthole/glade/porthole.glade.h:80
 msgid "_Skip First Package"
 msgstr "Pomiń pierwszy pakiet"
 
-#: porthole/glade/porthole.glade.h:71
+#: porthole/glade/porthole.glade.h:81
 msgid "_Update"
 msgstr "Aktualizuj"
 
-#: porthole/glade/porthole.glade.h:72
+#: porthole/glade/porthole.glade.h:82
 msgid "_Upgrade"
 msgstr "Aktualizuj"
 
-#: porthole/glade/porthole.glade.h:73
+#: porthole/glade/porthole.glade.h:83
+msgid "_Upgrade Packages"
+msgstr "Aktualizuj Pakiety"
+
+#: porthole/glade/porthole.glade.h:84
 msgid "_Verbose"
 msgstr "Szczegóły"
 
-#: porthole/glade/porthole.glade.h:74
+#: porthole/glade/porthole.glade.h:85
 msgid "_View:"
 msgstr "Zobacz:"
 
-#: porthole/utils/utils.py:200
+#: porthole/utils/utils.py:205
 msgid "Error reading emerge log file.  Check file permissions, or check for corrupt log file."
 msgstr "Błąd odczytu logów emerge. Sprawdź uprawnienia oraz poprawność danych zawartych w pliku logów"
 
-#: porthole/plugin.py:202
+#: porthole/plugin.py:203
 msgid "Enable"
 msgstr "Aktywuj"
 
-#: porthole/plugin.py:203
+#: porthole/plugin.py:204
 msgid "Plug-in"
 msgstr "Wtyczka"
 
-#: porthole/packagebook/notebook.py:145
+#: porthole/packagebook/notebook.py:160
 msgid "Viewing Dependency of: "
 msgstr "Podgląd Zależności:"
 
-#: porthole/packagebook/depends.py:174
+#: porthole/packagebook/dependstree.py:91
 msgid "Using "
 msgstr "Używa"
 
-#: porthole/packagebook/depends.py:177
+#: porthole/packagebook/dependstree.py:94
 msgid "Not Using "
 msgstr "Nie używa"
 
-#: porthole/packagebook/depends.py:217
-#, python-format
-msgid "Using %s"
-msgstr "Używa %s"
-
-#: porthole/packagebook/depends.py:222
-#, python-format
-msgid "Not Using %s"
-msgstr "Nie używa %s"
-
-#: porthole/packagebook/depends.py:234
-msgid "Any of:"
-msgstr "Każdy z:"
-
-#: porthole/packagebook/depends.py:238
-msgid "All of:"
-msgstr "Wszystkie z:"
-
-#: porthole/packagebook/depends.py:316
-#: porthole/packagebook/summary.py:562
+#: porthole/packagebook/dependstree.py:319
+#: porthole/packagebook/summary.py:563
 #: porthole/backends/utilities.py:76
-#: porthole/advancedemerge/advemerge.py:678
+#: porthole/advancedemerge/advemerge.py:680
 #: porthole/db/package.py:66
 #: porthole/db/package.py:82
 #: porthole/db/package.py:89
@@ -1318,9 +1341,27 @@ msgstr "Wszystkie z:"
 #: porthole/views/package.py:435
 #: porthole/views/package.py:480
 #: porthole/views/package.py:542
-#: porthole/mainwindow.py:1019
+#: porthole/mainwindow.py:1165
 msgid "None"
 msgstr "Brak"
+
+#: porthole/packagebook/depends.py:240
+#, python-format
+msgid "Using %s"
+msgstr "Używa %s"
+
+#: porthole/packagebook/depends.py:244
+#, python-format
+msgid "Not Using %s"
+msgstr "Nie używa %s"
+
+#: porthole/packagebook/depends.py:258
+msgid "Any of:"
+msgstr "Każdy z:"
+
+#: porthole/packagebook/depends.py:262
+msgid "All of:"
+msgstr "Wszystkie z:"
 
 #: porthole/packagebook/summary.py:86
 msgid "Emerge this ebuild"
@@ -1343,7 +1384,7 @@ msgid "Sudo Unmerge this ebuild"
 msgstr "Sudo deinstalacja ebuilda"
 
 #: porthole/packagebook/summary.py:96
-#: porthole/views/depends.py:132
+#: porthole/views/depends.py:134
 #, fuzzy
 msgid "Advanced Emerge"
 msgstr "Zaawansowane opcje instalacji"
@@ -1414,57 +1455,49 @@ msgstr "Ta wersja ebuild nie jest już dostępna"
 msgid "Obsolete"
 msgstr "Przestarzałe"
 
-#: porthole/packagebook/summary.py:354
-msgid "Y"
-msgstr "Y"
-
-#: porthole/packagebook/summary.py:356
-msgid "N"
-msgstr "N"
-
-#: porthole/packagebook/summary.py:436
+#: porthole/packagebook/summary.py:437
 msgid "IUSE: "
 msgstr ""
 
-#: porthole/packagebook/summary.py:441
+#: porthole/packagebook/summary.py:442
 msgid "Use flags settings: "
 msgstr "Ustawienia flag USE: "
 
-#: porthole/packagebook/summary.py:446
+#: porthole/packagebook/summary.py:447
 msgid "Final environment Use flags: "
 msgstr "Flagi USE ostatecznego środowiska: "
 
-#: porthole/packagebook/summary.py:453
+#: porthole/packagebook/summary.py:454
 msgid "Keywords: "
 msgstr "Keywords: "
 
-#: porthole/packagebook/summary.py:465
+#: porthole/packagebook/summary.py:466
 msgid "License: "
 msgstr "Licencja: "
 
-#: porthole/packagebook/summary.py:548
+#: porthole/packagebook/summary.py:549
 msgid "User Configs: "
 msgstr ""
 
-#: porthole/packagebook/summary.py:643
+#: porthole/packagebook/summary.py:644
 msgid "Long Description: "
 msgstr "Długi opis: "
 
-#: porthole/packagebook/summary.py:664
+#: porthole/packagebook/summary.py:665
 msgid "Installed versions:\n"
 msgstr "Zainstalowana wersja:\n"
 
-#: porthole/packagebook/summary.py:668
-#: porthole/loaders/loaders.py:162
+#: porthole/packagebook/summary.py:669
+#: porthole/loaders/loaders.py:163
 msgid "Not installed"
 msgstr "Nie zainstalowany"
 
-#: porthole/packagebook/summary.py:673
+#: porthole/packagebook/summary.py:674
 #, python-format
 msgid "Available versions for %s:\n"
 msgstr "Dostępne wersje dla %s:\n"
 
-#: porthole/packagebook/summary.py:677
+#: porthole/packagebook/summary.py:678
 msgid "Properties for version: "
 msgstr "Właściwości dla wersji: "
 
@@ -1494,7 +1527,7 @@ msgid "Could not find pkgcore.package.atom module."
 msgstr "Nie mogę znaleźć modułu pkgcore.package.atom."
 
 #: porthole/backends/pkgcore_lib.py:56
-#: porthole/backends/set_config.py:34
+#: porthole/backends/set_config.py:35
 #: porthole/backends/portagelib.py:63
 msgid ""
 "Could not find portage module.\n"
@@ -1504,12 +1537,12 @@ msgstr ""
 " Czy to Gentoo?"
 
 #: porthole/backends/pkgcore_lib.py:550
-#: porthole/backends/portagelib.py:560
+#: porthole/backends/portagelib.py:442
 msgid "No masking reason given"
 msgstr "Nie podano powodu maskowania"
 
 #: porthole/backends/utilities.py:83
-#: porthole/mainwindow.py:309
+#: porthole/mainwindow.py:339
 msgid "Unknown"
 msgstr "Nieznany"
 
@@ -1519,42 +1552,42 @@ msgid "Advanced Emerge Settings for %s"
 msgstr "Zaawansowane ustawienia Emerge dla %s"
 
 #: porthole/advancedemerge/advemerge.py:142
-#: porthole/advancedemerge/advemerge.py:339
+#: porthole/advancedemerge/advemerge.py:340
 #, python-format
 msgid "Slot:%s"
 msgstr "Slot:%s"
 
 #: porthole/advancedemerge/advemerge.py:144
-#: porthole/advancedemerge/advemerge.py:341
+#: porthole/advancedemerge/advemerge.py:342
 msgid "   {unavailable}"
 msgstr "   {niedostępny}"
 
 #: porthole/advancedemerge/advemerge.py:146
-#: porthole/advancedemerge/advemerge.py:343
+#: porthole/advancedemerge/advemerge.py:344
 msgid "   (unstable)"
 msgstr "   (niestabilny)"
 
 #: porthole/advancedemerge/advemerge.py:148
-#: porthole/advancedemerge/advemerge.py:345
+#: porthole/advancedemerge/advemerge.py:346
 msgid "   [MASKED]"
 msgstr "   [ZAMASKOWANY]"
 
 #: porthole/advancedemerge/advemerge.py:151
-#: porthole/advancedemerge/advemerge.py:348
+#: porthole/advancedemerge/advemerge.py:349
 msgid "   (recommended) (downgrade)"
 msgstr "   (zalecane) (obniżenie wersji)"
 
 #: porthole/advancedemerge/advemerge.py:153
-#: porthole/advancedemerge/advemerge.py:350
+#: porthole/advancedemerge/advemerge.py:351
 msgid "   (recommended)"
 msgstr "   (zalecane)"
 
 #: porthole/advancedemerge/advemerge.py:156
-#: porthole/advancedemerge/advemerge.py:353
+#: porthole/advancedemerge/advemerge.py:354
 msgid "   [installed]"
 msgstr "   [zainstalowane]"
 
-#: porthole/advancedemerge/advemerge.py:638
+#: porthole/advancedemerge/advemerge.py:640
 msgid "Unsupported use flag"
 msgstr "Niewspierana flaga USE"
 
@@ -1610,6 +1643,11 @@ msgstr "Uwagi"
 #: porthole/terminal/constants.py:48
 msgid "Emerge queue"
 msgstr "Kolejka pakietów do instalacji"
+
+#: porthole/terminal/terminal.py:106
+#, fuzzy
+msgid "Porthole Log Viewer"
+msgstr "Przeglądarka Zależności Porthole"
 
 #: porthole/terminal/terminal.py:294
 msgid "Non-DBus"
@@ -1704,38 +1742,42 @@ msgstr "*** Nieznany błąd ładowania plików"
 msgid "*** File Loading... Processing..."
 msgstr "*** Ładowanie Plików... "
 
-#: porthole/terminal/terminal.py:1099
-#: porthole/terminal/terminal.py:1103
+#: porthole/terminal/terminal.py:1100
 msgid ": Open log File"
 msgstr ": Otwórz plik logów"
 
-#: porthole/terminal/terminal.py:1144
-#: porthole/dialogs/fileselector.py:78
+#: porthole/terminal/terminal.py:1136
+#, fuzzy
+msgid ": Save File"
+msgstr ": Otwórz plik logów"
+
+#: porthole/terminal/terminal.py:1148
+#: porthole/dialogs/fileselector.py:80
 #, python-format
 msgid "Ovewrite existing file '%s'?"
 msgstr "Nadpisz istniejący plik '%s'?"
 
-#: porthole/terminal/terminal.py:1208
+#: porthole/terminal/terminal.py:1204
 #, python-format
 msgid "*** Loading File : %s"
 msgstr "*** Ładuję Plik : %s"
 
-#: porthole/terminal/terminal.py:1213
+#: porthole/terminal/terminal.py:1209
 #, python-format
 msgid "Cannot open file '%(filename)s': %(errmsg)s"
 msgstr "Nie mogę otworzyć pliku  '%(filename)s': %(errmsg)s"
 
-#: porthole/terminal/terminal.py:1239
+#: porthole/terminal/terminal.py:1236
 #, python-format
 msgid "Cannot back up '%(filename)s' to '%(bak_filename)s': %(errmsg)s"
 msgstr "Nie mogę skopiować '%(filename)s' jako '%(bak_filename)s': %(errmsg)s"
 
-#: porthole/terminal/terminal.py:1248
+#: porthole/terminal/terminal.py:1245
 #, python-format
 msgid "*** saving file: %s"
 msgstr "*** zapisuję plik: %s"
 
-#: porthole/terminal/terminal.py:1282
+#: porthole/terminal/terminal.py:1279
 #, python-format
 msgid ""
 "Can't restore backup file '%(filename)s' to '%(bak_filename)s': %(errmsg)s\n"
@@ -1744,17 +1786,17 @@ msgstr ""
 "Nie mogę przywrócić pliku z kopii '%(filename)s' jako '%(bak_filename)s': %(errmsg)s\n"
 "Plik kopii zostawiony jako '%(bak_filename)s'"
 
-#: porthole/terminal/terminal.py:1289
+#: porthole/terminal/terminal.py:1286
 #, python-format
 msgid "*** File saved : %s"
 msgstr "*** Plik zapisany: %s"
 
-#: porthole/terminal/terminal.py:1299
+#: porthole/terminal/terminal.py:1296
 #, python-format
 msgid "Save log to '%s'?"
 msgstr "Zapisać logi do pliku '%s'?"
 
-#: porthole/loaders/loaders.py:79
+#: porthole/loaders/loaders.py:80
 #, python-format
 msgid ""
 "This %s has an encoding method unknown to porthole.\n"
@@ -1763,18 +1805,18 @@ msgstr ""
 "Ten %s ma nieznany dla porthole system kodowania.\n"
 "Zgłoś błąd na bugs.gentoo.org i na bugtracku porthole"
 
-#: porthole/loaders/loaders.py:137
+#: porthole/loaders/loaders.py:138
 #, python-format
 msgid "%s is Empty"
 msgstr "%s nie jest Pusty"
 
-#: porthole/loaders/loaders.py:140
-#: porthole/loaders/loaders.py:143
+#: porthole/loaders/loaders.py:141
+#: porthole/loaders/loaders.py:144
 #, python-format
 msgid "%s Not Available"
 msgstr "%s Niedostępny"
 
-#: porthole/loaders/loaders.py:165
+#: porthole/loaders/loaders.py:166
 msgid ""
 "No data currently available.\n"
 "The package may not be installed"
@@ -1782,7 +1824,7 @@ msgstr ""
 "Brak dostępnych danych\n"
 "Pakiet może być nie zainstalowany"
 
-#: porthole/loaders/loaders.py:169
+#: porthole/loaders/loaders.py:170
 #, python-format
 msgid ""
 "%(installed_count)i installed files for: %(ebuild)s \n"
@@ -1800,7 +1842,7 @@ msgstr "Sync"
 msgid "WebRsync"
 msgstr "WebRsync"
 
-#: porthole/db/user_configs.py:321
+#: porthole/db/user_configs.py:336
 #, python-format
 msgid "Porthole: Please select the %s file to use"
 msgstr "Porthole: Wybierz plik %s "
@@ -1818,8 +1860,8 @@ msgstr ""
 #: porthole/readers/upgradeables.py:38
 #: porthole/readers/upgradeables.py:133
 #: porthole/readers/upgradeables.py:134
-#: porthole/mainwindow.py:77
-#: porthole/mainwindow.py:234
+#: porthole/mainwindow.py:78
+#: porthole/mainwindow.py:259
 #, fuzzy
 msgid "Sets"
 msgstr "Ustawienia"
@@ -1853,19 +1895,19 @@ msgstr "wpis wiersza poleceń"
 msgid "About Porthole %s"
 msgstr "Porthole - informacje %s"
 
-#: porthole/version.py:25
+#: porthole/version.py:26
 msgid "Copyright (c) 2003 - 2009"
 msgstr "Copyright (c) 2003 - 2009"
 
 #: porthole/views/package.py:70
 #: porthole/views/menus.py:49
-#: porthole/views/depends.py:128
+#: porthole/views/depends.py:130
 msgid "Pretend Emerge"
 msgstr "Symulacja Emerge"
 
 #: porthole/views/package.py:72
 #: porthole/views/menus.py:51
-#: porthole/views/depends.py:130
+#: porthole/views/depends.py:132
 msgid "Sudo Emerge"
 msgstr "Sudo Emerge"
 
@@ -1881,7 +1923,7 @@ msgstr "Sudo deinstalacja"
 
 #: porthole/views/package.py:78
 #: porthole/views/menus.py:57
-#: porthole/views/depends.py:138
+#: porthole/views/depends.py:140
 #, python-format
 msgid "Append with %s to package.keywords"
 msgstr "Dodaj z %s do package.keywords"
@@ -1900,16 +1942,16 @@ msgstr "Zaznacz wszystkie"
 msgid "Packages"
 msgstr "Pakiety"
 
-#: porthole/views/category.py:43
-#: porthole/views/category.py:71
+#: porthole/views/category.py:42
+#: porthole/views/category.py:70
 msgid "Categories"
 msgstr "Kategorie"
 
-#: porthole/views/category.py:49
+#: porthole/views/category.py:48
 msgid "# pkgs"
 msgstr ""
 
-#: porthole/views/category.py:69
+#: porthole/views/category.py:68
 msgid "Search History"
 msgstr "Szukaj w Historii"
 
@@ -1921,19 +1963,19 @@ msgstr "Pakiet"
 msgid "Required USE"
 msgstr ""
 
-#: porthole/views/depends.py:377
+#: porthole/views/depends.py:384
 msgid "Porthole Dependency Viewer"
 msgstr "Przeglądarka Zależności Porthole"
 
-#: porthole/mainwindow.py:77
+#: porthole/mainwindow.py:78
 msgid "Deprecated"
 msgstr "Przestarzałe"
 
-#: porthole/mainwindow.py:77
+#: porthole/mainwindow.py:79
 msgid "Upgradable"
 msgstr "Do aktualizacji"
 
-#: porthole/mainwindow.py:188
+#: porthole/mainwindow.py:206
 msgid ""
 " Synchronise Package Database \n"
 " The last sync was done:\n"
@@ -1941,47 +1983,47 @@ msgstr ""
 " Aktualizacja Drzewa Pakietów\n"
 " Ostatnia aktualizacja:\n"
 
-#: porthole/mainwindow.py:233
+#: porthole/mainwindow.py:257
 msgid "All Packages"
 msgstr "Wszystkie pakiety"
 
-#: porthole/mainwindow.py:233
+#: porthole/mainwindow.py:257
 msgid "Installed Packages"
 msgstr "Zainstalowane Pakiety"
 
-#: porthole/mainwindow.py:233
+#: porthole/mainwindow.py:258
 msgid "Search Results"
 msgstr "Wyniki wyszukiwania"
 
-#: porthole/mainwindow.py:233
+#: porthole/mainwindow.py:258
 msgid "Upgradable Packages"
 msgstr "Pakiety do aktualizacji"
 
-#: porthole/mainwindow.py:234
+#: porthole/mainwindow.py:259
 msgid "Deprecated Packages"
 msgstr "Przestarzałe pakiety"
 
-#: porthole/mainwindow.py:251
+#: porthole/mainwindow.py:279
 msgid "Active Plugins"
 msgstr "Aktywne Wtyczki"
 
-#: porthole/mainwindow.py:264
+#: porthole/mainwindow.py:293
 msgid "Loading database"
 msgstr "Ładuję bazę danych"
 
-#: porthole/mainwindow.py:265
+#: porthole/mainwindow.py:294
 msgid "Initializing database. Please wait..."
 msgstr "Uruchamiam bazę danych. Proszę czekać..."
 
-#: porthole/mainwindow.py:338
+#: porthole/mainwindow.py:369
 msgid "Reloading database"
 msgstr "Przeładowuję bazę danych"
 
-#: porthole/mainwindow.py:442
+#: porthole/mainwindow.py:499
 msgid "No root privileges"
 msgstr "Brak praw roota"
 
-#: porthole/mainwindow.py:444
+#: porthole/mainwindow.py:501
 msgid ""
 "In order to access all the features of Porthole,\n"
 "please run it with root privileges."
@@ -1989,116 +2031,100 @@ msgstr ""
 "By mieć dostęp do wszystkich opcji Porthole\n"
 "uruchom program z prawami roota."
 
-#: porthole/mainwindow.py:447
+#: porthole/mainwindow.py:503
 msgid "_Ok"
 msgstr "_Ok"
 
-#: porthole/mainwindow.py:469
+#: porthole/mainwindow.py:537
 #, python-format
 msgid "%(base)s: %(count)i packages read"
 msgstr "%(base)s: %(count)i pakietów odczytanych"
 
-#: porthole/mainwindow.py:488
+#: porthole/mainwindow.py:552
 #, python-format
 msgid "%(base)s: Populating tree"
 msgstr "%(base)s: Generuję drzewo"
 
-#: porthole/mainwindow.py:609
+#: porthole/mainwindow.py:686
 msgid "Porthole Main Window"
 msgstr "Główne okno"
 
-#: porthole/mainwindow.py:813
+#: porthole/mainwindow.py:912
 msgid "Upgrade requested"
 msgstr "Rządanie aktualizacji"
 
-#: porthole/mainwindow.py:815
+#: porthole/mainwindow.py:914
 msgid "Do you want to upgrade all packages in your world file?"
 msgstr "Czy zaktualizować wszystkie pakiety w pliku world?"
 
-#: porthole/mainwindow.py:825
+#: porthole/mainwindow.py:926
 msgid "Upgradable dependencies:"
 msgstr "Zależności do aktualizacji:"
 
-#: porthole/mainwindow.py:854
+#: porthole/mainwindow.py:958
 msgid "Please Wait!"
 msgstr "Proszę Czekać!"
 
-#: porthole/mainwindow.py:856
+#: porthole/mainwindow.py:960
 msgid "Loading package descriptions..."
 msgstr "Ładuję opisy pakietów..."
 
-#: porthole/mainwindow.py:898
+#: porthole/mainwindow.py:1005
 #, python-format
 msgid "Searching descriptions for %s"
 msgstr "Przeszukuję opisy w poszukiwaniu %s"
 
-#: porthole/mainwindow.py:900
+#: porthole/mainwindow.py:1008
 #, python-format
 msgid "Searching for %s"
 msgstr "Szukam %s"
 
-#: porthole/mainwindow.py:1187
+#: porthole/mainwindow.py:1400
 #, python-format
 msgid "Generating '%s' packages list..."
 msgstr "Tworzę '%s' listę pakietów..."
 
-#: porthole/mainwindow.py:1258
+#: porthole/mainwindow.py:1448
 #, python-format
 msgid "Searching for '%s' packages..."
 msgstr "Szukam '%s' pakietów..."
 
-#: porthole/mainwindow.py:1275
+#: porthole/mainwindow.py:1469
 msgid "Building Package List"
 msgstr "Buduję listę pakietów"
 
-#: porthole/mainwindow.py:1286
+#: porthole/mainwindow.py:1512
 msgid "Done: "
 msgstr "Skończone: "
 
-#: porthole/mainwindow.py:1299
-#: porthole/mainwindow.py:1305
+#: porthole/mainwindow.py:1527
+#: porthole/mainwindow.py:1535
 #, python-format
 msgid "%(pack)d packages in %(cat)d categories"
 msgstr "%(pack)d pakietów w %(cat)d kategoriach"
 
-#: porthole/mainwindow.py:1392
+#: porthole/mainwindow.py:1619
 msgid "Confirm: Kill the Running Process in the Terminal"
 msgstr "Potwierdź: Zabij aktywne procesy w terminalu"
 
+#~ msgid "Y"
+#~ msgstr "Y"
+#~ msgid "N"
+#~ msgstr "N"
 #~ msgid "upgradeonly"
 #~ msgstr "upgradeonly"
 #~ msgid "A_bout"
 #~ msgstr "O programie"
 #~ msgid "C_lear"
 #~ msgstr "WyczyÅÄ"
-#~ msgid "E_merge Package"
-#~ msgstr "Instaluj Pakiet"
 #~ msgid "Main process text"
 #~ msgstr "GÅÃ³wny proces"
-#~ msgid "Open Emerge _Log"
-#~ msgstr "OtwÃ³rz logi emerge"
 #~ msgid "Quit"
 #~ msgstr "WyjdÅº"
-#~ msgid "R_eload Database"
-#~ msgstr "PrzeÅaduj bazÄ"
-#~ msgid "S_ync Tree"
-#~ msgstr "Synchronizuj Drzewo"
-#~ msgid "U_nmerge Package"
-#~ msgstr "Odinstaluj pakiet"
-#~ msgid "_Advanced Emerge Package"
-#~ msgstr "Zaawansowane opcje instalacji"
-#~ msgid "_Configure Porthole"
-#~ msgstr "Konfiguracja Porthole"
-#~ msgid "_Contents"
-#~ msgstr "TreÅÄ"
 #~ msgid "_Copy"
 #~ msgstr "Kopiuj"
 #~ msgid "_Remove"
 #~ msgstr "UsuÅ"
-#~ msgid "_Run Custom Command"
-#~ msgstr "Wykonaj Polecenie"
-#~ msgid "_Upgrade Packages"
-#~ msgstr "Aktualizuj Pakiety"
 #~ msgid "_Upgrades Only"
 #~ msgstr "Tylko aktualizuj"
 
