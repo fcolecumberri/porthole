@@ -28,24 +28,14 @@ print "BACKENDS: id initialized to ", id
 
 import time
 
-from porthole import config
-#from porthole.importer import my_import
+portage_lib = None
 
-while config.Prefs == None:
-    print "BACKENDS: waiting for config.Prefs"
-    # wait 50 ms and check again
-    time.sleep(0.05)
+def load(pmslib):
+    global portage_lib
+    if pmslib == "portagelib":
+        from porthole.backends import portagelib
+        portage_lib = portagelib
+        print "BACKENDS: portage_lib import complete :", portage_lib
 
-print "BACKENDS: PORTAGE setting = ", config.Prefs.PORTAGE
-
-if config.Prefs.PORTAGE == "portagelib":
-    from porthole.backends import portagelib
-    portage_lib = portagelib
-#portage_lib = my_import(config.Prefs.PORTAGE)
-
-print "BACKENDS: portage_lib import complete :", portage_lib
-
-del config
-#del my_import
 
 

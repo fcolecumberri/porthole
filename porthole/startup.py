@@ -160,6 +160,8 @@ def main():
     from porthole.version import version
     #print "STARTUP: main(); importing utils"
     from porthole.utils import debug
+    from porthole import backends
+    backends.load(BACKEND) 
     #print "PORTHOLE: importing MainWindow"
     from porthole.mainwindow import MainWindow
 
