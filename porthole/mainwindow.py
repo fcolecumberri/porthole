@@ -202,8 +202,8 @@ class MainWindow:
                         "widget '%s'" %x)
         # get an empty tooltip
         ##self.synctooltip = gtk.Tooltips()
-        self.sync_tip = _(" Synchronise Package Database \n" +
-                    "The last sync was done:\n")
+        self.sync_tip = _(
+            " Synchronise Package Database \n The last sync was done:\n")
         # set the sync label to the saved one set in the options
         self.widget["btn_sync"].set_label(config.Prefs.globals.Sync_label)
         self.widget["view_refresh"].set_sensitive(False)
@@ -498,9 +498,8 @@ class MainWindow:
             self.no_root_dialog = SingleButtonDialog(
                 _("No root privileges"),
                 self.mainwindow,
-                _("In order to access some features of Porthole,\n"
-                "you may need to run it with root privileges."),
-                self.remove_nag_dialog,
+                _("In order to access all the features of Porthole,\nplease run it with root privileges."
+                ), self.remove_nag_dialog,
                 _("_Ok"))
 
     def remove_nag_dialog(self, widget, response):
