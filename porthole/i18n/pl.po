@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: Porthole-0.5.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-01-05 23:45-0800\n"
-"PO-Revision-Date: 2010-01-05 23:52-0800\n"
-"Last-Translator: Brian Dolbec <dol-sen@sourceforge.net>\n"
+"PO-Revision-Date: 2010-01-07 20:44+0100\n"
+"Last-Translator: Arkadiusz Kowalski <0.akowalski@gmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -71,7 +71,6 @@ msgstr ""
 "Powoduje, że EMERGE_DEFAULT_OPTS (zobacz make.conf(5)) jest ignorowane."
 
 #: porthole/glade/advemerge.glade.h:8
-#, fuzzy
 msgid ""
 " --newuse (-N)\n"
 "Tells  emerge  to  include  installed  packages  where  USE flags have changed since compilation.  USE flag changes include: \n"
@@ -82,7 +81,9 @@ msgid ""
 "    A USE flag was turned off for a package.\n"
 "\n"
 "USE flags may be toggled by your profile as well as your USE and package.use settings."
-msgstr " --newuse (-N)\n"
+msgstr ""
+" --newuse (-N)\n"
+"Nakazuje emerge sprawdzenie, w których pakietach flagi USE zostały zmienione od czasu ostatniej kompilacji. Gwiazdka oznacza, że dana flaga USE zmieniła się od czasu lompilacji."
 
 #: porthole/glade/advemerge.glade.h:17
 msgid ""
@@ -103,18 +104,20 @@ msgstr ""
 "Instaluje pakiety normalnie, z tym że nie dodaje wpisu o pakiecie do profilu world przez co pakiet nie jest brany pod uwagę przy wyszukiwaniu aktualizacji"
 
 #: porthole/glade/advemerge.glade.h:23
-#, fuzzy
 msgid ""
 "--alphabetical\n"
 "When  displaying  USE  and  other  flag output, combines the enabled and disabled lists into one list and sorts the whole list alphabetically."
-msgstr "--alphabetical\n"
+msgstr ""
+"--alphabetical\n"
+"Podczas wyświetlania flag USE i innych informacji o flagach, lista zostaje posortowana alfabetycznie."
 
 #: porthole/glade/advemerge.glade.h:25
-#, fuzzy
 msgid ""
 "--ask (-a)\n"
 "Before performing the action, display what will take place (server info for --sync, --pretend output for merge, and so  forth),  then ask whether to proceed with the action or abort.  Using --ask is more efficient than using --pretend and then executing the same command without --pretend, as dependencies will only need to be  calculated  once.   WARNING:  If the \"Enter\" key is pressed at the prompt (with no other input), it is interpreted as acceptance of the first choice.  Note that the input buffer is not cleared prior to the prompt, so an accidental press of the \"Enter\" key at any time prior to the prompt will be interpreted as a choice!"
-msgstr "--ask (-a)\n"
+msgstr ""
+"--ask (-a)\n"
+"Przed wykonaniem instalacji pokazuje jakie pakiety i archiwa będą instalowane."
 
 #: porthole/glade/advemerge.glade.h:27
 msgid ""
@@ -1074,7 +1077,7 @@ msgstr "Ustawienia wtyczek"
 
 #: porthole/glade/porthole.glade.h:33
 msgid "Plugin _Settings"
-msgstr "Ustawienia wtyczki"
+msgstr "Ustawienia wtyczek"
 
 #: porthole/glade/porthole.glade.h:34
 msgid "Porthole"
@@ -1645,9 +1648,8 @@ msgid "Emerge queue"
 msgstr "Kolejka pakietów do instalacji"
 
 #: porthole/terminal/terminal.py:106
-#, fuzzy
 msgid "Porthole Log Viewer"
-msgstr "Przeglądarka Zależności Porthole"
+msgstr "Przeglądarka Logów Porthole"
 
 #: porthole/terminal/terminal.py:294
 msgid "Non-DBus"
@@ -1747,9 +1749,8 @@ msgid ": Open log File"
 msgstr ": Otwórz plik logów"
 
 #: porthole/terminal/terminal.py:1136
-#, fuzzy
 msgid ": Save File"
-msgstr ": Otwórz plik logów"
+msgstr ": Zpisz plik"
 
 #: porthole/terminal/terminal.py:1148
 #: porthole/dialogs/fileselector.py:80
@@ -1862,9 +1863,8 @@ msgstr ""
 #: porthole/readers/upgradeables.py:134
 #: porthole/mainwindow.py:78
 #: porthole/mainwindow.py:259
-#, fuzzy
 msgid "Sets"
-msgstr "Ustawienia"
+msgstr ""
 
 #: porthole/readers/upgradeables.py:38
 #: porthole/readers/upgradeables.py:56
