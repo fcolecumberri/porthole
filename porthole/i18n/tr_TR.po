@@ -1,0 +1,2136 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: porthole-tr\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-10-18 20:49-0700\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Brian Dolbec <dol-sen@sourceforge.net>\n"
+"Language-Team: seqizz <seqizz@gmail.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Country: Turkey\n"
+
+#: porthole/glade/about.glade.h:1
+msgid "A GTK+ frontend to Portage"
+msgstr "Portage için bir GTK+ arayüzü"
+
+#: porthole/glade/about.glade.h:2
+msgid "About"
+msgstr "Hakkında"
+
+#: porthole/glade/about.glade.h:3
+msgid "Authors"
+msgstr "Geliştiriciler"
+
+#: porthole/glade/about.glade.h:4
+msgid "Copyright (c) 2003 - 2008"
+msgstr "Telif Hakkı (c) 2003 - 2008"
+
+#: porthole/glade/about.glade.h:5
+#: porthole/glade/config.glade.h:48
+msgid "License"
+msgstr "Lisans"
+
+#: porthole/glade/about.glade.h:6
+msgid "_Homepage"
+msgstr "_Anasayfa"
+
+#: porthole/glade/advemerge.glade.h:1
+msgid "  |__"
+msgstr "  |__"
+
+#: porthole/glade/advemerge.glade.h:2
+msgid ""
+" --buildpkg (-b)\n"
+"Tells emerge to build binary packages for all ebuilds processed in addition to actually merging the packages.  Useful for maintainers or if you administrate multiple Gentoo Linux systems (build  once,  emerge  tbz2s  everywhere). The  package  will be created in the ${PKGDIR}/All directory.  An alternative for already-merged packages is to use quickpkg which creates a tbz2 from the live filesystem."
+msgstr ""
+" --buildpkg (-b)\n"
+"Emerge işleminin sonucunda derlenmiş paketler oluşturur. Hata kurtarma işleminde ya da birden fazla Gentoo kurulumunda yoneticilere yardımcı olması için düşünülmüştür (örn: bir kez derle, hepsine kur.) Oluşturulan derlenmiş paketler  ${PKGDIR}/All dizininde tutulur. Sisteminizde kurulu olan paketlerin derlenmiş paketleri için quickpkg alternatifini kullanabilirsiniz."
+
+#: porthole/glade/advemerge.glade.h:4
+msgid ""
+" --color < y | n >\n"
+"Enable or disable color output.  This option will override NOCOLOR (see make.conf(5)) and may also be used to force color output when stdout is not a tty (by default, color is disabled unless stdout is a tty)."
+msgstr ""
+" --color < y | n >\n"
+"Renkli çıktıyı açar veya kapatır. Bu seçenek NOCOLOR'u etkisiz kılar. (bkz make.conf(5)) tty dışında işlem yapılırken renk zorlaması için kullanilabilir (varsayılan olarak, çıktı tty içinde değilse renk pasiftir)."
+
+#: porthole/glade/advemerge.glade.h:6
+msgid ""
+" --ignore-default-opts\n"
+"Causes EMERGE_DEFAULT_OPTS (see make.conf(5)) to be ignored."
+msgstr ""
+" --ignore-default-opts\n"
+"EMERGE_DEFAULT_OPTS (bkz make.conf(5)) seçeneklerini görmezden gelmek için kullanılır."
+
+#: porthole/glade/advemerge.glade.h:8
+msgid ""
+" --newuse (-N)\n"
+"Tells  emerge  to  include  installed  packages  where  USE flags have changed since compilation.  USE flag changes include: \n"
+"\n"
+"  A USE flag was added to a package.\n"
+"    A USE flag was removed from a package.\n"
+"    A USE flag was turned on for a package.\n"
+"    A USE flag was turned off for a package.\n"
+"\n"
+"USE flags may be toggled by your profile as well as your USE and package.use settings."
+msgstr ""
+" --newuse (-N)\n"
+"Emerge islemine, son islemden bu yana degisen USE bayraklarini dikkate almasini soyler.  USE bayrağı değişiklikleri şunları içerir: \n"
+"\n"
+"  Bir USE bayrağı bir pakete eklenmişse.\n"
+"    Bir USE bayrağı bir paketten çıkarılmışsa.\n"
+"    Bir USE bayrağı bir paket için açılmışsa.\n"
+"    Bir USE bayrağı bir paket için kapatılmışsa.\n"
+"\n"
+"USE bayrakları profil dosyalarınız ya da package.use ayarları ile değiştirilebilir."
+
+#: porthole/glade/advemerge.glade.h:17
+msgid ""
+" --noconfmem\n"
+"Causes  portage  to  disregard merge records indicating that a config file inside of a CONFIG_PROTECT directory has\n"
+"been merged already.  Portage will normally merge those files only once to prevent the user from dealing  with  the\n"
+"same config multiple times.  This flag will cause the file to always be merged."
+msgstr ""
+" --noconfmem\n"
+"Portage öntanımlı olarak, CONFIG_PROTECT ile belirtilmiş dizinler içerisindeki ayar dosyalarına dokunmaz. İşlemden sonra kullanıcıya sunar ve isteğe göre değişiklik yapar. Bu seçenek, belirtilen dizinlerdeki korumayı görmezden gelir ve kurulan paketlerdeki ayar dosyalarının öntanımlı halini sistemdekilerin üzerine yazar."
+
+#: porthole/glade/advemerge.glade.h:21
+msgid ""
+" --oneshot (-1)\n"
+"Emerge as normal, but do not add the packages to the world file for later updating."
+msgstr ""
+" --oneshot (-1)\n"
+"Normal olarak emerge işlemini yapar, ancak kurulan paketleri world profiline eklemez. Bu paketler sadece world'de olan bir paketin isteği üzerine güncellenir."
+
+#: porthole/glade/advemerge.glade.h:23
+msgid ""
+"--alphabetical\n"
+"When  displaying  USE  and  other  flag output, combines the enabled and disabled lists into one list and sorts the whole list alphabetically."
+msgstr ""
+"--alphabetical\n"
+"Komutun göstereceği USE değerlerini alfabetik olarak listeler. Normalden farklı olarak, etkinleştirilmemiş bayraklari da karışık listeler."
+
+#: porthole/glade/advemerge.glade.h:25
+msgid ""
+"--ask (-a)\n"
+"Before performing the action, display what will take place (server info for --sync, --pretend output for merge, and so  forth),  then ask whether to proceed with the action or abort.  Using --ask is more efficient than using --pretend and then executing the same command without --pretend, as dependencies will only need to be  calculated  once.   WARNING:  If the \"Enter\" key is pressed at the prompt (with no other input), it is interpreted as acceptance of the first choice.  Note that the input buffer is not cleared prior to the prompt, so an accidental press of the \"Enter\" key at any time prior to the prompt will be interpreted as a choice!"
+msgstr ""
+"--ask (-a)\n"
+"--pretend seçeneği gibi, yapılacak işlemlerin bir listesini görüntüler ve devam etmek isteyip istemediğinizi sorar. UYARI: Eğer başka bir tuşa basmadan \"Enter\" tuşuna basarsanız, sistem bu cevabı EVET olarak algılayacaktır. Eğer bir tuşa sorudan once basarsanız, girdi önbellekte saklanacak, ardından sorulduğu an işleme geçecektir."
+
+#: porthole/glade/advemerge.glade.h:27
+msgid ""
+"--buildpkgonly (-B)\n"
+"Creates binary packages for all ebuilds processed without actually merging  the  packages.   This  comes  with  the caveat that all build-time dependencies must already be emerged on the system."
+msgstr ""
+"--buildpkgonly (-B)\n"
+"Derlenmiş bir paket oluşturur, ancak bunu sisteme kurmaz. Derleme için gerekli bağımlılıklar sistemde bulunmalıdır."
+
+#: porthole/glade/advemerge.glade.h:29
+msgid ""
+"--columns\n"
+"Used alongside --pretend to cause the package name, new version, and old version to be displayed in an aligned format for easy cut-n-paste."
+msgstr ""
+"--columns\n"
+"Sahte işlem çıktısını dikey düzende gösterir."
+
+#: porthole/glade/advemerge.glade.h:31
+msgid ""
+"--debug (-d)\n"
+"Tells emerge to run the emerge command in --debug mode. In this mode the bash build environment will run with  the -x  option,  causing  it  to output verbose debugging information to stdout.  This also enables a plethora of other output mostly dependency resolution messages)."
+msgstr ""
+"--debug (-d)\n"
+"Hata ayıklama modunda işlem yaptırır. Bu mod, olabilecek bütün detaylı çıktıyı ekrana yazdırır. Kabuk karakter hataları ve benzer hataları bulmaya oldukça yardımcı olur."
+
+#: porthole/glade/advemerge.glade.h:33
+msgid ""
+"--deep (-D)\n"
+"This flag forces emerge to consider the entire dependency tree of packages, instead of checking only the  immediate dependencies of the packages.  As an example, this catches updates in libraries that are not directly listed in the dependencies of a package.  Also see --with-bdeps for behavior with respect to build time dependencies that are not strictly required."
+msgstr ""
+"--deep (-D)\n"
+"Bu seçenek emerge işleminde yalnızca gerekli bağımlılıkları değil, onların da bağımlı olduğu bütün bağımlılık ağacını kontrol eder. Örneğin bu seçenek kullanıldığında, ebuild'de bulunmayan bazı kütüphane (lib) paketleri de etkilenebilir. Ayrıca paketlerin derlenme bağımlılıkları için --with-bdeps seçeneğine de bakabilirsiniz."
+
+#: porthole/glade/advemerge.glade.h:35
+msgid ""
+"--emptytree (-e)\n"
+"Reinstalls  all  world  packages  and their dependencies to the current USE specifications while differing from the installed set of packages as little as possible.  You should run with --pretend first to make sure  the  result  is what you expect."
+msgstr ""
+"--emptytree (-e)\n"
+"Sanal olarak bütün bağımlılık ağacını yok sayar, ardından paketin isteklerine gore sıfırdan oluşturur. --pretend ile kullanıldığında özellikle geliştiricilerin bir paketin bütün bağımlılıklarını görmesinde büyük kolaylık sağlar."
+
+#: porthole/glade/advemerge.glade.h:37
+msgid ""
+"--fetch-all-uri (-F)\n"
+"Instead of doing any package building, just perform fetches for all packages (the  main  package  as  well  as  all dependencies), grabbing all potential files."
+msgstr ""
+"--fetch-all-uri (-F)\n"
+"--fetchonly seçeneği ile ayni işi yapar, ancak paketin bütün USE bayrakları kullanılacakmış gibi, kullanılmayabilecek bazı paketleri de indirir."
+
+#: porthole/glade/advemerge.glade.h:39
+msgid ""
+"--fetchonly (-f)\n"
+"Instead  of  doing  any  package  building,  just perform fetches for all packages (the main package as well as all dependencies)."
+msgstr ""
+"--fetchonly (-f)\n"
+"Paketleri ve bağımlılıklarını kurmak yerine, sadece sisteme indirir."
+
+#: porthole/glade/advemerge.glade.h:41
+msgid ""
+"--getbinpkg (-g)\n"
+"Using  the server and location defined in PORTAGE_BINHOST (see make.conf(5)), portage will download the information from each binary package found and it will use that information to help build the  dependency  list.   This  option implies -k.  (Use -gK for binary-only merging.)"
+msgstr ""
+"--getbinpkg (-g)\n"
+"make.conf dosyasında belirtilen PORTAGE_BINHOST degişkenini kullanarak, sunucudan hazır derlenmiş paketleri indirip kurar. Bağimlılık listesi de derlenmiş paketlere göre değişebilir. Bu seçenek '-k' seçeneğini de içerir. (Sadece derlenmiş paketleri kurmak için -gK kullanın.)"
+
+#: porthole/glade/advemerge.glade.h:43
+msgid ""
+"--getbinpkgonly (-G)\n"
+"This option is identical to -g, as above, except it will not use ANY information from the local machine.  All binaries will be downloaded from the remote server without consulting packages existing in the  local  packages  directory."
+msgstr ""
+"--getbinpkgonly (-G)\n"
+"Bu seçenek de -g seçeneğinin bir kopyasıdır. Farklı olarak, yerel makinadan bağımlılıklar dahil hiç bilgi almadan işlem yapar. Yerel makinadaki paketler dikkate alınmadan, bütün bağımlılıkları uzak sunucudan alarak işlem yapar."
+
+#: porthole/glade/advemerge.glade.h:45
+msgid ""
+"--nodeps (-O)\n"
+"Merges  specified  packages  without  merging  any  dependencies.  Note that the build may fail if the dependencies are not satisfied."
+msgstr ""
+"--nodeps (-O)\n"
+"Belirtilen paketleri kurar, ancak hiçbir bağımlılığı kurmaz. Bu işlem zorunlu bağımlılıkları gözetmediğinden hataya sebep olabilir."
+
+#: porthole/glade/advemerge.glade.h:47
+msgid ""
+"--noreplace (-n) \n"
+"Skips the packages specified on the command-line that have already been installed.  Without this option, any  packages,  ebuilds,  or  deps  you specify on the command-line will cause Portage to remerge the package, even if it is already installed.  Note that Portage will not remerge dependencies by default."
+msgstr ""
+"--noreplace (-n) \n"
+"İşlem yapılacak paketler arasında zaten sisteme kurulu olan paketler varsa, onları atlayacaktır. Bu seçeneği kullanmazsanız, bütün belirtilen paketler *sistemde olsalar dahi* Portage onları tekrar kuracaktır.  Ancak Portage öntanımlı olarak kurulu bağımlılıkları yeniden kurmaz."
+
+#: porthole/glade/advemerge.glade.h:49
+msgid ""
+"--nospinner\n"
+"Disables the spinner for the session.  The spinner is active when the terminal device is determined to  be  a  TTY.\n"
+"This flag disables it regardless."
+msgstr ""
+"--nospinner\n"
+"Hazırlık kısmında dönen çubuğu iptal eder."
+
+#: porthole/glade/advemerge.glade.h:52
+msgid ""
+"--onlydeps (-o)\n"
+"Only merge (or pretend to merge) the dependencies of the packages specified, not the packages themselves."
+msgstr ""
+"--onlydeps (-o)\n"
+"Belirtilen paketlerin bağımlılıklarını kurar, ancak verilen paketleri kurmaz."
+
+#: porthole/glade/advemerge.glade.h:54
+msgid ""
+"--pretend (-p)\n"
+"Instead  of  actually  performing  the  merge, simply display what *would* have been installed if --pretend weren't used. Using --pretend is strongly recommended before installing an unfamiliar package.  In the printout:\n"
+"\n"
+"N = new (not yet installed)\n"
+"S = new SLOT installation (side-by-side versions)\n"
+"U = updating (to another version)\n"
+"D = downgrading (best version seems lower)\n"
+"R = replacing (remerging same version))\n"
+"F = fetch restricted (must be manually downloaded)\n"
+"f = fetch restricted (already downloaded)\n"
+"B = blocked by an already installed package"
+msgstr ""
+"--pretend (-p)\n"
+"İşlemi yapmak yerine, yalnızca hazırlık evresini yapıp hangi paketlerin kurulacağını (veya değişeceğini) gösterir. Bilinmeyen paketleri kurarken --pretend tavsiye edilir. Çıktısında:\n"
+"\n"
+"N = yeni\n"
+"U = güncellenecek\n"
+"R = tekrar kurulacak\n"
+"F= indirme sınırlamalı\n"
+"B = kurulu bir paket tarafından engelleniyor\n"
+"D = alt sürüme indirilecek\n"
+"S = çok kanallı kurulum"
+
+#: porthole/glade/advemerge.glade.h:65
+msgid ""
+"--quiet (-q) \n"
+"Results may vary, but the general outcome is a reduced or condensed output of portage displays."
+msgstr ""
+"--quiet (-q) \n"
+"İşlemi yapar, ancak çıktısını olabildiğince az tutar."
+
+#: porthole/glade/advemerge.glade.h:67
+msgid ""
+"--tree (-t) \n"
+"Shows the dependency tree for the given target by indenting dependencies.  This is only really useful  in  combination with --emptytree or --update and --deep."
+msgstr ""
+"--tree (-t) \n"
+"Verilen hedef için bağımlılık ağacını girintilenmiş olarak listeler.  Bu seçenek eğer --emptytree veya --update ve --deep seçenekleri ile beraber kullanılırsa daha kullanışlı olur."
+
+#: porthole/glade/advemerge.glade.h:69
+msgid ""
+"--update (-u)\n"
+"Updates packages to the best version available, which may not always be the highest version number due  to  masking for  testing  and  development.  This will also update direct dependencies which may not be what you want.  Package atoms specified on the command line are greedy, meaning that unspecific atoms may match multiple installed versions of slotted packages."
+msgstr ""
+"--update (-u)\n"
+"Paketi en son uygun sürüme günceller. Bu her zaman paketin son sürümü olmayabilir. (Örn. Bazı paketlerdeki hatalar veya test nedeniyle maskelenmiş paketler.) Ayrıca bu işlem direkt bağımlılıkları da yükseltir. Sisteminizdeki çok kanallı paketler için sürüm numarasını da girmeniz gerekebilir."
+
+#: porthole/glade/advemerge.glade.h:71
+msgid ""
+"--usepkg (-k)\n"
+"Tells  emerge to use binary packages (from $PKGDIR) if they are available, thus possibly avoiding some time-consuming compiles.  This option is useful for CD installs; you can export PKGDIR=/mnt/cdrom/packages and then  use  this option to have emerge \"pull\" binary packages from the CD in order to satisfy dependencies."
+msgstr ""
+"--usepkg (-k)\n"
+"emerge'ye, erişilebilirse ($PKGDIR'de belirtilen) derlenmiş paketleri kullanmasını söyler, zamandan tasarruf sağlar.CD'den kurulum gibi durumlarda oldukça işe yarar; değişkeni PKGDIR=/mnt/cdrom/packages tarzında bir komutla atayıp sistemin derlenmiş paketleri ve bağımlılıklarını oradan \"çekmesini\" sağlayabilirsiniz."
+
+#: porthole/glade/advemerge.glade.h:73
+msgid ""
+"--usepkgonly (-K)\n"
+" Tells  emerge to only use binary packages (from $PKGDIR).  All the binary packages must be available at the time of\n"
+"dependency calculation or emerge will simply abort.  Portage does not  use  $PORTDIR  when  calculating  dependency\n"
+"information so all masking information is ignored."
+msgstr ""
+"--usepkgonly (-K)\n"
+" --usepkg gibidir. Farklı olarak, eğer belirtilen yerde gerekli bir paketin hazır derlenmiş halini bulamazsa işlem hata\n"
+" vererek son bulacaktır."
+
+#: porthole/glade/advemerge.glade.h:78
+#, fuzzy, no-c-format
+msgid ""
+"--verbose (-v)\n"
+"Tell emerge to run in verbose mode.  Currently this flag causes emerge to print out GNU info errors, if any, and to show the USE flags that will be used for each package when pretending. The following symbols  are  affixed  to  USE flags in order to indicate their status:\n"
+"\n"
+"    - prefix     = not enabled (either disabled or removed)\n"
+"    * suffix     = transition to or from the enabled state\n"
+"    % suffix     = newly added or removed\n"
+"    () circumfix = forced, masked, or removed"
+msgstr ""
+"--verbose (-v)\n"
+"Emerge işleminin çıktılarını artırır.  Aşağıdaki semboller kurulum sırasında USE bayrağının pakete olan etkisini belirtmektedir:\n"
+"\n"
+"    - ön eki     = etkinleştirilmedi (pasifleştirildi veya kaldırıldı)\n"
+"    * son eki     = önceki durumu değiştirilmiş\n"
+"    % son eki     = yeni eklenmiş veya kaldırılmış\n"
+"    () parantez içinde = zorlanmış, maskelenmiş veya kaldırılmış"
+
+#: porthole/glade/advemerge.glade.h:85
+msgid ""
+"--with-bdeps < y | n >\n"
+"In  dependency calculations, pull in build time dependencies that are not strictly required.   This defaults to 'n' for installation actions and 'y' for the --depclean action.  This setting can be added to EMERGE_DEFAULT_OPTS  (see make.conf(5)) and later overridden via the command line."
+msgstr ""
+"--with-bdeps < y | n >\n"
+"Zorunlu olarak gerekli olmayan bazı derleme bağımlılıklarını da seçimlere dahil eder. Bu, kurulum işlemleri için öntanımlı olarak kapalı,--depclean için öntanımlı olarak açıktır. İstenilirse bu ayar EMERGE_DEFAULT_OPTS (bkz make.conf(5)) değişkenine atanıp, sonradan komut satırı ile görmezden gelinebilir."
+
+#: porthole/glade/advemerge.glade.h:87
+msgid "<b>Command Preview</b>"
+msgstr "<b>Komut Önizleme</b>"
+
+#: porthole/glade/advemerge.glade.h:88
+msgid "<b>Emerge Options</b>"
+msgstr "<b>Emerge Seçenekleri</b>"
+
+#: porthole/glade/advemerge.glade.h:89
+msgid "<b>Package Options</b>"
+msgstr "<b>Paket Seçenekleri</b>"
+
+#: porthole/glade/advemerge.glade.h:90
+msgid "Add the selected keyword to your package.keywords file. Changes will affect THIS VERSION only."
+msgstr "Seçilen anahtarı package.keywords dosyanıza ekler. Değişiklikler SADECE BU SÜRÜM için geçerli olur."
+
+#: porthole/glade/advemerge.glade.h:91
+msgid "Command Preview Window"
+msgstr "Komut Önizleme Penceresi"
+
+#: porthole/glade/advemerge.glade.h:92
+msgid "Commit Use Flag modifications to your make.conf file. Changes will affect ALL PACKAGES on your system."
+msgstr "Use bayrağı değişikliklerini make.conf dosyanıza yansıtır. Değişiklikler sisteminizdeki BÜTÜN PAKETLERİ etkiler."
+
+#: porthole/glade/advemerge.glade.h:93
+msgid "Commit Use Flag modifications to your package.use file. Changes will affect THIS PACKAGE only."
+msgstr "Use bayrağı değişikliklerini package.use dosyanıza yansıtır. Değişiklikler sadece BU PAKEDİ etkiler."
+
+#: porthole/glade/advemerge.glade.h:94
+msgid "Keyword to accept"
+msgstr "Kabul edilecek anahtar"
+
+#: porthole/glade/advemerge.glade.h:95
+msgid "Update make.conf"
+msgstr "make.conf güncelle"
+
+#: porthole/glade/advemerge.glade.h:96
+msgid "Update package.keywords"
+msgstr "package.keywords güncelle"
+
+#: porthole/glade/advemerge.glade.h:97
+msgid "Update package.use"
+msgstr "package.use güncelle"
+
+#: porthole/glade/advemerge.glade.h:98
+msgid "Use Flags"
+msgstr "Use Bayrakları"
+
+#: porthole/glade/advemerge.glade.h:99
+msgid "alphabetical"
+msgstr "alphabetical"
+
+#: porthole/glade/advemerge.glade.h:100
+msgid "ask"
+msgstr "ask"
+
+#: porthole/glade/advemerge.glade.h:101
+msgid "buildpkg"
+msgstr "buildpkg"
+
+#: porthole/glade/advemerge.glade.h:102
+msgid "buildpkgonly"
+msgstr "buildpkgonly"
+
+#: porthole/glade/advemerge.glade.h:103
+msgid "color  "
+msgstr "color  "
+
+#: porthole/glade/advemerge.glade.h:104
+msgid "columns"
+msgstr "columns"
+
+#: porthole/glade/advemerge.glade.h:105
+msgid "debug"
+msgstr "debug"
+
+#: porthole/glade/advemerge.glade.h:106
+msgid "deep"
+msgstr "deep"
+
+#: porthole/glade/advemerge.glade.h:107
+msgid "emptytree"
+msgstr "emptytree"
+
+#: porthole/glade/advemerge.glade.h:108
+msgid "fetch-all-uri"
+msgstr "fetch-all-uri"
+
+#: porthole/glade/advemerge.glade.h:109
+msgid "fetchonly"
+msgstr "fetchonly"
+
+#: porthole/glade/advemerge.glade.h:110
+msgid "getbinpkg"
+msgstr "getbinpkg"
+
+#: porthole/glade/advemerge.glade.h:111
+msgid "getbinpkgonly"
+msgstr "getbinpkgonly"
+
+#: porthole/glade/advemerge.glade.h:112
+msgid "ignore-default-opts"
+msgstr "ignore-default-opts"
+
+#: porthole/glade/advemerge.glade.h:113
+msgid "n"
+msgstr "h"
+
+#: porthole/glade/advemerge.glade.h:114
+msgid "newuse"
+msgstr "newuse"
+
+#: porthole/glade/advemerge.glade.h:115
+msgid "noconfmem"
+msgstr "noconfmem"
+
+#: porthole/glade/advemerge.glade.h:116
+msgid "nodeps"
+msgstr "nodeps"
+
+#: porthole/glade/advemerge.glade.h:117
+#: porthole/glade/config.glade.h:102
+msgid "noreplace"
+msgstr "noreplace"
+
+#: porthole/glade/advemerge.glade.h:118
+#: porthole/glade/config.glade.h:103
+msgid "nospinner"
+msgstr "nospinner"
+
+#: porthole/glade/advemerge.glade.h:119
+#: porthole/glade/config.glade.h:104
+msgid "oneshot"
+msgstr "oneshot"
+
+#: porthole/glade/advemerge.glade.h:120
+msgid "onlydeps"
+msgstr "onlydeps"
+
+#: porthole/glade/advemerge.glade.h:121
+#: porthole/glade/config.glade.h:105
+msgid "pretend"
+msgstr "pretend"
+
+#: porthole/glade/advemerge.glade.h:122
+msgid "quiet"
+msgstr "quiet"
+
+#: porthole/glade/advemerge.glade.h:123
+msgid "tree"
+msgstr "tree"
+
+#: porthole/glade/advemerge.glade.h:124
+#: porthole/glade/config.glade.h:116
+msgid "update"
+msgstr "update"
+
+#: porthole/glade/advemerge.glade.h:125
+msgid "usepkg"
+msgstr "usepkg"
+
+#: porthole/glade/advemerge.glade.h:126
+msgid "usepkgonly"
+msgstr "usepkgonly"
+
+#: porthole/glade/advemerge.glade.h:127
+#: porthole/glade/config.glade.h:117
+msgid "verbose"
+msgstr "verbose"
+
+#: porthole/glade/advemerge.glade.h:128
+msgid "version"
+msgstr "sürüm"
+
+#: porthole/glade/advemerge.glade.h:129
+msgid "with-bdeps"
+msgstr "with-bdeps"
+
+#: porthole/glade/advemerge.glade.h:130
+msgid "y"
+msgstr "e"
+
+#: porthole/glade/config.glade.h:1
+msgid " Editor : "
+msgstr " Editör : "
+
+#: porthole/glade/config.glade.h:2
+msgid "<b>Advanced Emerge dialog options</b>"
+msgstr "<b>Gelişmiş Emerge diyaloğu seçenekleri</b>"
+
+#: porthole/glade/config.glade.h:3
+msgid "<b>Arch List</b> for display's &amp; options"
+msgstr "<b>Mimari Listesi</b>"
+
+#: porthole/glade/config.glade.h:4
+msgid "<b>Emerge options</b>"
+msgstr "<b>Emerge seçenekleri</b>"
+
+#: porthole/glade/config.glade.h:5
+msgid "<b>Run Custom Command options</b>"
+msgstr "<b>Özel Komut Çalıştır seçenekleri</b>"
+
+#: porthole/glade/config.glade.h:6
+msgid "<b>Web Browser Options</b>"
+msgstr "<b>Web Tarayıcı Seçenekleri</b>"
+
+#: porthole/glade/config.glade.h:7
+msgid "Add New"
+msgstr "Yeni Ekle"
+
+#: porthole/glade/config.glade.h:8
+msgid "Add a new filter expression to the Selected Group"
+msgstr "Seçili gruba yeni bir süzgeç ekle"
+
+#: porthole/glade/config.glade.h:9
+msgid "Arch-list/Version table"
+msgstr "Mimari-listesi/Sürüm tablosu"
+
+#: porthole/glade/config.glade.h:10
+msgid "Available Versions"
+msgstr "Erişilebilir Sürümler"
+
+#: porthole/glade/config.glade.h:11
+msgid "Background"
+msgstr "Arkaplan"
+
+#: porthole/glade/config.glade.h:12
+msgid "Background Colour"
+msgstr "Arkaplan Rengi"
+
+#: porthole/glade/config.glade.h:13
+msgid "Black"
+msgstr "Siyah"
+
+#: porthole/glade/config.glade.h:14
+msgid "Blue"
+msgstr "Mavi"
+
+#: porthole/glade/config.glade.h:15
+msgid "Browser : "
+msgstr "Tarayıcı :"
+
+#: porthole/glade/config.glade.h:16
+msgid "Category View"
+msgstr "Kategori Görünümü"
+
+#: porthole/glade/config.glade.h:17
+msgid "Caution"
+msgstr "Bildiri"
+
+#: porthole/glade/config.glade.h:18
+msgid "Check off all items you would like displayed"
+msgstr "Görüntülenmesini istediğiniz bütün nesneleri işaretleyin"
+
+#: porthole/glade/config.glade.h:19
+#: porthole/terminal/term_queue.py:195
+msgid "Command"
+msgstr "Komut"
+
+#: porthole/glade/config.glade.h:20
+msgid "Current CPU architecture : "
+msgstr "Geçerli CPU mimarisi : "
+
+#: porthole/glade/config.glade.h:21
+msgid "Cyan"
+msgstr "Cyan"
+
+#: porthole/glade/config.glade.h:22
+msgid "Default"
+msgstr "Öntanımlı"
+
+#: porthole/glade/config.glade.h:23
+msgid "Delete"
+msgstr "Sil"
+
+#: porthole/glade/config.glade.h:24
+msgid "Delete the selected filter expression"
+msgstr "Seçili süzgeci sil"
+
+#: porthole/glade/config.glade.h:25
+#: porthole/views/package.py:127
+msgid "Description"
+msgstr "Tanım"
+
+#: porthole/glade/config.glade.h:26
+msgid "Downgradable Colour"
+msgstr "Düşürülebilir Rengi"
+
+#: porthole/glade/config.glade.h:27
+#: porthole/views/package.py:120
+msgid "Download Size"
+msgstr "İndirme Boyutu"
+
+#: porthole/glade/config.glade.h:28
+msgid "Edit"
+msgstr "Düzenle"
+
+#: porthole/glade/config.glade.h:29
+msgid "Edit the selected filter expression"
+msgstr "Seçili süzgeci düzenle"
+
+#: porthole/glade/config.glade.h:30
+#: porthole/views/package.py:68
+#: porthole/views/menus.py:47
+#: porthole/views/depends.py:126
+msgid "Emerge"
+msgstr "Emerge"
+
+#: porthole/glade/config.glade.h:31
+msgid "Enable arch-list"
+msgstr "Mimari-listesini etkinleştir"
+
+#: porthole/glade/config.glade.h:32
+msgid "Enable make.conf modification"
+msgstr "make.conf düzenlemeyi etkinleştir"
+
+#: porthole/glade/config.glade.h:33
+msgid "Enter the command for a GUI su client eg. 'gksu' or 'gnomesu'"
+msgstr "Grafiksel su istemcisi için kullanılacak komutu girin. Örn. 'gksu' veya 'gnomesu'"
+
+#: porthole/glade/config.glade.h:34
+msgid "Error"
+msgstr "Hata"
+
+#: porthole/glade/config.glade.h:35
+msgid "Filters"
+msgstr "Süzgeçler"
+
+#: porthole/glade/config.glade.h:36
+msgid "Font & Colors"
+msgstr "Yazıtipi & Renkler"
+
+#: porthole/glade/config.glade.h:37
+msgid "Font :"
+msgstr "Yazıtipi :"
+
+#: porthole/glade/config.glade.h:38
+msgid "Foreground"
+msgstr "Önplan"
+
+#: porthole/glade/config.glade.h:39
+msgid "GUI su client :"
+msgstr "GUI 'su' istemcisi:"
+
+#: porthole/glade/config.glade.h:40
+msgid "Global"
+msgstr "Global"
+
+#: porthole/glade/config.glade.h:41
+msgid "Green"
+msgstr "Yeşil"
+
+#: porthole/glade/config.glade.h:42
+msgid "Homepage URL"
+msgstr "Anasayfa Adresi"
+
+#: porthole/glade/config.glade.h:43
+msgid "Info"
+msgstr "Bilgi"
+
+#: porthole/glade/config.glade.h:44
+#: porthole/plugin.py:204
+#: porthole/views/package.py:106
+#: porthole/views/depends.py:76
+msgid "Installed"
+msgstr "Kurulu"
+
+#: porthole/glade/config.glade.h:45
+msgid "Installed list"
+msgstr "Kurulu Listesi"
+
+#: porthole/glade/config.glade.h:46
+#: porthole/views/depends.py:96
+msgid "Keywords"
+msgstr "Anahtarlar"
+
+#: porthole/glade/config.glade.h:47
+msgid "LANG = "
+msgstr "DİL ="
+
+#: porthole/glade/config.glade.h:49
+msgid "Line Number"
+msgstr "Satır Numarası"
+
+#: porthole/glade/config.glade.h:50
+msgid "Long Descriptions"
+msgstr "Uzun Tanımlar"
+
+#: porthole/glade/config.glade.h:51
+msgid "Magenta"
+msgstr "Magenta"
+
+#: porthole/glade/config.glade.h:52
+msgid "Main Window"
+msgstr "Ana Pencere"
+
+#: porthole/glade/config.glade.h:53
+msgid "More Colours"
+msgstr "Daha Fazla Renk"
+
+#: porthole/glade/config.glade.h:54
+msgid "Move"
+msgstr "Taşı"
+
+#: porthole/glade/config.glade.h:55
+msgid "Move the selected filter expression to a different filter group"
+msgstr "Seçili süzgeci başka bir süzgeç grubuna taşır"
+
+#: porthole/glade/config.glade.h:56
+msgid "Normal"
+msgstr "Normal"
+
+#: porthole/glade/config.glade.h:57
+msgid "Normal Font Colour"
+msgstr "Normal Yazıtipi Rengi"
+
+#: porthole/glade/config.glade.h:58
+msgid "Note"
+msgstr "Not"
+
+#: porthole/glade/config.glade.h:59
+msgid "Package View"
+msgstr "Paket Görünümü"
+
+#: porthole/glade/config.glade.h:60
+msgid ""
+"Please enter the persistent history commands\n"
+"you wish to be pre-typed"
+msgstr ""
+"Lütfen otomatik olarak verilmesini istediğiniz\n"
+"komutları yazın"
+
+#: porthole/glade/config.glade.h:62
+msgid "Please select the Font colours desired"
+msgstr "Lütfen istediğiniz yazıtipi renklerini seçin"
+
+#: porthole/glade/config.glade.h:63
+msgid "Porthole Configuration"
+msgstr "Porthole Ayarları"
+
+#: porthole/glade/config.glade.h:64
+#: porthole/views/package.py:113
+#: porthole/views/depends.py:86
+msgid "Recommended"
+msgstr "Önerilen"
+
+#: porthole/glade/config.glade.h:65
+msgid "Red"
+msgstr "Kırmızı"
+
+#: porthole/glade/config.glade.h:66
+msgid "Reset the filters to the defaults"
+msgstr "Süzgeçleri öntanımlıya sıfırla"
+
+#: porthole/glade/config.glade.h:67
+msgid "Sample Window"
+msgstr "Örnek Pencere"
+
+#: porthole/glade/config.glade.h:68
+msgid "Save the filters to disk"
+msgstr "Süzgeçleri diske kaydet"
+
+#: porthole/glade/config.glade.h:69
+msgid "Summary View"
+msgstr "Özet Görünümü"
+
+#: porthole/glade/config.glade.h:70
+msgid "Sync method "
+msgstr "Eşleme yöntemi"
+
+#: porthole/glade/config.glade.h:71
+msgid "Tag"
+msgstr "Etiket"
+
+#: porthole/glade/config.glade.h:72
+msgid "Terminal"
+msgstr "Terminal"
+
+#: porthole/glade/config.glade.h:73
+msgid "Text Font & Colours"
+msgstr "Yazıtipi & Rengi"
+
+#: porthole/glade/config.glade.h:74
+msgid "These colours are used by Porthole for highlighting"
+msgstr "Bu renkler Porthole tarafından vurgu için kullanılacak"
+
+#: porthole/glade/config.glade.h:75
+msgid "These colours are used by emerge for coloured output"
+msgstr "Bu renkler emerge tarafından renkli çıktıda kullanılacak"
+
+#: porthole/glade/config.glade.h:76
+msgid "USE Flags"
+msgstr "USE Bayrakları"
+
+#: porthole/glade/config.glade.h:77
+msgid "Upgradable Colour"
+msgstr "Yükseltilebilir Rengi"
+
+#: porthole/glade/config.glade.h:78
+msgid "Use Custom Browser"
+msgstr "Özel Tarayıcı Kullan"
+
+#: porthole/glade/config.glade.h:79
+msgid "Use Default"
+msgstr "Öntanımlıyı Kullan"
+
+#: porthole/glade/config.glade.h:80
+msgid "Use Flag set +"
+msgstr "Use Bayrağı Açma"
+
+#: porthole/glade/config.glade.h:81
+msgid "Use Flag set -"
+msgstr "Use Bayrağı Kapama"
+
+#: porthole/glade/config.glade.h:82
+msgid "WARNING! Make sure you back up your make.conf file (usually /etc/make.conf) before enabling this option!"
+msgstr "UYARI! Bu seçeneği aktifleştirmeden önce, make.conf dosyanızın yedeğini aldığınızdan emin olun!"
+
+#: porthole/glade/config.glade.h:83
+msgid "Warning"
+msgstr "Uyarı"
+
+#: porthole/glade/config.glade.h:84
+msgid "White"
+msgstr "Beyaz"
+
+#: porthole/glade/config.glade.h:85
+msgid "Yellow"
+msgstr "Sarı"
+
+#: porthole/glade/config.glade.h:86
+msgid "check_button"
+msgstr ""
+
+#: porthole/glade/config.glade.h:87
+msgid "checkbutton10"
+msgstr "checkbutton10"
+
+#: porthole/glade/config.glade.h:88
+msgid "checkbutton16"
+msgstr "checkbutton16"
+
+#: porthole/glade/config.glade.h:89
+msgid "checkbutton17"
+msgstr "checkbutton17"
+
+#: porthole/glade/config.glade.h:90
+msgid "checkbutton18"
+msgstr "checkbutton18"
+
+#: porthole/glade/config.glade.h:91
+msgid "checkbutton19"
+msgstr "checkbutton19"
+
+#: porthole/glade/config.glade.h:92
+msgid "checkbutton20"
+msgstr "checkbutton20"
+
+#: porthole/glade/config.glade.h:93
+msgid "checkbutton21"
+msgstr "checkbutton21"
+
+#: porthole/glade/config.glade.h:94
+msgid "checkbutton22"
+msgstr "checkbutton22"
+
+#: porthole/glade/config.glade.h:95
+msgid "checkbutton9"
+msgstr "checkbutton9"
+
+#: porthole/glade/config.glade.h:96
+msgid "command 1:"
+msgstr "Komut 1:"
+
+#: porthole/glade/config.glade.h:97
+msgid "command 2:"
+msgstr "Komut 2:"
+
+#: porthole/glade/config.glade.h:98
+msgid "command 3:"
+msgstr "Komut 3:"
+
+#: porthole/glade/config.glade.h:99
+msgid "command 4:"
+msgstr "Komut 4:"
+
+#: porthole/glade/config.glade.h:100
+msgid "command 5:"
+msgstr "Komut 5:"
+
+#: porthole/glade/config.glade.h:101
+msgid "fetch"
+msgstr "fetch"
+
+#: porthole/glade/config.glade.h:106
+msgid "profile"
+msgstr "profil"
+
+#: porthole/glade/config.glade.h:107
+msgid "radiobutton1"
+msgstr "radiobutton1"
+
+#: porthole/glade/config.glade.h:108
+msgid "radiobutton2"
+msgstr "radiobutton2"
+
+#: porthole/glade/config.glade.h:109
+msgid "radiobutton3"
+msgstr "radiobutton3"
+
+#: porthole/glade/config.glade.h:110
+msgid "radiobutton4"
+msgstr "radiobutton4"
+
+#: porthole/glade/config.glade.h:111
+msgid "radiobutton5"
+msgstr "radiobutton5"
+
+#: porthole/glade/config.glade.h:112
+msgid "radiobutton6"
+msgstr "radiobutton6"
+
+#: porthole/glade/config.glade.h:113
+msgid "radiobutton7"
+msgstr "radiobutton7"
+
+#: porthole/glade/config.glade.h:114
+msgid "radiobutton8"
+msgstr "radiobutton8"
+
+#: porthole/glade/config.glade.h:115
+msgid "radiobutton9"
+msgstr "radiobutton9"
+
+#: porthole/glade/porthole.glade.h:1
+msgid "<b>Plugin Description</b>"
+msgstr "<b>Eklenti Tanımı</b>"
+
+#: porthole/glade/porthole.glade.h:2
+msgid "<b>Plugin List</b>"
+msgstr "<b>Eklenti Listesi</b>"
+
+#: porthole/glade/porthole.glade.h:3
+msgid "<b>Plugin Options</b>"
+msgstr "<b>Eklenti Seçenekleri</b>"
+
+#: porthole/glade/porthole.glade.h:4
+msgid "A_dv Emerge"
+msgstr "_Glş. Emerge"
+
+#: porthole/glade/porthole.glade.h:5
+msgid "Advanced Emerge Package"
+msgstr "Paketi Gelişmiş Özelliklerle Kur"
+
+#: porthole/glade/porthole.glade.h:6
+msgid "Cautions "
+msgstr "Bildiriler"
+
+#: porthole/glade/porthole.glade.h:7
+msgid "Changelog"
+msgstr "Değişiklikler"
+
+#: porthole/glade/porthole.glade.h:8
+msgid "Clears the entire queue"
+msgstr "İşlem sırasını temizler"
+
+#: porthole/glade/porthole.glade.h:9
+#: porthole/readers/upgradeables.py:38
+#: porthole/readers/upgradeables.py:56
+#: porthole/readers/upgradeables.py:57
+#: porthole/readers/upgradeables.py:135
+#: porthole/views/depends.py:58
+#: porthole/views/depends.py:166
+msgid "Dependencies"
+msgstr "Bağımlılıklar"
+
+#: porthole/glade/porthole.glade.h:10
+msgid "E_merge"
+msgstr "E_merge"
+
+#: porthole/glade/porthole.glade.h:11
+msgid "Ebuild"
+msgstr "Ebuild"
+
+#: porthole/glade/porthole.glade.h:12
+msgid "Emerge Package"
+msgstr "Paketi Kur"
+
+#: porthole/glade/porthole.glade.h:13
+msgid "Emerge Queue"
+msgstr "Emerge Sırası"
+
+#: porthole/glade/porthole.glade.h:14
+msgid "In order to access all the features of Porthole, please run it with root privileges."
+msgstr "Porthole'un bütün özelliklerini kullanabilmek için, lütfen programı yönetici hakları ile başlatın."
+
+#: porthole/glade/porthole.glade.h:15
+msgid "Information "
+msgstr "Bilgi"
+
+#: porthole/glade/porthole.glade.h:16
+msgid "Installed files"
+msgstr "Kurulan Dosyalar"
+
+#: porthole/glade/porthole.glade.h:17
+msgid "Move _Bottom"
+msgstr "_Tabana Taşı"
+
+#: porthole/glade/porthole.glade.h:18
+msgid "Move _Down"
+msgstr "_Aşağı Taşı"
+
+#: porthole/glade/porthole.glade.h:19
+msgid "Move _Top"
+msgstr "En _Üste Taşı"
+
+#: porthole/glade/porthole.glade.h:20
+msgid "Move _Up"
+msgstr "_Yukarı Taşı"
+
+#: porthole/glade/porthole.glade.h:21
+msgid "Moves the selected process to start next"
+msgstr "Seçili işlemi çalışan işlemin sonrasına koyar"
+
+#: porthole/glade/porthole.glade.h:22
+msgid "Moves the selected process to the end of the queue"
+msgstr "Seçili işlemi işlem sırasının sonuna koyar"
+
+#: porthole/glade/porthole.glade.h:23
+msgid "Not Root"
+msgstr "Yönetici Değil"
+
+#: porthole/glade/porthole.glade.h:24
+msgid "Not yet implemented in this window.                   Set the terminal queue status, ie. Start, Pause or Timer"
+msgstr ""
+"Şu anda kullanılabilir değil.\n"
+"İşlem sırasındaki terminal durumunu ayarlar; Başla, Ara Ver vs."
+
+#: porthole/glade/porthole.glade.h:25
+msgid "Not yet implemented.                                     Set run times for commands in the queue"
+msgstr ""
+"Henüz kullanılabilir değil.\n"
+"İşlem sırasındaki komutlar için çalışma zamanlarını ayarlar"
+
+#: porthole/glade/porthole.glade.h:26
+msgid "Not yet set..."
+msgstr "Henüz ayarlanmadı..."
+
+#: porthole/glade/porthole.glade.h:27
+msgid "Only _Fetch"
+msgstr "Sadece _indir"
+
+#: porthole/glade/porthole.glade.h:28
+msgid "Pause any commands in the queue"
+msgstr "Sıradaki komutlara ara ver"
+
+#: porthole/glade/porthole.glade.h:29
+msgid "Please Enter Command to Execute"
+msgstr "Lütfen Çalıştırılacak Komutu Girin"
+
+#: porthole/glade/porthole.glade.h:30
+msgid "Plugin Settings"
+msgstr "Eklenti Ayarları"
+
+#: porthole/glade/porthole.glade.h:31
+msgid "Plugin _Settings"
+msgstr "Eklenti A_yarları"
+
+#: porthole/glade/porthole.glade.h:32
+msgid "Porthole"
+msgstr "Porthole"
+
+#: porthole/glade/porthole.glade.h:33
+msgid "Porthole Terminal"
+msgstr "Porthole Terminali"
+
+#: porthole/glade/porthole.glade.h:34
+#: porthole/terminal/constants.py:48
+msgid "Process"
+msgstr "İşlem"
+
+#: porthole/glade/porthole.glade.h:35
+msgid "Queue"
+msgstr "İşlem Sırası"
+
+#: porthole/glade/porthole.glade.h:36
+msgid "RUN :"
+msgstr "ÇALIŞTIR :"
+
+#: porthole/glade/porthole.glade.h:37
+msgid "Re-Initialize _Portage"
+msgstr "_Portage'ı Yeniden Tara"
+
+#: porthole/glade/porthole.glade.h:38
+msgid "Re_sume"
+msgstr "De_vam Et"
+
+#: porthole/glade/porthole.glade.h:39
+msgid "Refresh the Current View"
+msgstr "Geçerli Görünümü Tazele"
+
+#: porthole/glade/porthole.glade.h:40
+msgid "Removes selected queue item(s)"
+msgstr "Seçili işlem sırası öğelerini siler"
+
+#: porthole/glade/porthole.glade.h:41
+msgid "Resume the queue processes remaining"
+msgstr "Sırada kalan işlemlere devam et"
+
+#: porthole/glade/porthole.glade.h:42
+msgid "Run commands in the queue"
+msgstr "Kuyruktaki komutları çalıştır"
+
+#: porthole/glade/porthole.glade.h:43
+msgid "S_ync"
+msgstr "E_şle"
+
+#: porthole/glade/porthole.glade.h:44
+msgid "Save Log _As"
+msgstr "Kay_dı Farklı Kaydet"
+
+#: porthole/glade/porthole.glade.h:45
+msgid "Save _Log"
+msgstr "Kaydı Kayd_et"
+
+#: porthole/glade/porthole.glade.h:46
+msgid "Search _Descriptions"
+msgstr "_Tanımlarda Ara"
+
+#: porthole/glade/porthole.glade.h:47
+msgid "Skip _Queue Item"
+msgstr "İ_şlem Sırası Girdisini Es Geç"
+
+#: porthole/glade/porthole.glade.h:48
+#: porthole/terminal/constants.py:48
+msgid "Summary"
+msgstr "Özet"
+
+#: porthole/glade/porthole.glade.h:49
+msgid "Temporarily stop any remaining processes from starting"
+msgstr "Kalan işlemleri başlamadan geçici olarak durdurur"
+
+#: porthole/glade/porthole.glade.h:50
+msgid "Ti_mer"
+msgstr "Za_manlayıcı"
+
+#: porthole/glade/porthole.glade.h:51
+msgid "U_nmerge"
+msgstr "_Kaldır"
+
+#: porthole/glade/porthole.glade.h:52
+msgid "Unmerge Package"
+msgstr "Paketi Kaldır"
+
+#: porthole/glade/porthole.glade.h:53
+msgid "Upgrade packages to newest versions"
+msgstr "Paketleri en üst sürüme yükselt"
+
+#: porthole/glade/porthole.glade.h:54
+msgid "Warnings! "
+msgstr "Uyarılar!"
+
+#: porthole/glade/porthole.glade.h:55
+msgid "_Actions"
+msgstr "_Eylemler"
+
+#: porthole/glade/porthole.glade.h:56
+msgid "_Close Window"
+msgstr "Pencereyi Kapa_t"
+
+#: porthole/glade/porthole.glade.h:57
+msgid "_Edit"
+msgstr "_Düzenle"
+
+#: porthole/glade/porthole.glade.h:58
+msgid "_Help"
+msgstr "_Yardım"
+
+#: porthole/glade/porthole.glade.h:59
+msgid "_Kill"
+msgstr "_Öldür"
+
+#: porthole/glade/porthole.glade.h:60
+msgid "_Kill Process"
+msgstr "İ_şlemi Öldür"
+
+#: porthole/glade/porthole.glade.h:61
+msgid "_Noreplace"
+msgstr "_Noreplace"
+
+#: porthole/glade/porthole.glade.h:62
+msgid "_Normal"
+msgstr "_Normal"
+
+#: porthole/glade/porthole.glade.h:63
+msgid "_Oneshot"
+msgstr "_Oneshot"
+
+#: porthole/glade/porthole.glade.h:64
+msgid "_Open Log"
+msgstr "Kaydı A_ç"
+
+#: porthole/glade/porthole.glade.h:65
+msgid "_Pretend"
+msgstr "_Sahte İşlem"
+
+#: porthole/glade/porthole.glade.h:66
+msgid "_Process"
+msgstr "_İşlem"
+
+#: porthole/glade/porthole.glade.h:67
+msgid "_Queue"
+msgstr "İşle_m Sırası"
+
+#: porthole/glade/porthole.glade.h:68
+msgid "_Resume"
+msgstr "De_vam Et"
+
+#: porthole/glade/porthole.glade.h:69
+msgid "_Settings"
+msgstr "Aya_rlar"
+
+#: porthole/glade/porthole.glade.h:70
+msgid "_Skip First Package"
+msgstr "İlk _Paketi Atla"
+
+#: porthole/glade/porthole.glade.h:71
+msgid "_Update"
+msgstr "G_üncelle"
+
+#: porthole/glade/porthole.glade.h:72
+msgid "_Upgrade"
+msgstr "Y_ükselt"
+
+#: porthole/glade/porthole.glade.h:73
+msgid "_Verbose"
+msgstr "_Detaylı"
+
+#: porthole/glade/porthole.glade.h:74
+msgid "_View:"
+msgstr "G_örünüm:"
+
+#: porthole/utils/utils.py:200
+msgid "Error reading emerge log file.  Check file permissions, or check for corrupt log file."
+msgstr "Emerge kayıt dosyasını okumada hata. Dosya izinlerini kontrol edin, dosya bozuk da olabilir."
+
+#: porthole/plugin.py:202
+msgid "Enable"
+msgstr "Etkinleştir"
+
+#: porthole/plugin.py:203
+msgid "Plug-in"
+msgstr "Eklenti"
+
+#: porthole/packagebook/notebook.py:145
+msgid "Viewing Dependency of: "
+msgstr "Şu paket için bağımlılığa bakılıyor:"
+
+#: porthole/packagebook/depends.py:174
+msgid "Using "
+msgstr "Kullanılıyor"
+
+#: porthole/packagebook/depends.py:177
+msgid "Not Using "
+msgstr "Kullanılmıyor"
+
+#: porthole/packagebook/depends.py:217
+#, python-format
+msgid "Using %s"
+msgstr "%s kullanılıyor"
+
+#: porthole/packagebook/depends.py:222
+#, python-format
+msgid "Not Using %s"
+msgstr "%s kullanılmıyor"
+
+#: porthole/packagebook/depends.py:234
+msgid "Any of:"
+msgstr "Şunlar hariç:"
+
+#: porthole/packagebook/depends.py:238
+msgid "All of:"
+msgstr "Şunların hepsi:"
+
+#: porthole/packagebook/depends.py:316
+#: porthole/packagebook/summary.py:562
+#: porthole/backends/utilities.py:76
+#: porthole/advancedemerge/advemerge.py:678
+#: porthole/db/package.py:66
+#: porthole/db/package.py:82
+#: porthole/db/package.py:89
+#: porthole/db/package.py:97
+#: porthole/db/package.py:105
+#: porthole/db/package.py:117
+#: porthole/db/package.py:135
+#: porthole/db/package.py:145
+#: porthole/db/package.py:155
+#: porthole/db/package.py:163
+#: porthole/db/package.py:180
+#: porthole/db/package.py:187
+#: porthole/db/package.py:206
+#: porthole/db/package.py:214
+#: porthole/db/package.py:231
+#: porthole/db/package.py:243
+#: porthole/db/package.py:257
+#: porthole/db/package.py:280
+#: porthole/readers/sets.py:73
+#: porthole/readers/sets.py:74
+#: porthole/readers/readers.py:123
+#: porthole/readers/readers.py:124
+#: porthole/readers/deprecated.py:84
+#: porthole/readers/deprecated.py:85
+#: porthole/readers/upgradeables.py:94
+#: porthole/readers/upgradeables.py:95
+#: porthole/views/package.py:329
+#: porthole/views/package.py:435
+#: porthole/views/package.py:480
+#: porthole/views/package.py:542
+#: porthole/mainwindow.py:1019
+msgid "None"
+msgstr "Hiçbiri"
+
+#: porthole/packagebook/summary.py:86
+msgid "Emerge this ebuild"
+msgstr "Bu ebuildi kur"
+
+#: porthole/packagebook/summary.py:88
+msgid "Pretend Emerge this ebuild"
+msgstr "Bu ebuildi kurar gibi yap"
+
+#: porthole/packagebook/summary.py:90
+msgid "Sudo Emerge this ebuild"
+msgstr "Bu ebuildi sudo ile kur"
+
+#: porthole/packagebook/summary.py:92
+msgid "Unmerge this ebuild"
+msgstr "Bu ebuildi kaldır"
+
+#: porthole/packagebook/summary.py:94
+msgid "Sudo Unmerge this ebuild"
+msgstr "Bu ebuildi sudo ile kaldır"
+
+#: porthole/packagebook/summary.py:96
+#: porthole/views/depends.py:132
+msgid "Advanced Emerge"
+msgstr "Gelişmiş Emerge Özellikleri"
+
+#: porthole/packagebook/summary.py:98
+msgid "Remove this arch from package.keywords"
+msgstr "Bu mimariyi package.keywords dosyasından kaldır"
+
+#: porthole/packagebook/summary.py:100
+msgid "Remove ebuild keyword from package.keywords"
+msgstr "Ebuild anahtarını package.keywords dosyasından kaldır"
+
+#: porthole/packagebook/summary.py:102
+msgid "Remask this ebuild"
+msgstr "Bu ebuildi yeniden maskele"
+
+#: porthole/packagebook/summary.py:104
+msgid "Show the properties for this ebuild"
+msgstr "Bu ebuildin özelliklerini göster"
+
+#: porthole/packagebook/summary.py:109
+#, python-format
+msgid "Add %s to package.keywords (for this ebuild only)"
+msgstr "%s değerini package.keywords dosyasına ekle (sadece bu ebuild için)"
+
+#: porthole/packagebook/summary.py:111
+msgid "Add this arch to package.keywords"
+msgstr "Bu mimariyi package.keywords dosyasına ekle"
+
+#: porthole/packagebook/summary.py:115
+msgid "Add to package.keywords (for this ebuild only)"
+msgstr "package.keywords dosyasına ekle (sadece bu ebuild için)"
+
+#: porthole/packagebook/summary.py:116
+msgid "Add to package.keywords"
+msgstr "package.keywords dosyasına ekle"
+
+#: porthole/packagebook/summary.py:127
+msgid "Mask this ebuild or package"
+msgstr "Bu ebuild veya paketi maskele"
+
+#: porthole/packagebook/summary.py:128
+msgid "Unmask this ebuild or package"
+msgstr "Ebuild veya paketin maskesini kaldır"
+
+#: porthole/packagebook/summary.py:275
+#, python-format
+msgid "\tSlot %s: "
+msgstr "\tKanal %s: "
+
+#: porthole/packagebook/summary.py:296
+msgid "\tNone"
+msgstr "\tHiçbiri"
+
+#: porthole/packagebook/summary.py:323
+msgid "Slot"
+msgstr "Kanal"
+
+#: porthole/packagebook/summary.py:326
+msgid "Overlay"
+msgstr "Depo"
+
+#: porthole/packagebook/summary.py:349
+msgid "Ebuild version no longer supported"
+msgstr "Ebuild sürümü artık desteklenmiyor"
+
+#: porthole/packagebook/summary.py:350
+msgid "Obsolete"
+msgstr "Eskimiş"
+
+#: porthole/packagebook/summary.py:354
+msgid "Y"
+msgstr "E"
+
+#: porthole/packagebook/summary.py:356
+msgid "N"
+msgstr "H"
+
+#: porthole/packagebook/summary.py:436
+msgid "IUSE: "
+msgstr "IUSE: "
+
+#: porthole/packagebook/summary.py:441
+msgid "Use flags settings: "
+msgstr "Use bayrağı ayarları:"
+
+#: porthole/packagebook/summary.py:446
+msgid "Final environment Use flags: "
+msgstr "Son durumda Use bayrakları:"
+
+#: porthole/packagebook/summary.py:453
+msgid "Keywords: "
+msgstr "Anahtar değerler:"
+
+#: porthole/packagebook/summary.py:465
+msgid "License: "
+msgstr "Lisans:"
+
+#: porthole/packagebook/summary.py:548
+msgid "User Configs: "
+msgstr "Kullanıcı Ayarları:"
+
+#: porthole/packagebook/summary.py:643
+msgid "Long Description: "
+msgstr "Uzun Tanım: "
+
+#: porthole/packagebook/summary.py:664
+msgid "Installed versions:\n"
+msgstr "Kurulu sürümler:\n"
+
+#: porthole/packagebook/summary.py:668
+#: porthole/loaders/loaders.py:162
+msgid "Not installed"
+msgstr "Kurulmamış"
+
+#: porthole/packagebook/summary.py:673
+#, python-format
+msgid "Available versions for %s:\n"
+msgstr "%s için erişilebilir sürümler:\n"
+
+#: porthole/packagebook/summary.py:677
+msgid "Properties for version: "
+msgstr "Şu sürüm için özellikler: "
+
+#: porthole/backends/metadata.py:142
+#, python-format
+msgid "Metadata file \"%s\" does not exist."
+msgstr "\"%s\" dosyası bulunamadı."
+
+#: porthole/backends/pkgcore_lib.py:34
+msgid "Could not find pkgcore module."
+msgstr "pkgcore modülü bulunamadı."
+
+#: porthole/backends/pkgcore_lib.py:38
+msgid "Could not find pkgcore.config module."
+msgstr "pkgcore.config modülü bulunamadı."
+
+#: porthole/backends/pkgcore_lib.py:42
+msgid "Could not find pkgcore.const module."
+msgstr "pkgcore.const modülü bulunamadı."
+
+#: porthole/backends/pkgcore_lib.py:46
+msgid "Could not find pkgcore.util.file.read_bash module."
+msgstr "pkgcore.util.file.read_bash modülü bulunamadı."
+
+#: porthole/backends/pkgcore_lib.py:50
+msgid "Could not find pkgcore.package.atom module."
+msgstr "pkgcore.package.atom modülü bulunamadı."
+
+#: porthole/backends/pkgcore_lib.py:56
+#: porthole/backends/set_config.py:34
+#: porthole/backends/portagelib.py:63
+msgid ""
+"Could not find portage module.\n"
+"Are you sure this is a Gentoo system?"
+msgstr ""
+"Portage modülü bulunamadı.\n"
+"Bu sistemin Gentoo olduğuna emin misiniz?"
+
+#: porthole/backends/pkgcore_lib.py:550
+#: porthole/backends/portagelib.py:560
+msgid "No masking reason given"
+msgstr "Maskeleme sebebi yok"
+
+#: porthole/backends/utilities.py:83
+#: porthole/mainwindow.py:309
+msgid "Unknown"
+msgstr "Bilinmeyen"
+
+#: porthole/advancedemerge/advemerge.py:98
+#, python-format
+msgid "Advanced Emerge Settings for %s"
+msgstr "%s İçin Gelişmiş Emerge Seçenekleri"
+
+#: porthole/advancedemerge/advemerge.py:142
+#: porthole/advancedemerge/advemerge.py:339
+#, python-format
+msgid "Slot:%s"
+msgstr "Kanal:%s"
+
+#: porthole/advancedemerge/advemerge.py:144
+#: porthole/advancedemerge/advemerge.py:341
+msgid "   {unavailable}"
+msgstr "   {erişilemez}"
+
+#: porthole/advancedemerge/advemerge.py:146
+#: porthole/advancedemerge/advemerge.py:343
+msgid "   (unstable)"
+msgstr "   (kararsız)"
+
+#: porthole/advancedemerge/advemerge.py:148
+#: porthole/advancedemerge/advemerge.py:345
+msgid "   [MASKED]"
+msgstr "   [MASKELENMİŞ]"
+
+#: porthole/advancedemerge/advemerge.py:151
+#: porthole/advancedemerge/advemerge.py:348
+msgid "   (recommended) (downgrade)"
+msgstr "   (önerilen) (sürüm düşürme)"
+
+#: porthole/advancedemerge/advemerge.py:153
+#: porthole/advancedemerge/advemerge.py:350
+msgid "   (recommended)"
+msgstr "   (önerilen)"
+
+#: porthole/advancedemerge/advemerge.py:156
+#: porthole/advancedemerge/advemerge.py:353
+msgid "   [installed]"
+msgstr "   [kurulu]"
+
+#: porthole/advancedemerge/advemerge.py:638
+msgid "Unsupported use flag"
+msgstr "Desteklenmeyen use bayrağı"
+
+#: porthole/terminal/term_queue.py:182
+msgid "id"
+msgstr ""
+
+#: porthole/terminal/term_queue.py:187
+msgid "Packages to be merged      "
+msgstr "Kurulacak paketler"
+
+#: porthole/terminal/term_queue.py:200
+msgid "Sender"
+msgstr ""
+
+#: porthole/terminal/term_queue.py:222
+msgid ""
+"The package you selected is already in the emerge queue,\n"
+"but it has been killed. Would you like to resume the emerge?"
+msgstr ""
+"Seçtiğiniz paket zaten emerge işlem sırasında bulunmakta,\n"
+"ancak işlem öldürülmüş. Emerge işlemine devam etmek ister misiniz?"
+
+#: porthole/terminal/term_queue.py:252
+msgid "The package you selected is already in the emerge queue!"
+msgstr "Seçtiğiniz paket zaten emerge işlem sırasında!"
+
+#: porthole/terminal/term_queue.py:253
+#: porthole/terminal/term_queue.py:254
+msgid "Error Adding Package To Queue!"
+msgstr "Paketi Sıraya Eklerken Hata!"
+
+#: porthole/terminal/term_queue.py:255
+msgid "OK"
+msgstr "Tamam"
+
+#: porthole/terminal/constants.py:46
+msgid "*** process killed ***\n"
+msgstr "*** işlem öldürüldü ***\n"
+
+#: porthole/terminal/constants.py:47
+msgid "*** process completed ***\n"
+msgstr "*** işlem tamamlandı ***\n"
+
+#: porthole/terminal/constants.py:48
+msgid "Warnings"
+msgstr "Uyarılar"
+
+#: porthole/terminal/constants.py:48
+msgid "Cautions"
+msgstr "Bildiriler"
+
+#: porthole/terminal/constants.py:48
+msgid "Emerge queue"
+msgstr "Emerge sırası"
+
+#: porthole/terminal/terminal.py:294
+msgid "Non-DBus"
+msgstr "DBus-harici"
+
+#: porthole/terminal/terminal.py:436
+msgid "***Log Process Killed!"
+msgstr "***Kayıt işlemi öldürüldü!"
+
+#: porthole/terminal/terminal.py:504
+msgid "Confirm: Kill the Running Process"
+msgstr "Onayla: Geçerli işlemi öldür"
+
+#: porthole/terminal/terminal.py:790
+#, python-format
+msgid "*** Log loading complete : %s"
+msgstr "*** Kayıt dosyası yükleme tamamlandı : %s"
+
+#: porthole/terminal/terminal.py:807
+msgid "_Cancel"
+msgstr "_İptal"
+
+#: porthole/terminal/terminal.py:815
+#, python-format
+msgid ""
+"'sudo -p Password: ' requires your user password to perform the command:\n"
+"'%s'"
+msgstr ""
+"'sudo -p Şifre: ' aşağıdaki komutu çalıştırmak için şifre istiyor:\n"
+"'%s'"
+
+#: porthole/terminal/terminal.py:819
+#, python-format
+msgid ""
+"'sudo: ' requires your user password to perform the command:\n"
+"'%s'"
+msgstr ""
+"'sudo: ' aşağıdaki komutu çalıştırmak için şifre istiyor:\n"
+"'%s'"
+
+#: porthole/terminal/terminal.py:824
+#: porthole/terminal/terminal.py:828
+#, python-format
+msgid ""
+"'su' requires the root password to perform the command:\n"
+"'%s'"
+msgstr ""
+"'su' aşağıdaki komutu çalıştırmak için şifre istiyor:\n"
+"'%s'"
+
+#: porthole/terminal/terminal.py:831
+#, python-format
+msgid ""
+"Password Required to perform the command:\n"
+"'%s'"
+msgstr ""
+"Aşağıdaki komutu çalıştırmak için şifre gerekli:\n"
+"'%s'"
+
+#: porthole/terminal/terminal.py:836
+msgid "Password: "
+msgstr "Şifre:"
+
+#: porthole/terminal/terminal.py:919
+#, python-format
+msgid "*** Total warnings count for merge = %d \n"
+msgstr "*** Kurulum için toplam uyarı = %d \n"
+
+#: porthole/terminal/terminal.py:925
+#, python-format
+msgid "*** Total cautions count for merge = %d \n"
+msgstr "*** Kurulum için toplam bildiri = %d \n"
+
+#: porthole/terminal/terminal.py:1049
+msgid "*** Unfortunately, you don't have enough logged information about the listed packages to calculate estimated build times accurately.\n"
+msgstr "*** Malesef sisteminizde bu paketlerin ortalama derlenme zamanlarını hesaplamak için yeterli sistem kaydı bulunamadı.\n"
+
+#: porthole/terminal/terminal.py:1055
+#, python-format
+msgid "*** Based on the build history of these packages on your system, I can estimate that emerging them usually takes, on average, %(days)d days, %(hours)d hrs, %(minutes)d mins, and %(seconds)d secs.\n"
+msgstr "*** Bu paketlerin siszin sisteminizdeki derlenme zamanlarını temel alır. Ortalama olarak derlemelerinin ne kadar süreceği tahmin edilebilir, %(days)d gün, %(hours)d saat, %(minutes)d dakika, ve %(seconds)d saniye.\n"
+
+#: porthole/terminal/terminal.py:1064
+msgid "*** Note: If you have a lot of programs running on your system while porthole is emerging packages, or if you have changed your hardware since the last time you built some of these packages, this estimate may be inaccurate.\n"
+msgstr "*** Not: Porthole işlem yaparken çok sayıda işlem de aynı anda çalışıyorsa ya da bazı paketleri derledikten sonra donanım değişikliği yaparsanız, işlem hatalı sonuçlanabilir.\n"
+
+#: porthole/terminal/terminal.py:1086
+msgid "*** Unknown File Loading error"
+msgstr "*** Bilinmeyen Dosya Yükleme Hatası"
+
+#: porthole/terminal/terminal.py:1090
+msgid "*** File Loading... Processing..."
+msgstr "*** Dosya yükleniyor... İşleniyor..."
+
+#: porthole/terminal/terminal.py:1099
+#: porthole/terminal/terminal.py:1103
+msgid ": Open log File"
+msgstr ": Kayıt dosyasını aç"
+
+#: porthole/terminal/terminal.py:1144
+#: porthole/dialogs/fileselector.py:78
+#, python-format
+msgid "Ovewrite existing file '%s'?"
+msgstr "Önceki dosya '%s' üzerine yaz?"
+
+#: porthole/terminal/terminal.py:1208
+#, python-format
+msgid "*** Loading File : %s"
+msgstr "*** Dosya Yükleniyor : %s"
+
+#: porthole/terminal/terminal.py:1213
+#, python-format
+msgid "Cannot open file '%(filename)s': %(errmsg)s"
+msgstr "'%(filename)s' dosyası açılamıyor: %(errmsg)s"
+
+#: porthole/terminal/terminal.py:1239
+#, python-format
+msgid "Cannot back up '%(filename)s' to '%(bak_filename)s': %(errmsg)s"
+msgstr "'%(filename)s' dosyası '%(bak_filename)s' olarak yedeklenemiyor: %(errmsg)s"
+
+#: porthole/terminal/terminal.py:1248
+#, python-format
+msgid "*** saving file: %s"
+msgstr "*** dosya kaydediliyor: %s"
+
+#: porthole/terminal/terminal.py:1282
+#, python-format
+msgid ""
+"Can't restore backup file '%(filename)s' to '%(bak_filename)s': %(errmsg)s\n"
+"Backup left as '%(bak_filename)s'"
+msgstr ""
+"'%(filename)s' dosyası '%(bak_filename)s' dosyasından oluşturulamıyor: %(errmsg)s\n"
+"Yedek dosya '%(bak_filename)s' olarak kaldı"
+
+#: porthole/terminal/terminal.py:1289
+#, python-format
+msgid "*** File saved : %s"
+msgstr "*** Dosya kaydedildi : %s"
+
+#: porthole/terminal/terminal.py:1299
+#, python-format
+msgid "Save log to '%s'?"
+msgstr "Kayıtları '%s' olarak kaydet?"
+
+#: porthole/loaders/loaders.py:79
+#, python-format
+msgid ""
+"This %s has an encoding method unknown to porthole.\n"
+"Please report this to bugs.gentoo.org and porthole's bugtracker"
+msgstr ""
+"%s , porthole tarafından bilinmeyen bir kodlamaya sahip.\n"
+"Lütfen bunu bugs.gentoo.org ve porthole'un hata takip sistemine rapor edin"
+
+#: porthole/loaders/loaders.py:137
+#, python-format
+msgid "%s is Empty"
+msgstr "%s Boş"
+
+#: porthole/loaders/loaders.py:140
+#: porthole/loaders/loaders.py:143
+#, python-format
+msgid "%s Not Available"
+msgstr "%s Erişilemez"
+
+#: porthole/loaders/loaders.py:165
+msgid ""
+"No data currently available.\n"
+"The package may not be installed"
+msgstr ""
+"Erişilebilir bilgi yok.\n"
+"Paket kurulmamış olabilir"
+
+#: porthole/loaders/loaders.py:169
+#, python-format
+msgid ""
+"%(installed_count)i installed files for: %(ebuild)s \n"
+"\n"
+msgstr ""
+"%(installed_count)i kurulu dosya: %(ebuild)s \n"
+"\n"
+
+#: porthole/config/preferences.py:294
+#: porthole/config/preferences.py:334
+msgid "Sync"
+msgstr "Eşle"
+
+#: porthole/config/preferences.py:335
+msgid "WebRsync"
+msgstr "WebRsync"
+
+#: porthole/db/user_configs.py:321
+#, python-format
+msgid "Porthole: Please select the %s file to use"
+msgstr "Porthole: Lütfen kullanılacak %s dosyasını seçin"
+
+#: porthole/readers/upgradeables.py:38
+#: porthole/readers/upgradeables.py:56
+#: porthole/readers/upgradeables.py:57
+#: porthole/readers/upgradeables.py:113
+#: porthole/readers/upgradeables.py:115
+#: porthole/readers/upgradeables.py:117
+#: porthole/readers/upgradeables.py:135
+msgid "System"
+msgstr "Sistem"
+
+#: porthole/readers/upgradeables.py:38
+#: porthole/readers/upgradeables.py:133
+#: porthole/readers/upgradeables.py:134
+#: porthole/mainwindow.py:77
+#: porthole/mainwindow.py:234
+msgid "Sets"
+msgstr "Setler"
+
+#: porthole/readers/upgradeables.py:38
+#: porthole/readers/upgradeables.py:56
+#: porthole/readers/upgradeables.py:57
+#: porthole/readers/upgradeables.py:135
+msgid "World"
+msgstr "World Profili"
+
+#: porthole/dialogs/simple.py:58
+msgid "_Yes"
+msgstr "_Evet"
+
+#: porthole/dialogs/simple.py:60
+msgid "_No"
+msgstr "_Hayır"
+
+#: porthole/dialogs/simple.py:71
+msgid "Loading"
+msgstr "Yükleniyor"
+
+#: porthole/dialogs/command.py:89
+#: porthole/dialogs/command.py:98
+msgid "command line entry"
+msgstr "komut satırı girişi"
+
+#: porthole/dialogs/about.py:54
+#, python-format
+msgid "About Porthole %s"
+msgstr "Porthole %s Hakkında"
+
+#: porthole/version.py:25
+msgid "Copyright (c) 2003 - 2009"
+msgstr "Telif Hakkı (c) 2003 - 2009"
+
+#: porthole/views/package.py:70
+#: porthole/views/menus.py:49
+#: porthole/views/depends.py:128
+msgid "Pretend Emerge"
+msgstr "Sahte Emerge"
+
+#: porthole/views/package.py:72
+#: porthole/views/menus.py:51
+#: porthole/views/depends.py:130
+msgid "Sudo Emerge"
+msgstr "Sudo Emerge"
+
+#: porthole/views/package.py:74
+#: porthole/views/menus.py:53
+msgid "Unmerge"
+msgstr "Unmerge"
+
+#: porthole/views/package.py:76
+#: porthole/views/menus.py:55
+msgid "Sudo Unmerge"
+msgstr "Sudo Unmerge"
+
+#: porthole/views/package.py:78
+#: porthole/views/menus.py:57
+#: porthole/views/depends.py:138
+#, python-format
+msgid "Append with %s to package.keywords"
+msgstr "%s ile package.keywords'e ekle"
+
+#: porthole/views/package.py:80
+#: porthole/views/menus.py:59
+msgid "De-Select all"
+msgstr "Tümünü bırak"
+
+#: porthole/views/package.py:82
+#: porthole/views/menus.py:61
+msgid "Select all"
+msgstr "Tümünü seç"
+
+#: porthole/views/package.py:96
+msgid "Packages"
+msgstr "Paketler"
+
+#: porthole/views/category.py:43
+#: porthole/views/category.py:71
+msgid "Categories"
+msgstr "Kategoriler"
+
+#: porthole/views/category.py:49
+msgid "# pkgs"
+msgstr "# pkt"
+
+#: porthole/views/category.py:69
+msgid "Search History"
+msgstr "Arama Geçmişi"
+
+#: porthole/views/depends.py:67
+msgid "Package"
+msgstr "Paket"
+
+#: porthole/views/depends.py:106
+msgid "Required USE"
+msgstr "Gerekli USE"
+
+#: porthole/views/depends.py:377
+msgid "Porthole Dependency Viewer"
+msgstr "Porthole Bağımlılık İzleyici"
+
+#: porthole/mainwindow.py:77
+msgid "Deprecated"
+msgstr "Süresi geçmiş"
+
+#: porthole/mainwindow.py:77
+msgid "Upgradable"
+msgstr "Güncellenebilir"
+
+#: porthole/mainwindow.py:188
+msgid ""
+" Synchronise Package Database \n"
+" The last sync was done:\n"
+msgstr ""
+" Paket Veritabanını Eşle \n"
+" Son eşleme zamanı:\n"
+
+#: porthole/mainwindow.py:233
+msgid "All Packages"
+msgstr "Bütün Paketler"
+
+#: porthole/mainwindow.py:233
+msgid "Installed Packages"
+msgstr "Kurulu Paketler"
+
+#: porthole/mainwindow.py:233
+msgid "Search Results"
+msgstr "Arama Sonuçları"
+
+#: porthole/mainwindow.py:233
+msgid "Upgradable Packages"
+msgstr "Yükseltilebilir Paketler"
+
+#: porthole/mainwindow.py:234
+msgid "Deprecated Packages"
+msgstr "Eskimiş Paketler"
+
+#: porthole/mainwindow.py:251
+msgid "Active Plugins"
+msgstr "Aktif Eklentiler"
+
+#: porthole/mainwindow.py:264
+msgid "Loading database"
+msgstr "Veritabanı yükleniyor"
+
+#: porthole/mainwindow.py:265
+msgid "Initializing database. Please wait..."
+msgstr "Veritabanına ulaşılıyor. Lütfen bekleyin..."
+
+#: porthole/mainwindow.py:338
+msgid "Reloading database"
+msgstr "Veritabanı tekrar yükleniyor"
+
+#: porthole/mainwindow.py:442
+msgid "No root privileges"
+msgstr "Yönetici hakkı yok"
+
+#: porthole/mainwindow.py:444
+msgid ""
+"In order to access all the features of Porthole,\n"
+"please run it with root privileges."
+msgstr ""
+"Porthole'un bütün özelliklerini kullanabilmek için,\n"
+"lütfen programı yönetici hakları ile başlatın."
+
+#: porthole/mainwindow.py:447
+msgid "_Ok"
+msgstr "_Tamam"
+
+#: porthole/mainwindow.py:469
+#, python-format
+msgid "%(base)s: %(count)i packages read"
+msgstr "%(base)s: %(count)i paket okundu"
+
+#: porthole/mainwindow.py:488
+#, python-format
+msgid "%(base)s: Populating tree"
+msgstr "%(base)s: Ağaç oluşturuluyor"
+
+#: porthole/mainwindow.py:609
+msgid "Porthole Main Window"
+msgstr "Porthole Ana Penceresi"
+
+#: porthole/mainwindow.py:813
+msgid "Upgrade requested"
+msgstr "Yükseltme isteği"
+
+#: porthole/mainwindow.py:815
+msgid "Do you want to upgrade all packages in your world file?"
+msgstr "World dosyanızdaki bütün paketleri yükseltmek ister misiniz?"
+
+#: porthole/mainwindow.py:825
+msgid "Upgradable dependencies:"
+msgstr "Yükseltilebilecek paketler:"
+
+#: porthole/mainwindow.py:854
+msgid "Please Wait!"
+msgstr "Lütfen Bekleyin!"
+
+#: porthole/mainwindow.py:856
+msgid "Loading package descriptions..."
+msgstr "Paket tanımları yükleniyor..."
+
+#: porthole/mainwindow.py:898
+#, python-format
+msgid "Searching descriptions for %s"
+msgstr "%s için tanımlar aranıyor"
+
+#: porthole/mainwindow.py:900
+#, python-format
+msgid "Searching for %s"
+msgstr "%s aranıyor"
+
+#: porthole/mainwindow.py:1187
+#, python-format
+msgid "Generating '%s' packages list..."
+msgstr "'%s' paket listesi oluşturuluyor..."
+
+#: porthole/mainwindow.py:1258
+#, python-format
+msgid "Searching for '%s' packages..."
+msgstr "'%s' paketleri için aranıyor..."
+
+#: porthole/mainwindow.py:1275
+msgid "Building Package List"
+msgstr "Paket Listesi Oluşturuluyor"
+
+#: porthole/mainwindow.py:1286
+msgid "Done: "
+msgstr "Tamamlandı:"
+
+#: porthole/mainwindow.py:1299
+#: porthole/mainwindow.py:1305
+#, python-format
+msgid "%(pack)d packages in %(cat)d categories"
+msgstr "%(pack)d paket, %(cat)d kategoride"
+
+#: porthole/mainwindow.py:1392
+msgid "Confirm: Kill the Running Process in the Terminal"
+msgstr "Onayla: Terminalde devam edilen işlemi öldür"
+
+#~ msgid "upgradeonly"
+#~ msgstr "upgradeonly"
+#~ msgid "A_bout"
+#~ msgstr "H_akkında"
+#~ msgid "C_lear"
+#~ msgstr "Temiz_le"
+#~ msgid "E_merge Package"
+#~ msgstr "P_aketi Kur"
+#~ msgid "Main process text"
+#~ msgstr "Ana işlem yazısı"
+#~ msgid "Open Emerge _Log"
+#~ msgstr "Emerge Kayıt_larını Aç"
+#~ msgid "Pause"
+#~ msgstr "Ara ver"
+#~ msgid "Quit"
+#~ msgstr "Çık"
+#~ msgid "R_eload Database"
+#~ msgstr "Veritabanını Y_enile"
+#~ msgid "S_ync Tree"
+#~ msgstr "A_ğacı Eşle"
+#~ msgid "U_nmerge Package"
+#~ msgstr "Paketi _Kaldır"
+#~ msgid "_Advanced Emerge Package"
+#~ msgstr "Paketi Geli_şmiş Özelliklerle Kur"
+#~ msgid "_Configure Porthole"
+#~ msgstr "Porthole'u _Ayarla"
+#~ msgid "_Contents"
+#~ msgstr "İ_çerik"
+#~ msgid "_Copy"
+#~ msgstr "K_opyala"
+#~ msgid "_Remove"
+#~ msgstr "Kaldı_r"
+#~ msgid "_Run Custom Command"
+#~ msgstr "Özel Komut Çalıştı_r"
+#~ msgid "_Upgrade Packages"
+#~ msgstr "Paketleri Y_ükselt"
+#~ msgid "_Upgrades Only"
+#~ msgstr "Sadece Y_ükseltmeler"
+#~ msgid "A gtk2 alternative to etc-update or dispatch-conf"
+#~ msgstr "etc-update veya dispatch-conf için bir gtk2 alternatifi"
+#~ msgid "Etc-Proposals"
+#~ msgstr "Etc-Proposals"
+#~ msgid "Edit USE Variables settings using the Profuse editor"
+#~ msgstr "USE değişkeni ayarlarını Profuse editörü ile düzenle"
+#~ msgid "Profuse (root mode)"
+#~ msgstr "Profuse (yönetici modu)"
+#~ msgid "Profuse (user mode)"
+#~ msgstr "Profuse (kullanıcı modu)"
+#~ msgid "Profuse (su mode)"
+#~ msgstr "Profuse (su modu)"
+
