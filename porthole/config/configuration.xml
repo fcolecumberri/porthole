@@ -9,7 +9,7 @@
       <info-5>^\!\!\!</info-5>
       <info-6>^.*masked by</info-6>
     </info>
-    <notinfo py_type="list" item_count="10">
+    <notinfo py_type="list" item_count="11">
       <notinfo-1>^&gt;&gt;&gt; Waiting 5 seconds</notinfo-1>
       <notinfo-2>^&gt;&gt;&gt; \([Cc]ontrol-[Cc] to abort</notinfo-2>
       <notinfo-3>^&gt;&gt;&gt; [Uu]nmerging in:</notinfo-3>
@@ -20,6 +20,7 @@
       <notinfo-8>.*warning: dereferencing type-punned pointer</notinfo-8>
       <notinfo-9>.*warning: dereferencing pointer</notinfo-9>
       <notinfo-10>^  * Linking .*to</notinfo-10>
+      <notinfo-11>.* * .* warning: null argument</notinfo-11>
     </notinfo>
     <warning py_type="list" item_count="5">
       <warning-1>.*[Ww][Aa][Rr][Nn][Ii][Nn][Gg][:\!,\s]</warning-1>
