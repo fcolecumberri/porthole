@@ -455,13 +455,15 @@ def get_size(mycpv):
     myebuild = settings.portdb.findname(mycpv)
     pkgdir = os.path.dirname(myebuild)
     mf = manifest.Manifest(pkgdir, settings.settings["DISTDIR"])
-    #debug.dprint( "PORTAGELIB: get_size; Attempting to get fetchlist")
+    final_use, use_expand_hidden, usemasked, useforced = get_cpv_use(mycpv)
+    #debug.dprint( "PORTAGELIB: get_size; Attempting to get fetchlist final use= " + str(final_use))
     try:
         if portage.VERSION >= '2.1.6':# newer portage
-            fetchlist = settings.portdb.getFetchMap(mycpv) 
+            fetchlist = settings.portdb.getFetchMap(mycpv, set(final_use)) 
         else:
             debug.dprint( "PORTAGELIB: get_size; Trying old fetchlist call")
             fetchlist = settings.portdb.getfetchlist(mycpv, mysettings=settings.settings, all=True)[1]
+        #debug.dprint( "PORTAGELIB: get_size; fetchlist= " +str(fetchlist))
         #debug.dprint( "PORTAGELIB: get_size; mf.getDistfilesSize()")
         mysum[0] = mf.getDistfilesSize(fetchlist)
         mystr = str(mysum[0]/1024)
