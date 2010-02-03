@@ -1362,7 +1362,7 @@ class MainWindow:
                         "found value at iter %s: %s" 
                         % (_iter, model.get_value(kiditer, 0)))
                     break
-            _iter = model.iter_next(iter)
+            _iter = model.iter_next(_iter)
         return catpath
 
     def _find_catmin(self, _iter, catmin, model):
