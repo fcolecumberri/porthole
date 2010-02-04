@@ -351,10 +351,6 @@ class Summary(gtk.TextView):
                     label_color = "#ED9191"
                 else:
                     overlay_label = gtk.Label(portage_lib.get_overlay_name(overlay))
-                    #~ if overlay != portage_lib.settings.portdir:
-                        #~ overlay_label = gtk.Label(_("Y"))
-                    #~ else:
-                        #~ overlay_label = gtk.Label(_("N"))
                     label_color = "#EEEEEE"
                 overlay_label.set_padding(3, 3)
                 box = boxify(overlay_label, label_color)
