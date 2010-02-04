@@ -36,11 +36,11 @@ class ChangeLogView (ListView, MarkupView):
     """
 
     bug_re = re.compile(r'\d{4,}')
-    atom_re = re.compile(r'\S+\-\d+\.\d+\S')
+    atom_re = re.compile(r'\S+\-\d+\S+')
     word_re = [atom_re, bug_re]
     word_fn = ['atom', 'bug']
     new_ver_re = re.compile(r'(?P<atom>\*.*) (?P<date>\(.*\))')
-    update_re = re.compile(r'(?P<date>\d\d [A-Z][a-z][a-z] \d\d\d\d;) (?P<developer>.*[<]\S+[>]) (?P<atom>.*)')
+    update_re = re.compile(r'(?P<date>\d\d [A-Z][a-z][a-z] \d\d\d\d;) (?P<developer>.*[<]\S+[>]) (?P<text>.*)')
     # could probably tweak the code to not require the update_re and use update_re2 and search the
     # remaining text for atoms, bug's
     update_re2 = re.compile(r'(?P<date>\d\d [A-Z][a-z][a-z] \d\d\d\d;) (?P<developer>.*[<]\S+[>])')
@@ -108,7 +108,10 @@ class ChangeLogView (ListView, MarkupView):
         self.append(' ') 
         self.append_developer(parts['developer'])
         self.append(' ')
-        self.append_atom(parts['atom'])
+        if self.atom_re.match(parts['text']):
+            self.append_atom(parts['text'])
+        else:
+            self.append(parts['text'])
         self.nl()
 
     def _update2_(self, parts):
