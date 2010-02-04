@@ -18,7 +18,7 @@ setup( \
                         'porthole.db', 'porthole.dialogs', 'porthole.loaders', 'porthole.packagebook',
                         'porthole.plugins','porthole.loaders', 'porthole.readers', 'porthole.terminal',
                         'porthole.utils', 'porthole.views', 'porthole._xml', 'porthole.plugins.etc-proposals',
-                        'porthole.plugins.profuse'],
+                        'porthole.plugins.profuse', 'porthole.plugins.gpytage'],
     package_dir = {'porthole':'porthole'},
     scripts = ["scripts/porthole"],
     data_files = [
