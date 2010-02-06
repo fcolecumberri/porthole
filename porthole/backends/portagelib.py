@@ -547,9 +547,11 @@ def get_overlay(cpv):
     return ovl
 
 def get_overlay_name(ovl):
-    if ovl in settings.repos:
-        return settings.repos[ovl]
-    return "????"
+    try: # new upcoming portage function
+        name = settings.portdb.getRepositoryName(ovl)
+    else:  # Fallback method
+        name =  settings.repos.get(ovl)
+    return name or "????"
 
 def get_path(cpv):
     """Returns a path to the specified category/package-version"""
@@ -634,7 +636,7 @@ class PortageSettings:
         self.virtuals = self.keys = self.UseFlagDict = None
         if PORTAGE22: # then use the imported module
             self.my_load_emerge_config = _load_emerge_config
-        else: # use the one copied from the non importable emerge
+        else: # use the one copied from the non import-able emerge
             self.my_load_emerge_config = self.load_emerge_config
         self.reset()
 
@@ -683,6 +685,7 @@ class PortageSettings:
 
     def create_repos(self):
         # reverse the treemap's key:data for easy name lookup
+        # until the new getRepositoryName() is fully available.
         t = self.portdb.treemap
         n = {}
         for x in t.keys():
