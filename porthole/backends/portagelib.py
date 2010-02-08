@@ -549,7 +549,7 @@ def get_overlay(cpv):
 def get_overlay_name(ovl):
     try: # new upcoming portage function
         name = settings.portdb.getRepositoryName(ovl)
-    else:  # Fallback method
+    except:  # Fallback method
         name =  settings.repos.get(ovl)
     return name or "????"
 
