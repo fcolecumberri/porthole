@@ -3,25 +3,6 @@
 --------------------------------------------------------------------------------
 * add an comment input dialog to get user comments for user config entries
 
-* Done, add more package.mask/unmask menu options to the ebuild table right click menus
-
-* Done, more USE flag bugs to fix... irc snippit:
-{<dol-sen> A nice API for that would be nice ;)  , hint, hint
-<dol-sen> it would cut the time more again not having to create the output and re-parse it
-<dol-sen> just get the python structure, list, tuple, whatever
-<zmedico> why don't you use config.setcpv()?
-<zmedico> that's how portage does it
-<dol-sen> because I didn't know abuot it :)  thanks
-<zmedico> after setcpv, get config['PORTAGE_USE']
-<zmedico> and that has the enabled flags
-<dol-sen> thank you again, I owe you for that...
-<zmedico> you have to pass a portdbapi into setcpv, as the mydb argument
-<dol-sen> already have it in the backend code, thanks
-<dol-sen> I'll check out the epydocs more
-<zmedico> cool
-}
-
-
 * integrate the use of  'portage.mtimedb["resume"]'  into porthole's info.  The file is
     @  /var/cache/edb/mtimedb (it's python pickle format).
     dol-sen: FYI, there is support for 2 resume lists. The second is
@@ -78,17 +59,16 @@
  * Reinstate tree view with dependencies branching from world packages
    in upgradable view
 
- + (Added webbrowser choice in prefs)
-   Fix webbrowser choice, add "copy link" option in summary (bug [908237])
-   Porthole needs to do more work to open the default browser.
-
-  * Way of seeing what installed packages depend on a certain package.
+ * Way of seeing what installed packages depend on a certain package.
+        partially done, in that I have completed the re-write of many of gentoolkit's 
+        equery modules, just completing the eclean re-write.  Then I'll make a plug-in module
 
  * Indication of unstable packages in package view (bug [1222366])
 
    (pending) Porthole could keep track of changes while running, and thus wouldn't have
    to reload information so much.
-   (done = now saves a description db after a sync) This could help for fast description searching (RFE [998428]), and would
+   (done = now saves a description db after a sync) This could help for fast description searching
+   (RFE [998428]), and would
    make Porthole a lot faster in general, but has the potential for lots
    of problems with discrepancies between Porthole and portage...
    perhaps use python fam interface.  Fam is being replaced by gamin which
@@ -96,7 +76,8 @@
 
  ? Advanced search criteria (masking, architectures, use flags)
 
-  ? (work in progress, system, world sets, dependencies added) Possible "newuse", "system", "tool chain" filters for upgrade list ?
+ ? (work in progress, system, world sets, dependencies added) Possible "newuse", 
+    "system", "tool chain" filters for upgrade list ?
 
  ? Somehow prompt to add packages to package.keywords if the user tries to
    merge a masked package (bug [1107532]). Check dependencies also.

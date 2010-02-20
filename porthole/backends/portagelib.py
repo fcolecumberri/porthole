@@ -408,7 +408,7 @@ def get_best_ebuild(full_name):
     return xmatch("bestmatch-visible",str(full_name)) # no unicode
 
 def get_dep_ebuild(dep):
-    """progreesively checks for available ebuilds that match the dependency.
+    """progresively checks for available ebuilds that match the dependency.
     returns what it finds as up to three options."""
     #debug.dprint("PORTAGELIB: get_dep_ebuild(); dep = " + dep)
     best_ebuild = keyworded_ebuild = masked_ebuild = ''
