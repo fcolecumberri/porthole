@@ -75,7 +75,7 @@ for a brief description. </li>
 </ul>
 
 
-<p>The main window is divided into a menu
+<p>The main window <em>(figure 1)</em> is divided into a menu
 bar, a tool bar, category list pane, package list pane and a tabbed
 package info pane. </p>
 
@@ -167,9 +167,9 @@ output information about what would have been done in stead of doing
 anything. </li>
 
 
-  <li><u>Upgrades Only</u> - Only packages
-that would be modified to a higher version will be shown in the
-"Upgradable Packages" view. </li>
+  <li><u>Update</u> - Updates  packages to the best version available,
+which may not always be the highest version number<br>due to masking for 
+testing and development. </li>
 
 
   <li><u>Only Fetch</u> - Just downloads the
@@ -180,6 +180,10 @@ does not actually install the package. </li>
   <li><u>Verbose</u> - Asks Emerge to output
 extra information where possible. This is most useful in conjunction
 with "Pretend". </li>
+
+
+	<li><u>Noreplace</u> - Skips  the  packages
+specified  on the command-line that have already been installed. </li>
 
 
   <li><u>Search Descriptions</u> - Look
@@ -386,7 +390,7 @@ and those portage recommends downgrading <span style="color: rgb(250, 0, 0);">ma
 <h3>Summary Tab</h3>
 
 
-<p>The summary tab gives you a quick overview of the selected
+<p>The summary tab <em>(figure 4)</em> gives you a quick overview of the selected
 packages latest
 version only. &nbsp;Note this may vary from what you have installed
 or want installed.
@@ -447,7 +451,7 @@ mouse cursor over the entry for a hard masked package will often give
 you the masking reason </div>
 
 
-<p>The table of available versions follows
+<p>The table of available versions <em>(figure 2)</em> follows
 approximately the same format as that used on <a href="http://packages.gentoo.org/">packages.gentoo.org</a>.
 Stable packages are shown in green with a "+" symbol. Keyword masked
 packages (those not yet deemed&nbsp;stable) are
@@ -484,7 +488,7 @@ would change from displaying "M~" to displaying "[(+)]".<br>
 
 
 <p>This tab lists the packages that must be installed in order to
-install your selected package. Items in this list that are already
+install your selected package <em>(figure 3)</em>. Items in this list that are already
 satisfied will be marked with your theme's "Yes" icon (normally a green
 circle). Items that are not satisfied and will also need to be
 installed are marked with your theme's "No" icon (normally a red
@@ -526,7 +530,7 @@ Figure 4. Pop-up Dependency Viewer
 <h3>Dependency Viewer</h3>
 
 
-<p>The dependency viewer is a popup window that contains all the
+<p>The dependency viewer <em>(figure 4)</em> is a popup window that contains all the
 same package if information as the main porthole window. It too can
 have a popup depency window for any of it's dependecies. Only one
 dependency popup window is allowed per window, so double-clicking a
@@ -548,7 +552,7 @@ different depency will change the displayed info in it's viewer.
 
 <div class="figleft"><br>
 
-<img style="width: 454px; height: 278px;" alt="Changelog tab image" src="changelog.png"><br>
+<img style="width: 603px; height: 506px;" alt="Changelog tab image" src="changelog.png"><br>
 
 
 Figure 5. Change Log Tab
@@ -558,10 +562,12 @@ Figure 5. Change Log Tab
 <h3>Change Log</h3>
 
 
-<p>If available, the change log text is included in here.
-&nbsp;This is a good resource to use if you can't decide if you
-need to upgrade or not. &nbsp;Look here for information on bug
-fixes and new features.
+<p>If available, the change log text <em>(figure 5)</em> is shown here.
+&nbsp;This is a good resource to use to help decide if you
+want to upgrade/install it or not. &nbsp;Look here for information on bug
+fixes and new features.  The text is now custom highlighted to make it easier
+to find and identify the information you are seeking.  The bug #'s are
+ also click-able to open you browser to the bugzilla bug at bugzilla.gentoo.org.
 </p>
 
 
@@ -588,7 +594,7 @@ Tab
 <h3>Installed Files</h3>
 
 
-<p>A list of all the files this version installed. &nbsp;This
+<p>A list of all the files this version installed. <em>(figure 6)</em> &nbsp;This
 can be useful for a number of reasons. &nbsp;For example: the name
 of the executable binary file of that cool
 sounding utility you just installed which is completely different from
