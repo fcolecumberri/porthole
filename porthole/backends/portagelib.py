@@ -162,7 +162,7 @@ def set_make_conf(property, add='', remove='', replace='', callback=None):
     #reload_portage()
     # Note: could perhaps just update portage.settings.
     # portage.settings.pmaskdict, punmaskdict, pkeywordsdict, pusedict
-    # or portage.portdb.mysettings ?
+    # or portage.portdb.settings ?
     return True
 
 def get_virtuals():
@@ -349,7 +349,7 @@ def get_hard_masked(full_name):
     full_name = str(full_name)
     hardmasked = []
     try:
-        for x in settings.portdb.mysettings.pmaskdict[full_name]:
+        for x in settings.portdb.settings.pmaskdict[full_name]:
             m = xmatch("match-all",x)
             for n in m:
                 if n not in hardmasked: hardmasked.append(n)
@@ -357,7 +357,7 @@ def get_hard_masked(full_name):
         pass
     hard_masked_nocheck = hardmasked[:]
     try:
-        for x in settings.portdb.mysettings.punmaskdict[full_name]:
+        for x in settings.portdb.settings.punmaskdict[full_name]:
             m = xmatch("match-all",x)
             for n in m:
                 while n in hardmasked: hardmasked.remove(n)
