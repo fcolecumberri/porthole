@@ -45,8 +45,7 @@ setup( \
         (datadir + "config",
             [ "porthole/config/configuration.xml"]),
         (datadir + "i18n",
-            ["porthole/i18n/messages.pot", "porthole/i18n/vi.po", "porthole/i18n/fr_FR.po", "porthole/i18n/de_DE.po",
-             "porthole/i18n/pl.po", "porthole/i18n/ru.po", "porthole/i18n/tr.po" "porthole/i18n/TRANSLATING"]),
+            ["porthole/i18n/messages.pot", "porthole/i18n/TRANSLATING"]),
         ("share/applications", ["porthole.desktop"]),
         ("share/pixmaps", ["porthole/pixmaps/porthole-icon.png"])
     ]
