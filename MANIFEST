@@ -11,6 +11,7 @@ porthole/__init__.py
 porthole/importer.py
 porthole/mainwindow.py
 porthole/plugin.py
+porthole/privilege.py
 porthole/startup.py
 porthole/sterminal.py
 porthole/version.py
@@ -128,13 +129,13 @@ porthole/help/upgradeables.png
 porthole/help/warningtab.png
 porthole/i18n/messages.pot
 porthole/i18n/TRANSLATING
-porthole/i18n/de_DE.po
+porthole/i18n/de.po
 porthole/i18n/vi.po
 porthole/i18n/ru.po
 porthole/i18n/pl.po
-porthole/i18n/fr_FR.po
-porthole/i18n/it_IT.po
-porthole/i18n/tr_TR.po
+porthole/i18n/fr.po
+porthole/i18n/it.po
+porthole/i18n/tr.po
 scripts/porthole
 scripts/dopot.sh
 scripts/pocompile.sh
