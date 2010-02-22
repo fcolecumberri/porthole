@@ -1610,7 +1610,7 @@ class MainWindow:
         debug.dprint("MAINWINDOW: goodbye(); quiting now")
         gtk.main_quit()
 
-    def confirm_delete(self, widget, *event):
+    def confirm_delete(self, *widget, **event):
         """Check that there are no running processes 
         & confirm the kill before doing it"""
         if self.process_manager.task_completed:
