@@ -53,7 +53,8 @@ DB_FILE_DIR = "/var/db/porthole"
 Choices = {"portage": 'portagelib', "pkgcore": 'pkgcore_lib', "dbus": "dbus_main" }
 BACKEND = Choices["portage"]
 DATA_PATH = "/usr/share/porthole/"
-i18n_DIR = DATA_PATH + 'i18n'
+#i18n_DIR = DATA_PATH + 'i18n'
+i18n_DIR = '/usr/share/locale/'
 RUN_LOCAL = False
 DIR_LIST = [LOG_FILE_DIR, DB_FILE_DIR]
 
@@ -164,7 +165,7 @@ def main():
     backends.load(BACKEND) 
     #print "PORTHOLE: importing MainWindow"
     from porthole.mainwindow import MainWindow
-
+    print "PORTHOLE: i18n_DIR =",  i18n_DIR
     locale.setlocale (locale.LC_ALL, '')
     gettext.bindtextdomain (APP, i18n_DIR)
     gettext.textdomain (APP)
