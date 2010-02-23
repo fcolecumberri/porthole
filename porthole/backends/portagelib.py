@@ -348,21 +348,33 @@ def get_versions(full_name, include_masked = True):
 def get_hard_masked(full_name):
     full_name = str(full_name)
     hardmasked = []
-    try:
-        for x in settings.portdb.settings.pmaskdict[full_name]:
-            m = xmatch("match-all",x)
-            for n in m:
-                if n not in hardmasked: hardmasked.append(n)
+    try: # newer portage
+        pmaskdict = settings.portdb.settings.pmaskdict[full_name]
+    except AttributeError: # older portage
+        try:
+            pmaskdict = settings.portdb.mysettings.pmaskdict[full_name]
+        except KeyError:
+            pmaskdict = {}
     except KeyError:
-        pass
+        pmaskdict = {}
+    for x in pmaskdict:
+        m = xmatch("match-all",x)
+        for n in m:
+            if n not in hardmasked: hardmasked.append(n)
     hard_masked_nocheck = hardmasked[:]
-    try:
-        for x in settings.portdb.settings.punmaskdict[full_name]:
-            m = xmatch("match-all",x)
-            for n in m:
-                while n in hardmasked: hardmasked.remove(n)
+    try: # newer portage
+        punmaskdict = settings.portdb.settings.punmaskdict[full_name]
+    except AttributeError: # older portage
+        try:
+            punmaskdict = settings.portdb.mysettings.punmaskdict[full_name]
+        except KeyError:
+            punmaskdict = {}
     except KeyError:
-        pass
+        punmaskdict = {}
+    for x in punmaskdict:
+        m = xmatch("match-all",x)
+        for n in m:
+            while n in hardmasked: hardmasked.remove(n)
     return hard_masked_nocheck, hardmasked
 
 
