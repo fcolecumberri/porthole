@@ -32,6 +32,8 @@ print "PORTAGELIB: id initialized to ", id
 from sys import exit, stderr
 import os, thread
 from gettext import gettext as _
+from itertools import izip
+
 
 from porthole.utils import debug
 from porthole.utils.utils import  is_root
@@ -448,15 +450,28 @@ def get_archlist():
             #~ list.remove(entry)
     #~ return list
 
+
+def get_masking_status(ebuild):
+    return portage.getmaskingstatus(ebuild)
+
+
 def get_masking_reason(ebuild):
     """Strips trailing \n from, and returns the masking reason given by portage"""
     reason, location = portage.getmaskingreason(ebuild, settings=settings.settings, portdb=settings.portdb,  return_location=True)
-    if not reason: return _('No masking reason given')
+    if not reason:
+        reason =  _('No masking reason given.')
+        status =  get_masking_status(ebuild)
+        if 'profile' in status:
+            reason = _("Masked by the current profile.")
+            status.remove('profile')
+        if status:
+            reason += " from " + ', '.join(status)
     if location != None:
         reason += "in file: " + location
     if reason.endswith("\n"):
         reason = reason[:-1]
     return reason
+
 
 def get_size(mycpv):
     """ Returns size of package to fetch. """
@@ -640,6 +655,7 @@ def get_installed_list():
 
 def get_installed_ebuild_path(fullname):
     return settings.trees[settings.settings["ROOT"]]["vartree"].getebuildpath(fullname)
+
 
 class PortageSettings:
     def __init__(self):

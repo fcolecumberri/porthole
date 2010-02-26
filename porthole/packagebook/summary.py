@@ -285,6 +285,10 @@ class Summary(gtk.TextView):
                         version = "![" + version + "]"
                         # set the tag to highlight this version
                         tag = "useunset" # fixme:  need to make this user settable and different from use flags
+                    elif 'profile' in portage_lib.get_masking_status(ebuild):
+                        version = "![" + version + "]"
+                        # set the tag to highlight this version
+                        tag = "useunset" # fixme:  need to make this user settable and different from use flags
                     else:
                         version = "~(" + version + ")"
                         # set the tag to highlight this version
@@ -377,6 +381,9 @@ class Summary(gtk.TextView):
                     if ebuild in hardmasked and text != "-":
                         text = "".join(["M", text])
                         color = "#ED9191"
+                    elif text != "-" and 'profile' in portage_lib.get_masking_status(ebuild):
+                        text = "".join(["M", text])
+                        color = "#ED9191"
                     if ebuild in installed and arch == myarch:
                         color = "#9090EE"
                     #debug.dprint("SUMMARY: create_ebuild_table(); self.keyword_unmasked[ebuild] = " + str(self.keyword_unmasked[ebuild]))
@@ -384,8 +391,9 @@ class Summary(gtk.TextView):
                                 ('~' + arch in self.keyword_unmasked[ebuild] or self.keyword_unmasked[ebuild] == [] )):
                         # take account of package.keywords in text but leave colour unchanged
                         text = text.replace('~', '(+)')
-                    if ebuild in package_unmasked and 'M' in text:
-                        text = '[' + text.replace('M', '') + ']'
+                    if 'profile' not in portage_lib.get_masking_status(ebuild):
+                        if ebuild in package_unmasked and 'M' in text:
+                            text = '[' + text.replace('M', '') + ']'
                     label = gtk.Label(text)
                     box = boxify(label, color=color, ebuild=ebuild, arch=arch, text=text)
                     if "M" in text or "[" in text:
@@ -568,9 +576,9 @@ class Summary(gtk.TextView):
         if not package:
             # Category is selected, just exit
             return
-        
+
         self.package = package
-        
+
         # Get the package info
         #debug.dprint("SUMMARY: get package info")
         metadata = package.get_metadata()
@@ -580,9 +588,10 @@ class Summary(gtk.TextView):
         debug.dprint("SUMMARY: versions = " + str(versions))
         nonmasked = package.get_versions(include_masked = False)
         debug.dprint("SUMMARY: nonmasked = " + str(nonmasked))
-        
+
         # added by Tommy
         hardmasked = package.get_hard_masked()
+        debug.dprint("SUMMARY: hardmasked = " + str(hardmasked))
         #self.keyword_unmasked = portage_lib.get_keyword_unmasked_ebuilds(
         #                    archlist=config.Prefs.globals.archlist, full_name=package.full_name)
         debug.dprint("SUMMARY: get package info, name = " + package.full_name)
