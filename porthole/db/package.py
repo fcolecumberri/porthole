@@ -231,10 +231,8 @@ class Package:
         if self.full_name == _("None"):
             return ''
         # Note: this is slow, especially when include_masked is false
-        criterion = include_masked and 'match-all' or 'match-visible'
-        #debug.dprint("PACKAGE: get_versions(); criterion = %s, package = %s" %(str(criterion),self.full_name))
-        v = portage_lib.get_versions(self.full_name)
-        #debug.dprint("PACKAGE: get_versions(); v = " + str(v))
+        v = portage_lib.get_versions(self.full_name, include_masked)
+        #debug.dprint("PACKAGE: SUMMARY get_versions(); v = " + str(v))
         return v
 
     def get_hard_masked(self, check_unmask = False):
