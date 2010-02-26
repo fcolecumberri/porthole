@@ -300,7 +300,7 @@ class AdvancedEmergeDialog:
             removelist = ["-" + keyword]
         verInfo = self.current_verInfo
         ebuild = verInfo["name"]
-        okay = db.userconfigs.set_user_config('package.keywords', ebuild=ebuild, add=addlist, remove=removelist, callback=self.reload)
+        okay = db.userconfigs.set_user_config('KEYWORDS', ebuild=ebuild, add=addlist, remove=removelist, callback=self.reload)
     
     #------------------------------------------
     # Support function definitions start here

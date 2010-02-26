@@ -352,6 +352,9 @@ class UserConfigs:
             add = ' '.join(add)
         if isinstance(remove, list):
             remove = ' '.join(remove)
+        if ebuild:
+            if ebuild[0] not in '=':
+                ebuild = "=" + ebuild
         #debug.dprint("USER_CONFIGS: set_user_config(): add: " +
             #"%s,\n remove: %s " %(add,remove))
         if os.getuid == 0 or os.access(config_path, os.W_OK):
