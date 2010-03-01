@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Porthole version
-    Copyright (C) 2006 -2009 Brian Dolbec
+    Copyright (C) 2006 -2010 Brian Dolbec
 
 
     This program is free software; you can redistribute it and/or modify
@@ -21,9 +21,9 @@
 from gettext import gettext as _
 import os
 
-#version = "0.6.0"
+#version = "0.6.1"
 
-copyright = _("Copyright (c) 2003 - 2009")
+copyright = _("Copyright (c) 2003 - 2010")
 
 version ="svn-"
 
