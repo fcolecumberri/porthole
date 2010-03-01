@@ -79,10 +79,10 @@ def get_make_conf(want_linelist=False, savecopy=False):
     """
     Parses /etc/make.conf into a dictionary of items with
     dict[setting] = properties string
-    
+
     If want_linelist is True, the list of lines read from make.conf will also
     be returned.
-    
+
     If savecopy is true, a copy of make.conf is saved in make.conf.bak.
     """
     debug.dprint("PORTAGELIB: get_make_conf()")
@@ -126,9 +126,9 @@ def set_make_conf(property, add='', remove='', replace='', callback=None):
     If remove: removes elements of <remove> from variable string.
     If add: adds elements of <add> to variable string.
     If replace: replaces entire variable string with <replace>.
-    
+
     if remove contains the variable name, the whole variable is removed.
-    
+
     e.g. set_make_conf('USE', add=['gtk', 'gtk2'], remove=['-gtk', '-gtk2'])
     e.g. set_make_conf('ACCEPT_KEYWORDS', remove='ACCEPT_KEYWORDS')
     e.g. set_make_conf('PORTAGE_NICENESS', replace='15')
@@ -151,9 +151,12 @@ def set_make_conf(property, add='', remove='', replace='', callback=None):
             command = (command + '-r %s' %("'" + remove + "'"))
         command = command + '"'
         debug.dprint(" * PORTAGELIB: set_make_conf(); command = %s" %command )
-        if not callback: callback = reload_portage
-        app = SimpleTerminal(command, False, dprint_output='SET_MAKE_CONF CHILD APP: ', callback=Dispatcher(callback))
+        if not callback:
+            callback = reload_portage
+        dispatcher = Dispatcher(callback)
+        app = SimpleTerminal(command, False, dprint_output='SET_MAKE_CONF CHILD APP: ', callback=dispatcher)
         app._run()
+        del dispatcher
     else:
         add = add.split()
         remove = remove.split()
@@ -169,7 +172,7 @@ def set_make_conf(property, add='', remove='', replace='', callback=None):
 
 def get_virtuals():
     return settings.settings.virtuals
-    
+
 def reload_portage():
     debug.dprint('PORTAGELIB: reloading portage')
     debug.dprint("PORTAGELIB: old portage version = " + portage.VERSION)
@@ -220,11 +223,11 @@ def split_atom_pkg( pkg ):
     return [str(cp), ''.join(atoms), version] # hmm ... unicode keeps appearing :(
 
 def get_use_flag_dict(portdir):
-    """ Get all the use flags and return them as a dictionary 
+    """ Get all the use flags and return them as a dictionary
         key = use flag forced to lowercase
         data = list[0] = 'local' or 'global'
                list[1] = 'package-name'
-               list[2] = description of flag   
+               list[2] = description of flag
     """
     dict = {}
 
@@ -248,10 +251,10 @@ def get_use_flag_dict(portdir):
             debug.dprint(data[0].strip())
             debug.dprint(item[index:])
     return dict
-    
+
 def get_portage_environ(var):
     """Returns environment variable from portage if possible, else None"""
-    try: 
+    try:
         #temp = portage.config(clone=portage.settings).environ()[var]
         temp = settings.settings.environ()[var]
     except: temp = None
@@ -452,7 +455,11 @@ def get_archlist():
 
 
 def get_masking_status(ebuild):
-    return portage.getmaskingstatus(ebuild)
+    try:
+        status = portage.getmaskingstatus(ebuild)
+    except KeyError:
+        status = ['deprecated']
+    return status
 
 
 def get_masking_reason(ebuild):
@@ -486,7 +493,7 @@ def get_size(mycpv):
     #debug.dprint( "PORTAGELIB: get_size; Attempting to get fetchlist final use= " + str(final_use))
     try:
         if portage.VERSION >= '2.1.6':# newer portage
-            fetchlist = settings.portdb.getFetchMap(mycpv, set(final_use)) 
+            fetchlist = settings.portdb.getFetchMap(mycpv, set(final_use))
         else:
             debug.dprint( "PORTAGELIB: get_size; Trying old fetchlist call")
             fetchlist = settings.portdb.getfetchlist(mycpv, mysettings=settings.settings, all=True)[1]
@@ -589,7 +596,7 @@ def get_path(cpv):
     except:
         dir = ''
     return dir
-    
+
 def get_metadata(package):
     """Get the metadata for a package"""
     # we could check the overlay as well,
@@ -649,12 +656,24 @@ def split_package_name(name): # lifted from gentoolkit, handles vituals for find
 
 def get_allnodes():
     return settings.trees[settings.settings["ROOT"]]['porttree'].getallnodes()[:] # copy
-        
+
 def get_installed_list():
     return settings.trees[settings.settings["ROOT"]]["vartree"].getallnodes()[:] # try copying...
 
 def get_installed_ebuild_path(fullname):
     return settings.trees[settings.settings["ROOT"]]["vartree"].getebuildpath(fullname)
+
+
+class BinPkgs(object):
+    """Class to hold all data handling for binpkgs
+    """
+
+    def __init__(self, reponame, repopath):
+        self.reponame = reponame
+        self.repopath = repopath
+        self.dbapi = None
+        self.bintree = None
+
 
 
 class PortageSettings:
@@ -776,9 +795,9 @@ func = {'get_virtuals': get_virtuals,
 def call_waiting(*args, **kwargs):
     """function to handle function calls from other
         threads in this thread and retun results
-        
+
         Parameters: args = [function-name, parameter1,parameter2,...]
-        
+
         """
 
     call = func[ args[0]]
