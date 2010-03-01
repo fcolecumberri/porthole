@@ -65,6 +65,7 @@ class Database(DBBase):
         self.valid_sync = False #used for auto-reload disabling
         ##del home
         #if action == NEW:
+        self.dispatcher = Dispatcher(self.db_update)
         self.db_init()
         #if action == LOAD:
             #result = self.load()
@@ -113,7 +114,7 @@ class Database(DBBase):
             # pickle it baby, yeah!
             cPickle.dump(_db, open(self._DBFile, "w"))
             del _db
-        
+
     def load(self, filename = None):
         """restores the db from a file"""
         debug.dprint("DATABASE: load() loading 'db' from file: " + self._DBFile)
@@ -136,7 +137,7 @@ class Database(DBBase):
         debug.dprint("DATABASE: load(); file is loaded, mtime = " + str(self.desc_mtime))
         del _db
         return 1
-        
+
 
     def set_callback(self, callback):
         self.callback = callback
@@ -149,13 +150,13 @@ class Database(DBBase):
             self.db_init_new_sync = new_sync
         else:
             self.db_thread_running = True
-            self.db_thread = DatabaseReader(Dispatcher(self.db_update))
+            self.db_thread = DatabaseReader(self.dispatcher)
             self.db_thread.start()
             self.db_init_new_sync = False
             if new_sync:
                 # force a reload
                 self.desc_loaded = False
-        
+
     def db_update(self, args):# extra args for dispatcher callback
         """Update the callback to the number of packages read."""
         #debug.dprint("DB: db_update()")
@@ -197,6 +198,7 @@ class Database(DBBase):
         if self.db_init_waiting:
             self.db_init_waiting = False
             self.db_init(self.db_init_new_sync)
+        return
 
     def load_descriptions(self):
         if not self.desc_loaded:
