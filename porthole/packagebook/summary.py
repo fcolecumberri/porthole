@@ -285,14 +285,19 @@ class Summary(gtk.TextView):
                         version = "![" + version + "]"
                         # set the tag to highlight this version
                         tag = "useunset" # fixme:  need to make this user settable and different from use flags
-                    elif 'profile' in portage_lib.get_masking_status(ebuild):
-                        version = "![" + version + "]"
-                        # set the tag to highlight this version
-                        tag = "useunset" # fixme:  need to make this user settable and different from use flags
                     else:
-                        version = "~(" + version + ")"
-                        # set the tag to highlight this version
-                        tag = "useset" # fixme:  need to make this user settable and different from use flags
+                        if ebuild in status and 'profile' in status[ebuild]:
+                            version = "![" + version + "]"
+                            # set the tag to highlight this version
+                            tag = "useunset" # fixme:  need to make this user settable and different from use flags
+                        if ebuild not in status or 'deprecated' in status[ebuild]:
+                            version = "![" + version + "]"
+                            # set the tag to highlight this version
+                            tag = "useunset" # fixme:  need to make this user settable and different from use flags
+                        else:
+                            version = "~(" + version + ")"
+                            # set the tag to highlight this version
+                            tag = "useset" # fixme:  need to make this user settable and different from use flags
                 append(version, tag)
                 first_ebuild = False
                 spam += [version]  # now only used to track the need for a new slot
@@ -334,7 +339,12 @@ class Summary(gtk.TextView):
             for arch in archlist:
                 debug.dprint("SUMMARY: create_ebuild_table: arch is: " + str(arch))
                 x += 1
-                label = gtk.Label(arch)
+                if '-' in arch:
+                    _arch = arch.split('-')
+                    _arch = '-\n'.join(_arch)
+                else:
+                    _arch = arch
+                label = gtk.Label(_arch)
                 label.set_padding(3, 3)
                 table.attach(boxify(label, "#EEEEEE"), x, x+1, 0, 1)
             y = rows
@@ -381,8 +391,12 @@ class Summary(gtk.TextView):
                     if ebuild in hardmasked and text != "-":
                         text = "".join(["M", text])
                         color = "#ED9191"
-                    elif text != "-" and 'profile' in portage_lib.get_masking_status(ebuild):
+                    elif text != "-" and ebuild in status and 'profile' in status[ebuild]:
                         text = "".join(["M", text])
+                        color = "#ED9191"
+                    elif (text != "-" and ebuild not in status) or \
+                            (ebuild in status and'deprecated' in status[ebuild]):
+                        text = "".join(["D", text])
                         color = "#ED9191"
                     if ebuild in installed and arch == myarch:
                         color = "#9090EE"
@@ -591,6 +605,13 @@ class Summary(gtk.TextView):
 
         # added by Tommy
         hardmasked = package.get_hard_masked()
+
+        status = {}
+        for _ver in versions:
+            status[_ver] = []
+        s_check = set(versions).difference(hardmasked, nonmasked)
+        for _ver in s_check:
+            status[_ver] = portage_lib.get_masking_status(_ver)
         debug.dprint("SUMMARY: hardmasked = " + str(hardmasked))
         #self.keyword_unmasked = portage_lib.get_keyword_unmasked_ebuilds(
         #                    archlist=config.Prefs.globals.archlist, full_name=package.full_name)
