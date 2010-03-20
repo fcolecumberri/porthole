@@ -5,7 +5,7 @@
     The main interface the user will interact with
 
     Copyright (C) 2003 - 2008
-    Fredrik Arnerup, Brian Dolbec, 
+    Fredrik Arnerup, Brian Dolbec,
     Daniel G. Taylor, Wm. F. Wheeler, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify
@@ -70,13 +70,13 @@ SHOW_SEARCH = 2
 SHOW_UPGRADE = 3
 SHOW_DEPRECATED = 4
 SHOW_SETS = 5
-INDEX_TYPES = ["All", "Installed", "Search", "Upgradable", "Deprecated", "Sets"]
+INDEX_TYPES = ["All", "Installed", "Search", "Upgradable", "Deprecated", "Sets", "Binpkgs"]
 GROUP_SELECTABLE = [SHOW_UPGRADE, SHOW_DEPRECATED , SHOW_SETS]
 ON = True
 OFF = False
 # create the translated reader type names
 READER_NAMES = {"Deprecated": _("Deprecated"), "Sets": _("Sets"),
-                                    "Upgradable": _("Upgradable")}
+                                    "Upgradable": _("Upgradable"), "Binpkgs": _("Binpkgs")}
 
 def check_glade():
     """determine the libglade version installed
@@ -91,7 +91,7 @@ def check_glade():
             ["2.0.1", "2.4.9-r99"],
             ["2.5.0", "2.99.99"])
         if old:
-            debug.dprint("MAINWINDOW: Check_glade(); Porthole no longer " + 
+            debug.dprint("MAINWINDOW: Check_glade(); Porthole no longer " +
                 "supports the older versions\nof libglade.  Please upgrade " +
                 "libglade to >=2.5.0 for all GUI features to work")
             porthole_gladefile = "glade/porthole.glade"
@@ -108,7 +108,7 @@ def check_glade():
 class MainWindow:
     """Main Window class to setup and manage main window interface."""
     def __init__(self) :
-        debug.dprint("MAINWINDOW: process id = %d ****************" 
+        debug.dprint("MAINWINDOW: process id = %d ****************"
             %os.getpid())
         config.Prefs.use_gladefile, self.new_toolbar_api = check_glade()
         # setup prefs
@@ -211,7 +211,7 @@ class MainWindow:
         if config.Prefs.main.xpos and config.Prefs.main.ypos:
             self.mainwindow.move(config.Prefs.main.xpos,
                     config.Prefs.main.ypos)
-        self.mainwindow.resize(config.Prefs.main.width, 
+        self.mainwindow.resize(config.Prefs.main.width,
                 config.Prefs.main.height)
         # connect gtk callback for window movement and resize events
         self.mainwindow.connect("configure-event", self.size_update)
@@ -219,7 +219,7 @@ class MainWindow:
         # handler to keep track of it
         if config.Prefs.main.maximized:
             self.mainwindow.maximize()
-        self.mainwindow.connect("window-state-event", 
+        self.mainwindow.connect("window-state-event",
                 self.on_window_state_event)
         # move horizontal and vertical panes
         #debug.dprint("MAINWINDOW: __init__() before hpane; " +
@@ -261,6 +261,7 @@ class MainWindow:
         self.widget["view_filter"].set_model(self.widget["view_filter_list"])
         self.widget["view_filter"].set_active(SHOW_ALL)
         self.setup_plugins()
+        self.search_dispatcher = Dispatcher(self.search_done)
         debug.dprint("MAINWINDOW: Showing main window")
         self.mainwindow.show_all()
         if self.is_root:
@@ -305,23 +306,22 @@ class MainWindow:
         self.pkg_list = {}
         self.pkg_count = {}
         self.loaded = {}
-        for i in ["All", "Installed", "Upgradable", "Deprecated",
-                    "Search", "Sets"]:
+        for i in INDEX_TYPES:
             self.current_cat_name[i] = None
             self.current_cat_cursor[i] = None
             self.current_pkg_name[i] = None
             self.current_pkg_cursor[i] = None
             self.current_pkg_path[i] = None
-            if i not  in ["All", "Installed"]:
+            if i not  in ["All", "Installed", "Binpkgs"]:
                 # init pkg lists, counts
                 self.pkg_list[i] =  {}
                 self.pkg_count[i] =  {}
                 self.loaded[i] = False
-            if i in ["Upgradable", "Deprecated", "Sets"]:
+            if i in ["Upgradable", "Deprecated", "Sets", "Binpkgs"]:
                 self.loaded_callback[i] = None
 
         # next add any index names that need to be reset on a reload
-        self.loaded_resets = ["Search", "Deprecated"]
+        self.loaded_resets = ["Search", "Deprecated", "Binpkgs"]
         self.current_search = None
         # descriptions loaded?
         #self.desc_loaded = False
@@ -349,7 +349,7 @@ class MainWindow:
         self.progress_done(True)
         for x in self.loaded_resets:
             self.loaded[x] = False
-        for i in ["All", "Installed"]:
+        for i in ["All", "Installed", "Binpkgs"]:
             self.current_pkg_path[i] = None
         self.current_pkg_cursor["Search"] = None
         # test to reset portage
@@ -396,7 +396,7 @@ class MainWindow:
         PMS_LIB.settings.reset()
         # self.reload==False is currently broken for init_data when
         # reloading after a sync
-        #self.init_data() 
+        #self.init_data()
         self.new_sync = True
         self.reload_db()
         self.refresh()
@@ -411,7 +411,7 @@ class MainWindow:
         self.widget["btn_sync"].set_has_tooltip(True)
         self.widget["btn_sync"].set_tooltip_text(' '.join([self.sync_tip,
                 self.last_sync[:], '']))
-        
+
     def action_callback(self, action = None, arg = None):
         """dispatcher interface callback to handle various actions."""
         debug.dprint("MAINWINDOW: action_callback(); " +
@@ -549,7 +549,7 @@ class MainWindow:
         db reader is finished"""
         self.progressbar.set_text("100%")
         self.progressbar.set_fraction(1.0)
-        self.set_statusbar2(_("%(base)s: Populating tree") 
+        self.set_statusbar2(_("%(base)s: Populating tree")
                 % {'base':self.status_root})
         self.update_statusbar(SHOW_ALL)
         debug.dprint("MAINWINDOW: _update_db_done(); " +
@@ -557,7 +557,7 @@ class MainWindow:
         for x in ["menubar", "toolbar", "view_filter", "search_entry",
                     "btn_search", "view_refresh"]:
             self.wtree.get_widget(x).set_sensitive(True)
-        if self.plugin_manager and not self.plugin_manager.plugins: 
+        if self.plugin_manager and not self.plugin_manager.plugins:
             # no plugins
             self.wtree.get_widget("plugin_settings").set_sensitive(False)
         # make sure we search again if we reloaded!
@@ -571,7 +571,7 @@ class MainWindow:
             # reset the upgrades list if it is loaded and not being viewed
             self.loaded["Upgradable"] = False
             if self.reload:
-                # reset _last_selected so it 
+                # reset _last_selected so it
                 # thinks this package is new again
                 self.package_view._last_selected = None
                 if self.current_pkg_cursor["Search"] != None \
@@ -598,7 +598,7 @@ class MainWindow:
                 # re-select the category
                 try:
                     self.category_view.set_cursor(
-                        self.current_cat_cursor[INDEX_TYPES[mode]][0], 
+                        self.current_cat_cursor[INDEX_TYPES[mode]][0],
                         self.current_cat_cursor[INDEX_TYPES[mode]][1])
                 except:
                     debug.dprint("MAINWINDOW: _update_db_done(); error " +
@@ -646,7 +646,7 @@ class MainWindow:
         """Setup the command to run or not"""
         if (self.is_root
                 or run_anyway
-                or (config.Prefs.emerge.pretend 
+                or (config.Prefs.emerge.pretend
                 and not command.startswith(config.Prefs.globals.Sync))
                 or command.startswith("sudo ")
                 or utils.pretend_check(command)):
@@ -694,11 +694,11 @@ class MainWindow:
             self.check_for_root() # displays not root dialog
             return False
         return True
-   
+
     def emerge_setting_set(self, widget, option='null'):
         """Set whether or not we are going to use an emerge option"""
         debug.dprint("MAINWINDOW: emerge_setting_set(%s)" %option)
-        debug.dprint("MAINWINDOW: emerge_setting_set; " + 
+        debug.dprint("MAINWINDOW: emerge_setting_set; " +
             str(widget) + " " + option)
         setattr(config.Prefs.emerge, option, widget.get_active())
         #config.Prefs.emerge.oneshot = widget.get_active()
@@ -717,9 +717,9 @@ class MainWindow:
         """Emerge the package."""
         if (sudo or (not utils.is_root() and utils.can_sudo())) \
                 and not config.Prefs.emerge.pretend:
-            self.setup_command(package.get_name(), 
+            self.setup_command(package.get_name(),
                 'sudo -p "Password: " emerge'+
-                config.Prefs.emerge.get_string() + 
+                config.Prefs.emerge.get_string() +
                 package.full_name)
         else:
             self.setup_command(package.get_name(), "emerge" +
@@ -754,11 +754,11 @@ class MainWindow:
     def plugin_settings_activate( self, widget ):
         """Shows the plugin settings window"""
         plugin_dialog = PluginGUI(self.plugin_manager )
-    
+
     def configure_porthole(self, menuitem_widget):
         """Shows the Configuration GUI"""
         config_dialog = ConfigDialog()
-    
+
     def new_plugin_menuitem( self, label ):
         """adds a menu item for a plugin"""
         debug.dprint("MAINWINDOW: Adding new Menu Entry")
@@ -790,7 +790,7 @@ class MainWindow:
         """Unmerge the package."""
         if (sudo or (not self.is_root and utils.can_sudo())) \
                 and not config.Prefs.emerge.pretend:
-            self.setup_command(package.get_name(), 
+            self.setup_command(package.get_name(),
                     'sudo -p "Password: " emerge --unmerge' +
                     config.Prefs.emerge.get_string() + package.full_name)
         else:
@@ -830,7 +830,7 @@ class MainWindow:
             config.Prefs.main.maximized = True
         else:
             config.Prefs.main.maximized = False
-    
+
     def on_pane_notify(self, pane, gparamspec):
         """callback function for the pane re-size signal
         stores the new settings for next time"""
@@ -844,19 +844,19 @@ class MainWindow:
         debug.dprint("MAINWINDOW: get_selected_list()")
         my_type = INDEX_TYPES[self.last_view_setting]
         if self.last_view_setting not in GROUP_SELECTABLE:
-            debug.dprint("MAINWINDOW: get_selected_list() " + my_type + 
+            debug.dprint("MAINWINDOW: get_selected_list() " + my_type +
                 " view is not group selectable for emerge/upgrade commands")
             return False
         # create a list of packages to be upgraded
         self.packages_list = {}
         self.keyorder = []
         if self.loaded[my_type]:
-            debug.dprint("MAINWINDOW: get_selected_list() '" + 
+            debug.dprint("MAINWINDOW: get_selected_list() '" +
                 my_type + "' loaded")
             self.list_model = self.package_view.view_model[my_type]
             # read the my_type tree into a list of packages
             debug.dprint("MAINWINDOW: get_selected_list(); " +
-                "run list_model.foreach() len = " + 
+                "run list_model.foreach() len = " +
                 str(len(self.list_model)))
             debug.dprint("MAINWINDOW: get_selected_list(); self.list_model = " +
                 str(self.list_model))
@@ -928,7 +928,7 @@ class MainWindow:
                     PACKAGE_MODEL_ITEM["package"])
                 #model.get_value(_iter, PACKAGE_MODEL_ITEM["world"])
                 # model.get_value(_iter, PACKAGE_MODEL_INDEX["package"]), name]
-                self.keyorder = [name] + self.keyorder 
+                self.keyorder = [name] + self.keyorder
         #debug.dprint("MAINWINDOW; tree_node_to_list(): new keyorder list = "+
             #str(self.keyorder))
         return False
@@ -941,7 +941,7 @@ class MainWindow:
             #self.loaded_callback["Upgradable"] = self.upgrade_packages
             if not utils.is_root() and utils.can_sudo() \
                     and not config.Prefs.emerge.pretend:
-                self.setup_command('world', 
+                self.setup_command('world',
                         'sudo -p "Password: " emerge --update' +
                         config.Prefs.emerge.get_string() + 'world')
             else:
@@ -1002,17 +1002,17 @@ class MainWindow:
                 #v_f_c() tries to call package_search again
             self.widget["view_filter"].set_active(SHOW_SEARCH)
             if config.Prefs.main.search_desc:
-                self.set_statusbar2(_("Searching descriptions for %s") 
+                self.set_statusbar2(_("Searching descriptions for %s")
                     % tmp_search_term)
             else:
                 self.set_statusbar2(_("Searching for %s") % tmp_search_term)
             # call the thread
             self.search_thread = SearchReader(db.db.list,
                 config.Prefs.main.search_desc, tmp_search_term,
-                db.db.descriptions, Dispatcher(self.search_done))
+                db.db.descriptions, self.search_dispatcher)
             self.search_thread.start()
         return
-            
+
 
     # start of search callback
     def search_done( self ):
@@ -1101,17 +1101,17 @@ class MainWindow:
 
     def _mode_readers_(self, category, mode):
         packages = self.pkg_list[INDEX_TYPES[mode]][category]
-        self.package_view.populate(packages, 
+        self.package_view.populate(packages,
             self.current_pkg_name[INDEX_TYPES[mode]])
 
     def _mode_all_(self, category, mode):
         packages = db.db.categories[category]
-        self.package_view.populate(packages, 
+        self.package_view.populate(packages,
             self.current_pkg_name["All"])
 
     def _mode_installed_(self, category, mode):
         packages = db.db.installed[category]
-        self.package_view.populate(packages, 
+        self.package_view.populate(packages,
             self.current_pkg_name["Installed"])
 
     def _mode_upgradable_(self, catoegory, mode):
@@ -1123,6 +1123,10 @@ class MainWindow:
     def _mode_sets_(self, catoegory, mode):
         self._mode_readers_(catoegory, mode)
 
+    def _mode_binpkgs_(self, category, mode):
+        packages = db.db.binpkgs[category]
+        self.package_view.populate(packages,
+            self.current_pkg_name["Binpkgs"])
 
     def _remember_selected(self, mode, category):
         """Store the selected category and package for the mode"""
@@ -1243,12 +1247,12 @@ class MainWindow:
             cat = self.current_search
             pack = self.current_pkg_name[INDEX_TYPES[myview]]
         elif myview in [SHOW_UPGRADE, SHOW_DEPRECATED, SHOW_SETS]:
-            debug.dprint("MAINWINDOW: view_filter_changed(); '" + 
+            debug.dprint("MAINWINDOW: view_filter_changed(); '" +
                 INDEX_TYPES[myview] + "' selected")
             cat_scroll.show()
             # all need to be sorted for them to be
             # displayed in the tree correctly
-            sort_categories = True 
+            sort_categories = True
             if myview == SHOW_UPGRADE:
                 self.package_view.set_view(UPGRADABLE)
             elif myview == SHOW_DEPRECATED:
@@ -1257,9 +1261,9 @@ class MainWindow:
                 self.package_view.set_view(SETS)
             if not self.loaded[INDEX_TYPES[myview]]:
                 debug.dprint("MAINWINDOW: view_filter_changed(); " +
-                    "calling load_reader_list('" + 
-                    INDEX_TYPES[myview] + 
-                    "') reader_running = %s ********************************" 
+                    "calling load_reader_list('" +
+                    INDEX_TYPES[myview] +
+                    "') reader_running = %s ********************************"
                     %self.reader_running)
                 self.load_reader_list(INDEX_TYPES[myview])
                 self.package_view.clear()
@@ -1268,7 +1272,7 @@ class MainWindow:
                     "back from load_reader_list('" + INDEX_TYPES[myview] + "')")
             else:
                 debug.dprint("MAINWINDOW: view_filter_changed(); " +
-                    "calling category_view.populate() with categories:" + 
+                    "calling category_view.populate() with categories:" +
                     str(self.pkg_list[INDEX_TYPES[myview]].keys()))
                 self.category_view.populate(
                     self.pkg_list[INDEX_TYPES[myview]].keys(),
@@ -1302,11 +1306,11 @@ class MainWindow:
         #self.category_view.last_category = None
         #self.current_cat_cursor["All_Installed"] = None
         #self.current_pkg_cursor["All_Installed"] = None
-    
+
     def select_category_package(self, cat, pack):
         """method to re-select the same category and package that
         were selected last time in this view
-        
+
         @param cat: category string to re-select
         @param pack package to re-select
         """
@@ -1316,7 +1320,7 @@ class MainWindow:
         if  cat and '-' in cat:
             # find path of category
             catpath = self._find_catpath(cat)
-        elif cat: 
+        elif cat:
             model = self.category_view.get_model()
             _iter = model.get_iter_first()
             while _iter:
@@ -1325,7 +1329,7 @@ class MainWindow:
                     break
                 _iter = model.iter_next(_iter)
         #    catpath = 'Sure, why not?'
-        else: 
+        else:
             debug.dprint("MAINWINDOW: select_category_package(): bad category?")
         if catpath:
             self.category_view.expand_to_path(catpath)
@@ -1344,22 +1348,22 @@ class MainWindow:
 
     def _find_catpath(self, cat):
         """Find the path for the category
-        
+
         @param cat: category string
         """
         model = self.category_view.get_model()
         _iter = model.get_iter_first()
         catmaj, catmin = cat.split("-", 1)
-        debug.dprint("MAINWINDOW: _find_catpath(); catmaj, catmin = %s, %s" 
+        debug.dprint("MAINWINDOW: _find_catpath(); catmaj, catmin = %s, %s"
             % (catmaj, catmin))
         while _iter:
-            debug.dprint("value at iter %s: %s" 
+            debug.dprint("value at iter %s: %s"
                 % (iter, model.get_value(_iter, 0)))
             if catmaj == model.get_value(_iter, 0):
                 (catpath, kiditer) = self._find_catmin(_iter, catmin, model)
                 if catpath:
                     debug.dprint("MAINWINDOW: _find_catpath(); " +
-                        "found value at iter %s: %s" 
+                        "found value at iter %s: %s"
                         % (_iter, model.get_value(kiditer, 0)))
                     break
             _iter = model.iter_next(_iter)
@@ -1382,7 +1386,7 @@ class MainWindow:
         _iter = model.get_iter_first()
         path = None
         while _iter and pack:
-            #debug.dprint("value at _iter %s: %s" 
+            #debug.dprint("value at _iter %s: %s"
                 #% (_iter, model.get_value(_iter, 0)))
             if model.get_value(_iter, 0).split('/')[-1] == pack:
                 path = model.get_path(_iter)
@@ -1397,7 +1401,7 @@ class MainWindow:
         reader threads"""
         self.reader_progress = 1
         # package list is not loaded, create dialog and load them
-        self.set_statusbar2(_("Generating '%s' packages list...") 
+        self.set_statusbar2(_("Generating '%s' packages list...")
             %READER_NAMES[reader])
         # create reader thread for loading the packages
         if self.reader_running:
@@ -1442,10 +1446,10 @@ class MainWindow:
             # Still building system package list nothing to do
             pass
         else:
-            # statusbar hack, 
+            # statusbar hack,
             # should probably be converted to use a Dispatcher callback
             if self.reader.progress >= 2 and self.reader_progress == 1:
-                self.set_statusbar2(_("Searching for '%s' packages...") 
+                self.set_statusbar2(_("Searching for '%s' packages...")
                     %READER_NAMES[self.reader.reader_type])
                 self.reader_progress = 2
             if self.reader_running:
@@ -1525,14 +1529,14 @@ class MainWindow:
                     "attempted to update with no db assigned")
             else:
                 text = (_("%(pack)d packages in %(cat)d categories")
-                        % {'pack':len(db.db.list), 
+                        % {'pack':len(db.db.list),
                         'cat':len(db.db.categories)})
         elif mode == SHOW_INSTALLED:
             if not db.db:
                 debug.dprint("MAINWINDOW: update_statusbar(); " +
                     "attempted to update with no db assigned")
             else:
-                text = (_("%(pack)d packages in %(cat)d categories") 
+                text = (_("%(pack)d packages in %(cat)d categories")
                         % {'pack':db.db.installed_count,
                         'cat':len(db.db.installed)})
         elif mode in [SHOW_SEARCH, SHOW_DEPRECATED, SHOW_SETS]:
@@ -1562,7 +1566,7 @@ class MainWindow:
             #debug.dprint("MAINWINDOW: set_package_actions_sensitive() " +
                 #"setting unmerge to %d" %(not enabled))
             self.widget["btn_unmerge"].set_sensitive(not enabled)
-            
+
             self.widget["unmerge_package1"].set_sensitive(not enabled)
         self.packagebook.notebook.set_sensitive(enabled)
 
@@ -1572,7 +1576,7 @@ class MainWindow:
         config.Prefs.main.width = event.width
         config.Prefs.main.height = event.height
         pos = widget.get_position()
-        # note: event has x and y attributes but they 
+        # note: event has x and y attributes but they
         # do not give the same values as get_position().
         config.Prefs.main.xpos = pos[0]
         config.Prefs.main.ypos = pos[1]
@@ -1611,7 +1615,7 @@ class MainWindow:
         gtk.main_quit()
 
     def confirm_delete(self, *widget, **event):
-        """Check that there are no running processes 
+        """Check that there are no running processes
         & confirm the kill before doing it"""
         if self.process_manager.task_completed:
             self.process_manager.allow_delete = True
