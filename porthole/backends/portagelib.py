@@ -436,10 +436,11 @@ def get_dep_ebuild(dep):
         hardmasked_nocheck, hardmasked = get_hard_masked(full_name)
         matches = xmatch("match-all", dep)[:]
         masked_ebuild = best(matches)
+        keyworded = []
         for m in matches:
-            if m in hardmasked:
-                matches.remove(m)
-        keyworded_ebuild = best(matches)
+            if m not in hardmasked:
+                keyworded.append(m)
+        keyworded_ebuild = best(keyworded)
     #debug.dprint("PORTAGELIB: get_dep_ebuild(); ebuilds = " + str([best_ebuild, keyworded_ebuild, masked_ebuild]))
     return best_ebuild, keyworded_ebuild, masked_ebuild
 
