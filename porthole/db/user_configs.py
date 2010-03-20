@@ -36,6 +36,7 @@ from porthole.dialogs.fileselector import FileSelector2 #as FileSelector
 from porthole import backends
 portage_lib = backends.portage_lib
 from porthole.utils import debug
+from porthole.privilege import controller as privileges
 
 ## set up this module to act as a user configs data server,
 ## watch the user configs for changes and auto update
@@ -363,7 +364,7 @@ class UserConfigs:
             debug.dprint("USER_CONFIGS: set_user_config(): add: " +
                 "%s,\n remove: %s " %(str(add),str(remove)))
             set_config.set_user_config(filename=file, name=name, ebuild=ebuild,
-                comment=comment, username=priviliges.USER, 
+                comment=comment, username=privileges.USER, 
                 add=add, remove=remove)
             self.set_config_callback()
         else:
