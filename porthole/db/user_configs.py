@@ -364,7 +364,7 @@ class UserConfigs:
             debug.dprint("USER_CONFIGS: set_user_config(): add: " +
                 "%s,\n remove: %s " %(str(add),str(remove)))
             set_config.set_user_config(filename=file, name=name, ebuild=ebuild,
-                comment=comment, username=privileges.USER, 
+                comment=comment, username=privileges.user, 
                 add=add, remove=remove)
             self.set_config_callback()
         else:
