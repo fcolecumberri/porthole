@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Porthole-0.5.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-01-05 23:45-0800\n"
-"PO-Revision-Date: 2010-01-07 20:44+0100\n"
+"PO-Revision-Date: 2010-06-04 10:16+0100\n"
 "Last-Translator: Arkadiusz Kowalski <0.akowalski@gmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -287,7 +287,7 @@ msgid ""
 msgstr "--usepkgonly (-K)\n"
 
 #: porthole/glade/advemerge.glade.h:78
-#, fuzzy, no-c-format
+#, no-c-format
 msgid ""
 "--verbose (-v)\n"
 "Tell emerge to run in verbose mode.  Currently this flag causes emerge to print out GNU info errors, if any, and to show the USE flags that will be used for each package when pretending. The following symbols  are  affixed  to  USE flags in order to indicate their status:\n"
@@ -296,7 +296,14 @@ msgid ""
 "    * suffix     = transition to or from the enabled state\n"
 "    % suffix     = newly added or removed\n"
 "    () circumfix = forced, masked, or removed"
-msgstr "--verbose (-v)\n"
+msgstr ""
+"--verbose (-v)\n"
+"Uruchamia emerge w trybie gadatliwym. Aktualnie powoduje to, że emerge wyświetla błędy GNU oraz w trybie pretend pokazuje flagi USE które są używane przez każdy pakiet. Nastepujące symbole wystapią przy flagach USE - symbole te oznaczają statu danej flagi USE:\n"
+"\n"
+"    - przed nazwą flagi     = nie aktywna (lub usunięta)\n"
+"    * za nazwą flagi          = zmiana statusu flagi\n"
+"    % za nazwą flagi         = nowo dodana lub usunięta flaga\n"
+"    () wokół flagi              = wymuszona, zamaskowana lub usunięta"
 
 #: porthole/glade/advemerge.glade.h:85
 #, fuzzy
@@ -355,137 +362,137 @@ msgstr "Flagi USE"
 
 #: porthole/glade/advemerge.glade.h:99
 msgid "alphabetical"
-msgstr "alphabetical"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:100
 msgid "ask"
-msgstr "ask"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:101
 msgid "buildpkg"
-msgstr "buildpkg"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:102
 msgid "buildpkgonly"
-msgstr "buildpkgonly"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:103
 msgid "color  "
-msgstr "color  "
+msgstr " "
 
 #: porthole/glade/advemerge.glade.h:104
 msgid "columns"
-msgstr "columns"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:105
 msgid "debug"
-msgstr "debug"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:106
 msgid "deep"
-msgstr "deep"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:107
 msgid "emptytree"
-msgstr "emptytree"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:108
 msgid "fetch-all-uri"
-msgstr "fetch-all-uri"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:109
 msgid "fetchonly"
-msgstr "fetchonly"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:110
 msgid "getbinpkg"
-msgstr "getbinpkg"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:111
 msgid "getbinpkgonly"
-msgstr "getbinpkgonly"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:112
 msgid "ignore-default-opts"
-msgstr "ignore-default-opts"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:113
 msgid "n"
-msgstr "n"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:114
 msgid "newuse"
-msgstr "newuse"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:115
 msgid "noconfmem"
-msgstr "noconfmem"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:116
 msgid "nodeps"
-msgstr "nodeps"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:117
 #: porthole/glade/config.glade.h:102
 msgid "noreplace"
-msgstr "noreplace"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:118
 #: porthole/glade/config.glade.h:103
 msgid "nospinner"
-msgstr "nospinner"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:119
 #: porthole/glade/config.glade.h:104
 msgid "oneshot"
-msgstr "oneshot"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:120
 msgid "onlydeps"
-msgstr "onlydeps"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:121
 #: porthole/glade/config.glade.h:105
 msgid "pretend"
-msgstr "pretend"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:122
 msgid "quiet"
-msgstr "quiet"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:123
 msgid "tree"
-msgstr "zielony"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:124
 #: porthole/glade/config.glade.h:116
 msgid "update"
-msgstr "update"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:125
 msgid "usepkg"
-msgstr "usepkg"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:126
 msgid "usepkgonly"
-msgstr "usepkgonly"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:127
 #: porthole/glade/config.glade.h:117
 msgid "verbose"
-msgstr "verbose"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:128
 msgid "version"
-msgstr "version"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:129
 msgid "with-bdeps"
-msgstr "with-bdeps"
+msgstr ""
 
 #: porthole/glade/advemerge.glade.h:130
 msgid "y"
-msgstr "y"
+msgstr ""
 
 #: porthole/glade/config.glade.h:1
 msgid " Editor : "
@@ -497,7 +504,7 @@ msgstr "<b>Zaawansowane opcje Emerge</b>"
 
 #: porthole/glade/config.glade.h:3
 msgid "<b>Arch List</b> for display's &amp; options"
-msgstr "<b>Lista architektór</b> ??? for display's &amp; options"
+msgstr "<b>Lista architektur</b> ??? for display's &amp; options"
 
 #: porthole/glade/config.glade.h:4
 msgid "<b>Emerge options</b>"
@@ -557,7 +564,7 @@ msgstr "Uwaga"
 
 #: porthole/glade/config.glade.h:18
 msgid "Check off all items you would like displayed"
-msgstr "Odznacz opcje, które mają być wyświetlane"
+msgstr "Zaznacz opcje, które mają być wyświetlane"
 
 #: porthole/glade/config.glade.h:19
 #: porthole/terminal/term_queue.py:195
@@ -566,7 +573,7 @@ msgstr "Polecenie"
 
 #: porthole/glade/config.glade.h:20
 msgid "Current CPU architecture : "
-msgstr "Architektura procesora"
+msgstr "Architektura procesora : "
 
 #: porthole/glade/config.glade.h:21
 msgid "Cyan"
@@ -591,7 +598,7 @@ msgstr "Opis"
 
 #: porthole/glade/config.glade.h:26
 msgid "Downgradable Colour"
-msgstr "Kolor obniżonych wersji"
+msgstr "Kolor obniżanych wersji"
 
 #: porthole/glade/config.glade.h:27
 #: porthole/views/package.py:120
@@ -651,7 +658,7 @@ msgstr "Nakładka GUI na su"
 
 #: porthole/glade/config.glade.h:40
 msgid "Global"
-msgstr "Globalny"
+msgstr "Globalne"
 
 #: porthole/glade/config.glade.h:41
 msgid "Green"
@@ -789,11 +796,11 @@ msgstr "Ustawienia czcionki"
 
 #: porthole/glade/config.glade.h:74
 msgid "These colours are used by Porthole for highlighting"
-msgstr "Te kolory stosowane są przez Porthole do podświetlania"
+msgstr "Kolory stosowane przez Porthole do podświetlania"
 
 #: porthole/glade/config.glade.h:75
 msgid "These colours are used by emerge for coloured output"
-msgstr "Te kolory stosowane są przez emerge do kolorowania tekstu"
+msgstr "Kolory stosowane przez emerge do kolorowania tekstu"
 
 #: porthole/glade/config.glade.h:76
 #: porthole/glade/porthole.glade.h:55
@@ -802,7 +809,7 @@ msgstr "Flagi USE"
 
 #: porthole/glade/config.glade.h:77
 msgid "Upgradable Colour"
-msgstr ""
+msgstr "Kolor dostępnych aktualizacji"
 
 #: porthole/glade/config.glade.h:78
 msgid "Use Custom Browser"
@@ -1061,7 +1068,7 @@ msgstr "Tylko pobierz"
 
 #: porthole/glade/porthole.glade.h:29
 msgid "Open Emerge _Log"
-msgstr "OtwÃ³rz logi emerge"
+msgstr "Otwórz logi emerge"
 
 #: porthole/glade/porthole.glade.h:30
 msgid "Pause any commands in the queue"
@@ -1103,7 +1110,7 @@ msgstr "Uruchom: "
 
 #: porthole/glade/porthole.glade.h:39
 msgid "R_eload Database"
-msgstr "PrzeÅaduj bazÄ"
+msgstr "Przeładuj bazę"
 
 #: porthole/glade/porthole.glade.h:40
 msgid "Re-Initialize _Portage"
@@ -1204,7 +1211,7 @@ msgstr "Konfiguracja Porthole"
 
 #: porthole/glade/porthole.glade.h:65
 msgid "_Contents"
-msgstr "TreÅÄ"
+msgstr "Treść"
 
 #: porthole/glade/porthole.glade.h:66
 msgid "_Edit"
