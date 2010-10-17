@@ -298,16 +298,6 @@ def get_category(full_name):
 def get_full_name(ebuild):
     """Extract category/package from some ebuild identifier"""
     return split_atom_pkg(ebuild)[0]
-    # portage.catpkgsplit now pukes when it gets atoms
-    ## depricated
-    ##if ebuild.endswith("*"): ebuild = ebuild[:-1]
-    ##cplist = portage.catpkgsplit(ebuild) or portage.catsplit(ebuild)
-    ##if not cplist or len(cplist) < 2:
-    ##    debug.dprint("PORTAGELIB get_full_name(): issues with '%s'" % ebuild)
-    ##    return ''
-    ##cp = cplist[0] + "/" + cplist[1]
-    ##while cp[0] in ["<",">","=","!","*","~"]: cp = cp[1:]
-    ##return str(cp) # hmm ... unicode keeps appearing :(
 
 def get_installed(package_name):
     """Extract installed versions from package_name.
@@ -516,7 +506,7 @@ def get_size(mycpv):
     #debug.dprint( "PORTAGELIB: get_size; returning mysum[1] = " + mysum[1])
     return mysum[1]
 
-def get_digest(ebuild): ## depricated
+def get_digest(ebuild): ## deprecated
     """Returns digest of an ebuild"""
     mydigest = settings.portdb.finddigest(ebuild)
     digest_file = []
@@ -551,16 +541,10 @@ def get_properties(ebuild):
         else: return Properties()
 
 def get_virtual_dep(atom):
-    """returns a resolved virtual dependency.
-    contributed by Jason Stubbs, with a little adaptation"""
-    # Thanks Jason
-    non_virtual_atom = portage.dep_virtual([atom], settings.settings)[0]
-    if atom == non_virtual_atom:
-        # atom,"is a 'new style' virtual (aka regular package)"
-        return atom
-    else:
-        # atom,"is an 'old style' virtual that resolves to:  non_virtual_atom
-        return non_virtual_atom
+    """Returns the first (prefered) resolved virtual dependency
+    if there is more than 1 possible resolution
+    """
+    return settings.settings.getvirtuals()[atom][0]
 
 
 def is_overlay(cpv): # lifted from gentoolkit
@@ -578,7 +562,7 @@ def get_overlay(cpv):
     try:
         dir,ovl = settings.portdb.findname2(cpv)
     except:
-        ovl = 'Depricated?'
+        ovl = 'Deprecated?'
     return ovl
 
 def get_overlay_name(ovl):
