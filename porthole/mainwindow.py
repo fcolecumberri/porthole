@@ -291,7 +291,7 @@ class MainWindow:
         debug.dprint("MAINWINDOW: init_data(); Initializing data")
         # set status
         #self.set_statusbar(_("Obtaining package list "))
-        self.status_root = _("Loading database")
+        self.status_root = _("Loading database: ")
         self.set_statusbar2(_("Initializing database. Please wait..."))
         self.progressbar = self.wtree.get_widget("progressbar1")
         self.set_cancel_btn(OFF)
