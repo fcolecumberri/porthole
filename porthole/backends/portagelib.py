@@ -171,7 +171,7 @@ def set_make_conf(property, add='', remove='', replace='', callback=None):
     return True
 
 def get_virtuals():
-    return settings.settings.virtuals
+    return settings.settings.getvirtuals()
 
 def reload_portage():
     debug.dprint('PORTAGELIB: reloading portage')
@@ -197,30 +197,36 @@ def get_sets_list( filename ):
 
 def split_atom_pkg( pkg ):
     """Extract [category/package, atoms, version] from some ebuild identifier"""
-    #debug.dprint("PORTAGELIB: split_atom_pkg(); pkg = " +pkg)
+    #debug.dprint("PORTAGELIB: split_atom_pkg(); pkg = " + pkg)
     atoms = []
+    cp = ''
     version = ''
     ver_suffix = ''
-    if pkg.endswith("*"):
-        pkg = pkg[:-1]
-        ver_suffix = '*'
-    while pkg[0] in ["<",">","=","!","*"]:
-        #debug.dprint("PORTAGELIB: split_atom_pkg(); pkg = " + str(pkg))
-        atoms.append(pkg[0])
-        pkg = pkg[1:]
-    cplist = portage.catpkgsplit(pkg) or portage.catsplit(pkg)
-    #debug.dprint("PORTAGELIB: split_atom_pkg(); cplist = " + str(cplist))
-    if not cplist or len(cplist) < 2:
-        debug.dprint("PORTAGELIB split_atom_pkg(): issues with '%s'" % pkg)
+    try: # ignores failures, but output the erroring pkg
+        _pkg = pkg
+        if pkg.endswith("*"):
+            _pkg = pkg[:-1]
+            ver_suffix = '*'
+        while _pkg[0] in ["<",">","=","!","*"]:
+            #debug.dprint("PORTAGELIB: split_atom_pkg(); pkg = " + str(_pkg))
+            atoms.append(_pkg[0])
+            _pkg = _pkg[1:]
+        cplist = portage.catpkgsplit(_pkg) or portage.catsplit(_pkg)
+        #debug.dprint("PORTAGELIB: split_atom_pkg(); cplist = " + str(cplist))
+        if not cplist or len(cplist) < 2:
+            debug.dprint("PORTAGELIB: split_atom_pkg(): issues with '%s'" % _pkg)
+            return ['', '', '']
+        cp = cplist[0] + "/" + cplist[1]
+        #debug.dprint("PORTAGE_2_2.LIB: split_atom_pkg(); cplist2 = " + str(cplist))
+        if cplist:
+            if len(cplist) >2:
+                version = cplist[2] + ver_suffix
+            if len(cplist) >3 and cplist[3] != 'r0':
+                version += '-' + cplist[3]
+    except:
+        debug.dprint("PORTAGELIB: split_atom_pkg(); Error splitting pkg = " + pkg)
         return ['', '', '']
-    cp = cplist[0] + "/" + cplist[1]
-    #debug.dprint("PORTAGELIB: split_atom_pkg(); cplist2 = " + str(cplist))
-    if cplist:
-        if len(cplist) >2:
-            version = cplist[2] + ver_suffix
-        if len(cplist) >3 and cplist[3] != 'r0':
-            version += '-' + cplist[3]
-    return [str(cp), ''.join(atoms), version] # hmm ... unicode keeps appearing :(
+    return [cp, ''.join(atoms), version] # hmm ... unicode keeps appearing :(
 
 def get_use_flag_dict(portdir):
     """ Get all the use flags and return them as a dictionary
@@ -267,19 +273,23 @@ def get_arch():
 def get_cpv_use(cpv):
     """uses portage to determine final USE flags and settings for an emerge"""
     debug.dprint("PORTAGELIB: get_cpv_use(); cpv = " + cpv)
-    myuse = None
-    settings.settings.unlock()
-    settings.settings.setcpv(cpv, use_cache=True, mydb=settings.portdb)
-    myuse = settings.settings['PORTAGE_USE'].split()
-    debug.dprint("PORTAGELIB: get_cpv_use(); type(myuse), myuse = " + str(type(myuse)) + str(myuse))
+    myuse = []
+    settings_unlocked = False
+    if settings.portdb.cpv_exists(cpv):
+        settings.settings.unlock()
+        settings_unlocked = True
+        settings.settings.setcpv(cpv, mydb=settings.portdb)
+        myuse = settings.settings['PORTAGE_USE'].split()
+        debug.dprint("PORTAGELIB: get_cpv_use(); type(myuse), myuse = " + str(type(myuse)) + str(myuse))
     #use_expand_hidden =  settings.settings._get_implicit_iuse()
     use_expand_hidden = settings.settings["USE_EXPAND_HIDDEN"].split()
     debug.dprint("PORTAGELIB: get_cpv_use(); type(use_expand_hidden), use_expand_hidden = " + str(type(use_expand_hidden)) + str(use_expand_hidden))
     usemask = list(settings.settings.usemask)
     useforce =  list(settings.settings.useforce)
     # reset cpv filter
-    settings.settings.reset()
-    settings.settings.lock()
+    if settings_unlocked:
+        settings.settings.reset()
+        settings.settings.lock()
     return myuse, use_expand_hidden, usemask, useforce
 
 def get_name(full_name):
@@ -708,7 +718,7 @@ class PortageSettings:
         self.user_config_dir = portage_const.USER_CONFIG_PATH
         self.reload_world()
         self.reset_use_flags()
-        self.virtuals = self.settings.virtuals
+        self.virtuals = self.settings.getvirtuals()
         # lower case is nicer
         self.keys = [key.lower() for key in portage.auxdbkeys]
         self.UseFlagDict = get_use_flag_dict(self.portdir)
