@@ -33,7 +33,7 @@ gobject.threads_init()
 # setup our path so we can load our custom modules
 import sys, os, thread
 
-# Add path to portage module if 
+# Add path to portage module if
 # missing from path (ref bug # 924100)
 PORTAGE_MOD_PATH = '/usr/lib/portage/pym'
 if PORTAGE_MOD_PATH not in sys.path:
@@ -41,7 +41,7 @@ if PORTAGE_MOD_PATH not in sys.path:
 #~ GENTOOLKIT_PATH = '/usr/lib/gentoolkit/pym'
 #~ if GENTOOLKIT_PATH not in sys.path:
     #~ sys.path.append(GENTOOLKIT_PATH)
-    
+
 #while '' in sys.path: # we don't need the cwd in the path
 #    sys.path.remove('')
 while '/usr/bin' in sys.path: # this gets added when we run /usr/bin/porthole
@@ -81,19 +81,19 @@ def create_dir(new_dir):
         os.mkdir(new_dir)
     except OSError, (errnum, errmsg):
         print "Failed to create %s:" % new_dir, errmsg
-   
+
 
 def import_error(e):
-	print "*** Error loading porthole modules!\n*** If you are running a", \
-		"local (not installed in python's site-packages) version, please use the '--local'", \
-		"or '-l' flag.\n", \
-		"*** Otherwise, verify that porthole was installed correctly and", \
-		"that python's path includes the site-packages directory.\n",\
-		"If you have recently updated python, then run 'python-updater'\n"
-	print "Your sys.path: %s\n" % sys.path
-	print "Your sys.version: %s\n" % sys.version
-	print "Original exception was: ImportError: %s\n" % e
-	sys.exit()
+    print "*** Error loading porthole modules!\n*** If you are running a", \
+        "local (not installed in python's site-packages) version, please use the '--local'", \
+        "or '-l' flag.\n", \
+        "*** Otherwise, verify that porthole was installed correctly and", \
+        "that python's path includes the site-packages directory.\n",\
+        "If you have recently updated python, then run 'python-updater'\n"
+    print "Your sys.path: %s\n" % sys.path
+    print "Your sys.version: %s\n" % sys.version
+    print "Original exception was: ImportError: %s\n" % e
+    sys.exit()
 
 def local():
     global DATA_PATH, i18n_DIR, RUN_LOCAL
@@ -108,7 +108,7 @@ def local():
 location = os.path.abspath(__file__)
 if "site-packages" not in location:
     local()
-    
+
 
 def set_debug(arg):
     from porthole.utils import debug
@@ -162,7 +162,7 @@ def main():
     #print "STARTUP: main(); importing utils"
     from porthole.utils import debug
     from porthole import backends
-    backends.load(BACKEND) 
+    backends.load(BACKEND)
     #print "PORTHOLE: importing MainWindow"
     from porthole.mainwindow import MainWindow
     print "PORTHOLE: i18n_DIR =",  i18n_DIR
@@ -191,6 +191,7 @@ def main():
     gtk.main()
     # save the prefs to disk for next time
     config.Prefs.save()
+    sys.exit(0)
 
 # check if directory exists, if not create it
 for _dir in DIR_LIST:
