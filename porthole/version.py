@@ -40,23 +40,22 @@ def get_git_info(prop):
             from subprocess import Popen, PIPE
             # fixme unused mp
             mp= os.path.dirname(os.path.abspath(__file__))
-            data = str(Popen(["git", "--no-pager", "log", "HEAD^..HEAD"],stdout=PIPE).communicate()[0].split(b'\n'))
-            branches = str(Popen(["git", "--no-pager", "branch"],stdout=PIPE).communicate()[0].split(b'\n'))
+            data = Popen([b"git",b"log", b"HEAD^..HEAD"],stdout=PIPE).communicate()[0].split(b'\n')
+            branches = Popen([b"git",b"branch"],stdout=PIPE).communicate()[0].split(b'\n')
         except:
             print("Error obtaining git log and branch info")
-            exit()
 
         for item in data:
-            if item.startswith('commit'):
+            if item.startswith(b'commit'):
                 commit = item.split()[-1]
-            elif item.startswith('Date'):
-                date = item.split(":", 1)[-1].lstrip()
+            elif item.startswith(b'Date'):
+                date = item.split(b":", 1)[-1].lstrip()
 
-        branch = [x.split()[-1].strip() for x in branches if x.startswith('*')][0]
+        branch = [x.split()[-1].strip() for x in branches if x.startswith(b'*')][0]
 
-        ver_info['commit'] = commit
-        ver_info['date'] = date
-        ver_info['branch'] = branch
+        ver_info['commit'] = commit[:10].decode()
+        ver_info['date'] = date.decode()
+        ver_info['branch'] = branch.decode()
 
     return ver_info[prop]
 
