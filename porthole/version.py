@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Porthole version
-    Copyright (C) 2006 -2010 Brian Dolbec
+    Copyright (C) 2006 -2011 Brian Dolbec
 
 
     This program is free software; you can redistribute it and/or modify
@@ -23,56 +23,47 @@ import os
 
 #version = "0.6.1"
 
-copyright = _("Copyright (c) 2003 - 2010")
+copyright = _("Copyright (c) 2003 - 2011")
 
-version ="svn-"
+version ="git-"
 
-svn_info = {}
+ver_info = {}
 
 
-def get_svn_info(prop):
-    global svn_info
-    if svn_info == {}:
-        info = ''
-        st = ''
+def get_git_info(prop):
+    global ver_info
+    if ver_info == {}:
+        commit = ''
+        date = ''
         branch = ''
         try:
             from subprocess import Popen, PIPE
-            # back up to trunk to catch all relevant svn data
-            mp= os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            os.chdir(mp)
-            branch = os.path.split(mp)[1]
-            info = Popen(["svn","info"],stdout=PIPE).communicate()[0].split('\n')
-            st = Popen(["svn","st"],stdout=PIPE).communicate()[0].split('\n')
+            mp= os.path.dirname(os.path.abspath(__file__))
+            data = Popen(["git","log", "HEAD^..HEAD"],stdout=PIPE).communicate()[0].split('\n')
+            branches = Popen(["git","branch"],stdout=PIPE).communicate()[0].split('\n')
         except:
-            print "Error importing subprocess module"
-            #from os import popen, PIPE
+            print "Error obtaining git log and branch info"
 
-        for item in info:
-            if item:
-                values = item.split(':')
-                svn_info[values[0]] = values[1]
-        mods = []
-        for line in st:
-            if line.startswith('M'):
-                mods.append(line.split()[1])
-            elif line.startswith('A'):
-                mods.append('+' + line.split()[1])
-            elif line.startswith('D'):
-                mods.append('-' + line.split()[1])
-        svn_info['mod-files'] = mods
-        svn_info['branch'] = branch
-    return svn_info[prop]
+        for item in data:
+            if item.startswith('commit'):
+                commit = item.split()[-1]
+            elif item.startswith('Date'):
+                date = item.split(":", 1)[-1].lstrip()
+
+        branch = [x.split()[-1].strip() for x in branches if x.startswith('*')][0]
+
+        ver_info['commit'] = commit
+        ver_info['date'] = date
+        ver_info['branch'] = branch
+
+    return ver_info[prop]
 
 def get_version():
     global version
-    if 'svn' in version:
-        rev = get_svn_info('Revision').strip()
+    if 'git' in version:
+        rev = get_git_info('commit')
         login = os.getenv("LOGNAME")
-        version = version + get_svn_info('branch') + "-rev:" + rev + "--"+login
-        mods = get_svn_info('mod-files')
-        if mods:
-            version = version + "\nModified files: " + ", ".join(mods)
+        version = version + get_git_info('branch') + "-rev:" + rev + "--"+login
     return version
-    
+
 version = get_version()
