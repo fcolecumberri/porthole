@@ -23,7 +23,7 @@
 '''
 import sys, os
 from getopt import getopt, GetoptError
-
+"""
 try:
     import cherrypy
     import dowser
@@ -33,7 +33,7 @@ try:
     cherrypy.engine.start()
 except:
     pass
-
+"""
 
 print "Porthole: python version = ", sys.version
 

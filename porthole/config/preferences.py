@@ -26,7 +26,7 @@ import datetime
 id = datetime.datetime.now().microsecond
 print "PREFERENCES: id initialized to ", id
 
-import os 
+import os
 from gettext import gettext as _
 from types import *
 
@@ -35,10 +35,10 @@ from porthole._xml.xmlmgr import XMLManager, XMLManagerError
 from porthole.utils import debug
 print "PREFERENCES: imported debug.id = ", debug.id
 from porthole.utils.utils import get_user_home_dir, can_gksu
- 
+
 class OptionsClass(object):
     """Blank class to hold options"""
-    
+
     def __repr__(self):
         """Return options as a string"""
         return self.__dict__.__repr__()
@@ -84,7 +84,7 @@ class PortholePreferences:
            debug.dprint("PREFERENCES: ~/.porthole does not exist, creating...")
            os.mkdir(home + "/.porthole")
 
-        # open prefs file if we have access to the file  
+        # open prefs file if we have access to the file
         # or simply create an empty XML doc
 
         if os.access(self.__PFILE, os.F_OK):
@@ -99,9 +99,9 @@ class PortholePreferences:
         # set pref to default value.  The beauty of this is: older versions
         # of the prefs files are still compatible and even if the user has
         # no prefs file, it still works!
-        
+
         preflist = {}
-        
+
         preflist['main'] = [ \
             ['width', 200],
             ['height', 350],
@@ -113,13 +113,13 @@ class PortholePreferences:
             ['search_desc', False],
             ['show_nag_dialog', True]
         ]
-        
+
         preflist['process'] = [ \
             ['width', 300],
             ['height', 350],
             ['width_verbose', 500]
         ]
-        
+
         preflist['terminal'] = [ \
             ['width', 300],
             ['height', 350],
@@ -127,7 +127,7 @@ class PortholePreferences:
             ['all_tabs_use_custom_colors', False],
             ['font', None]
         ]
-        
+
         history = ["",
                    "emerge ",
                    "ACCEPT_KEYWORDS='~x86' emerge ",
@@ -137,7 +137,7 @@ class PortholePreferences:
         # default_history = length of the history items to always remain
         # at the start of the popdown history list & set above when history is set
         # history_length = Default value for maximum nuber of retained history items
-        
+
         preflist['run_dialog'] = [ \
             ['width', 400],
             ['height', 120],
@@ -145,7 +145,7 @@ class PortholePreferences:
             ['default_history', len(history)],
             ['history_length', 10]
         ]
-        
+
         for window_name in preflist.keys():
             setattr(self, window_name, OptionsClass()) # construct self.main etc.
             for pref_name, default_value in preflist[window_name]:
@@ -155,15 +155,15 @@ class PortholePreferences:
                 except XMLManagerError:
                     value = default_value
                 setattr(getattr(self, window_name), pref_name, value) # set self.main.width etc
-        
-        # Formatting tags for the terminal window tabs.  
+
+        # Formatting tags for the terminal window tabs.
         # Note: normal font weight = 400 (pango.WEIGHT_NORMAL),
         #       bold = 700 (pango.WEIGHT_BOLD)
         # Note: all colors are in hex for future color editor;
         #       '' means use default color.
-        
+
         self.TAG_DICT = {}
-        
+
         taglist = [ \
             ['default','','',400],
             ['caution','','#c040b0',400],  # [name, default forecolor, backcolor, fontweight]
@@ -194,7 +194,7 @@ class PortholePreferences:
             ['bg_cyan','','blue',None],
             ['bg_white','','white',None],
         ]
-        
+
         for tag_name, forecolor, backcolor, fontweight in taglist:
             try:
                 fc = dom.getitem(''.join(['/window/terminal/tag/',tag_name,'/forecolor']))
@@ -209,7 +209,7 @@ class PortholePreferences:
             except XMLManagerError:
                 fw = fontweight
             self.TAG_DICT[tag_name] = [fc, bc, fw]
-        
+
         emergeoptions = ['pretend', 'fetch', 'verbose', 'update', 'nospinner', 'noreplace', 'oneshot'] # 'search_descriptions']
         self.emerge = EmergeOptions()
         for option in emergeoptions:
@@ -217,7 +217,7 @@ class PortholePreferences:
                 setattr(self.emerge, option, dom.getitem(''.join(['/emerge/options/', option])))
             except XMLManagerError:
                 pass # defaults set in EmergeOptions class
-        
+
         advemergeoptions = [
             ['showuseflags', True],
             ['showkeywords', True],
@@ -230,7 +230,7 @@ class PortholePreferences:
             except XMLManagerError:
                 value = default
             setattr(self.advemerge, option, value)
-        
+
         viewoptions = [ \
             ['downgradable_fg', '#FA0000'],
             ['upgradable_fg', '#0000FF'],
@@ -244,7 +244,7 @@ class PortholePreferences:
             except XMLManagerError:
                 value = default
             setattr(self.views, option, value)
-        
+
         summaryoptions = [ \
             ['showtable', True],
             ['showkeywords', True],
@@ -263,9 +263,9 @@ class PortholePreferences:
             except XMLManagerError:
                 value = default
             setattr(self.summary, option, value)
-        
+
         # Misc. variables
-        
+
         # probably depricated variables, was used for progressbar calc
         try:
            self.database_size = dom.getitem('/database/size')
@@ -281,9 +281,9 @@ class PortholePreferences:
            #~ self.dbtotals = dom.getitem('/database/dbtotals')
         #~ except XMLManagerError:
            #~ self.dbtotals = []
-        
+
         self.plugins = OptionsClass()
-        
+
         globaloptions = [ \
             ['LANG', 'en'],
             ['enable_archlist', False],
@@ -301,7 +301,7 @@ class PortholePreferences:
             ['use_custom_browser', False],
             ['su', 'gksudo -g'] # -g tells gksu not to steal mouse / keyboard focus. Panics sometimes otherwise.
         ]
-        
+
         self.globals = OptionsClass()
         for option, default in globaloptions:
             try:
@@ -319,7 +319,7 @@ class PortholePreferences:
         self.globals.keyworded_archlist = []
         for arch in self.globals.archlist:
             self.globals.keyworded_archlist.append('~'+arch)
-        
+
         if can_gksu(self.globals.su.split(' ')[0]) == False:
             # If the current su option is not valid, try some others.
             if can_gksu('gksudo'):
@@ -330,15 +330,15 @@ class PortholePreferences:
                 self.globals.su = 'gnomesu'
             elif can_gksu('kdesu'):
                 self.globals.su = 'kdesu'
-        
+
         self.globals.Sync_methods = [['emerge --sync', _('Sync')],
                                      ['emerge-webrsync', _('WebRsync')]]
-        
+
         # fix sync_label if translation changed
         for method in self.globals.Sync_methods:
             if method[0] == self.globals.Sync:
                 self.globals.Sync_label = method[1]
-        
+
         if New_prefs:
             for option, value in New_prefs:
                 setattr(self, option, value)
@@ -346,7 +346,7 @@ class PortholePreferences:
         if self.DATA_PATH == '/usr/share/porthole/': # installed version running
             # find our installed location
             import sys
-            self.PACKAGE_DIR = sys.path[0] 
+            self.PACKAGE_DIR = sys.path[0]
             debug.dprint("PREFERENCES: PortholePreferences;  PACKAGE_DIR = " + self.PACKAGE_DIR)
             # set the correct path to the AUTHORS file
             self.AUTHORS = self.DATA_PATH + "AUTHORS"
@@ -396,7 +396,7 @@ class PortholePreferences:
             self.terminal.all_tabs_use_custom_colors)
         # generate tag keys from dictionary
         for key in self.TAG_DICT:
-            format_list = self.TAG_DICT[key] 
+            format_list = self.TAG_DICT[key]
             dom.additem('/window/terminal/tag/' + key + '/forecolor', format_list[0])
             dom.additem('/window/terminal/tag/' + key + '/backcolor', format_list[1])
             dom.additem('/window/terminal/tag/' + key + '/fontweight', format_list[2])
@@ -446,7 +446,8 @@ class PortholePreferences:
         dom.additem('/plugins/active_list', self.plugins.active_list)
         dom.save(self.__PFILE)
         del dom   # no longer needed, release memory
-    
+        debug.dprint("PREFERENCES: preferences saved")
+
     def __repr__(self): # used by print statement (and pycrash)
         """Return a string representation of the preferences"""
         return self.__dict__.__repr__()
