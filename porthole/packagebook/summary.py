@@ -74,7 +74,7 @@ class Summary(gtk.TextView):
         self.url_tags = []
         self.underlined_url = False
         self.reset_cursor = 'Please'
-        
+
         self.createmenu()
         self.dopopup = None
         self.selected_ebuild = None
@@ -113,7 +113,7 @@ class Summary(gtk.TextView):
             self.keyword_menuitems = None
         else:
             menuitems["add-ebuild-keyword"] = gtk.MenuItem(_("Add to package.keywords (for this ebuild only)" ) )
-            menuitems["add-keyword"] = gtk.MenuItem(_("Add to package.keywords") ) 
+            menuitems["add-keyword"] = gtk.MenuItem(_("Add to package.keywords") )
             archlist = config.Prefs.globals.archlist
             keywordmenu = {}
             keywordmenuitems = {}
@@ -122,7 +122,7 @@ class Summary(gtk.TextView):
             self.create_submenu(entries, archlist, key, keywordmenu, keywordmenuitems, menuitems)
             self.keyword_menu = keywordmenu
             self.keyword_menuitems = keywordmenuitems
-                
+
         # create mask/unmask submenus
         menuitems["package-mask"] = gtk.MenuItem(_("Mask this ebuild or package"))
         menuitems["package-unmask"] = gtk.MenuItem(_("Unmask this ebuild or package"))
@@ -136,14 +136,14 @@ class Summary(gtk.TextView):
 
         # create popup menu for rmb-click
         menu = gtk.Menu()
-       
+
         for item in menuitems.values():
             menu.append(item)
             item.show()
-        
+
         self.popup_menu = menu
         self.popup_menuitems = menuitems
-        
+
         return
 
     def create_submenu(self, menulist, sublist, key, mysubmenu= None,
@@ -166,7 +166,7 @@ class Summary(gtk.TextView):
                 myitems[x] = gtk.MenuItem(key + x)
                 myitems[x].connect("activate", callback, x)
             mymenuitems[item_name] = myitems
-                
+
             mysubmenu[item_name] = gtk.Menu()
             for item in myitems.values():
                 mysubmenu[item_name].append(item)
@@ -250,7 +250,7 @@ class Summary(gtk.TextView):
             append(text, tag.get_property("name"))
 
         def nl(x=1):
-            """ Append x new lines to the buffer """ 
+            """ Append x new lines to the buffer """
             append("\n"*x)
 
         def show_vnums(ebuilds, show_all=False):
@@ -259,7 +259,7 @@ class Summary(gtk.TextView):
             first_ebuild = True
             for ebuild in ebuilds:
                 # set the tag to the default
-                tag = "value" 
+                tag = "value"
                 version = portage_lib.get_version(ebuild)
                 keys = package.get_properties(ebuild).get_keywords()
                 if not show_all and self.myarch not in keys and ''.join(['~',self.myarch]) not in keys:
@@ -305,7 +305,7 @@ class Summary(gtk.TextView):
                 append(_('\tNone'), 'value')
             #append(", ".join(spam), "value")
             return
-        
+
         def create_ebuild_table(versions):
             myarch = self.myarch
             ebuilds = versions[:] # make a copy
@@ -317,14 +317,14 @@ class Summary(gtk.TextView):
                     ebuilds.append(entry)
                     modified = True
             if modified: ebuilds = ver_sort(ebuilds) # otherwise already sorted
-            
+
             if config.Prefs.globals.enable_archlist:
                 archlist = config.Prefs.globals.archlist
                 debug.dprint("SUMMARY: create_ebuild_table: creating archlist enabled table for: " + str(archlist))
             else:
                 archlist = [myarch]
                 debug.dprint("SUMMARY: create_ebuild_table: creating single arch table for: " + str(archlist))
-            #if True: # saves an unindent for testing change    
+            #if True: # saves an unindent for testing change
             rows = 1 + len(ebuilds)
             cols = 3 + len(archlist)
             table = gtk.Table(rows, cols)
@@ -359,7 +359,7 @@ class Summary(gtk.TextView):
                 slot_label.set_padding(3, 3)
                 # overlay column
                 overlay = portage_lib.get_overlay(ebuild)
-                if type(overlay) is IntType: # catch obsolete 
+                if type(overlay) is IntType: # catch obsolete
                     overlay = _("Ebuild version no longer supported")
                     overlay_label = gtk.Label(_("Obsolete"))
                     label_color = "#ED9191"
@@ -374,7 +374,7 @@ class Summary(gtk.TextView):
                 table.attach(boxify(ver_label, label_color, ebuild, '.', "version"), 0, 1, y, y+1)
                 table.attach(boxify(slot_label, label_color), 1, 2, y, y+1)
                 table.attach(box, 2, 3, y, y+1)
-                
+
                 keys = package.get_properties(ebuild).get_keywords()
                 x = 2
                 for arch in archlist:
@@ -423,7 +423,7 @@ class Summary(gtk.TextView):
             anchor = self.buffer.create_child_anchor(iter)
             self.add_child_at_anchor(tablebox, anchor)
             nl(2)
-            
+
         def boxify(label, color=None, ebuild=None, arch=None, text=None):
             box = gtk.EventBox()
             box.add(label)
@@ -455,6 +455,16 @@ class Summary(gtk.TextView):
                     append(_("IUSE: "), "property")
                     append(", ".join(myflags))
                     nl()
+                _usemasked = set(usemasked).intersection(abs_list(iuse))
+                if _usemasked:
+                    append(_("Masked flags: "), "property")
+                    show_flags(_usemasked, ebuild_use_flags)
+                    nl()
+                _useforced = set(useforced).intersection(abs_list(iuse))
+                if _useforced:
+                    append(_("Forced flags: "), "property")
+                    show_flags(_useforced, ebuild_use_flags)
+                    nl()
                 myflags = filter_flags(use_flags, use_expand_hidden, usemasked, useforced)
                 if myflags != []:
                     append(_("Use flags settings: "), "property")
@@ -465,7 +475,7 @@ class Summary(gtk.TextView):
                     append(_("Final environment Use flags: "), "property")
                     show_flags(myflags, ebuild_use_flags,  id_overrides=True)
                     nl(2)
-                
+
 
             # Keywords
             if keywords and config.Prefs.summary.showkeywords:
@@ -618,7 +628,7 @@ class Summary(gtk.TextView):
         debug.dprint("SUMMARY: get package info, name = " + package.full_name)
         self.keyword_unmasked = db.userconfigs.get_user_config('KEYWORDS', name=package.full_name)
         package_unmasked = db.userconfigs.get_user_config('UNMASK', name=package.full_name)
-        
+
         best = portage_lib.get_best_ebuild(package.full_name)
         debug.dprint("SUMMARY: best = %s" %best)
         if _ebuild:
@@ -651,15 +661,15 @@ class Summary(gtk.TextView):
 
         # get system use flags
         system_use_flags = portage_lib.settings.SystemUseFlags
-        
+
         #############################
         # Begin adding text to tab
         #############################
-        
+
         # Full package name
         append(package.full_name, "name")
         nl()
-        
+
         # Description, if available
         if description:
             append(description, "description")
@@ -670,7 +680,7 @@ class Summary(gtk.TextView):
             append(_("Long Description: "), "property")
             append(metadata.longdescription, "description")
             nl(2)
-        
+
         # Insert homepage(s), if any
         x = 0
         if homepages and config.Prefs.summary.showurl:
@@ -680,11 +690,11 @@ class Summary(gtk.TextView):
                 append_url(homepage, homepage, "blue")
                 x += 1
             nl(2)
-        
+
         # display a table of architectures and support / stability
         # like on packages.gentoo.org :)
         if config.Prefs.summary.showtable: create_ebuild_table(versions)
-        
+
         # Installed version(s)
         if config.Prefs.summary.showinstalled:
             if installed:
@@ -694,13 +704,13 @@ class Summary(gtk.TextView):
             else:
                 append(_("Not installed"), "property")
                 nl(2)
-        
+
         # Remaining versions
         if versions and config.Prefs.summary.showavailable:
             append(_("Available versions for %s:\n") % self.myarch, "property")
             show_vnums(versions)
             nl(2)
-        
+
         append(_("Properties for version: "), "property")
         append(portage_lib.get_version(self.ebuild))
         nl(2)
@@ -718,11 +728,11 @@ class Summary(gtk.TextView):
         if event.button == 3: # secondary mouse button
             return self.do_popup()
         else: return False
-    
+
     def do_popup(self):
         debug.dprint("SUMMARY: do_popup(): pop!")
         return False
-    
+
     def on_table_clicked(self, eventbox, event):
         debug.dprint("SUMMARY: EventBox clicked, button = " + str(event.button))
         #debug.dprint(eventbox)
@@ -734,7 +744,7 @@ class Summary(gtk.TextView):
         if event.button == 3: # secondary mouse button
             self.do_table_popup(eventbox, event)
         return True
-    
+
     def do_keyword_menuitems(self, ebuild):
         """handle keywords submenu arch availability"""
         if not self.keyword_menuitems:
@@ -758,7 +768,7 @@ class Summary(gtk.TextView):
     def do_table_popup(self, eventbox, event):
         self.selected_ebuild = eventbox.ebuild
         self.selected_arch = eventbox.arch
-        
+
         # inteligently show/hide keywords submenu archs
         self.do_keyword_menuitems(eventbox.ebuild)
 
@@ -767,7 +777,7 @@ class Summary(gtk.TextView):
             if '~' in eventbox.text:
                 self.popup_menuitems["add-keyword"].show()
                 self.popup_menuitems["add-ebuild-keyword"].show()
-            else: 
+            else:
                 self.popup_menuitems["add-keyword"].hide()
                 self.popup_menuitems["add-ebuild-keyword"].hide()
             if '(+)' in eventbox.text:
@@ -849,7 +859,7 @@ class Summary(gtk.TextView):
         # but it doesn't get de-selected when the menu is closed.
         eventbox.emit("leave-notify-event", gtk.gdk.Event(gtk.gdk.LEAVE_NOTIFY))
         return True
-    
+
     def on_table_mouse(self, eventbox, event):
         if event.mode != gtk.gdk.CROSSING_NORMAL: return False
         if event.type == gtk.gdk.ENTER_NOTIFY:
@@ -877,7 +887,7 @@ class Summary(gtk.TextView):
             style.bg[gtk.STATE_NORMAL] = gtk.gdk.color_parse(eventbox.color)
             eventbox.set_style(style)
         return False
-    
+
     def emerge(self, menuitem_widget, pretend=None, sudo=None):
         emergestring = ['emerge']
         if pretend:
@@ -885,13 +895,13 @@ class Summary(gtk.TextView):
         if sudo:
             emergestring.append('sudo')
         self.dispatch(emergestring, {'ebuild': self.selected_ebuild, 'caller': 'SUMMARY: emerge()'})
-        
+
     def unmerge(self, menuitem_widget, sudo=None):
         if sudo:
             self.dispatch(["unmerge", "sudo"], {'ebuild': self.selected_ebuild, 'caller': 'SUMMARY: unmerge()'})
         else:
             self.dispatch(["unmerge"], {'ebuild': self.selected_ebuild, 'caller': 'SUMMARY: unmerge()'})
-    
+
     def update_callback(self):
         # reset package info
         self.package.best_ebuild = None
@@ -899,7 +909,7 @@ class Summary(gtk.TextView):
         # reload view
         self.update_package_info(self.package)
         self.re_init_portage()
-    
+
     def add_keyword_ebuild(self, menuitem_widget, arch):
         #arch = self.arch(True)
         ebuild = "=" + self.selected_ebuild
@@ -923,9 +933,9 @@ class Summary(gtk.TextView):
         string = name + " " + arch + "\n"
         debug.dprint("Summary: Package view remove_keyword(); %s" %string)
         db.userconfigs.set_user_config('KEYWORDS', name=name, remove=arch, callback=self.update_callback)
-    
+
     def package_mask(self, widget, atoms):
-        if atoms == 'all': 
+        if atoms == 'all':
             ebuild = portage_lib.get_full_name(self.selected_ebuild)
         else:
             ebuild = atoms + self.selected_ebuild
@@ -934,17 +944,17 @@ class Summary(gtk.TextView):
         db.userconfigs.set_user_config('MASK', add=ebuild, callback=self.update_callback)
 
     def package_unmask(self, widget, atoms):
-        if atoms == 'all': 
+        if atoms == 'all':
             ebuild = portage_lib.get_full_name(self.selected_ebuild)
         else:
             ebuild = atoms + self.selected_ebuild
         debug.dprint("Summary: Package view  package_unmask(); %s" %ebuild)
         db.userconfigs.set_user_config('UNMASK', add=ebuild, callback=self.update_callback)
-    
+
     def un_package_unmask(self, widget):
         ebuild = "=" + self.selected_ebuild
         db.userconfigs.set_user_config('UNMASK', remove=ebuild, callback=self.update_callback)
-    
+
     def show_version(self, menuitem_widget):
         ebuild =  self.selected_ebuild
         self.update_package_info(self.package, ebuild)
