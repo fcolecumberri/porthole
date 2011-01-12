@@ -605,7 +605,6 @@ class Summary(gtk.TextView):
 
         # Get the package info
         #debug.dprint("SUMMARY: get package info")
-        metadata = package.get_metadata()
         installed = self.installed = package.get_installed()
         debug.dprint("SUMMARY: installed = " + str(installed))
         versions = package.get_versions()
@@ -640,6 +639,7 @@ class Summary(gtk.TextView):
             else:
                 self.ebuild = best
         #debug.dprint("SUMMARY: getting properties for ebuild version %s" %ebuild)
+        metadata = package.get_metadata(self.ebuild)
         props = package.get_properties(self.ebuild)
         iuse = props.get_use_flags()
         description = props.description
@@ -676,10 +676,13 @@ class Summary(gtk.TextView):
             nl(2)
 
         # Metadata long description(s), if available
-        if metadata and metadata.longdescription and config.Prefs.summary.showlongdesc:
-            append(_("Long Description: "), "property")
-            append(metadata.longdescription, "description")
-            nl(2)
+        if metadata:
+            if metadata.longdescription and config.Prefs.summary.showlongdesc:
+                append(_("Long Description: "), "property")
+                append(metadata.longdescription, "description")
+                nl(2)
+        else:
+            debug.dprint("SUMMARY: No metada !!!!!!!!!")
 
         # Insert homepage(s), if any
         x = 0

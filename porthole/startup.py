@@ -191,6 +191,9 @@ def main():
     gtk.main()
     # save the prefs to disk for next time
     config.Prefs.save()
+    hits = backends.portage_lib.get_metadata.hits
+    misses = backends.portage_lib.get_metadata.misses
+    print "metadata cache hits = %d, misses = %d" %(hits, misses)
     sys.exit(0)
 
 # check if directory exists, if not create it

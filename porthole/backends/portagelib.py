@@ -38,6 +38,7 @@ from itertools import izip
 from porthole.utils import debug
 from porthole.utils.utils import  is_root
 from porthole.utils.dispatcher import Dispatcher, Dispatch_wait
+from porthole.utils.caches import lru_cache
 from porthole.sterminal import SimpleTerminal
 from porthole.backends import version_sort
 from porthole.backends.properties import Properties
@@ -587,17 +588,35 @@ def get_path(cpv):
     if '/' not in cpv:
         return ''
     try:
-        dir,ovl = settings.portdb.findname2(cpv)
+        _dir,ovl = settings.portdb.findname2(cpv)
     except:
-        dir = ''
-    return dir
+        _dir = ''
+    return _dir
 
-def get_metadata(package):
-    """Get the metadata for a package"""
-    # we could check the overlay as well,
-    # but we are unlikely to find any metadata files there
-    try: return parse_metadata(settings.portdir + "/" + package + "/metadata.xml")
-    except: return None
+def get_pkg_path(cpv):
+    """Returns the path to the specified category/package-version
+    parent dir
+    """
+    return os.path.dirname(get_path(cpv))
+
+
+@lru_cache(25)
+def get_metadata(cpv):
+    """Get the metadata for a package's cpv'
+    This will take into account the overlay it is in.
+    Failing that it will default to the main tree
+    """
+    try:
+        debug.dprint("PORTAGELIB: get_metadata(); cpv = " + cpv)
+        return parse_metadata(os.path.join(get_pkg_path(cpv), "metadata.xml"))
+    except:
+        try:
+            debug.dprint("PORTAGELIB: get_metadata(); "
+                "failed to get %s, using main tree"
+                %os.path.join(get_pkg_path(cpv), "metadata.xml"))
+            return parse_metadata(os.path.join(
+                settings.portdir, get_full_name(cpv), "metadata.xml"))
+        except: return None
 
 def get_system_pkgs(): # lifted from gentoolkit
     """Returns a tuple of lists, first list is resolved system packages,
