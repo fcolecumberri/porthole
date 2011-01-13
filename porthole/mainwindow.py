@@ -23,8 +23,8 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 import datetime
-ID = datetime.datetime.now().microsecond
-print "MAINWINDOW: id initialized to ", ID
+_id = datetime.datetime.now().microsecond
+print "MAINWINDOW: id initialized to ", _id
 
 import pygtk
 pygtk.require("2.0") # make sure we have the right version

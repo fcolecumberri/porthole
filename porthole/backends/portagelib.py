@@ -26,8 +26,8 @@
 """
 
 import datetime
-id = datetime.datetime.now().microsecond
-print "PORTAGELIB: id initialized to ", id
+_id = datetime.datetime.now().microsecond
+print "PORTAGELIB: id initialized to ", _id
 
 from sys import exit, stderr
 import os, thread
@@ -87,15 +87,15 @@ def get_make_conf(want_linelist=False, savecopy=False):
     If savecopy is true, a copy of make.conf is saved in make.conf.bak.
     """
     debug.dprint("PORTAGELIB: get_make_conf()")
-    file = open(os.path.join(portage.root, portage_const.MAKE_CONF_FILE), 'r')
+    _file = open(os.path.join(portage.root, portage_const.MAKE_CONF_FILE), 'r')
     if savecopy:
         file2 = open(portage_const.MAKE_CONF_FILE + '.bak', 'w')
-        file2.write(file.read())
-        file.close()
+        file2.write(_file.read())
+        _file.close()
         file2.close()
         return True
-    lines = file.readlines()
-    file.close()
+    lines = _file.readlines()
+    _file.close()
     linelist = []
     for line in lines:
         strippedline = line.strip()
@@ -113,13 +113,13 @@ def get_make_conf(want_linelist=False, savecopy=False):
         else:
             debug.dprint(" * PORTAGELIB: get_make_conf(): couldn't handle line '%s'. Ignoring" % line)
             linelist.append([strippedline])
-    dict = {}
+    _dict = {}
     for line in linelist:
         if len(line) == 2:
-            dict[line[0]] = line[1].strip('"') # line[1] should be of form '"settings"'
+            _dict[line[0]] = line[1].strip('"') # line[1] should be of form '"settings"'
     if want_linelist:
-        return dict, linelist
-    return dict
+        return _dict, linelist
+    return _dict
 
 def set_make_conf(property, add='', remove='', replace='', callback=None):
     """
@@ -136,7 +136,7 @@ def set_make_conf(property, add='', remove='', replace='', callback=None):
     """
     debug.dprint("PORTAGELIB: set_make_conf()")
     command = ''
-    file = 'make.conf'
+    _file = 'make.conf'
     if isinstance(add, list):
         add = ' '.join(add)
     if isinstance(remove, list):
@@ -186,12 +186,12 @@ def get_sets_list( filename ):
        attributes: pkgs[key = full_name] = [atoms, version]"""
     pkgs = {}
     try:
-        list = read_bash(filename)
+        _list = read_bash(filename)
     except:
         debug.dprint("PORTAGELIB: get_sets_list(); Failure to locate file: %s" %filename)
         return None
     # split the atoms from the pkg name and any trailing attributes if any
-    for item in list:
+    for item in _list:
         parts = split_atom_pkg(item)
         pkgs[parts[0]] = parts[1:]
     return pkgs
@@ -236,14 +236,14 @@ def get_use_flag_dict(portdir):
                list[1] = 'package-name'
                list[2] = description of flag
     """
-    dict = {}
+    _dict = {}
 
     # process standard use flags
 
     List = portage.grabfile(portdir + '/profiles/use.desc')
     for item in List:
         index = item.find(' - ')
-        dict[item[:index].strip().lower()] = ['global', '', item[index+3:]]
+        _dict[item[:index].strip().lower()] = ['global', '', item[index+3:]]
 
     # process local (package specific) use flags
 
@@ -252,12 +252,12 @@ def get_use_flag_dict(portdir):
         index = item.find(' - ')
         data = item[:index].lower().split(':')
         try: # got an error starting porthole==> added code to catch it, but it works again???
-            dict[data[1].strip()] = ['local', data[0].strip(), item[index+3:]]
+            _dict[data[1].strip()] = ['local', data[0].strip(), item[index+3:]]
         except:
             debug.dprint("PORTAGELIB: get_use_flag_dict(); error in index??? data[0].strip, item[index:]")
             debug.dprint(data[0].strip())
             debug.dprint(item[index:])
-    return dict
+    return _dict
 
 def get_portage_environ(var):
     """Returns environment variable from portage if possible, else None"""
@@ -561,7 +561,7 @@ def get_virtual_dep(atom):
 def is_overlay(cpv): # lifted from gentoolkit
     """Returns true if the package is in an overlay."""
     try:
-        dir,ovl = settings.portdb.findname2(cpv)
+        _dir,ovl = settings.portdb.findname2(cpv)
     except:
         return False
     return ovl != settings.portdir
@@ -571,7 +571,7 @@ def get_overlay(cpv):
     if '/' not in cpv:
         return ''
     try:
-        dir,ovl = settings.portdb.findname2(cpv)
+        _dir,ovl = settings.portdb.findname2(cpv)
     except:
         ovl = 'Deprecated?'
     return ovl
@@ -600,7 +600,7 @@ def get_pkg_path(cpv):
     return os.path.dirname(get_path(cpv))
 
 
-@lru_cache(25)
+@lru_cache(50)
 def get_metadata(cpv):
     """Get the metadata for a package's cpv'
     This will take into account the overlay it is in.
@@ -764,16 +764,16 @@ class PortageSettings:
         debug.dprint("PORTAGELIB: reset_world();")
         world = []
         try:
-            file = open(os.path.join('/', portage.WORLD_FILE), "r") #"/var/lib/portage/world", "r")
-            world = file.read().split()
-            file.close()
+            _file = open(os.path.join('/', portage.WORLD_FILE), "r") #"/var/lib/portage/world", "r")
+            world = _file.read().split()
+            _file.close()
         except:
             debug.dprint("PORTAGELIB: get_world(); Failure to locate file: '%s'" %portage.WORLD_FILE)
             debug.dprint("PORTAGELIB: get_world(); Trying '/var/cache/edb/world'")
             try:
-                file = open("/var/cache/edb/world", "r")
-                world = file.read().split()
-                file.close()
+                f_ile = open("/var/cache/edb/world", "r")
+                world = _file.read().split()
+                _file.close()
                 debug.dprint("PORTAGELIB: get_world(); OK")
             except:
                 debug.dprint("PORTAGELIB: get_world(); Failed to locate the world file")

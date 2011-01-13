@@ -23,8 +23,8 @@
 '''
 
 import datetime
-id = datetime.datetime.now().microsecond
-print "PACKAGE: id initialized to ", id
+_id = datetime.datetime.now().microsecond
+print "PACKAGE: id initialized to ", _id
 
 ## circular import problem
 ##from porthole.db import userconfigs
@@ -40,7 +40,7 @@ class Package:
     """An entry in the package database"""
 
     def __init__(self, full_name):
-        self.full_name = str(full_name) # unicode gives portage headaches
+        self.full_name = full_name
         self.latest_ebuild = None
         self.hard_masked = None
         self.hard_masked_nocheck = None
@@ -59,21 +59,21 @@ class Package:
         self.is_checked = False
         self.deprecated = False
 
-    def in_list(self, list=None):
+    def in_list(self, _list=None):
         """returns True/False if the package is listed in the list"""
         #debug.dprint("Package.in_list: %s" %self.full_name)
         #debug.dprint("Package.in_list: %s" %str(list))
         if self.full_name == _("None"):
             return False
-        if list == "World":
+        if _list == "World":
             return self.in_world
-        elif list == "Dependencies":
+        elif _list == "Dependencies":
             #  redundant I know, but this method leaves room for adding an "Orphaned"  listing next
             return not self.in_world
-        elif list:
+        elif _list:
             #debug.dprint("Package.in_list: " + str(self.full_name in list))
             # insert routine for checking if the package is in the specified list
-            return self.full_name in list
+            return self.full_name in _list
         return False
 
 
