@@ -22,7 +22,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 import datetime
-id = datetime.datetime.now().microsecond
+_id = datetime.datetime.now().microsecond
 #print "STARTUP: id initialized to ", id
 
 # proper way to enable threading.  Do this first before any other code
@@ -193,7 +193,7 @@ def main():
     config.Prefs.save()
     hits = backends.portage_lib.get_metadata.hits
     misses = backends.portage_lib.get_metadata.misses
-    print "metadata cache hits = %d, misses = %d" %(hits, misses)
+    print "metadata", backends.portage_lib.get_metadata.cache_info()
     sys.exit(0)
 
 # check if directory exists, if not create it
