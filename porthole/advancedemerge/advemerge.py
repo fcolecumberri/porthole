@@ -39,7 +39,8 @@ from porthole import backends
 portage_lib = backends.portage_lib
 from porthole import db
 from porthole.backends.version_sort import ver_sort
-from porthole.backends.utilities import get_reduced_flags, abs_list, abs_flag
+from porthole.backends.utilities import (get_reduced_flags,
+    abs_list, abs_flag, filter_flags)
 from porthole.loaders.loaders import load_web_page
 from porthole.utils.dispatcher import Dispatcher
 
@@ -408,7 +409,10 @@ class AdvancedEmergeDialog:
             info["installed"] = ebuild in installed
             info["slot"] = props.get_slot()
             info["keywords"] = props.get_keywords()
-            info["use_flags"] = abs_list(props.get_use_flags())
+            iuse = props.get_use_flags()
+            final_use, use_expand_hidden, usemasked, useforced = portage_lib.get_cpv_use(ebuild)
+            myflags = filter_flags(iuse, use_expand_hidden, usemasked, useforced)
+            info["use_flags"] = abs_list(myflags)
             info["stable"] = ebuild in nonmasked
             info["hard_masked"] = ebuild in hardmasked
             info["available"] = ebuild in portage_versions
