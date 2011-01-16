@@ -48,17 +48,21 @@ def usage():
     print "  --debug string\tOutput debugging information to stderr (terminal)"
     print "             " + tabs + "string, ALL = all debug text printed.  Any other string will"
     print "             " + tabs + "print only those texts containing 'string'"
-    print "  -b, --backend [portage, pkgcore, dbus]  select one of the backends"
-    print "  -n, --no-privileges\t forces porthole to NOT try to run with root privileges"
-    print "  -u, --user [name]  the user to run as for certain operations.  Optionals and"
-    print "                     automatically set if not specified."
+    print "  -b, --backend [portage, pkgcore]  select one of the backends"
+    print "           NOTE: the pkgcore backend is not complete and out of date."
+    print "                 It is still enabled as an option for development"
+    #print "  -n, --no-privileges\t forces porthole to NOT try to run with root privileges"
+    #print "  -u, --user [name]  the user to run as for certain operations.  Optionals and"
+    #print "                     automatically set if not specified."
 
 
 if __name__ == "__main__":
 
     try:
-        opts, args = getopt(sys.argv[1:], 'lvd:b:hnu:', ["local", "version", "debug=",
-                                              "backend=", "help", "no-priveledges", "user=", "path="])
+        #opts, args = getopt(sys.argv[1:], 'lvd:b:hnu:', ["local", "version", "debug=",
+        #                                      "backend=", "help", "no-priveledges", "user=", "path="])
+        opts, args = getopt(sys.argv[1:], 'lvd:b:h', ["local", "version", "debug=",
+                                              "backend=", "help", "path="])
         #print opts
         #print args
     except GetoptError, e:
@@ -115,6 +119,7 @@ if __name__ == "__main__":
                 set_backend(arg)
             else:
                 useage()
+                sys.exit(0)
         elif opt in ("-v", "--version"):
             print_version()
         elif opt in ("-d", "--debug"):
@@ -124,5 +129,5 @@ if __name__ == "__main__":
             set_user(arg)
     print "starting main()"
     main()
-    sys.exit()
+    sys.exit(0)
 
