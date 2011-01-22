@@ -4,7 +4,7 @@
     Porthole Main Window
     The main interface the user will interact with
 
-    Copyright (C) 2003 - 2008   Fredrik Arnerup, Brian Dolbec, 
+    Copyright (C) 2003 - 2008   Fredrik Arnerup, Brian Dolbec,
     Daniel G. Taylor, Wm. F. Wheeler, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify
@@ -41,7 +41,8 @@ from porthole.views.depends import DependsView
 from porthole.views.commontreeview import CommonTreeView
 from porthole.views.highlight import HighlightView
 from porthole.views.changelog import ChangeLogView
-from porthole.plugin import PluginGUI, PluginManager
+from porthole.mwsupport.plugingui import PluginGUI
+from porthole.mwsupport.pluginmanager import PluginManager
 from porthole.loaders.loaders import *
 from porthole.backends.version_sort import ver_match
 #from timeit import Timer
@@ -72,7 +73,7 @@ class PackageNotebook(object):
         self.ebuild = HighlightView(portage_lib.get_path, ['gentoo', 'shell'])
         self.ebuild_scrolledwindow.add(self.ebuild)
         self.ebuild_scrolledwindow.show_all()
-        
+
         # summary view
         scroller = self.wtree.get_widget("summary_text_scrolled_window");
         self.summary = Summary(Dispatcher(self.callbacks["action_callback"]), self.callbacks["re_init_portage"])
@@ -84,7 +85,7 @@ class PackageNotebook(object):
         result = self.wtree.get_widget("dependencies_scrolled_window").add(self.deps_view)
         self.notebook.connect("switch-page", self.notebook_changed)
         self.reset_tabs()
-        
+
     def set_package(self, package):
         """sets the package for all dispalys"""
         self.package = package
@@ -177,7 +178,7 @@ class PackageNotebook(object):
             debug.dprint("********** PackageNotebook: new_notebook(); DependsView: do_dep_window() new dep_window{'window', 'notebook', 'depth'}" + \
                                     str(self.dep_window["window"]) +str(self.dep_window["notebook"])) # +str(self.dep_window['depth']))
         return self.dep_window
-        
+
     def close_window(self, *widget):
         # first check for and close any children
         if self.dep_window["window"] != None and self.dep_window["notebook"] != None:
