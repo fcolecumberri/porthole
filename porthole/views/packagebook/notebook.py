@@ -36,7 +36,7 @@ portage_lib = backends.portage_lib
 #World = portage_lib.settings.get_world()
 from porthole import config
 from porthole.utils.dispatcher import Dispatcher
-from porthole.packagebook.summary import Summary
+from porthole.views.packagebook.summary import Summary
 from porthole.views.depends import DependsView
 from porthole.views.commontreeview import CommonTreeView
 from porthole.views.highlight import HighlightView
