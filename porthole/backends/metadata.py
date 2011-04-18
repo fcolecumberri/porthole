@@ -4,7 +4,8 @@
     Portagelib Metadata Library
     Reads metadata info on packages
 
-    Copyright (C) 2003 - 2008 Fredrik Arnerup and Daniel G. Taylor
+    Copyright (C) 2003 - 2011 Fredrik Arnerup and Daniel G. Taylor,
+        Brian Dolbec
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -54,9 +55,10 @@ class Metadata:
         self.longdescription = None
         self.herds = []
         self.maintainers = []
+        self.usedescription = {}
 
 class MetadataHandler(ContentHandler):
-    
+
     def __init__(self, target):
         self.target_lang = target
         return
@@ -104,7 +106,7 @@ class MetadataHandler(ContentHandler):
             #dprint( self.texts)
         #else:
             #dprint("METADATA: SUPPRESS_CONTENT")
-        
+
     def endElement(self, name):
         #dprint("METADATA: end element")
         self._state = self._state_stack.pop()
@@ -125,7 +127,7 @@ class MetadataHandler(ContentHandler):
             elif self.path and self.path[-1] == "maintainer":
                 self.result.maintainers[-1][name] = text
         return
-        
+
 # init globals
 parser = make_parser()
 # no validation or any of that; it takes too much time
