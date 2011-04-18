@@ -348,36 +348,39 @@ def get_versions(full_name, include_masked = True):
     # Note: this is slow, especially when include_masked is false
     criterion = include_masked and 'match-all' or 'match-visible'
     v = xmatch(criterion, str(full_name))
-    #debug.dprint("PORTAGELIB: get_versions(); criterion = %s, package = %s, v = %s" %(str(criterion),full_name,str(v)))
+    #debug.dprint("PORTAGELIB: get_versions(); criterion = %s,
+    # package = %s, v = %s" %(str(criterion),full_name,str(v)))
     return  v
 
 def get_hard_masked(full_name):
     full_name = str(full_name)
     hardmasked = []
+    pmasks = []
     try: # newer portage
-        pmaskdict = settings.portdb.settings.pmaskdict[full_name]
+        pmasks = settings.portdb.settings.pmaskdict[full_name]
     except AttributeError: # older portage
         try:
-            pmaskdict = settings.portdb.mysettings.pmaskdict[full_name]
+            pmasks = settings.portdb.mysettings.pmaskdict[full_name]
         except KeyError:
-            pmaskdict = {}
+            pmasks = []
     except KeyError:
-        pmaskdict = {}
-    for x in pmaskdict:
+        pmasks = []
+    for x in pmasks:
         m = xmatch("match-all",x)
         for n in m:
             if n not in hardmasked: hardmasked.append(n)
     hard_masked_nocheck = hardmasked[:]
+    punmasks = []
     try: # newer portage
         punmaskdict = settings.portdb.settings.punmaskdict[full_name]
     except AttributeError: # older portage
         try:
-            punmaskdict = settings.portdb.mysettings.punmaskdict[full_name]
+            punmasks = settings.portdb.mysettings.punmaskdict[full_name]
         except KeyError:
-            punmaskdict = {}
+            punmasks = []
     except KeyError:
-        punmaskdict = {}
-    for x in punmaskdict:
+        punmasks = []
+    for x in punmasks:
         m = xmatch("match-all",x)
         for n in m:
             while n in hardmasked: hardmasked.remove(n)
@@ -533,6 +536,7 @@ def get_digest(ebuild): ## deprecated
             debug.dprint("PORTAGELIB: get_digest(): Exception: %s" % e)
     return digest_file
 
+
 def get_properties(ebuild):
     """Get all ebuild variables in one chunk."""
     ebuild = str(ebuild) #just in case
@@ -550,6 +554,26 @@ def get_properties(ebuild):
         if vartree.dbapi.cpv_exists(ebuild): # elif in installed pkg tree
             return Properties(dict(zip(settings.keys, vartree.dbapi.aux_get(ebuild, portage.auxdbkeys))))
         else: return Properties()
+
+
+def get_slot(ebuild):
+    """Get the SLOT from the specified ebuild"""
+    ebuild = str(ebuild) #just in case
+    if settings.portdb.cpv_exists(ebuild): # if in portage tree
+        try:
+            return settings.portdb.aux_get(ebuild, ['SLOT'])[0]
+        except IOError, e: # Sync being performed may delete files
+            debug.dprint(" * PORTAGELIB: get_slot(): IOError: %s" % str(e))
+            return ''
+        except Exception, e:
+            debug.dprint(" * PORTAGELIB: get_slot(): Exception: %s" %str( e))
+            return ''
+    else:
+        vartree = settings.trees[settings.settings["ROOT"]]["vartree"]
+        if vartree.dbapi.cpv_exists(ebuild): # elif in installed pkg tree
+            return vartree.dbapi.aux_get(ebuild, ['SLOT'])[0]
+        else: return ''
+
 
 def get_virtual_dep(atom):
     """Returns the first (prefered) resolved virtual dependency
