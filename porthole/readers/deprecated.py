@@ -4,7 +4,7 @@
     Porthole Reader Class: Upgradable List Reader
     The main interface the user will interact with
 
-    Copyright (C) 2003 - 2008 Fredrik Arnerup, Brian Dolbec, 
+    Copyright (C) 2003 - 2008 Fredrik Arnerup, Brian Dolbec,
     Daniel G. Taylor and Wm. F. Wheeler, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify
@@ -49,7 +49,7 @@ class DeprecatedReader(CommonReader):
             self.pkg_count[key] = 0
         self.count = 0
         self.pkg_dict_total = 0
- 
+
     def run( self ):
         """fill upgrade tree"""
         debug.dprint("READERS: DeprecatedReader; process id = %d *******************" %os.getpid())
@@ -66,15 +66,11 @@ class DeprecatedReader(CommonReader):
                     self.pkg_dict["Packages"][package.full_name] = package
                     self.pkg_count["Packages"] += 1
                 else:
-                    # check for deprecated ebuilds
-                    ebuilds = package.get_installed()
-                    for ebuild in ebuilds:
-                        overlay = portage_lib.get_overlay(ebuild)
-                        if type(overlay) is IntType: # catch obsolete
-                            # add the ebuild to Ebuilds list
-                            debug.dprint("READERS: DeprecatedReader; found deprecated ebuild: " + ebuild)
-                            self.pkg_dict["Ebuilds"][package.full_name] = package
-                            self.pkg_count["Ebuilds"] += 1
+                    unavailable = package.get_unavailable()
+                    for ebuild in unavailable:
+                        debug.dprint("READERS: DeprecatedReader; found deprecated ebuild: " + ebuild)
+                        self.pkg_dict["Ebuilds"][ebuild] = package
+                        self.pkg_count["Ebuilds"] += 1
 
         debug.dprint("READERS: DeprecatedReader; done checks, totals next")
         self.pkg_dict_total = 0

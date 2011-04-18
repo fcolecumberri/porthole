@@ -42,14 +42,14 @@ class StatusHandler(object):
                         package_view,
                         current_pkg_path,
                         current_pkg_cursor,
-                        plugin_manager
+                        plugin_views
                         ):
 
         self.statusbar2 = statusbar
         self.current_pkg_path = current_pkg_path
         self.current_pkg_cursor = current_pkg_cursor
         self.progressbar = progressbar
-        self.plugin_manager = plugin_manager
+        self.plugin_views = plugin_views
         self.package_view = package_view
         self.category_view = category_view
         self.status_root = 'Initiallizing StatusHandler ;)'
@@ -75,7 +75,9 @@ class StatusHandler(object):
     def update_statusbar(self, mode, reader=None):
         """Update the statusbar for the selected filter"""
         text = ""
-        if mode == SHOW_ALL:
+        if mode in self.plugin_views:
+            text = self.plugin_views[mode]()
+        elif mode == SHOW_ALL:
             if not db.db:
                 debug.dprint("StatusHandler: update_statusbar(); " +
                     "attempted to update with no db assigned")

@@ -29,13 +29,13 @@ from porthole import config
 from porthole import db
 from porthole.utils import utils, debug
 from porthole.readers.search import SearchReader
-from porthole.packagebook.notebook import PackageNotebook
+from porthole.views.packagebook.notebook import PackageNotebook
 from porthole.views.package import PackageView
 from porthole.views.models import MODEL_ITEM as PACKAGE_MODEL_ITEM
 from porthole.dialogs.simple import YesNoDialog
 from porthole.mwsupport.base import MainBase
 from porthole.mwsupport.constants import (INDEX_TYPES, SHOW_SEARCH,
-    GROUP_SELECTABLE)
+    SHOW_DEPRECATED, GROUP_SELECTABLE)
 
 
 class PackageHandler(MainBase):
@@ -48,6 +48,7 @@ class PackageHandler(MainBase):
         self.current_pkg_name = None
         self.current_pkg_cursor = None
         self.current_pkg_path = None
+        self.current_pkgview = None
         self.package_view = PackageView()
         self.search_thread = None
         self.loaded = False
@@ -56,8 +57,7 @@ class PackageHandler(MainBase):
                 #None, self.pkg_path_callback)
         #self.package_view.register_callbacks(self.packageview_callback)
         self.package_view.register_callbacks(self.action_callback)
-        self.wtree.get_widget("package_scrolled_window"
-                        ).add(self.package_view)
+        self.plugin_views = None
 
     def assign_packagebook(self, wtree,
             callbacks, plugin_package_tabs):
@@ -70,6 +70,10 @@ class PackageHandler(MainBase):
     def package_changed(self, package):
         """Catch when the user changes packages."""
         debug.dprint("PackageHandler: package_changed()")
+        mode = self.widget["view_filter"].get_active()
+        if mode in self.plugin_views.keys():
+            self.plugin_views[mode]["package_changed"](package)
+            return
         if not package or package.full_name == _("None"):
             self.clear_package_detail()
             self.current_pkg_name[INDEX_TYPES[0]] = ''
@@ -79,14 +83,13 @@ class PackageHandler(MainBase):
                 self.current_pkg_cursor[INDEX_TYPES[0]][0]
             return
         # log the new package for db reloads
-        x = self.widget["view_filter"].get_active()
-        self.current_pkg_name[INDEX_TYPES[x]] = package.get_name()
-        self.current_pkg_cursor[INDEX_TYPES[x]] = \
+        self.current_pkg_name[INDEX_TYPES[mode]] = package.get_name()
+        self.current_pkg_cursor[INDEX_TYPES[mode]] = \
             self.package_view.get_cursor()
         debug.dprint("PackageHandler: package_changed(); new cursor = " +
-            str(self.current_pkg_cursor[INDEX_TYPES[x]]))
-        self.current_pkg_path[INDEX_TYPES[x]] = \
-            self.current_pkg_cursor[INDEX_TYPES[x]][0]
+            str(self.current_pkg_cursor[INDEX_TYPES[mode]]))
+        self.current_pkg_path[INDEX_TYPES[mode]] = \
+            self.current_pkg_cursor[INDEX_TYPES[mode]][0]
          #debug.dprint("Package name= " +
             #"%s, cursor = " %str(self.current_pkg_name[INDEX_TYPES[x]]))
         #debug.dprint(self.current_pkg_cursor[INDEX_TYPES[x]])
@@ -148,6 +151,10 @@ class PackageHandler(MainBase):
     def set_package_actions_sensitive(self, enabled, package = None):
         """Sets package action buttons/menu items to sensitive or not"""
         #debug.dprint("PackageHandler: set_package_actions_sensitive(%d)" %enabled)
+        mode = self.widget["view_filter"].get_active()
+        if mode in self.plugin_views.keys():
+            self.plugin_views[mode]["set_pkg_actions"](enabled, package)
+            return
         self.widget["emerge_package1"].set_sensitive(enabled)
         self.widget["adv_emerge_package1"].set_sensitive(enabled)
         self.widget["unmerge_package1"].set_sensitive(enabled)
@@ -175,31 +182,10 @@ class PackageHandler(MainBase):
                 return
             debug.dprint("PackageHandler: upgrade_packages(); " +
                 "packages were selected")
-            if self.is_root or config.Prefs.emerge.pretend:
-                emerge_cmd = "emerge "
-            elif utils.can_sudo():
-                emerge_cmd = 'sudo -p "Password: " emerge '
-            else: # can't sudo, not root
-                # display not root dialog and return.
-                self.check_for_root()
-                return
-            #debug.dprint(self.packages_list)
-            #debug.dprint(self.keyorder)
-            for key in self.keyorder:
-                if not self.packages_list[key].in_world:
-                    debug.dprint("PackageHandler: upgrade_packages(); " +
-                        "dependancy selected: " + key)
-                    options = config.Prefs.emerge.get_string()
-                    if "--oneshot" not in options:
-                        options = options + " --oneshot "
-                    if not self.setup_command(key, emerge_cmd  +
-                            options + key[:]): #use the full name
-                        return
-                elif not self.setup_command(key,
-                        emerge_cmd + config.Prefs.emerge.get_string() +
-                        ' '+key[:]):
-                        #use the full name
-                    return
+            if self.last_view_setting == SHOW_DEPRECATED:
+                self.send_pkg_list("emerge --update ", add_slot=True)
+            else:
+                self.send_pkg_list("emerge --update ")
         else:
             debug.dprint("MAIN: Upgrades not loaded; upgrade world?")
             self.upgrades_loaded_dialog = YesNoDialog(_("Upgrade requested"),
@@ -207,15 +193,67 @@ class PackageHandler(MainBase):
                 _("Do you want to upgrade all packages in your world file?"),
                  self.upgrades_loaded_dialog_response)
 
+    def process_selection(self, action):
+        if self.is_group_selectable():
+            self.get_selected_list()
+            self.send_pkg_list(action)
+            return True
+        return False
+
+    def send_pkg_list(self, action, add_slot=False):
+        """prepares the action command string for the whole
+        self.packages_list and initiates them
+         """
+        if self.is_root or config.Prefs.emerge.pretend:
+            emerge_cmd = action
+        elif utils.can_sudo():
+            emerge_cmd = 'sudo -p "Password: " %s ' % action
+        else: # can't sudo, not root
+            # display not root dialog and return.
+            self.check_for_root()
+            return
+        #debug.dprint(self.packages_list)
+        #debug.dprint(self.keyorder)
+        for key in self.keyorder:
+            if not self.packages_list[key].in_world:
+                debug.dprint("PackageHandler: upgrade_packages(); " +
+                    "dependancy selected: " + key)
+                options = config.Prefs.emerge.get_string()
+                # handle --unmerge as exact cat/pkg-ver?
+                if action in ["emerge --unmerge "]:
+                    opts = set(['--pretend', '--depclean']).intesection(
+                        set(options.split()))
+                    options = ' '.join(opts)
+                    #
+                    if self.last_view_setting == SHOW_DEPRECATED:
+                        # only unmerge exact deprecated version
+                        pass
+
+                elif "--oneshot" not in options:
+                    options = options + " --oneshot "
+                if not self.setup_command(key, emerge_cmd  +
+                        options + key[:]): #use the full name
+                    return
+            elif not self.setup_command(key,
+                    emerge_cmd + config.Prefs.emerge.get_string() +
+                    ' '+key[:]):
+                    #use the full name
+                return
+
+
+
+    def is_group_selectable(self):
+        return self.last_view_setting in GROUP_SELECTABLE
+
     def get_selected_list(self):
         """creates self.packages_list, self.keyorder"""
         debug.dprint("PackageHandler: get_selected_list()")
         my_type = INDEX_TYPES[self.last_view_setting]
         if self.last_view_setting not in GROUP_SELECTABLE:
             debug.dprint("PackageHandler: get_selected_list() " + my_type +
-                " view is not group selectable for emerge/upgrade commands")
+                " view is not group selectable")
             return False
-        # create a list of packages to be upgraded
+        # create a list of packages selected
         self.packages_list = {}
         self.keyorder = []
         if self.loaded[my_type]:
@@ -249,6 +287,13 @@ class PackageHandler(MainBase):
         if model.get_value(_iter, PACKAGE_MODEL_ITEM["checkbox"]):
             name = model.get_value(_iter, PACKAGE_MODEL_ITEM["name"])
             #debug.dprint("PackageHandler; tree_node_to_list(): name '%s'" % name)
+            if self.last_view_setting == SHOW_DEPRECATED:
+                pkg = model.get_value(_iter, PACKAGE_MODEL_ITEM["package"])
+                #ver = model.get_value(_iter, PACKAGE_MODEL_ITEM["installed"])
+                cpv = '=' + name
+                if cpv not in self.keyorder:
+                    self.packages_list[cpv] = pkg
+                    self.keyorder = [cpv] + self.keyorder
             if name not in self.keyorder \
                     and name != _("Upgradable dependencies:"):
                 self.packages_list[name] = model.get_value(_iter,
@@ -260,6 +305,16 @@ class PackageHandler(MainBase):
             #str(self.keyorder))
         return False
 
+    def chg_pkgview(self, view):
+        if not self.current_pkgview:
+            self.wtree.get_widget("package_scrolled_window"
+                        ).add(view)
+        elif self.current_pkgview != view:
+            self.wtree.get_widget("package_scrolled_window"
+                        ).remove(self.current_view)
+            self.wtree.get_widget("package_scrolled_window"
+                        ).add(view)
+        self.current_pkgview = view
 
     def load_descriptions_list(self):
         pass

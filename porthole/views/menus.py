@@ -30,7 +30,7 @@ from gettext import gettext as _
 from porthole.utils import utils
 from porthole import backends
 portage_lib = backends.portage_lib
-from porthole.packagebook.depends import DependsTree
+from porthole.views.packagebook.depends import DependsTree
 from porthole.utils import debug
 from porthole.views.helpers import *
 
@@ -60,7 +60,7 @@ class RMBMenu:
         menuitems["deselect_all"].connect("activate", self.deselect_all)
         menuitems["select_all"] = gtk.MenuItem(_("Select all"))
         menuitems["select_all"].connect("activate", self.select_all)
-        
+
         for item in menuitems.values():
             menu.append(item)
             item.show()
@@ -127,4 +127,4 @@ class RMBMenu:
             self.dopopup = False
             self.event = None
             return True
- 
+

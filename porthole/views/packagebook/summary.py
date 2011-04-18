@@ -35,7 +35,8 @@ from porthole import db
 from porthole.db.user_configs import CONFIG_MASK_ATOMS
 from porthole import config
 from porthole.backends.version_sort import ver_sort
-from porthole.backends.utilities import reduce_flags, get_reduced_flags, abs_flag, abs_list, flag_defaults, filter_flags
+from porthole.backends.utilities import (reduce_flags, get_reduced_flags,
+    abs_flag, abs_list, flag_defaults, filter_flags)
 from porthole.loaders.loaders import load_web_page
 
 class Summary(gtk.TextView):

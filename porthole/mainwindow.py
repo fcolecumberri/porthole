@@ -78,7 +78,7 @@ class MainWindow(PluginHandler):
             self.package_view,
             self.current_pkg_path,
             self.current_pkg_cursor,
-            self.plugin_manager
+            self.plugin_views
             )
 
         # get an empty tooltip
@@ -217,7 +217,7 @@ class MainWindow(PluginHandler):
     def reload_db(self, *widget):
         """initiatiate a full db reload"""
         debug.dprint("MAINWINDOW: reload_db() callback")
-        self.progress_done()
+        self.status.progress_done()
         self.set_cancel_btn(OFF)
         for x in self.loaded_resets:
             self.loaded[x] = False
@@ -269,8 +269,9 @@ class MainWindow(PluginHandler):
 
     def emerge_btn(self, widget, sudo=False):
         """callback for the emerge toolbutton and menu entries"""
-        package = utils.get_treeview_selection(self.package_view, 2)
-        self.emerge_package(package, sudo)
+        if not self.process_selection("emerge"):
+            package = utils.get_treeview_selection(self.package_view, 2)
+            self.emerge_package(package, sudo)
 
     def adv_emerge_btn(self, *widget):
         """Advanced emerge of the currently selected package."""
@@ -280,8 +281,9 @@ class MainWindow(PluginHandler):
     def unmerge_btn(self, widget, sudo=False):
         """callback for the Unmerge button and menu entry to
         unmerge the currently selected package."""
-        package = utils.get_treeview_selection(self.package_view, 2)
-        self.unmerge_package(package, sudo)
+        if not self.process_selection("emerge --unmerge"):
+            package = utils.get_treeview_selection(self.package_view, 2)
+            self.unmerge_package(package, sudo)
 
     def on_cancel_btn(self, *widget):
         """cancel button callback function"""
@@ -289,7 +291,7 @@ class MainWindow(PluginHandler):
         # terminate the thread
         self.reader.please_die()
         self.reader.join()
-        self.progress_done()
+        self.status.progress_done()
         self.set_cancel_btn(OFF)
 
     def on_window_state_event(self, widget, event):
@@ -408,7 +410,12 @@ class MainWindow(PluginHandler):
         pack = None
         sort_categories = False
 
-        if myview in (SHOW_INSTALLED, SHOW_ALL):
+        if myview in self.plugin_views.keys():
+            if self.plugin_view[myview]["package_view"]:
+                self.chg_pkgview(self.plugin_view[myview]["package_view"])
+            self.plugin_view[myview]["view_changed"]
+        elif myview in (SHOW_INSTALLED, SHOW_ALL):
+            self.chg_pkgview(self.package_view)
             if myview == SHOW_ALL:
                 items = db.db.categories.keys()
                 count = db.db.pkg_count
@@ -431,6 +438,7 @@ class MainWindow(PluginHandler):
             debug.dprint("MAINWINDOW: view_filter_changed(); " +
                 "reselect category & package")
         elif myview == SHOW_SEARCH:
+            self.chg_pkgview(self.package_view)
             self.category_view.set_search(True)
             if not self.loaded[INDEX_TYPES[myview]]:
                 self.set_package_actions_sensitive(False, None)
@@ -453,6 +461,7 @@ class MainWindow(PluginHandler):
         elif myview in [SHOW_UPGRADE, SHOW_DEPRECATED, SHOW_SETS]:
             debug.dprint("MAINWINDOW: view_filter_changed(); '" +
                 INDEX_TYPES[myview] + "' selected")
+            self.chg_pkgview(self.package_view)
             cat_scroll.show()
             # all need to be sorted for them to be
             # displayed in the tree correctly
@@ -574,15 +583,15 @@ class MainWindow(PluginHandler):
                         for key in self.reader.pkg_count:
                             count += self.reader.pkg_count[key]
                         fraction = count / float(self.reader.pkg_dict_total)
-                        self.progressbar.set_text(
+                        self.status.progressbar.set_text(
                             str(int(fraction * 100)) + "%")
-                        self.progressbar.set_fraction(fraction)
+                        self.status.progressbar.set_fraction(fraction)
                     else:
                         fraction = \
                             self.reader.count / float(db.db.installed_count)
-                        self.progressbar.set_text(
+                        self.status.progressbar.set_text(
                             str(int(fraction * 100)) + "%")
-                        self.progressbar.set_fraction(fraction)
+                        self.status.progressbar.set_fraction(fraction)
                         if fraction == 1:
                             self.build_deps = True
                             self.status.set_statusbar2(_("Building Package List"))

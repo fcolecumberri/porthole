@@ -46,6 +46,8 @@ class PluginHandler(ActionHandler):
         self.plugin_manager = None
         # initialize this now cause we need it next
         self.plugin_package_tabs = {}
+        self.plugin_views = {}
+        self.status = None
 
     def setup_plugins(self):
         """set up our plug-in manager and variables"""
@@ -63,7 +65,7 @@ class PluginHandler(ActionHandler):
         self.plugin_package_tabs = {}
         self.packagebook = None
 
-    def new_plugin_package_tab( self, name, callback, widget ):
+    def new_plugin_package_tab( self, name, callbacks ):
         """adds a pckagebook notebook page to the notebook"""
         notebook = self.packagebook.notebook
         label = gtk.Label(name)
@@ -76,6 +78,30 @@ class PluginHandler(ActionHandler):
         notebook = self.packagebook.notebook
         notebook.remove_page(self.plugin_package_tabs[name][1])
         self.plugin_package_tabs.pop(name)
+
+    def new_plugin_view( self, name, callbacks, widget ):
+        """adds a view menu option to the mainwindow
+        @param name: string
+        @param name: the name of the view menu option
+        @param callbacks: dict
+        @param callbacks: {
+            "view_changed":None,
+            "category_changed": None,
+            "package_changed": None,
+            "status_update": None,
+            "set_pkg_actions": None
+            }
+        """
+        """adds a view menu option to the mainwindow"""
+        self.widget["view_filter_list"].append([name])
+        self.plugin_views[name] = callbacks
+        return (self.category_view, self.package_view, self.packagebook)
+
+    def del_plugin_view( self, name ):
+        """removes a view menu option from the mainwindow"""
+        self.widget["view_filter_list"].remove([name])
+        self.plugin_views.pop(name)
+
 
     def plugin_settings_activate( self, widget ):
         """Shows the plugin settings window"""

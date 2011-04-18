@@ -81,17 +81,17 @@ class PackageView(CommonTreeView):
         menuitems["deselect_all"].connect("activate", self.deselect_all)
         menuitems["select_all"] = gtk.MenuItem(_("Select all"))
         menuitems["select_all"].connect("activate", self.select_all)
-        
+
         for item in menuitems.values():
             menu.append(item)
             item.show()
-        
+
         self.popup_menu = menu
         self.popup_menuitems = menuitems
         self.dopopup = None
         self.event = None
         self.toggle = None
-        
+
         # setup the treecolumn
         self._column = gtk.TreeViewColumn(_("Packages"))
         self._column.set_resizable(True)
@@ -129,17 +129,17 @@ class PackageView(CommonTreeView):
         self._desc_column.set_resizable(False)
         self._desc_column.set_min_width(10)
         self._desc_column.set_expand(True)
-        
+
         self.clickable_columns = [
             self._column,
             self._installed_column,
             self._latest_column,
             self._size_column,
         ]
-        
+
         # make it easier to read across columns
         self.set_rules_hint(True)
-        
+
         # setup the treemodels
         self.view_model = {}
         for x in MODEL_NAMES[:-1]:
@@ -401,11 +401,12 @@ class PackageView(CommonTreeView):
             self.dopopup = False
             self.event = None
             return True
- 
+
     def populate(self, packages, locate_name = None):
         """ Populate the current view with packages """
         debug.dprint("VIEWS: Populating package view")
         debug.dprint("VIEWS: PackageView.populate(); process_id = %s" %str(os.getpid()))
+        self._installed_column.set_visible(True)
         if not packages:
             debug.dprint("VIEWS: clearing package view model")
             self.get_model().clear()
@@ -464,8 +465,75 @@ class PackageView(CommonTreeView):
         #self.disable_column_sort()
         self.model = self.get_model()
         self.iter = model.get_iter_first()
+        self.deprecated_info = False
         gobject.idle_add(self.populate_info)
- 
+
+    def populate_cpv(self, packages, locate_name = None, ):
+        """ Populate the current view with packages """
+        debug.dprint("VIEWS: Populating package view")
+        debug.dprint("VIEWS: PackageView.populate_cpv(); process_id = %s" %str(os.getpid()))
+        self._installed_column.set_visible(False)
+        if not packages:
+            debug.dprint("VIEWS: clearing package view model")
+            self.get_model().clear()
+            return
+        # ask info_thread to die, if alive
+        self.infothread_die = "Please"
+        self.model = None
+        self.iter = None
+        if locate_name:
+            debug.dprint("VIEWS: Selecting " + str(locate_name))
+        # get the right model
+        model = self.get_model()
+        if not model:
+            debug.dprint("VIEWS: populate(); FAILED TO GET model!!!!!!")
+            return
+        self.disable_column_sort()
+        model.clear()
+        names = utilities.sort(packages.keys())
+        path = None
+        locate_count = 0
+        for name in names:
+            #debug.dprint("VIEWS: PackageView.populate(); name = %s" %name)
+            # go through each package
+            iter = model.insert_before(None, None)
+            model.set_value(iter,MODEL_ITEM["name"], name)
+            upgradable = 0
+            if name != _("None"):
+                model.set_value(iter, MODEL_ITEM["package"], packages[name])
+                model.set_value(iter, MODEL_ITEM["checkbox"], (packages[name].is_checked))
+                model.set_value(iter, MODEL_ITEM["world"], (packages[name].in_world))
+                upgradable = packages[name].is_dep_upgradable()
+                if upgradable == MODEL_ITEM["checkbox"]: # portage wants to upgrade
+                    model.set_value(iter, MODEL_ITEM["text_colour"], config.Prefs.views.upgradable_fg)
+                elif upgradable == -1: # portage wants to downgrade
+                    model.set_value(iter, MODEL_ITEM["text_colour"], config.Prefs.views.downgradable_fg)
+                else:
+                    model.set_value(iter, MODEL_ITEM["text_colour"], '')
+                # get an icon for the package
+                icon = utils.get_icon_for_package(packages[name])
+                model.set_value(iter, MODEL_ITEM["icon"],
+                                self.render_icon(icon,
+                                size = gtk.ICON_SIZE_MENU,
+                                detail = None))
+            if locate_name:
+                if name == locate_name:
+                    locate_count += 1
+                    path = model.get_path(iter)
+                    #if path:
+                        # use callback function to store the path
+                        #self.mainwindow_callback("set path", path)
+        if locate_count == 1: # found unique exact result - select it
+            self.set_cursor(path)
+        debug.dprint("VIEWS: starting info_thread")
+        self.infothread_die = False
+        self.get_model().set_sort_column_id(MODEL_ITEM["name"], gtk.SORT_ASCENDING)
+        #self.disable_column_sort()
+        self.model = self.get_model()
+        self.iter = model.get_iter_first()
+        self.deprecated_info = True
+        gobject.idle_add(self.populate_info)
+
     def populate_info(self):
         """ Populate the current view with package info"""
         if self.infothread_die:
@@ -481,20 +549,34 @@ class PackageView(CommonTreeView):
             try:
                 #gtk.threads_enter()
                 package = model.get_value(iter, MODEL_ITEM["package"])
-                #debug.dprint("VIEWS: populate_info(); getting latest_installed")
-                latest_installed = package.get_latest_installed()
-                #debug.dprint("VIEWS: populate_info(); latest_installed: %s, getting best_ebuild" %str(latest_installed))
-                best_ebuild = package.get_best_dep_ebuild()
-                #debug.dprint("VIEWS: populate_info(); best_dep_ebuild: %s, getting latest_ebuild" %str(best_ebuild))
-                latest_ebuild = package.get_latest_ebuild(include_masked = False)
-                #debug.dprint("VIEWS: populate_info(); latest_ebuild: %s" %str(latest_ebuild))
+                if not self.deprecated_info: # else pass
+                    #debug.dprint("VIEWS: populate_info(); getting latest_installed")
+                    latest_installed = package.get_latest_installed()
+                    #debug.dprint("VIEWS: populate_info(); latest_installed: %s, getting best_ebuild" %str(latest_installed))
+                    best_ebuild = package.get_best_dep_ebuild()
+                    #debug.dprint("VIEWS: populate_info(); best_dep_ebuild: %s, getting latest_ebuild" %str(best_ebuild))
+                    latest_ebuild = package.get_latest_ebuild(include_masked = False)
+                    #debug.dprint("VIEWS: populate_info(); latest_ebuild: %s" %str(latest_ebuild))
+                    model.set_value(iter, MODEL_ITEM["installed"], portage_lib.get_version(latest_installed)) # installed
+                else:
+                    ebuild = model.get_value(iter,MODEL_ITEM["name"])
+                    #debug.dprint("VIEWS: populate_info(); ebuild: '%s', getting latest..." % str(ebuild))
+                    latest_installed = ''
+                    debug.dprint("VIEWS: populate_info(); latest_installed: '%s', getting slot_dep" % str(latest_installed))
+                    slot = portage_lib.get_slot(ebuild)
+                    slot_dep = ':'.join([package.full_name, slot] if slot else [package.full_name])
+                    debug.dprint("VIEWS: populate_info(); slot_dep: '%s', getting best_ebuild" % slot_dep)
+                    best_ebuild, keyworded_ebuild, masked_ebuild = portage_lib.get_dep_ebuild(slot_dep)
+                    debug.dprint("VIEWS: populate_info(); best_dep_ebuild: %s, getting latest_ebuild" % str(best_ebuild))
+                    latest_ebuild = package.get_latest_ebuild(include_masked = False)
+                    debug.dprint("VIEWS: populate_info(); latest_ebuild: %s" %str(latest_ebuild))
+
                 try:
                     size = package.get_size()
                     #debug.dprint("VIEWS: populate_info(); size = " + size)
                     model.set_value(iter, MODEL_ITEM["size"], size) # Size
                 except:
                     debug.dprint("VIEWS: populate_info(); Had issues getting size for '%s'" % str(package.full_name))
-                model.set_value(iter, MODEL_ITEM["installed"], portage_lib.get_version(latest_installed)) # installed
                 if best_ebuild:
                     model.set_value(iter, MODEL_ITEM["recommended"], portage_lib.get_version(best_ebuild)) #  recommended by portage
                     #debug.dprint("VIEWS populate_info(): got best ebuild for '%s' = %s" % (package.full_name, best_ebuild))
@@ -542,26 +624,26 @@ class PackageView(CommonTreeView):
         if model.get_value(iter,MODEL_ITEM["name"]) != _("None"):
             model.set_value(iter, MODEL_ITEM["checkbox"], selected)
             model.get_value(iter, MODEL_ITEM["package"]).is_checked = selected
-    
+
     def remove_model(self): # used by upgrade reader to speed up adding to the model
         self.view_model["Temp"] = self.get_model()
         self.temp_view = self.current_view
         self.set_model(self.view_model["Blank"])
-    
+
     def restore_model(self):
         if self.temp_view == self.current_view: # otherwise don't worry about it
             self.set_model(self.view_model["Temp"])
-    
+
     def column_clicked(self, column):
         # This seems to be unnecessary - gtk does all the work.
         # It would have been useful if column clicks could be escaped,
         # But gtk seems to just ignore "return True" in this case.
         pass
-    
+
     def disable_column_sort(self):
         for col in self.clickable_columns:
             col.set_clickable(False)
-    
+
     def enable_column_sort(self):
         for col in self.clickable_columns:
             col.set_clickable(True)

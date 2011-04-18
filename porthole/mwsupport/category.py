@@ -55,10 +55,14 @@ class CategoryHandler(PackageHandler):
         self.category_view.register_callback(self.category_changed)
         self.wtree.get_widget("category_scrolled_window"
                         ).add(self.category_view)
+        self.plugin_views = None
 
     def category_changed(self, category):
         """Catch when the user changes categories."""
         mode = self.widget["view_filter"].get_active()
+        if mode in self.plugin_views.keys():
+            self.plugin_views[mode]["category_changed"](category)
+            return
         # log the new category for reloads
         self._remember_selected(mode, category)
         if not self.reload:
@@ -106,6 +110,11 @@ class CategoryHandler(PackageHandler):
         self.package_view.populate(packages,
             self.current_pkg_name[INDEX_TYPES[mode]])
 
+    def _mode_readers_cpv_(self, category, mode):
+        packages = self.pkg_list[INDEX_TYPES[mode]][category]
+        self.package_view.populate_cpv(packages,
+            self.current_pkg_name[INDEX_TYPES[mode]])
+
     def _mode_all_(self, category, mode):
         packages = db.db.categories[category]
         self.package_view.populate(packages,
@@ -116,14 +125,17 @@ class CategoryHandler(PackageHandler):
         self.package_view.populate(packages,
             self.current_pkg_name["Installed"])
 
-    def _mode_upgradable_(self, catoegory, mode):
-        self._mode_readers_(catoegory, mode)
+    def _mode_upgradable_(self, category, mode):
+        self._mode_readers_(category, mode)
 
-    def _mode_deprecated_(self, catoegory, mode):
-        self._mode_readers_(catoegory, mode)
+    def _mode_deprecated_(self, category, mode):
+        if category == "Ebuilds":
+            self._mode_readers_cpv_(category, mode)
+        else:
+            self._mode_readers_(category, mode)
 
-    def _mode_sets_(self, catoegory, mode):
-        self._mode_readers_(catoegory, mode)
+    def _mode_sets_(self, category, mode):
+        self._mode_readers_(category, mode)
 
     def _mode_binpkgs_(self, category, mode):
         packages = db.db.binpkgs[category]

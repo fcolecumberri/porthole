@@ -28,29 +28,30 @@ import gtk, gobject
 
 #from porthole.utils import debug
 from porthole.views.helpers import *
-from porthole.views.sorts import *
+from porthole.views.sorts import (size_sort_func, latest_sort_func,
+    installed_sort_func, package_sort_func)
 
 MODEL_ITEM = {"name": 0,
-                        "checkbox": 1,
-                        "package": 2,
-                        "icon": 3,
-                        "world": 4,
-                        "text_colour": 5,
-                        "size": 6,
-                        "installed": 7,
-                        "recommended": 8,
-                        "description": 9
-                        }
+              "checkbox": 1,
+              "package": 2,
+              "icon": 3,
+              "world": 4,
+              "text_colour": 5,
+              "size": 6,
+              "installed": 7,
+              "recommended": 8,
+              "description": 9
+              }
 
 
 def PackageModel():
     """Common model for a package Treestore"""
     store = gtk.TreeStore(
         gobject.TYPE_STRING,        # 0: package name
-        gobject.TYPE_BOOLEAN,     # 1: checkbox value in upgrade view
-        gobject.TYPE_PYOBJECT,     # 2: package object
-        gtk.gdk.Pixbuf,                   # 3: room for various icons
-        gobject.TYPE_BOOLEAN,     # 4: true if package is in 'world' file
+        gobject.TYPE_BOOLEAN,       # 1: checkbox value in upgrade view
+        gobject.TYPE_PYOBJECT,      # 2: package object
+        gtk.gdk.Pixbuf,             # 3: room for various icons
+        gobject.TYPE_BOOLEAN,       # 4: true if package is in 'world' file
         gobject.TYPE_STRING,        # 5: foreground text colour
         gobject.TYPE_STRING,        # 6: size
         gobject.TYPE_STRING,        # 7: installed version
@@ -63,14 +64,14 @@ def PackageModel():
     return store
 
 C_ITEM = {"short_name": 0,
-                                    "full_name": 1,
-                                    "count": 2
-                                    }
+          "full_name": 1,
+          "count": 2
+          }
 
 def CategoryModel():
-        model = gtk.TreeStore(gobject.TYPE_STRING,       # 0 partial category name
-                                   gobject.TYPE_STRING,                         # 1 full category name
-                                   gobject.TYPE_STRING)                         # 2 pkg count, use string so it can be blank
-        return model
+    model = gtk.TreeStore(gobject.TYPE_STRING,  # 0 partial category name
+                          gobject.TYPE_STRING,  # 1 full category name
+                          gobject.TYPE_STRING)  # 2 pkg count, use string so it can be blank
+    return model
 
 

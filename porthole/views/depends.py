@@ -30,7 +30,7 @@ from gettext import gettext as _
 from porthole.utils import utils
 from porthole import backends
 portage_lib = backends.portage_lib
-from porthole.packagebook.dependstree import DependsTree
+from porthole.views.packagebook.dependstree import DependsTree
 from porthole.views.commontreeview import CommonTreeView
 from porthole.utils import debug
 from porthole.views.helpers import *
@@ -117,10 +117,10 @@ class DependsView(CommonTreeView):
         self.connect("cursor-changed", self._clicked)
         self.connect( "test-expand-row" , self.expand_row)
         self.connect("button_press_event", self.on_button_press)
-        
+
         # make it easier to read across columns
         self.set_rules_hint(True)
-        
+
         # create popup menu for rmb-click
         arch = "~" + portage_lib.get_arch()
         menu = gtk.Menu()
@@ -143,11 +143,11 @@ class DependsView(CommonTreeView):
         #menuitems["deselect_all"].connect("activate", self.deselect_all)
         #menuitems["select_all"] = gtk.MenuItem(_("Select all"))
         #menuitems["select_all"].connect("activate", self.select_all)
-        
+
         for item in menuitems.values():
             menu.append(item)
             item.show()
-        
+
         self.popup_menu = menu
         self.popup_menuitems = menuitems
         self.dopopup = None
@@ -262,7 +262,7 @@ class DependsView(CommonTreeView):
                 self._depend_changed(package)
         # save current selection as last selected
         self._last_selected = name
-        
+
         #pop up menu if was rmb-click and have a valid package
         if self.dopopup and package:
             if utils.is_root():
@@ -316,7 +316,7 @@ class DependsView(CommonTreeView):
             self.dopopup = False
             self.event = None
             return True
- 
+
     def on_button_press(self, widget, event):
         """Catch button events.  When a dbl-click occurs save the widget
             as the source.  When a corresponding button release from the same
@@ -326,12 +326,12 @@ class DependsView(CommonTreeView):
         debug.dprint("DependsView: Handling PackageView button press event")
         _do_dep_window = False
         self.event = event # save the event so we can access it in _clicked()
-        
+
         if event.button == 3: # secondary mouse button
             self.dopopup = True # indicate that the popup menu should be displayed.
         else:
             self.dopopup = False
-            
+
         if event.type == gtk.gdk._2BUTTON_PRESS:
             #debug.dprint("DependsView: dbl-click event detected")
             # Capture the source of the dbl-click event
@@ -343,7 +343,7 @@ class DependsView(CommonTreeView):
         elif event.type != gtk.gdk.BUTTON_PRESS:
             debug.dprint("DependsView: Strange event type got passed to on_button_press() callback...")
             debug.dprint("DependsView: event.type =  %s" %str(event.type))
-            
+
         elif event.type == gtk.gdk.BUTTON_RELEASE and \
             self.event_src == widget:
             # clear the event source to prevent false restarts
@@ -352,7 +352,7 @@ class DependsView(CommonTreeView):
             # from the same widget, go ahead and process now
             #debug.dprint("DependsView: button release dbl-click event detected, enabling dep popup")
             _do_dep_window = True
-            
+
         # Test to make sure something was clicked on:
         pathinfo = widget.get_path_at_pos(int(event.x), int(event.y))
         if pathinfo == None:
@@ -381,7 +381,7 @@ class DependsView(CommonTreeView):
         if  self.dep_window["window"] == None or self.dep_window["notebook"] == None:
             #debug.dprint("DependsView: Failed to get the dep_window and/or the dep_notebook")
             return
-        self.dep_window["window"].set_title(_("Porthole Dependency Viewer")) 
+        self.dep_window["window"].set_title(_("Porthole Dependency Viewer"))
         self.parent_tree = self.dep_window['tree']
         #debug.dprint("********** DependsView: do_dep_window(); parent_tree dep_window tree length " + str(len(self.parent_tree)) + '  ' + str(len(self.dep_window['tree'])))
         #debug.dprint("********** DependsView: do_dep_window(); new dep_window tree & depth " + str(self.parent_tree) + '  ' + str(len(self.parent_tree)))
