@@ -26,6 +26,8 @@ import datetime
 _id = datetime.datetime.now().microsecond
 print "PACKAGE: id initialized to ", _id
 
+from types import IntType
+
 ## circular import problem
 ##from porthole.db import userconfigs
 from porthole.backends.version_sort import ver_sort
@@ -58,6 +60,7 @@ class Package:
         self.in_world = full_name in portage_lib.settings.get_world()
         self.is_checked = False
         self.deprecated = False
+        self.unavailable = []
 
     def in_list(self, _list=None):
         """returns True/False if the package is listed in the list"""
@@ -308,3 +311,15 @@ class Package:
         else: #
             return self.full_name
 
+    def get_unavailable(self):
+        """check for deprecated ebuilds and return a list of ebuilds
+        """
+        if self.unavailable:
+            return self.unavailable
+        ebuilds = self.get_installed()
+        for ebuild in ebuilds:
+            overlay = portage_lib.get_overlay(ebuild)
+            if type(overlay) is IntType: # catch obsolete
+                # add the ebuild to Ebuilds list
+                self.unavailable.append(ebuild)
+        return self.unavailable
