@@ -51,7 +51,7 @@ def Header(filename, username):
         # program version
         # date & time of creation
         # login username"""
-    
+
     dprint("SET_CONFIG: Header(); new file header")
     dt = 'UNKNOWN'
     loops = 0
@@ -108,7 +108,7 @@ def chk_permission(filename):
 def group_by_blanklines(configlines):
     """group lines by separation blank lines to keep entries and their comments together
         input: list of text lines
-        returns a tuple of lists""" 
+        returns a tuple of lists"""
     x=0
     groups={}
     groups[x]=[]
@@ -141,14 +141,14 @@ def remove_flag(flag, line):
         dprint("SET_CONFIG: remove_flag(); removed '%s' from line" % flag)
     return line
 
-def set_user_config(filename, name='', ebuild='', comment = '', 
+def set_user_config(filename, name='', ebuild='', comment = '',
     username='', add=[], remove=[], delete=[]):
     """
     Adds <name> or '=' + <ebuild> to <filename> with flags <add>.
     If an existing entry is found, items in <remove> are removed
     and <add> is added.
-    
-    If <name> and <ebuild> are not given then lines starting with 
+
+    If <name> and <ebuild> are not given then lines starting with
     something in remove are removed, and items in <add> are added
     as new lines.
     """
@@ -187,7 +187,7 @@ def set_user_config(filename, name='', ebuild='', comment = '',
                     line = remove_flag('+' + flag, line)
                     line.append(flag)
                     dprint("SET_CONFIG: added '%s' flag" % flag)
-                
+
             if not line[1:]: # if we've removed everything and added nothing
                 config[config.index(line)] = []
         elif line[0] in remove:
@@ -236,24 +236,24 @@ def set_package_mask(filename, name='', ebuild='', comment='', username='', add=
     #dprint(" * SET_CONFIG: set_package_mask(): filename = " + filename)
     configlines =  get_configlines(filename, username)
     groups = group_by_blanklines(configlines)
-    
+
     # do some more stuff
-    
+
     configtext = '\n'.join(configlines)
     configfile = open(filename, 'w')
     configfile.write(configtext)
     configfile.close()
     return True
 
-def set_make_conf(property, add=[], remove=[], replace=''):
+def set_make_conf(_property, add=[], remove=[], replace=''):
     """
     Sets a variable in make.conf.
     If remove: removes elements of <remove> from variable string.
     If add: adds elements of <add> to variable string.
     If replace: replaces entire variable string with <replace>.
-    
+
     if remove contains the variable name, the whole variable is removed.
-    
+
     e.g. set_make_conf('USE', add=['gtk', 'gtk2'], remove=['-gtk', '-gtk2'])
     e.g. set_make_conf('ACCEPT_KEYWORDS', remove='ACCEPT_KEYWORDS')
     e.g. set_make_conf('PORTAGE_NICENESS', replace='15')
@@ -267,28 +267,28 @@ def set_make_conf(property, add=[], remove=[], replace=''):
         dprint(" * SET_CONFIG: set_make_conf(): no write access to '%s'. " \
             "Perhaps the user is not root?" % os.path.split(filename))
     makefile = MakeConf(filename)
-    values = makefile.read_property(property)
+    values = makefile.read_property(_property)
     if remove:
         for element in remove:
             while element in values:
                 values.remove(element)
-                dprint("SET_CONFIG: removed '%s' from %s" % (element, property))
+                dprint("SET_CONFIG: removed '%s' from %s" % (element, _property))
     if add:
-        if not property in makefile.properties:
-            dprint("SET_CONFIG: set_make_conf(): makefile does not have key '%s'. Creating..." % property)
-            makefile.add_string_property(property, "")
+        if not _property in makefile.properties:
+            dprint("SET_CONFIG: set_make_conf(): makefile does not have key '%s'. Creating..." % _property)
+            makefile.add_string_property(_property, "")
         for element in add:
             if element not in values:
                 values.append(element)
-                dprint("SET_CONFIG: added '%s' to %s" % (element, property))
+                dprint("SET_CONFIG: added '%s' to %s" % (element, _property))
         values.sort()
     if replace:
         values = [replace]
-        dprint("SET_CONFIG: setting %s to '%s'" % (property, replace))
+        dprint("SET_CONFIG: setting %s to '%s'" % (_property, replace))
     # Now write to make.conf, keeping comments, unparsed lines and line order intact
     if not makefile.backup_file(): # just saves a copy with ".bak" on the end
         return False
-    return makefile.write_property(property, values)
+    return makefile.write_property(_property, values)
 
 
 class MakeConf:
@@ -322,11 +322,11 @@ class MakeConf:
         self.extra = []
         self.properties = []
 
-    def create_re(self, property):
-        """creates the property reg expression and saves it to 
+    def create_re(self, _property):
+        """creates the property reg expression and saves it to
         the regex dictionary for use"""
-        if not property in self.regex:
-            self.regex[property] = re.compile(('%s\s*=\s*"([^"]*)"') %property)
+        if not _property in self.regex:
+            self.regex[_property] = re.compile(('%s\s*=\s*"([^"]*)"') %_property)
 
     def add_overlay(self, overlay):
         '''Add an overlay to make.conf.'''
@@ -370,16 +370,16 @@ class MakeConf:
                     self.extra.append(i)
         return self.overlays + self.extra
 
-    def read_property(self, property):
+    def read_property(self, _property):
         '''Read the list of USE flags from /etc/make.conf.'''
         if self.data == '':
             self.content()
-        if property not in self.regex:
-            self.create_re(property)
+        if _property not in self.regex:
+            self.create_re(_property)
         if self.data > '':
-            mylist = self.regex[property].search(self.data)
+            mylist = self.regex[_property].search(self.data)
             if not mylist:
-                raise Exception('MAKE_CONF: read_property(); Did not find a ' + property + ' entry in file ' +
+                raise Exception('MAKE_CONF: read_property(); Did not find a ' + _property + ' entry in file ' +
                                 self.path +'! Did you specify the correct file?')
             values = [i.strip()
                         for i in mylist.group(1).split()
@@ -388,7 +388,7 @@ class MakeConf:
                 values.remove('\\')
         else:
             values = []
-            self.data = property + '=""\n'
+            self.data = _property + '=""\n'
         #dprint("SET_CONFIG: MakeConf read_property \n%s %s = %s" % (property, len(values), values))
         return values
 
@@ -433,9 +433,9 @@ class MakeConf:
                             + str(error))
         return True
 
-    def write_property(self, property, values):
+    def write_property(self, _property, values):
         '''  Write the list of property values to /etc/make.conf.'''
-        #dprint("SET_CONFIG: MakeConf write_property \n%s' %s = %s" % (property, len(values), values))
+        #dprint("SET_CONFIG: MakeConf write_property \n%s' %s = %s" % (_property, len(values), values))
         new = property +'="'
         line = ''
         for i in values:
@@ -445,10 +445,10 @@ class MakeConf:
             else:
                 line += i + ' '
         new += line +'"\n'
-        #dprint("SET_CONFIG: MakeConf write_property \n%s' = %s" % (property, new))
-        content = self.regex[property].sub(new, self.data)
-        if not self.regex[property].search(content):
-            raise Exception('MAKE_CONF: write_property(); failed to set a proper ' + property +' entry '
+        #dprint("SET_CONFIG: MakeConf write_property \n%s' = %s" % (_property, new))
+        content = self.regex[_property].sub(new, self.data)
+        if not self.regex[_property].search(content):
+            raise Exception('MAKE_CONF: write_property(); failed to set a proper ' + _property +' entry '
                             'in file ' + self.path +'! Did not overwrite the file.')
         self.write_file(content)
         return True
@@ -487,20 +487,20 @@ class MakeConf:
             dict[setting] = properties list"""
         if not self.properties:
             self.get_property_list()
-        for propertiy in self.properties:
-                if property == 'PORTDIR_OVERLAY':
-                    dict[property] = self.read_overlay()
+        for _property in self.properties:
+                if _property == 'PORTDIR_OVERLAY':
+                    _dict[_property] = self.read_overlay()
                 else:
-                    dict[property] = self.read_property(property)
-        return dict
+                    _dict[_property] = self.read_property(_property)
+        return _dict
 
-    def add_string_property(self, property, value):
+    def add_string_property(self, _property, value):
         """Adds the new property and its value to the loaded file data"""
-        self.data += ('\n' +property + '=' + value +'\n')
+        self.data += ('\n' +_property + '=' + value +'\n')
 
-    def add_num_property(self, property, value):
+    def add_num_property(self, _property, value):
         """Adds the new property and its value to the loaded file data"""
-        self.data += ('\n' +property + '=' + str(value) +'\n')
+        self.data += ('\n' +_property + '=' + str(value) +'\n')
 
 
 if __name__ == "__main__":
@@ -516,12 +516,12 @@ if __name__ == "__main__":
         print >>stderr, e.msg
         exit(1)
 
-    file = ""
+    _file = ""
     name = ""
     ebuild = ""
     add = []
     remove = []
-    property = ''
+    _property = ''
     replace = ''
     comment = ''
     username = ''
@@ -540,7 +540,7 @@ if __name__ == "__main__":
             dprint("Debug printing is enabled")
         elif opt in ('-f'):
             file = arg
-            dprint("file = %s" %file)
+            dprint("file = %s" %_file)
         elif opt in ('-n'):
             name = arg
             dprint("name = %s" %name)
@@ -554,8 +554,8 @@ if __name__ == "__main__":
             remove.append(arg)
             dprint("remove = %s" % str(remove))
         elif opt in ('-p'):
-            property = arg
-            dprint("property = %s" % str(property))
+            _property = arg
+            dprint("property = %s" % str(_property))
         elif opt in ('-R'):
             replace = arg
             dprint("replace = %s" % str(replace))
@@ -566,9 +566,9 @@ if __name__ == "__main__":
             username = arg
             dprint("username = %s" % str(username))
 
-    if 'make.conf' in file:
-        set_make_conf(property, add, remove, replace)
-    elif 'package.mask' in file:
-        set_package_mask(file, name, ebuild, comment, username, add, remove)
+    if 'make.conf' in _file:
+        set_make_conf(_property, add, remove, replace)
+    elif 'package.mask' in _file:
+        set_package_mask(_file, name, ebuild, comment, username, add, remove)
     else:
-        set_user_config(file, name, ebuild, comment, username, add, remove)
+        set_user_config(_file, name, ebuild, comment, username, add, remove)
