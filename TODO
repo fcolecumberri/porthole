@@ -1,6 +1,8 @@
 --------------------------------------------------------------------------------
 |                          TODO list for Porthole:                             |
 --------------------------------------------------------------------------------
+* fix bug in re-init portage/reload db re-read package.mask(s)
+
 * add an comment input dialog to get user comments for user config entries
 
 * integrate the use of  'portage.mtimedb["resume"]'  into porthole's info.  The file is
@@ -25,7 +27,7 @@
       (Done) archlist option (for advemerge and summary view)
       option to disable screensaver ? (RFE [1094373])
       (done) Font and colour chooser for Terminal window ?
-      use flag options ? 
+      use flag options ?
       mirrors, proxies ?
 
   * Allow multiple packages to be selected, then emerge in one line
@@ -60,7 +62,7 @@
    in upgradable view
 
  * Way of seeing what installed packages depend on a certain package.
-        partially done, in that I have completed the re-write of many of gentoolkit's 
+        partially done, in that I have completed the re-write of many of gentoolkit's
         equery modules, just completing the eclean re-write.  Then I'll make a plug-in module
 
  * Indication of unstable packages in package view (bug [1222366])
@@ -76,14 +78,14 @@
 
  ? Advanced search criteria (masking, architectures, use flags)
 
- ? (work in progress, system, world sets, dependencies added) Possible "newuse", 
+ ? (work in progress, system, world sets, dependencies added) Possible "newuse",
     "system", "tool chain" filters for upgrade list ?
 
  ? Somehow prompt to add packages to package.keywords if the user tries to
    merge a masked package (bug [1107532]). Check dependencies also.
 
  ? Possible "uninstalled packages" view (bug [1078839])
- 
+
  ? Show upgrade flags (B, NS etc.) in upgrade view (bug [1078839])
 
  ? Possibility to show info for packages in the emerge queue (right click ->
@@ -103,7 +105,7 @@ Release 0.4.?
 
 - Faster dependency calculations by only partially loading the tree
 - USE flags & features editor(s) (being worked on)
-- Remove the view selector and integrate them with the categories. 
+- Remove the view selector and integrate them with the categories.
 (in progress) begin adding right click menus for many areas
 - (in progress)Make the package versions and use flags mouse & right click sensitive to bring up context sensitive
   menus for changing use flag status or displaying properties for different ebuilds, etc.
@@ -120,7 +122,7 @@ Features for future consideration
 ==================================
 
 - Make the package file list a filesystem tree, or a list of files.
-  Double-clicking should open the file or folder in Nautilus.  It would be neat 
+  Double-clicking should open the file or folder in Nautilus.  It would be neat
   if right-click brought up the standard Nautilus context menu.
 
 (see above) Adding su ability inside porthole.  gksu now has the new API with  separate Libs for a gtk+ widget and core lib.
@@ -130,7 +132,7 @@ Features for future consideration
   be used for some install purposes.  Or help in using porthole to do remote work.
 
 - Possibly re-write porthole terminal in c to fully integrate the vte terminal widget which will
-  be able to do chroot & su easily. 
+  be able to do chroot & su easily.
 
 (see above) Advanced filter/search capabilities
   -- specific architecture
