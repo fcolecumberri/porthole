@@ -643,6 +643,8 @@ class Summary(gtk.TextView):
         metadata = package.get_metadata(self.ebuild)
         props = package.get_properties(self.ebuild)
         iuse = props.get_use_flags()
+        if iuse:
+            iuse.sort()
         description = props.description
         homepages = props.get_homepages() # may be more than one
         #debug.dprint("SUMMARY: Summary; getting use flags")

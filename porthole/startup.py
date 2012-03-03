@@ -23,7 +23,7 @@
 '''
 import datetime
 _id = datetime.datetime.now().microsecond
-#print "STARTUP: id initialized to ", id
+#print "STARTUP: id initialized to ", _id
 
 # proper way to enable threading.  Do this first before any other code
 import gobject
@@ -32,10 +32,17 @@ gobject.threads_init()
 
 # setup our path so we can load our custom modules
 import sys, os, thread
+import time
+
+# Load EPREFIX from Portage, fall back to the empty string if it fails
+try:
+    from portage.const import EPREFIX
+except ImportError:
+    EPREFIX=''
 
 # Add path to portage module if
 # missing from path (ref bug # 924100)
-PORTAGE_MOD_PATH = '/usr/lib/portage/pym'
+PORTAGE_MOD_PATH = EPREFIX + '/usr/lib/portage/pym'
 if PORTAGE_MOD_PATH not in sys.path:
     sys.path.append(PORTAGE_MOD_PATH)
 #~ GENTOOLKIT_PATH = '/usr/lib/gentoolkit/pym'
@@ -44,17 +51,16 @@ if PORTAGE_MOD_PATH not in sys.path:
 
 #while '' in sys.path: # we don't need the cwd in the path
 #    sys.path.remove('')
-while '/usr/bin' in sys.path: # this gets added when we run /usr/bin/porthole
-    sys.path.remove('/usr/bin')
+while EPREFIX + '/usr/bin' in sys.path: # this gets added when we run /usr/bin/porthole
+    sys.path.remove(EPREFIX + '/usr/bin')
 
 APP = 'porthole'
-LOG_FILE_DIR = "/var/log/porthole"
-DB_FILE_DIR = "/var/db/porthole"
-Choices = {"portage": 'portagelib', "pkgcore": 'pkgcore_lib', "dbus": "dbus_main" }
+LOG_FILE_DIR = EPREFIX + "/var/log/porthole"
+DB_FILE_DIR = EPREFIX + "/var/db/porthole"
+Choices = {"portage": 'portagelib', "pkgcore": 'pkgcore_lib', "dbus": "dbus_main"}
 BACKEND = Choices["portage"]
-DATA_PATH = "/usr/share/porthole/"
-#i18n_DIR = DATA_PATH + 'i18n'
-i18n_DIR = '/usr/share/locale/'
+DATA_PATH = EPREFIX + "/usr/share/porthole/"
+i18n_DIR = DATA_PATH + 'i18n'
 RUN_LOCAL = False
 DIR_LIST = [LOG_FILE_DIR, DB_FILE_DIR]
 
@@ -63,8 +69,8 @@ import os
 #from thread import *
 import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk, time, pwd
-while '/usr/bin' in sys.path: # and now importing gtk re-adds it! Grrrr, rude
-    sys.path.remove('/usr/bin')
+while EPREFIX + '/usr/bin' in sys.path: # and now importing gtk re-adds it! Grrrr, rude
+    sys.path.remove(EPREFIX + '/usr/bin')
 from getopt import getopt, GetoptError
 import locale, gettext
 from gettext import gettext as _
@@ -152,7 +158,8 @@ def main():
         ["i18n_DIR",i18n_DIR],
         ["RUN_LOCAL",RUN_LOCAL],
         ["LOG_FILE_DIR",LOG_FILE_DIR],
-        ["PORTAGE", BACKEND]
+        ["PORTAGE", BACKEND],
+        ["EPREFIX", EPREFIX]
     ]
     #print "STARTUP: main(); loading preferences"
     config.Prefs = preferences.PortholePreferences(prefs_additions)
@@ -161,11 +168,11 @@ def main():
     from porthole.version import version
     #print "STARTUP: main(); importing utils"
     from porthole.utils import debug
-    from porthole import backends
-    backends.load(BACKEND)
-    #print "PORTHOLE: importing MainWindow"
+    from porthole.backends import load
+    loaded = load(BACKEND)
+    print "PORTHOLE: importing MainWindow"
     from porthole.mainwindow import MainWindow
-    print "PORTHOLE: i18n_DIR =",  i18n_DIR
+
     locale.setlocale (locale.LC_ALL, '')
     gettext.bindtextdomain (APP, i18n_DIR)
     gettext.textdomain (APP)

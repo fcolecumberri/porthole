@@ -183,7 +183,10 @@ class PackageHandler(MainBase):
             debug.dprint("PackageHandler: upgrade_packages(); " +
                 "packages were selected")
             if self.last_view_setting == SHOW_DEPRECATED:
-                self.send_pkg_list("emerge --update ", add_slot=True)
+                # strip out the version and add the slot
+
+                # then send it
+                self.send_pkg_list("emerge --update ")
             else:
                 self.send_pkg_list("emerge --update ")
         else:
@@ -200,7 +203,7 @@ class PackageHandler(MainBase):
             return True
         return False
 
-    def send_pkg_list(self, action, add_slot=False):
+    def send_pkg_list(self, action):
         """prepares the action command string for the whole
         self.packages_list and initiates them
          """
@@ -287,10 +290,11 @@ class PackageHandler(MainBase):
         if model.get_value(_iter, PACKAGE_MODEL_ITEM["checkbox"]):
             name = model.get_value(_iter, PACKAGE_MODEL_ITEM["name"])
             #debug.dprint("PackageHandler; tree_node_to_list(): name '%s'" % name)
-            if self.last_view_setting == SHOW_DEPRECATED:
+            if self.last_view_setting == SHOW_DEPRECATED and \
+                    self.current_cat_name[SHOW_DEPRECATED] == "Ebuilds":
                 pkg = model.get_value(_iter, PACKAGE_MODEL_ITEM["package"])
                 #ver = model.get_value(_iter, PACKAGE_MODEL_ITEM["installed"])
-                cpv = '=' + name
+                cpv = name + ":" #+
                 if cpv not in self.keyorder:
                     self.packages_list[cpv] = pkg
                     self.keyorder = [cpv] + self.keyorder

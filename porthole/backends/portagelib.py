@@ -25,6 +25,8 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 """
 
+IMPORT_DONE = False
+
 import datetime
 _id = datetime.datetime.now().microsecond
 print "PORTAGELIB: id initialized to ", _id
@@ -34,6 +36,7 @@ import os, thread
 from gettext import gettext as _
 from itertools import izip
 
+IMPORT_DONE = False
 
 from porthole.utils import debug
 from porthole.utils.utils import  is_root
@@ -70,10 +73,12 @@ print >>stderr, ("PORTAGELIB: portage version = " + portage.VERSION)
 #thread_id = os.getpid()
 thread_id = thread.get_ident()
 
+# Set EPREFIX
+EPREFIX = config.Prefs.EPREFIX
 
 
 if is_root(): # then import some modules and run it directly
-    import set_config
+    from porthole.backends import set_config
 
 
 def get_make_conf(want_linelist=False, savecopy=False):
@@ -144,7 +149,7 @@ def set_make_conf(property, add='', remove='', replace='', callback=None):
     if isinstance(replace, list):
         replace = ' '.join(replace)
     if not os.access(os.path.join(portage.root, portage_const.MAKE_CONF_FILE), os.W_OK):
-        command = (config.Prefs.globals.su + ' "python ' + config.Prefs.DATA_PATH + 'backends/set_config.py -d -f %s ' %file)
+        command = (config.Prefs.globals.su + ' "python ' + config.Prefs.DATA_PATH + 'backends/set_config.py -d -f %s ' %_file)
         command = (command + '-p %s ' % property)
         if add != '':
             command = (command + '-a %s ' %("'" + add + "'"))
@@ -399,7 +404,7 @@ def extract_package(ebuild):
 def get_installed_files(ebuild):
     """Get a list of installed files for an ebuild, assuming it has
     been installed."""
-    path = "/var/db/pkg/" + ebuild + "/CONTENTS"
+    path = EPREFIX + "/var/db/pkg/" + ebuild + "/CONTENTS"
     files = []
     try:
         # hoping some clown won't use spaces in filenames ...
@@ -807,6 +812,9 @@ class PortageSettings:
         return self._world
 
 settings = PortageSettings()
+
+IMPORT_DONE = True
+print "PORTAGELIB.py IMPORT_DONE = True"
 
 func = {'get_virtuals': get_virtuals,
         'split_atom_pkg': split_atom_pkg,

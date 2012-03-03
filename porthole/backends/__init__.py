@@ -26,7 +26,6 @@ import datetime
 id = datetime.datetime.now().microsecond
 print "BACKENDS: id initialized to ", id
 
-import time
 
 portage_lib = None
 
@@ -36,6 +35,5 @@ def load(pmslib):
         from porthole.backends import portagelib
         portage_lib = portagelib
         print "BACKENDS: portage_lib import complete :", portage_lib
-
-
+        return True
 

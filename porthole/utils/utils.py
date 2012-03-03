@@ -40,6 +40,15 @@ from porthole._xml.xmlmgr import XMLManager, XMLManagerError
 from porthole import config
 from porthole.utils import debug
 
+# Set EPREFIX, try config first and fall back to portage if it fails
+try:
+    EPREFIX = config.Prefs.EPREFIX
+except AttributeError:
+    try:
+        from portage.const import EPREFIX
+    except ImportError:
+        EPREFIX = ''
+
 def get_icon_for_package(package):
     """Return an icon for a package"""
     # if it's installed, find out if it can be upgraded
@@ -49,7 +58,7 @@ def get_icon_for_package(package):
         # just put the STOCK_NO icon
         # switched to blank icon if not installed
         icon = '' # gtk.STOCK_NO
-    return icon       
+    return icon
 
 def get_icon_for_upgrade_package(package):
     """Return an icon and foreground text color for a package"""
@@ -62,17 +71,23 @@ def get_icon_for_upgrade_package(package):
     else: # it's a downgrade
         icon = gtk.STOCK_GO_DOWN
         color = config.Prefs.views.downgradable_fg
-    return icon, color      
+    return icon, color
 
 def is_root():
-    """Returns true if process runs as root."""
-    return os.geteuid() == 0
+    """Returns true if process runs as root or running in a prefix."""
+    if EPREFIX:
+        return True
+    else:
+        return os.geteuid() == 0
 
 write_access = is_root()
 
 def can_root():
-    """Returns true if process runs as root."""
-    return os.getuid() == 0
+    """Returns true if process runs as root or running in a prefix."""
+    if EPREFIX:
+        return True
+    else:
+        return os.getuid() == 0
 
 
 def read_access():
@@ -138,7 +153,9 @@ def environment():
         if 'echo' in modules:
             modules.remove('echo')
             env["PORTAGE_ELOG_SYSTEM"] = ' '.join(modules)
-            debug.dprint("UTILS: environment(); Found 'echo' in PORTAGE_ELOG_SYSTEM. Removed for porthole's use only, it now is: " + str(env["PORTAGE_ELOG_SYSTEM"]))
+            debug.dprint("UTILS: environment(); Found 'echo' in "
+                "PORTAGE_ELOG_SYSTEM. Removed for porthole's use only, "
+                "it now is: " + str(env["PORTAGE_ELOG_SYSTEM"]))
     #env["NOCOLOR"] = "true"
     #debug.dprint(env)
     return env
@@ -147,10 +164,10 @@ def environment():
 class BadLogFile(Exception):
     """ Raised when we encounter errors parsing the log file."""
 
-def estimate(package_name, log_file_name="/var/log/emerge.log"):
+def estimate(package_name, log_file_name=EPREFIX+"/var/log/emerge.log"):
     """ Estimates, based on previous emerge operations, how long it would
-        take to compile a particular package on the system. 
-        
+        take to compile a particular package on the system.
+
         This function returns a 4-tuple with floating point values representing
         the average duration of the compilation of a package.
 
@@ -160,8 +177,8 @@ def estimate(package_name, log_file_name="/var/log/emerge.log"):
         end_time = 0.0
         total_time = datetime.timedelta()
         emerge_count = 0
-        log_file = open(log_file_name)       
-        package_name_escaped = ""      
+        log_file = open(log_file_name)
+        package_name_escaped = ""
         # Let's excape characters like + before we try to compile the regular
         #expression
         for i in range(0, len(package_name)):
@@ -173,21 +190,21 @@ def estimate(package_name, log_file_name="/var/log/emerge.log"):
         start_pattern = re.compile("^[0-9]+:  >>> emerge.*%s*." %
                                                            package_name_escaped)
         end_pattern = re.compile("^[0-9]+:  ::: completed emerge.*%s*." %
-                                                           package_name_escaped)      
+                                                           package_name_escaped)
         lines = log_file.readlines()
         for i in range(1, len(lines)):
             if start_pattern.match(lines[i]):
                 tokens = lines[i].split()
-                #start_time = string.atof((tokens[0])[0:-1])               
-                start_time = float((tokens[0])[0:-1])               
+                #start_time = string.atof((tokens[0])[0:-1])
+                start_time = float((tokens[0])[0:-1])
                 for j in range(i+1, len(lines)):
                     if start_pattern.match(lines[j]):
-                        # We found another start pattern before finding an 
+                        # We found another start pattern before finding an
                         # end pattern.  That probably means emerge died before
                         # finishing what it was doing.
-                        # We'll ignore it and continue searching. 
+                        # We'll ignore it and continue searching.
                         break
-                    if end_pattern.match(lines[j]):                 
+                    if end_pattern.match(lines[j]):
                         # Looks like we found a matching end statement.
                         tokens = lines[j].split()
                         #end_time = string.atof((tokens[0])[0:-1])
@@ -200,9 +217,10 @@ def estimate(package_name, log_file_name="/var/log/emerge.log"):
         if emerge_count > 0:
             return total_time / emerge_count
         else:
-            return None          
+            return None
     except:
-        raise BadLogFile, _("Error reading emerge log file.  Check file permissions, or check for corrupt log file.")
+        raise BadLogFile, _("Error reading emerge log file.  Check file "
+            "permissions, or check for corrupt log file.")
 
 def pretend_check(command_string):
     isPretend = (re.search("--pretend", command_string) != None)
@@ -212,7 +230,7 @@ def pretend_check(command_string):
         for x in tmpcmdline:
             if x[0:1]=="-"and x[1:2]!="-":
                 for y in x[1:]:
-                    #debug.dprint(y)    
+                    #debug.dprint(y)
                     if y == "p":
                         #debug.dprint("found it")
                         isPretend = True

@@ -30,8 +30,7 @@ import threading, os
 from porthole.utils import debug
 from porthole.db.package import Package
 from porthole.db.dbbase import DBBase
-from porthole import backends
-portage_lib = backends.portage_lib
+from porthole.backends import portage_lib as PMS_LIB
 
 #~ # establish a semaphore for the Database
 #~ Installed_Semaphore = threading.Semaphore()
@@ -63,7 +62,7 @@ class DatabaseReader(threading.Thread):
         #self.new_installed_Semaphore = threading.Semaphore()
         self.installed_list = None
         self.allnodes_length = 0  # used for calculating the progress bar
-        self.world = portage_lib.settings.get_world()
+        self.world = PMS_LIB.settings.get_world()
 
     def please_die(self):
         """ Tell the thread to die """
@@ -76,11 +75,11 @@ class DatabaseReader(threading.Thread):
     def read_db(self):
         """Read portage's database and store it nicely"""
         debug.dprint("DBREADER: read_db(); process id = %d *****************" %(os.getpid()))
-        
+
         self.get_installed()
         try:
             debug.dprint("DBREADER: read_db(); getting allnodes package list")
-            allnodes = portage_lib.get_allnodes()
+            allnodes = PMS_LIB.get_allnodes()
             debug.dprint("DBREADER: read_db(); Done getting allnodes package list")
         except OSError, e:
             # I once forgot to give read permissions
@@ -162,9 +161,9 @@ class DatabaseReader(threading.Thread):
     def get_installed(self):
         """get a new installed list"""
         debug.dprint("DBREADER: get_installed();")
-        self.installed_list = portage_lib.get_installed_list()
+        self.installed_list = PMS_LIB.get_installed_list()
         self.installed_count = len(self.installed_list)
-        
+
     def run(self):
         """The thread function."""
         self.read_db()

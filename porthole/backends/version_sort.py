@@ -5,7 +5,7 @@
     rules for comparing versions.  The pad_ver() is modified from
     the soon to be implemented portage.vercmp()
 
-    Copyright (C) 2003 - 2008 Fredrik Arnerup, Brian Dolbec, 
+    Copyright (C) 2003 - 2008 Fredrik Arnerup, Brian Dolbec,
     Daniel G. Taylor and Wm. F. Wheeler
 
     This program is free software; you can redistribute it and/or modify
@@ -28,10 +28,10 @@ id = datetime.datetime.now().microsecond
 print "VERSION_SORT: id initialized to ", id
 
 if __name__ == "__main__":
-    
+
     # setup our path so we can load our custom modules
     from sys import path
-    path.append('/home/brian/porthole')
+    path.append('/home/brian/dev/git/porthole')
     from sys import argv, exit, stderr
     from getopt import getopt, GetoptError
 
@@ -47,7 +47,7 @@ from porthole import config
    #~ comps = comps[1:]
 #~ print comps
 #~ name = '.'.join(comps)
-    
+
 #~ portage_lib = my_import(name)
 
 ## circular import problem
@@ -83,7 +83,7 @@ def pad_ver(vlist):
 
     val_cache = []
 
-    #dprint("VERSION_SORT: pad_ver(); checking maximum length value of version pattern") 
+    #dprint("VERSION_SORT: pad_ver(); checking maximum length value of version pattern")
     for x in vlist:
         #dprint(x)
         max_length = max(max_length, x.count('.'))
@@ -137,7 +137,7 @@ def pad_ver(vlist):
                 #dprint("VERSION_SORT: pad_ver(); s1")
                 #dprint(s1)
                 list1 += [s1]
-                
+
         # the suffix part is done, so finally the revision
         #dprint("VERSION_SORT: pad_ver(); revision part")
         r1 = None
@@ -171,12 +171,12 @@ def two_list_sort(keylist, versions):
         dbl_list[keylist[x]] =  versions[x]
 
     # Sort the versions using the padded keylist
-    keylist.sort()
+    sorted_keys = sorted(dbl_list) #)keylist.sort()
 
     #rebuild versions in sorted order
     result = []
-    for key in keylist:
-        result += [dbl_list[key]]
+    for key in sorted_keys: #keylist:
+        result.append(dbl_list[key])
     return result
 
 def ver_sort(versions):
@@ -186,7 +186,7 @@ def ver_sort(versions):
     keylist = pad_ver(get_versions_only(versions))
     if not keylist: # there was an error
         dprint("VERSION_SORT: ver_sort(); keylist[] creation error")
-        return (versions + ["error_in_sort"]) 
+        return (versions + ["error_in_sort"])
     sorted = two_list_sort(keylist, versions)
     #dprint("VERSION_SORT: ver_sort(); complete!")
     return sorted
@@ -195,8 +195,9 @@ def get_versions_only(versions):
     """inputs a cat/pkg-version list and returns a version list"""
     #dprint("VERSION_SORT: get_versions()")
     # convert versions into the padded version only list
-    from porthole import backends
-    portage_lib = backends.portage_lib
+    #from porthole import backends
+    #portage_lib = backends.portage_lib
+    from porthole.backends import portagelib as portage_lib
     vlist = []
     for v in versions:
         #dprint(v)
@@ -227,20 +228,22 @@ def ver_match(versions, range1, range2 = None):
             match2 = True
     return match1, match2
 
-if __name__ == "__main__":
- 
-    versions = ['net-mail/some_package-1.1','net-mail/some_package-1.0',
+#if __name__ == "__main__":
+
+testversions = ['net-mail/some_package-1.1','net-mail/some_package-1.0',
+                'net-mail/some_package-1.10','net-mail/some_package-1.01',
                 'net-mail/some_package-1.21','net-mail/some_package-1.21.1',
                 'net-mail/some_package-1.1-r1','net-mail/some_package-1.0_pre1',
                 'net-mail/some_package-1.3.1_rc2','net-mail/some_package-1.1a',
                 'net-mail/some_package-1.23.4_pre2','net-mail/some_package-1.3.1_p1',
-                'net-mail/some_package-1.1a-r2','net-mail/some_package-1.21.2'
+                'net-mail/some_package-1.1a-r2','net-mail/some_package-1.21.2',
+                'net-mail/some_package-1.1a-r2_p20110111','net-mail/some_package-1.1a-r2_p20110101'
                 ]
 
-    sorted = ver_sort(versions)
-    dprint("VERSION_SORT: new sorted version list")
-    dprint(sorted)
+#    sorted = ver_sort(versions)
+#    dprint("VERSION_SORT: new sorted version list")
+#    dprint(sorted)
 
 
 
-    
+

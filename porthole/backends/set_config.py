@@ -436,7 +436,7 @@ class MakeConf:
     def write_property(self, _property, values):
         '''  Write the list of property values to /etc/make.conf.'''
         #dprint("SET_CONFIG: MakeConf write_property \n%s' %s = %s" % (_property, len(values), values))
-        new = property +'="'
+        new = _property +'="'
         line = ''
         for i in values:
             if len(line) > 60:
@@ -539,7 +539,7 @@ if __name__ == "__main__":
             debug = True
             dprint("Debug printing is enabled")
         elif opt in ('-f'):
-            file = arg
+            filename = arg
             dprint("file = %s" %_file)
         elif opt in ('-n'):
             name = arg
@@ -566,9 +566,9 @@ if __name__ == "__main__":
             username = arg
             dprint("username = %s" % str(username))
 
-    if 'make.conf' in _file:
+    if 'make.conf' in filename:
         set_make_conf(_property, add, remove, replace)
     elif 'package.mask' in _file:
-        set_package_mask(_file, name, ebuild, comment, username, add, remove)
+        set_package_mask(filename, name, ebuild, comment, username, add, remove)
     else:
-        set_user_config(_file, name, ebuild, comment, username, add, remove)
+        set_user_config(filename, name, ebuild, comment, username, add, remove)

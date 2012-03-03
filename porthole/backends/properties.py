@@ -33,11 +33,11 @@ class Properties:
         self.__dict = dict
         #dprint("PORTAGELIB: Properties=")
         #dprint(dict)
-        
+
     def __getattr__(self, name):
         try: return self.__dict[name]
         except: return ''
-        
+
     def get_slot(self):
         """Return ebuild slot"""
         return self.slot
@@ -48,7 +48,8 @@ class Properties:
 
     def get_use_flags(self):
         """Returns a list of strings."""
-        return self.iuse.split()
+        # iuse may have dupes, so filter them out
+        return list(set(self.iuse.split()))
 
     def get_homepages(self):
         """Returns a list of strings."""

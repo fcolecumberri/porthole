@@ -40,6 +40,8 @@ from porthole.backends.utilities import get_sync_info
 from porthole.utils import debug
 from porthole import config
 
+# Set EPREFIX
+EPREFIX = config.Prefs.EPREFIX
 
 NEW = 0
 LOAD = 1
@@ -61,7 +63,7 @@ class Database(DBBase):
         self.desc_thread = None
         ## get home directory
         ##home = pwd.getpwuid(os.getuid())[5]
-        self._DBFile = "/var/db/porthole/descriptions.db"
+        self._DBFile = EPREFIX + "/var/db/porthole/descriptions.db"
         self.valid_sync = False #used for auto-reload disabling
         ##del home
         #if action == NEW:
