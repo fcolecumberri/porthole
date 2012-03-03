@@ -9,7 +9,7 @@
       <info-5>^\!\!\!</info-5>
       <info-6>^.*masked by</info-6>
     </info>
-    <notinfo py_type="list" item_count="11">
+    <notinfo py_type="list" item_count="12">
       <notinfo-1>^&gt;&gt;&gt; Waiting 5 seconds</notinfo-1>
       <notinfo-2>^&gt;&gt;&gt; \([Cc]ontrol-[Cc] to abort</notinfo-2>
       <notinfo-3>^&gt;&gt;&gt; [Uu]nmerging in:</notinfo-3>
@@ -21,6 +21,7 @@
       <notinfo-9>.*warning: dereferencing pointer</notinfo-9>
       <notinfo-10>^  * Linking .*to</notinfo-10>
       <notinfo-11>.* * .* warning: null argument</notinfo-11>
+      <notinfo-12>.* econf: updating.*</notinfo-12>
     </notinfo>
     <warning py_type="list" item_count="5">
       <warning-1>.*[Ww][Aa][Rr][Nn][Ii][Nn][Gg][:\!,\s]</warning-1>
@@ -40,7 +41,7 @@
       <notwarning-8>^\*\*\*$</notwarning-8>
       <notwarning-9>^checking maximum warning verbosity option... -Wall for C</notwarning-9>
     </notwarning>
-    <error py_type="list" item_count="10">
+    <error py_type="list" item_count="11">
       <error-1>^ \* .*[Ff][Aa][Ii][Ll][Ee][Dd]\.</error-1>
       <error-2>^\!\!\!\s[Ee][Rr][Rr][Oo][Rr] calculating dependencies.*[Pp]lease correct</error-2>
       <error-3>^\!\!\!\s[Ee][Rr][Rr][Oo][Rr]\:.*\sconflicts with another package</error-3>
@@ -50,7 +51,8 @@
       <error-7>^\sOSError: \[Errno </error-7>
       <error-8>.*[Ee][Rr][Rr][Oo][Rr]: The above package list contains packages which cannot be</error-8>
       <error-9>.* installed at the same time on the same system.</error-9>
-      <error-10>.*[Ee][Rr][Rr][Oo][Rr]: .*[Ff][Aa][Ii][Ll][Ee][Dd]:</error-10>
+      <error-10>.*[Ee][Rr][Rr][Oo][Rr]: .*[Ff][Aa][Ii][Ll][Ee][Dd]</error-10>
+      <error-11>.*emerge: there are no ebuilds built with USE flags to satisfy\s</error-11>
     </error>
     <noterror py_type="list" item_count="0">
     </noterror>
