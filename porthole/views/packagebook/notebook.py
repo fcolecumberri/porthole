@@ -31,6 +31,7 @@ import os, sys
 from gettext import gettext as _
 
 from porthole.utils import debug
+from porthole.utils import utils
 from porthole import backends
 portage_lib = backends.portage_lib
 #World = portage_lib.settings.get_world()
@@ -41,6 +42,7 @@ from porthole.views.depends import DependsView
 from porthole.views.commontreeview import CommonTreeView
 from porthole.views.highlight import HighlightView
 from porthole.views.changelog import ChangeLogView
+from porthole.views.useflags import UseFlagWidget
 from porthole.mwsupport.plugingui import PluginGUI
 from porthole.mwsupport.pluginmanager import PluginManager
 from porthole.loaders.loaders import *
@@ -83,6 +85,9 @@ class PackageNotebook(object):
         self.deps_view = DependsView(self.new_notebook, parent_name, parent_tree, Dispatcher(self.callbacks["action_callback"]))
         self.dep_window = {'window': None, 'notebook': None, 'callback': None, 'label': None, 'tooltip': None, 'tree': '', 'depth': 0}
         result = self.wtree.get_widget("dependencies_scrolled_window").add(self.deps_view)
+
+        self.use_flag_page = self.wtree.get_widget("use_scrolledwindow")
+        self.use_flag_view = None
         self.notebook.connect("switch-page", self.notebook_changed)
         self.reset_tabs()
 
@@ -97,6 +102,7 @@ class PackageNotebook(object):
 
     def reset_tabs(self):
         """set notebook tabs to load new package info"""
+        debug.dprint("PackageNotebook reset_tabs()")
         self.loaded = {"deps": False, "changelog": False, "installed": False, "ebuild": False}
         self.loaded_version= {"ebuild" : None, "installed": None, "deps": None}
 
@@ -132,6 +138,28 @@ class PackageNotebook(object):
                 self.ebuild.update(self.summary.ebuild, True)
                 self.loaded["ebuild"] = True
                 self.loaded_version["ebuild"] = self.summary.ebuild
+        elif index == 5:
+            debug.dprint("PackageNotebook notebook_changed(); self.summary.ebuild = " + str(self.summary.ebuild))
+            child = self.use_flag_page.child
+            if not child is None:
+               debug.dprint("PackageNotebook: removing use_view_widget")
+               self.use_flag_parent.remove(child)
+            frame = gtk.VBox()
+            ebuild = self.summary.ebuild
+            props = self.summary.package.get_properties(ebuild)
+            use_flags = props.get_use_flags()
+            self.use_flag_view = UseFlagWidget(use_flags, ebuild)
+            self.use_flag_view.show()
+            frame.pack_start(self.use_flag_view)
+            if utils.is_root() or utils.can_gksu():
+                button = gtk.Button("Save USE Flags")
+                button.connect('clicked', self.save_use_flags_clicked)
+                button.set_size_request(100,50)
+                button.show()
+            frame.pack_end(button,expand=False,fill=False);
+            frame.show()
+            self.use_flag_page.add_with_viewport(frame)
+            self.use_flag_page.show()
         else:
             for i in self.plugin_package_tabs:
                 #Search through the plugins dictionary and select the correct one.
@@ -202,4 +230,5 @@ class PackageNotebook(object):
             self.dep_window.deps_view.parent_tree = self.dep_window.deps_view.parent_tree[:-1]
             self.dep_window.deps_view.set_label(name)
 
-
+    def save_use_flags_clicked(self, widget):
+       self.use_flag_view.save_use(widget)

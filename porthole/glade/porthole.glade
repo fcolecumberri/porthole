@@ -782,7 +782,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkScrolledWindow" id="ebuild_scrolledwindow">
+                  <widget class="GtkScrolledWindow" id="use_scrolledwindow">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="hscrollbar_policy">automatic</property>
@@ -797,7 +797,6 @@
                 </child>
                 <child>
                   <widget class="GtkLabel" id="use_editor">
-                    <property name="sensitive">False</property>
                     <property name="label" translatable="yes">USE Flags</property>
                   </widget>
                   <packing>

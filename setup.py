@@ -15,10 +15,11 @@ setup( \
                     " tiredoldcoder@users.sourceforge.net",
     url = "http://porthole.sourceforge.net",
     packages = ['porthole',  'porthole.advancedemerge', 'porthole.backends', 'porthole.config',
-                        'porthole.db', 'porthole.dialogs', 'porthole.loaders', 'porthole.packagebook',
+                        'porthole.db', 'porthole.dialogs', 'porthole.loaders', 'porthole.mwsupport',
                         'porthole.plugins','porthole.loaders', 'porthole.readers', 'porthole.terminal',
                         'porthole.utils', 'porthole.views', 'porthole._xml', 'porthole.plugins.etc-proposals',
-                        'porthole.plugins.profuse', 'porthole.plugins.gpytage'],
+                        'porthole.plugins.gpytage',
+                        'porthole.views.packagebook'],
     package_dir = {'porthole':'porthole'},
     scripts = ["scripts/porthole"],
     data_files = [
