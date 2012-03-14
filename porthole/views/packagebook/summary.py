@@ -649,6 +649,7 @@ class Summary(gtk.TextView):
         homepages = props.get_homepages() # may be more than one
         #debug.dprint("SUMMARY: Summary; getting use flags")
         use_flags = reduce_flags(iuse)
+        debug.dprint("IUSE_FLAGS: %s" % use_flags)
         keywords = props.get_keywords()
         licenses = props.license
         slot = unicode(props.get_slot())

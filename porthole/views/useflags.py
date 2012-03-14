@@ -11,16 +11,61 @@ from porthole.utils import debug
 from porthole import backends
 from porthole import config
 from porthole import db
+from porthole.views import package
 portage_lib = backends.portage_lib
 from porthole.backends.utilities import (get_reduced_flags, abs_list,
         abs_flag, filter_flags)
 
+
+class UseFlagCheckbuttons(gtk.HBox):
+   def __init__(self, useflag, default_status):
+      gtk.Widget.__init__(self)
+      debug.dprint("USEFLAGCHECKBUTTONS: __INIT__()")
+      self.homogenous = False # Not all widgets are created equal
+      self.flag = useflag
+
+      self.enable_box = gtk.CheckButton("+")
+      self.enable_box.connect('toggled', self.set_enabled)
+      self.enable_box.show()
+
+      self.disable_box = gtk.CheckButton("-")
+      self.disable_box.connect('toggled', self.set_disabled)
+      self.disable_box.show()
+
+      flag_label = gtk.Label(useflag + "(" + default_status + ")")
+      flag_label.show()
+
+      self.pack_start(self.enable_box, fill=False, expand=False)
+      self.pack_start(self.disable_box, fill=False, expand=False)
+      self.pack_end(flag_label)
+
+   def set_enabled(self, widget=None):
+      debug.dprint("USEFLAGS: set_enabled()")
+      if widget != None:
+         if widget.get_active():
+            self.disable_box.set_active(False)
+      self.emit('grab-focus')
+
+   def set_disabled(self, widget=None):
+      debug.dprint("USEFLAGS: set_disabled()")
+      if widget != None:
+        if widget.get_active():
+            self.enable_box.set_active(False)
+      self.emit('grab-focus')
+
+   def get_flag(self):
+      if self.enable_box.get_active():
+         return "+" + self.flag
+      elif self.disable_box.get_active():
+         return "-" + self.flag
+      return self.flag
 
 class UseFlagWidget(gtk.Table):
    def __init__(self, use_flags, ebuild):
       gtk.Widget.__init__(self)
       self.ebuild = ebuild
       debug.dprint("USEFLAGDIALOG: __INIT__()")
+
       size = len(use_flags)
       maxcol = 3
       maxrow = (size-1) / (maxcol+1)
@@ -40,24 +85,31 @@ class UseFlagWidget(gtk.Table):
       col = 0
       row = 0
       ebuild_use_flags = get_reduced_flags(ebuild)
-      for flag in use_flags:
-         flag_active = False
-         myflag = abs_flag(flag)
-         if myflag in ebuild_use_flags:
-            flag_active = True
-         button = gtk.CheckButton(flag)
-         button.set_use_underline=(False)
-         button.set_active(flag_active)
-         self.ufList.append([button,flag])
 
-         button.set_has_tooltip=(True)
+      for flag in use_flags:
+         if flag[0] == '-':
+               button = UseFlagCheckbuttons(flag[1:], "-")
+         elif flag[0] == '+':
+               button = UseFlagCheckbuttons(flag[1:], "+")
+         else:
+               button = UseFlagCheckbuttons(flag, "")
+         myflag = abs_flag(flag)
+         if flag in ebuild_use_flags:
+            button.enable_box.set_active(True)
+         if flag[0] == '-':
+               button.disable_box.set_active(True)
+         elif flag[0] == '+':
+               button.disable_box.set_active(False)
+         self.ufList.append([button, flag])
+
+         button.set_has_tooltip=True
          try:
-            button.set_tooltip_text(portage_lib.settings.UseFlagDict[flag.lower()][2])
+            button.set_tooltip_text(portage_lib.settings.UseFlagDict[myflag.lower()][2])
          except KeyError:
             button.set_tooltip_text(_('Unsupported use flag'))
          table.attach(button, col, col+1, row, row+1)
-         #connect to on_toggled so we can show changes
-         button.connect("toggled", self.on_toggled)
+         #connect to grab-focus so we can detect changes
+         button.connect('grab-focus', self.on_toggled)
          button.show()
          #increment column and row
          col+=1
@@ -68,42 +120,25 @@ class UseFlagWidget(gtk.Table):
       self.show()
 
    def get_use_flags(self, ebuild=None):
+      debug.dprint("USEFLAGS: get_use_flags()")
       flaglist = []
       if ebuild is None:
          ebuild_use_flags = get_reduced_flags(self.ebuild)
       else:
          ebuild_use_flags = get_reduced_flags(ebuild)
       for child in self.ufList:
-         flag = child[1]
-         if flag in ebuild_use_flags:
-            flag_active = True
-         else:
-            flag_active = False
-         if child[0].get_active():
-            if not flag_active:
-               flaglist.append(flag)
-         else:
-            if flag_active:
-               flaglist.append('-' + flag)
+         #flag = child[1]
+         flag = child[0].get_flag()
+         base_flag = abs_flag(flag)
+         if flag[0] == '+':
+            if not flag[1:] in ebuild_use_flags:
+                  flaglist.append(flag)
+         elif flag[0] == '-':
+            if not flag in ebuild_use_flags:
+                flaglist.append(flag)
       flags = ' '.join(flaglist)
       debug.dprint("USEFLAGS: get_use_flags(); flags = %s" %str(flags))
       return flags
 
-   def save_use(self, widget):
-      debug.dprint("USEFLAGS: saveConf()")
-      use_flags = self.get_use_flags()
-      if not use_flags:
-         return
-      addlist = use_flags.split()
-      removelist =[]
-      for item in addlist:
-         if item.startswith('-'):
-            removelist.append(item[1:])
-         else:
-            removelist.append('-' + item)
-      db.userconfigs.set_user_config('USE', '', self.ebuild,add=addlist ,
-            remove=removelist, callback=self.on_toggled, parent_window=self.window)
-
    def on_toggled(self, widget):
-      #self.set_focus_child(widget)
       self.emit('grab-focus')

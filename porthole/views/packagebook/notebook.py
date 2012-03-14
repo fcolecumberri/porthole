@@ -143,7 +143,7 @@ class PackageNotebook(object):
             child = self.use_flag_page.child
             if not child is None:
                debug.dprint("PackageNotebook: removing use_view_widget")
-               self.use_flag_parent.remove(child)
+               self.use_flag_page.remove(child)
             frame = gtk.VBox()
             ebuild = self.summary.ebuild
             props = self.summary.package.get_properties(ebuild)
