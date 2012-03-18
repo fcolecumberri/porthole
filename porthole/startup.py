@@ -33,7 +33,6 @@ gobject.threads_init()
 # setup our path so we can load our custom modules
 import sys, os, thread
 import time
-from porthole import backends
 
 # Load EPREFIX from Portage, fall back to the empty string if it fails
 try:
