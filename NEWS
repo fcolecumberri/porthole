@@ -1,0 +1,331 @@
+
+
+0.6.0:
+    * Major slice and dice operation to split up the different files into more manageable modules.
+    There are several new internal db modules for serving and handling the main package db,
+    user configs, porthole preferences, etc..  This has sped things up quite a bit.
+    
+    * Sets support is now partially integrated.  I have not had the time, etc. to handle package 
+    atoms properly, nor does it handle non-installed packages in the set.  So that means it is 
+    still up to you to make all the correct choices.
+    
+    * new user configs addition to the summary view showing any entries for the package in any of 
+    the /etc/portage/package.*  files as well as any /etc/portage/sets/* files.
+    
+    * package versions are now fully selectable for summary and other tab dispalys.
+    
+    * Improved dependency listings with much more info presented about their status and needs.
+    
+    * New dependency pop-up window when a dependency is dbl-clicked.  Multiple levels of dependencies
+        can be followed with additional popups
+    
+    * Re-vamp of the Summary View USE flag output.  porthhole now obtains final ebuild environment
+        settings for the flags.  It should now be a 100% match to emerge output.
+    
+    * New, updated "Settings" menu options to the most probably used emerge options.
+    
+    * Upgrades now possibly require some additional "Settings" menu options to be set manually
+        for now.  To avaoid multiple emerges for a package the --noreplace and --update options should be set.
+    
+    * New Sets and Deprecated views for better package management.
+    
+    * Newly recoded config saving so that it creates file headers and comments for any user config
+        changes done through porthole.
+        
+    * Newly redone right click menus in the Summary view with better mask/unmask, keyword acceptance
+       and submenu options for controlling version selection, etc..
+    
+    * bug fix the terminal display losing the gcc output.
+    
+    * new queue pause and run icons/functions, a timer is not yet implememnted.
+
+    * numerous portage updates.
+    
+    * numerous gtk+ updates
+    
+    * 2 plug-ins 1) Etc-proposals  2)Profuse included and auto-detect if their target package is available.
+    
+    * numerous bugfixes
+    
+    * fix advanced emerge keyword acceptance and turn off underline for hot key use so a '_' in a
+        keyword will display correctly.
+    
+    * fix USE flag display by turning off label underline support used for hotkey shortcuts.
+    
+    * update dependency crunching code to allow '?' due to required USE flag conditionals.
+    
+    *** It has been so long that I have probably forgotten most of the changes made to list them.
+
+
+0.5.0:
+
+     * Added columns to package list view, displaying installed version, recommended version,
+        download size, and short package description for all packages in list.
+
+     * Added plugin interface
+
+     * Added preliminary right-click menus to package list and package summary
+
+     * Added select-all, de-select-all options to right-click menu for upgradable view
+       (RFE [939337])
+
+     * Added code to interact with user config files such as package.keywords and make.conf.
+       Added options to add or remove ebuilds or packages from certain config files in
+       package list right-click, package summary right-click, and advemerge dialog.
+       Added option to update use flags to make.conf or package.use in advemerge dialog.
+
+     * Added preliminary sudo functionality
+
+     * Added Configuration GUI
+
+     * Modified Main Window GUI
+
+     * Added command preview to advemerge dialog
+
+     * Added version table to summary (like on packages.gentoo.org)
+
+     * Improved calculation and display of dependancies
+
+     * Added colour to terminal window for emerge output. Also added user-settable font
+       and fixed display of "updating portage cache" percentage.
+
+     * Set to forward keyboard input to the terminal process if it's in focus.
+
+     * Improved handling of masked packages. In the advemerge dialog, the recommended
+       version is selected by default, and Porthole no longer indicates packages for which
+       all higher versions are masked as upgradable.
+
+     * Added emerge-webrsync functionality
+
+     * Added scrollable window to advemerge dialog for high numbers of use flags
+
+     * Set colour and font weight of info in package list depending on installed / upgradable status
+
+     * Set to highlight items that may require user action in the terminal summary tab
+
+     * Added custom web-browser choice
+
+     * Set to properly clean up emerge processes when finished (bug [1081506, 1119366])
+
+     * Set to remember selected category / package after changing views or reloading db
+
+     * Allowed sorting of package list by installed / recommended / size columns.
+
+     * Added icon to indicate if the user has not run Porthole as root (RFE [1181795])
+
+     * Set to remember main window maximized state
+
+
+0.4.0:
+     * Added the date & time of the last sync to the "Sync" button tooltip
+
+     * changed the chagelog loading to to check the portage overlay directory if a changelog
+       is not found. Then try decoding it using utf_8 first (soon to be the official
+       encoding method).  If that fails then try decoding using iso-8859-1 which many
+       new changelogs are saved with that encoding.  Finally failing both those it
+       displays "an unknown encoding method" error instead.
+
+     * Changed the summary view to use the better of the (best unmasked or installed masked
+       ebuild version) or the best masked version if no unmasked version is available.
+       It also diplays which ebuild version was used for the properties display.
+
+     * eliminated unnesseary DB reloads if running custom commands with the -p flag.
+     
+     * The view can be changed from the upgrades view while it is loading to another
+       one with out disruption when the loading is complete.  Switching back to the
+       upgrades view when the user is ready.
+
+     * Added confirmation that you want to kill a running process when the quit/close
+       button is selected in either window.
+      
+     * Starting a upgrades load then switching to a different view is not interupted
+       with the upgrades list when complete.  The upgrades view needs to be selected
+       again to see it.  That way it does not disrupt what you are doing/looking at.
+      
+     * some code changes to work with both newer & depricated gtk functions.  It should
+       work without printing deprication warnings or function call errors/failures.
+
+     * updated to use the new & pre portage-2.0.51 as the world file is relocated
+       as of 2.0.51
+
+     * Added an internal progress bar in a second statusbar on the main window.
+       I will probably merge the 2 statusbars in the future, depending on feedback.
+       The new progress bar does not tie up the gui from any other interation like
+       the dialog box did until it was closed.
+      
+     * Advanced emerge toolbar option & dialog giving fairly easy access to most
+       advanced emerge features & options.  TOC worked hard on this one and I think
+       he did a great job on it.
+      
+     * Help is now working (not complete) with a good start on the basics and help on the advanced
+       emerge options.
+      
+     * The web browser is now opened from a threaded function call so that it does not
+       tie up the gui untill it is closed.  It also is used to open a browser to the
+       help files that are now in porthole.
+      
+     * Database reloads can be manually activated by menu option.  Good for when an
+       emerge has taken place independantly from an open porthole session.
+      
+     * Portage modules imported into porthole can be manually reloaded in order for
+       porthole to see changes in /etc/make.conf, etc.  Also usefull if portage was
+       updated to a new version .  It will reload the new version just emerged.
+       
+     * Added pycrash detection and inclusion into porthole.  The crash log file saved
+       can be very usefull for debugging.
+       
+     * Selectable upgrades only or standard upgrade/downgrade upgrades list selection
+
+     * Intermittent autoscroll bug now fixed.
+     
+     * Porthole now uses a semaphore system to prevent collisions accessing or modifying
+       variables by different/threaded program modules, functions.   It has helped prevent
+       many of the crashes/segfaults.
+       
+     * gettext internationalization support now started.  Most text strings are now marked,
+       readying for full translation/localization.
+
+     * improved terminal output, so that wget, etc. display their progress bar, etc.
+     
+     * numerous other bug fixes.
+     
+     * Changed the default window size to something quite small.  For those that start porthole
+       in lower resolutions.  It remembers any size changes between sessions anyway.
+
+     * Added  a -h, --help option to portholes command line interface
+
+     * The version sorting routine has been re-written again, portage is/has just
+       changed it's version comparison code.  Also the code I released in -0.3.1
+       also failed badly for a few odd version strings.
+
+     * The hyperlinks for home pages has been patched to fix  multiple homepage listings
+       in the summary view.  Thanks to jonathanl for this patch.
+
+     * the terminal process view will show the download progress almost like it would in
+       a normal terminal.
+
+     * The browser opens from a threaded function now so that the rest of porthole
+       will no longer be frozen until the browser is closed.  It also now allows multiple
+       pages to be opened.
+
+     * The gtk horizontal pane bug is now caught and corrected as porthole opens.
+ 
+     * On completion of a terminal task the main porthole db is now reloaded without
+       disrupting the current view.  The package being viewed is reloaded automatically.
+       The upgrades view is the only one that requires a disruptive rebuild.  Sorry, I
+       could not get it to work non-disruptively.  I believe it is due to the checkboxes.
+
+     * The settings menu now has the "ALLOW DOWNGRADES" (--upgradeonly) setting (opposite
+       to the flag setting) to help fix some package upgrade issues.  Be careful with it's
+       setting as it can sometimes change expected emerge behavior when not upgrading packages.
+
+     * USE flags are now displayed with a +/- as well as being colored to show their current
+       setting.   Original feature patch submitted by jonathanl.
+
+0.3.1:
+
+     * This release is primarily a bugfix release.  There have been quite a
+       few bugfixes due to submisissions from users and our own testing.
+
+       Thank you to all those that have helped make this release a good one.
+
+     * Kill/Resume has been fixed to work correctly.  Porthole now sends a
+       <ctrl>C to the running process to allow it to quit gracefully, so
+       emerge can save any info it needs to resume.
+
+     * A new "Resume" option has been added, "Skip Queue item", to skip a
+       killed emerge sitting in the queue so that you can continue with the
+       remaining entries in the queue.
+
+     * Killed processes now send the callback signal to the main window so that
+       any succefully emerged/unmerged packages will show in the change.
+
+     * You can now double click on a line in any of the filtered views tabs and it
+       will bring you to that line in the process view tab.  It will attempt to
+       place the line in the center of the process view tab.
+
+     * A new portage compliant sort routine for all the available ebuilds.
+       It now will sort correctly every time (I Hope).  It will lengthen
+       version strings to the same length (# of subversions [x.x.x]).
+       All version numbers are formattted to the same length with leading
+       zeros so that they can be correctly sorted alphabetically.
+
+     * Dependacy display bugs have been fixed.
+
+     * several bugs dealing with greyed out text/menus/icons have been fixed.
+
+     * We have renamed a few things that were causing some confusion.   The
+       "Info" tab was renamed to "Summary" to better reflect its contents.
+       The menu item "Save As Log" ==> "Save Log As".
+       The "Process Terminated" message is now "Process Complete".
+
+     * the search string will not accept special regular expression characters
+       to use in its search.  They will be escaped to be used as text characters.
+       That way a search for "c++" will use the search string "c\+\+".
+       The ++ would otherwise cause a reg. expression error due to multiple +'s.
+
+     * a little fine tuning to the autoscroll feature.  Note there seems to be a
+       bug in gtk that is causing the autocroll sticky feature to snap back to
+       fixed point in the buffer at times.  When the process stops you will be able to
+       scroll to the end again.
+       
+       
+
+
+0.3:
+
+     * Emerge sync is fully functional again.
+
+     * Totally new terminal window, with tabs for information, warnings, a 
+       package queue, etc... 
+
+     * Process output is now also color coded to help make certain parts 
+       stand out.
+
+     * An emerge queue so that multiple packages can be queued up to be 
+       emerged. The queue is fully editable via the new terminal window.
+
+     * Emerges can be resumed after being killed.
+
+     * Preferences are now stored in an XML file.
+
+     * Logs of emerges can be saved and viewed.
+
+     * Custom commands can be run, for example "emerge --no-deps package".
+
+     * A ChangeLog tab has been added in the main window.
+
+     * An Installed Files tab has been added in the main window.
+
+     * Descriptions can be included in searches.
+
+0.2:
+
+     * Emerge sync has been temporarily disabled due to technical problems.
+
+     * Fixed bug 883881 - Icons will now refresh after an emerge.
+
+     * Doesn't show Unmerge button unless the selected package is installed.
+
+     * Removed sudo stuff; users will have to run porthole as root for
+       emerge functionality.
+
+     * Added porthole.desktop menu entry.
+
+     * Allow installing without an X server running.
+
+     * Added options --fetchonly and --verbose.
+
+     * There is an Upgradable Packages view. You can select packages
+       to upgrade. Packages in the world file should be selected by
+       default.
+
+     * Icons for upgradable packages are no longer shown because it
+       was too slow.
+
+     * Settings and window positions are saved to $HOME/.porthole/prefs.
+
+
+0.1:
+
+     * Initial release.

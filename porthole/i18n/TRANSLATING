@@ -1,0 +1,103 @@
+#---------------------------------------#
+| INSTRUCTIONS FOR TRANSLATING PORTHOLE |
+#---------------------------------------#
+
+
+The recommended way to translate Porthole into another language is to use
+"Poedit" (app-i18n/poedit). However you might want to try out either
+KBabel (kde-base/kbabel) or Gtranslator (app-text/gtranslator).
+
+
+Important notes about placeholders:
+==================================
+
+The translatable strings in the messages.pot catalogue and the <lang>.po files
+are partially in Python's string format, partially in GTK's. The following items
+should be included in translated strings as placeholders for names or figures:
+
+"%s" : string placeholder
+"%d" : number placeholder
+"%(days)d" : placeholder named "days", do not translate the name
+pretty much anything starting with "%"
+
+In addition, for items in Porthole's menus, the underscore (_) is used to
+indicate that the next character will be used as the accellerator key. When the
+user presses "CTRL" + this key, it will perform the menuitem's action. These are
+not required, but if you use them the characters chosen must all be different.
+
+
+To update an incomplete translation:
+===================================
+
+If there is a translation for your language already, then open the .po file in
+porthole's i18n/ directory with Poedit (e.g. pl.po = Polish, fr_FR.po = French
+(France)). Select "Update from POT file" from the "Catalog" menu, then choose
+the messages.pot file in the i18n/ directory. Untranslated strings will be
+highlighted and placed at the top of the list. Translate them and save the file!
+
+
+To create a new translation:
+===========================
+
+Open poedit and Select "New catalog from POT file" from the "File" menu, and
+choose the messages.pot file in porthole's i18n/ directory. Translate, then save
+the file (also in the i18n/ directory) as <lang>.po where <lang> is the two
+letter code for your language, optionally followed by a two letter modifier.
+For example en.po would be for English, en_GB.po would be specifically for
+British English.
+
+
+To test your translation:
+========================
+
+run the "pocompile" script in the trunk/scripts directory:
+of for the installed version: in the /usr/share/porthole/scripts/ directory
+
+> cd ~/trunk/scripts
+> ./pocompile.sh
+
+This will compile all the .po files in porthole/i18n/ into .mo files (which
+gettext uses when translating Porthole) and place them in the necessary
+subdirectories (<lang>/LC_MESSAGES).
+
+Running porthole should now use your language. If you are not seeing your
+language, make sure the environment variable "LANG" is set to your language
+code. For example, to run porthole using the German translation:
+
+> LANG="de_DE" porthole
+
+
+To submit the translation so we can include it in Porthole distributions:
+========================================================================
+
+The easiest method is to post it to a tracker on porthole's sourceforge site,
+http://sourceforge.net/projects/porthole (preferably to the "Patches" tracker,
+although the "Bugs" tracker is probably checked more regularly. We will
+then test it and add it to the project.
+
+
+I found a string in Porthole that I can't translate! What gives?:
+================================================================
+
+Post a bug report on the sourceforge site
+(http://sourceforge.net/projects/porthole). Include the untranslatable string
+and where in Porthole you came across it. It's easy for us to mark the strings
+for translation, but we may have missed some!
+
+
+I don't want to use a stupid GUI, they are plain text files!:
+============================================================
+
+The .po files are indeed plain text files. If you don't want to use poedit for
+some reason, these gettext commands might come in handy:
+
+Update a .po file from the messages.pot file:
+> "msgmerge <lang>.po messages.pot > newpofile.po"
+
+Create a new .po file from the messages.pot file:
+> "msginit -i messages.pot -l <lang>"
+
+Compile the .mo file for testing:
+> "msgfmt <lang>.po -o <lang>/LC_MESSAGES/porthole.mo"
+
+

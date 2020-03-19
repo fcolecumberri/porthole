@@ -1,0 +1,173 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Porthole Help</title>
+  <link rel="stylesheet" type="text/css" media="screen" href="porthole.css">
+</head>
+<body>
+<img style="float: left;" src="../pixmaps/porthole-about.png">
+<div class="toc"><iframe src="toc.html" frameborder="0" height="400" width="240"></iframe></div>
+<br>
+<br>
+<br>
+<br>
+<h1>Advanced Emerge</h1>
+<h2>Introduction</h2>
+<div class="warnleft">
+<b>Warning!</b> You can really screw up your system using
+advanced emerge
+if the wrong version or settings are used!
+</div>
+<p>
+As with all things technical, there is a deeper level of control
+afforded
+by portage when it comes to installing packages. &nbsp;Setting use
+flags, accepting keywords and specifying certain
+options during emerge allow the user to tailor and fine tune the system
+as well as override default installation behaviour.
+</p>
+<p>
+The advanced emerge dialog can only emerge one package at a time.
+</p>
+<p>
+The advanced emerge dialog is split into three basic sections: emerge
+options, package options and a button bar. &nbsp;The package
+options section is further divided into four sub-sections:
+emerge/unmerge selector, version list selector, use flags and keyword acceptor.
+</p>
+<h2>Emerge Options</h2>
+<p>
+The emerge options control emerge's behaviour when managing packages.
+The features of this section are:
+</p>
+<ul>
+  <li>Float over help for emerge options. &nbsp;This text is
+almost verbatim from the emerge help manual.
+  </li>
+  <li>Self deconflicting emerge options. &nbsp;When you
+select two options that conflict with each other, the
+former is deselected automatically. &nbsp;E.G. if you select
+verbose, then quiet, verbose will
+automatically be deselected.
+  </li>
+  <li>Emerge options selected in the main window settings menu
+are automatically set here. </li>
+</ul>
+<p>
+Only the options that make sense for installing a package are listed.
+&nbsp;The options that display information which Porthole already supplies (e.g. --changelog) were omitted to save
+space on the menu and make the interface as simple as
+possible.
+</p>
+<p>A good practice is to use pretend first if you are not sure of
+the results of your selected options.
+</p>
+<div class="figinline">
+<img style="width: 614px; height: 477px;" alt="Advanced emerge dialog image." src="advemerge.png"><br>
+Figure 1. Advanced Emerge Dialog
+</div>
+<h2>Package Options</h2>
+<div class="noteright">
+Note: Changing the version will change and reset the use flags and
+keyword to accept sections.
+</div>
+<h3>Command Selector</h3>
+<p>
+The command list is a drop-down selection list containing "emerge" or "unmerge" commands.
+</p>
+<h3>Version List</h3>
+<p>
+The version list is a drop-down select list containing all the
+different ebuilds for this package.
+</p>
+<p>The versions are sorted in release order<a href="#notes"><span class="note">1</span></a> with the oldest
+first and the most recent last. &nbsp;The default selection for the
+version selector is the oldest version.</p>
+<p>The list also contains that versions' slot number, masking
+status, and a note if that
+version is currently installed or it is the version recommended by
+Portage.
+</p>
+<h3>Use Flags</h3>
+<p>
+Use flags customize what features are included with this package.
+In general, the more use flags selected, the more software
+will be installed. The use flags displayed are specific to the
+version selected
+in the version drop-down list.
+</p>
+<div class="tipright">
+<b>TIP:</b> if you're not sure what a use flag
+does, you can hover the mouse over it for an explanatory tool-tip.
+</div>
+<p>The easy way to emerge a package with certain use flags, is to
+select the ones you want, de-select the ones you don't, and click
+"Emerge". However, if you do this the change will only be temporary,
+and the next time the package is updated the use flags will revert to
+their previous settings.</p>
+<p>If you wish the use flag settings to persist,
+and&nbsp;want them to apply <span style="font-style: italic;">only</span>
+to the current package, click "Update package.use". Beware! This is
+not thoroughly tested yet. So back up your package.use file (usually
+/etc/portage/package.use) first.</p>
+<p>If you want your use flag changes to apply to all packages,
+then click on "Update make.conf". This button&nbsp;is <span style="font-style: italic;">hidden by default</span>,
+due to your make.conf file being much more complex than the package.use
+and package.keywords files, and <span style="font-style: italic;">very</span>
+import to the overall health of your system. so <span style="font-weight: bold; font-style: italic;">back up your
+make.conf file</span> (/etc/make.conf) before letting Porthole do
+<span style="font-style: italic;">anything at all</span>
+to it. Safer yet, edit the file by hand. If, however, you're a brave
+soul who likes living on the edge and knows how to fix things when they
+go wrong (you're running Gentoo - of course you are!), you can enable
+the button in Porthole's configuration dialog (Settings -&gt;
+Configure Porthole). Good luck.</p>
+<h3>Keyword to Accept</h3>
+<p>If a version is marked as "unstable", it will need to be
+keyword unmasked. The quick way to do this is to select your CPU
+architecture in the "Keyword to Accept" frame which will appear.
+However, this will also emerge unstable versions of any dependencies
+installed with the package, and as soon as you try to update the
+packages, Portage will downgrade them to the stable versions.</p>
+<p>The recommended way to emerge an unstable package is to select
+your CPU architecture as above and then click the button labelled
+"Update package.keywords". Beware! This is not thoroughly tested
+yet. So back up your package.keywords file (usually
+/etc/portage/package.keywords) first!
+</p>
+<div class="tipright">
+<b>TIP:</b> Use the pretend option to test your settings
+before committing to an installation.
+</div>
+<h2>Command Preview</h2>
+<p>Shows the command that will be sent to the terminal when you choose "Execute"
+</p>
+<h2>Buttons</h2>
+<ul>
+  <li>Help - brings up this window
+  </li>
+  <li>Cancel - closes window without executing an emerge
+  </li>
+  <li>Execute - builds a command string based on the above
+settings
+and submits it to the terminal window for execution.</li>
+  <li>Update package.use - commits any use flag changes to
+package.use so they're remembered for this package</li>
+  <li>Update package.keywords - commits any accept_keywords
+change to package.keywords so it's remembered for the selected version.</li>
+  <li>Update make.conf - this button is hidden by default. It
+commits any use flag changes to your make.conf file, so they're
+remembered by your system.</li>
+</ul>
+<hr>
+<a name="notes">Notes:</a>
+<br>
+<ol>
+  <li>We are somewhat at the mercy of the developers who seem to
+be able
+to create new and increasingly difficult numbering schemes faster
+than we can figure out how to sort them.
+  </li>
+</ol>
+</body>
+</html>

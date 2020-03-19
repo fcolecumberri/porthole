@@ -1,0 +1,2163 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Porthole VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-01-05 23:45-0800\n"
+"PO-Revision-Date: 2010-01-05 23:53-0800\n"
+"Last-Translator: Brian Dolbec <dol-sen@sourceforge.net>\n"
+"Language-Team: Vietnamese\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Vietnamese\n"
+
+#: porthole/glade/about.glade.h:1
+msgid "A GTK+ frontend to Portage"
+msgstr "Giao diện đồ hoạ GTK+ cho Portage"
+
+#: porthole/glade/about.glade.h:2
+msgid "About"
+msgstr "Giới thiệu"
+
+#: porthole/glade/about.glade.h:3
+msgid "Authors"
+msgstr "Tác giả"
+
+#: porthole/glade/about.glade.h:4
+msgid "Copyright (c) 2003 - 2008"
+msgstr "Copyright (c) 2003 - 2008"
+
+#: porthole/glade/about.glade.h:5
+#: porthole/glade/config.glade.h:48
+msgid "License"
+msgstr "Giấy phép"
+
+#: porthole/glade/about.glade.h:6
+msgid "_Homepage"
+msgstr "_Trang chủ"
+
+#: porthole/glade/advemerge.glade.h:1
+msgid "  |__"
+msgstr "  |__"
+
+#: porthole/glade/advemerge.glade.h:2
+msgid ""
+" --buildpkg (-b)\n"
+"Tells emerge to build binary packages for all ebuilds processed in addition to actually merging the packages.  Useful for maintainers or if you administrate multiple Gentoo Linux systems (build  once,  emerge  tbz2s  everywhere). The  package  will be created in the ${PKGDIR}/All directory.  An alternative for already-merged packages is to use quickpkg which creates a tbz2 from the live filesystem."
+msgstr ""
+" --buildpkg (-b)\n"
+"Tạo gói nhị phân cho mọi ebuild được xử lý ngoài việc cài vào hệ thống. Hữu dụng khi quản lý cùng lúc nhiều hệ thống Gentoo (tạo một lần, tbz2 cho những lần khác). Những gói này nằm trong thư mục ${PKGDIR}/All. Cách khác để tạo gói là dùng lệnh quickpkg sau khi đã cài đặt."
+
+#: porthole/glade/advemerge.glade.h:4
+#, fuzzy
+msgid ""
+" --color < y | n >\n"
+"Enable or disable color output.  This option will override NOCOLOR (see make.conf(5)) and may also be used to force color output when stdout is not a tty (by default, color is disabled unless stdout is a tty)."
+msgstr ""
+" --color < y | n >\n"
+"tranlate me"
+
+#: porthole/glade/advemerge.glade.h:6
+#, fuzzy
+msgid ""
+" --ignore-default-opts\n"
+"Causes EMERGE_DEFAULT_OPTS (see make.conf(5)) to be ignored."
+msgstr ""
+" --ignore-default-opts\n"
+"translate me"
+
+#: porthole/glade/advemerge.glade.h:8
+#, fuzzy
+msgid ""
+" --newuse (-N)\n"
+"Tells  emerge  to  include  installed  packages  where  USE flags have changed since compilation.  USE flag changes include: \n"
+"\n"
+"  A USE flag was added to a package.\n"
+"    A USE flag was removed from a package.\n"
+"    A USE flag was turned on for a package.\n"
+"    A USE flag was turned off for a package.\n"
+"\n"
+"USE flags may be toggled by your profile as well as your USE and package.use settings."
+msgstr ""
+" --newuse (-N)\n"
+"translate me"
+
+#: porthole/glade/advemerge.glade.h:17
+msgid ""
+" --noconfmem\n"
+"Causes  portage  to  disregard merge records indicating that a config file inside of a CONFIG_PROTECT directory has\n"
+"been merged already.  Portage will normally merge those files only once to prevent the user from dealing  with  the\n"
+"same config multiple times.  This flag will cause the file to always be merged."
+msgstr ""
+" --noconfmem\n"
+"Làm portage bỏ qua mọi thông tin merge cho biết rằng tập tin cấu hình bên trong thư mục CONFIG_DIRECTORY đã được merge rồi. Portage bình thường sẽ merge những tập tin này chỉ một lần để tránh giải quyết cùng tập tin cấu hình nhiều lần. Cờ này sẽ làm tập tin luôn luôn được merge."
+
+#: porthole/glade/advemerge.glade.h:21
+msgid ""
+" --oneshot (-1)\n"
+"Emerge as normal, but do not add the packages to the world file for later updating."
+msgstr ""
+" --oneshot (-1)\n"
+"Emerge như bình thường, không thêm gói vào tập tin world."
+
+#: porthole/glade/advemerge.glade.h:23
+#, fuzzy
+msgid ""
+"--alphabetical\n"
+"When  displaying  USE  and  other  flag output, combines the enabled and disabled lists into one list and sorts the whole list alphabetically."
+msgstr ""
+"--alphabetical\n"
+"translate me"
+
+#: porthole/glade/advemerge.glade.h:25
+#, fuzzy
+msgid ""
+"--ask (-a)\n"
+"Before performing the action, display what will take place (server info for --sync, --pretend output for merge, and so  forth),  then ask whether to proceed with the action or abort.  Using --ask is more efficient than using --pretend and then executing the same command without --pretend, as dependencies will only need to be  calculated  once.   WARNING:  If the \"Enter\" key is pressed at the prompt (with no other input), it is interpreted as acceptance of the first choice.  Note that the input buffer is not cleared prior to the prompt, so an accidental press of the \"Enter\" key at any time prior to the prompt will be interpreted as a choice!"
+msgstr ""
+"--ask (-a)\n"
+"translate me"
+
+#: porthole/glade/advemerge.glade.h:27
+msgid ""
+"--buildpkgonly (-B)\n"
+"Creates binary packages for all ebuilds processed without actually merging  the  packages.   This  comes  with  the caveat that all build-time dependencies must already be emerged on the system."
+msgstr ""
+"--buildpkgonly (-B)\n"
+"Tạo gói nhị phân cho mọi ebuild được xử lý mà không cài đặt vào hệ thống. Lệnh nào kèm theo cảnh báo rằng mọi phụ thuộc của gói cần xử lý phải được cài sẵn trong hệ thống."
+
+#: porthole/glade/advemerge.glade.h:29
+#, fuzzy
+msgid ""
+"--columns\n"
+"Used alongside --pretend to cause the package name, new version, and old version to be displayed in an aligned format for easy cut-n-paste."
+msgstr ""
+"--columns\n"
+"translate me"
+
+#: porthole/glade/advemerge.glade.h:31
+msgid ""
+"--debug (-d)\n"
+"Tells emerge to run the emerge command in --debug mode. In this mode the bash build environment will run with  the -x  option,  causing  it  to output verbose debugging information to stdout.  This also enables a plethora of other output mostly dependency resolution messages)."
+msgstr ""
+"--debug (-d)\n"
+"Chạy emerge trong chế độ debug. Chế độ này bash sẽ chạy với tùy chọn -x, kết quả sẽ rất chi tiết. Debug rất tốt khi tìm lỗi cú pháp bash."
+
+#: porthole/glade/advemerge.glade.h:33
+msgid ""
+"--deep (-D)\n"
+"This flag forces emerge to consider the entire dependency tree of packages, instead of checking only the  immediate dependencies of the packages.  As an example, this catches updates in libraries that are not directly listed in the dependencies of a package.  Also see --with-bdeps for behavior with respect to build time dependencies that are not strictly required."
+msgstr ""
+"--deep (-D)\n"
+"Khi dùng với update, cờ này buộc emerge xem xét toàn bộ cây phụ thuộc. thay vỉ chỉ kiểm tra những gói phụ thuộc trực tiếp. Ví dụ, nó sẽ cập nhật những thư viện không phải là phụ thuộc trực tiếp của gói."
+
+#: porthole/glade/advemerge.glade.h:35
+#, fuzzy
+msgid ""
+"--emptytree (-e)\n"
+"Reinstalls  all  world  packages  and their dependencies to the current USE specifications while differing from the installed set of packages as little as possible.  You should run with --pretend first to make sure  the  result  is what you expect."
+msgstr ""
+"--emptytree (-e)\n"
+"translate me"
+
+#: porthole/glade/advemerge.glade.h:37
+msgid ""
+"--fetch-all-uri (-F)\n"
+"Instead of doing any package building, just perform fetches for all packages (the  main  package  as  well  as  all dependencies), grabbing all potential files."
+msgstr ""
+"--fetch-all-uri (-F)\n"
+"Thay vì tạo gói, chỉ lấy những gói về (cả gói chính lẫn gói phụ thuộc)."
+
+#: porthole/glade/advemerge.glade.h:39
+msgid ""
+"--fetchonly (-f)\n"
+"Instead  of  doing  any  package  building,  just perform fetches for all packages (the main package as well as all dependencies)."
+msgstr ""
+"--fetchonly (-f)\n"
+"Thay vì tạo gói, chỉ lấy những gói về (cả gói chính lẫn gói phụ thuộc)."
+
+#: porthole/glade/advemerge.glade.h:41
+#, fuzzy
+msgid ""
+"--getbinpkg (-g)\n"
+"Using  the server and location defined in PORTAGE_BINHOST (see make.conf(5)), portage will download the information from each binary package found and it will use that information to help build the  dependency  list.   This  option implies -k.  (Use -gK for binary-only merging.)"
+msgstr ""
+"--getbinpkg (-g)\n"
+"translate me"
+
+#: porthole/glade/advemerge.glade.h:43
+#, fuzzy
+msgid ""
+"--getbinpkgonly (-G)\n"
+"This option is identical to -g, as above, except it will not use ANY information from the local machine.  All binaries will be downloaded from the remote server without consulting packages existing in the  local  packages  directory."
+msgstr ""
+"--getbinpkgonly (-G)\n"
+"translate me"
+
+#: porthole/glade/advemerge.glade.h:45
+msgid ""
+"--nodeps (-O)\n"
+"Merges  specified  packages  without  merging  any  dependencies.  Note that the build may fail if the dependencies are not satisfied."
+msgstr ""
+"--nodeps (-O)\n"
+"Cài gói xác định mà không cài gói phụ thuộc của nó. Chú ý rằng quá trình tạo có thể thất bại nếu các phụ thuộc không đầy đủ."
+
+#: porthole/glade/advemerge.glade.h:47
+msgid ""
+"--noreplace (-n) \n"
+"Skips the packages specified on the command-line that have already been installed.  Without this option, any  packages,  ebuilds,  or  deps  you specify on the command-line will cause Portage to remerge the package, even if it is already installed.  Note that Portage will not remerge dependencies by default."
+msgstr ""
+"--noreplace (-n) \n"
+"Bỏ qua các gói xác định trên dòng lệnh mà đã cài đặt. Không có tùy chọn này, bất kỳ gói nào, ebuild hoặc phụ thuộc bạn xác định trên dòng lệnh, Portage *sẽ* cài đặt lại gói đó, ngay cả khi nó đã cài rồi. Chú ý Portage mặc định sẽ không cài đặt lại các gói phụ thuộc."
+
+#: porthole/glade/advemerge.glade.h:49
+#, fuzzy
+msgid ""
+"--nospinner\n"
+"Disables the spinner for the session.  The spinner is active when the terminal device is determined to  be  a  TTY.\n"
+"This flag disables it regardless."
+msgstr ""
+"--nospinner\n"
+"translate me"
+
+#: porthole/glade/advemerge.glade.h:52
+msgid ""
+"--onlydeps (-o)\n"
+"Only merge (or pretend to merge) the dependencies of the packages specified, not the packages themselves."
+msgstr ""
+"--onlydeps (-o)\n"
+"Chỉ cài đặt (hoặc giả bộ cài đặt) các gói phụ thuộc của gói xác định mà không cài gói chính."
+
+#: porthole/glade/advemerge.glade.h:54
+#, fuzzy
+msgid ""
+"--pretend (-p)\n"
+"Instead  of  actually  performing  the  merge, simply display what *would* have been installed if --pretend weren't used. Using --pretend is strongly recommended before installing an unfamiliar package.  In the printout:\n"
+"\n"
+"N = new (not yet installed)\n"
+"S = new SLOT installation (side-by-side versions)\n"
+"U = updating (to another version)\n"
+"D = downgrading (best version seems lower)\n"
+"R = replacing (remerging same version))\n"
+"F = fetch restricted (must be manually downloaded)\n"
+"f = fetch restricted (already downloaded)\n"
+"B = blocked by an already installed package"
+msgstr ""
+"--pretend (-p)\n"
+"Thay vì thực hiện merge, chỉ hiển thị những gì sẽ được cài đặt nếu không dùng pretend. Bạn được khuyên dùng pretend trước khi cài đặt những gói không quen. Để in ra\n"
+"\n"
+"N = new (mới)\n"
+"S = ???\n"
+"U = upgrading (nâng cấp)\n"
+"D = ???\n"
+"R = replacing (thay thế)\n"
+"F = fetch restricted (chỉ lấy về)\n"
+"f = ???\n"
+"B = blocked (bị cấm bởi một gói đã cài)"
+
+#: porthole/glade/advemerge.glade.h:65
+msgid ""
+"--quiet (-q) \n"
+"Results may vary, but the general outcome is a reduced or condensed output of portage displays."
+msgstr ""
+"--quiet (-q) \n"
+"Kết quả có thể khác nhau, nhưng thông thường sẽ cho ra kết quả cô đọng hơn."
+
+#: porthole/glade/advemerge.glade.h:67
+#, fuzzy
+msgid ""
+"--tree (-t) \n"
+"Shows the dependency tree for the given target by indenting dependencies.  This is only really useful  in  combination with --emptytree or --update and --deep."
+msgstr ""
+"--tree (-t) \n"
+"translate me"
+
+#: porthole/glade/advemerge.glade.h:69
+#, fuzzy
+msgid ""
+"--update (-u)\n"
+"Updates packages to the best version available, which may not always be the highest version number due  to  masking for  testing  and  development.  This will also update direct dependencies which may not be what you want.  Package atoms specified on the command line are greedy, meaning that unspecific atoms may match multiple installed versions of slotted packages."
+msgstr ""
+"--update (-u)\n"
+"translate me"
+
+#: porthole/glade/advemerge.glade.h:71
+msgid ""
+"--usepkg (-k)\n"
+"Tells  emerge to use binary packages (from $PKGDIR) if they are available, thus possibly avoiding some time-consuming compiles.  This option is useful for CD installs; you can export PKGDIR=/mnt/cdrom/packages and then  use  this option to have emerge \"pull\" binary packages from the CD in order to satisfy dependencies."
+msgstr ""
+"--usepkg (-k)\n"
+"Dùng gói binary (từ $PKGDIR) nếu có, tránh quá trình biên dịch nếu có thể. Tùy chọn này hữu dụng để cài đặt từ CD; bạn có thể đặt PKGDIR=/mnt/cdrom/packages và sau đó dùng tùy chọn này để \"lấy\" các gói binary từ CD."
+
+#: porthole/glade/advemerge.glade.h:73
+#, fuzzy
+msgid ""
+"--usepkgonly (-K)\n"
+" Tells  emerge to only use binary packages (from $PKGDIR).  All the binary packages must be available at the time of\n"
+"dependency calculation or emerge will simply abort.  Portage does not  use  $PORTDIR  when  calculating  dependency\n"
+"information so all masking information is ignored."
+msgstr ""
+"--usepkgonly (-K)\n"
+"translate me"
+
+#: porthole/glade/advemerge.glade.h:78
+#, fuzzy, no-c-format
+msgid ""
+"--verbose (-v)\n"
+"Tell emerge to run in verbose mode.  Currently this flag causes emerge to print out GNU info errors, if any, and to show the USE flags that will be used for each package when pretending. The following symbols  are  affixed  to  USE flags in order to indicate their status:\n"
+"\n"
+"    - prefix     = not enabled (either disabled or removed)\n"
+"    * suffix     = transition to or from the enabled state\n"
+"    % suffix     = newly added or removed\n"
+"    () circumfix = forced, masked, or removed"
+msgstr ""
+"--verbose (-v)\n"
+"translate me"
+
+#: porthole/glade/advemerge.glade.h:85
+#, fuzzy
+msgid ""
+"--with-bdeps < y | n >\n"
+"In  dependency calculations, pull in build time dependencies that are not strictly required.   This defaults to 'n' for installation actions and 'y' for the --depclean action.  This setting can be added to EMERGE_DEFAULT_OPTS  (see make.conf(5)) and later overridden via the command line."
+msgstr ""
+"--with-bdeps < y | n >\n"
+"translate me"
+
+#: porthole/glade/advemerge.glade.h:87
+msgid "<b>Command Preview</b>"
+msgstr "<b>Xem trước lệnh</b>"
+
+#: porthole/glade/advemerge.glade.h:88
+msgid "<b>Emerge Options</b>"
+msgstr "<b>Tùy chọn emerge</b>"
+
+#: porthole/glade/advemerge.glade.h:89
+msgid "<b>Package Options</b>"
+msgstr "<b>Tùy chọn gói</b>"
+
+#: porthole/glade/advemerge.glade.h:90
+msgid "Add the selected keyword to your package.keywords file. Changes will affect THIS VERSION only."
+msgstr "Thêm từ khoá bạn chọn vào tập tin package.keywords. Thay đổi chỉ tác động VỚI VERSION NÀY mà thôi."
+
+#: porthole/glade/advemerge.glade.h:91
+msgid "Command Preview Window"
+msgstr "Cửa sổ xem trước lệnh"
+
+#: porthole/glade/advemerge.glade.h:92
+msgid "Commit Use Flag modifications to your make.conf file. Changes will affect ALL PACKAGES on your system."
+msgstr "Lưu USE flag vào make.conf. Thay đổi sẽ tác động TRÊN TÁT CẢ CÁC GÓI."
+
+#: porthole/glade/advemerge.glade.h:93
+msgid "Commit Use Flag modifications to your package.use file. Changes will affect THIS PACKAGE only."
+msgstr "Lưu USE flag vào tập tin package.use. Thay đổi sẽ tác động CHỈ VỚI GÓI NÀY."
+
+#: porthole/glade/advemerge.glade.h:94
+msgid "Keyword to accept"
+msgstr "Từ khoá chấp nhận"
+
+#: porthole/glade/advemerge.glade.h:95
+msgid "Update make.conf"
+msgstr "Cập nhật make.conf"
+
+#: porthole/glade/advemerge.glade.h:96
+msgid "Update package.keywords"
+msgstr "Cập nhật package.keywords"
+
+#: porthole/glade/advemerge.glade.h:97
+msgid "Update package.use"
+msgstr "Cập nhật package.use"
+
+#: porthole/glade/advemerge.glade.h:98
+msgid "Use Flags"
+msgstr "USE flag"
+
+#: porthole/glade/advemerge.glade.h:99
+msgid "alphabetical"
+msgstr "alphabetical"
+
+#: porthole/glade/advemerge.glade.h:100
+msgid "ask"
+msgstr "ask"
+
+#: porthole/glade/advemerge.glade.h:101
+msgid "buildpkg"
+msgstr "buildpkg"
+
+#: porthole/glade/advemerge.glade.h:102
+msgid "buildpkgonly"
+msgstr "buildpkgonly"
+
+#: porthole/glade/advemerge.glade.h:103
+msgid "color  "
+msgstr "color  "
+
+#: porthole/glade/advemerge.glade.h:104
+msgid "columns"
+msgstr "columns"
+
+#: porthole/glade/advemerge.glade.h:105
+msgid "debug"
+msgstr "debug"
+
+#: porthole/glade/advemerge.glade.h:106
+msgid "deep"
+msgstr "deep"
+
+#: porthole/glade/advemerge.glade.h:107
+msgid "emptytree"
+msgstr "emptytree"
+
+#: porthole/glade/advemerge.glade.h:108
+msgid "fetch-all-uri"
+msgstr "fetch-all-uri"
+
+#: porthole/glade/advemerge.glade.h:109
+msgid "fetchonly"
+msgstr "fetchonly"
+
+#: porthole/glade/advemerge.glade.h:110
+msgid "getbinpkg"
+msgstr "getbinpkg"
+
+#: porthole/glade/advemerge.glade.h:111
+msgid "getbinpkgonly"
+msgstr "getbinpkgonly"
+
+#: porthole/glade/advemerge.glade.h:112
+msgid "ignore-default-opts"
+msgstr "ignore-default-opts"
+
+#: porthole/glade/advemerge.glade.h:113
+msgid "n"
+msgstr "n"
+
+#: porthole/glade/advemerge.glade.h:114
+msgid "newuse"
+msgstr "newuse"
+
+#: porthole/glade/advemerge.glade.h:115
+msgid "noconfmem"
+msgstr "noconfmem"
+
+#: porthole/glade/advemerge.glade.h:116
+msgid "nodeps"
+msgstr "nodeps"
+
+#: porthole/glade/advemerge.glade.h:117
+#: porthole/glade/config.glade.h:102
+msgid "noreplace"
+msgstr "noreplace"
+
+#: porthole/glade/advemerge.glade.h:118
+#: porthole/glade/config.glade.h:103
+msgid "nospinner"
+msgstr "nospinner"
+
+#: porthole/glade/advemerge.glade.h:119
+#: porthole/glade/config.glade.h:104
+msgid "oneshot"
+msgstr "oneshot"
+
+#: porthole/glade/advemerge.glade.h:120
+msgid "onlydeps"
+msgstr "onlydeps"
+
+#: porthole/glade/advemerge.glade.h:121
+#: porthole/glade/config.glade.h:105
+msgid "pretend"
+msgstr "pretend"
+
+#: porthole/glade/advemerge.glade.h:122
+msgid "quiet"
+msgstr "quiet"
+
+#: porthole/glade/advemerge.glade.h:123
+msgid "tree"
+msgstr "xanh"
+
+#: porthole/glade/advemerge.glade.h:124
+#: porthole/glade/config.glade.h:116
+msgid "update"
+msgstr "update"
+
+#: porthole/glade/advemerge.glade.h:125
+msgid "usepkg"
+msgstr "usepkg"
+
+#: porthole/glade/advemerge.glade.h:126
+msgid "usepkgonly"
+msgstr "usepkgonly"
+
+#: porthole/glade/advemerge.glade.h:127
+#: porthole/glade/config.glade.h:117
+msgid "verbose"
+msgstr "verbose"
+
+#: porthole/glade/advemerge.glade.h:128
+msgid "version"
+msgstr "version"
+
+#: porthole/glade/advemerge.glade.h:129
+msgid "with-bdeps"
+msgstr "with-bdeps"
+
+#: porthole/glade/advemerge.glade.h:130
+msgid "y"
+msgstr "y"
+
+#: porthole/glade/config.glade.h:1
+msgid " Editor : "
+msgstr " Trình soạn thảo : "
+
+#: porthole/glade/config.glade.h:2
+msgid "<b>Advanced Emerge dialog options</b>"
+msgstr "<b>Tùy chọn emerge nâng cao</b>"
+
+#: porthole/glade/config.glade.h:3
+msgid "<b>Arch List</b> for display's &amp; options"
+msgstr "<b>Danh sách kiến trúc</b> và tùy chọn"
+
+#: porthole/glade/config.glade.h:4
+msgid "<b>Emerge options</b>"
+msgstr "<b>Tùy chọn emerge</b>"
+
+#: porthole/glade/config.glade.h:5
+msgid "<b>Run Custom Command options</b>"
+msgstr "<b>Tuỳ chọn lệnh chạy riêng</b>"
+
+#: porthole/glade/config.glade.h:6
+msgid "<b>Web Browser Options</b>"
+msgstr "<b>Tùy chọn Trình duyệt web</b>"
+
+#: porthole/glade/config.glade.h:7
+msgid "Add New"
+msgstr "Thêm mới"
+
+#: porthole/glade/config.glade.h:8
+msgid "Add a new filter expression to the Selected Group"
+msgstr "Thêm biểu thức lọc vào nhóm được chọn"
+
+#: porthole/glade/config.glade.h:9
+msgid "Arch-list/Version table"
+msgstr "Kiến trúc/Phiên bản"
+
+#: porthole/glade/config.glade.h:10
+msgid "Available Versions"
+msgstr "Phiên bản hiện có"
+
+#: porthole/glade/config.glade.h:11
+msgid "Background"
+msgstr "Nền"
+
+#: porthole/glade/config.glade.h:12
+msgid "Background Colour"
+msgstr "Màu nền"
+
+#: porthole/glade/config.glade.h:13
+msgid "Black"
+msgstr "Đen"
+
+#: porthole/glade/config.glade.h:14
+msgid "Blue"
+msgstr "Lục"
+
+#: porthole/glade/config.glade.h:15
+msgid "Browser : "
+msgstr "Trình duyệt : "
+
+#: porthole/glade/config.glade.h:16
+msgid "Category View"
+msgstr "Xem phân loại"
+
+#: porthole/glade/config.glade.h:17
+msgid "Caution"
+msgstr "Chú ý"
+
+#: porthole/glade/config.glade.h:18
+msgid "Check off all items you would like displayed"
+msgstr "Đánh dấu những mục bạn muốn hiển thị"
+
+#: porthole/glade/config.glade.h:19
+#: porthole/terminal/term_queue.py:195
+msgid "Command"
+msgstr "Lệnh"
+
+#: porthole/glade/config.glade.h:20
+msgid "Current CPU architecture : "
+msgstr "Kiến trúc CPU hiện thời : "
+
+#: porthole/glade/config.glade.h:21
+msgid "Cyan"
+msgstr "Xanh lơ"
+
+#: porthole/glade/config.glade.h:22
+msgid "Default"
+msgstr "Mặc định"
+
+#: porthole/glade/config.glade.h:23
+msgid "Delete"
+msgstr "Xoá"
+
+#: porthole/glade/config.glade.h:24
+msgid "Delete the selected filter expression"
+msgstr "Xoá biểu thức lọc được chọn"
+
+#: porthole/glade/config.glade.h:25
+#: porthole/views/package.py:127
+msgid "Description"
+msgstr "Mô tả"
+
+#: porthole/glade/config.glade.h:26
+msgid "Downgradable Colour"
+msgstr "Màu có thể hạ cấp"
+
+#: porthole/glade/config.glade.h:27
+#: porthole/views/package.py:120
+msgid "Download Size"
+msgstr "Kích thước lấy về"
+
+#: porthole/glade/config.glade.h:28
+msgid "Edit"
+msgstr "Hiệu chỉnh"
+
+#: porthole/glade/config.glade.h:29
+msgid "Edit the selected filter expression"
+msgstr "Sửa biểu thức lọc được chọn"
+
+#: porthole/glade/config.glade.h:30
+#: porthole/views/package.py:68
+#: porthole/views/menus.py:47
+#: porthole/views/depends.py:128
+msgid "Emerge"
+msgstr "Cài đặt"
+
+#: porthole/glade/config.glade.h:31
+msgid "Enable arch-list"
+msgstr "Bật danh sách kiến trúc"
+
+#: porthole/glade/config.glade.h:32
+msgid "Enable make.conf modification"
+msgstr "Cho phép thay đổi make.conf"
+
+#: porthole/glade/config.glade.h:33
+msgid "Enter the command for a GUI su client eg. 'gksu' or 'gnomesu'"
+msgstr "Nhập vào lệnh GUI su client, vg 'gksu' hoặc 'gnomesu'"
+
+#: porthole/glade/config.glade.h:34
+msgid "Error"
+msgstr "Lỗi"
+
+#: porthole/glade/config.glade.h:35
+msgid "Filters"
+msgstr "Bộ lọc"
+
+#: porthole/glade/config.glade.h:36
+msgid "Font & Colors"
+msgstr "Phông và màu"
+
+#: porthole/glade/config.glade.h:37
+msgid "Font :"
+msgstr "Phông chữ :"
+
+#: porthole/glade/config.glade.h:38
+msgid "Foreground"
+msgstr "Chữ"
+
+#: porthole/glade/config.glade.h:39
+msgid "GUI su client :"
+msgstr "GUI su client :"
+
+#: porthole/glade/config.glade.h:40
+msgid "Global"
+msgstr "Toàn cục"
+
+#: porthole/glade/config.glade.h:41
+msgid "Green"
+msgstr "Xanh"
+
+#: porthole/glade/config.glade.h:42
+msgid "Homepage URL"
+msgstr "URL Trang chủ"
+
+#: porthole/glade/config.glade.h:43
+msgid "Info"
+msgstr "Thông tin"
+
+#: porthole/glade/config.glade.h:44
+#: porthole/plugin.py:205
+#: porthole/views/package.py:106
+#: porthole/views/depends.py:76
+msgid "Installed"
+msgstr "Đã cài đặt"
+
+#: porthole/glade/config.glade.h:45
+msgid "Installed list"
+msgstr "Danh sách đã cài"
+
+#: porthole/glade/config.glade.h:46
+#: porthole/views/depends.py:96
+msgid "Keywords"
+msgstr "Từ khoá"
+
+#: porthole/glade/config.glade.h:47
+msgid "LANG = "
+msgstr "LANG = "
+
+#: porthole/glade/config.glade.h:49
+msgid "Line Number"
+msgstr "Số dòng"
+
+#: porthole/glade/config.glade.h:50
+msgid "Long Descriptions"
+msgstr "Mô tả chi tiết"
+
+#: porthole/glade/config.glade.h:51
+msgid "Magenta"
+msgstr "Hồng"
+
+#: porthole/glade/config.glade.h:52
+msgid "Main Window"
+msgstr "Cửa sổ chính"
+
+#: porthole/glade/config.glade.h:53
+msgid "More Colours"
+msgstr "Nhiều màu hơn"
+
+#: porthole/glade/config.glade.h:54
+msgid "Move"
+msgstr "Di chuyển"
+
+#: porthole/glade/config.glade.h:55
+msgid "Move the selected filter expression to a different filter group"
+msgstr "Chuyển biểu thức lọc được chọn sang nhóm lọc khác"
+
+#: porthole/glade/config.glade.h:56
+msgid "Normal"
+msgstr "Bình thường"
+
+#: porthole/glade/config.glade.h:57
+msgid "Normal Font Colour"
+msgstr "Màu chữ bình thường"
+
+#: porthole/glade/config.glade.h:58
+msgid "Note"
+msgstr "Ghi chú"
+
+#: porthole/glade/config.glade.h:59
+msgid "Package View"
+msgstr "Xem gói"
+
+#: porthole/glade/config.glade.h:60
+msgid ""
+"Please enter the persistent history commands\n"
+"you wish to be pre-typed"
+msgstr "Vui lòng nhập persistent history command bạn muốn gõ trước."
+
+#: porthole/glade/config.glade.h:62
+msgid "Please select the Font colours desired"
+msgstr "Vui lòng chọn phông chữ và màu theo ý thích"
+
+#: porthole/glade/config.glade.h:63
+msgid "Porthole Configuration"
+msgstr "Cấu hình Porthole"
+
+#: porthole/glade/config.glade.h:64
+#: porthole/views/package.py:113
+#: porthole/views/depends.py:86
+msgid "Recommended"
+msgstr "Khuyến khích"
+
+#: porthole/glade/config.glade.h:65
+msgid "Red"
+msgstr "Đỏ"
+
+#: porthole/glade/config.glade.h:66
+msgid "Reset the filters to the defaults"
+msgstr "Đặt lại bộ lọc về mặc định"
+
+#: porthole/glade/config.glade.h:67
+msgid "Sample Window"
+msgstr "Cửa sổ mẫu"
+
+#: porthole/glade/config.glade.h:68
+msgid "Save the filters to disk"
+msgstr "Lưu bộ lọc vào đĩa"
+
+#: porthole/glade/config.glade.h:69
+msgid "Summary View"
+msgstr "Xem tóm tắt"
+
+#: porthole/glade/config.glade.h:70
+msgid "Sync method "
+msgstr "Cách đồng bộ"
+
+#: porthole/glade/config.glade.h:71
+msgid "Tag"
+msgstr "Tag"
+
+#: porthole/glade/config.glade.h:72
+msgid "Terminal"
+msgstr "Terminal"
+
+#: porthole/glade/config.glade.h:73
+msgid "Text Font & Colours"
+msgstr "Màu và phông chữ"
+
+#: porthole/glade/config.glade.h:74
+msgid "These colours are used by Porthole for highlighting"
+msgstr "Những màu này được Porthole dùng để tô sáng"
+
+#: porthole/glade/config.glade.h:75
+msgid "These colours are used by emerge for coloured output"
+msgstr "Những màu này được emerge dùng để hiển thị"
+
+#: porthole/glade/config.glade.h:76
+#: porthole/glade/porthole.glade.h:55
+msgid "USE Flags"
+msgstr "USE Flag"
+
+#: porthole/glade/config.glade.h:77
+msgid "Upgradable Colour"
+msgstr "Màu có thể nâng cấp"
+
+#: porthole/glade/config.glade.h:78
+msgid "Use Custom Browser"
+msgstr "Dùng trình duyệt riêng"
+
+#: porthole/glade/config.glade.h:79
+msgid "Use Default"
+msgstr "Dùng mặc định"
+
+#: porthole/glade/config.glade.h:80
+msgid "Use Flag set +"
+msgstr "Bật USE Flag"
+
+#: porthole/glade/config.glade.h:81
+msgid "Use Flag set -"
+msgstr "Tắt USE flag"
+
+#: porthole/glade/config.glade.h:82
+msgid "WARNING! Make sure you back up your make.conf file (usually /etc/make.conf) before enabling this option!"
+msgstr "CẢNH BÁO! Nhớ sao lưu tập tin make.conf (thường là /etc/make.conf) trước khi bật tùy chọn này!"
+
+#: porthole/glade/config.glade.h:83
+msgid "Warning"
+msgstr "Cảnh báo"
+
+#: porthole/glade/config.glade.h:84
+msgid "White"
+msgstr "Trắng"
+
+#: porthole/glade/config.glade.h:85
+msgid "Yellow"
+msgstr "Vàng"
+
+#: porthole/glade/config.glade.h:86
+#, fuzzy
+msgid "check_button"
+msgstr "checkbutton9"
+
+#: porthole/glade/config.glade.h:87
+msgid "checkbutton10"
+msgstr "checkbutton10"
+
+#: porthole/glade/config.glade.h:88
+msgid "checkbutton16"
+msgstr "checkbutton16"
+
+#: porthole/glade/config.glade.h:89
+msgid "checkbutton17"
+msgstr "checkbutton17"
+
+#: porthole/glade/config.glade.h:90
+msgid "checkbutton18"
+msgstr "checkbutton18"
+
+#: porthole/glade/config.glade.h:91
+msgid "checkbutton19"
+msgstr "checkbutton19"
+
+#: porthole/glade/config.glade.h:92
+msgid "checkbutton20"
+msgstr "checkbutton20"
+
+#: porthole/glade/config.glade.h:93
+msgid "checkbutton21"
+msgstr "checkbutton21"
+
+#: porthole/glade/config.glade.h:94
+msgid "checkbutton22"
+msgstr "checkbutton22"
+
+#: porthole/glade/config.glade.h:95
+msgid "checkbutton9"
+msgstr "checkbutton9"
+
+#: porthole/glade/config.glade.h:96
+msgid "command 1:"
+msgstr "Lệnh 1:"
+
+#: porthole/glade/config.glade.h:97
+msgid "command 2:"
+msgstr "Lệnh 2:"
+
+#: porthole/glade/config.glade.h:98
+msgid "command 3:"
+msgstr "Lệnh 3:"
+
+#: porthole/glade/config.glade.h:99
+msgid "command 4:"
+msgstr "Lệnh 4:"
+
+#: porthole/glade/config.glade.h:100
+msgid "command 5:"
+msgstr "Lệnh 5:"
+
+#: porthole/glade/config.glade.h:101
+msgid "fetch"
+msgstr "fetch"
+
+#: porthole/glade/config.glade.h:106
+msgid "profile"
+msgstr "profile"
+
+#: porthole/glade/config.glade.h:107
+msgid "radiobutton1"
+msgstr "radiobutton1"
+
+#: porthole/glade/config.glade.h:108
+msgid "radiobutton2"
+msgstr "radiobutton2"
+
+#: porthole/glade/config.glade.h:109
+msgid "radiobutton3"
+msgstr "radiobutton3"
+
+#: porthole/glade/config.glade.h:110
+msgid "radiobutton4"
+msgstr "radiobutton4"
+
+#: porthole/glade/config.glade.h:111
+msgid "radiobutton5"
+msgstr "radiobutton5"
+
+#: porthole/glade/config.glade.h:112
+msgid "radiobutton6"
+msgstr "radiobutton6"
+
+#: porthole/glade/config.glade.h:113
+msgid "radiobutton7"
+msgstr "radiobutton7"
+
+#: porthole/glade/config.glade.h:114
+msgid "radiobutton8"
+msgstr "radiobutton8"
+
+#: porthole/glade/config.glade.h:115
+msgid "radiobutton9"
+msgstr "radiobutton9"
+
+#: porthole/glade/porthole.glade.h:1
+msgid "<b>Plugin Description</b>"
+msgstr "<b>Mô tả Plugin</b>"
+
+#: porthole/glade/porthole.glade.h:2
+msgid "<b>Plugin List</b>"
+msgstr "<b>Danh sách Plugin</b>"
+
+#: porthole/glade/porthole.glade.h:3
+msgid "<b>Plugin Options</b>"
+msgstr "<b>Tùy chọn Plugin</b>"
+
+#: porthole/glade/porthole.glade.h:4
+msgid "A_dv Emerge"
+msgstr "Cài đặt _nâng cao"
+
+#: porthole/glade/porthole.glade.h:5
+msgid "Advanced Emerge Package"
+msgstr "Cài đặt gói nâng cao"
+
+#: porthole/glade/porthole.glade.h:6
+msgid "Cautions "
+msgstr "Chú ý "
+
+#: porthole/glade/porthole.glade.h:7
+msgid "Changelog"
+msgstr "Changelog"
+
+#: porthole/glade/porthole.glade.h:8
+msgid "Clears the entire queue"
+msgstr "Xóa hàng đợi toàn bộ"
+
+#: porthole/glade/porthole.glade.h:9
+#: porthole/readers/upgradeables.py:38
+#: porthole/readers/upgradeables.py:56
+#: porthole/readers/upgradeables.py:57
+#: porthole/readers/upgradeables.py:135
+#: porthole/views/depends.py:58
+#: porthole/views/depends.py:168
+msgid "Dependencies"
+msgstr "Phụ thuộc"
+
+#: porthole/glade/porthole.glade.h:10
+msgid "E_merge"
+msgstr "_Cài đặt"
+
+#: porthole/glade/porthole.glade.h:11
+msgid "E_merge Package"
+msgstr "_Cài đặt gói"
+
+#: porthole/glade/porthole.glade.h:12
+msgid "Ebuild"
+msgstr "Ebuild"
+
+#: porthole/glade/porthole.glade.h:13
+msgid "Emerge Package"
+msgstr "Cài đặt gói"
+
+#: porthole/glade/porthole.glade.h:14
+msgid "Emerge Queue"
+msgstr "Hàng đợi cài đặt"
+
+#: porthole/glade/porthole.glade.h:15
+msgid "In order to access all the features of Porthole, please run it with root privileges."
+msgstr "Để truy cập mọi tính năng của Porthole, hãy chạy Porthole bằng root."
+
+#: porthole/glade/porthole.glade.h:16
+msgid "Information "
+msgstr "Thông tin "
+
+#: porthole/glade/porthole.glade.h:17
+msgid "Installed files"
+msgstr "Tập tin đã cài"
+
+#: porthole/glade/porthole.glade.h:18
+#, fuzzy
+msgid "Move _Bottom"
+msgstr "Chuyển _xuống"
+
+#: porthole/glade/porthole.glade.h:19
+msgid "Move _Down"
+msgstr "Chuyển _xuống"
+
+#: porthole/glade/porthole.glade.h:20
+#, fuzzy
+msgid "Move _Top"
+msgstr "Chuyển _lên"
+
+#: porthole/glade/porthole.glade.h:21
+msgid "Move _Up"
+msgstr "Chuyển _lên"
+
+#: porthole/glade/porthole.glade.h:22
+msgid "Moves the selected process to start next"
+msgstr "Di chuyển các lựa chọn để bắt đầu kế tiếp"
+
+#: porthole/glade/porthole.glade.h:23
+msgid "Moves the selected process to the end of the queue"
+msgstr "Di chuyển vùng chọn vào cuối của hàng đợi"
+
+#: porthole/glade/porthole.glade.h:24
+msgid "Not Root"
+msgstr "Không phải root"
+
+#: porthole/glade/porthole.glade.h:25
+msgid "Not yet implemented in this window.                   Set the terminal queue status, ie. Start, Pause or Timer"
+msgstr ""
+
+#: porthole/glade/porthole.glade.h:26
+msgid "Not yet implemented.                                     Set run times for commands in the queue"
+msgstr ""
+
+#: porthole/glade/porthole.glade.h:27
+msgid "Not yet set..."
+msgstr ""
+
+#: porthole/glade/porthole.glade.h:28
+msgid "Only _Fetch"
+msgstr "Chỉ _lấy về"
+
+#: porthole/glade/porthole.glade.h:29
+msgid "Open Emerge _Log"
+msgstr "Mở Emerge _log"
+
+#: porthole/glade/porthole.glade.h:30
+msgid "Pause any commands in the queue"
+msgstr "Tạm dừng bất kỳ lệnh trong hàng đợi"
+
+#: porthole/glade/porthole.glade.h:31
+msgid "Please Enter Command to Execute"
+msgstr "Vui lòng nhập Enter để thực hiện"
+
+#: porthole/glade/porthole.glade.h:32
+msgid "Plugin Settings"
+msgstr "Thiết lập Plugin"
+
+#: porthole/glade/porthole.glade.h:33
+msgid "Plugin _Settings"
+msgstr "Thiết lập _Plugin"
+
+#: porthole/glade/porthole.glade.h:34
+msgid "Porthole"
+msgstr "Porthole"
+
+#: porthole/glade/porthole.glade.h:35
+msgid "Porthole Terminal"
+msgstr "Porthole Terminal"
+
+#: porthole/glade/porthole.glade.h:36
+#: porthole/terminal/constants.py:48
+msgid "Process"
+msgstr "Tiến trình"
+
+#: porthole/glade/porthole.glade.h:37
+msgid "Queue"
+msgstr "Hàng đợi"
+
+#: porthole/glade/porthole.glade.h:38
+msgid "RUN :"
+msgstr "CHẠY :"
+
+#: porthole/glade/porthole.glade.h:39
+msgid "R_eload Database"
+msgstr "_Nạp lại Cơ sở dữ liệu"
+
+#: porthole/glade/porthole.glade.h:40
+msgid "Re-Initialize _Portage"
+msgstr "_Khởi động lại Portage"
+
+#: porthole/glade/porthole.glade.h:41
+msgid "Re_sume"
+msgstr "_hồi phục"
+
+#: porthole/glade/porthole.glade.h:42
+msgid "Refresh the Current View"
+msgstr "Nạp lại cửa sổ"
+
+#: porthole/glade/porthole.glade.h:43
+msgid "Removes selected queue item(s)"
+msgstr "Loại bỏ chọn bài hàng đợi"
+
+#: porthole/glade/porthole.glade.h:44
+msgid "Resume the queue processes remaining"
+msgstr "Tiếp tục quy trình còn lại của hàng đợi"
+
+#: porthole/glade/porthole.glade.h:45
+msgid "Run commands in the queue"
+msgstr "Khởi lệnh trong hàng đợi"
+
+#: porthole/glade/porthole.glade.h:46
+msgid "S_ync"
+msgstr "Đồng _bộ"
+
+#: porthole/glade/porthole.glade.h:47
+msgid "S_ync Tree"
+msgstr "Đồng bộ _cây"
+
+#: porthole/glade/porthole.glade.h:48
+msgid "Save Log _As"
+msgstr "Lưu _log với tên mới"
+
+#: porthole/glade/porthole.glade.h:49
+msgid "Save _Log"
+msgstr "Lưu _log"
+
+#: porthole/glade/porthole.glade.h:50
+msgid "Search _Descriptions"
+msgstr "_Mô tả tìm"
+
+#: porthole/glade/porthole.glade.h:51
+#, fuzzy
+msgid "Skip _Queue Item"
+msgstr "Bỏ qua _hàng đợi"
+
+#: porthole/glade/porthole.glade.h:52
+#: porthole/terminal/constants.py:48
+msgid "Summary"
+msgstr "Tóm tắt"
+
+#: porthole/glade/porthole.glade.h:53
+msgid "Temporarily stop any remaining processes from starting"
+msgstr "Tạm ngừng bất kỳ quy trình còn lại"
+
+#: porthole/glade/porthole.glade.h:54
+#, fuzzy
+msgid "Ti_mer"
+msgstr "_Cài đặt"
+
+#: porthole/glade/porthole.glade.h:56
+msgid "U_nmerge"
+msgstr "_Gỡ bỏ"
+
+#: porthole/glade/porthole.glade.h:57
+msgid "U_nmerge Package"
+msgstr "Gỡ bỏ gói"
+
+#: porthole/glade/porthole.glade.h:58
+msgid "Unmerge Package"
+msgstr "Gỡ bỏ gói"
+
+#: porthole/glade/porthole.glade.h:59
+msgid "Upgrade packages to newest versions"
+msgstr "Nâng cấp các gói sang phiên bản mới nhất"
+
+#: porthole/glade/porthole.glade.h:60
+msgid "Warnings! "
+msgstr "Cảnh báo! "
+
+#: porthole/glade/porthole.glade.h:61
+msgid "_Actions"
+msgstr "_Hành động"
+
+#: porthole/glade/porthole.glade.h:62
+msgid "_Advanced Emerge Package"
+msgstr "Cài đặt gói _nâng cao"
+
+#: porthole/glade/porthole.glade.h:63
+msgid "_Close Window"
+msgstr "Đón_g cửa sổ"
+
+#: porthole/glade/porthole.glade.h:64
+msgid "_Configure Porthole"
+msgstr "_Cấu hình Porthole"
+
+#: porthole/glade/porthole.glade.h:65
+msgid "_Contents"
+msgstr "_Nội dung"
+
+#: porthole/glade/porthole.glade.h:66
+msgid "_Edit"
+msgstr "_Sửa"
+
+#: porthole/glade/porthole.glade.h:67
+msgid "_Help"
+msgstr "Trợ _giúp"
+
+#: porthole/glade/porthole.glade.h:68
+msgid "_Kill"
+msgstr "_Buộc chấm dứt"
+
+#: porthole/glade/porthole.glade.h:69
+msgid "_Kill Process"
+msgstr "_Buộc chấm dứt tiến trình"
+
+#: porthole/glade/porthole.glade.h:70
+msgid "_Noreplace"
+msgstr "_Noreplace"
+
+#: porthole/glade/porthole.glade.h:71
+msgid "_Normal"
+msgstr "_Bình thường"
+
+#: porthole/glade/porthole.glade.h:72
+msgid "_Oneshot"
+msgstr "_Oneshot"
+
+#: porthole/glade/porthole.glade.h:73
+msgid "_Open Log"
+msgstr "_Mở log"
+
+#: porthole/glade/porthole.glade.h:74
+msgid "_Pretend"
+msgstr "_Chạy giả"
+
+#: porthole/glade/porthole.glade.h:75
+msgid "_Process"
+msgstr "_Tiến trình"
+
+#: porthole/glade/porthole.glade.h:76
+msgid "_Queue"
+msgstr "_Hàng đợi"
+
+#: porthole/glade/porthole.glade.h:77
+msgid "_Resume"
+msgstr "_Chạy tiếp"
+
+#: porthole/glade/porthole.glade.h:78
+msgid "_Run Custom Command"
+msgstr "_Chạy lệnh riêng"
+
+#: porthole/glade/porthole.glade.h:79
+msgid "_Settings"
+msgstr "_Thiết lập"
+
+#: porthole/glade/porthole.glade.h:80
+msgid "_Skip First Package"
+msgstr "_Bỏ qua gói đầu tiên"
+
+#: porthole/glade/porthole.glade.h:81
+msgid "_Update"
+msgstr "_Update"
+
+#: porthole/glade/porthole.glade.h:82
+msgid "_Upgrade"
+msgstr "_Nâng cấp"
+
+#: porthole/glade/porthole.glade.h:83
+msgid "_Upgrade Packages"
+msgstr "_Nâng cấp gói"
+
+#: porthole/glade/porthole.glade.h:84
+msgid "_Verbose"
+msgstr "_Chi tiết"
+
+#: porthole/glade/porthole.glade.h:85
+msgid "_View:"
+msgstr "_Xem:"
+
+#: porthole/utils/utils.py:205
+msgid "Error reading emerge log file.  Check file permissions, or check for corrupt log file."
+msgstr "Lỗi đọc emerge log. Vui lòng kiểm tra quyền truy cập hoặc kiểm tra xem tập tin log có hư không."
+
+#: porthole/plugin.py:203
+msgid "Enable"
+msgstr "Làm cho có thể"
+
+#: porthole/plugin.py:204
+msgid "Plug-in"
+msgstr "Plug-in"
+
+#: porthole/packagebook/notebook.py:160
+msgid "Viewing Dependency of: "
+msgstr "Xem phụ thuộc của:"
+
+#: porthole/packagebook/dependstree.py:91
+msgid "Using "
+msgstr "Dủng "
+
+#: porthole/packagebook/dependstree.py:94
+msgid "Not Using "
+msgstr "Không dùng "
+
+#: porthole/packagebook/dependstree.py:319
+#: porthole/packagebook/summary.py:563
+#: porthole/backends/utilities.py:76
+#: porthole/advancedemerge/advemerge.py:680
+#: porthole/db/package.py:66
+#: porthole/db/package.py:82
+#: porthole/db/package.py:89
+#: porthole/db/package.py:97
+#: porthole/db/package.py:105
+#: porthole/db/package.py:117
+#: porthole/db/package.py:135
+#: porthole/db/package.py:145
+#: porthole/db/package.py:155
+#: porthole/db/package.py:163
+#: porthole/db/package.py:180
+#: porthole/db/package.py:187
+#: porthole/db/package.py:206
+#: porthole/db/package.py:214
+#: porthole/db/package.py:231
+#: porthole/db/package.py:243
+#: porthole/db/package.py:257
+#: porthole/db/package.py:280
+#: porthole/readers/sets.py:73
+#: porthole/readers/sets.py:74
+#: porthole/readers/readers.py:123
+#: porthole/readers/readers.py:124
+#: porthole/readers/deprecated.py:84
+#: porthole/readers/deprecated.py:85
+#: porthole/readers/upgradeables.py:94
+#: porthole/readers/upgradeables.py:95
+#: porthole/views/package.py:329
+#: porthole/views/package.py:435
+#: porthole/views/package.py:480
+#: porthole/views/package.py:542
+#: porthole/mainwindow.py:1165
+msgid "None"
+msgstr "Không"
+
+#: porthole/packagebook/depends.py:240
+#, python-format
+msgid "Using %s"
+msgstr "Dùng %s"
+
+#: porthole/packagebook/depends.py:244
+#, python-format
+msgid "Not Using %s"
+msgstr "Không dùng %s"
+
+#: porthole/packagebook/depends.py:258
+msgid "Any of:"
+msgstr "Bất kỳ trong:"
+
+#: porthole/packagebook/depends.py:262
+msgid "All of:"
+msgstr "Mọi cái:"
+
+#: porthole/packagebook/summary.py:86
+msgid "Emerge this ebuild"
+msgstr "Cài đặt ebuild này"
+
+#: porthole/packagebook/summary.py:88
+msgid "Pretend Emerge this ebuild"
+msgstr "Giả cài đặt ebuild này"
+
+#: porthole/packagebook/summary.py:90
+msgid "Sudo Emerge this ebuild"
+msgstr "Emerge Sudo ebuild này"
+
+#: porthole/packagebook/summary.py:92
+msgid "Unmerge this ebuild"
+msgstr "Unmerge ebuild này"
+
+#: porthole/packagebook/summary.py:94
+msgid "Sudo Unmerge this ebuild"
+msgstr "Unmerge Sudo ebuild này"
+
+#: porthole/packagebook/summary.py:96
+#: porthole/views/depends.py:134
+#, fuzzy
+msgid "Advanced Emerge"
+msgstr "Cài đặt gói nâng cao"
+
+#: porthole/packagebook/summary.py:98
+msgid "Remove this arch from package.keywords"
+msgstr "Hủy bỏ kiến trúc này từ package.keywords"
+
+#: porthole/packagebook/summary.py:100
+msgid "Remove ebuild keyword from package.keywords"
+msgstr "Loại khỏi package.keywords"
+
+#: porthole/packagebook/summary.py:102
+msgid "Remask this ebuild"
+msgstr "Mask lại ebuild này"
+
+#: porthole/packagebook/summary.py:104
+msgid "Show the properties for this ebuild"
+msgstr "Hiển thị các tài sản cho ebuild này"
+
+#: porthole/packagebook/summary.py:109
+#, python-format
+msgid "Add %s to package.keywords (for this ebuild only)"
+msgstr "Thêm %s vào package.keywords (chỉ ebuild này)"
+
+#: porthole/packagebook/summary.py:111
+msgid "Add this arch to package.keywords"
+msgstr "Thêm kiến trúc này để package.keywords"
+
+#: porthole/packagebook/summary.py:115
+msgid "Add to package.keywords (for this ebuild only)"
+msgstr "Thêm vào package.keywords (chỉ ebuild này)"
+
+#: porthole/packagebook/summary.py:116
+msgid "Add to package.keywords"
+msgstr "Thêm vào package.keywords"
+
+#: porthole/packagebook/summary.py:127
+msgid "Mask this ebuild or package"
+msgstr "Mặt nạ này ebuild hoặc gói"
+
+#: porthole/packagebook/summary.py:128
+msgid "Unmask this ebuild or package"
+msgstr "Lộ chân tướng này ebuild hoặc gói"
+
+#: porthole/packagebook/summary.py:275
+#, python-format
+msgid "\tSlot %s: "
+msgstr "\tSlot %s: "
+
+#: porthole/packagebook/summary.py:296
+msgid "\tNone"
+msgstr "\tKhông"
+
+#: porthole/packagebook/summary.py:323
+msgid "Slot"
+msgstr "Slot"
+
+#: porthole/packagebook/summary.py:326
+msgid "Overlay"
+msgstr "Lớp phủ"
+
+#: porthole/packagebook/summary.py:349
+msgid "Ebuild version no longer supported"
+msgstr "Ebuild phiên bản không còn được hỗ trợ"
+
+#: porthole/packagebook/summary.py:350
+msgid "Obsolete"
+msgstr "Lỗi thời"
+
+#: porthole/packagebook/summary.py:437
+msgid "IUSE: "
+msgstr "IUSE: "
+
+#: porthole/packagebook/summary.py:442
+msgid "Use flags settings: "
+msgstr "USE flag cài đặt: "
+
+#: porthole/packagebook/summary.py:447
+msgid "Final environment Use flags: "
+msgstr "Cuối cùng cờ môi trường USE:"
+
+#: porthole/packagebook/summary.py:454
+msgid "Keywords: "
+msgstr "Từ khoá: "
+
+#: porthole/packagebook/summary.py:466
+msgid "License: "
+msgstr "Giấy phép: "
+
+#: porthole/packagebook/summary.py:549
+msgid "User Configs: "
+msgstr "Cấu hình người dùng: "
+
+#: porthole/packagebook/summary.py:644
+msgid "Long Description: "
+msgstr "Mô tả chi tiết"
+
+#: porthole/packagebook/summary.py:665
+msgid "Installed versions:\n"
+msgstr "Phiên bản đã cài:\n"
+
+#: porthole/packagebook/summary.py:669
+#: porthole/loaders/loaders.py:163
+msgid "Not installed"
+msgstr "Chưa cài đặt"
+
+#: porthole/packagebook/summary.py:674
+#, python-format
+msgid "Available versions for %s:\n"
+msgstr "Phiên bản %s hiện có:\n"
+
+#: porthole/packagebook/summary.py:678
+msgid "Properties for version: "
+msgstr "Thuộc tính phiên bản: "
+
+#: porthole/backends/metadata.py:142
+#, python-format
+msgid "Metadata file \"%s\" does not exist."
+msgstr "Tập tin metadata \"%s\" không tồn tại."
+
+# ignore for now
+#: porthole/backends/pkgcore_lib.py:34
+msgid "Could not find pkgcore module."
+msgstr ""
+
+# ignore for now
+#: porthole/backends/pkgcore_lib.py:38
+msgid "Could not find pkgcore.config module."
+msgstr ""
+
+# ignore for now
+#: porthole/backends/pkgcore_lib.py:42
+msgid "Could not find pkgcore.const module."
+msgstr ""
+
+# ignore for now
+#: porthole/backends/pkgcore_lib.py:46
+msgid "Could not find pkgcore.util.file.read_bash module."
+msgstr ""
+
+# ignore for now
+#: porthole/backends/pkgcore_lib.py:50
+msgid "Could not find pkgcore.package.atom module."
+msgstr ""
+
+#: porthole/backends/pkgcore_lib.py:56
+#: porthole/backends/set_config.py:35
+#: porthole/backends/portagelib.py:63
+msgid ""
+"Could not find portage module.\n"
+"Are you sure this is a Gentoo system?"
+msgstr ""
+"Không tìm thấy module portage.\n"
+"Bạn có chắc đây là hệ thống Gentoo không?"
+
+#: porthole/backends/pkgcore_lib.py:550
+#: porthole/backends/portagelib.py:442
+msgid "No masking reason given"
+msgstr "Không nêu lý do mask"
+
+#: porthole/backends/utilities.py:83
+#: porthole/mainwindow.py:339
+msgid "Unknown"
+msgstr "Không rõ"
+
+#: porthole/advancedemerge/advemerge.py:98
+#, python-format
+msgid "Advanced Emerge Settings for %s"
+msgstr "Thiết lập Emerge nâng cao cho %s"
+
+#: porthole/advancedemerge/advemerge.py:142
+#: porthole/advancedemerge/advemerge.py:340
+#, python-format
+msgid "Slot:%s"
+msgstr "Slot:%s"
+
+#: porthole/advancedemerge/advemerge.py:144
+#: porthole/advancedemerge/advemerge.py:342
+msgid "   {unavailable}"
+msgstr "   {không sẵn sàng}"
+
+#: porthole/advancedemerge/advemerge.py:146
+#: porthole/advancedemerge/advemerge.py:344
+msgid "   (unstable)"
+msgstr "   (không ổn định)"
+
+#: porthole/advancedemerge/advemerge.py:148
+#: porthole/advancedemerge/advemerge.py:346
+msgid "   [MASKED]"
+msgstr "   [MASKED]"
+
+#: porthole/advancedemerge/advemerge.py:151
+#: porthole/advancedemerge/advemerge.py:349
+msgid "   (recommended) (downgrade)"
+msgstr "   (khuyến khích) (hạ cấp)"
+
+#: porthole/advancedemerge/advemerge.py:153
+#: porthole/advancedemerge/advemerge.py:351
+msgid "   (recommended)"
+msgstr "   (khuyến khích)"
+
+#: porthole/advancedemerge/advemerge.py:156
+#: porthole/advancedemerge/advemerge.py:354
+msgid "   [installed]"
+msgstr "   [đã cài đặt]"
+
+#: porthole/advancedemerge/advemerge.py:640
+msgid "Unsupported use flag"
+msgstr "USE flag khỗng hỗ trợ"
+
+#: porthole/terminal/term_queue.py:182
+msgid "id"
+msgstr "id"
+
+#: porthole/terminal/term_queue.py:187
+msgid "Packages to be merged      "
+msgstr "Các gói được cài đặt       "
+
+#: porthole/terminal/term_queue.py:200
+msgid "Sender"
+msgstr "người gởi"
+
+#: porthole/terminal/term_queue.py:222
+msgid ""
+"The package you selected is already in the emerge queue,\n"
+"but it has been killed. Would you like to resume the emerge?"
+msgstr ""
+"Gói bạn chọn đã có trong hàng đợi emerge, nhưng đã bị\n"
+"buộc chấm dứt. Bạn có muốn tiếp tục tiến trình emerge không?"
+
+#: porthole/terminal/term_queue.py:252
+msgid "The package you selected is already in the emerge queue!"
+msgstr "Gói bạn chọn đã có trong hàng đợi emerge rồi!"
+
+#: porthole/terminal/term_queue.py:253
+#: porthole/terminal/term_queue.py:254
+msgid "Error Adding Package To Queue!"
+msgstr "Lỗi thêm gói vào hàng đợi!"
+
+#: porthole/terminal/term_queue.py:255
+msgid "OK"
+msgstr "OK"
+
+#: porthole/terminal/constants.py:46
+msgid "*** process killed ***\n"
+msgstr "*** đã chấm dứt tiến trình ***\n"
+
+#: porthole/terminal/constants.py:47
+msgid "*** process completed ***\n"
+msgstr "*** đã hoàn tất tiến trình ***\n"
+
+#: porthole/terminal/constants.py:48
+msgid "Warnings"
+msgstr "Cảnh báo"
+
+#: porthole/terminal/constants.py:48
+msgid "Cautions"
+msgstr "Chú ý"
+
+#: porthole/terminal/constants.py:48
+msgid "Emerge queue"
+msgstr "Hàng đợi cài đặt"
+
+#: porthole/terminal/terminal.py:106
+#, fuzzy
+msgid "Porthole Log Viewer"
+msgstr "Porthole phụ thuộc Xem"
+
+#: porthole/terminal/terminal.py:294
+msgid "Non-DBus"
+msgstr "Non-DBus"
+
+#: porthole/terminal/terminal.py:436
+msgid "***Log Process Killed!"
+msgstr "***Đã buộc chấm dứt tiến trình log!"
+
+#: porthole/terminal/terminal.py:504
+msgid "Confirm: Kill the Running Process"
+msgstr "Xác nhận: Buộc chấm dứt tiến trình đang chạy"
+
+#: porthole/terminal/terminal.py:790
+#, python-format
+msgid "*** Log loading complete : %s"
+msgstr "*** Hoàn tất nạp log : %s"
+
+#: porthole/terminal/terminal.py:807
+msgid "_Cancel"
+msgstr "_Hủy bỏ"
+
+#: porthole/terminal/terminal.py:815
+#, python-format
+msgid ""
+"'sudo -p Password: ' requires your user password to perform the command:\n"
+"'%s'"
+msgstr ""
+"'sudo -p mật_mã: ' cần mật mã để thực hiện lệnh:\n"
+"'%s'"
+
+#: porthole/terminal/terminal.py:819
+#, python-format
+msgid ""
+"'sudo: ' requires your user password to perform the command:\n"
+"'%s'"
+msgstr ""
+"'sudo: ' cần mật mã để thực hiện lệnh:\n"
+"'%s'"
+
+#: porthole/terminal/terminal.py:824
+#: porthole/terminal/terminal.py:828
+#, python-format
+msgid ""
+"'su' requires the root password to perform the command:\n"
+"'%s'"
+msgstr ""
+"'su' cần mật mã để thực hiện lệnh:\n"
+"'%s'"
+
+#: porthole/terminal/terminal.py:831
+#, python-format
+msgid ""
+"Password Required to perform the command:\n"
+"'%s'"
+msgstr ""
+"mật_mã cần mật mã để thực hiện lệnh:\n"
+"'%s'"
+
+#: porthole/terminal/terminal.py:836
+msgid "Password: "
+msgstr "Mật mã:"
+
+#: porthole/terminal/terminal.py:919
+#, python-format
+msgid "*** Total warnings count for merge = %d \n"
+msgstr "*** Tổng số cảnh báo cài đặt = %d \n"
+
+#: porthole/terminal/terminal.py:925
+#, python-format
+msgid "*** Total cautions count for merge = %d \n"
+msgstr "*** Tổng số chú ý cài đặt = %d \n"
+
+#: porthole/terminal/terminal.py:1049
+msgid "*** Unfortunately, you don't have enough logged information about the listed packages to calculate estimated build times accurately.\n"
+msgstr "*** Không may, bạn không có đủ thông tin cần thiết về gói này để ước lượng thời gian tạo một cách chính xác.\n"
+
+#: porthole/terminal/terminal.py:1055
+#, python-format
+msgid "*** Based on the build history of these packages on your system, I can estimate that emerging them usually takes, on average, %(days)d days, %(hours)d hrs, %(minutes)d mins, and %(seconds)d secs.\n"
+msgstr "*** Dựa trên lịch sử tạo những gói này trên hệ thống, có thể ước lượng thời gian cần dùng để tạo, tính trung bình, %(days)d ngày, %(hours)d giờ, %(minutes)d phút, %(seconds)d giây.\n"
+
+#: porthole/terminal/terminal.py:1064
+msgid "*** Note: If you have a lot of programs running on your system while porthole is emerging packages, or if you have changed your hardware since the last time you built some of these packages, this estimate may be inaccurate.\n"
+msgstr "*** Chú ý: Nếu bạn có nhiều chương trình cùng chạy trên hệ thống khi emerge, hoặc bạn thay đổi phần cứng tính từ lần tạo gói cuối cùng, ước lượng có thể sẽ không chính xác.\n"
+
+#: porthole/terminal/terminal.py:1086
+msgid "*** Unknown File Loading error"
+msgstr "*** Lỗi lạnạp tập tin"
+
+#: porthole/terminal/terminal.py:1090
+msgid "*** File Loading... Processing..."
+msgstr "*** Đang nạp tập tin... Đang xử lý..."
+
+#: porthole/terminal/terminal.py:1100
+msgid ": Open log File"
+msgstr ": Mở tập tin log"
+
+#: porthole/terminal/terminal.py:1136
+#, fuzzy
+msgid ": Save File"
+msgstr ": Mở tập tin log"
+
+#: porthole/terminal/terminal.py:1148
+#: porthole/dialogs/fileselector.py:80
+#, python-format
+msgid "Ovewrite existing file '%s'?"
+msgstr "Ghi đè tập tin '%s' chứ?"
+
+#: porthole/terminal/terminal.py:1204
+#, python-format
+msgid "*** Loading File : %s"
+msgstr "*** Đang nạp tập tin : %s"
+
+#: porthole/terminal/terminal.py:1209
+#, python-format
+msgid "Cannot open file '%(filename)s': %(errmsg)s"
+msgstr "Không thể mở tập tin '%(filename)s': %(errmsg)s"
+
+#: porthole/terminal/terminal.py:1236
+#, python-format
+msgid "Cannot back up '%(filename)s' to '%(bak_filename)s': %(errmsg)s"
+msgstr "Không thể sao lưu '%(filename)s' vào '%(bak_filename)s': %(errmsg)s"
+
+#: porthole/terminal/terminal.py:1245
+#, python-format
+msgid "*** saving file: %s"
+msgstr "*** đang lưu tập tin: %s"
+
+#: porthole/terminal/terminal.py:1279
+#, python-format
+msgid ""
+"Can't restore backup file '%(filename)s' to '%(bak_filename)s': %(errmsg)s\n"
+"Backup left as '%(bak_filename)s'"
+msgstr ""
+"Không thể lư tập tin sao lưu '%(filename)s' vào '%(bak_filename)s': %(errmsg)s\n"
+"Tập tin sao lưu vẫn là '%(bak_filename)s'"
+
+#: porthole/terminal/terminal.py:1286
+#, python-format
+msgid "*** File saved : %s"
+msgstr "*** Đã lưu tập tin : %s"
+
+#: porthole/terminal/terminal.py:1296
+#, python-format
+msgid "Save log to '%s'?"
+msgstr "Lưu log vào '%s' nhé?"
+
+#: porthole/loaders/loaders.py:80
+#, python-format
+msgid ""
+"This %s has an encoding method unknown to porthole.\n"
+"Please report this to bugs.gentoo.org and porthole's bugtracker"
+msgstr ""
+"%s này dùng bảng mã lạ với porthole.\n"
+"Vui lòng báo lỗi cho bugs.gentoo.org và bugtracker của porthole."
+
+#: porthole/loaders/loaders.py:138
+#, python-format
+msgid "%s is Empty"
+msgstr "%s là rỗng"
+
+#: porthole/loaders/loaders.py:141
+#: porthole/loaders/loaders.py:144
+#, python-format
+msgid "%s Not Available"
+msgstr "%s không sẵn sàng"
+
+#: porthole/loaders/loaders.py:166
+msgid ""
+"No data currently available.\n"
+"The package may not be installed"
+msgstr ""
+"Dữ liệu hiện chưa sẵn sàng.\n"
+"Không thể cài đặt gói."
+
+#: porthole/loaders/loaders.py:170
+#, python-format
+msgid ""
+"%(installed_count)i installed files for: %(ebuild)s \n"
+"\n"
+msgstr ""
+"%(installed_count)i tập tin cài đặt cho: %(ebuild)s \n"
+"\n"
+
+#: porthole/config/preferences.py:294
+#: porthole/config/preferences.py:334
+msgid "Sync"
+msgstr "Đồng bộ"
+
+#: porthole/config/preferences.py:335
+msgid "WebRsync"
+msgstr "Đồng bộ Web"
+
+#: porthole/db/user_configs.py:336
+#, python-format
+msgid "Porthole: Please select the %s file to use"
+msgstr "Porthole: Vui lòng chọn %s phông chữ và màu theo ý thích"
+
+#: porthole/readers/upgradeables.py:38
+#: porthole/readers/upgradeables.py:56
+#: porthole/readers/upgradeables.py:57
+#: porthole/readers/upgradeables.py:113
+#: porthole/readers/upgradeables.py:115
+#: porthole/readers/upgradeables.py:117
+#: porthole/readers/upgradeables.py:135
+msgid "System"
+msgstr "\tHệ thống"
+
+#: porthole/readers/upgradeables.py:38
+#: porthole/readers/upgradeables.py:133
+#: porthole/readers/upgradeables.py:134
+#: porthole/mainwindow.py:78
+#: porthole/mainwindow.py:259
+msgid "Sets"
+msgstr "_Đóng gói nhóm"
+
+#: porthole/readers/upgradeables.py:38
+#: porthole/readers/upgradeables.py:56
+#: porthole/readers/upgradeables.py:57
+#: porthole/readers/upgradeables.py:135
+msgid "World"
+msgstr "Thế giới"
+
+#: porthole/dialogs/simple.py:58
+msgid "_Yes"
+msgstr "_Có"
+
+#: porthole/dialogs/simple.py:60
+msgid "_No"
+msgstr "_Không"
+
+#: porthole/dialogs/simple.py:71
+msgid "Loading"
+msgstr "Đang nạp"
+
+#: porthole/dialogs/command.py:89
+#: porthole/dialogs/command.py:98
+msgid "command line entry"
+msgstr "Mục nhập lệnh"
+
+#: porthole/dialogs/about.py:54
+#, python-format
+msgid "About Porthole %s"
+msgstr "Giới thiệu Porthole %s"
+
+#: porthole/version.py:26
+msgid "Copyright (c) 2003 - 2009"
+msgstr "Copyright (c) 2003 - 2008"
+
+#: porthole/views/package.py:70
+#: porthole/views/menus.py:49
+#: porthole/views/depends.py:130
+msgid "Pretend Emerge"
+msgstr "Giả cài đặt"
+
+#: porthole/views/package.py:72
+#: porthole/views/menus.py:51
+#: porthole/views/depends.py:132
+msgid "Sudo Emerge"
+msgstr "Cài đặt dùng Sudo"
+
+#: porthole/views/package.py:74
+#: porthole/views/menus.py:53
+msgid "Unmerge"
+msgstr "Gỡ bỏ"
+
+#: porthole/views/package.py:76
+#: porthole/views/menus.py:55
+msgid "Sudo Unmerge"
+msgstr "Gỡ bỏ dùng Sudo"
+
+#: porthole/views/package.py:78
+#: porthole/views/menus.py:57
+#: porthole/views/depends.py:140
+#, python-format
+msgid "Append with %s to package.keywords"
+msgstr "Thêm %s vào package.keywords"
+
+#: porthole/views/package.py:80
+#: porthole/views/menus.py:59
+msgid "De-Select all"
+msgstr "Bỏ chọn tất cả"
+
+#: porthole/views/package.py:82
+#: porthole/views/menus.py:61
+msgid "Select all"
+msgstr "Chọn tất cả"
+
+#: porthole/views/package.py:96
+msgid "Packages"
+msgstr "Gói"
+
+#: porthole/views/category.py:42
+#: porthole/views/category.py:70
+msgid "Categories"
+msgstr "Phân loại"
+
+#: porthole/views/category.py:48
+msgid "# pkgs"
+msgstr "# pkgs"
+
+#: porthole/views/category.py:68
+msgid "Search History"
+msgstr "Lịch sử tìm"
+
+#: porthole/views/depends.py:67
+msgid "Package"
+msgstr "Gói"
+
+#: porthole/views/depends.py:106
+msgid "Required USE"
+msgstr "cần thiế USE"
+
+#: porthole/views/depends.py:384
+msgid "Porthole Dependency Viewer"
+msgstr "Porthole phụ thuộc Xem"
+
+#: porthole/mainwindow.py:78
+msgid "Deprecated"
+msgstr "Lỗi thời"
+
+#: porthole/mainwindow.py:79
+#, fuzzy
+msgid "Upgradable"
+msgstr "_Nâng cấp"
+
+#: porthole/mainwindow.py:206
+msgid ""
+" Synchronise Package Database \n"
+" The last sync was done:\n"
+msgstr ""
+" Đồng bộ cơ sở dữ liệu gói \n"
+" Lần đồng bộ cuối cùng lúc:\n"
+
+#: porthole/mainwindow.py:257
+msgid "All Packages"
+msgstr "Mọi gói"
+
+#: porthole/mainwindow.py:257
+msgid "Installed Packages"
+msgstr "Gói đã cài đặt"
+
+#: porthole/mainwindow.py:258
+msgid "Search Results"
+msgstr "Kết quả tìm"
+
+#: porthole/mainwindow.py:258
+msgid "Upgradable Packages"
+msgstr "Gói có thể nâng cấp"
+
+#: porthole/mainwindow.py:259
+msgid "Deprecated Packages"
+msgstr "_Gói quá cũ"
+
+#: porthole/mainwindow.py:279
+msgid "Active Plugins"
+msgstr "Plugin hoạt động"
+
+#: porthole/mainwindow.py:293
+msgid "Loading database"
+msgstr "Đang nạp cơ sở dữ liệu"
+
+#: porthole/mainwindow.py:294
+msgid "Initializing database. Please wait..."
+msgstr "Khởi động cơ sở dữ liệu. Vui lòng chờ..."
+
+#: porthole/mainwindow.py:369
+msgid "Reloading database"
+msgstr "Đang nạp lại cơ sở dữ liệu"
+
+#: porthole/mainwindow.py:499
+msgid "No root privileges"
+msgstr "Không có quyền root"
+
+#: porthole/mainwindow.py:501
+msgid ""
+"In order to access all the features of Porthole,\n"
+"please run it with root privileges."
+msgstr ""
+"Để dùng hết tính năng của Porthole,\n"
+"bạn phải chạy nó dưới quyền root."
+
+#: porthole/mainwindow.py:503
+msgid "_Ok"
+msgstr "_Ok"
+
+#: porthole/mainwindow.py:537
+#, python-format
+msgid "%(base)s: %(count)i packages read"
+msgstr "%(base)s: %(count)i gói được đọc"
+
+#: porthole/mainwindow.py:552
+#, python-format
+msgid "%(base)s: Populating tree"
+msgstr "%(base)s: Đang tạo cây"
+
+#: porthole/mainwindow.py:686
+#, fuzzy
+msgid "Porthole Main Window"
+msgstr "Cửa sổ chính"
+
+#: porthole/mainwindow.py:912
+msgid "Upgrade requested"
+msgstr "Yêu cầu nâng cấp"
+
+#: porthole/mainwindow.py:914
+msgid "Do you want to upgrade all packages in your world file?"
+msgstr "Bạn có muốn nâng cấp mọi gói trong tập tin world của bạn không?"
+
+#: porthole/mainwindow.py:926
+msgid "Upgradable dependencies:"
+msgstr "Phụ thuộc cần nâng cấp:"
+
+#: porthole/mainwindow.py:958
+msgid "Please Wait!"
+msgstr "Vui lòng chờ!"
+
+#: porthole/mainwindow.py:960
+msgid "Loading package descriptions..."
+msgstr "Đang nạp mô tả gói..."
+
+#: porthole/mainwindow.py:1005
+#, python-format
+msgid "Searching descriptions for %s"
+msgstr "Đang tìm mô tả của %s"
+
+#: porthole/mainwindow.py:1008
+#, python-format
+msgid "Searching for %s"
+msgstr "Đang tìm %s"
+
+#: porthole/mainwindow.py:1400
+#, python-format
+msgid "Generating '%s' packages list..."
+msgstr "Tạo '% s' gói danh sách"
+
+#: porthole/mainwindow.py:1448
+#, fuzzy, python-format
+msgid "Searching for '%s' packages..."
+msgstr "Đang tìm %s"
+
+#: porthole/mainwindow.py:1469
+msgid "Building Package List"
+msgstr "Đang lên danh sách gói"
+
+#: porthole/mainwindow.py:1512
+msgid "Done: "
+msgstr "Xong: "
+
+#: porthole/mainwindow.py:1527
+#: porthole/mainwindow.py:1535
+#, python-format
+msgid "%(pack)d packages in %(cat)d categories"
+msgstr "%(pack)d gói trong %(cat)d phân loại"
+
+#: porthole/mainwindow.py:1619
+msgid "Confirm: Kill the Running Process in the Terminal"
+msgstr "Xác nhận: Buộc chấm dứt tiến trình đang chạy ở terminal"
+
+#~ msgid "Y"
+#~ msgstr "Y"
+#~ msgid "N"
+#~ msgstr "N"
+#~ msgid "upgradeonly"
+#~ msgstr "upgradeonly"
+#~ msgid "A_bout"
+#~ msgstr "_Giới thiệu"
+#~ msgid "C_lear"
+#~ msgstr "_Xoá trắng"
+#~ msgid "Main process text"
+#~ msgstr "Văng bản xử lý chính"
+#~ msgid "Quit"
+#~ msgstr "Thoát"
+#~ msgid "_Copy"
+#~ msgstr "_Chép"
+#~ msgid "_Remove"
+#~ msgstr "_Loại bỏ"
+#~ msgid "_Upgrades Only"
+#~ msgstr "_Chỉ nâng cấp"
+

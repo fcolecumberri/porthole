@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<portholeconfig ver="0.3">
+  <re_filters>
+    <info py_type="list" item_count="6">
+      <info-1>^&gt;&gt;&gt;[\s][^/]</info-1>
+      <info-2>^\s\*\s</info-2>
+      <info-3>.*[Rr]emember\sto</info-3>
+      <info-4>.*[Ff]orget\sto</info-4>
+      <info-5>^\!\!\!</info-5>
+      <info-6>^.*masked by</info-6>
+    </info>
+    <notinfo py_type="list" item_count="11">
+      <notinfo-1>^&gt;&gt;&gt; Waiting 5 seconds</notinfo-1>
+      <notinfo-2>^&gt;&gt;&gt; \([Cc]ontrol-[Cc] to abort</notinfo-2>
+      <notinfo-3>^&gt;&gt;&gt; [Uu]nmerging in:</notinfo-3>
+      <notinfo-4>^&gt;&gt;&gt; md5 ....... \;-\)</notinfo-4>
+      <notinfo-5>^\s\*\s[Cc]aching service dependencies</notinfo-5>
+      <notinfo-6>.*libtool.*remember to run.*libtool</notinfo-6>
+      <notinfo-7>.*libtool.*has not been installed in</notinfo-7>
+      <notinfo-8>.*warning: dereferencing type-punned pointer</notinfo-8>
+      <notinfo-9>.*warning: dereferencing pointer</notinfo-9>
+      <notinfo-10>^  * Linking .*to</notinfo-10>
+      <notinfo-11>.* * .* warning: null argument</notinfo-11>
+    </notinfo>
+    <warning py_type="list" item_count="5">
+      <warning-1>.*[Ww][Aa][Rr][Nn][Ii][Nn][Gg][:\!,\s]</warning-1>
+      <warning-2>.*[Ff]ile.*not found</warning-2>
+      <warning-3>.*\s[Ee][Rr][Rr][Oo][Rr][:\-\!,]\s</warning-3>
+      <warning-4>.*([Ss]yntax[Ee]rror|[Ss]yntax [Ee]rror[:\-\!,])</warning-4>
+      <warning-5>^\*\*\*</warning-5>
+    </warning>
+    <notwarning py_type="list" item_count="9">
+      <notwarning-1>.*[Ii]f you wanted to set the \-\-build type</notwarning-1>
+      <notwarning-2>.*(checking|check).* compiler warning flags</notwarning-2>
+      <notwarning-3>.*(checking|check).* warning flags.* compiler</notwarning-3>
+      <notwarning-4>.*remember to run.*libtool</notwarning-4>
+      <notwarning-5>.*warning: \-jN forced in submake:</notwarning-5>
+      <notwarning-6>.*has not been installed in `/usr/lib</notwarning-6>
+      <notwarning-7>^libtool\:.*seems to be moved</notwarning-7>
+      <notwarning-8>^\*\*\*$</notwarning-8>
+      <notwarning-9>^checking maximum warning verbosity option... -Wall for C</notwarning-9>
+    </notwarning>
+    <error py_type="list" item_count="10">
+      <error-1>^ \* .*[Ff][Aa][Ii][Ll][Ee][Dd]\.</error-1>
+      <error-2>^\!\!\!\s[Ee][Rr][Rr][Oo][Rr] calculating dependencies.*[Pp]lease correct</error-2>
+      <error-3>^\!\!\!\s[Ee][Rr][Rr][Oo][Rr]\:.*\sconflicts with another package</error-3>
+      <error-4>^ \* .*Fetch failed for</error-4>
+      <error-5>^\!\!\!\sAll ebuilds that could satisfy.*\shave been masked.</error-5>
+      <error-6>^\!\!\!\sOne of the following masked packages is required to complete your request\:</error-6>
+      <error-7>^\sOSError: \[Errno </error-7>
+      <error-8>.*[Ee][Rr][Rr][Oo][Rr]: The above package list contains packages which cannot be</error-8>
+      <error-9>.* installed at the same time on the same system.</error-9>
+      <error-10>.*[Ee][Rr][Rr][Oo][Rr]: .*[Ff][Aa][Ii][Ll][Ee][Dd]:</error-10>
+    </error>
+    <noterror py_type="list" item_count="0">
+    </noterror>
+    <caution py_type="list" item_count="1">
+      <caution-1>.*[Cc][Aa][Uu][Tt][Ii][Oo][Nn][:!,\s]</caution-1>
+    </caution>
+    <notcaution py_type="list" item_count="0">
+    </notcaution>
+    <emerge>^&gt;&gt;&gt; emerge [^/]</emerge>
+    <ebuild>^\d+\s+\[ebuild.*</ebuild>
+    <merged>merged.$</merged>
+    <unmerged>^\*\*\* Unmerging</unmerged>
+    <needaction py_type="list" item_count="6">
+      <needaction-1>^ \* .*emerge</needaction-1>
+      <needaction-2>^ \* .*echo</needaction-2>
+      <needaction-3>^ \* .*-update</needaction-3>
+      <needaction-4>^ \* .*revdep-rebuild</needaction-4>
+      <needaction-5>^ \* .*modprobe</needaction-5>
+      <needaction-6>^ \* .*IMPORTANT</needaction-6>
+    </needaction>
+    <notneedaction py_type="list" item_count="0">
+    </notneedaction>
+    <badpassword py_type="list" item_count="44">
+      <badpassword-1>^Sorry, try again.</badpassword-1>
+      <badpassword-2>^Just what do you think you're doing Dave?</badpassword-2>
+      <badpassword-3>^ It can only be attributed to human error.</badpassword-3>
+      <badpassword-4>^That's something I cannot allow to happen.</badpassword-4>
+      <badpassword-5>^My mind is going. I can feel it.</badpassword-5>
+      <badpassword-6>^Sorry about this, I know it's a bit silly.</badpassword-6>
+      <badpassword-7>^Take a stress pill and think things over.</badpassword-7>
+      <badpassword-8>^This mission is too important for me to allow you to jeopardize it.</badpassword-8>
+      <badpassword-9>^I feel much better now.</badpassword-9>
+      <badpassword-10>^Where did you learn to type?</badpassword-10>
+      <badpassword-11>^Wrong!  You cheating scum!</badpassword-11>
+      <badpassword-12>^And you call yourself a Rocket Scientist!</badpassword-12>
+      <badpassword-13>^No soap, honkie-lips.</badpassword-13>
+      <badpassword-14>^Are you on drugs?</badpassword-14>
+      <badpassword-15>^My pet ferret can type better than you!</badpassword-15>
+      <badpassword-16>^You type like i drive.</badpassword-16>
+      <badpassword-17>^Do you think like you type?</badpassword-17>
+      <badpassword-18>^Your mind just hasn't been the same since the electro-shock, has it?</badpassword-18>
+      <badpassword-19>^Maybe if you used more than just two fingers...</badpassword-19>
+      <badpassword-20>^BOB says:  You seem to have forgotten your passwd, enter another!</badpassword-20>
+      <badpassword-21>^stty: unknown mode: doofus</badpassword-21>
+      <badpassword-22>^I can't hear you -- I'm using the scrambler.</badpassword-22>
+      <badpassword-23>^The more you drive -- the dumber you get.</badpassword-23>
+      <badpassword-24>^Listen, broccoli brains, I don't have time to listen to this trash.</badpassword-24>
+      <badpassword-25>^Listen, burrito brains, I don't have time to listen to this trash.</badpassword-25>
+      <badpassword-26>^I've seen penguins that can type better than that.</badpassword-26>
+      <badpassword-27>^Have you considered trying to match wits with a rutabaga?</badpassword-27>
+      <badpassword-28>^You speak an infinite deal of nothing</badpassword-28>
+      <badpassword-29>^You silly, twisted boy you.</badpassword-29>
+      <badpassword-30>^He has fallen in the water!</badpassword-30>
+      <badpassword-31>^We'll all be murdered in our beds!</badpassword-31>
+      <badpassword-32>^You can't come in. Our tiger has got flu</badpassword-32>
+      <badpassword-33>^You'll starve!</badpassword-33>
+      <badpassword-34>^... and it used to be so popular...</badpassword-34>
+      <badpassword-35>^Pauses for audience applause, not a sausage</badpassword-35>
+      <badpassword-36>^Hold it up to the light --- not a brain in sight!</badpassword-36>
+      <badpassword-37>^Have a gorilla...</badpassword-37>
+      <badpassword-38>^There must be cure for it!</badpassword-38>
+      <badpassword-39>^There's a lot of it about, you know.</badpassword-39>
+      <badpassword-40>^You do that again and see what happens...</badpassword-40>
+      <badpassword-41>^Ying Tong Iddle I Po</badpassword-41>
+      <badpassword-42>^Harm can come to a young lad like that!</badpassword-42>
+      <badpassword-43>^It's only your word against mine.</badpassword-43>
+      <badpassword-44>^I think ... err ... I think ... I think I'll go home</badpassword-44>
+    </badpassword>
+    <notbadpassword py_type="list" item_count="0">
+    </notbadpassword>
+  </re_filters>
+</portholeconfig>
