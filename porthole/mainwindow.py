@@ -24,7 +24,7 @@
 '''
 import datetime
 _id = datetime.datetime.now().microsecond
-print "MAINWINDOW: id initialized to ", _id
+print("MAINWINDOW: id initialized to ", _id)
 
 import pygtk
 pygtk.require("2.0") # make sure we have the right version
@@ -81,6 +81,17 @@ class MainWindow(PluginHandler):
             self.plugin_views
             )
 
+        self.loaded_callback = {}
+        self.current_cat_name = {}
+        self.current_cat_cursor = {}
+        self.current_pkg_name = {}
+        self.current_pkg_cursor = {}
+        self.current_pkg_path = {}
+        self.pkg_list = {}
+        self.pkg_count = {}
+        self.loaded = {}
+        self.last_view_setting = None
+
         # get an empty tooltip
         ##self.synctooltip = gtk.Tooltips()
         self.sync_tip = _(
@@ -128,6 +139,8 @@ class MainWindow(PluginHandler):
         self.toolbar_expander = self.wtree.get_widget("toolbar_expander")
         # This should be set in the glade file, but doesn't seem to work ?
         self.toolbar_expander.set_expand(True)
+        self.reader_running = False
+        self.reader = None
         # populate the view_filter menu
         self.widget["view_filter_list"] = gtk.ListStore(str)
         for i in [_("All Packages"), _("Installed Packages"),
@@ -247,7 +260,7 @@ class MainWindow(PluginHandler):
         if self.widget["view_filter"].get_active() == SHOW_UPGRADE:
             self.loaded["Upgradable"] = False
         else:
-            self.category_view.populate(db.db.categories.keys())
+            self.category_view.populate(list(db.db.categories.keys()))
         self.package_view.clear()
         self.set_package_actions_sensitive(False, None)
         # update the views by calling view_filter_changed
@@ -382,7 +395,7 @@ class MainWindow(PluginHandler):
         self.pkg_list["Search"][search_term] = package_list
         self.pkg_count["Search"][search_term] = count
         #Add the current search item & select it
-        self.category_view.populate(self.pkg_list["Search"].keys(), True,
+        self.category_view.populate(list(self.pkg_list["Search"].keys()), True,
             self.pkg_count["Search"])
         _iter = self.category_view.model.get_iter_first()
         while _iter != None:
@@ -393,7 +406,7 @@ class MainWindow(PluginHandler):
             _iter = self.category_view.model.iter_next(_iter)
         self.package_view.populate(package_list)
         if count == 1: # then select it
-            self.current_pkg_name["Search"] = package_list.keys()[0]
+            self.current_pkg_name["Search"] = list(package_list.keys())[0]
         self.category_view.last_category = search_term
         self.category_changed(search_term)
 
@@ -410,17 +423,17 @@ class MainWindow(PluginHandler):
         pack = None
         sort_categories = False
 
-        if myview in self.plugin_views.keys():
+        if myview in list(self.plugin_views.keys()):
             if self.plugin_view[myview]["package_view"]:
                 self.chg_pkgview(self.plugin_view[myview]["package_view"])
             self.plugin_view[myview]["view_changed"]
         elif myview in (SHOW_INSTALLED, SHOW_ALL):
             self.chg_pkgview(self.package_view)
             if myview == SHOW_ALL:
-                items = db.db.categories.keys()
+                items = list(db.db.categories.keys())
                 count = db.db.pkg_count
             else:
-                items = db.db.installed.keys()
+                items = list(db.db.installed.keys())
                 count = db.db.installed_pkg_count
             self.category_view.populate(items, True, count)
             cat_scroll.show()
@@ -433,8 +446,13 @@ class MainWindow(PluginHandler):
             #debug.dprint("MAINWINDOW: view_filter_changed(); " +
                 #"clear package_view")
             #self.package_view.clear()
-            cat = self.current_cat_name[INDEX_TYPES[myview]]
-            pack = self.current_pkg_name[INDEX_TYPES[myview]]
+            # these next 2 are empty dicts on init.
+            if INDEX_TYPES[myview] in self.current_cat_name:
+                cat = self.current_cat_name[INDEX_TYPES[myview]]
+                pack = self.current_pkg_name[INDEX_TYPES[myview]]
+            else:
+                cat = None
+                pack = None
             debug.dprint("MAINWINDOW: view_filter_changed(); " +
                 "reselect category & package")
         elif myview == SHOW_SEARCH:
@@ -443,14 +461,14 @@ class MainWindow(PluginHandler):
             if not self.loaded[INDEX_TYPES[myview]]:
                 self.set_package_actions_sensitive(False, None)
                 self.category_view.populate(
-                    self.pkg_list[INDEX_TYPES[myview]].keys(),
+                    list(self.pkg_list[INDEX_TYPES[myview]].keys()),
                     True,
                     self.pkg_count[INDEX_TYPES[myview]])
                 self.package_search(None)
                 self.loaded[INDEX_TYPES[myview]] = True
             else:
                 self.category_view.populate(
-                    self.pkg_list[INDEX_TYPES[myview]].keys(),
+                    list(self.pkg_list[INDEX_TYPES[myview]].keys()),
                     True,
                     self.pkg_count[INDEX_TYPES[myview]])
             cat_scroll.show()
@@ -486,9 +504,9 @@ class MainWindow(PluginHandler):
             else:
                 debug.dprint("MAINWINDOW: view_filter_changed(); " +
                     "calling category_view.populate() with categories:" +
-                    str(self.pkg_list[INDEX_TYPES[myview]].keys()))
+                    str(list(self.pkg_list[INDEX_TYPES[myview]].keys())))
                 self.category_view.populate(
-                    self.pkg_list[INDEX_TYPES[myview]].keys(),
+                    list(self.pkg_list[INDEX_TYPES[myview]].keys()),
                     sort_categories,
                     self.pkg_count[INDEX_TYPES[myview]])
             #self.package_view.set_view(UPGRADABLE)
@@ -534,9 +552,9 @@ class MainWindow(PluginHandler):
             return
         debug.dprint("MAINWINDOW: load_reader_list(); starting thread")
         if reader == "Deprecated":
-            self.reader = DeprecatedReader(db.db.installed.items())
+            self.reader = DeprecatedReader(list(db.db.installed.items()))
         elif reader == "Upgradable":
-            self.reader = UpgradableListReader(db.db.installed.items())
+            self.reader = UpgradableListReader(list(db.db.installed.items()))
         elif reader == "Sets":
             self.reader = SetListReader()
 
@@ -595,7 +613,7 @@ class MainWindow(PluginHandler):
                         if fraction == 1:
                             self.build_deps = True
                             self.status.set_statusbar2(_("Building Package List"))
-                except Exception, _error:
+                except Exception as _error:
                     debug.dprint("MAINWINDOW: update_reader_thread(): " +
                         "Exception: %s" % _error)
         return True

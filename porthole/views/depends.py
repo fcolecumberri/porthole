@@ -144,7 +144,7 @@ class DependsView(CommonTreeView):
         #menuitems["select_all"] = gtk.MenuItem(_("Select all"))
         #menuitems["select_all"].connect("activate", self.select_all)
 
-        for item in menuitems.values():
+        for item in list(menuitems.values()):
             menu.append(item)
             item.show()
 
@@ -209,7 +209,7 @@ class DependsView(CommonTreeView):
                         name = portage_lib.get_virtual_dep(name)
                     model.set_value(iter, model.column["name"], name)
                     model.set_value(iter, model.column["keyword"], keywords)
-                except Exception, e:
+                except Exception as e:
                     if "'NoneType' object has no attribute " not in str(e):
                         debug.dprint("DependsView: populate_info(): Stopping due to exception %s" % e)
         return False

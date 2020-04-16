@@ -23,7 +23,7 @@
 
 import datetime
 id = datetime.datetime.now().microsecond
-print "PLUGIN: id initialized to ", id
+print("PLUGIN: id initialized to ", id)
 
 import gtk
 #import imp

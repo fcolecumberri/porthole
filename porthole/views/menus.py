@@ -61,7 +61,7 @@ class RMBMenu:
         menuitems["select_all"] = gtk.MenuItem(_("Select all"))
         menuitems["select_all"].connect("activate", self.select_all)
 
-        for item in menuitems.values():
+        for item in list(menuitems.values()):
             menu.append(item)
             item.show()
 

@@ -60,7 +60,7 @@ class CategoryHandler(PackageHandler):
     def category_changed(self, category):
         """Catch when the user changes categories."""
         mode = self.widget["view_filter"].get_active()
-        if mode in self.plugin_views.keys():
+        if mode in list(self.plugin_views.keys()):
             self.plugin_views[mode]["category_changed"](category)
             return
         # log the new category for reloads

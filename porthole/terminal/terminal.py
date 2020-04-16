@@ -362,7 +362,7 @@ class ProcessManager: #dbus.service.Object):
                 debug.dprint("TERMINAL: self.reader has fd but seems to be already closed.")
                 try:
                     os.close(self.reader.fd)
-                except OSError, e:
+                except OSError as e:
                     debug.dprint("TERMINAL: error closing self.reader.fd: %s" % e)
         self.pid, self.reader.fd = pty.fork()
         if self.pid == pty.CHILD:  # child
@@ -372,7 +372,7 @@ class ProcessManager: #dbus.service.Object):
                 os.execve(shell, [shell, '-c', command_string],
                           self.env)
                 
-            except Exception, e:
+            except Exception as e:
                 # print out the exception
                 debug.dprint("TERMINAL: Error in child" + e)
                 #print "Error in child:"
@@ -471,7 +471,7 @@ class ProcessManager: #dbus.service.Object):
                 else: # just in case there is anything left
                     # negative pid kills process group
                     os.kill(-self.pid, signal.SIGKILL)
-            except OSError, e:
+            except OSError as e:
                 debug.dprint("TERMINAL: kill(), OSError %s" % e)
                 pass
             self.killed = True
@@ -522,7 +522,7 @@ class ProcessManager: #dbus.service.Object):
             try:
                 m = os.wait() # wait for any child processes to finish
                 debug.dprint("TERMINAL: process %s finished, status %s" % m)
-            except OSError, e:
+            except OSError as e:
                 if e.args[0] == 10: # 10 = no process to kill
                     break
                 debug.dprint("TERMINAL: OSError %s" % e)
@@ -892,7 +892,7 @@ class ProcessManager: #dbus.service.Object):
             try:
                 os.write(self.reader.fd, text)
                 return True
-            except OSError, e:
+            except OSError as e:
                 debug.dprint(" * TERMINAL: write_to_term(): Error '%s' writing text '%s'"
                         % (e, text))
                 return False
@@ -942,7 +942,7 @@ class ProcessManager: #dbus.service.Object):
         try:
             m = os.waitpid(self.pid, 0) # wait for any child processes to finish
             debug.dprint("TERMINAL: process %s finished, status %s" % m)
-        except OSError, e:
+        except OSError as e:
             if not e.args[0] == 10: # 10 = no process to kill
                 debug.dprint("TERMINAL: OSError %s" % e)
         # if the last process was killed, stop until the user does something
@@ -1204,7 +1204,8 @@ class ProcessManager: #dbus.service.Object):
         self.set_statusbar(_("*** Loading File : %s") % self.filename)
         try:
             self.reader.f = open(filename, "r")
-        except IOError, (errnum, errmsg):
+        except IOError as xxx_todo_changeme1:
+            (errnum, errmsg) = xxx_todo_changeme1.args
             d = {"filename" : filename, "errmsg" : errmsg}
             err = _("Cannot open file '%(filename)s': %(errmsg)s") % d
             dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
@@ -1230,7 +1231,8 @@ class ProcessManager: #dbus.service.Object):
         try:
             if os.path.exists(self.filename):
                 os.rename(self.filename, bak_filename)
-        except (OSError, IOError), (errnum, errmsg):
+        except (OSError, IOError) as xxx_todo_changeme2:
+            (errnum, errmsg) = xxx_todo_changeme2.args
             if errnum != errno.ENOENT:
                 d = {"filename" : self.filename, "bak_filename" : bak_filename, "errmsg" : errmsg}
                 err = _("Cannot back up '%(filename)s' to '%(bak_filename)s': %(errmsg)s") % d
@@ -1263,7 +1265,8 @@ class ProcessManager: #dbus.service.Object):
             file.close()
             self.buffer_to_save.set_modified(False)
             result = True
-        except IOError, (errnum, errmsg):
+        except IOError as xxx_todo_changeme3:
+            (errnum, errmsg) = xxx_todo_changeme3.args
             err = ("Error writing to '%s': %s") % (self.filename, errmsg)
             dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
                                        gtk.MESSAGE_INFO,
@@ -1274,7 +1277,8 @@ class ProcessManager: #dbus.service.Object):
         if not result and have_backup:
             try:
                 os.rename(bak_filename, self.filename)
-            except OSError, (errnum, errmsg):
+            except OSError as xxx_todo_changeme:
+                (errnum, errmsg) = xxx_todo_changeme.args
                 d = {"filename" : self.filename, "bak_filename" : bak_filename, "errmsg" : errmsg}
                 err = _("Can't restore backup file '%(filename)s' to '%(bak_filename)s': %(errmsg)s\nBackup left as '%(bak_filename)s'") % d
                 dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,

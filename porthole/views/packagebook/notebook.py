@@ -57,7 +57,7 @@ OFF = False
 class PackageNotebook(object):
     """Contains all functions for managing a packages detailed views"""
 
-    def __init__( self,  wtree, callbacks, plugin_package_tabs, parent_name = '', parent_tree = []):
+    def __init__( self,  wtree, callbacks, plugin_package_tabs, parent_name = '', parent_tree = None):
         self.wtree = wtree
         self.callbacks = callbacks
         self.plugin_package_tabs = plugin_package_tabs
@@ -82,6 +82,7 @@ class PackageNotebook(object):
         result = scroller.add(self.summary)
         self.summary.show()
         # setup the dependency treeview
+        parent_tree = parent_tree or []
         self.deps_view = DependsView(self.new_notebook, parent_name, parent_tree, Dispatcher(self.callbacks["action_callback"]))
         self.dep_window = {'window': None, 'notebook': None, 'callback': None, 'label': None, 'tooltip': None, 'tree': '', 'depth': 0}
         result = self.wtree.get_widget("dependencies_scrolled_window").add(self.deps_view)
@@ -148,13 +149,13 @@ class PackageNotebook(object):
             ebuild = self.summary.ebuild
             props = self.summary.package.get_properties(ebuild)
             use_flags = props.get_use_flags()
-            self.use_flag_view = UseFlagWidget(use_flags, ebuild)
+            self.use_flag_view = UseFlagWidget(use_flags, ebuild, None)
             self.use_flag_view.show()
             frame.pack_start(self.use_flag_view)
+            button = gtk.Button("Save USE Flags")
+            button.set_size_request(100,50)
+            button.connect('clicked', self.save_use_flags_clicked)
             if utils.is_root() or utils.can_gksu():
-                button = gtk.Button("Save USE Flags")
-                button.connect('clicked', self.save_use_flags_clicked)
-                button.set_size_request(100,50)
                 button.show()
             frame.pack_end(button,expand=False,fill=False);
             frame.show()

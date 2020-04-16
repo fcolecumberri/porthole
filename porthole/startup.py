@@ -31,7 +31,7 @@ gobject.threads_init()
 # now for the rest
 
 # setup our path so we can load our custom modules
-import sys, os, thread
+import sys, os, _thread
 import time
 
 # Load EPREFIX from Portage, fall back to the empty string if it fails
@@ -82,23 +82,24 @@ from gettext import gettext as _
 
 def create_dir(new_dir):
     """Creates the directory passed into it"""
-    print "STARTUP: create_dir; ", new_dir + " does not exist, creating..."
+    print("STARTUP: create_dir; ", new_dir + " does not exist, creating...")
     try:
         os.mkdir(new_dir)
-    except OSError, (errnum, errmsg):
-        print "Failed to create %s:" % new_dir, errmsg
+    except OSError as xxx_todo_changeme:
+        (errnum, errmsg) = xxx_todo_changeme.args
+        print("Failed to create %s:" % new_dir, errmsg)
 
 
 def import_error(e):
-    print "*** Error loading porthole modules!\n*** If you are running a", \
+    print("*** Error loading porthole modules!\n*** If you are running a", \
         "local (not installed in python's site-packages) version, please use the '--local'", \
         "or '-l' flag.\n", \
         "*** Otherwise, verify that porthole was installed correctly and", \
         "that python's path includes the site-packages directory.\n",\
-        "If you have recently updated python, then run 'python-updater'\n"
-    print "Your sys.path: %s\n" % sys.path
-    print "Your sys.version: %s\n" % sys.version
-    print "Original exception was: ImportError: %s\n" % e
+        "If you have recently updated python, then run 'python-updater'\n")
+    print("Your sys.path: %s\n" % sys.path)
+    print("Your sys.version: %s\n" % sys.version)
+    print("Original exception was: ImportError: %s\n" % e)
     sys.exit()
 
 def local():
@@ -126,7 +127,7 @@ def set_debug(arg):
 def print_version():
     # print version info
     from porthole.version import version
-    print "Porthole ", version
+    print("Porthole ", version)
     sys.exit(0)
 
 def set_backend(arg):
@@ -149,7 +150,7 @@ def main():
         #print "STARTUP: config.id = ", config.id
         #print "STARTUP: main(); importing config.preferences"
         from porthole.config import preferences
-    except ImportError, e:
+    except ImportError as e:
         import_error(e)
     # load prefs
     prefs_additions = [
@@ -168,15 +169,16 @@ def main():
     from porthole.version import version
     #print "STARTUP: main(); importing utils"
     from porthole.utils import debug
+    from porthole import backends
     from porthole.backends import load
     loaded = load(BACKEND)
-    print "PORTHOLE: importing MainWindow"
+    print("PORTHOLE: importing MainWindow")
     from porthole.mainwindow import MainWindow
 
     locale.setlocale (locale.LC_ALL, '')
     gettext.bindtextdomain (APP, i18n_DIR)
     gettext.textdomain (APP)
-    gettext.install (APP, i18n_DIR, unicode=1)
+    gettext.install (APP, i18n_DIR, str=1)
     gtk.glade.bindtextdomain (APP, i18n_DIR)
     gtk.glade.textdomain (APP)
 
@@ -200,7 +202,7 @@ def main():
     config.Prefs.save()
     hits = backends.portage_lib.get_metadata.hits
     misses = backends.portage_lib.get_metadata.misses
-    print "metadata", backends.portage_lib.get_metadata.cache_info()
+    print("metadata", backends.portage_lib.get_metadata.cache_info())
     sys.exit(0)
 
 # check if directory exists, if not create it

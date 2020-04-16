@@ -25,7 +25,7 @@
 
 ## DEPRICATED MODULE
 
-import threading, re, gtk, os, cPickle, time
+import threading, re, gtk, os, pickle, time
 from gettext import gettext as _
 
 from views import DependsView, CommonTreeView
@@ -105,7 +105,7 @@ class UpgradableListReader(CommonReader):
         upgradeflag = self.upgrade_only and True or False
         # find upgradable packages
         for cat, packages in self.installed_items:
-            for name, package in packages.items():
+            for name, package in list(packages.items()):
                 self.count += 1
                 if self.cancelled: self.done = True; return
                 upgradable = package.is_upgradable()
@@ -212,8 +212,7 @@ class SearchReader( CommonReader ):
                 if self.search_desc:
                     desc = self.desc_db[name]
                     searchstrings.append(desc)
-                if True in map(lambda s: bool(re_object.search(s)),
-                               searchstrings):
+                if True in [bool(re_object.search(s)) for s in searchstrings]:
                     self.pkg_count += 1
                     #package_list[name] = data
                     self.package_list[data.full_name] = data

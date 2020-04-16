@@ -11,7 +11,7 @@ There is NO WARRANTY, to the extent permitted by law.
 Written by  René 'Necoro' Neumann <necoro@necoro.net>
 Adapted to Porthole by, Brian Dolbec <dol-sen@users.sourceforge.net>
 """
-from __future__ import absolute_import, with_statement
+
 
 import gtk
 #import logging
@@ -46,5 +46,5 @@ class ListView (gtk.TextView, LazyView):
             debug.dprint("LISTVIEW: filename to load: " + self.get_fn(self.pkg))
             with open(self.get_fn(self.pkg)) as f:
                 return f.readlines()
-        except IOError, e:
+        except IOError as e:
             return "Error: %s" % e.strerror

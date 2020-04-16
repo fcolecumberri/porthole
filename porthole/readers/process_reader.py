@@ -61,14 +61,14 @@ class ProcessOutputReader(threading.Thread):
                 if self.process_running and (self.fd != None):
                     try:
                         char = os.read(self.fd, 1)
-                    except OSError, e:
+                    except OSError as e:
                         if e.args[0] == 5: # 5 = i/o error
                             debug.dprint("PROCESS_READER: ProcessOutputReader: process finished, closing")
                             try:
                                 debug.dprint("PROCESS_READER: is self.fd a tty? '%s'" % os.isatty(self.fd))
                                 os.close(self.fd)
                                 debug.dprint("PROCESS_READER: ProcessOutputReader: closed okay")
-                            except Exception, e:
+                            except Exception as e:
                                 # probably already closed
                                 debug.dprint("PROCESS_READER: ProcessOutputReader: couldn't close self.fd. exception: %s" % e)
                         else:
@@ -80,7 +80,7 @@ class ProcessOutputReader(threading.Thread):
                         # keep read(number) small so as to not cripple the 
                         # system reading large files.  even 2 can hinder gui response
                         char = self.f.read(1)
-                    except OSError, e:
+                    except OSError as e:
                         debug.dprint("PROCESS_READER: ProcessOutputReader: .f OSError: %s" % e)
                         # maybe the process died?
                         char = None

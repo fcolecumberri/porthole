@@ -61,9 +61,10 @@ class UseFlagCheckbuttons(gtk.HBox):
       return self.flag
 
 class UseFlagWidget(gtk.Table):
-   def __init__(self, use_flags, ebuild):
+   def __init__(self, use_flags, ebuild, parent_window):
       gtk.Widget.__init__(self)
       self.ebuild = ebuild
+      self.parent_window = parent_window
       debug.dprint("USEFLAGDIALOG: __INIT__()")
 
       size = len(use_flags)

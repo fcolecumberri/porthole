@@ -24,7 +24,7 @@
 
 import datetime
 _id = datetime.datetime.now().microsecond
-print "PACKAGE: id initialized to ", _id
+print("PACKAGE: id initialized to ", _id)
 
 from types import IntType
 

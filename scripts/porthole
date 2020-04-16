@@ -21,7 +21,8 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
-import sys, os
+import os
+import sys
 from getopt import getopt, GetoptError
 """
 try:
@@ -35,25 +36,25 @@ except:
     pass
 """
 
-print "Porthole: python version = ", sys.version
+print("Porthole: python version = ", sys.version)
 
-def usage():
+def usage(object):
     tabs = "\t\t"
-    print "Usage: porthole [OPTION...]\n"
-    print "  -h, --help" + tabs + "Show this help message"
-    print "  -l, --local" + tabs + \
-          "Run a local version (use modules in current directory)"
-    print "  -v, --version" + tabs + "Output version information and exit"
-    print "  -d string,"
-    print "  --debug string\tOutput debugging information to stderr (terminal)"
-    print "             " + tabs + "string, ALL = all debug text printed.  Any other string will"
-    print "             " + tabs + "print only those texts containing 'string'"
-    print "  -b, --backend [portage, pkgcore]  select one of the backends"
-    print "           NOTE: the pkgcore backend is not complete and out of date."
-    print "                 It is still enabled as an option for development"
-    #print "  -n, --no-privileges\t forces porthole to NOT try to run with root privileges"
-    #print "  -u, --user [name]  the user to run as for certain operations.  Optionals and"
-    #print "                     automatically set if not specified."
+    print("Usage: porthole [OPTION...]\n")
+    print("  -h, --help" + tabs + "Show this help message")
+    print("  -l, --local" + tabs +
+          "Run a local version (use modules in current directory)")
+    print("  -v, --version" + tabs + "Output version information and exit")
+    print("  -d string,")
+    print("  --debug string\tOutput debugging information to stderr (terminal)")
+    print("             " + tabs + "string, ALL = all debug text printed.  Any other string will")
+    print("             " + tabs + "print only those texts containing 'string'")
+    print("  -b, --backend [portage, pkgcore]  select one of the backends")
+    print("           NOTE: the pkgcore backend is not complete and out of date.")
+    print("                 It is still enabled as an option for development")
+    #print("  -n, --no-privileges\t forces porthole to NOT try to run with root privileges")
+    #print("  -u, --user [name]  the user to run as for certain operations.  Optionals and")
+    #print("                     automatically set if not specified.")
 
 
 if __name__ == "__main__":
@@ -63,10 +64,10 @@ if __name__ == "__main__":
         #                                      "backend=", "help", "no-priveledges", "user=", "path="])
         opts, args = getopt(sys.argv[1:], 'lvd:b:h', ["local", "version", "debug=",
                                               "backend=", "help", "path="])
-        #print opts
-        #print args
-    except GetoptError, e:
-        print >> sys.stderr, e.msg
+        #print(opts
+        #print(args
+    except GetoptError as e:
+        print(e.msg, file=sys.stderr)
         usage()
         sys.exit(1)
 
@@ -88,32 +89,32 @@ if __name__ == "__main__":
     # run thru the options and set the DATA_PATH & imported modules properly
     # bug ==> any porthole script can be used to load both --local and installed modules
     RUN_LOCAL = False
-    #print 'opts=',opts
-    #print 'args=',args
+    #print('opts=',opts
+    #print('args=',args
     for opt, arg in opts:
         if opt in ("-l", "--local"):
             # running a local version (i.e. not installed in /usr/*)
-            print "importing local modules"
-            #print sys.path
+            print("importing local modules")
+            #print(sys.path)
             import os
-            #print "dir = ", os.path.dirname(
-                #os.path.dirname(os.path.abspath(__file__)))
+            #print("dir = ", os.path.dirname(
+                #os.path.dirname(os.path.abspath(__file__))))
             sys.path.insert(0, (os.path.dirname(
                 os.path.dirname(os.path.abspath(__file__)))))
-            #print "\n"
-            #print sys.path
+            #print("\n")
+            #print(sys.path)
             from porthole.startup import *
             RUN_LOCAL = True
             local()
 
     if not RUN_LOCAL:
-        print "importing installed modules"
+        print("importing installed modules")
         from porthole.startup import *
-        #print "inserting path to modules"
+        #print("inserting path to modules"
         insert_path()
 
     for opt, arg in opts:
-        #print "opt, arg ", opt, arg, type(arg)
+        #print("opt, arg ", opt, arg, type(arg)
         if opt in ("-b"):
             if arg in choices:
                 set_backend(arg)
@@ -125,9 +126,9 @@ if __name__ == "__main__":
         elif opt in ("-d", "--debug"):
             set_debug(arg)
         elif opt in ("-u", "--user"):
-            print "Porthole: --user = ", arg
+            print("Porthole: --user = ", arg)
             set_user(arg)
-    print "starting main()"
+    print("starting main()")
     main()
     sys.exit(0)
 

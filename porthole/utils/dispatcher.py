@@ -23,10 +23,10 @@
 # Fredrik Arnerup <foo@stacken.kth.se>, 2004-12-19
 # Brian Dolbec<dol-sen@telus.net>,2005-3-30
 
-import gobject, os, Queue
+import gobject, os, queue
 from select import select
 from sys import stderr
-import thread, threading
+import _thread, threading
 
 class Dispatcher:
     """Send signals from a thread to another thread through a pipe
@@ -36,7 +36,7 @@ class Dispatcher:
         self.callback_args = args
         self.callback_kwargs = kwargs
         self.continue_io_watch = True
-        self.queue = Queue.Queue(0) # thread safe queue
+        self.queue = queue.Queue(0) # thread safe queue
         self.pipe_r, self.pipe_w = os.pipe()
         gobject.io_add_watch(self.pipe_r, gobject.IO_IN, self.on_data)
 
@@ -63,8 +63,8 @@ class Dispatch_wait:
         self.callback_args = args
         self.callback_kwargs = kwargs
         self.continue_io_watch = True
-        self.callqueue = Queue.Queue(0) # thread safe queue
-        self.reply = Queue.Queue(0)
+        self.callqueue = queue.Queue(0) # thread safe queue
+        self.reply = queue.Queue(0)
         self.callpipe_r, self.callpipe_w = os.pipe()
         self.wait = {}  # dict of boolleans for incoming thread id's waiting for replies
         self.Semaphore = threading.Semaphore()
@@ -72,7 +72,7 @@ class Dispatch_wait:
 
     def __call__(self, *args):  # this function is running in the calling thread
         """Emit signal from thread"""
-        id = thread.get_ident()
+        id = _thread.get_ident()
         self.queue.put([args, id])
         # write to pipe afterwards
         os.write(self.callpipe_w, "X")
@@ -85,7 +85,7 @@ class Dispatch_wait:
             time.sleep(0.01)
         myreply. reply_id = self.reply.get()
         if reply_id != id:
-            print >>stderr, "DISPATCH_WAIT:  Uh-Oh! id's do not match!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+            print("DISPATCH_WAIT:  Uh-Oh! id's do not match!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", file=stderr)
         return myreply
         
     

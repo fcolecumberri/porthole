@@ -62,8 +62,8 @@ import sys
 
 try:
      from xml.dom.minidom import parse, getDOMImplementation
-except Exception, e:
-     print >> sys.stderr, "*** Error loading xml.dom.minidom. Original exception was: %s" % e
+except Exception as e:
+     print("*** Error loading xml.dom.minidom. Original exception was: %s" % e, file=sys.stderr)
 
 
 class XMLManagerError(Exception):
@@ -107,7 +107,7 @@ class XMLManager:
                 self.name = self.__dom.documentElement.tagName
                 self.version = self.__dom.documentElement.getAttribute('ver')
             except: # possibly a bad/empty file
-                print >> sys.stderr, "XMLMGR: Error loading preferences file %s.  Setting to None to load default settings" %source
+                print("XMLMGR: Error loading preferences file %s.  Setting to None to load default settings" %source, file=sys.stderr)
                 self.__dom = None
                 self.name = "xml_mgr"
                 self.version = "1"
@@ -210,7 +210,7 @@ class XMLManager:
                 text = self.__dom.createTextNode(value)
                 node.appendChild(text)
 
-        elif type(value) == unicode:
+        elif type(value) == str:
             newnode.setAttribute('py_type', 'unicode')
             if len(value) > 0:
                 text = self.__dom.createTextNode(str(value))
@@ -223,7 +223,7 @@ class XMLManager:
             text = self.__dom.createTextNode(str(value))
             node.appendChild(text)
 
-        elif type(value) == long:
+        elif type(value) == int:
             newnode.setAttribute('py_type', 'long')
             text = self.__dom.createTextNode(str(value))
             node.appendChild(text)
@@ -270,7 +270,7 @@ class XMLManager:
             newnode.setAttribute('py_type', 'dict')
             newnode.setAttribute('item_count', str(len(value)))
             count = 1
-            for item in value.items():
+            for item in list(value.items()):
                 self.__InsertValue(node, nodeName + '-' + str(count), item)
                 count += 1
         else:
@@ -311,11 +311,11 @@ class XMLManager:
             elif attrib in ['','str']:
                 temp_list.append(str((self.__NodeText(node.childNodes).lstrip()).rstrip()))
             elif attrib == 'unicode':
-                temp_list.append(unicode((self.__NodeText(node.childNodes).lstrip()).rstrip()))
+                temp_list.append(str((self.__NodeText(node.childNodes).lstrip()).rstrip()))
             elif attrib == 'int':
                 temp_list.append(int((self.__NodeText(node.childNodes).lstrip()).rstrip())) 
             elif attrib == 'long':
-                temp_list.append(long((self.__NodeText(node.childNodes).lstrip()).rstrip()))
+                temp_list.append(int((self.__NodeText(node.childNodes).lstrip()).rstrip()))
             elif attrib == 'float':
                 temp_list.append(float((self.__NodeText(node.childNodes).lstrip()).rstrip())) 
             elif attrib == 'complex':
@@ -344,7 +344,7 @@ class XMLManager:
                     temp_list[key] = value
                     y += 1
             else:
-                print attrib, "is unknown type"
+                print(attrib, "is unknown type")
                 
 
         # If multiple values are found, return as a list

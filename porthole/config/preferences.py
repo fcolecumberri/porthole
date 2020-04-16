@@ -24,7 +24,7 @@
 
 import datetime
 id = datetime.datetime.now().microsecond
-print "PREFERENCES: id initialized to ", id
+print("PREFERENCES: id initialized to ", id)
 
 import os
 from gettext import gettext as _
@@ -33,7 +33,7 @@ from types import *
 from porthole.version import version
 from porthole._xml.xmlmgr import XMLManager, XMLManagerError
 from porthole.utils import debug
-print "PREFERENCES: imported debug.id = ", debug.id
+print("PREFERENCES: imported debug.id = ", debug.id)
 from porthole.utils.utils import get_user_home_dir, can_gksu
 
 class OptionsClass(object):
@@ -146,7 +146,7 @@ class PortholePreferences:
             ['history_length', 10]
         ]
 
-        for window_name in preflist.keys():
+        for window_name in list(preflist.keys()):
             setattr(self, window_name, OptionsClass()) # construct self.main etc.
             for pref_name, default_value in preflist[window_name]:
                 try:

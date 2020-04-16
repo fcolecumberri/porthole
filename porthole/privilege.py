@@ -75,18 +75,18 @@ class PrivilegeControl(object):
         """Set the initiating user name, uid, gid. Other than during
         startup priveleges will be handled here except for forked processes.
         They get privileged autamatically."""
-        print  >>stderr, "PrivilegeControl: set_user(); new user: ", user
+        print("PrivilegeControl: set_user(); new user: ", user, file=stderr)
         if user:
             try:
                 self.user = user
                 self.user_pwd = pwd.getpwnam( user )
                 self.user_uid = self.user_pwd[UID]
                 self.user_gid = self.user_pwd[GID]
-                print  >>stderr, "PrivilegeControl: set_user(); " +\
-                    "successfully set user: ", user
+                print("PrivilegeControl: set_user(); " +\
+                    "successfully set user: ", user, file=stderr)
             except KeyError:
-                print  >>stderr, "PrivilegeControl: set_user(); " +\
-                    "Unknown user: ", user
+                print("PrivilegeControl: set_user(); " +\
+                    "Unknown user: ", user, file=stderr)
                 self.user = ''
         else:
             raise Exception("Attempted to set user=None error")
@@ -96,16 +96,16 @@ class PrivilegeControl(object):
         one of three possible [root, user, nobody]
         But must have either started porthole as root or su'd it
         at time of startup"""
-        print  >>stderr, "PrivilegeControl: set_privileges(); " +\
-            "new setting, %s, %s" %(privilege, _module)
+        print("PrivilegeControl: set_privileges(); " +\
+            "new setting, %s, %s" %(privilege, _module), file=stderr)
         if self.can_su and _module in self.privileged:
-            print  >>stderr, "PrivilegeControl: set_privileges(); " +\
-                "trying to set new"
+            print("PrivilegeControl: set_privileges(); " +\
+                "trying to set new", file=stderr)
             try:
                 if getattr(self, '_run_as_%s_' %privilege)():
                     self.cntl_stack.push((_module, privilege))
                     return True
-            except Exception, error:
+            except Exception as error:
                 raise Exception('PrivilegeControl: set_user(); Error in ' +
                     'setting privileges.\nError was:\n' + str(error))
         return False
@@ -114,8 +114,8 @@ class PrivilegeControl(object):
         """Ends the privileged effective user id and group, resets to the
         previuos 
         """
-        print  >>stderr, "PrivilegeControl: end_privileges(); " +\
-            "ending: %s" %_module
+        print("PrivilegeControl: end_privileges(); " +\
+            "ending: %s" %_module, file=stderr)
         if self.can_su and _module == self.cntl_stack.module():
             (mod, priv) = self.cntl_stack.pop()
             return getattr(self, '_run_as_%s_' %self.cntl_stack.privilege())()
@@ -124,7 +124,7 @@ class PrivilegeControl(object):
     def _run_as_nobody_(self):
         """Switch this process to normal privileges, we shouldn't be able to
         do anything naughty in this mode."""
-        print >>stderr, "PrivilegeControl: _run_as_nobody_()"
+        print("PrivilegeControl: _run_as_nobody_()", file=stderr)
         try:
             if os.geteuid() != 0:
                 os.seteuid(0)
@@ -137,7 +137,7 @@ class PrivilegeControl(object):
 
     def _run_as_root_(self):
         """Switch to super user privileges, here we can do anything we want."""
-        print >>stderr, "PrivilegeControl: _run_as_privileged_()"
+        print("PrivilegeControl: _run_as_privileged_()", file=stderr)
         try:
             os.seteuid( self.priv_pwd[UID] )
             os.setegid( self.priv_pwd[GID] )
@@ -147,9 +147,9 @@ class PrivilegeControl(object):
 
     def _run_as_user_(self):
         """Switch to originating users id & priveleges"""
-        print >>stderr, "PrivilegeControl: _run_as_user_()"
+        print("PrivilegeControl: _run_as_user_()", file=stderr)
         try:
-            print "PrivilegeControl: _run_as_user_(); setting euid"
+            print("PrivilegeControl: _run_as_user_(); setting euid")
             if os.geteuid() != 0:
                 os.seteuid(0)
             os.setegid( self.user_pwd[GID])
@@ -160,9 +160,9 @@ class PrivilegeControl(object):
 
     def _run_as_portage_(self):
         """Switch to originating users id & priveleges"""
-        print >>stderr, "PrivilegeControl: _run_as_portage_()"
+        print("PrivilegeControl: _run_as_portage_()", file=stderr)
         try:
-            print "PrivilegeControl: _run_as_portage_(); setting to portage egid, user ueuid"
+            print("PrivilegeControl: _run_as_portage_(); setting to portage egid, user ueuid")
             if os.geteuid() != 0:
                 os.seteuid(0)
             os.setegid(self.portage_pwd[GID])

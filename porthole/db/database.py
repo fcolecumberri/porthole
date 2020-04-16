@@ -24,9 +24,9 @@
 
 import datetime
 _id = datetime.datetime.now().microsecond
-print "DATABASE: id initialized to ", _id
+print("DATABASE: id initialized to ", _id)
 
-import pwd, cPickle, os
+import pwd, pickle, os
 import gobject
 
 from porthole.db.package import Package
@@ -88,7 +88,7 @@ class Database(DBBase):
                     debug.dprint("DATABASE: get_package(); package not found for: " + name + " original full_name = " + full_name)
                     #debug.dprint("DATABASE: get_package(); self.categories[category] = " + str(self.categories[category].keys()))
                 return None
-        except Exception, e:
+        except Exception as e:
             debug.dprint("DATABASE: get_package(); exception occured: " + str(e))
             return None
 
@@ -114,7 +114,7 @@ class Database(DBBase):
             _db = {'sync_date': sync_time, 'descriptions': self.descriptions}
             debug.dprint("DATABASE: save(); Pickling 'db' to file: " + self._DBFile)
             # pickle it baby, yeah!
-            cPickle.dump(_db, open(self._DBFile, "w"))
+            pickle.dump(_db, open(self._DBFile, "w"))
             del _db
 
     def load(self, filename = None):
@@ -123,7 +123,7 @@ class Database(DBBase):
         _db = None
         current, self.valid_sync = get_sync_info()
         if self.valid_sync and os.access(self._DBFile, os.F_OK):
-            _db = cPickle.load(open(self._DBFile))
+            _db = pickle.load(open(self._DBFile))
         elif not self.valid_sync:
             debug.dprint("DATABASE: load(); Current portage tree did Not return a valid sync timestamp, not loading descriptions from the saved file" )
             return -1

@@ -32,7 +32,7 @@ from sys import stderr
 import pygtk; pygtk.require("2.0") # make sure we have the right version
 import gtk
 import grp
-import pwd, cPickle
+import pwd, pickle
 from gettext import gettext as _
 
 from porthole.version import version
@@ -144,10 +144,6 @@ def environment():
     env = os.environ
     #debug.dprint("UTILS: environment(), env before & after our additions")
     #debug.dprint(env)
-    if "FEATURES" in env:
-        env["FEATURES"] += ", notitles"
-    else:
-        env ["FEATURES"] = "notitles"
     if "PORTAGE_ELOG_SYSTEM" in env:
         modules = env["PORTAGE_ELOG_SYSTEM"].split()
         if 'echo' in modules:
@@ -219,8 +215,8 @@ def estimate(package_name, log_file_name=EPREFIX+"/var/log/emerge.log"):
         else:
             return None
     except:
-        raise BadLogFile, _("Error reading emerge log file.  Check file "
-            "permissions, or check for corrupt log file.")
+        raise BadLogFile(_("Error reading emerge log file.  Check file "
+            "permissions, or check for corrupt log file."))
 
 def pretend_check(command_string):
     isPretend = (re.search("--pretend", command_string) != None)

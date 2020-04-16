@@ -22,7 +22,7 @@
 '''
 
 #import dummy_threading as _threading
-import threading, thread
+import threading, _thread
 from sys import stderr
 
 class CommonReader(threading.Thread):
@@ -38,8 +38,8 @@ class CommonReader(threading.Thread):
         self.cancelled = False
         # quit even if thread is still running
         self.setDaemon(1)
-        print >>stderr,  "threading.enumerate() = ",threading.enumerate()
-        print >>stderr, "this thread is :", thread.get_ident(), ' current thread ', threading.currentThread()
+        print("threading.enumerate() = ",threading.enumerate(), file=stderr)
+        print("this thread is :", _thread.get_ident(), ' current thread ', threading.currentThread(), file=stderr)
 
     def please_die( self ):
         """ Tell the thread to die """

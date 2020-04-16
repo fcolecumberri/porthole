@@ -24,13 +24,13 @@
 
 import datetime
 id = datetime.datetime.now().microsecond
-print "DEBUG: id initialized to ", id
+print("DEBUG: id initialized to ", id)
 
 import errno
 import string
 #import re
 from sys import stderr
-import pwd, cPickle
+import pwd, pickle
 import os
 
 
@@ -62,7 +62,7 @@ def _dprint(message):
 	"""Print debug message if debug is true."""
 	#print >>stderr, message
 	if debug_target == "ALL" or debug_target in message:
-		print >>stderr, message
+		print(message, file=stderr)
 	#else:
 	#    print >>stderr, "message filtered"
 
@@ -72,5 +72,5 @@ def _dsave(name, item = None):
 	# get home directory
 	home = pwd.getpwuid(os.getuid())[5]
 	# pickle it baby, yeah!
-	cPickle.dump(item, open(home + "/.porthole/" + name, "w"))
+	pickle.dump(item, open(home + "/.porthole/" + name, "w"))
 

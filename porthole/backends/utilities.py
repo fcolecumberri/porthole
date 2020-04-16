@@ -8,7 +8,7 @@
     Wm. F. Wheeler, Brian Dolbec, Tommy Iorns
 
     Copyright: 2005 Brian Harring <ferringb@gmail.com>
-    
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -26,7 +26,7 @@
 
 import datetime
 id = datetime.datetime.now().microsecond
-print "UTILITIES: id initialized to ", id
+print("UTILITIES: id initialized to ", id)
 
 import os
 from gettext import gettext as _
@@ -42,12 +42,12 @@ USERCONFIGS = None
 # Copyright: 2005 Brian Harring <ferringb@gmail.com>
 # License: GPL2
 def iter_read_bash(bash_source):
-    """read file honoring bash commenting rules.  Note that it's considered good behaviour to close filehandles, as such, 
+    """read file honoring bash commenting rules.  Note that it's considered good behaviour to close filehandles, as such,
         either iterate fully through this, or use read_bash instead.
-        once the file object is no longer referenced, the handle will be closed, but be proactive instead of relying on the 
+        once the file object is no longer referenced, the handle will be closed, but be proactive instead of relying on the
         garbage collector."""
     try:
-        if isinstance(bash_source, basestring):
+        if isinstance(bash_source, str):
             bash_source = open(bash_source, 'r')
         for s in bash_source:
             s=s.strip()
@@ -59,7 +59,7 @@ def iter_read_bash(bash_source):
         pass
 
 def read_bash(bash_source):
-	return list(iter_read_bash(bash_source))
+    return list(iter_read_bash(bash_source))
 # end of stolen code
 
 def sort(list):
@@ -107,7 +107,7 @@ def get_sync_info():
         else:
             debug.dprint("BACKENDS Utilities: get_sync_info(); No data read")
     #except os.error:
-    except IOError, v:
+    except IOError as v:
         try:
             (code, message) = v
         except:

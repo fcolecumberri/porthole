@@ -133,9 +133,9 @@ class MarkupView (object):
         """ Define all markup tags """
         def create(descs):
             table = gtk.TextTagTable()
-            for name, properties in descs.items():
+            for name, properties in list(descs.items()):
                 tag = gtk.TextTag(name); table.add(tag)
-                for property, value in properties.items():
+                for property, value in list(properties.items()):
                     tag.set_property(property, value)
             return table
 

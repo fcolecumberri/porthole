@@ -25,7 +25,7 @@
 
 import datetime
 _id = datetime.datetime.now().microsecond
-print "ADVEMERGE: id initialized to ", _id
+print("ADVEMERGE: id initialized to ", _id)
 
 import gtk
 import gtk.glade
@@ -585,7 +585,7 @@ class AdvancedEmergeDialog:
                 else:
                     self.btnMakeConf.hide()
         # Build table to hold checkboxes
-        uflag_widget = UseFlagWidget(use_flags, ebuild)
+        uflag_widget = UseFlagWidget(use_flags, ebuild, self.window)
         uflag_widget.connect('grab-focus', self.on_toggled)
         UseFlagFrame.add(uflag_widget)
         uflag_widget.show()

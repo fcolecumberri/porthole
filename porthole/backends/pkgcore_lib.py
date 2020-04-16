@@ -27,6 +27,7 @@ import os
 from gettext import gettext as _
 
 from timeit import Timer
+import imp
 
 try:
     import pkgcore
@@ -59,14 +60,14 @@ except ImportError:
 from utils import dprint, dsave, is_root
 from sterminal import SimpleTerminal
 from dispatcher import Dispatcher
-import version_sort
+from . import version_sort
 import threading
 
 if is_root: # then import some modules and run it directly
-    import set_config
+    from . import set_config
 
 
-from metadata import parse_metadata
+from .metadata import parse_metadata
 
 Lib = "Pkgcore"
 
@@ -147,11 +148,11 @@ def reload_world():
 
 def reload_portage():
     dprint('PKGCORE_LIB: reloading portage')
-    reload(pkgcore.config)
-    reload(pkgcore.const)
-    reload(pkgcore.util.file.read_bash)
-    reload(portage)
-    reload(portage_const)
+    imp.reload(pkgcore.config)
+    imp.reload(pkgcore.const)
+    imp.reload(pkgcore.util.file.read_bash)
+    imp.reload(portage)
+    imp.reload(portage_const)
 
 def get_use_flag_dict():
     """ Get all the use flags and return them as a dictionary 
@@ -593,9 +594,9 @@ def get_size(ebuild):
             mycount-=3
             mystr=mystr[:mycount]+","+mystr[mycount:]
         mysum=mystr+" kB"
-    except SystemExit, e:
+    except SystemExit as e:
         raise # Needed else can't exit
-    except Exception, e:
+    except Exception as e:
         dprint( "PKGCORE_LIB: get_size; Exception: " + e  )
         dprint( "PKGCORE_LIB: get_size; ebuild: " + str(ebuild))
         dprint( "PKGCORE_LIB: get_size; mydigest: " + str(mydigest))
@@ -611,9 +612,9 @@ def get_digest(ebuild):
         for line in myfile.readlines():
             digest_file.append(line.split(" "))
         myfile.close()
-    except SystemExit, e:
+    except SystemExit as e:
         raise # Needed else can't exit
-    except Exception, e:
+    except Exception as e:
         dprint("PKGCORE_LIB: get_digest(): Exception: " + e)
     return digest_file
 
@@ -622,14 +623,14 @@ def get_properties(ebuild):
     ebuild = str(ebuild) #just in case
     if portage.portdb.cpv_exists(ebuild): # if in portage tree
         try:
-            return Properties(dict(zip(keys, portage.portdb.aux_get(ebuild, portage.auxdbkeys))))
-        except IOError, e: # Sync being performed may delete files
+            return Properties(dict(list(zip(keys, portage.portdb.aux_get(ebuild, portage.auxdbkeys)))))
+        except IOError as e: # Sync being performed may delete files
             dprint(" * PKGCORE_LIB: get_properties(): IOError: " + e)
             return Properties()
     else:
         vartree = portage.db['/']['vartree']
         if vartree.dbapi.cpv_exists(ebuild): # elif in installed pkg tree
-            return Properties(dict(zip(keys, vartree.dbapi.aux_get(ebuild, portage.auxdbkeys))))
+            return Properties(dict(list(zip(keys, vartree.dbapi.aux_get(ebuild, portage.auxdbkeys)))))
         else: return Properties()
     
 def get_metadata(package):
@@ -1029,31 +1030,31 @@ if __name__ == "__main__":
         import time, sys
         db_thread = DatabaseReader(); db_thread.run(); db_thread.done = True
         while not db_thread.done:
-            print >>sys.stderr, db_thread.count,
+            print(db_thread.count, end=' ', file=sys.stderr)
             time.sleep(0.1)
-        print
+        print()
         db = db_thread.get_db()
         return
         while 1:
-            print; print "Enter full package name:"
+            print(); print("Enter full package name:")
             queries = sys.stdin.readline().split()
             for query in queries:
-                print; print query
+                print(); print(query)
                 package = db.get_package(query)
                 if not package:
-                    print "--- unknown ---"
+                    print("--- unknown ---")
                     continue
                 props = package.get_properties()
-                print "Homepages:", props.get_homepages()
-                print "Description:", props.description
-                print "License:", props.license
-                print "Slot:", props.get_slot()
-                print "Keywords:", props.get_keywords()
-                print "USE flags:", props.get_use_flags()
-                print "Installed:", package.get_installed()
-                print "Latest:", get_version(package.get_latest_ebuild())
-                print ("Latest unmasked:",
-                       get_version(package.get_latest_ebuild(0)))
+                print("Homepages:", props.get_homepages())
+                print("Description:", props.description)
+                print("License:", props.license)
+                print("Slot:", props.get_slot())
+                print("Keywords:", props.get_keywords())
+                print("USE flags:", props.get_use_flags())
+                print("Installed:", package.get_installed())
+                print("Latest:", get_version(package.get_latest_ebuild()))
+                print(("Latest unmasked:",
+                       get_version(package.get_latest_ebuild(0))))
 
 ##    main()
     import profile, pstats

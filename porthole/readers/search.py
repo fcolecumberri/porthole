@@ -72,7 +72,7 @@ class SearchReader( CommonReader ):
                     searchstrings.append(desc)
                     #debug.dprint("searchstrings type = " + str(type(searchstrings)))
                     #debug.dprint(searchstrings)
-                if True in map(lambda s: bool(re_object.search(s)), searchstrings):
+                if True in [bool(re_object.search(s)) for s in searchstrings]:
                     self.pkg_count += 1
                     #package_list[name] = data
                     self.package_list[data.full_name] = data

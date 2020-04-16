@@ -21,7 +21,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import os, time, thread, threading
+import os, time, _thread, threading
 from sys import stderr
 from gettext import gettext as _
 
@@ -66,8 +66,8 @@ class UpgradableListReader(CommonReader):
     def run( self ):
         """fill upgrade tree"""
         debug.dprint("READERS: UpgradableListReader(); process id = %d *******************" %os.getpid())
-        print >>stderr,  "READERS: UpgradableListReader(); threading.enumerate() = ",threading.enumerate()
-        print >>stderr, "READERS: UpgradableListReader(); this thread is :", thread.get_ident(), ' current thread ', threading.currentThread()
+        print("READERS: UpgradableListReader(); threading.enumerate() = ",threading.enumerate(), file=stderr)
+        print("READERS: UpgradableListReader(); this thread is :", _thread.get_ident(), ' current thread ', threading.currentThread(), file=stderr)
         self.get_system_list()
         self.get_sets()
         for key in self.cat_order:
@@ -76,7 +76,7 @@ class UpgradableListReader(CommonReader):
         ##upgradeflag = self.upgrade_only and True or False
         # find upgradable packages
         for cat, packages in self.installed_items:
-            for name, package in packages.items():
+            for name, package in list(packages.items()):
                 self.count += 1
                 if self.cancelled: self.done = True; return
                 upgradable = package.is_upgradable()

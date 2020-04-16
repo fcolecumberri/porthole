@@ -71,7 +71,7 @@ class PackageHandler(MainBase):
         """Catch when the user changes packages."""
         debug.dprint("PackageHandler: package_changed()")
         mode = self.widget["view_filter"].get_active()
-        if mode in self.plugin_views.keys():
+        if mode in list(self.plugin_views.keys()):
             self.plugin_views[mode]["package_changed"](package)
             return
         if not package or package.full_name == _("None"):
@@ -130,7 +130,7 @@ class PackageHandler(MainBase):
         sets the package actions options off"""
         if self.packagebook:
             self.packagebook.clear_notebook()
-        self.set_package_actions_sensitive(False)
+            self.set_package_actions_sensitive(False)
 
     def _find_pkgpath(self, pack):
         """"""
@@ -152,7 +152,7 @@ class PackageHandler(MainBase):
         """Sets package action buttons/menu items to sensitive or not"""
         #debug.dprint("PackageHandler: set_package_actions_sensitive(%d)" %enabled)
         mode = self.widget["view_filter"].get_active()
-        if mode in self.plugin_views.keys():
+        if mode in list(self.plugin_views.keys()):
             self.plugin_views[mode]["set_pkg_actions"](enabled, package)
             return
         self.widget["emerge_package1"].set_sensitive(enabled)

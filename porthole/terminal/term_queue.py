@@ -319,14 +319,14 @@ class TerminalQueue:
                 # update the queue tree wait for it to return, it might prevent crashes
                 result = self.clicked(self.queue_tree)
             # remove process from list
-            self.next()
+            next(self)
         # check for pending processes, and run them
         debug.dprint("TERM_QUEUE: start();         ==> check for pending processes, and run them process_iter = " +str(self.process_iter))
         if self.process_iter and not self.get_completed():
                 self.run_process()
         else:
             debug.dprint("TERM_QUEUE: start();         ==> try setting to next iter")
-            self.next()
+            next(self)
             if self.process_iter:
                 debug.dprint("TERM_QUEUE: start();         ==> next iter=good; checking process_iter is completed, self.get_completed = %s" %self.get_completed())
                 debug.dprint("TERM_QUEUE: start();   new process iter id = %d" %self.get_id())
@@ -351,7 +351,7 @@ class TerminalQueue:
         self._run(command, self.process_id)
         self.last_run_iter = self.process_iter.copy()
 
-    def next( self):
+    def __next__( self):
         debug.dprint("TERM_QUEUE: next();" )
         if self.last_run_iter == None:
             self.process_iter = self.queue_model.get_iter_first()
@@ -474,7 +474,7 @@ class TerminalQueue:
             id = self.queue_model.get_value(selected_iter,  self.queue_model.column['id'])
             end_iter = self.queue_model.get_iter(self.next_id-2)
             self.queue_model.move_after(selected_iter, end_iter)
-        except Exception, e:
+        except Exception as e:
             debug.dprint("TERM_QUEUE: move_item_bottom(); exception moving selected_iter, exception :" + str(e))
         if path == self.paused_path:
             debug.dprint("TERM_QUEUE: move_item_bottom(); detected paused item moved, resetting paused_iter, etc., path, paused_path = "  + str(path) + ", " + str(self.paused_path))
@@ -482,7 +482,7 @@ class TerminalQueue:
             try:
                 self.queue_model.set_value(selected_iter, self.queue_model.column['icon'], None)
                 self.paused_iter = self.queue_model.get_iter(self.paused_path)
-            except Exception, e:
+            except Exception as e:
                 debug.dprint("TERM_QUEUE: move_item_bottom(); exception resetting paused_iter, exception :" + str(e))
         self.renum_ids(path, id)
         # We're done, reset queue moves
@@ -626,7 +626,7 @@ class TerminalQueue:
             if id != process_id:
                 #debug.dprint("TERM_QUEUE: locate_id(); ID mismatch, something is out of sink")
                 raise Exception("ID mismatch", id, process_id)
-        except Exception, e:
+        except Exception as e:
             debug.dprint("TERM_QUEUE: locate_id(); execption raised = " + str(e) + " ^^^ path = " + str(path))
             self.locate_iter = self.queue_model.get_iter_first()
             if self.locate_iter:
@@ -674,7 +674,7 @@ class TerminalQueue:
                         self.locate_id(process_id)
                         #debug.dprint("TERM_QUEUE: set_icon(): back from locate_id()")
                         self.queue_model.set_value(self.locate_iter, self.queue_model.column['icon'], self.render_icon(icon))
-                except Exception, e:
+                except Exception as e:
                     debug.dprint("TERM_QUEUE: set_icon(): blasted #!* exception %s" %str(e))
         else: # no icon
             self.locate_id(process_id)
@@ -707,7 +707,7 @@ class TerminalQueue:
         self.task_completed = True
         if not self.queue_paused:
             # get the next process
-            self.next()
+            next(self)
             # check for pending processes, and run them
             self.start(False)
         if self.term.tab_showing[TAB_QUEUE]:

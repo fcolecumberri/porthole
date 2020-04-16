@@ -56,7 +56,7 @@ class DeprecatedReader(CommonReader):
         # find deprecated packages
         for cat, packages in self.installed_items:
             #debug.dprint("READERS: DeprecatedReader; cat = " + str(cat))
-            for name, package in packages.items():
+            for name, package in list(packages.items()):
                 #debug.dprint("READERS: DeprecatedReader; name = " + str(name))
                 self.count += 1
                 if self.cancelled: self.done = True; return

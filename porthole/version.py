@@ -42,7 +42,7 @@ def get_git_info(prop):
             data = Popen(["git","log", "HEAD^..HEAD"],stdout=PIPE).communicate()[0].split('\n')
             branches = Popen(["git","branch"],stdout=PIPE).communicate()[0].split('\n')
         except:
-            print "Error obtaining git log and branch info"
+            print("Error obtaining git log and branch info")
 
         for item in data:
             if item.startswith('commit'):

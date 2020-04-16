@@ -1,4 +1,5 @@
 *.py[co]
+*.bak
 testpath
 *.patch
 gpytage

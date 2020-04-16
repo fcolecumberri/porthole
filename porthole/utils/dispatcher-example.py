@@ -28,7 +28,7 @@ import pygtk; pygtk.require("2.0")
 import gtk
 from time import sleep
 import threading, gobject, os
-from dispatcher import Dispatcher
+from .dispatcher import Dispatcher
 
 # ####################################
 # dispatcher
@@ -48,7 +48,7 @@ class Thread(threading.Thread):
 
     def run(self):
         done = False
-        print("thread_num = %s; process id = %d ****************" %(self.thread_num,os.getpid()))
+        print(("thread_num = %s; process id = %d ****************" %(self.thread_num,os.getpid())))
         pid_func(self.thread_num)
         for num in range(250):
             #print self.thread_num, " num = ",num
@@ -61,7 +61,7 @@ class Thread(threading.Thread):
 
 
 def pid_func(threadnum):
-    print("pid_func: called from thread_num = %s; process id = %d ****************" %(threadnum,os.getpid()))
+    print(("pid_func: called from thread_num = %s; process id = %d ****************" %(threadnum,os.getpid())))
 
 def message_fun(buffer, message):
     #print ("got a message : %s" %(message[0] + str(message[1])))
@@ -85,7 +85,7 @@ def timerfunc():
         return False
 
 def on_window_map_event(event, param):
-    print 'Window mapped'
+    print('Window mapped')
     thread1 = Thread(Dispatcher(message_fun, buffer), "thread1", 0.9)
     thread2 = Thread(Dispatcher(message_fun, buffer), "thread2", 0.9)
     thread3 = Thread(Dispatcher(message_fun, buffer), "thread3", 0.9)

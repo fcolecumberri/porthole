@@ -24,7 +24,7 @@
 
 import datetime
 id = datetime.datetime.now().microsecond
-print "PROPERTIES: id initialized to ", id
+print("PROPERTIES: id initialized to ", id)
 
 
 class Properties:

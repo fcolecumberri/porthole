@@ -24,7 +24,7 @@
 
 import datetime
 id = datetime.datetime.now().microsecond
-print "STERMINAL: id initialized to ", id
+print("STERMINAL: id initialized to ", id)
 
 import signal, os, pty, threading, time
 import errno, string
@@ -60,7 +60,7 @@ class SimpleTerminal:
                 debug.dprint("STERMINAL: self.reader has fd but seems to be already closed.")
                 try:
                     os.close(self.reader.fd)
-                except OSError, e:
+                except OSError as e:
                     debug.dprint("STERMINAL: error closing self.reader.fd: %s" % e)
         
         self.pid, self.reader.fd = pty.fork()
@@ -70,7 +70,7 @@ class SimpleTerminal:
                 shell = "/bin/sh"
                 os.execve(shell, [shell, '-c', self.command],
                     env)
-            except Exception, e:
+            except Exception as e:
                 debug.dprint("STERMINAL: Error in child" + e)
                 os._exit(1)
         else:
@@ -87,7 +87,7 @@ class SimpleTerminal:
         try:
             m = os.waitpid(self.pid, 0) # wait for any child processes to finish
             debug.dprint("STERMINAL: process %s finished, status %s" % m)
-        except OSError, e:
+        except OSError as e:
             if not e.args[0] == 10: # 10 = no process to kill
                 debug.dprint("STERMINAL: OSError %s" % e)
         if self.callback:
