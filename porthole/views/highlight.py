@@ -13,14 +13,14 @@ Adapted to Porthole by, Brian Dolbec <dol-sen@users.sourceforge.net>
 """
 from __future__ import absolute_import, with_statement
 
-import gtksourceview2
+from gi.repository import GtkSource
 #import logging
 
 from porthole.utils import debug
 from porthole.views.lazyview import LazyView
 
 
-class HighlightView (gtksourceview2.View, LazyView):
+class HighlightView (GtkSource.View, LazyView):
 
     def __init__ (self, get_file_fn, languages = []):
         """@param get_file_fn: function to return a filename from a pkg object
@@ -32,7 +32,7 @@ class HighlightView (gtksourceview2.View, LazyView):
         else:  # assume it is passed a filename already
             self.get_fn = self._get_fn
 
-        man = gtksourceview2.LanguageManager()
+        man = GtkSource.LanguageManager()
         
         language = None
         old_lang = None
@@ -49,10 +49,10 @@ class HighlightView (gtksourceview2.View, LazyView):
         if not language and old_lang:
             debug.dprint("HIGHLIGHT: No %(old)s language file installed. Disable highlighting." %{"old" : old_lang})
 
-        buf = gtksourceview2.Buffer()
+        buf = GtkSource.Buffer()
         buf.set_language(language)
 
-        gtksourceview2.View.__init__(self, buf)
+        GtkSource.View.__init__(self, buf)
         LazyView.__init__(self)
 
         self.set_editable(False)

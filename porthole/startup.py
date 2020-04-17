@@ -26,8 +26,8 @@ _id = datetime.datetime.now().microsecond
 #print "STARTUP: id initialized to ", _id
 
 # proper way to enable threading.  Do this first before any other code
-import gobject
-gobject.threads_init()
+from gi.repository import GObject
+GObject.threads_init()
 # now for the rest
 
 # setup our path so we can load our custom modules
@@ -67,7 +67,7 @@ DIR_LIST = [LOG_FILE_DIR, DB_FILE_DIR]
 
 import os
 #from thread import *
-import pygtk; pygtk.require("2.0") # make sure we have the right version
+import gi; gi.require_version("Gtk", "3.0") # make sure we have the right version
 import gtk, time, pwd
 while EPREFIX + '/usr/bin' in sys.path: # and now importing gtk re-adds it! Grrrr, rude
     sys.path.remove(EPREFIX + '/usr/bin')
@@ -76,8 +76,8 @@ import locale, gettext
 from gettext import gettext as _
 
 # it is recommended to init threads right after importing gtk just in case
-#gtk.threads_init()
-#gtk.gdk.threads_init()
+#Gtk.threads_init()
+#Gdk.threads_init()
 
 
 def create_dir(new_dir):
@@ -179,17 +179,17 @@ def main():
     gettext.bindtextdomain (APP, i18n_DIR)
     gettext.textdomain (APP)
     gettext.install (APP, i18n_DIR, str=1)
-    gtk.glade.bindtextdomain (APP, i18n_DIR)
-    gtk.glade.textdomain (APP)
+    Gtk.glade.bindtextdomain (APP, i18n_DIR)
+    Gtk.glade.textdomain (APP)
 
     # make sure gtk lets threads run
     #os.putenv("PYGTK_USE_GIL_STATE_API", "True")
-    gtk.gdk.threads_init()
+    Gdk.threads_init()
 
     debug.dprint("PORTHOLE: process id = %d ****************" %os.getpid())
     # setup our app icon
-    myicon = gtk.gdk.pixbuf_new_from_file(DATA_PATH + "pixmaps/porthole-icon.png")
-    gtk.window_set_default_icon_list(myicon)
+    myicon = GdkPixbuf.Pixbuf.new_from_file(DATA_PATH + "pixmaps/porthole-icon.png")
+    Gtk.window_set_default_icon_list(myicon)
     # load config info
     config.Config.set_path(DATA_PATH)
     config.Config.load()
@@ -197,7 +197,7 @@ def main():
     # create the main window
     myapp = MainWindow() #config.Prefs, config.Config)
     # start the program loop
-    gtk.main()
+    Gtk.main()
     # save the prefs to disk for next time
     config.Prefs.save()
     hits = backends.portage_lib.get_metadata.hits

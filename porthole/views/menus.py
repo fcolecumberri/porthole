@@ -22,7 +22,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import pygtk; pygtk.require("2.0") # make sure we have the right version
+import gi; gi.require_version("Gtk", "3.0") # make sure we have the right version
 import gtk, gobject, pango
 import threading, os
 from gettext import gettext as _
@@ -42,23 +42,23 @@ class RMBMenu:
     def __init__(self):
         # create popup menu for rmb-click
         arch = "~" + portage_lib.get_arch()
-        menu = gtk.Menu()
+        menu = Gtk.Menu()
         menuitems = {}
-        menuitems["emerge"] = gtk.MenuItem(_("Emerge"))
+        menuitems["emerge"] = Gtk.MenuItem(_("Emerge"))
         menuitems["emerge"].connect("activate", self.emerge)
-        menuitems["pretend-emerge"] = gtk.MenuItem(_("Pretend Emerge"))
+        menuitems["pretend-emerge"] = Gtk.MenuItem(_("Pretend Emerge"))
         menuitems["pretend-emerge"].connect("activate", self.emerge, True, None)
-        menuitems["sudo-emerge"] = gtk.MenuItem(_("Sudo Emerge"))
+        menuitems["sudo-emerge"] = Gtk.MenuItem(_("Sudo Emerge"))
         menuitems["sudo-emerge"].connect("activate", self.emerge, None, True)
-        menuitems["unmerge"] = gtk.MenuItem(_("Unmerge"))
+        menuitems["unmerge"] = Gtk.MenuItem(_("Unmerge"))
         menuitems["unmerge"].connect("activate", self.unmerge)
-        menuitems["sudo-unmerge"] = gtk.MenuItem(_("Sudo Unmerge"))
+        menuitems["sudo-unmerge"] = Gtk.MenuItem(_("Sudo Unmerge"))
         menuitems["sudo-unmerge"].connect("activate", self.unmerge, True)
-        menuitems["add-keyword"] = gtk.MenuItem(_("Append with %s to package.keywords") % arch)
+        menuitems["add-keyword"] = Gtk.MenuItem(_("Append with %s to package.keywords") % arch)
         menuitems["add-keyword"].connect("activate", self.add_keyword)
-        menuitems["deselect_all"] = gtk.MenuItem(_("De-Select all"))
+        menuitems["deselect_all"] = Gtk.MenuItem(_("De-Select all"))
         menuitems["deselect_all"].connect("activate", self.deselect_all)
-        menuitems["select_all"] = gtk.MenuItem(_("Select all"))
+        menuitems["select_all"] = Gtk.MenuItem(_("Select all"))
         menuitems["select_all"].connect("activate", self.select_all)
 
         for item in list(menuitems.values()):

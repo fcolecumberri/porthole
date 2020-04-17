@@ -27,7 +27,7 @@ _id = datetime.datetime.now().microsecond
 print("DATABASE: id initialized to ", _id)
 
 import pwd, pickle, os
-import gobject
+from gi.repository import GObject
 
 from porthole.db.package import Package
 from porthole import backends
@@ -210,7 +210,7 @@ class Database(DBBase):
                 # create a new db
                 self.desc_thread = DescriptionReader(self.list)
                 self.desc_thread.start()
-                gobject.timeout_add(100, self.desc_thread_update)
+                GObject.timeout_add(100, self.desc_thread_update)
 
     def cancell_desc_update(self):
         if self.desc_thread:

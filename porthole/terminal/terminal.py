@@ -43,16 +43,16 @@
     -------------------------------------------------------------------------
     References & Notes
     
-    1. Pygtk2 refs & tutorials - http://www.pygtk.org
+    1. Pygtk2 refs & tutorials - http://www.pyGtk.org
     2. GTK2 text tags can use named colors (see /usr/X11R6/lib/X11/rgb.txt)
        or standard internet rgb values (e.g. #02FF80)
  
 """
 
 # import external [system] modules
-import pygtk; pygtk.require('2.0')
-import gtk, gtk.glade, gobject
-import pango
+import gi; gi.require_version('Gtk', '3.0')
+import gtk, Gtk.glade, gobject
+from gi.repository import Pango
 import signal, os, pty, threading, time #, re
 import datetime, pango, errno
 from base64 import b64encode, b64decode
@@ -128,7 +128,7 @@ class ProcessManager: #dbus.service.Object):
         self.filename = None
         self.untitled_serial = -1
         self.allow_delete = False
-        self.clipboard = gtk.Clipboard()
+        self.clipboard = Gtk.Clipboard()
         # create the process reader
         self.reader = ProcessOutputReader(Dispatcher(self.process_done))
         # Added a Line Feed check in order to bypass code if LF's are not used ==> CR only
@@ -169,7 +169,7 @@ class ProcessManager: #dbus.service.Object):
             for tab in [TAB_WARNING, TAB_CAUTION, TAB_INFO]: #, TAB_QUEUE]:
                 self.term.hide_tab(tab)
             # re-set base values for textviews
-            attributes = gtk.TextView().get_default_attributes()
+            attributes = Gtk.TextView().get_default_attributes()
             default_fg = attributes.fg_color
             default_bg = attributes.bg_color
             default_weight = attributes.font.get_weight()
@@ -182,15 +182,15 @@ class ProcessManager: #dbus.service.Object):
                 if x == "process_text" or config.Prefs.terminal.all_tabs_use_custom_colors:
                     fg, bg, weight = config.Prefs.TAG_DICT['default']
                     font = config.Prefs.terminal.font
-                    if bg: view.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse(bg))
-                    else: view.modify_base(gtk.STATE_NORMAL, default_bg)
-                    if fg: view.modify_text(gtk.STATE_NORMAL, gtk.gdk.color_parse(fg))
-                    else: view.modify_text(gtk.STATE_NORMAL, default_fg)
-                    view.modify_font(pango.FontDescription(font or default_font))
+                    if bg: view.modify_base(Gtk.StateType.NORMAL, Gdk.color_parse(bg))
+                    else: view.modify_base(Gtk.StateType.NORMAL, default_bg)
+                    if fg: view.modify_text(Gtk.StateType.NORMAL, Gdk.color_parse(fg))
+                    else: view.modify_text(Gtk.StateType.NORMAL, default_fg)
+                    view.modify_font(Pango.FontDescription(font or default_font))
                 else:
-                    view.modify_base(gtk.STATE_NORMAL, default_bg)
-                    view.modify_text(gtk.STATE_NORMAL, default_fg)
-                    view.modify_font(pango.FontDescription(default_font))
+                    view.modify_base(Gtk.StateType.NORMAL, default_bg)
+                    view.modify_text(Gtk.StateType.NORMAL, default_fg)
+                    view.modify_font(Pango.FontDescription(default_font))
             # re-set misc. stuff
             self.term.command_start = None
             # re-set text tags
@@ -198,11 +198,11 @@ class ProcessManager: #dbus.service.Object):
             # show window
             self.window.show()
             self.window_visible = True
-            #gobject.timeout_add(100, self.update)
+            #GObject.timeout_add(100, self.update)
             debug.dprint("TERMINAL: show_window(): returning")
             return True
         # load the glade file
-        self.wtree = gtk.glade.XML(config.Prefs.DATA_PATH + config.Prefs.use_gladefile,
+        self.wtree = Gtk.glade.XML(config.Prefs.DATA_PATH + config.Prefs.use_gladefile,
                                    "process_window", config.Prefs.APP)
         # these need to be before the callbacks
         # setup some aliases for easier access
@@ -274,7 +274,7 @@ class ProcessManager: #dbus.service.Object):
         self.timer_menuitem.set_sensitive(False)
         # start the reader
         self.reader.start()
-        gobject.timeout_add(100, self.update)
+        GObject.timeout_add(100, self.update)
 
         if config.Prefs:
             self.window.resize((config.Prefs.emerge.verbose and
@@ -322,7 +322,7 @@ class ProcessManager: #dbus.service.Object):
         #debug.dprint("TERMINAL: window state event: %s" % event.new_window_state) # debug print statements
         #debug.dprint(event.changed_mask
         state = event.new_window_state
-        if state & gtk.gdk.WINDOW_STATE_ICONIFIED:
+        if state & Gdk.WindowState.ICONIFIED:
             #debug.dprint("TERMINAL: new_window_state; event = minimized")
             self.minimized = True
             self.window.set_title(self.status_text)
@@ -404,9 +404,9 @@ class ProcessManager: #dbus.service.Object):
         if __name__ == "__main__":
             # if running standalone, quit
             try:
-                gtk.main_quit()
+                Gtk.main_quit()
             except:
-                gtk.mainquit()
+                Gtk.mainquit()
         if self.reader.isAlive():
             self.reader.die = "Please"
             debug.dprint("TERMINAL: reader process still alive - killing...")
@@ -502,12 +502,12 @@ class ProcessManager: #dbus.service.Object):
             retval = True
         if not self.task_completed:
             err = _("Confirm: Kill the Running Process")
-            dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
-                                    gtk.MESSAGE_QUESTION,
-                                    gtk.BUTTONS_YES_NO, err);
+            dialog = Gtk.MessageDialog(self.window, Gtk.DialogFlags.MODAL,
+                                    Gtk.MessageType.QUESTION,
+                                    Gtk.ButtonsType.YES_NO, err);
             result = dialog.run()
             dialog.destroy()
-            if result != gtk.RESPONSE_YES:
+            if result != Gtk.ResponseType.YES:
                 debug.dprint("TERMINAL: confirm_delete(); stopping delete")
                 return True
             debug.dprint("TERMINAL: confirm_delete(); confirmed")
@@ -762,7 +762,7 @@ class ProcessManager: #dbus.service.Object):
                             self.term.append(TAB_PROCESS, self.process_buffer)
                             self.process_buffer = ''
                         self.force_buffer_write = False
-                        gobject.timeout_add(200, self.force_buffer_write_timer)
+                        GObject.timeout_add(200, self.force_buffer_write_timer)
                 self.lastchar = char
         else: # if reader string is empty... maybe waiting for input
             if self.force_buffer_write and self.process_buffer:
@@ -775,7 +775,7 @@ class ProcessManager: #dbus.service.Object):
                     self.term.append(TAB_PROCESS, self.process_buffer)
                     self.process_buffer = ''
                 self.force_buffer_write = False
-                gobject.timeout_add(200, self.force_buffer_write_timer)
+                GObject.timeout_add(200, self.force_buffer_write_timer)
                 # perhaps sudo is waiting for a password
                 # note: the prompt is set to "Password:" in the command string
                 # to override any default.
@@ -801,10 +801,10 @@ class ProcessManager: #dbus.service.Object):
             self.forward_password()
             return
         debug.dprint("TERMINAL: do_password_popup: asking for user's password")
-        dialog = gtk.Dialog("Password Required",
+        dialog = Gtk.Dialog("Password Required",
                             self.window,
-                            gtk.DIALOG_MODAL & gtk.DIALOG_DESTROY_WITH_PARENT,
-                            (_("_Cancel"), gtk.RESPONSE_CANCEL));
+                            Gtk.DialogFlags.MODAL & Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                            (_("_Cancel"), Gtk.ResponseType.CANCEL));
         dialog.vbox.set_spacing(10)
         #dialog.set_has_separator(False)
         dialog.set_border_width(10)
@@ -812,41 +812,41 @@ class ProcessManager: #dbus.service.Object):
         #if command.startswith('sudo '):
         if 'sudo -p "Password:'  in command:
             command = command[command.index('sudo -p "Password:')+21:]
-            label = gtk.Label(_("'sudo -p Password: ' requires your user password to perform the command:\n'%s'")
+            label = Gtk.Label(label=_("'sudo -p Password: ' requires your user password to perform the command:\n'%s'")
                             % command)
         elif command.startswith('sudo '):
             command = command[command.index('sudo ')+5:]
-            label = gtk.Label(_("'sudo: ' requires your user password to perform the command:\n'%s'")
+            label = Gtk.Label(label=_("'sudo: ' requires your user password to perform the command:\n'%s'")
                             % command)
             
         elif 'su -c ' in command:
             command = command[command.index('su -c ')+6:]
-            label = gtk.Label(_("'su' requires the root password to perform the command:\n'%s'")
+            label = Gtk.Label(label=_("'su' requires the root password to perform the command:\n'%s'")
                             % command)
         elif command.startswith('su '):
             command = command[command.index('su ')+3:]
-            label = gtk.Label(_("'su' requires the root password to perform the command:\n'%s'")
+            label = Gtk.Label(label=_("'su' requires the root password to perform the command:\n'%s'")
                             % command)
         else:
-            label = gtk.Label(_("Password Required to perform the command:\n'%s'")
+            label = Gtk.Label(label=_("Password Required to perform the command:\n'%s'")
                             % command)
-        dialog.vbox.pack_start(label)
+        dialog.vbox.pack_start(label, True, True, 0)
         label.show()
-        hbox = gtk.HBox()
-        label = gtk.Label(_("Password: "))
-        entry = gtk.Entry()
+        hbox = Gtk.HBox()
+        label = Gtk.Label(label=_("Password: "))
+        entry = Gtk.Entry()
         entry.set_property("visibility", False) # password mode
         entry.connect("activate", self.get_password_cb, dialog)
-        hbox.pack_start(label, expand=False)
-        hbox.pack_start(entry, expand=True)
-        dialog.vbox.pack_start(hbox)
+        hbox.pack_start(label, False, True, 0)
+        hbox.pack_start(entry, True, True, 0)
+        dialog.vbox.pack_start(hbox, True, True, 0)
         hbox.show_all()
-        gtk.gdk.threads_enter()
+        Gdk.threads_enter()
         result = dialog.run()
-        gtk.gdk.threads_leave()
+        Gdk.threads_leave()
         debug.dprint("TERMINAL: do_password_popup(): result %s" % result)
         dialog.destroy()
-        if result == gtk.RESPONSE_CANCEL:
+        if result == Gtk.ResponseType.CANCEL:
             self.kill_process()
             #self.write_to_term('\x03') # control-C
             self.term.append(TAB_PROCESS, '^C')
@@ -1146,12 +1146,12 @@ class ProcessManager: #dbus.service.Object):
         if (not self.filename or filename != self.filename):
             if os.path.exists(filename):
                 err = _("Ovewrite existing file '%s'?")  % filename
-                dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
-                                           gtk.MESSAGE_QUESTION,
-                                           gtk.BUTTONS_YES_NO, err);
+                dialog = Gtk.MessageDialog(self.window, Gtk.DialogFlags.MODAL,
+                                           Gtk.MessageType.QUESTION,
+                                           Gtk.ButtonsType.YES_NO, err);
                 result = dialog.run()
                 dialog.destroy()
-                if result != gtk.RESPONSE_YES:
+                if result != Gtk.ResponseType.YES:
                     return False
 
         self.filename = filename
@@ -1208,9 +1208,9 @@ class ProcessManager: #dbus.service.Object):
             (errnum, errmsg) = xxx_todo_changeme1.args
             d = {"filename" : filename, "errmsg" : errmsg}
             err = _("Cannot open file '%(filename)s': %(errmsg)s") % d
-            dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
-                                       gtk.MESSAGE_INFO,
-                                       gtk.BUTTONS_OK, err);
+            dialog = Gtk.MessageDialog(self.window, Gtk.DialogFlags.MODAL,
+                                       Gtk.MessageType.INFO,
+                                       Gtk.ButtonsType.OK, err);
             result = dialog.run()
             dialog.destroy()
             return False
@@ -1236,9 +1236,9 @@ class ProcessManager: #dbus.service.Object):
             if errnum != errno.ENOENT:
                 d = {"filename" : self.filename, "bak_filename" : bak_filename, "errmsg" : errmsg}
                 err = _("Cannot back up '%(filename)s' to '%(bak_filename)s': %(errmsg)s") % d
-                dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
-                                           gtk.MESSAGE_INFO,
-                                           gtk.BUTTONS_OK, err);
+                dialog = Gtk.MessageDialog(self.window, Gtk.DialogFlags.MODAL,
+                                           Gtk.MessageType.INFO,
+                                           Gtk.ButtonsType.OK, err);
                 dialog.run()
                 dialog.destroy()
                 return False
@@ -1268,9 +1268,9 @@ class ProcessManager: #dbus.service.Object):
         except IOError as xxx_todo_changeme3:
             (errnum, errmsg) = xxx_todo_changeme3.args
             err = ("Error writing to '%s': %s") % (self.filename, errmsg)
-            dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
-                                       gtk.MESSAGE_INFO,
-                                       gtk.BUTTONS_OK, err);
+            dialog = Gtk.MessageDialog(self.window, Gtk.DialogFlags.MODAL,
+                                       Gtk.MessageType.INFO,
+                                       Gtk.ButtonsType.OK, err);
             dialog.run()
             dialog.destroy()
 
@@ -1281,9 +1281,9 @@ class ProcessManager: #dbus.service.Object):
                 (errnum, errmsg) = xxx_todo_changeme.args
                 d = {"filename" : self.filename, "bak_filename" : bak_filename, "errmsg" : errmsg}
                 err = _("Can't restore backup file '%(filename)s' to '%(bak_filename)s': %(errmsg)s\nBackup left as '%(bak_filename)s'") % d
-                dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
-                                           gtk.MESSAGE_INFO,
-                                           gtk.BUTTONS_OK, err);
+                dialog = Gtk.MessageDialog(self.window, Gtk.DialogFlags.MODAL,
+                                           Gtk.MessageType.INFO,
+                                           Gtk.ButtonsType.OK, err);
                 dialog.run()
                 dialog.destroy()
 
@@ -1298,17 +1298,17 @@ class ProcessManager: #dbus.service.Object):
         if _buffer.get_modified():
             if save:
                 msg = _("Save log to '%s'?") % self.filename
-                dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
-                                           gtk.MESSAGE_QUESTION,
-                                           gtk.BUTTONS_YES_NO, msg);
-                dialog.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+                dialog = Gtk.MessageDialog(self.window, Gtk.DialogFlags.MODAL,
+                                           Gtk.MessageType.QUESTION,
+                                           Gtk.ButtonsType.YES_NO, msg);
+                dialog.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
                 result = dialog.run()
                 dialog.destroy()
-                if result == gtk.RESPONSE_YES:
+                if result == Gtk.ResponseType.YES:
                     if self.filename:
                         return self.save_buffer()
                     return self.save_as_buffer()
-                elif result == gtk.RESPONSE_NO:
+                elif result == Gtk.ResponseType.NO:
                     return self.save_as_buffer()
                 else:
                     return False
@@ -1316,15 +1316,15 @@ class ProcessManager: #dbus.service.Object):
                     return self.save_as_buffer()
         else:
             msg = "Buffer already saved &/or has not been modified: Proceed?"
-            dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
-                                       gtk.MESSAGE_QUESTION,
-                                       gtk.BUTTONS_YES_NO, msg);
-            dialog.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+            dialog = Gtk.MessageDialog(self.window, Gtk.DialogFlags.MODAL,
+                                       Gtk.MessageType.QUESTION,
+                                       Gtk.ButtonsType.YES_NO, msg);
+            dialog.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
             result = dialog.run()
             dialog.destroy()
-            if result == gtk.RESPONSE_YES:
+            if result == Gtk.ResponseType.YES:
                 return self.save_as_buffer()
-            elif result == gtk.RESPONSE_NO:
+            elif result == Gtk.ResponseType.NO:
                 return False
             else:
                 return False
@@ -1370,10 +1370,10 @@ class ProcessManager: #dbus.service.Object):
         #~ from os import chdir
         #~ chdir(DATA_PATH)
     #~ # make sure gtk lets threads run
-    #~ gtk.threads_init()
+    #~ Gtk.threads_init()
     #~ # setup our app icon
-    #~ myicon = gtk.gdk.pixbuf_new_from_file("pixmaps/porthole-icon.png")
-    #~ gtk.window_set_default_icon_list(myicon)
+    #~ myicon = GdkPixbuf.Pixbuf.new_from_file("pixmaps/porthole-icon.png")
+    #~ Gtk.window_set_default_icon_list(myicon)
     #~ # load prefs
     #~ prefs_additions = [
         #~ ["DATA_PATH",DATA_PATH],
@@ -1392,6 +1392,6 @@ class ProcessManager: #dbus.service.Object):
     #~ test.process_queue.add("gtk+ (-vp)", "emerge -vp gtk+", callback)
     #~ test.process_queue.add("bzip2 (-v)", "emerge -v bzip2", callback)
     #~ # start the program loop
-    #~ gtk.mainloop()
+    #~ Gtk.mainloop()
     #~ # save the prefs to disk for next time
     #~ prefs.save()

@@ -37,16 +37,16 @@
     -------------------------------------------------------------------------
     References & Notes
     
-    1. Pygtk2 refs & tutorials - http://www.pygtk.org
+    1. Pygtk2 refs & tutorials - http://www.pyGtk.org
     2. GTK2 text tags can use named colors (see /usr/X11R6/lib/X11/rgb.txt)
         or standard internet rgb values (e.g. #02FF80)
     
 """
 
 # import external [system] modules
-import pygtk; pygtk.require('2.0')
-import gtk, gtk.glade, gobject
-import pango
+import gi; gi.require_version('Gtk', '3.0')
+import gtk, Gtk.glade, gobject
+from gi.repository import Pango
 from types import *
 #import signal, os, pty, threading, time, sre, portagelib
 #import datetime, pango, errno
@@ -60,17 +60,17 @@ from porthole.dialogs.simple import SingleButtonDialog
 
 FUNCTIONTYPES = [FunctionType, MethodType, BuiltinFunctionType, BuiltinMethodType]
 
-class QueueModel(gtk.ListStore):
+class QueueModel(Gtk.ListStore):
     def __init__(self):
-        gtk.ListStore.__init__(self, gtk.gdk.Pixbuf,            # hold the status icon
-                                        gobject.TYPE_STRING,         # package name/ command name
-                                        gobject.TYPE_STRING,         # command
-                                        gobject.TYPE_INT,                # entry id
-                                        gobject.TYPE_STRING,        # sender
-                                        gobject.TYPE_BOOLEAN,    # killed
-                                        gobject.TYPE_PYOBJECT,   # callback function
-                                        gobject.TYPE_BOOLEAN,    # completed
-                                        gobject.TYPE_INT                # killed_id
+        GObject.GObject.__init__(self, GdkPixbuf.Pixbuf,            # hold the status icon
+                                        GObject.TYPE_STRING,         # package name/ command name
+                                        GObject.TYPE_STRING,         # command
+                                        GObject.TYPE_INT,                # entry id
+                                        GObject.TYPE_STRING,        # sender
+                                        GObject.TYPE_BOOLEAN,    # killed
+                                        GObject.TYPE_PYOBJECT,   # callback function
+                                        GObject.TYPE_BOOLEAN,    # completed
+                                        GObject.TYPE_INT                # killed_id
                                         )
         self.column = {'icon': 0,
                                 'name':  1,
@@ -158,18 +158,18 @@ class TerminalQueue:
         self.pause_menu = self.wtree.get_widget("pause")
         #debug.dprint("TERM_QUEUE: Attempting to change the pause, paly button image colors")
         """ Set up different colors for the pause & play buttons depending on it's state
-            gtk.STATE_NORMAL	State during normal operation.
-            gtk.STATE_ACTIVE	State of a currently active widget, such as a depressed button.
-            gtk.STATE_PRELIGHT	State indicating that the mouse pointer is over the widget and the widget will respond to mouse clicks.
-            gtk.STATE_SELECTED	State of a selected item, such the selected row in a list.
-            gtk.STATE_INSENSITIVE	State indicating that the widget is unresponsive to user actions.
+            Gtk.StateType.NORMAL	State during normal operation.
+            Gtk.StateType.ACTIVE	State of a currently active widget, such as a depressed button.
+            Gtk.StateType.PRELIGHT	State indicating that the mouse pointer is over the widget and the widget will respond to mouse clicks.
+            Gtk.StateType.SELECTED	State of a selected item, such the selected row in a list.
+            Gtk.StateType.INSENSITIVE	State indicating that the widget is unresponsive to user actions.
         """
-        self.pause_btn.modify_fg(gtk.STATE_INSENSITIVE, gtk.gdk.color_parse("#962A1C"))
-        self.pause_btn.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#DA311B"))
-        self.pause_btn.modify_fg(gtk.STATE_PRELIGHT, gtk.gdk.color_parse("#F65540"))
-        self.play_btn.modify_fg(gtk.STATE_INSENSITIVE, gtk.gdk.color_parse("#3C6E38"))
-        self.play_btn.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#4EBA44"))
-        self.play_btn.modify_fg(gtk.STATE_PRELIGHT, gtk.gdk.color_parse("#58F64A"))
+        self.pause_btn.modify_fg(Gtk.StateType.INSENSITIVE, Gdk.color_parse("#962A1C"))
+        self.pause_btn.modify_fg(Gtk.StateType.NORMAL, Gdk.color_parse("#DA311B"))
+        self.pause_btn.modify_fg(Gtk.StateType.PRELIGHT, Gdk.color_parse("#F65540"))
+        self.play_btn.modify_fg(Gtk.StateType.INSENSITIVE, Gdk.color_parse("#3C6E38"))
+        self.play_btn.modify_fg(Gtk.StateType.NORMAL, Gdk.color_parse("#4EBA44"))
+        self.play_btn.modify_fg(Gtk.StateType.PRELIGHT, Gdk.color_parse("#58F64A"))
         # initialize the model
         self.queue_model = QueueModel()
         # initialize some variables
@@ -179,26 +179,26 @@ class TerminalQueue:
         # catch clicks to the queue tree
         self.queue_tree.connect("cursor-changed", self.clicked)
         # setup the queue treeview
-        column = gtk.TreeViewColumn(_("id"))
-        text = gtk.CellRendererText()
+        column = Gtk.TreeViewColumn(_("id"))
+        text = Gtk.CellRendererText()
         column.pack_start(text, expand = True)
         column.add_attribute(text, "text",self.queue_model.column['id'])
         self.queue_tree.append_column(column)
-        column = gtk.TreeViewColumn(_("Packages to be merged      "))
-        pixbuf = gtk.CellRendererPixbuf()
+        column = Gtk.TreeViewColumn(_("Packages to be merged      "))
+        pixbuf = Gtk.CellRendererPixbuf()
         column.pack_start(pixbuf, expand = False)
         column.add_attribute(pixbuf, "pixbuf", self.queue_model.column['icon'])
-        text = gtk.CellRendererText()
+        text = Gtk.CellRendererText()
         column.pack_start(text, expand = False)
         column.add_attribute(text, "text", self.queue_model.column['name'])
         self.queue_tree.append_column(column)
-        column = gtk.TreeViewColumn(_("Command"))
-        text = gtk.CellRendererText()
+        column = Gtk.TreeViewColumn(_("Command"))
+        text = Gtk.CellRendererText()
         column.pack_start(text, expand = True)
         column.add_attribute(text, "text", self.queue_model.column['command'])
         self.queue_tree.append_column(column)
-        column = gtk.TreeViewColumn(_("Sender"))
-        text = gtk.CellRendererText()
+        column = Gtk.TreeViewColumn(_("Sender"))
+        text = Gtk.CellRendererText()
         column.pack_start(text, expand = True)
         column.add_attribute(text, "text", self.queue_model.column['sender'])
         self.queue_tree.append_column(column)
@@ -222,9 +222,9 @@ class TerminalQueue:
                 message = _("The package you selected is already in the emerge queue,\n" \
                             "but it has been killed. Would you like to resume the emerge?")
                 result = self.resume_dialog(message)
-                if result == gtk.RESPONSE_ACCEPT: # Execute
+                if result == Gtk.ResponseType.ACCEPT: # Execute
                     self.cleanup()
-                elif result == gtk.RESPONSE_YES: # Resume
+                elif result == Gtk.ResponseType.YES: # Resume
                     self.resume_string = " --resume"
                 else: # Cancel
                     return False
@@ -645,15 +645,15 @@ class TerminalQueue:
         debug.dprint("TERM_QUEUE: set_icon(); type = " + str(action_type))
         icon = None
         if action_type == KILLED:
-            icon = gtk.STOCK_CANCEL
+            icon = Gtk.STOCK_CANCEL
         elif action_type == FAILED:
-            icon = gtk.STOCK_STOP
+            icon = Gtk.STOCK_STOP
         elif action_type == COMPLETED:
-            icon = gtk.STOCK_APPLY
+            icon = Gtk.STOCK_APPLY
         elif action_type == EXECUTE:
-            icon = gtk.STOCK_EXECUTE
+            icon = Gtk.STOCK_EXECUTE
         elif action_type == PAUSED:
-            icon = gtk.STOCK_MEDIA_PAUSE
+            icon = Gtk.STOCK_MEDIA_PAUSE
         elif action_type == PENDING:
             icon = None
         if icon:
@@ -685,7 +685,7 @@ class TerminalQueue:
     def render_icon(self, icon):
         """ Render an icon for the queue tree """
         return self.queue_tree.render_icon(icon,
-                    size = gtk.ICON_SIZE_MENU, detail = None)
+                    size = Gtk.IconSize.MENU, detail = None)
 
     def set_process( self, action_type):
         if action_type == KILLED:
@@ -800,11 +800,11 @@ class TerminalQueue:
     def resume_dialog(self, message):
         """ Handle response when user tries to re-add killed process to queue """
         window = self.wtree.get_widget("process_window")
-        _dialog = gtk.MessageDialog(window, gtk.DIALOG_MODAL,
-                                    gtk.MESSAGE_QUESTION,
-                                    gtk.BUTTONS_CANCEL, message);
-        _dialog.add_button(gtk.STOCK_EXECUTE, gtk.RESPONSE_ACCEPT)
-        _dialog.add_button("Resume", gtk.RESPONSE_YES)
+        _dialog = Gtk.MessageDialog(window, Gtk.DialogFlags.MODAL,
+                                    Gtk.MessageType.QUESTION,
+                                    Gtk.ButtonsType.CANCEL, message);
+        _dialog.add_button(Gtk.STOCK_EXECUTE, Gtk.ResponseType.ACCEPT)
+        _dialog.add_button("Resume", Gtk.ResponseType.YES)
         result = _dialog.run()
         _dialog.destroy()
         return result

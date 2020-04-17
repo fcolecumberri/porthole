@@ -24,7 +24,7 @@
 
 import os, threading
 #import errno
-import gtk
+from gi.repository import Gtk
 from gettext import gettext as _
 
 from porthole.utils import debug

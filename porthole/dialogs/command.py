@@ -22,7 +22,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import gtk, gtk.glade
+import gtk, Gtk.glade
 from gettext import gettext as _
 
 from porthole.utils import debug
@@ -36,7 +36,7 @@ class RunDialog:
     def __init__(self, call_back, run_anyway=False):
         # setup glade
         self.gladefile = config.Prefs.DATA_PATH + config.Prefs.use_gladefile
-        self.wtree = gtk.glade.XML(self.gladefile, "run_dialog")
+        self.wtree = Gtk.glade.XML(self.gladefile, "run_dialog")
         # register callbacks
         callbacks = {"on_help" : self.help,
                      "on_execute" : self.execute,
@@ -60,10 +60,10 @@ class RunDialog:
         #debug.dprint(self.history)
         self.window = self.wtree.get_widget("run_dialog")
         self.combo = self.wtree.get_widget("comboboxentry1")
-        self.entry = self.combo.child
+        self.entry = self.combo.get_child()
         #self.list = self.wtree.get_widget("combo-list")
         # Build a formatted combo list from the versioninfo list 
-        self.comboList = gtk.ListStore(str)
+        self.comboList = Gtk.ListStore(str)
         index = 0
         for x in self.history:
             # Set the combo list
@@ -134,7 +134,7 @@ class RunDialog:
         return
 
     def command_changed(self,widget):
-        """Updates the gtk.Entry with the history item selected"""
+        """Updates the Gtk.Entry with the history item selected"""
         debug.dprint("COMMAND: changing entry item")
         return # not needed at this time
         model = widget.get_model()

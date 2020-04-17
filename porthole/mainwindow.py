@@ -26,9 +26,9 @@ import datetime
 _id = datetime.datetime.now().microsecond
 print("MAINWINDOW: id initialized to ", _id)
 
-import pygtk
-pygtk.require("2.0") # make sure we have the right version
-import gtk, gtk.glade, gobject
+import gi
+gi.require_version("Gtk", "3.0") # make sure we have the right version
+import gtk, Gtk.glade, gobject
 import os
 from gettext import gettext as _
 
@@ -93,7 +93,7 @@ class MainWindow(PluginHandler):
         self.last_view_setting = None
 
         # get an empty tooltip
-        ##self.synctooltip = gtk.Tooltips()
+        ##self.synctooltip = Gtk.Tooltips()
         self.sync_tip = _(
             " Synchronise Package Database \n The last sync was done:\n")
         # set the sync label to the saved one set in the options
@@ -142,7 +142,7 @@ class MainWindow(PluginHandler):
         self.reader_running = False
         self.reader = None
         # populate the view_filter menu
-        self.widget["view_filter_list"] = gtk.ListStore(str)
+        self.widget["view_filter_list"] = Gtk.ListStore(str)
         for i in [_("All Packages"), _("Installed Packages"),
                     _("Search Results"), _("Upgradable Packages"),
                     _("Deprecated Packages"), _("Sets")]:
@@ -219,7 +219,7 @@ class MainWindow(PluginHandler):
         #debug.dprint("MAINWINDOW: init_db(); starting db.db.db_thread")
         self.reload = False
         self.upgrade_view = False
-        #self.db_timeout = gobject.timeout_add(100, self.update_db_read)
+        #self.db_timeout = GObject.timeout_add(100, self.update_db_read)
         self.last_sync = _("Unknown")
         self.valid_sync = False
         self.get_sync_time()
@@ -313,7 +313,7 @@ class MainWindow(PluginHandler):
         if widget is not self.mainwindow:
             return False
         debug.dprint("MAINWINDOW: on_window_state_event(); event detected")
-        if gtk.gdk.WINDOW_STATE_MAXIMIZED & event.new_window_state:
+        if Gdk.WindowState.MAXIMIZED & event.new_window_state:
             config.Prefs.main.maximized = True
         else:
             config.Prefs.main.maximized = False
@@ -564,7 +564,7 @@ class MainWindow(PluginHandler):
             "reader_running set to True")
         self.build_deps = False
         # add a timeout to check if thread is done
-        gobject.timeout_add(200, self.update_reader_thread)
+        GObject.timeout_add(200, self.update_reader_thread)
         self.set_cancel_btn(ON)
 
     def wait_dialog_response(self, widget, response):
@@ -736,7 +736,7 @@ class MainWindow(PluginHandler):
                     "db_thread is done, reload_view()")
                 # need to wait until all other events are done for it to
                 # show when the window first opens
-                gobject.idle_add(self.reload_view)
+                GObject.idle_add(self.reload_view)
         debug.dprint("StatusHandler: _update_db_done(); " +
             "Made it thru a reload, returning...")
         self.status.progress_done()

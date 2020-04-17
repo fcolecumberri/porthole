@@ -22,7 +22,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import pygtk; pygtk.require("2.0") # make sure we have the right version
+import gi; gi.require_version("Gtk", "3.0") # make sure we have the right version
 import gtk, gobject, pango
 import threading, os
 from gettext import gettext as _

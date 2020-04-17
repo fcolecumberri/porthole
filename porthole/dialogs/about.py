@@ -21,7 +21,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import gtk, gtk.glade
+import gtk, Gtk.glade
 
 from porthole.utils import debug
 from porthole.loaders.loaders import load_web_page, decode_text, get_textfile
@@ -36,7 +36,7 @@ class AboutDialog:
     def __init__(self):
         # setup glade
         self.gladefile = config.Prefs.DATA_PATH + 'glade/about.glade' #config.Prefs.use_gladefile
-        self.wtree = gtk.glade.XML(self.gladefile, "about_dialog", config.Prefs.APP)
+        self.wtree = Gtk.glade.XML(self.gladefile, "about_dialog", config.Prefs.APP)
         # register callbacks
         callbacks = {"on_ok_clicked" : self.ok_clicked,
                      "on_homepage_clicked" : self.homepage_clicked}

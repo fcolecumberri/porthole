@@ -27,8 +27,8 @@ import datetime
 _id = datetime.datetime.now().microsecond
 print("ADVEMERGE: id initialized to ", _id)
 
-import gtk
-import gtk.glade
+from gi.repository import Gtk
+import Gtk.glade
 from gettext import gettext as _
 
 
@@ -64,7 +64,7 @@ class AdvancedEmergeDialog:
 
         # Parse glade file
         self.gladefile = config.Prefs.DATA_PATH + "glade/advemerge.glade"
-        self.wtree = gtk.glade.XML(self.gladefile, "adv_emerge_dialog", config.Prefs.APP)
+        self.wtree = Gtk.glade.XML(self.gladefile, "adv_emerge_dialog", config.Prefs.APP)
 
         # register callbacks
         callbacks = {"on_ok_clicked" : self.ok_clicked,
@@ -103,8 +103,8 @@ class AdvancedEmergeDialog:
         self.command_textview = self.wtree.get_widget("command_textview")
         self.command_buffer = self.command_textview.get_buffer()
         style = self.keywords_frame.get_style().copy()
-        self.bgcolor = style.bg[gtk.STATE_NORMAL]
-        self.command_textview.modify_base(gtk.STATE_NORMAL, self.bgcolor)
+        self.bgcolor = style.bg[Gtk.StateType.NORMAL]
+        self.command_textview.modify_base(Gtk.StateType.NORMAL, self.bgcolor)
 
         self.btnMakeConf = self.wtree.get_widget("btnMakeConf")
         self.btnPkgUse = self.wtree.get_widget("btnPkgUse")
@@ -117,10 +117,10 @@ class AdvancedEmergeDialog:
 
         # Connect option toggles to on_toggled
         for checkbutton in self.wtree.get_widget("table2").get_children():
-            if isinstance(checkbutton, gtk.CheckButton):
+            if isinstance(checkbutton, Gtk.CheckButton):
                 checkbutton.connect("toggled", self.on_toggled)
             #else:
-            #    debug.dprint("ADVEMERGE: table2 has child not of type gtk.CheckButton")
+            #    debug.dprint("ADVEMERGE: table2 has child not of type Gtk.CheckButton")
             #    debug.dprint(checkbutton)
 
         if not config.Prefs.advemerge.showuseflags:
@@ -129,13 +129,13 @@ class AdvancedEmergeDialog:
             self.keywords_frame.hide()
 
         # Make tool tips available
-        #self.tooltips = gtk.Tooltips()
+        #self.tooltips = Gtk.Tooltips()
 
         # Build version combo list
         self.get_versions()
 
         # Build a formatted combo list from the versioninfo list
-        self.comboList = gtk.ListStore(str)
+        self.comboList = Gtk.ListStore(str)
         index = 0
         for x in range(len(self.verList)):
             ver = self.verList[x]
@@ -163,18 +163,18 @@ class AdvancedEmergeDialog:
         # Build version combobox
         self.combobox = self.wtree.get_widget("cmbVersion")
         self.combobox.set_model(self.comboList)
-        cell = gtk.CellRendererText()
+        cell = Gtk.CellRendererText()
         self.combobox.pack_start(cell, True)
         self.combobox.add_attribute(cell, 'text', 0)
         self.combobox.set_active(index) # select "recommended" ebuild by default
 
         # emerge / unmerge combobox:
-        self.emerge_combolist = gtk.ListStore(str)
+        self.emerge_combolist = Gtk.ListStore(str)
         iter = self.emerge_combolist.append(["emerge"])
         self.emerge_combolist.append(["unmerge"])
         self.emerge_combobox = self.wtree.get_widget("cmbEmerge")
         self.emerge_combobox.set_model(self.emerge_combolist)
-        cell = gtk.CellRendererText()
+        cell = Gtk.CellRendererText()
         self.emerge_combobox.pack_start(cell, True)
         self.emerge_combobox.add_attribute(cell, 'text', 0)
         self.emerge_combobox.set_active_iter(iter)
@@ -333,7 +333,7 @@ class AdvancedEmergeDialog:
         oldindex = self.combobox.get_active()
 
         # Rebuild version liststore
-        self.comboList = gtk.ListStore(str)
+        self.comboList = Gtk.ListStore(str)
         index = 0
         for x in range(len(self.verList)):
             ver = self.verList[x]
@@ -454,7 +454,7 @@ class AdvancedEmergeDialog:
     def get_use_flags(self, ebuild=None):
         """ Get use flags selected by user """
         UseFlagsFrame = self.wtree.get_widget('frameUseFlags')
-        child = UseFlagsFrame.child
+        child = UseFlagsFrame.get_child()
         if child is None:
            return None
         else:
@@ -568,7 +568,7 @@ class AdvancedEmergeDialog:
         button_make_conf = self.wtree.get_widget("button_make_conf")
         button_package_use = self.wtree.get_widget("button_package_use")
         # If frame has any children, remove them
-        child = UseFlagFrame.child
+        child = UseFlagFrame.get_child()
         if child != None:
             UseFlagFrame.remove(child)
         # If no use flags, hide the frame
@@ -598,7 +598,7 @@ class AdvancedEmergeDialog:
         KeywordsFrame = self.wtree.get_widget("frameKeywords")
 
         # If frame has any children, remove them
-        child = KeywordsFrame.child
+        child = KeywordsFrame.get_child()
         if child != None:
             KeywordsFrame.remove(child)
 
@@ -608,7 +608,7 @@ class AdvancedEmergeDialog:
         maxrow = size / maxcol - 1
         if maxrow < 1:
             maxrow = 1
-        table = gtk.Table(maxrow, maxcol-1, True)
+        table = Gtk.Table(maxrow, maxcol-1, True)
         KeywordsFrame.add(table)
         self.kwList = []
 
@@ -616,7 +616,7 @@ class AdvancedEmergeDialog:
         # checkboxes and attach to table
         col = 0
         row = 0
-        button = gtk.RadioButton(None, _('None'))
+        button = Gtk.RadioButton(None, _('None'))
         self.kwList.append([button, None])
         rbGroup = button
         table.attach(button, col, col+1, row, row+1)
@@ -628,7 +628,7 @@ class AdvancedEmergeDialog:
             if keyword[0] == '~' and (keyword[1:] == self.arch) or \
                         (config.Prefs.globals.enable_archlist and
                             ((keyword[1:] in config.Prefs.globals.archlist) or  (keyword in config.Prefs.globals.archlist))):
-                button = gtk.RadioButton(rbGroup, keyword, use_underline=False)
+                button = Gtk.RadioButton(rbGroup, keyword, use_underline=False)
                 self.kwList.append([button, keyword])
                 table.attach(button, col, col+1, row, row+1)
                 # connect to on_toggled so we can show changes
@@ -641,7 +641,7 @@ class AdvancedEmergeDialog:
                     button.set_active(True)
             else:
                 #if (keyword == self.arch)
-                label = gtk.Label(keyword)
+                label = Gtk.Label(label=keyword)
                 label.set_alignment(.05, .5)
                 label.set_use_underline(False)
                 table.attach(label, col, col+1, row, row+1)

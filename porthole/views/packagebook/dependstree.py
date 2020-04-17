@@ -37,24 +37,24 @@ from porthole.views.packagebook.depends import  Depends, LAZYNAME
 #import datetime
 
 
-class DependsTree(gtk.TreeStore):
+class DependsTree(Gtk.TreeStore):
     """Calculate and display dependencies in a treeview"""
     def __init__(self, populate_info):
         """Initialize the TreeStore object
 
         @param populate_info: function supplied to add aditional info to the treeview row
         """
-        gtk.TreeStore.__init__(self,
-                gobject.TYPE_STRING,       # depend name
-                gtk.gdk.Pixbuf,            # icon to display
-                gobject.TYPE_PYOBJECT,     # package object
-                gobject.TYPE_BOOLEAN,      # is_satisfied
-                gobject.TYPE_STRING,       # package name
-                gobject.TYPE_STRING,       # installed version
-                gobject.TYPE_STRING,       # latest recommended version
-                gobject.TYPE_STRING,       # keyword
-                gobject.TYPE_STRING,       # use flags required to be enabled
-                gobject.TYPE_PYOBJECT      # atom key
+        GObject.GObject.__init__(self,
+                GObject.TYPE_STRING,       # depend name
+                GdkPixbuf.Pixbuf,            # icon to display
+                GObject.TYPE_PYOBJECT,     # package object
+                GObject.TYPE_BOOLEAN,      # is_satisfied
+                GObject.TYPE_STRING,       # package name
+                GObject.TYPE_STRING,       # installed version
+                GObject.TYPE_STRING,       # latest recommended version
+                GObject.TYPE_STRING,       # keyword
+                GObject.TYPE_STRING,       # use flags required to be enabled
+                GObject.TYPE_PYOBJECT      # atom key
         )
 
         self.column = {
@@ -148,10 +148,10 @@ class DependsTree(gtk.TreeStore):
         """
         # establish some defaults
         if satisfied:
-            icon = gtk.STOCK_YES
+            icon = Gtk.STOCK_YES
             add_kids = 0
         else:
-            icon = gtk.STOCK_NO
+            icon = Gtk.STOCK_NO
             add_kids = 1
         text = atom.get_depname()
         add_kids, add_satisfied, icon = \
@@ -159,7 +159,7 @@ class DependsTree(gtk.TreeStore):
 
         if icon:
             self.set_value(iter, self.column["icon"], depends_view.render_icon(icon,
-                              size = gtk.ICON_SIZE_MENU, detail = None))
+                              size = Gtk.IconSize.MENU, detail = None))
         self.set_value(iter, self.column["depend"], text)
         self.set_value(iter, self.column["satisfied"], bool(satisfied))
         self.set_value(iter, self.column["required_use"], atom.get_required_use())
@@ -168,7 +168,7 @@ class DependsTree(gtk.TreeStore):
             pack = self._get_package(atom)
             self.set_value(iter, self.column["package"], pack)
             # treeview's populate_info() callback
-            gobject.idle_add(self.populate_info,self, self.get_path(iter), iter)
+            GObject.idle_add(self.populate_info,self, self.get_path(iter), iter)
         return add_kids, add_satisfied
 
     def update_kids(self, atom, add_kids, add_satisfied, satisfied,
@@ -340,10 +340,10 @@ class DependsTree(gtk.TreeStore):
         #add_kids = -1 # add kids but don't expand unsatisfied deps
         #add_satisfied = 1
         if satisfied == -1:
-            return -1, 1, gtk.STOCK_REMOVE # -1 ==> irrelevant
+            return -1, 1, Gtk.STOCK_REMOVE # -1 ==> irrelevant
         elif not satisfied:
-            return -1, 1, gtk.STOCK_NO
-        return -1, 1, gtk.STOCK_YES
+            return -1, 1, Gtk.STOCK_NO
+        return -1, 1, Gtk.STOCK_YES
 
 
     def _NOTUSING_(self, satisfied, add_satisfied, icon):
@@ -352,16 +352,16 @@ class DependsTree(gtk.TreeStore):
         #add_kids = -1 # add kids but don't expand unsatisfied deps
         #add_satisfied = 1
         if satisfied == -1:
-            return -1, 1, gtk.STOCK_REMOVE # -1 ==> irrelevant
-        return -1, 1, gtk.STOCK_YES
+            return -1, 1, Gtk.STOCK_REMOVE # -1 ==> irrelevant
+        return -1, 1, Gtk.STOCK_YES
 
 
     def _DEP_(self, satisfied, add_satisfied, icon):
         """ atom.mytype =='DEP'
         @rtype (add_kids, add_satisfied, icon)"""
         if not satisfied: #and self.dep_depth < self.max_depth:
-            return 1, 1,  gtk.STOCK_NO
-        return 0, 1 ,  gtk.STOCK_YES
+            return 1, 1,  Gtk.STOCK_NO
+        return 0, 1 ,  Gtk.STOCK_YES
 
 
     def _REVISIONABLE_(self, add_satisfied, satisfied, icon):
@@ -376,8 +376,8 @@ class DependsTree(gtk.TreeStore):
         """ atom.mytype == 'BLOCKER'
         @rtype (add_kids, add_satisfied, icon)"""
         if not satisfied:
-            return 0, add_satisfied, gtk.STOCK_DIALOG_WARNING
-        return 0, add_satisfied, gtk.STOCK_YES
+            return 0, add_satisfied, Gtk.STOCK_DIALOG_WARNING
+        return 0, add_satisfied, Gtk.STOCK_YES
 
 
     def _OPTION_(self, satisfied, add_satisfied, icon):
@@ -395,4 +395,4 @@ class DependsTree(gtk.TreeStore):
     def _LAZY_(self, satisfied, add_satisfied, icon):
         """ atom.mytype == 'LAZY'
         @rtype (add_kids, add_satisfied, icon)"""
-        return 0, 0, gtk.STOCK_NO
+        return 0, 0, Gtk.STOCK_NO

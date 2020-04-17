@@ -157,8 +157,8 @@ class PortholePreferences:
                 setattr(getattr(self, window_name), pref_name, value) # set self.main.width etc
 
         # Formatting tags for the terminal window tabs.
-        # Note: normal font weight = 400 (pango.WEIGHT_NORMAL),
-        #       bold = 700 (pango.WEIGHT_BOLD)
+        # Note: normal font weight = 400 (Pango.Weight.NORMAL),
+        #       bold = 700 (Pango.Weight.BOLD)
         # Note: all colors are in hex for future color editor;
         #       '' means use default color.
 

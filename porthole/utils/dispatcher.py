@@ -38,7 +38,7 @@ class Dispatcher:
         self.continue_io_watch = True
         self.queue = queue.Queue(0) # thread safe queue
         self.pipe_r, self.pipe_w = os.pipe()
-        gobject.io_add_watch(self.pipe_r, gobject.IO_IN, self.on_data)
+        GObject.io_add_watch(self.pipe_r, GObject.IO_IN, self.on_data)
 
     def __call__(self, *args):
         """Emit signal from thread"""
@@ -68,7 +68,7 @@ class Dispatch_wait:
         self.callpipe_r, self.callpipe_w = os.pipe()
         self.wait = {}  # dict of boolleans for incoming thread id's waiting for replies
         self.Semaphore = threading.Semaphore()
-        gobject.io_add_watch(self.callpipe_r, gobject.IO_IN, self.on_calldata)
+        GObject.io_add_watch(self.callpipe_r, GObject.IO_IN, self.on_calldata)
 
     def __call__(self, *args):  # this function is running in the calling thread
         """Emit signal from thread"""

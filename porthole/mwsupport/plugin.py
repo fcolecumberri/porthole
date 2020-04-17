@@ -24,7 +24,7 @@
 '''
 
 
-import gtk
+from gi.repository import Gtk
 from gettext import gettext as _
 
 from porthole import config
@@ -57,8 +57,8 @@ class PluginHandler(ActionHandler):
                 #% config.Prefs.plugins.path_list)
         debug.dprint("PluginHandler: setup_plugins: plugin path: %s"
                 % config.Prefs.PLUGIN_DIR)
-        self.plugin_root_menu = gtk.MenuItem(_("Active Plugins"))
-        self.plugin_menu = gtk.Menu()
+        self.plugin_root_menu = Gtk.MenuItem(_("Active Plugins"))
+        self.plugin_menu = Gtk.Menu()
         self.plugin_root_menu.set_submenu(self.plugin_menu)
         self.wtree.get_widget("menubar").append(self.plugin_root_menu)
         self.plugin_manager = PluginManager(self)
@@ -68,7 +68,7 @@ class PluginHandler(ActionHandler):
     def new_plugin_package_tab( self, name, callbacks ):
         """adds a pckagebook notebook page to the notebook"""
         notebook = self.packagebook.notebook
-        label = gtk.Label(name)
+        label = Gtk.Label(label=name)
         notebook.append_page(widget, label)
         page_num = notebook.page_num(widget)
         self.plugin_package_tabs[name] = [callback, label, page_num]
@@ -115,7 +115,7 @@ class PluginHandler(ActionHandler):
             debug.dprint("PluginHandler: Enabling Plugin Menu")
             self.plugin_root_menu.show()
             self.needs_plugin_menu = True
-        new_item = gtk.MenuItem( label )
+        new_item = Gtk.MenuItem( label )
         new_item.show()
         self.plugin_menu.append( new_item )
         return new_item

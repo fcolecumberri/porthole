@@ -21,8 +21,8 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import pygtk; pygtk.require("2.0") # make sure we have the right version
-import gtk, gtk.glade
+import gi; gi.require_version("Gtk", "3.0") # make sure we have the right version
+import gtk, Gtk.glade
 
 from porthole.utils import debug
 from porthole.loaders.loaders import load_web_page
@@ -38,7 +38,7 @@ class ConfigDialog:
         
         # Parse glade file
         self.gladefile = config.Prefs.DATA_PATH + "/glade/config.glade"
-        self.wtree = gtk.glade.XML(self.gladefile, "config", config.Prefs.APP)
+        self.wtree = Gtk.glade.XML(self.gladefile, "config", config.Prefs.APP)
      
         # register callbacks
         callbacks = {
@@ -69,14 +69,14 @@ class ConfigDialog:
     def on_config_response(self, dialog_widget, response_id):
         """ Parse dialog response (ok, cancel, apply or help clicked) """
         debug.dprint("CONFIGDIALOG: on_config_response(): response_id '%s'" % response_id)
-        if response_id == gtk.RESPONSE_OK:
+        if response_id == Gtk.ResponseType.OK:
             self.apply_widget_values()
             self.window.destroy()
-        elif response_id == gtk.RESPONSE_CANCEL:
+        elif response_id == Gtk.ResponseType.CANCEL:
             self.window.destroy()
-        elif response_id == gtk.RESPONSE_APPLY:
+        elif response_id == Gtk.ResponseType.APPLY:
             self.apply_widget_values()
-        elif response_id == gtk.RESPONSE_HELP:
+        elif response_id == Gtk.ResponseType.HELP:
             #Display help file with web browser
             load_web_page('file://' + config.Prefs.DATA_PATH + 'help/customize.html')
         else:
@@ -196,12 +196,12 @@ class ConfigDialog:
         
         # Terminal Color Tags
         default = config.Prefs.TAG_DICT['default']
-        attributes = gtk.TextView().get_default_attributes()
+        attributes = Gtk.TextView().get_default_attributes()
         self.default_textview_fg = attributes.fg_color
         self.default_textview_bg = attributes.bg_color
-        if default[0]: default_fg = gtk.gdk.color_parse(default[0])
+        if default[0]: default_fg = Gdk.color_parse(default[0])
         else: default_fg = self.default_textview_fg
-        if default[1]: default_bg = gtk.gdk.color_parse(default[1])
+        if default[1]: default_bg = Gdk.color_parse(default[1])
         else: default_bg = self.default_textview_bg
         
         for name in self.tagnamelist:
@@ -209,7 +209,7 @@ class ConfigDialog:
             widget = self.wtree.get_widget(name + '_fg')
             if widget:
                 if color:
-                    widget.set_color(gtk.gdk.color_parse(color))
+                    widget.set_color(Gdk.color_parse(color))
                 else:
                     widget.set_color(default_fg)
                     widget.set_alpha(32767) # to show it's using the default value
@@ -218,7 +218,7 @@ class ConfigDialog:
             widget = self.wtree.get_widget(name + '_bg')
             if widget:
                 if color:
-                    widget.set_color(gtk.gdk.color_parse(color))
+                    widget.set_color(Gdk.color_parse(color))
                 else:
                     widget.set_color(default_bg)
                     widget.set_alpha(32767) # to show it's using the default value
@@ -237,16 +237,16 @@ class ConfigDialog:
             widget = self.wtree.get_widget('fg_' + name)
             if widget:
                 if color:
-                    widget.set_color(gtk.gdk.color_parse(color))
+                    widget.set_color(Gdk.color_parse(color))
                 else: # this should never happen, but just in case...
-                    widget.set_color(gtk.gdk.color_parse(name))
+                    widget.set_color(Gdk.color_parse(name))
             color = config.Prefs.TAG_DICT['bg_' + name][1]
             widget = self.wtree.get_widget('bg_' + name)
             if widget:
                 if color:
-                    widget.set_color(gtk.gdk.color_parse(color))
+                    widget.set_color(Gdk.color_parse(color))
                 else: # this should never happen, but just in case...
-                    widget.set_color(gtk.gdk.color_parse(name))
+                    widget.set_color(Gdk.color_parse(name))
         
         # View Colours
         for name in self.viewoptions:
@@ -254,7 +254,7 @@ class ConfigDialog:
             widget = self.wtree.get_widget(name)
             if widget:
                 if color:
-                    widget.set_color(gtk.gdk.color_parse(color))
+                    widget.set_color(Gdk.color_parse(color))
                 else:
                     widget.set_color(default_fg)
         
@@ -272,7 +272,7 @@ class ConfigDialog:
                 debug.dprint("CONFIGDIALOG: set_widget_values(); Checkboxes: widget = %s not found!" %('_'.join([category, name])))
         
         # Sync combobox
-        store = gtk.ListStore(str)
+        store = Gtk.ListStore(str)
         widget = self.wtree.get_widget('sync_combobox')
         tempiter = None
         if widget:
@@ -282,7 +282,7 @@ class ConfigDialog:
                     if command == config.Prefs.globals.Sync:
                         iter = tempiter
             widget.set_model(store)
-            cell = gtk.CellRendererText()
+            cell = Gtk.CellRendererText()
             widget.pack_start(cell, True)
             widget.add_attribute(cell, 'text', 0)
             if tempiter:
@@ -360,7 +360,7 @@ class ConfigDialog:
                 if color:
                     config.Prefs.TAG_DICT['bg_' + name][1] = self.get_color_spec(color)
                 else: # this should never happen, but just in case...
-                    widget.set_color(gtk.gdk.color_parse(name))
+                    widget.set_color(Gdk.color_parse(name))
         
         # View Colours
         for name in self.viewoptions:
@@ -442,7 +442,7 @@ class ConfigDialog:
         debug.dprint("CONFIGDIALOG: build_archlist_widget()")
 
         # If frame has any children, remove them
-        child = self.KeywordsFrame.child
+        child = self.KeywordsFrame.get_child()
         if child != None:
             self.KeywordsFrame.remove(child)
 
@@ -454,7 +454,7 @@ class ConfigDialog:
         maxrow = size / maxcol - 1
         if maxrow < 1:
             maxrow = 1
-        table = gtk.Table(maxrow, maxcol-1, True)
+        table = Gtk.Table(maxrow, maxcol-1, True)
         self.KeywordsFrame.add(table)
         self.kwList = []
 
@@ -465,7 +465,7 @@ class ConfigDialog:
         button_added = False
         clickable_button = False
         for keyword in keywords:
-            button = gtk.CheckButton(keyword)
+            button = Gtk.CheckButton(keyword)
             self.kwList.append([button, keyword])
             table.attach(button, col, col+1, row, row+1)
             button.show()

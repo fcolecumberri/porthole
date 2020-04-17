@@ -2,9 +2,9 @@
 
 import datetime
 _id = datetime.datetime.now().microsecond
-import gtk
-import gtk.glade
-from gtk.gdk import Event, WINDOW_STATE
+from gi.repository import Gtk
+import Gtk.glade
+from Gtk.gdk import Event, WINDOW_STATE
 
 from porthole.utils import utils
 from porthole.utils import debug
@@ -17,27 +17,27 @@ from porthole.backends.utilities import (get_reduced_flags, abs_list,
         abs_flag, filter_flags)
 
 
-class UseFlagCheckbuttons(gtk.HBox):
+class UseFlagCheckbuttons(Gtk.HBox):
    def __init__(self, useflag, default_status):
-      gtk.Widget.__init__(self)
+      GObject.GObject.__init__(self)
       debug.dprint("USEFLAGCHECKBUTTONS: __INIT__()")
       self.homogenous = False # Not all widgets are created equal
       self.flag = useflag
 
-      self.enable_box = gtk.CheckButton("+")
+      self.enable_box = Gtk.CheckButton("+")
       self.enable_box.connect('toggled', self.set_enabled)
       self.enable_box.show()
 
-      self.disable_box = gtk.CheckButton("-")
+      self.disable_box = Gtk.CheckButton("-")
       self.disable_box.connect('toggled', self.set_disabled)
       self.disable_box.show()
 
-      flag_label = gtk.Label(useflag + "(" + default_status + ")")
+      flag_label = Gtk.Label(label=useflag + "(" + default_status + ")")
       flag_label.show()
 
       self.pack_start(self.enable_box, fill=False, expand=False)
       self.pack_start(self.disable_box, fill=False, expand=False)
-      self.pack_end(flag_label)
+      self.pack_end(flag_label, True, True, 0)
 
    def set_enabled(self, widget=None):
       debug.dprint("USEFLAGS: set_enabled()")
@@ -60,9 +60,9 @@ class UseFlagCheckbuttons(gtk.HBox):
          return "-" + self.flag
       return self.flag
 
-class UseFlagWidget(gtk.Table):
+class UseFlagWidget(Gtk.Table):
    def __init__(self, use_flags, ebuild, parent_window):
-      gtk.Widget.__init__(self)
+      GObject.GObject.__init__(self)
       self.ebuild = ebuild
       self.parent_window = parent_window
       debug.dprint("USEFLAGDIALOG: __INIT__()")
@@ -70,10 +70,10 @@ class UseFlagWidget(gtk.Table):
       size = len(use_flags)
       maxcol = 3
       maxrow = (size-1) / (maxcol+1)
-      table = gtk.Table(maxrow+2, maxcol+1, True)
+      table = Gtk.Table(maxrow+2, maxcol+1, True)
       if maxrow+1 >= 6:
-         scrolledwindow = gtk.ScrolledWindow()
-         scrolledwindow.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+         scrolledwindow = Gtk.ScrolledWindow()
+         scrolledwindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
          self.add(scrolledwindow)
          scrolledwindow.add_with_viewport(table)
          scrolledwindow.set_size_request(1,100)

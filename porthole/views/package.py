@@ -22,7 +22,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import pygtk; pygtk.require("2.0") # make sure we have the right version
+import gi; gi.require_version("Gtk", "3.0") # make sure we have the right version
 import gtk, gobject, pango
 import os
 from gettext import gettext as _
@@ -63,23 +63,23 @@ class PackageView(CommonTreeView):
 
         # create popup menu for rmb-click
         arch = "~" + portage_lib.get_arch()
-        menu = gtk.Menu()
+        menu = Gtk.Menu()
         menuitems = {}
-        menuitems["emerge"] = gtk.MenuItem(_("Emerge"))
+        menuitems["emerge"] = Gtk.MenuItem(_("Emerge"))
         menuitems["emerge"].connect("activate", self.emerge)
-        menuitems["pretend-emerge"] = gtk.MenuItem(_("Pretend Emerge"))
+        menuitems["pretend-emerge"] = Gtk.MenuItem(_("Pretend Emerge"))
         menuitems["pretend-emerge"].connect("activate", self.emerge, True, None)
-        menuitems["sudo-emerge"] = gtk.MenuItem(_("Sudo Emerge"))
+        menuitems["sudo-emerge"] = Gtk.MenuItem(_("Sudo Emerge"))
         menuitems["sudo-emerge"].connect("activate", self.emerge, None, True)
-        menuitems["unmerge"] = gtk.MenuItem(_("Unmerge"))
+        menuitems["unmerge"] = Gtk.MenuItem(_("Unmerge"))
         menuitems["unmerge"].connect("activate", self.unmerge)
-        menuitems["sudo-unmerge"] = gtk.MenuItem(_("Sudo Unmerge"))
+        menuitems["sudo-unmerge"] = Gtk.MenuItem(_("Sudo Unmerge"))
         menuitems["sudo-unmerge"].connect("activate", self.unmerge, True)
-        menuitems["add-keyword"] = gtk.MenuItem(_("Append with %s to package.keywords") % arch)
+        menuitems["add-keyword"] = Gtk.MenuItem(_("Append with %s to package.keywords") % arch)
         menuitems["add-keyword"].connect("activate", self.add_keyword)
-        menuitems["deselect_all"] = gtk.MenuItem(_("De-Select all"))
+        menuitems["deselect_all"] = Gtk.MenuItem(_("De-Select all"))
         menuitems["deselect_all"].connect("activate", self.deselect_all)
-        menuitems["select_all"] = gtk.MenuItem(_("Select all"))
+        menuitems["select_all"] = Gtk.MenuItem(_("Select all"))
         menuitems["select_all"].connect("activate", self.select_all)
 
         for item in menuitems.values():
@@ -93,38 +93,38 @@ class PackageView(CommonTreeView):
         self.toggle = None
 
         # setup the treecolumn
-        self._column = gtk.TreeViewColumn(_("Packages"))
+        self._column = Gtk.TreeViewColumn(_("Packages"))
         self._column.set_resizable(True)
         self._column.set_min_width(10)
         self.append_column(self._column)
         self._column.set_sort_column_id(MODEL_ITEM["name"])
         # add checkbox column
-        self._checkbox_column = gtk.TreeViewColumn()
+        self._checkbox_column = Gtk.TreeViewColumn()
         self._checkbox_column.set_resizable(False)
         self.append_column(self._checkbox_column)
         # Setup the Installed Column
-        self._installed_column = gtk.TreeViewColumn(_("Installed"))
+        self._installed_column = Gtk.TreeViewColumn(_("Installed"))
         self.append_column(self._installed_column)
         self._installed_column.set_resizable(True)
         self._installed_column.set_min_width(10)
         #self._installed_column.set_expand(False)
         self._installed_column.set_sort_column_id(MODEL_ITEM["installed"])
         # Setup the Latest Column
-        self._latest_column = gtk.TreeViewColumn(_("Recommended"))
+        self._latest_column = Gtk.TreeViewColumn(_("Recommended"))
         self.append_column(self._latest_column)
         self._latest_column.set_resizable(True)
         self._latest_column.set_min_width(10)
         #self._latest_column.set_expand(False)
         self._latest_column.set_sort_column_id(MODEL_ITEM["recommended"])
         # setup the packagesize column
-        self._size_column = gtk.TreeViewColumn(_("Download Size"))
+        self._size_column = Gtk.TreeViewColumn(_("Download Size"))
         self.append_column(self._size_column)
         self._size_column.set_resizable(True)
         self._size_column.set_min_width(10)
         #self._size_column.set_expand(False)
         self._size_column.set_sort_column_id(MODEL_ITEM["size"])
         # setup the Description column
-        self._desc_column = gtk.TreeViewColumn(_("Description"))
+        self._desc_column = Gtk.TreeViewColumn(_("Description"))
         self.append_column(self._desc_column)
         self._desc_column.set_resizable(False)
         self._desc_column.set_min_width(10)
@@ -181,30 +181,30 @@ class PackageView(CommonTreeView):
         self._desc_column.clear()
         if self.current_view in GROUP_SELECTABLE:
             # add the toggle renderer
-            check = gtk.CellRendererToggle()
+            check = Gtk.CellRendererToggle()
             self._checkbox_column.pack_start(check, expand = False)
             self._checkbox_column.add_attribute(check, "active", MODEL_ITEM["checkbox"])
             check.connect("toggled",self.on_toggled)
             self._checkbox_column.set_visible(True)
             # add the pixbuf renderer
-            pixbuf = gtk.CellRendererPixbuf()
+            pixbuf = Gtk.CellRendererPixbuf()
             self._column.pack_start(pixbuf, expand = False)
             self._column.add_attribute(pixbuf, "pixbuf", MODEL_ITEM["icon"])
 
         else:
             self._checkbox_column.set_visible(False)
             # add the pixbuf renderer
-            pixbuf = gtk.CellRendererPixbuf()
+            pixbuf = Gtk.CellRendererPixbuf()
             self._column.pack_start(pixbuf, expand = False)
             self._column.add_attribute(pixbuf, "pixbuf", MODEL_ITEM["icon"])
         # add the text renderer
-        text = gtk.CellRendererText()
+        text = Gtk.CellRendererText()
         self._column.pack_start(text, expand = True)
         self._column.add_attribute(text, "text",MODEL_ITEM["name"])
         self._column.set_cell_data_func(text, self.cell_data_func, None)
-        text_size = gtk.CellRendererText()
-        text_installed = gtk.CellRendererText()
-        text_latest = gtk.CellRendererText()
+        text_size = Gtk.CellRendererText()
+        text_installed = Gtk.CellRendererText()
+        text_latest = Gtk.CellRendererText()
         self._size_column.pack_start(text_size, expand = False)
         self._size_column.add_attribute(text_size, "text", MODEL_ITEM["size"])
         self._size_column.set_cell_data_func(text_size, self.cell_data_func, None)
@@ -214,14 +214,14 @@ class PackageView(CommonTreeView):
         self._latest_column.pack_start(text_latest, expand = False)
         self._latest_column.add_attribute(text_latest, "text", MODEL_ITEM["recommended"])
         self._latest_column.set_cell_data_func(text_latest, self.cell_data_func, None)
-        #self._latest_column.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
-        #self._installed_column.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
-        #self._size_column.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
-        text_desc = gtk.CellRendererText()
-        self._desc_column.pack_start(text_desc, expand=False)
+        #self._latest_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
+        #self._installed_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
+        #self._size_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
+        text_desc = Gtk.CellRendererText()
+        self._desc_column.pack_start(text_desc, False, True, 0)
         self._desc_column.add_attribute(text_desc, 'text', MODEL_ITEM["description"])
         self._desc_column.set_cell_data_func(text_desc, self.cell_data_func, None)
-        #self._desc_column.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
+        #self._desc_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
 
         # set the last selected to nothing
         self._last_selected = None
@@ -232,9 +232,9 @@ class PackageView(CommonTreeView):
             #full_name = model.get_value(iter,MODEL_ITEM["name"])
             color = model.get_value(iter, MODEL_ITEM["text_colour"])
             if model.get_value(iter, MODEL_ITEM["world"]):
-                renderer.set_property("weight", pango.WEIGHT_BOLD)
+                renderer.set_property("weight", Pango.Weight.BOLD)
             else:
-                renderer.set_property("weight", pango.WEIGHT_NORMAL)
+                renderer.set_property("weight", Pango.Weight.NORMAL)
             if color:
                 #if color == 'blue':
                 renderer.set_property("foreground", color)
@@ -273,7 +273,7 @@ class PackageView(CommonTreeView):
     def on_button_press(self, treeview, event):
         debug.dprint("VIEWS: Handling PackageView button press event")
         self.event = event # save the event so we can access it in _clicked()
-        if event.type != gtk.gdk.BUTTON_PRESS:
+        if event.type != Gdk.EventType.BUTTON_PRESS:
             debug.dprint("VIEWS: Strange event type got passed to on_button_press() callback...")
             debug.dprint("VIEWS: event.type =  %s" %str(event.type))
         if event.button == 3: # secondary mouse button
@@ -448,7 +448,7 @@ class PackageView(CommonTreeView):
                 icon = utils.get_icon_for_package(packages[name])
                 model.set_value(iter, MODEL_ITEM["icon"],
                                 self.render_icon(icon,
-                                size = gtk.ICON_SIZE_MENU,
+                                size = Gtk.IconSize.MENU,
                                 detail = None))
             if locate_name:
                 if name.split('/')[-1] == locate_name:
@@ -461,12 +461,12 @@ class PackageView(CommonTreeView):
             self.set_cursor(path)
         debug.dprint("VIEWS: starting info_thread")
         self.infothread_die = False
-        self.get_model().set_sort_column_id(MODEL_ITEM["name"], gtk.SORT_ASCENDING)
+        self.get_model().set_sort_column_id(MODEL_ITEM["name"], Gtk.SortType.ASCENDING)
         #self.disable_column_sort()
         self.model = self.get_model()
         self.iter = model.get_iter_first()
         self.deprecated_info = False
-        gobject.idle_add(self.populate_info)
+        GObject.idle_add(self.populate_info)
 
     def populate_cpv(self, packages, locate_name = None, ):
         """ Populate the current view with packages """
@@ -514,7 +514,7 @@ class PackageView(CommonTreeView):
                 icon = utils.get_icon_for_package(packages[name])
                 model.set_value(iter, MODEL_ITEM["icon"],
                                 self.render_icon(icon,
-                                size = gtk.ICON_SIZE_MENU,
+                                size = Gtk.IconSize.MENU,
                                 detail = None))
             if locate_name:
                 if name == locate_name:
@@ -527,27 +527,27 @@ class PackageView(CommonTreeView):
             self.set_cursor(path)
         debug.dprint("VIEWS: starting info_thread")
         self.infothread_die = False
-        self.get_model().set_sort_column_id(MODEL_ITEM["name"], gtk.SORT_ASCENDING)
+        self.get_model().set_sort_column_id(MODEL_ITEM["name"], Gtk.SortType.ASCENDING)
         #self.disable_column_sort()
         self.model = self.get_model()
         self.iter = model.get_iter_first()
         self.deprecated_info = True
-        gobject.idle_add(self.populate_info)
+        GObject.idle_add(self.populate_info)
 
     def populate_info(self):
         """ Populate the current view with package info"""
         if self.infothread_die:
             return False # will not be called again
-        #gtk.threads_enter()
+        #Gtk.threads_enter()
         #model = self.get_model()
         #iter = model.get_iter_first()
         model = self.model
         iter = self.iter
-        #gtk.threads_leave()
+        #Gtk.threads_leave()
         #while iter and not (self.infothread_die):
         if iter and not model.get_value(iter,MODEL_ITEM["name"]) == _("None"):
             try:
-                #gtk.threads_enter()
+                #Gtk.threads_enter()
                 package = model.get_value(iter, MODEL_ITEM["package"])
                 if not self.deprecated_info: # else pass
                     #debug.dprint("VIEWS: populate_info(); getting latest_installed")
@@ -591,22 +591,22 @@ class PackageView(CommonTreeView):
                 except:
                     debug.dprint("VIEWS populate_info(): Failed to get item description for '%s'" % package.full_name)
                 self.iter = model.iter_next(iter)
-                #gtk.threads_leave()
+                #Gtk.threads_leave()
             except Exception, e:
                 debug.dprint("VIEWS: populate_info(): Stopping due to exception '%s'" % e)
                 #self.iter = model.iter_next(iter)
                 return False # will not be called again
-                #gtk.threads_leave()
+                #Gtk.threads_leave()
             return True # will be called again
         #if not self.infothread_die:
         else: # reached last iter
-            #gtk.threads_enter()
+            #Gtk.threads_enter()
             self.queue_draw()
             #debug.dprint("VIEWS: populate_info(); enabling column sort")
             self.enable_column_sort()
             debug.dprint("VIEWS: populate_info(); Package info populated")
             return False # will not be called again
-            #gtk.threads_leave()
+            #Gtk.threads_leave()
 
     def deselect_all(self, widget):
         """upgrades view deselect all packages callback"""

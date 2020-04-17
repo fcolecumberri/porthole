@@ -27,16 +27,16 @@
         from fileselector import FileSelector
 """
 
-import pygtk; pygtk.require('2.0')
-import gtk
+import gi; gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
 import os, os.path
 
 from porthole.utils import debug
 
 # deprecated by gtk+
-class FileSel(gtk.FileSelection):
+class FileSel(Gtk.FileSelection):
     def __init__(self, title):
-        gtk.FileSelection.__init__(self, title)
+        GObject.GObject.__init__(self, title)
         self.result = False
 
     def ok_cb(self, button):
@@ -54,10 +54,10 @@ class FileSel(gtk.FileSelection):
         self.ok_func = func
         self.ok_button.connect("clicked", self.ok_cb)
         self.cancel_button.connect("clicked", lambda x: self.destroy())
-        self.connect("destroy", lambda x: gtk.main_quit())
+        self.connect("destroy", lambda x: Gtk.main_quit())
         self.set_modal(True)
         self.show()
-        gtk.main()
+        Gtk.main()
         return self.result
 
 # deprecated by gtk+
@@ -78,12 +78,12 @@ class FileSelector:
         if self.overwrite_confirm and (not self.filename or filename != self.filename):
             if os.path.exists(filename):
                 err = _("Ovewrite existing file '%s'?")  % filename
-                dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
-                                            gtk.MESSAGE_QUESTION,
-                                            gtk.BUTTONS_YES_NO, err);
+                dialog = Gtk.MessageDialog(self.window, Gtk.DialogFlags.MODAL,
+                                            Gtk.MessageType.QUESTION,
+                                            Gtk.ButtonsType.YES_NO, err);
                 result = dialog.run()
                 dialog.destroy()
-                if result != gtk.RESPONSE_YES:
+                if result != Gtk.ResponseType.YES:
                     return False
 
         self.filename = filename
@@ -123,18 +123,18 @@ class FileSelector2:
             debug.dprint("FILESELECTOR2: __init__(); # 123 directory = %s" %str(self.directory))
         self.filter = filter
         
-        self.actions = {'save': gtk.FILE_CHOOSER_ACTION_SAVE,
-                                'open': gtk.FILE_CHOOSER_ACTION_OPEN,
-                                'select_folder': gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
-                                'create_folder': gtk.FILE_CHOOSER_ACTION_CREATE_FOLDER
+        self.actions = {'save': Gtk.FileChooserAction.SAVE,
+                                'open': Gtk.FileChooserAction.OPEN,
+                                'select_folder': Gtk.FileChooserAction.SELECT_FOLDER,
+                                'create_folder': Gtk.FileChooserAction.CREATE_FOLDER
                                 }
 
 
     def create_selector(self, title, action):
         debug.dprint("FILESELECTOR2: Entering create_selector()")
-        buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                    gtk.STOCK_OK, gtk.RESPONSE_OK)
-        self.dialog = gtk.FileChooserDialog(title, self.window, self.actions[action], buttons)
+        buttons = (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                    Gtk.STOCK_OK, Gtk.ResponseType.OK)
+        self.dialog = Gtk.FileChooserDialog(title, self.window, self.actions[action], buttons)
         self.dialog.set_do_overwrite_confirmation(self.overwrite_confirm)
         if self.directory:
             debug.dprint("FILESELECTOR2: create_selector(); # 142 directory = %s" %str(self.directory))
@@ -143,12 +143,12 @@ class FileSelector2:
             self.dialog.set_filename(self.target)
         else:
             self.dialog.set_current_name(self.target)
-        show_all = gtk.FileFilter()
+        show_all = Gtk.FileFilter()
         show_all.add_pattern('*')
         show_all.set_name('All')
         self.dialog.add_filter(show_all)
         if self.filter: # add a specified filter string
-            filter = gtk.FileFilter()
+            filter = Gtk.FileFilter()
             filter.add_pattern(self.filter)
             filter.set_name(self.filter.split('.')[1] +' Files')
             debug.dprint("FILESELECTOR2: create_selector(); filter name = " + filter.get_name() )
@@ -162,9 +162,9 @@ class FileSelector2:
         self.create_selector(title, action)
         result = self.dialog.run()
         debug.dprint("FILESELECTOR2: get_filename(); result = " + str(result))
-        if result in [gtk.RESPONSE_OK, gtk.RESPONSE_ACCEPT, gtk.RESPONSE_YES]: 
+        if result in [Gtk.ResponseType.OK, Gtk.ResponseType.ACCEPT, Gtk.ResponseType.YES]: 
             filename = self.dialog.get_filename()
-        elif result in [gtk.RESPONSE_CANCEL, gtk.RESPONSE_DELETE_EVENT, gtk.RESPONSE_CLOSE]:
+        elif result in [Gtk.ResponseType.CANCEL, Gtk.ResponseType.DELETE_EVENT, Gtk.ResponseType.CLOSE]:
             filename = ''
         self.dialog.destroy()
         debug.dprint("FILESELECTOR2: get_filename(); filename = " + filename)

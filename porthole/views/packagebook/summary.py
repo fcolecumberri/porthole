@@ -39,11 +39,11 @@ from porthole.backends.utilities import (reduce_flags, get_reduced_flags,
     abs_flag, abs_list, flag_defaults, filter_flags)
 from porthole.loaders.loaders import load_web_page
 
-class Summary(gtk.TextView):
+class Summary(Gtk.TextView):
     """ Class to manage display and contents of package info tab """
     def __init__(self, dispatcher, re_init_portage):
         """ Initialize object """
-        gtk.TextView.__init__(self)
+        GObject.GObject.__init__(self)
         self.re_init_portage = re_init_portage
         # get the preferences we need
         #self.enable_archlist = config.Prefs.globals.enable_archlist
@@ -52,15 +52,15 @@ class Summary(gtk.TextView):
         self.myarch = portage_lib.get_arch()
         #self.selected_arch = None
         self.selected_arch = self.myarch
-        #self.tooltips = gtk.Tooltips()
-        self.set_wrap_mode(gtk.WRAP_WORD)
+        #self.tooltips = Gtk.Tooltips()
+        self.set_wrap_mode(Gtk.WrapMode.WORD)
         self.set_editable(False)
         self.set_cursor_visible(False)
         margin = 10
         self.set_left_margin(margin)
         self.set_right_margin(margin)
         tagtable = self.create_tag_table()
-        self.buffer = gtk.TextBuffer(tagtable)
+        self.buffer = Gtk.TextBuffer(tagtable)
         self.set_buffer(self.buffer)
         self.license_dir = "file://"+ portage_lib.settings.portdir + "/licenses/"
         self.package = None
@@ -84,37 +84,37 @@ class Summary(gtk.TextView):
 
     def createmenu(self):
         menuitems = {}
-        menuitems["emerge"] = gtk.MenuItem(_("Emerge this ebuild"))
+        menuitems["emerge"] = Gtk.MenuItem(_("Emerge this ebuild"))
         menuitems["emerge"].connect("activate", self.emerge)
-        menuitems["pretend-emerge"] = gtk.MenuItem(_("Pretend Emerge this ebuild"))
+        menuitems["pretend-emerge"] = Gtk.MenuItem(_("Pretend Emerge this ebuild"))
         menuitems["pretend-emerge"].connect("activate", self.emerge, True, None)
-        menuitems["sudo-emerge"] = gtk.MenuItem(_("Sudo Emerge this ebuild"))
+        menuitems["sudo-emerge"] = Gtk.MenuItem(_("Sudo Emerge this ebuild"))
         menuitems["sudo-emerge"].connect("activate", self.emerge, None, True)
-        menuitems["unmerge"] = gtk.MenuItem(_("Unmerge this ebuild"))
+        menuitems["unmerge"] = Gtk.MenuItem(_("Unmerge this ebuild"))
         menuitems["unmerge"].connect("activate", self.unmerge)
-        menuitems["sudo-unmerge"] = gtk.MenuItem(_("Sudo Unmerge this ebuild"))
+        menuitems["sudo-unmerge"] = Gtk.MenuItem(_("Sudo Unmerge this ebuild"))
         menuitems["sudo-unmerge"].connect("activate", self.unmerge, True)
-        menuitems["Advanced emerge dialog"] = gtk.MenuItem(_("Advanced Emerge"))
+        menuitems["Advanced emerge dialog"] = Gtk.MenuItem(_("Advanced Emerge"))
         menuitems["Advanced emerge dialog"].connect("activate", self.adv_emerge)
-        menuitems["remove-keyword"] = gtk.MenuItem(_("Remove this arch from package.keywords") )
+        menuitems["remove-keyword"] = Gtk.MenuItem(_("Remove this arch from package.keywords") )
         menuitems["remove-keyword"].connect("activate", self.remove_keyword)
-        menuitems["remove-keyword-ebuild"] = gtk.MenuItem(_("Remove ebuild keyword from package.keywords") )
+        menuitems["remove-keyword-ebuild"] = Gtk.MenuItem(_("Remove ebuild keyword from package.keywords") )
         menuitems["remove-keyword-ebuild"].connect("activate", self.remove_keyword_ebuild)
-        menuitems["un-package-unmask"] = gtk.MenuItem(_("Remask this ebuild"))
+        menuitems["un-package-unmask"] = Gtk.MenuItem(_("Remask this ebuild"))
         menuitems["un-package-unmask"].connect("activate", self.un_package_unmask)
-        menuitems["show_props"] = gtk.MenuItem(_("Show the properties for this ebuild"))
+        menuitems["show_props"] = Gtk.MenuItem(_("Show the properties for this ebuild"))
         menuitems["show_props"].connect("activate", self.show_version)
 
         # create keyword submenus
         if not config.Prefs.globals.enable_archlist:
-            menuitems["add-ebuild-keyword"] = gtk.MenuItem(_("Add %s to package.keywords (for this ebuild only)" ) % self.myarch)
+            menuitems["add-ebuild-keyword"] = Gtk.MenuItem(_("Add %s to package.keywords (for this ebuild only)" ) % self.myarch)
             menuitems["add-ebuild-keyword"].connect("activate", self.add_keyword_ebuild, self.myarch)
-            menuitems["add-keyword"] = gtk.MenuItem(_("Add this arch to package.keywords") )
+            menuitems["add-keyword"] = Gtk.MenuItem(_("Add this arch to package.keywords") )
             menuitems["add-keyword"].connect("activate", self.add_keyword, self.myarch)
             self.keyword_menuitems = None
         else:
-            menuitems["add-ebuild-keyword"] = gtk.MenuItem(_("Add to package.keywords (for this ebuild only)" ) )
-            menuitems["add-keyword"] = gtk.MenuItem(_("Add to package.keywords") )
+            menuitems["add-ebuild-keyword"] = Gtk.MenuItem(_("Add to package.keywords (for this ebuild only)" ) )
+            menuitems["add-keyword"] = Gtk.MenuItem(_("Add to package.keywords") )
             archlist = config.Prefs.globals.archlist
             keywordmenu = {}
             keywordmenuitems = {}
@@ -125,8 +125,8 @@ class Summary(gtk.TextView):
             self.keyword_menuitems = keywordmenuitems
 
         # create mask/unmask submenus
-        menuitems["package-mask"] = gtk.MenuItem(_("Mask this ebuild or package"))
-        menuitems["package-unmask"] = gtk.MenuItem(_("Unmask this ebuild or package"))
+        menuitems["package-mask"] = Gtk.MenuItem(_("Mask this ebuild or package"))
+        menuitems["package-unmask"] = Gtk.MenuItem(_("Unmask this ebuild or package"))
         key = ''
         submenu = {}
         submenuitems = {}
@@ -136,7 +136,7 @@ class Summary(gtk.TextView):
         self.mask_menuitems = submenuitems
 
         # create popup menu for rmb-click
-        menu = gtk.Menu()
+        menu = Gtk.Menu()
 
         for item in menuitems.values():
             menu.append(item)
@@ -164,11 +164,11 @@ class Summary(gtk.TextView):
         for item_name, callback in menulist:
             myitems = {}
             for x in sublist:
-                myitems[x] = gtk.MenuItem(key + x)
+                myitems[x] = Gtk.MenuItem(key + x)
                 myitems[x].connect("activate", callback, x)
             mymenuitems[item_name] = myitems
 
-            mysubmenu[item_name] = gtk.Menu()
+            mysubmenu[item_name] = Gtk.Menu()
             for item in myitems.values():
                 mysubmenu[item_name].append(item)
                 item.show()
@@ -182,50 +182,49 @@ class Summary(gtk.TextView):
     def create_tag_table(self):
         """ Define all markup tags """
         def create(descs):
-            table = gtk.TextTagTable()
+            table = Gtk.TextTagTable()
             for name, properties in descs.items():
-                tag = gtk.TextTag(name); table.add(tag)
+                tag = Gtk.TextTag(name); table.add(tag)
                 for property, value in properties.items():
                     tag.set_property(property, value)
             return table
 
         table = create(
-            {'name': ({'weight': pango.WEIGHT_BOLD,
-                       'scale': pango.SCALE_X_LARGE,
+            {'name': ({'weight': Pango.Weight.BOLD,
+                       'scale': Pango.SCALE_X_LARGE,
                        'pixels-above-lines': 5}),
-             'description': ({"style": pango.STYLE_ITALIC}),
+             'description': ({"style": Pango.Style.ITALIC}),
              'url': ({'foreground': 'blue'}),
-             'property': ({'weight': pango.WEIGHT_BOLD}),
+             'property': ({'weight': Pango.Weight.BOLD}),
              'value': ({}),
              'useset': ({'foreground':'darkgreen'}),
              'useunset':({'foreground':'red'}),
-             'masked': ({"style": pango.STYLE_ITALIC}),
+             'masked': ({"style": Pango.Style.ITALIC}),
              })
         return table
 
     def on_url_event(self, tag, widget, event, iter):
         """ Catch when the user clicks the URL """
-        if event.type == gtk.gdk.BUTTON_RELEASE:
+        if event.type == Gdk.BUTTON_RELEASE:
             load_web_page(tag.get_property("name"))
 
     def on_mouse_motion(self, widget, event, data = None):
         # we need to call get_pointer, or we won't get any more events
         pointer = self.window.get_pointer()
         x, y, spam = self.window.get_pointer()
-        x, y = self.window_to_buffer_coords(gtk.TEXT_WINDOW_TEXT, x, y)
+        x, y = self.window_to_buffer_coords(Gtk.TextWindowType.TEXT, x, y)
         tags = self.get_iter_at_location(x, y).get_tags()
         if self.underlined_url:
-            self.underlined_url.set_property("underline",pango.UNDERLINE_NONE)
-            self.get_window(gtk.TEXT_WINDOW_TEXT).set_cursor(None)
+            self.underlined_url.set_property("underline",Pango.Underline.NONE)
+            self.get_window(Gtk.TextWindowType.TEXT).set_cursor(None)
             self.underlined_url = None
         for tag in tags:
             if tag in self.url_tags:
-                tag.set_property("underline",pango.UNDERLINE_SINGLE)
-                self.get_window(gtk.TEXT_WINDOW_TEXT).set_cursor(gtk.gdk.Cursor
-                                                                 (gtk.gdk.HAND2))
+                tag.set_property("underline",Pango.Underline.SINGLE)
+                self.get_window(Gtk.TextWindowType.TEXT).set_cursor(Gdk.Cursor.new(Gdk.HAND2))
                 self.underlined_url = tag
-        if self.reset_cursor: # defaults to gtk.gdk.XTERM - reset it to None
-            self.get_window(gtk.TEXT_WINDOW_TEXT).set_cursor(None)
+        if self.reset_cursor: # defaults to Gdk.XTERM - reset it to None
+            self.get_window(Gtk.TextWindowType.TEXT).set_cursor(None)
             self.reset_cursor = False
         return False
 
@@ -328,12 +327,12 @@ class Summary(gtk.TextView):
             #if True: # saves an unindent for testing change
             rows = 1 + len(ebuilds)
             cols = 3 + len(archlist)
-            table = gtk.Table(rows, cols)
-            table.attach(boxify(gtk.Label(), "white"), 0, 1, 0, 1)
-            label = gtk.Label(_("Slot"))
+            table = Gtk.Table(rows, cols)
+            table.attach(boxify(Gtk.Label(), "white"), 0, 1, 0, 1)
+            label = Gtk.Label(label=_("Slot"))
             label.set_padding(3, 3)
             table.attach(boxify(label, "#EEEEEE"), 1, 2, 0, 1)
-            label = gtk.Label(_("Overlay"))
+            label = Gtk.Label(label=_("Overlay"))
             label.set_padding(3, 3)
             table.attach(boxify(label, "#EEEEEE"), 2, 3, 0, 1)
             x = 2
@@ -345,27 +344,27 @@ class Summary(gtk.TextView):
                     _arch = '-\n'.join(_arch)
                 else:
                     _arch = arch
-                label = gtk.Label(_arch)
+                label = Gtk.Label(label=_arch)
                 label.set_padding(3, 3)
                 table.attach(boxify(label, "#EEEEEE"), x, x+1, 0, 1)
             y = rows
             for ebuild in ebuilds:
                 y -= 1
                 version = portage_lib.get_version(ebuild)
-                ver_label = gtk.Label(str(version))
+                ver_label = Gtk.Label(label=str(version))
                 ver_label.set_padding(3, 3)
                 # slot column
                 slot =  package.get_properties(ebuild).get_slot()
-                slot_label = gtk.Label(str(slot))
+                slot_label = Gtk.Label(label=str(slot))
                 slot_label.set_padding(3, 3)
                 # overlay column
                 overlay = portage_lib.get_overlay(ebuild)
                 if type(overlay) is IntType: # catch obsolete
                     overlay = _("Ebuild version no longer supported")
-                    overlay_label = gtk.Label(_("Obsolete"))
+                    overlay_label = Gtk.Label(label=_("Obsolete"))
                     label_color = "#ED9191"
                 else:
-                    overlay_label = gtk.Label(portage_lib.get_overlay_name(overlay))
+                    overlay_label = Gtk.Label(label=portage_lib.get_overlay_name(overlay))
                     label_color = "#EEEEEE"
                 overlay_label.set_padding(3, 3)
                 box = boxify(overlay_label, label_color)
@@ -409,7 +408,7 @@ class Summary(gtk.TextView):
                     if 'profile' not in portage_lib.get_masking_status(ebuild):
                         if ebuild in package_unmasked and 'M' in text:
                             text = '[' + text.replace('M', '') + ']'
-                    label = gtk.Label(text)
+                    label = Gtk.Label(label=text)
                     box = boxify(label, color=color, ebuild=ebuild, arch=arch, text=text)
                     if "M" in text or "[" in text:
                         box.set_has_tooltip(True)
@@ -426,11 +425,11 @@ class Summary(gtk.TextView):
             nl(2)
 
         def boxify(label, color=None, ebuild=None, arch=None, text=None):
-            box = gtk.EventBox()
+            box = Gtk.EventBox()
             box.add(label)
             if color:
                 style = box.get_style().copy()
-                style.bg[gtk.STATE_NORMAL] = gtk.gdk.color_parse(color)
+                style.bg[Gtk.StateType.NORMAL] = Gdk.color_parse(color)
                 box.set_style(style)
             if ebuild:
                 box.color = color
@@ -729,7 +728,7 @@ class Summary(gtk.TextView):
         """Button press callback for Summary.
         (note: table clicks are handled in on_table_clicked)"""
         debug.dprint("SUMMARY: Handling SummaryView button press event")
-        if event.type != gtk.gdk.BUTTON_PRESS:
+        if event.type != Gdk.EventType.BUTTON_PRESS:
             debug.dprint("SUMMARY: Strange event type got passed to on_button_press() callback...")
             debug.dprint(event.type)
         if event.button == 3: # secondary mouse button
@@ -864,12 +863,12 @@ class Summary(gtk.TextView):
         self.popup_menu.popup(None, None, None, event.button, event.time)
         # de-select the table cell. Would be nice to leave it selected,
         # but it doesn't get de-selected when the menu is closed.
-        eventbox.emit("leave-notify-event", gtk.gdk.Event(gtk.gdk.LEAVE_NOTIFY))
+        eventbox.emit("leave-notify-event", Gdk.Event(Gdk.LEAVE_NOTIFY))
         return True
 
     def on_table_mouse(self, eventbox, event):
-        if event.mode != gtk.gdk.CROSSING_NORMAL: return False
-        if event.type == gtk.gdk.ENTER_NOTIFY:
+        if event.mode != Gdk.CROSSING_NORMAL: return False
+        if event.type == Gdk.ENTER_NOTIFY:
             #debug.dprint("SUMMARY: on_table_mouse(): Enter notify")
             # note: colour should be of form "#xxxxxx" (not name)
             if eventbox.color.startswith('#'):
@@ -886,12 +885,12 @@ class Summary(gtk.TextView):
                 #debug.dprint("old colour = %s" % eventbox.color)
                 #debug.dprint("new colour = %s" % newcolour)
                 style = eventbox.get_style().copy()
-                style.bg[gtk.STATE_NORMAL] = gtk.gdk.color_parse(newcolour)
+                style.bg[Gtk.StateType.NORMAL] = Gdk.color_parse(newcolour)
                 eventbox.set_style(style)
-        elif event.type == gtk.gdk.LEAVE_NOTIFY:
+        elif event.type == Gdk.LEAVE_NOTIFY:
             #debug.dprint("SUMMARY: on_table_mouse(): Leave notify")
             style = eventbox.get_style().copy()
-            style.bg[gtk.STATE_NORMAL] = gtk.gdk.color_parse(eventbox.color)
+            style.bg[Gtk.StateType.NORMAL] = Gdk.color_parse(eventbox.color)
             eventbox.set_style(style)
         return False
 

@@ -50,24 +50,24 @@ class MarkupView (object):
         margin = 10
         self.set_left_margin(margin)
         self.set_right_margin(margin)
-        self.tags = {'new_ver': ({'weight': pango.WEIGHT_BOLD,
-                        'scale': pango.SCALE_LARGE,
+        self.tags = {'new_ver': ({'weight': Pango.Weight.BOLD,
+                        'scale': Pango.SCALE_LARGE,
                         'pixels-above-lines': 5}),
-                        'description': ({"style": pango.STYLE_ITALIC}),
+                        'description': ({"style": Pango.Style.ITALIC}),
                         'url': ({'foreground': 'blue'}),
-                        'update': ({'weight': pango.WEIGHT_BOLD}),
+                        'update': ({'weight': Pango.Weight.BOLD}),
                         'developer':({'foreground': 'darkblue'}),
                         'normal': ({}),
                         'atom':({'foreground': 'magenta'}),
                         'added': ({'foreground':'darkgreen'}),
                         'removed':({'foreground':'red'}),
-                        'masked': ({"style": pango.STYLE_ITALIC}),
+                        'masked': ({"style": Pango.Style.ITALIC}),
                         'date':({'foreground': 'darkorange'}),
                         'header':({'foreground': 'green'}),
         }
 
         tagtable = self._create_tag_table()
-        self.buffer = gtk.TextBuffer(tagtable)
+        self.buffer = Gtk.TextBuffer(tagtable)
         self.set_buffer(self.buffer)
         
         # Capture any mouse motion in this tab so we
@@ -132,9 +132,9 @@ class MarkupView (object):
     def _create_tag_table(self):
         """ Define all markup tags """
         def create(descs):
-            table = gtk.TextTagTable()
+            table = Gtk.TextTagTable()
             for name, properties in list(descs.items()):
-                tag = gtk.TextTag(name); table.add(tag)
+                tag = Gtk.TextTag(name); table.add(tag)
                 for property, value in list(properties.items()):
                     tag.set_property(property, value)
             return table
@@ -145,7 +145,7 @@ class MarkupView (object):
 
     def on_url_event(self, tag, widget, event, iter):
         """ Catch when the user clicks the URL """
-        if event.type == gtk.gdk.BUTTON_RELEASE:
+        if event.type == Gdk.BUTTON_RELEASE:
             bug=self.bugs[tag.get_property("name")]
             load_web_page(self.bugzilla_url+bug)
 
@@ -153,19 +153,18 @@ class MarkupView (object):
         # we need to call get_pointer, or we won't get any more events
         pointer = self.window.get_pointer()
         x, y, spam = self.window.get_pointer()
-        x, y = self.window_to_buffer_coords(gtk.TEXT_WINDOW_TEXT, x, y)
+        x, y = self.window_to_buffer_coords(Gtk.TextWindowType.TEXT, x, y)
         tags = self.get_iter_at_location(x, y).get_tags()
         if self.underlined_url:
-            self.underlined_url.set_property("underline",pango.UNDERLINE_NONE)
-            self.get_window(gtk.TEXT_WINDOW_TEXT).set_cursor(None)
+            self.underlined_url.set_property("underline",Pango.Underline.NONE)
+            self.get_window(Gtk.TextWindowType.TEXT).set_cursor(None)
             self.underlined_url = None
         for tag in tags:
             if tag in self.url_tags:
-                tag.set_property("underline",pango.UNDERLINE_SINGLE)
-                self.get_window(gtk.TEXT_WINDOW_TEXT).set_cursor(gtk.gdk.Cursor
-                                                                 (gtk.gdk.HAND2))
+                tag.set_property("underline",Pango.Underline.SINGLE)
+                self.get_window(Gtk.TextWindowType.TEXT).set_cursor(Gdk.Cursor.new(Gdk.HAND2))
                 self.underlined_url = tag
-        if self.reset_cursor: # defaults to gtk.gdk.XTERM - reset it to None
-            self.get_window(gtk.TEXT_WINDOW_TEXT).set_cursor(None)
+        if self.reset_cursor: # defaults to Gdk.XTERM - reset it to None
+            self.get_window(Gtk.TextWindowType.TEXT).set_cursor(None)
             self.reset_cursor = False
         return False

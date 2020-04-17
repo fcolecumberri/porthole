@@ -22,7 +22,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import pygtk; pygtk.require("2.0") # make sure we have the right version
+import gi; gi.require_version("Gtk", "3.0") # make sure we have the right version
 import gtk, gobject, pango
 import threading, os
 from gettext import gettext as _
@@ -55,27 +55,27 @@ class DependsView(CommonTreeView):
         # setup the model
         self.model = DependsTree(self.populate_info)
         # setup the column
-        column = gtk.TreeViewColumn(_("Dependencies"))
-        pixbuf = gtk.CellRendererPixbuf()
+        column = Gtk.TreeViewColumn(_("Dependencies"))
+        pixbuf = Gtk.CellRendererPixbuf()
         column.pack_start(pixbuf, expand = False)
         column.add_attribute(pixbuf, "pixbuf", 1)
-        text = gtk.CellRendererText()
+        text = Gtk.CellRendererText()
         column.pack_start(text, expand = True)
         column.add_attribute(text, "text", self.model.column["depend"])
         self.append_column(column)
         # Setup the Package Name Column
-        self._name_column = gtk.TreeViewColumn(_("Package"))
+        self._name_column = Gtk.TreeViewColumn(_("Package"))
         self.append_column(self._name_column)
-        text_name = gtk.CellRendererText()
+        text_name = Gtk.CellRendererText()
         self._name_column.pack_start(text_name, expand = False)
         self._name_column.add_attribute(text_name, "text", self.model.column["name"])
         #self._name_column.set_cell_data_func(text_name, self.cell_data_func, None)
         self._name_column.set_resizable(True)
         self._name_column.set_min_width(10)
         # Setup the Installed Column
-        self._installed_column = gtk.TreeViewColumn(_("Installed"))
+        self._installed_column = Gtk.TreeViewColumn(_("Installed"))
         self.append_column(self._installed_column)
-        text_installed = gtk.CellRendererText()
+        text_installed = Gtk.CellRendererText()
         self._installed_column.pack_start(text_installed, expand = False)
         self._installed_column.add_attribute(text_installed, "text", self.model.column["installed"])
         #self._installed_column.set_cell_data_func(text_installed, self.cell_data_func, None)
@@ -83,9 +83,9 @@ class DependsView(CommonTreeView):
         self._installed_column.set_min_width(10)
         #self._installed_column.set_sort_column_id(self.model.column["installed"])
         # Setup the Latest Column
-        self._latest_column = gtk.TreeViewColumn(_("Recommended"))
+        self._latest_column = Gtk.TreeViewColumn(_("Recommended"))
         self.append_column(self._latest_column)
-        text_latest = gtk.CellRendererText()
+        text_latest = Gtk.CellRendererText()
         self._latest_column.pack_start(text_latest, expand = False)
         self._latest_column.add_attribute(text_latest, "text", self.model.column["latest"])
         #self._latest_column.set_cell_data_func(text_latest, self.cell_data_func, None)
@@ -93,9 +93,9 @@ class DependsView(CommonTreeView):
         self._latest_column.set_min_width(10)
         #self._latest_column.set_sort_column_id(self.model.column["latest"])
         # Setup the keyword Column
-        self._keyword_column = gtk.TreeViewColumn(_("Keywords"))
+        self._keyword_column = Gtk.TreeViewColumn(_("Keywords"))
         self.append_column(self._keyword_column)
-        text_keyword = gtk.CellRendererText()
+        text_keyword = Gtk.CellRendererText()
         self._keyword_column.pack_start(text_keyword, expand = False)
         self._keyword_column.add_attribute(text_keyword, "text", self.model.column["keyword"])
         #self._keyword_column.set_cell_data_func(text_keyword, self.cell_data_func, None)
@@ -103,9 +103,9 @@ class DependsView(CommonTreeView):
         self._keyword_column.set_min_width(10)
         #self._keyword_column.set_sort_column_id(self.model.column["keyword"])
         # Setup the required USE flags  Column
-        self._required_use_column = gtk.TreeViewColumn(_("Required USE"))
+        self._required_use_column = Gtk.TreeViewColumn(_("Required USE"))
         self.append_column(self._required_use_column)
-        text_use = gtk.CellRendererText()
+        text_use = Gtk.CellRendererText()
         self._required_use_column.pack_start(text_use, expand = False)
         self._required_use_column.add_attribute(text_use, "text", self.model.column["required_use"])
         #self._required_use_column.set_cell_data_func(text_use, self.cell_data_func, None)
@@ -123,25 +123,25 @@ class DependsView(CommonTreeView):
 
         # create popup menu for rmb-click
         arch = "~" + portage_lib.get_arch()
-        menu = gtk.Menu()
+        menu = Gtk.Menu()
         menuitems = {}
-        menuitems["emerge --oneshot"] = gtk.MenuItem(_("Emerge"))
+        menuitems["emerge --oneshot"] = Gtk.MenuItem(_("Emerge"))
         menuitems["emerge --oneshot"].connect("activate", self.emerge)
-        menuitems["pretend-emerge"] = gtk.MenuItem(_("Pretend Emerge"))
+        menuitems["pretend-emerge"] = Gtk.MenuItem(_("Pretend Emerge"))
         menuitems["pretend-emerge"].connect("activate", self.emerge, True, None)
-        menuitems["sudo-emerge --oneshot"] = gtk.MenuItem(_("Sudo Emerge"))
+        menuitems["sudo-emerge --oneshot"] = Gtk.MenuItem(_("Sudo Emerge"))
         menuitems["sudo-emerge --oneshot"].connect("activate", self.emerge, None, True)
-        menuitems["Advanced emerge dialog"] = gtk.MenuItem(_("Advanced Emerge"))
+        menuitems["Advanced emerge dialog"] = Gtk.MenuItem(_("Advanced Emerge"))
         menuitems["Advanced emerge dialog"].connect("activate", self.adv_emerge)
-        #menuitems["unmerge"] = gtk.MenuItem(_("Unmerge"))
+        #menuitems["unmerge"] = Gtk.MenuItem(_("Unmerge"))
         #menuitems["unmerge"].connect("activate", self.unmerge)
-        #menuitems["sudo-unmerge"] = gtk.MenuItem(_("Sudo Unmerge"))
+        #menuitems["sudo-unmerge"] = Gtk.MenuItem(_("Sudo Unmerge"))
         #menuitems["sudo-unmerge"].connect("activate", self.unmerge, True)
-        menuitems["add-keyword"] = gtk.MenuItem(_("Append with %s to package.keywords") % arch)
+        menuitems["add-keyword"] = Gtk.MenuItem(_("Append with %s to package.keywords") % arch)
         menuitems["add-keyword"].connect("activate", self.add_keyword)
-        #menuitems["deselect_all"] = gtk.MenuItem(_("De-Select all"))
+        #menuitems["deselect_all"] = Gtk.MenuItem(_("De-Select all"))
         #menuitems["deselect_all"].connect("activate", self.deselect_all)
-        #menuitems["select_all"] = gtk.MenuItem(_("Select all"))
+        #menuitems["select_all"] = Gtk.MenuItem(_("Select all"))
         #menuitems["select_all"].connect("activate", self.select_all)
 
         for item in list(menuitems.values()):
@@ -332,7 +332,7 @@ class DependsView(CommonTreeView):
         else:
             self.dopopup = False
 
-        if event.type == gtk.gdk._2BUTTON_PRESS:
+        if event.type == Gdk._2BUTTON_PRESS:
             #debug.dprint("DependsView: dbl-click event detected")
             # Capture the source of the dbl-click event
             # but do nothing else
@@ -340,11 +340,11 @@ class DependsView(CommonTreeView):
             debug.dprint("DependsView: button release dbl-click event detected, enabling dep popup")
             _do_dep_window = True
 
-        elif event.type != gtk.gdk.BUTTON_PRESS:
+        elif event.type != Gdk.EventType.BUTTON_PRESS:
             debug.dprint("DependsView: Strange event type got passed to on_button_press() callback...")
             debug.dprint("DependsView: event.type =  %s" %str(event.type))
 
-        elif event.type == gtk.gdk.BUTTON_RELEASE and \
+        elif event.type == Gdk.BUTTON_RELEASE and \
             self.event_src == widget:
             # clear the event source to prevent false restarts
             self.event_src = None

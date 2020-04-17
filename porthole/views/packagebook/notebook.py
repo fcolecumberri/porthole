@@ -23,8 +23,8 @@
 '''
 
 import threading, re #, types
-import pygtk; pygtk.require("2.0") # make sure we have the right version
-import gtk, gtk.glade, gobject, pango
+import gi; gi.require_version("Gtk", "3.0") # make sure we have the right version
+import gtk, Gtk.glade, gobject, pango
 
 
 import os, sys
@@ -141,18 +141,18 @@ class PackageNotebook(object):
                 self.loaded_version["ebuild"] = self.summary.ebuild
         elif index == 5:
             debug.dprint("PackageNotebook notebook_changed(); self.summary.ebuild = " + str(self.summary.ebuild))
-            child = self.use_flag_page.child
+            child = self.use_flag_page.get_child()
             if not child is None:
                debug.dprint("PackageNotebook: removing use_view_widget")
                self.use_flag_page.remove(child)
-            frame = gtk.VBox()
+            frame = Gtk.VBox()
             ebuild = self.summary.ebuild
             props = self.summary.package.get_properties(ebuild)
             use_flags = props.get_use_flags()
             self.use_flag_view = UseFlagWidget(use_flags, ebuild, None)
             self.use_flag_view.show()
-            frame.pack_start(self.use_flag_view)
-            button = gtk.Button("Save USE Flags")
+            frame.pack_start(self.use_flag_view, True, True, 0)
+            button = Gtk.Button("Save USE Flags")
             button.set_size_request(100,50)
             button.connect('clicked', self.save_use_flags_clicked)
             if utils.is_root() or utils.can_gksu():
@@ -183,23 +183,23 @@ class PackageNotebook(object):
         self.dep_window["tree"] = parent_tree
         self.dep_window['name'] = parent_name
         if not self.dep_window["window"]:
-            self.dep_window['window'] = gtk.Window(gtk.WINDOW_TOPLEVEL)
+            self.dep_window['window'] = Gtk.Window(Gtk.WindowType.TOPLEVEL)
             #self.dep_window['depth'] += 1 # increase the depth number since it is a new window
-            v_box = gtk.VBox()
-            h_box = gtk.HBox()
-            label1 = gtk.Label(_("Viewing Dependency of: "))
+            v_box = Gtk.VBox()
+            h_box = Gtk.HBox()
+            label1 = Gtk.Label(label=_("Viewing Dependency of: "))
             h_box.pack_start(label1, False, False, 0)
-            self.dep_window['label'] = gtk.Label()
+            self.dep_window['label'] = Gtk.Label()
             h_box.pack_start(self.dep_window['label'], expand=False, fill=False)
-            label2 = gtk.Label('')
+            label2 = Gtk.Label(label='')
             h_box.pack_start(label2, expand=True, fill=True)
             v_box.pack_start(h_box, False, False,3)
             self.dep_window['label'].set_has_tooltip(True)
             self.dep_window['label'].set_tooltip_text('')
             gladefile = config.Prefs.DATA_PATH + config.Prefs.use_gladefile
-            self.deptree = gtk.glade.XML(gladefile, "notebook", config.Prefs.APP)
+            self.deptree = Gtk.glade.XML(gladefile, "notebook", config.Prefs.APP)
             self.dep_window["notebook"] = PackageNotebook(self.deptree, self.callbacks, self.plugin_package_tabs, parent_name, parent_tree[:])
-            v_box.pack_start(self.dep_window["notebook"].notebook)
+            v_box.pack_start(self.dep_window["notebook"].notebook, True, True, 0)
             self.dep_window["window"].add(v_box)
             self.dep_window["window"].connect("destroy", self.close_window)
             self.dep_window["window"].resize(600, 400)

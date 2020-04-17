@@ -22,7 +22,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import pygtk; pygtk.require("2.0") # make sure we have the right version
+import gi; gi.require_version("Gtk", "3.0") # make sure we have the right version
 import gtk, gobject
 #from gettext import gettext as _
 
@@ -46,17 +46,17 @@ MODEL_ITEM = {"name": 0,
 
 def PackageModel():
     """Common model for a package Treestore"""
-    store = gtk.TreeStore(
-        gobject.TYPE_STRING,        # 0: package name
-        gobject.TYPE_BOOLEAN,       # 1: checkbox value in upgrade view
-        gobject.TYPE_PYOBJECT,      # 2: package object
-        gtk.gdk.Pixbuf,             # 3: room for various icons
-        gobject.TYPE_BOOLEAN,       # 4: true if package is in 'world' file
-        gobject.TYPE_STRING,        # 5: foreground text colour
-        gobject.TYPE_STRING,        # 6: size
-        gobject.TYPE_STRING,        # 7: installed version
-        gobject.TYPE_STRING,        # 8: portage recommended version
-        gobject.TYPE_STRING,        # 9: description
+    store = Gtk.TreeStore(
+        GObject.TYPE_STRING,        # 0: package name
+        GObject.TYPE_BOOLEAN,       # 1: checkbox value in upgrade view
+        GObject.TYPE_PYOBJECT,      # 2: package object
+        GdkPixbuf.Pixbuf,             # 3: room for various icons
+        GObject.TYPE_BOOLEAN,       # 4: true if package is in 'world' file
+        GObject.TYPE_STRING,        # 5: foreground text colour
+        GObject.TYPE_STRING,        # 6: size
+        GObject.TYPE_STRING,        # 7: installed version
+        GObject.TYPE_STRING,        # 8: portage recommended version
+        GObject.TYPE_STRING,        # 9: description
     )
     store.set_sort_func(MODEL_ITEM["size"], size_sort_func)
     store.set_sort_func(MODEL_ITEM["recommended"], latest_sort_func)
@@ -69,9 +69,9 @@ C_ITEM = {"short_name": 0,
           }
 
 def CategoryModel():
-    model = gtk.TreeStore(gobject.TYPE_STRING,  # 0 partial category name
-                          gobject.TYPE_STRING,  # 1 full category name
-                          gobject.TYPE_STRING)  # 2 pkg count, use string so it can be blank
+    model = Gtk.TreeStore(GObject.TYPE_STRING,  # 0 partial category name
+                          GObject.TYPE_STRING,  # 1 full category name
+                          GObject.TYPE_STRING)  # 2 pkg count, use string so it can be blank
     return model
 
 

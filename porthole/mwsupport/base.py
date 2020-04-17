@@ -23,9 +23,9 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import pygtk
-pygtk.require("2.0") # make sure we have the right version
-import gtk, gtk.glade
+import gi
+gi.require_version("Gtk", "3.0") # make sure we have the right version
+import gtk, Gtk.glade
 from gettext import gettext as _
 
 
@@ -79,7 +79,7 @@ class MainBase(object):
         #self.config = configs
         # setup glade
         self.gladefile = config.Prefs.DATA_PATH + config.Prefs.use_gladefile
-        self.wtree = gtk.glade.XML(self.gladefile,
+        self.wtree = Gtk.glade.XML(self.gladefile,
             "main_window",
             config.Prefs.APP)
 
@@ -89,7 +89,7 @@ class MainBase(object):
         # as a parent window
         config.Mainwindow = self.mainwindow
 
-        # register callbacks  note: gtk.mainquit deprecated
+        # register callbacks  note: Gtk.mainquit deprecated
         self.callbacks = {
             "on_main_window_destroy" : self.goodbye,
             "on_quit1_activate" : self.quit,
@@ -184,12 +184,12 @@ class MainBase(object):
             self.process_manager.allow_delete = True
             return False
         err = _("Confirm: Kill the Running Process in the Terminal")
-        dialog = gtk.MessageDialog(self.mainwindow, gtk.DIALOG_MODAL,
-                                gtk.MESSAGE_QUESTION,
-                                gtk.BUTTONS_YES_NO, err)
+        dialog = Gtk.MessageDialog(self.mainwindow, Gtk.DialogFlags.MODAL,
+                                Gtk.MessageType.QUESTION,
+                                Gtk.ButtonsType.YES_NO, err)
         result = dialog.run()
         dialog.destroy()
-        if result != gtk.RESPONSE_YES:
+        if result != Gtk.ResponseType.YES:
             debug.dprint("TERMINAL: kill(); not killing")
             return True
         #self.process_manager.confirm = False
@@ -209,6 +209,6 @@ class MainBase(object):
     def goodbye(self, *widget):
         """Main window quit function"""
         debug.dprint("MAINWINDOW: goodbye(); quiting now")
-        gtk.main_quit()
+        Gtk.main_quit()
 
 

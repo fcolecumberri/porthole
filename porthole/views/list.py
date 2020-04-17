@@ -13,14 +13,14 @@ Adapted to Porthole by, Brian Dolbec <dol-sen@users.sourceforge.net>
 """
 
 
-import gtk
+from gi.repository import Gtk
 #import logging
 
 from porthole.utils import debug
 from porthole.views.lazyview import LazyView
 
 
-class ListView (gtk.TextView, LazyView):
+class ListView (Gtk.TextView, LazyView):
 
     def __init__ (self, get_file_fn):
         if get_file_fn:
@@ -28,7 +28,7 @@ class ListView (gtk.TextView, LazyView):
         else:  # assume it is passed a filename already
             self.get_fn = self._get_fn
 
-        gtk.TextView.__init__(self)
+        GObject.GObject.__init__(self)
         LazyView.__init__(self)
 
         self.set_editable(False)

@@ -28,7 +28,7 @@
     
         from notebook import TerminalNotebook
 """
-import pygtk; pygtk.require('2.0')
+import gi; gi.require_version('Gtk', '3.0')
 import gtk, pango
 
 from porthole.terminal.constants import *
@@ -83,9 +83,9 @@ class TerminalNotebook:
             #if x == "process_text" or config.Prefs.terminal.all_tabs_use_custom_colors:
             fg, bg, weight = config.Prefs.TAG_DICT['default']
             font = config.Prefs.terminal.font
-            if bg: view.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse(bg))
-            if fg: view.modify_text(gtk.STATE_NORMAL, gtk.gdk.color_parse(fg))
-            if font: view.modify_font(pango.FontDescription(font))
+            if bg: view.modify_base(Gtk.StateType.NORMAL, Gdk.color_parse(bg))
+            if fg: view.modify_text(Gtk.StateType.NORMAL, Gdk.color_parse(fg))
+            if font: view.modify_font(Pango.FontDescription(font))
         del buff
         widget_labels = ["scrolledwindow2", "scrolledwindow8", "scrolledwindow7",
                          "scrolledwindow5", "scrolledwindow4"]
@@ -158,15 +158,15 @@ class TerminalNotebook:
         if self.tab_showing[tab]:
             return
         # this hbox will hold the icon and label
-        hbox = gtk.HBox()
-        icon = gtk.Image()
+        hbox = Gtk.HBox()
+        icon = Gtk.Image()
         # set the icon, label, tab, and position of the tab
         if tab == TAB_WARNING:
-            icon.set_from_stock(gtk.STOCK_DIALOG_WARNING, gtk.ICON_SIZE_MENU)
+            icon.set_from_stock(Gtk.STOCK_DIALOG_WARNING, Gtk.IconSize.MENU)
             label, tab, pos = _(TAB_LABELS[TAB_WARNING]), self.warning_tab, 1
             self.tab_showing[TAB_WARNING] = True
         elif tab == TAB_CAUTION:
-            icon.set_from_stock(gtk.STOCK_DIALOG_WARNING, gtk.ICON_SIZE_MENU)
+            icon.set_from_stock(Gtk.STOCK_DIALOG_WARNING, Gtk.IconSize.MENU)
             label, tab = _(TAB_LABELS[TAB_CAUTION]), self.caution_tab
             # quick hack to make it always show before info & queue tabs
             pos = self.notebook.page_num(self.info_tab)
@@ -176,19 +176,19 @@ class TerminalNotebook:
                     pos = 2
             self.tab_showing[TAB_CAUTION] = True
         elif tab == TAB_INFO:
-            icon.set_from_stock(gtk.STOCK_DIALOG_INFO, gtk.ICON_SIZE_MENU)
+            icon.set_from_stock(Gtk.STOCK_DIALOG_INFO, Gtk.IconSize.MENU)
             label, tab = _(TAB_LABELS[TAB_INFO]), self.info_tab
             pos = self.notebook.page_num(self.queue_tab)
             # set to show before queue tab
             if pos == -1: pos = 3
             self.tab_showing[TAB_INFO] = True
         elif tab == TAB_QUEUE:
-            icon.set_from_stock(gtk.STOCK_INDEX, gtk.ICON_SIZE_MENU)
+            icon.set_from_stock(Gtk.STOCK_INDEX, Gtk.IconSize.MENU)
             label, tab, pos = _(TAB_LABELS[TAB_QUEUE]), self.queue_tab, 4
             self.tab_showing[TAB_QUEUE] = True
         # pack the icon and label onto the hbox
-        hbox.pack_start(icon)
-        hbox.pack_start(gtk.Label(label))
+        hbox.pack_start(icon, True, True, 0)
+        hbox.pack_start(Gtk.Label(label, True, True, 0))
         hbox.show_all()
         # insert the tab
         self.notebook.insert_page(tab, hbox, pos)
@@ -233,12 +233,12 @@ class TerminalNotebook:
             widget occurs, move to the process window and jump to the line
             number clicked on.
         """
-        if event.type == gtk.gdk._2BUTTON_PRESS:
+        if event.type == Gdk._2BUTTON_PRESS:
             # Capture the source of the dbl-click event
             # but do nothing else
             self.event_src = widget
 
-        elif event.type == gtk.gdk.BUTTON_RELEASE and \
+        elif event.type == Gdk.BUTTON_RELEASE and \
             self.event_src == widget:
             # clear the event source to prevent false restarts
             self.event_src = None
@@ -247,7 +247,7 @@ class TerminalNotebook:
             # Convert x,y window coords to buffer coords and get line text
             x = int(event.x)
             y = int(event.y)
-            bufcoords = widget.window_to_buffer_coords(gtk.TEXT_WINDOW_TEXT,x,y)
+            bufcoords = widget.window_to_buffer_coords(Gtk.TextWindowType.TEXT,x,y)
             # Set start iter at beginning of line (0)
             iStart = widget.get_iter_at_location(0,bufcoords[1])
             # Set end iter far enough right to grab number (100)

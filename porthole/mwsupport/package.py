@@ -283,7 +283,7 @@ class PackageHandler(MainBase):
             return False
 
     def tree_node_to_list(self, model, path, _iter):
-        """callback function from gtk.TreeModel.foreach(),
+        """callback function from Gtk.TreeModel.foreach(),
            used to add packages to the self.packages_list,
            self.keyorder lists"""
         #debug.dprint("PackageHandler; tree_node_to_list(): begin building list")
