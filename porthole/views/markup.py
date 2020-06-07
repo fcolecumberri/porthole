@@ -113,8 +113,9 @@ class MarkupView (object):
         """ Append (unicode) text to summary buffer """
         iter = self.buffer.get_end_iter()
         buffer = self.buffer
-        if tag: buffer.insert_with_tags_by_name(iter, text, tag)
-        else: buffer.insert(iter, text)
+        # if tag: buffer.insert_with_tags_by_name(iter, text, tag)
+        # else: buffer.insert(iter, text)
+        buffer.insert(iter, text)
 
     def append_url(self, text, url, colour):
         """ Append URL to textbuffer and connect an event """
@@ -149,22 +150,23 @@ class MarkupView (object):
             load_web_page(self.bugzilla_url+bug)
 
     def on_mouse_motion(self, widget, event, data = None):
+        # fixme needs porting or cleaning
         # we need to call get_pointer, or we won't get any more events
-        self.window.get_pointer()
-        x, y, spam = self.window.get_pointer()
-        x, y = self.window_to_buffer_coords(Gtk.TextWindowType.TEXT, x, y)
-        #tags = self.get_iter_at_location(x, y).get_tags()
-        if self.underlined_url:
-            self.underlined_url.set_property("underline",Pango.Underline.NONE)
-            self.get_window(Gtk.TextWindowType.TEXT).set_cursor(None)
-            self.underlined_url = None
-        # fixme needs porting
-        # for tag in tags:
-            # if tag in self.url_tags:
-                # tag.set_property("underline",Pango.Underline.SINGLE)
-                # self.get_window(Gtk.TextWindowType.TEXT).set_cursor(Gdk.Cursor.new(Gdk.HAND2))
-                # self.underlined_url = tag
-        if self.reset_cursor: # defaults to Gdk.XTERM - reset it to None
-            self.get_window(Gtk.TextWindowType.TEXT).set_cursor(None)
-            self.reset_cursor = False
+        # pointer = self.get_window(Gtk.TextWindowType.TEXT).get_pointer()
+        # x, y, spam = self.get_window(Gtk.TextWindowType.TEXT).get_pointer()
+        # x, y = self.window_to_buffer_coords(Gtk.TextWindowType.TEXT, x, y)
+        # # tags = self.get_iter_at_location(x, y).get_tags()
+        # if self.underlined_url:
+        #     self.underlined_url.set_property("underline", Pango.Underline.NONE)
+        #     self.get_window(Gtk.TextWindowType.TEXT).set_cursor(None)
+        #     self.underlined_url = None
+        # # for tag in tags:
+        # #     if tag in self.url_tags:
+        # #         tag.set_property("underline", Pango.Underline.SINGLE)
+        # #         self.get_window(Gtk.TextWindowType.TEXT).set_cursor(Gdk.Cursor
+        # #                                                          (Gdk.HAND2))
+        # #         self.underlined_url = tag
+        # if self.reset_cursor: # defaults to Gdk.XTERM - reset it to None
+        #     self.get_window(Gtk.TextWindowType.TEXT).set_cursor(None)
+        #     self.reset_cursor = False
         return False
