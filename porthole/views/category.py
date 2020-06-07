@@ -99,7 +99,7 @@ class CategoryView(CommonTreeView):
         #debug.dprint("VIEWS: Populating category view; categories: " + str(categories))
         last_full_names = []
         if _sort:
-            categories.sort()
+            categories = sorted(categories)
             #debug.dprint("VIEWS: Sorted categories: " + str(categories))
         if self.search_cat == True:
             self.populate_search(categories, counts)

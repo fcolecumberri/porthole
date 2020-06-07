@@ -147,33 +147,35 @@ class TerminalQueue:
     def __init__(self, run_function = None, reader = None, wtree = None, term = None, set_resume = None):
         self._run = run_function
         self.reader = reader
-        self.wtree = wtree
+        self.wtree = Gtk.Builder()
+        self.wtree.add_from_file("glade/process_window.glade")
         self.term = term
         self.set_resume = set_resume
-        self.window = wtree.get_widget("process_window")
-        self.queue_tree = wtree.get_widget("queue_treeview")
-        self.queue_menu = wtree.get_widget("queue1")
-        self.resume_menu = self.wtree.get_widget("resume")
-        self.skip_first_menu = self.wtree.get_widget("skip_first1")
-        self.skip_queue_menu = self.wtree.get_widget("skip_queue")
-        self.qmenu_items = { "move_top" : self.wtree.get_widget("move_top"),
-                                            "move_up": self.wtree.get_widget("move_up1"),
-                                            "move_down" : self.wtree.get_widget("move_down1"),
-                                            "move_bottom": self.wtree.get_widget("move_bottom"),
-                                            "queue_remove": self.wtree.get_widget("remove1"),
-                                            "clear_queue" : self.wtree.get_widget("clear_queue")
+        self.window = wtree.get_object("process_window")
+        self.queue_tree = wtree.get_object("queue_treeview")
+        self.queue_menu = wtree.get_object("queue1")
+        self.resume_menu = self.wtree.get_object("resume")
+        self.skip_first_menu = self.wtree.get_object("skip_first1")
+        self.skip_queue_menu = self.wtree.get_object("skip_queue")
+        self.qmenu_items = { "move_top" : self.wtree.get_object("move_top"),
+                                            "move_up": self.wtree.get_object("move_up1"),
+                                            "move_down" : self.wtree.get_object("move_down1"),
+                                            "move_bottom": self.wtree.get_object("move_bottom"),
+                                            "queue_remove": self.wtree.get_object("remove1"),
+                                            "clear_queue" : self.wtree.get_object("clear_queue")
                                             }
         # manually assin the keys array since .keys() may not return them in the correct order
         self.qmenu_keys = ["move_top","move_up", "move_down", "move_bottom", "queue_remove", "clear_queue"]
-        self.save_menu = self.wtree.get_widget("save1")
-        self.save_as_menu = self.wtree.get_widget("save_as")
-        self.open_menu = self.wtree.get_widget("open")
-        self.play_btn = self.wtree.get_widget("play_queue_button")
-        self.play_menu = self.wtree.get_widget("resume_queue")
-        self.pause_btn = self.wtree.get_widget("pause_button")
-        self.pause_menu = self.wtree.get_widget("pause")
+        self.save_menu = self.wtree.get_object("save1")
+        self.save_as_menu = self.wtree.get_object("save_as")
+        self.open_menu = self.wtree.get_object("open")
+        self.play_btn = self.wtree.get_object("play_queue_button")
+        self.play_menu = self.wtree.get_object("resume_queue")
+        self.pause_btn = self.wtree.get_object("pause_button")
+        self.pause_menu = self.wtree.get_object("pause")
         #debug.dprint("TERM_QUEUE: Attempting to change the pause, paly button image colors")
         """ Set up different colors for the pause & play buttons depending on it's state
+<<<<<<< ours
             Gtk.StateType.NORMAL    State during normal operation.
             Gtk.StateType.ACTIVE    State of a currently active widget, such as a depressed button.
             Gtk.StateType.PRELIGHT  State indicating that the mouse pointer is over the widget and the widget will respond to mouse clicks.
@@ -186,6 +188,20 @@ class TerminalQueue:
         self.play_btn.modify_fg(Gtk.StateType.INSENSITIVE, Gdk.color_parse("#3C6E38"))
         self.play_btn.modify_fg(Gtk.StateType.NORMAL, Gdk.color_parse("#4EBA44"))
         self.play_btn.modify_fg(Gtk.StateType.PRELIGHT, Gdk.color_parse("#58F64A"))
+# =======
+            # Gladeui.PropertyState.NORMAL    State during normal operation.
+            # Gtk.STATE_ACTIVE    State of a currently active widget, such as a depressed button.
+            # Gtk.STATE_PRELIGHT  State indicating that the mouse pointer is over the widget and the widget will respond to mouse clicks.
+            # Gtk.STATE_SELECTED  State of a selected item, such the selected row in a list.
+            # Gtk.STATE_INSENSITIVE   State indicating that the widget is unresponsive to user actions.
+        # """
+        # self.pause_btn.modify_fg(Gtk.STATE_INSENSITIVE, gdk.color_parse("#962A1C"))
+        # self.pause_btn.modify_fg(Gladeui.PropertyState.NORMAL, gdk.color_parse("#DA311B"))
+        # self.pause_btn.modify_fg(Gtk.STATE_PRELIGHT, gdk.color_parse("#F65540"))
+        # self.play_btn.modify_fg(Gtk.STATE_INSENSITIVE, gdk.color_parse("#3C6E38"))
+        # self.play_btn.modify_fg(Gladeui.PropertyState.NORMAL, gdk.color_parse("#4EBA44"))
+        # self.play_btn.modify_fg(Gtk.STATE_PRELIGHT, gdk.color_parse("#58F64A"))
+#>>>>>>> theirs
         # initialize the model
         self.queue_model = QueueModel()
         # initialize some variables
@@ -815,12 +831,12 @@ class TerminalQueue:
 
     def resume_dialog(self, message):
         """ Handle response when user tries to re-add killed process to queue """
-        window = self.wtree.get_widget("process_window")
-        _dialog = Gtk.MessageDialog(window, Gtk.DialogFlags.MODAL,
-                                    Gtk.MessageType.QUESTION,
-                                    Gtk.ButtonsType.CANCEL, message);
-        _dialog.add_button(Gtk.STOCK_EXECUTE, Gtk.ResponseType.ACCEPT)
-        _dialog.add_button("Resume", Gtk.ResponseType.YES)
+        window = self.wtree.get_object("process_window")
+        _dialog = Gtk.MessageDialog(window, Gtk.DIALOG_MODAL,
+                                    Gtk.MESSAGE_QUESTION,
+                                    Gtk.BUTTONS_CANCEL, message);
+        _dialog.add_button(Gtk.STOCK_EXECUTE, Gtk.RESPONSE_ACCEPT)
+        _dialog.add_button("Resume", Gtk.RESPONSE_YES)
         result = _dialog.run()
         _dialog.destroy()
         return result

@@ -25,7 +25,6 @@
 import gi; gi.require_version("Gtk", "3.0") # make sure we have the right version
 from gi.repository import Gtk
 
-
 from gettext import gettext as _
 
 from porthole.utils import debug
@@ -55,23 +54,23 @@ class PackageNotebook(object):
         self.wtree = wtree
         self.callbacks = callbacks
         self.plugin_package_tabs = plugin_package_tabs
-        self.notebook = self.wtree.get_widget("notebook")
-        self.installed_window = self.wtree.get_widget("installed_files_scrolled_window")
-        #self.changelog = self.wtree.get_widget("changelog").get_buffer()
-        self.changelog_scrolledwindow = self.wtree.get_widget('changelog_scrolled_window')
+        self.notebook = self.wtree.get_object("notebook")
+        self.installed_window = self.wtree.get_object("installed_files_scrolled_window")
+        #self.changelog = self.wtree.get_object("changelog").get_buffer()
+        self.changelog_scrolledwindow = self.wtree.get_object('changelog_scrolled_window')
         self.changelog = ChangeLogView()
         self.changelog_scrolledwindow.add(self.changelog)
         self.changelog_scrolledwindow.show_all()
         #
-        self.installed_files = self.wtree.get_widget("installed_files").get_buffer()
-        #self.ebuild = self.wtree.get_widget("ebuild").get_buffer()
-        self.ebuild_scrolledwindow = self.wtree.get_widget('ebuild_scrolled_window')
+        self.installed_files = self.wtree.get_object("installed_files").get_buffer()
+        #self.ebuild = self.wtree.get_object("ebuild").get_buffer()
+        self.ebuild_scrolledwindow = self.wtree.get_object('ebuild_scrolled_window')
         self.ebuild = HighlightView(portage_lib.get_path, ['gentoo', 'shell'])
         self.ebuild_scrolledwindow.add(self.ebuild)
         self.ebuild_scrolledwindow.show_all()
 
         # summary view
-        scroller = self.wtree.get_widget("summary_text_scrolled_window");
+        scroller = self.wtree.get_object("summary_text_scrolled_window");
         self.summary = Summary(Dispatcher(self.callbacks["action_callback"]), self.callbacks["re_init_portage"])
         scroller.add(self.summary)
         self.summary.show()
@@ -79,9 +78,9 @@ class PackageNotebook(object):
         parent_tree = parent_tree or []
         self.deps_view = DependsView(self.new_notebook, parent_name, parent_tree, Dispatcher(self.callbacks["action_callback"]))
         self.dep_window = {'window': None, 'notebook': None, 'callback': None, 'label': None, 'tooltip': None, 'tree': '', 'depth': 0}
-        self.wtree.get_widget("dependencies_scrolled_window").add(self.deps_view)
+        self.wtree.get_object("dependencies_scrolled_window").add(self.deps_view)
 
-        self.use_flag_page = self.wtree.get_widget("use_scrolledwindow")
+        self.use_flag_page = self.wtree.get_object("use_scrolledwindow")
         self.use_flag_view = None
         self.notebook.connect("switch-page", self.notebook_changed)
         self.reset_tabs()

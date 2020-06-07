@@ -24,7 +24,7 @@
 
 import datetime
 id = datetime.datetime.now().microsecond
-print("PREFERENCES: id initialized to ", id)
+print("PREFERENCES: id initialized to " + str(id))
 
 import os
 from gettext import gettext as _
@@ -35,7 +35,7 @@ from porthole._xml.xmlmgr import (
     XMLManagerError
 )
 from porthole.utils import debug
-print("PREFERENCES: imported debug.id = ", debug._id)
+print("PREFERENCES: imported debug.id = " + str(debug.id))
 from porthole.utils.utils import get_user_home_dir, can_gksu
 
 

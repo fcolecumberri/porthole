@@ -198,10 +198,12 @@ class ProcessManager: #dbus.service.Object):
             widget_labels = ["process_text", "warnings_text", "cautions_text", "info_text"]
             for x in widget_labels:
                 self.term.last_text.append('\n')
-                view = self.wtree.get_widget(x)
+                view = self.wtree.get_object(x)
                 if x == "process_text" or config.Prefs.terminal.all_tabs_use_custom_colors:
                     fg, bg, weight = config.Prefs.TAG_DICT['default']
                     font = config.Prefs.terminal.font
+# fixme which ???
+#<<<<<<< ours
                     if bg: view.modify_base(Gtk.StateType.NORMAL, Gdk.color_parse(bg))
                     else: view.modify_base(Gtk.StateType.NORMAL, default_bg)
                     if fg: view.modify_text(Gtk.StateType.NORMAL, Gdk.color_parse(fg))
@@ -211,6 +213,17 @@ class ProcessManager: #dbus.service.Object):
                     view.modify_base(Gtk.StateType.NORMAL, default_bg)
                     view.modify_text(Gtk.StateType.NORMAL, default_fg)
                     view.modify_font(Pango.FontDescription(default_font))
+# =======
+                    # if bg: view.modify_base(Gladeui.PropertyState.NORMAL, gdk.color_parse(bg))
+                    # else: view.modify_base(Gladeui.PropertyState.NORMAL, default_bg)
+                    # if fg: view.modify_text(Gladeui.PropertyState.NORMAL, gdk.color_parse(fg))
+                    # else: view.modify_text(Gladeui.PropertyState.NORMAL, default_fg)
+                    # view.modify_font(pango.FontDescription(font or default_font))
+                # else:
+                    # view.modify_base(Gladeui.PropertyState.NORMAL, default_bg)
+                    # view.modify_text(Gladeui.PropertyState.NORMAL, default_fg)
+                    # view.modify_font(pango.FontDescription(default_font))
+# >>>>>>> theirs
             # re-set misc. stuff
             self.term.command_start = None
             # re-set text tags
@@ -226,14 +239,14 @@ class ProcessManager: #dbus.service.Object):
                                    "process_window", config.Prefs.APP)
         # these need to be before the callbacks
         # setup some aliases for easier access
-        self.window = self.wtree.get_widget("process_window")
-        self.notebook = self.wtree.get_widget("notebook1")
-        self.statusbar = self.wtree.get_widget("statusbar")
-        self.resume_menu = self.wtree.get_widget("resume")
-        self.skip_first_menu = self.wtree.get_widget("skip_first1")
-        self.save_menu = self.wtree.get_widget("save1")
-        self.save_as_menu = self.wtree.get_widget("save_as")
-        self.open_menu = self.wtree.get_widget("open")
+        self.window = self.wtree.get_object("process_window")
+        self.notebook = self.wtree.get_object("notebook1")
+        self.statusbar = self.wtree.get_object("statusbar")
+        self.resume_menu = self.wtree.get_object("resume")
+        self.skip_first_menu = self.wtree.get_object("skip_first1")
+        self.save_menu = self.wtree.get_object("save1")
+        self.save_as_menu = self.wtree.get_object("save_as")
+        self.open_menu = self.wtree.get_object("open")
         # Initialize event widget source
         self.event_src = None
         # get a mostly blank structure to hold a number of widgets & settings
@@ -267,7 +280,7 @@ class ProcessManager: #dbus.service.Object):
                      "on_pause_button_clicked" : self.process_queue.pause,
                      "on_pause_activate" : self.process_queue.pause
                      }
-        self.wtree.signal_autoconnect(callbacks)
+        self.wtree.connect_signals(callbacks)
 
         # initialize to None
         self.pid = None
@@ -284,13 +297,13 @@ class ProcessManager: #dbus.service.Object):
         self.window.connect('delete-event', self.confirm_delete)
 
         # set keyboard focus to process tab
-        self.wtree.get_widget("process_text").grab_focus()
+        self.wtree.get_object("process_text").grab_focus()
         # set the custom timer icon
-        #self.wtree.get_widget('timer_button_img').set_from_file(config.Prefs.DATA_PATH + "pixmaps/porthole-clock-20x20.png")
-        self.timer_btn = self.wtree.get_widget('timer_button')
+        #self.wtree.get_object('timer_button_img').set_from_file(config.Prefs.DATA_PATH + "pixmaps/porthole-clock-20x20.png")
+        self.timer_btn = self.wtree.get_object('timer_button')
         self.timer_btn.set_sensitive(False)
-        #self.wtree.get_widget('timer_image').set_from_file(config.Prefs.DATA_PATH + "pixmaps/porthole-clock-20x20.png")
-        self.timer_menuitem = self.wtree.get_widget('timer')
+        #self.wtree.get_object('timer_image').set_from_file(config.Prefs.DATA_PATH + "pixmaps/porthole-clock-20x20.png")
+        self.timer_menuitem = self.wtree.get_object('timer')
         self.timer_menuitem.set_sensitive(False)
         # start the reader
         self.reader.start()

@@ -49,7 +49,7 @@ class Thread(threading.Thread):
 
     def run(self):
         done = False
-        print(("thread_num = %s; process id = %d ****************" %(self.thread_num,os.getpid())))
+        print("thread_num = %s; process id = %d ****************" %(self.thread_num,os.getpid()))
         pid_func(self.thread_num)
         for num in range(250):
             #print self.thread_num, " num = ",num
@@ -62,7 +62,7 @@ class Thread(threading.Thread):
 
 
 def pid_func(threadnum):
-    print(("pid_func: called from thread_num = %s; process id = %d ****************" %(threadnum,os.getpid())))
+    print("pid_func: called from thread_num = %s; process id = %d ****************" %(threadnum,os.getpid()))
 
 def message_fun(buffer, message):
     #print ("got a message : %s" %(message[0] + str(message[1])))
@@ -78,7 +78,7 @@ def timerfunc():
     if (not thread_finished["thread1"]) or (not thread_finished["thread2"]) \
                 or (not thread_finished["thread3"]) or (not thread_finished["thread4"]):
         pbar.pulse()
-        #print 'Plusing ProgressBar, since a thread is not finished'
+        #print('Pulsing ProgressBar, since a thread is not finished')
         return True
     else:
         pbar.set_fraction(0)

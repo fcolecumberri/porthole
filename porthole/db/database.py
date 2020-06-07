@@ -23,8 +23,8 @@
 """
 
 import datetime
-_id = datetime.datetime.now().microsecond
-print("DATABASE: id initialized to ", _id)
+id = datetime.datetime.now().microsecond
+print("DATABASE: id initialized to ", id)
 
 import pickle
 import os

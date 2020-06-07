@@ -174,11 +174,12 @@ class DatabaseReader(threading.Thread):
 
     def sort(self, list):
         """sort in alphabetic instead of ASCIIbetic order"""
-        debug.dprint("DBREADER: DatabaseReader.sort()")
-        spam = [(x[0].upper(), x) for x in list]
-        spam.sort()
-        debug.dprint("DBREADER: sort(); finished")
-        return [x[1] for x in spam]
+        return sorted(list, key=lambda x1: x1[0].upper())
+        # debug.dprint("DBREADER: DatabaseReader.sort()")
+        # spam = [(x[0].upper(), x) for x in list]
+        # spam.sort()
+        # debug.dprint("DBREADER: sort(); finished")
+        # return [x[1] for x in spam]
 
 
 

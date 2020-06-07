@@ -188,14 +188,15 @@ class Summary(Gtk.TextView):
         def create(descs):
             table = Gtk.TextTagTable()
             for name, properties in descs.items():
-                tag = Gtk.TextTag(name); table.add(tag)
+                tag = Gtk.TextTag(name)
+                table.add(tag)
                 for property, value in properties.items():
                     tag.set_property(property, value)
             return table
 
         table = create(
             {'name': ({'weight': Pango.Weight.BOLD,
-                       'scale': Pango.SCALE_X_LARGE,
+                       'scale': 1.44, # Pango.SCALE_X_LARGE,
                        'pixels-above-lines': 5}),
              'description': ({"style": Pango.Style.ITALIC}),
              'url': ({'foreground': 'blue'}),
@@ -209,24 +210,26 @@ class Summary(Gtk.TextView):
 
     def on_url_event(self, tag, widget, event, iter):
         """ Catch when the user clicks the URL """
-        if event.type == Gdk.BUTTON_RELEASE:
+        if event.type == Gdk.EventType.BUTTON_RELEASE:
             load_web_page(tag.get_property("name"))
 
     def on_mouse_motion(self, widget, event, data = None):
         # we need to call get_pointer, or we won't get any more events
-        pointer = self.window.get_pointer()
-        x, y, spam = self.window.get_pointer()
+        # pointer = self.window.get_pointer()
+        # x, y, spam = self.window.get_pointer()
+        x, y = self.get_pointer()
         x, y = self.window_to_buffer_coords(Gtk.TextWindowType.TEXT, x, y)
-        tags = self.get_iter_at_location(x, y).get_tags()
+        # tags = self.get_iter_at_location(x, y).get_tags()
         if self.underlined_url:
-            self.underlined_url.set_property("underline",Pango.Underline.NONE)
+            self.underlined_url.set_property("underline", Pango.Underline.NONE)
             self.get_window(Gtk.TextWindowType.TEXT).set_cursor(None)
             self.underlined_url = None
-        for tag in tags:
-            if tag in self.url_tags:
-                tag.set_property("underline",Pango.Underline.SINGLE)
-                self.get_window(Gtk.TextWindowType.TEXT).set_cursor(Gdk.Cursor.new(Gdk.HAND2))
-                self.underlined_url = tag
+        # for tag in tags:
+        #     if tag in self.url_tags:
+        #         tag.set_property("underline",Pango.Underline.SINGLE)
+        #         self.get_window(Gtk.TextWindowType.TEXT).set_cursor(Gdk.Cursor
+        #                                                          (Gdk.HAND2))
+        #         self.underlined_url = tag
         if self.reset_cursor: # defaults to Gdk.XTERM - reset it to None
             self.get_window(Gtk.TextWindowType.TEXT).set_cursor(None)
             self.reset_cursor = False
@@ -432,9 +435,12 @@ class Summary(Gtk.TextView):
             box = Gtk.EventBox()
             box.add(label)
             if color:
-                style = box.get_style().copy()
-                style.bg[Gtk.StateType.NORMAL] = Gdk.color_parse(color)
-                box.set_style(style)
+                # style = box.get_style().copy()
+                # style.bg[Gtk.StateFlags.NORMAL] = Gdk.color_parse(color)
+                # box.set_style(style)
+                gdk_color = Gdk.RGBA()
+                gdk_color.parse(color)
+                box.override_background_color(Gtk.StateFlags.NORMAL, gdk_color)
             if ebuild:
                 box.color = color
                 box.ebuild = ebuild
@@ -882,20 +888,28 @@ class Summary(Gtk.TextView):
                 for char in colour:
                     # not very technical
                     colourint = int('0x' + char, 0)
-                    newint = (colourint + 16) / 2
+                    newint = int((colourint + 16) / 2)
                     tempchar = hex(newint)[2]
                     colourlist.append(tempchar)
                 newcolour = ''.join(colourlist)
                 #debug.dprint("old colour = %s" % eventbox.color)
                 #debug.dprint("new colour = %s" % newcolour)
-                style = eventbox.get_style().copy()
-                style.bg[Gtk.StateType.NORMAL] = Gdk.color_parse(newcolour)
-                eventbox.set_style(style)
-        elif event.type == Gdk.LEAVE_NOTIFY:
+                # fixme, possible code cleanup or porting
+                # style = eventbox.get_style().copy()
+                # style.bg[Gladeui.PropertyState.NORMAL] = Gdk.color_parse(newcolour)
+                # eventbox.set_style(style)
+                gdk_color = Gdk.RGBA()
+                gdk_color.parse(newcolour)
+                eventbox.override_background_color(Gtk.StateFlags.NORMAL, gdk_color)
+        elif event.type == Gdk.EventType.LEAVE_NOTIFY:
             #debug.dprint("SUMMARY: on_table_mouse(): Leave notify")
-            style = eventbox.get_style().copy()
-            style.bg[Gtk.StateType.NORMAL] = Gdk.color_parse(eventbox.color)
-            eventbox.set_style(style)
+            # fixme, possible code cleanup or porting
+            # style = eventbox.get_style().copy()
+            # style.bg[Gladeui.PropertyState.NORMAL] = Gdk.color_parse(eventbox.color)
+            # eventbox.set_style(style)
+            gdk_color = Gdk.RGBA()
+            gdk_color.parse(eventbox.color)
+            eventbox.override_background_color(Gtk.StateFlags.NORMAL, gdk_color)
         return False
 
     def emerge(self, menuitem_widget, pretend=None, sudo=None):

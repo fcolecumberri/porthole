@@ -49,23 +49,23 @@ class AboutDialog:
         # register callbacks
         callbacks = {"on_ok_clicked" : self.ok_clicked,
                      "on_homepage_clicked" : self.homepage_clicked}
-        self.wtree.signal_autoconnect(callbacks)
-        self.wtree.get_widget('porthole-about-img').set_from_file(config.Prefs.DATA_PATH + "pixmaps/porthole-about.png")
-        self.copyright = self.wtree.get_widget('copyright_label')
+        self.wtree.connect_signals(callbacks)
+        self.wtree.get_object('porthole-about-img').set_from_file(config.Prefs.DATA_PATH + "pixmaps/porthole-about.png")
+        self.copyright = self.wtree.get_object('copyright_label')
         self.copyright.set_label(copyright)
-        self.authorview = self.wtree.get_widget('authorview')
-        self.licenseview = self.wtree.get_widget('licenseview')
+        self.authorview = self.wtree.get_object('authorview')
+        self.licenseview = self.wtree.get_object('licenseview')
         license_file = portage_lib.settings.portdir + "/licenses/GPL-2"
         author_file = config.Prefs.AUTHORS
         self.licenseview.get_buffer().set_text(decode_text(get_textfile(license_file)))
         self.authorview.get_buffer().set_text(decode_text(get_textfile(author_file)))
-        window = self.wtree.get_widget("about_dialog")
+        window = self.wtree.get_object("about_dialog")
         window.set_title(_("About Porthole %s") % version)
         debug.dprint("ABOUT: Showing About dialog")
 
     def ok_clicked(self, widget):
         """Get rid of the about dialog!"""
-        self.wtree.get_widget("about_dialog").destroy()
+        self.wtree.get_object("about_dialog").destroy()
 
     def homepage_clicked(self, widget):
         """Open Porthole's Homepage!"""

@@ -151,9 +151,9 @@ if __name__ == '__main__':
     def main():
         from sys import argv
         metadata = parse_metadata(argv[1])
-        print(("Long description:", metadata.longdescription))
-        print(("Herds:", metadata.herds))
-        print(("Maintainers:", metadata.maintainers))
+        print("Long description:", metadata.longdescription)
+        print("Herds:", metadata.herds)
+        print("Maintainers:", metadata.maintainers)
 
     import profile, pstats
     profile.run("main()", "stats.txt")

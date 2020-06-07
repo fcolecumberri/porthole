@@ -30,9 +30,9 @@ import gi
 gi.require_version("Gtk", "3.0") # make sure we have the right version
 from gi.repository import GObject
 from gi.repository import Gdk
-from gi.repository import Gtk
 
 import os
+
 from gettext import gettext as _
 
 from porthole.utils import (
@@ -76,24 +76,32 @@ from porthole.mwsupport.constants import (
 )
 
 
+# def check_glade():
+    # """determine the libglade version installed
+    # and return the correct glade file to use"""
+    # porthole_gladefile = "glade/main_window.glade"
+    # debug.dprint("MAINWINDOW: __init__(); glade file = %s" %porthole_gladefile)
+    # return porthole_gladefile, True
 
 class MainWindow(PluginHandler):
     """Main Window class to setup and manage main window interface."""
     def __init__(self) :
         debug.dprint("MAINWINDOW: process id = %d ****************"
             %os.getpid())
+# fixme which ???
+#<<<<<<< ours
 
         # set unfinished items to not be sensitive
-        #self.wtree.get_widget("contents2").set_sensitive(False)
-        # self.wtree.get_widget("btn_help").set_sensitive(False)
+        #self.wtree.get_object("contents2").set_sensitive(False)
+        # self.wtree.get_object("btn_help").set_sensitive(False)
 
 
         # Initialize our subclasses
         PluginHandler.__init__(self)
 
         self.status = StatusHandler(
-            self.wtree.get_widget("statusbar2"),
-            self.wtree.get_widget("progressbar1"),
+            self.wtree.get_object("statusbar2"),
+            self.wtree.get_object("progressbar1"),
             self.category_view,
             self.package_view,
             self.current_pkg_path,
@@ -112,6 +120,101 @@ class MainWindow(PluginHandler):
         self.loaded = {}
         self.last_view_setting = None
 
+# =======
+        # config.Prefs.use_gladefile, self.new_toolbar_api = check_glade()
+        # # setup prefs
+        # config.Prefs.myarch = PMS_LIB.get_arch()
+        # debug.dprint("MAINWINDOW: Prefs.myarch = " + config.Prefs.myarch)
+        # #self.config = configs
+        # # setup glade
+        # self.gladefile = config.Prefs.DATA_PATH + config.Prefs.use_gladefile
+        # # self.wtree = Gtk.glade.XML(self.gladefile,
+        # #     "main_window",
+        # #     config.Prefs.APP)
+        # self.wtree = Gtk.Builder()
+        # self.wtree.add_from_file(self.gladefile)
+        # self.wtree.set_translation_domain(config.Prefs.APP)
+        # option = 'empty'
+        # # register callbacks  note: Gtk.mainquit deprecated
+        # callbacks = {
+            # "on_main_window_destroy" : self.goodbye,
+            # "on_quit1_activate" : self.quit,
+            # "on_emerge_package" : self.emerge_btn,
+            # "on_adv_emerge_package" : self.adv_emerge_btn,
+            # "on_unmerge_package" : self.unmerge_btn,
+            # "on_sync_tree" : self.sync_tree,
+            # "on_upgrade_packages" : self.upgrade_packages,
+            # "on_package_search" : self.package_search,
+            # "on_search_entry_activate": self.package_search,
+            # "on_help_contents" : self.help_contents,
+            # "on_about" : self.about,
+            # "view_filter_changed" : self.view_filter_changed,
+            # "on_search_descriptions1_activate" : self.search_set,
+            # "on_open_log" : self.open_log,
+            # "on_run_custom" : self.custom_run,
+            # "on_reload_db" : self.reload_db,
+            # "on_re_init_portage" : self.re_init_portage,
+            # "on_cancel_btn" : self.on_cancel_btn,
+            # #"on_main_window_size_request" : self.size_update,
+            # "on_plugin_settings_activate" : self.plugin_settings_activate,
+            # "on_view_refresh" : self.reload_view,
+            # "on_root_warning_clicked" : self.check_for_root,
+            # "on_configure_porthole" : self.configure_porthole,
+        # }
+        # self.wtree.connect_signals(callbacks)
+        # self.set_statusbar2("Starting")
+        # # aliases for convenience
+        # self.mainwindow = self.wtree.get_object("main_window")
+        # # save the mainwindow widget to Config for use by other modules
+        # # as a parent window
+        # config.Mainwindow = self.mainwindow
+        # callbacks = {
+            # "action_callback" : self.action_callback,
+            # "re_init_portage" : self.re_init_portage,
+            # "set_package_actions_sensitive" : self.set_package_actions_sensitive
+        # }
+        # # initialize this now cause we need it next
+        # self.plugin_package_tabs = {}
+        # # create the primary package notebook
+        # self.packagebook = PackageNotebook(self.wtree,
+                            # callbacks,self.plugin_package_tabs)
+        # # set unfinished items to not be sensitive
+        # #self.wtree.get_object("contents2").set_sensitive(False)
+        # # self.wtree.get_object("btn_help").set_sensitive(False)
+        # # setup the category view
+        # self.category_view = CategoryView()
+        # self.category_view.register_callback(self.category_changed)
+        # result = self.wtree.get_object("category_scrolled_window"
+                        # ).add(self.category_view)
+        # # setup the package treeview
+        # self.package_view = PackageView()
+        # #self.package_view.register_callbacks(self.package_changed,
+                # #None, self.pkg_path_callback)
+        # #self.package_view.register_callbacks(self.packageview_callback)
+        # self.package_view.register_callbacks(self.action_callback)
+        # result = self.wtree.get_object("package_scrolled_window"
+                        # ).add(self.package_view)
+        # # how should we setup our saved menus?
+        # settings = ["pretend", "fetch", "update", "verbose", "noreplace",
+                        # "oneshot"] # "search_descriptions1"]
+        # for option in settings:
+            # widget = self.wtree.get_object(option)
+            # state = getattr(config.Prefs.emerge, option) or False
+            # debug.dprint("MAINWINDOW: __init__(); option = %s, state = %s"
+                    # %(option, str(state)))
+            # widget.set_active(state)
+            # widget.connect("activate", self.emerge_setting_set, option)
+        # # setup a convienience tuple
+        # self.tool_widgets = ["emerge_package1", "adv_emerge_package1",
+                # "unmerge_package1", "btn_emerge", "btn_adv_emerge",
+                # "btn_unmerge", "btn_sync", "view_refresh", "view_filter"]
+        # self.widget = {}
+        # for x in self.tool_widgets:
+            # self.widget[x] = self.wtree.get_object(x)
+            # if not self.widget[x]:
+                # debug.dprint("MAINWINDOW: __init__(); Failure to obtain " +
+                        # "widget '%s'" %x)
+# >>>>>>> theirs
         # get an empty tooltip
         ##self.synctooltip = Gtk.Tooltips()
         self.sync_tip = _(
@@ -137,10 +240,10 @@ class MainWindow(PluginHandler):
         #debug.dprint("MAINWINDOW: __init__() before hpane; " +
             #"%d, vpane; %d"
             #%(config.Prefs.main.hpane, config.Prefs.main.vpane))
-        self.hpane = self.wtree.get_widget("hpane")
+        self.hpane = self.wtree.get_object("hpane")
         self.hpane.set_position(config.Prefs.main.hpane)
         self.hpane.connect("notify", self.on_pane_notify)
-        self.vpane = self.wtree.get_widget("vpane")
+        self.vpane = self.wtree.get_object("vpane")
         self.vpane.set_position(config.Prefs.main.vpane)
         self.vpane.connect("notify", self.on_pane_notify)
         # Intercept the window delete event signal
@@ -156,19 +259,20 @@ class MainWindow(PluginHandler):
         if config.Prefs.main.show_nag_dialog:
             # let the user know if he can emerge or not
             self.check_for_root()
-        self.toolbar_expander = self.wtree.get_widget("toolbar_expander")
+        self.toolbar_expander = self.wtree.get_object("toolbar_expander")
         # This should be set in the glade file, but doesn't seem to work ?
         self.toolbar_expander.set_expand(True)
         self.reader_running = False
         self.reader = None
         # populate the view_filter menu
-        self.widget["view_filter_list"] = Gtk.ListStore(str)
-        for i in [_("All Packages"), _("Installed Packages"),
-                    _("Search Results"), _("Upgradable Packages"),
-                    _("Deprecated Packages"), _("Sets")]:
-            self.widget["view_filter_list"].append([i])
-        self.widget["view_filter"].set_model(self.widget["view_filter_list"])
-        self.widget["view_filter"].set_active(SHOW_ALL)
+        # fixme not ported?
+        # self.widget["view_filter_list"] = Gtk.ListStore(str)
+        # for i in [_("All Packages"), _("Installed Packages"),
+                    # _("Search Results"), _("Upgradable Packages"),
+                    # _("Deprecated Packages"), _("Sets")]:
+            # self.widget["view_filter_list"].append([i])
+        # self.widget["view_filter"].set_model(self.widget["view_filter_list"])
+        # self.widget["view_filter"].set_active(SHOW_ALL)
         self.setup_plugins()
 
         callbacks = {
@@ -186,8 +290,7 @@ class MainWindow(PluginHandler):
         if self.is_root:
             # hide warning toolbar widget
             debug.dprint("MAINWINDOW: __init__(); hiding btn_root_warning")
-            self.wtree.get_widget("btn_root_warning").hide()
-
+            self.wtree.get_object("btn_root_warning").hide()
 
     def init_data(self):
         """initialize the db and anything else related to package selection"""
@@ -436,7 +539,7 @@ class MainWindow(PluginHandler):
         myview = widget.get_active()
         debug.dprint("MAINWINDOW: view_filter_changed(); myview = %d" %myview)
         self.status.update_statusbar(myview, self.reader)
-        cat_scroll = self.wtree.get_widget("category_scrolled_window")
+        cat_scroll = self.wtree.get_object("category_scrolled_window")
         self.category_view.set_search(False)
         self.clear_package_detail()
         cat = None
@@ -680,10 +783,10 @@ class MainWindow(PluginHandler):
             "setting menubar,toolbar,etc to sensitive...")
         for x in ["menubar", "toolbar", "view_filter", "search_entry",
                     "btn_search", "view_refresh"]:
-            self.wtree.get_widget(x).set_sensitive(True)
+            self.wtree.get_object(x).set_sensitive(True)
         if self.plugin_manager and not self.plugin_manager.plugins:
             # no plugins
-            self.wtree.get_widget("plugin_settings").set_sensitive(False)
+            self.wtree.get_object("plugin_settings").set_sensitive(False)
         # make sure we search again if we reloaded!
         mode = self.widget["view_filter"].get_active()
         debug.dprint("StatusHandler: _update_db_done() mode = " + str(mode) +
@@ -796,4 +899,3 @@ class MainWindow(PluginHandler):
                     self.package_view.set_view(SETS)
                     self.packagebook.summary.update_package_info(None)
             return False
-

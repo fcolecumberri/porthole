@@ -42,6 +42,10 @@ from porthole.utils import debug
 class FileSel(Gtk.FileChooserDialog):
     def __init__(self, title):
         GObject.GObject.__init__(self, title)
+# fixme which one works correctly ^ or \/
+#class FileSel(gtk.FileChooserDialog):
+#    def __init__(self, title):
+#        gtk.FileChooserDialog.__init__(self, title)
         self.result = False
 
     def ok_cb(self, button):

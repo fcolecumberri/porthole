@@ -210,7 +210,7 @@ class XMLManager:
                 text = self.__dom.createTextNode(value)
                 node.appendChild(text)
 
-        elif type(value) == str:
+        elif isinstance(value, str):
             newnode.setAttribute('py_type', 'unicode')
             if len(value) > 0:
                 text = self.__dom.createTextNode(str(value))
@@ -344,8 +344,8 @@ class XMLManager:
                     temp_list[key] = value
                     y += 1
             else:
-                print(attrib, "is unknown type")
-                
+                print(str(attrib) + "is unknown type")
+
 
         # If multiple values are found, return as a list
         # otherwise, just return the single item

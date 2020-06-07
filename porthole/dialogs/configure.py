@@ -50,9 +50,9 @@ class ConfigDialog:
             "on_globals_use_custom_browser_toggled" : self.toggle_browser_table,
         }
 
-        self.window = self.wtree.get_widget("config")
-        self.KeywordsFrame = self.wtree.get_widget("archlist_frame")
-        self.wtree.signal_autoconnect(callbacks)
+        self.window = self.wtree.get_object("config")
+        self.KeywordsFrame = self.wtree.get_object("archlist_frame")
+        self.wtree.connect_signals(callbacks)
 
         # Hide widgets which haven't been implemented yet
         self.hide_widgets()
@@ -100,7 +100,7 @@ class ConfigDialog:
                     button_widget.set_color(self.default_textview_bg)
                 else:
                     ext = name[-3:]
-                    color = self.wtree.get_widget('default' + ext).get_color()
+                    color = self.wtree.get_object('default' + ext).get_color()
                     button_widget.set_color(color)
                 self.on_color_set(button_widget)
                 return True
@@ -122,7 +122,7 @@ class ConfigDialog:
         if not ext or not hasattr(self, 'tagnamelist'):
             return
         for name in self.tagnamelist:
-            widget = self.wtree.get_widget('_'.join([name, ext]))
+            widget = self.wtree.get_object('_'.join([name, ext]))
             if widget:
                 if widget.get_alpha() < 40000:
                     widget.set_color(color)
@@ -144,7 +144,7 @@ class ConfigDialog:
             'sample_label_2',
         ]
         for name in hidelist:
-            widget = self.wtree.get_widget(name)
+            widget = self.wtree.get_object(name)
             if widget:
                 widget.hide_all()
         # hide unimplemented notebook tabs
@@ -154,8 +154,8 @@ class ConfigDialog:
             ['main_window_notebook', 'package_view_tab'],
         ]
         for notebook, tab in removelist:
-            notewidget = self.wtree.get_widget(notebook)
-            tabwidget = self.wtree.get_widget(tab)
+            notewidget = self.wtree.get_object(notebook)
+            tabwidget = self.wtree.get_object(tab)
             tabnum = notewidget.page_num(tabwidget)
             notewidget.remove_page(tabnum)
         return
@@ -192,7 +192,7 @@ class ConfigDialog:
         """ Set widget attributes based on prefs """
 
         # Display current CPU architecture
-        widget = self.wtree.get_widget('current_arch')
+        widget = self.wtree.get_object('current_arch')
         widget.set_label(config.Prefs.myarch)
 
         # Terminal Color Tags
@@ -207,7 +207,7 @@ class ConfigDialog:
 
         for name in self.tagnamelist:
             color = config.Prefs.TAG_DICT[name][0] # fg
-            widget = self.wtree.get_widget(name + '_fg')
+            widget = self.wtree.get_object(name + '_fg')
             if widget:
                 if color:
                     widget.set_color(Gdk.color_parse(color))
@@ -216,7 +216,7 @@ class ConfigDialog:
                     widget.set_alpha(32767) # to show it's using the default value
                     widget.set_use_alpha(True)
             color = config.Prefs.TAG_DICT[name][1] # bg
-            widget = self.wtree.get_widget(name + '_bg')
+            widget = self.wtree.get_object(name + '_bg')
             if widget:
                 if color:
                     widget.set_color(Gdk.color_parse(color))
@@ -226,7 +226,7 @@ class ConfigDialog:
                     widget.set_use_alpha(True)
 
         # Terminal Font:
-        widget = self.wtree.get_widget('terminal_font')
+        widget = self.wtree.get_object('terminal_font')
         if widget:
             if config.Prefs.terminal.font:
                 widget.set_font_name(config.Prefs.terminal.font)
@@ -235,14 +235,14 @@ class ConfigDialog:
         # Default XTerm colours:
         for name in self.xtermtaglist:
             color = config.Prefs.TAG_DICT['fg_' + name][0]
-            widget = self.wtree.get_widget('fg_' + name)
+            widget = self.wtree.get_object('fg_' + name)
             if widget:
                 if color:
                     widget.set_color(Gdk.color_parse(color))
                 else: # this should never happen, but just in case...
                     widget.set_color(Gdk.color_parse(name))
             color = config.Prefs.TAG_DICT['bg_' + name][1]
-            widget = self.wtree.get_widget('bg_' + name)
+            widget = self.wtree.get_object('bg_' + name)
             if widget:
                 if color:
                     widget.set_color(Gdk.color_parse(color))
@@ -252,7 +252,7 @@ class ConfigDialog:
         # View Colours
         for name in self.viewoptions:
             color = getattr(config.Prefs.views, name)
-            widget = self.wtree.get_widget(name)
+            widget = self.wtree.get_object(name)
             if widget:
                 if color:
                     widget.set_color(Gdk.color_parse(color))
@@ -261,7 +261,7 @@ class ConfigDialog:
 
         # Checkboxes:
         for category, name in self.checkboxes:
-            widget = self.wtree.get_widget('_'.join([category, name]))
+            widget = self.wtree.get_object('_'.join([category, name]))
             debug.dprint("CONFIGDIALOG: set_widget_values(); Checkboxes: widget = %s" %('_'.join([category, name])))
             if widget:
                 active = getattr(getattr(config.Prefs, category), name)
@@ -274,7 +274,7 @@ class ConfigDialog:
 
         # Sync combobox
         store = Gtk.ListStore(str)
-        widget = self.wtree.get_widget('sync_combobox')
+        widget = self.wtree.get_object('sync_combobox')
         tempiter = None
         if widget:
             for command, label in self.syncmethods:
@@ -291,22 +291,22 @@ class ConfigDialog:
 
         # Custom Command History
         for x in [1, 2, 3, 4, 5]:
-            widget = self.wtree.get_widget('history' + str(x))
+            widget = self.wtree.get_object('history' + str(x))
             if widget:
                 pref = config.Prefs.run_dialog.history[x]
                 widget.set_text(pref)
 
         # custom browser command
-        widget = self.wtree.get_widget('custom_browser_command')
+        widget = self.wtree.get_object('custom_browser_command')
         if widget:
             command = config.Prefs.globals.custom_browser_command
             if command:
                 widget.set_text(command)
             if not config.Prefs.globals.use_custom_browser:
-                self.wtree.get_widget('custom_browser_table').set_sensitive(False)
+                self.wtree.get_object('custom_browser_table').set_sensitive(False)
 
         # gui su client command
-        widget = self.wtree.get_widget('su_client')
+        widget = self.wtree.get_object('su_client')
         if widget:
             command = config.Prefs.globals.su
             if command:
@@ -320,7 +320,7 @@ class ConfigDialog:
         """ Set prefs from widget values """
         # Terminal Color Tags
         for name in self.tagnamelist:
-            widget = self.wtree.get_widget(name + '_fg')
+            widget = self.wtree.get_object(name + '_fg')
             if widget:
                 color = widget.get_color()
                 alpha = widget.get_alpha()
@@ -331,7 +331,7 @@ class ConfigDialog:
                 else: # use default
                     #debug.dprint("CONFIGDIALOG: setting to ''")
                     config.Prefs.TAG_DICT[name][0] = ''
-            widget = self.wtree.get_widget(name + '_bg')
+            widget = self.wtree.get_object(name + '_bg')
             if widget:
                 color = widget.get_color()
                 alpha = widget.get_alpha()
@@ -344,18 +344,18 @@ class ConfigDialog:
                     config.Prefs.TAG_DICT[name][1] = ''
 
         # Terminal Font:
-        widget = self.wtree.get_widget('terminal_font')
+        widget = self.wtree.get_object('terminal_font')
         if widget and self.terminal_font != widget.get_font_name():
             config.Prefs.terminal.font = widget.get_font_name()
 
         # Default XTerm colours:
         for name in self.xtermtaglist:
-            widget = self.wtree.get_widget('fg_' + name)
+            widget = self.wtree.get_object('fg_' + name)
             if widget:
                 color = widget.get_color()
                 if color:
                     config.Prefs.TAG_DICT['fg_' + name][0] = self.get_color_spec(color)
-            widget = self.wtree.get_widget('bg_' + name)
+            widget = self.wtree.get_object('bg_' + name)
             if widget:
                 color = widget.get_color()
                 if color:
@@ -365,7 +365,7 @@ class ConfigDialog:
 
         # View Colours
         for name in self.viewoptions:
-            widget = self.wtree.get_widget(name)
+            widget = self.wtree.get_object(name)
             if widget:
                 color = widget.get_color()
                 alpha = widget.get_alpha()
@@ -377,7 +377,7 @@ class ConfigDialog:
         # Checkboxes:
         for category, name in self.checkboxes:
             debug.dprint("CONFIGDIALOG: apply_widget_values(); name = %s" %name)
-            widget = self.wtree.get_widget('_'.join([category, name]))
+            widget = self.wtree.get_object('_'.join([category, name]))
             if widget:
                 #debug.dprint("CONFIGDIALOG: apply_widget_values(); name = %s widget found" %name)
                 active = widget.get_active()
@@ -395,7 +395,7 @@ class ConfigDialog:
 
 
         # Sync combobox
-        widget = self.wtree.get_widget('sync_combobox')
+        widget = self.wtree.get_object('sync_combobox')
         if widget:
             model = widget.get_model()
             iter = widget.get_active_iter()
@@ -408,21 +408,21 @@ class ConfigDialog:
 
         # Custom Command History
         for x in [1, 2, 3, 4, 5]:
-            widget = self.wtree.get_widget('history' + str(x))
+            widget = self.wtree.get_object('history' + str(x))
             if widget:
                 text = widget.get_text()
                 if text != config.Prefs.run_dialog.history[x]:
                     config.Prefs.run_dialog.history[x] = text
 
         # custom browser command
-        widget = self.wtree.get_widget('custom_browser_command')
+        widget = self.wtree.get_object('custom_browser_command')
         if widget:
             text = widget.get_text()
             if text:
                 config.Prefs.globals.custom_browser_command = text
 
         # gui su client command
-        widget = self.wtree.get_widget('su_client')
+        widget = self.wtree.get_object('su_client')
         if widget:
             text = widget.get_text()
             if text:
@@ -499,6 +499,6 @@ class ConfigDialog:
         """Toggles custom browser command sensitivity
         """
         debug.dprint("CONFIGDIALOG: toggle_browser_table()")
-        self.wtree.get_widget('custom_browser_table').set_sensitive(widget.get_active())
+        self.wtree.get_object('custom_browser_table').set_sensitive(widget.get_active())
 
 

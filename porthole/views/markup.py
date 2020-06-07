@@ -144,7 +144,7 @@ class MarkupView (object):
 
     def on_url_event(self, tag, widget, event, iter):
         """ Catch when the user clicks the URL """
-        if event.type == Gdk.BUTTON_RELEASE:
+        if event.type == Gdk.EventType.BUTTON_RELEASE:
             bug=self.bugs[tag.get_property("name")]
             load_web_page(self.bugzilla_url+bug)
 
@@ -153,16 +153,17 @@ class MarkupView (object):
         self.window.get_pointer()
         x, y, spam = self.window.get_pointer()
         x, y = self.window_to_buffer_coords(Gtk.TextWindowType.TEXT, x, y)
-        tags = self.get_iter_at_location(x, y).get_tags()
+        #tags = self.get_iter_at_location(x, y).get_tags()
         if self.underlined_url:
             self.underlined_url.set_property("underline",Pango.Underline.NONE)
             self.get_window(Gtk.TextWindowType.TEXT).set_cursor(None)
             self.underlined_url = None
-        for tag in tags:
-            if tag in self.url_tags:
-                tag.set_property("underline",Pango.Underline.SINGLE)
-                self.get_window(Gtk.TextWindowType.TEXT).set_cursor(Gdk.Cursor.new(Gdk.HAND2))
-                self.underlined_url = tag
+        # fixme needs porting
+        # for tag in tags:
+            # if tag in self.url_tags:
+                # tag.set_property("underline",Pango.Underline.SINGLE)
+                # self.get_window(Gtk.TextWindowType.TEXT).set_cursor(Gdk.Cursor.new(Gdk.HAND2))
+                # self.underlined_url = tag
         if self.reset_cursor: # defaults to Gdk.XTERM - reset it to None
             self.get_window(Gtk.TextWindowType.TEXT).set_cursor(None)
             self.reset_cursor = False

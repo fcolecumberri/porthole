@@ -28,5 +28,4 @@ from . import debug
 
 mydebug = debug
 
-print("UTILS: mydebug._id = ", mydebug._id)
-#print "UTILS: DEBUG.id = ", DEBUG.id
+print("UTILS: mydebug._id = ", str(mydebug._id))

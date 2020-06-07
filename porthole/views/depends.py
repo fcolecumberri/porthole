@@ -345,7 +345,7 @@ class DependsView(CommonTreeView):
             debug.dprint("DependsView: Strange event type got passed to on_button_press() callback...")
             debug.dprint("DependsView: event.type =  %s" %str(event.type))
 
-        elif event.type == Gdk.BUTTON_RELEASE and \
+        elif event.type == Gdk.EventType.BUTTON_RELEASE and \
             self.event_src == widget:
             # clear the event source to prevent false restarts
             self.event_src = None

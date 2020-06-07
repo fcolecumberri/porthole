@@ -28,14 +28,13 @@ _id = datetime.datetime.now().microsecond
 # proper way to enable threading.  Do this first before any other code
 from gi.repository import GObject
 GObject.threads_init()
-# now for the rest
-from gi.repository import GdkPixbuf
-from gi.repository import Gtk
 
-# setup our path so we can load our custom modules
+from gi.repository import Gtk
+from gi.repository import GdkPixbuf
 
 import os
 import sys
+
 
 # Load EPREFIX from Portage, fall back to the empty string if it fails
 try:
@@ -171,10 +170,13 @@ def main():
     print("PORTHOLE: importing MainWindow")
     from porthole.mainwindow import MainWindow
 
+    print("PORTHOLE: i18n_DIR =" + str(i18n_DIR))
     locale.setlocale (locale.LC_ALL, '')
     gettext.bindtextdomain (APP, i18n_DIR)
     gettext.textdomain (APP)
     gettext.install (APP, i18n_DIR)
+    # builder = gtk.Builder()
+    # builder.set_translation_domain(APP)
     #Gtk.glade.bindtextdomain (APP, i18n_DIR)
     #Gtk.glade.textdomain (APP)
 

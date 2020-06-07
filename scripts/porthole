@@ -92,8 +92,8 @@ if __name__ == "__main__":
     # run thru the options and set the DATA_PATH & imported modules properly
     # bug ==> any porthole script can be used to load both --local and installed modules
     RUN_LOCAL = False
-    #print('opts=',opts
-    #print('args=',args
+    #print('opts=',opts)
+    #print('args=',args)
     for opt, arg in opts:
         if opt in ("-l", "--local"):
             # running a local version (i.e. not installed in /usr/*)
@@ -117,9 +117,9 @@ if __name__ == "__main__":
         insert_path()
 
     for opt, arg in opts:
-        #print("opt, arg ", opt, arg, type(arg)
+        #print("opt, arg ", opt, arg, type(arg))
         if opt in ("-b"):
-            if arg in choices:
+            if arg in Choices:
                 set_backend(arg)
             else:
                 useage()
@@ -129,7 +129,7 @@ if __name__ == "__main__":
         elif opt in ("-d", "--debug"):
             set_debug(arg)
         elif opt in ("-u", "--user"):
-            print("Porthole: --user = ", arg)
+            print("Porthole: --user = " + str(arg))
             set_user(arg)
     print("starting main()")
     main()

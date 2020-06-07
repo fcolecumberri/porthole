@@ -49,7 +49,7 @@ class Dispatcher:
         """Emit signal from thread"""
         self.queue.put(args)
         # write to pipe afterwards
-        os.write(self.pipe_w, "X")
+        os.write(self.pipe_w, b"X")
 
     def on_data(self, source, cb_condition):
         if select([self.pipe_r],[],[], 0)[0] and os.read(self.pipe_r,1):
@@ -81,7 +81,7 @@ class Dispatch_wait:
         _id = _thread.get_ident()
         self.queue.put([args, _id])
         # write to pipe afterwards
-        os.write(self.callpipe_w, "X")
+        os.write(self.callpipe_w, b"X")
         # now wait for the reply
         self.semaphore.aquire()
         self.wait[_id] = True

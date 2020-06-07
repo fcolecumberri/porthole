@@ -42,7 +42,7 @@ class RunDialog:
                      "on_cancel" : self.cancel,
                      "on_comboboxentry1_changed" : self.command_changed
                     }
-        self.wtree.signal_autoconnect(callbacks)
+        self.wtree.connect_signals(callbacks)
         self.command = None
         self.call_back = call_back
         self.run_anyway = run_anyway
@@ -57,10 +57,10 @@ class RunDialog:
                             "ACCEPT_KEYWORDS='~x86' USE=' ' emerge"]
         #debug.dprint("COMMAND: self.history:")
         #debug.dprint(self.history)
-        self.window = self.wtree.get_widget("run_dialog")
-        self.combo = self.wtree.get_widget("comboboxentry1")
-        self.entry = self.combo.get_child()
-        #self.list = self.wtree.get_widget("combo-list")
+        self.window = self.wtree.get_object("run_dialog")
+        self.combo = self.wtree.get_object("comboboxentry1")
+        self.entry = self.combo.child
+        #self.list = self.wtree.get_object("combo-list")
         # Build a formatted combo list from the versioninfo list
         self.comboList = Gtk.ListStore(str)
         index = 0

@@ -28,13 +28,14 @@
 IMPORT_DONE = False
 
 import datetime
-import imp
 _id = datetime.datetime.now().microsecond
 print("PORTAGELIB: id initialized to ", _id)
+import imp
+import os
 
-from sys import exit, stderr
-import os, _thread
 from gettext import gettext as _
+from sys import exit, stderr
+import _thread
 
 
 IMPORT_DONE = False
@@ -72,7 +73,7 @@ except: # portage 2.1.x modules
     except ImportError:
         exit(_('Could not find portage module.\n'
              'Are you sure this is a Gentoo system?'))
-print(("PORTAGELIB: portage version = " + portage.VERSION), file=stderr)
+print("PORTAGELIB: portage version = " + portage.VERSION, file=stderr)
 
 #thread_id = os.getpid()
 thread_id = _thread.get_ident()
@@ -381,7 +382,7 @@ def get_hard_masked(full_name):
     hard_masked_nocheck = hardmasked[:]
     punmasks = []
     try: # newer portage
-        punmaskdict = settings.portdb.settings.punmaskdict[full_name]
+        punmasks = settings.portdb.settings.punmaskdict[full_name]
     except AttributeError: # older portage
         try:
             punmasks = settings.portdb.mysettings.punmaskdict[full_name]
@@ -539,6 +540,7 @@ def get_digest(ebuild): ## deprecated
             for line in myfile.readlines():
                 digest_file.append(line.split(" "))
             myfile.close()
+        # Fixme unused e
         except SystemExit as e:
             raise # Needed else can't exit
         except Exception as e:
@@ -804,7 +806,7 @@ class PortageSettings:
             debug.dprint("PORTAGELIB: get_world(); Failure to locate file: '%s'" %portage.WORLD_FILE)
             debug.dprint("PORTAGELIB: get_world(); Trying '/var/cache/edb/world'")
             try:
-                f_ile = open("/var/cache/edb/world", "r")
+                _file = open("/var/cache/edb/world", "r")
                 world = _file.read().split()
                 _file.close()
                 debug.dprint("PORTAGELIB: get_world(); OK")
