@@ -40,6 +40,7 @@ gtk.gdk.BUTTON_PRESS gdk.EventType.BUTTON_PRESS
 gdk.color_parse gdk.RGBA.parse ///// Not always and need to create an instance of gdk.RGBA
 unicode str
 gtk.gdk.CROSSING_NORMAL gdk.CrossingMode.NORMAL
+get_pointer() get_window(gtk.TextWindowType.TEXT).get_pointer() // el TextWindowType puede cambiar
 // en event.type:
 gtk.gdk.ENTER_NOTIFY gdk.EventType.ENTER_NOTIFY
 gtk.gdk.LEAVE_NOTIFY gdk.EventType.LEAVE_NOTIFY
@@ -54,7 +55,6 @@ pango.SCALE* https://developer.gnome.org/pygtk/stable/class-pangoattribute.html
 
 archivos que tengo que volver a revisar porque tengo cambios que rehacer:
 porthole/startup.py
-porthole/mainwindow.py
 
 archivos donde cambie cosas que muy probablemente no debí cambiar:
 por lo de get_tags()
@@ -63,7 +63,3 @@ por lo de get_tags()
     https://github.com/timlau/yumex-dnf/commit/b338a2b7408199e818c23263dffd0d2997eb0e9c
 
 
-
-
-porthole/mainwindow.py: self.widget["view_filter"]:
-    self.view_filter_changed(self, widget) -- widget=self.widget["view_filter"
