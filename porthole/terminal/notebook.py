@@ -253,7 +253,7 @@ class TerminalNotebook:
             widget occurs, move to the process window and jump to the line
             number clicked on.
         """
-        if event.type == Gdk._2BUTTON_PRESS:
+        if event.type == Gdk.EventType._2BUTTON_PRESS:
             # Capture the source of the dbl-click event
             # but do nothing else
             self.event_src = widget

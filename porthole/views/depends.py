@@ -333,7 +333,7 @@ class DependsView(CommonTreeView):
         else:
             self.dopopup = False
 
-        if event.type == Gdk._2BUTTON_PRESS:
+        if event.type == Gdk.EventType._2BUTTON_PRESS:
             #debug.dprint("DependsView: dbl-click event detected")
             # Capture the source of the dbl-click event
             # but do nothing else
