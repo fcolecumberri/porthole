@@ -38,12 +38,23 @@ gtk.STATE_NORMAL Gladeui.PropertyState.NORMAL
 style = box.get_style().copy() ... box.override_background_color(Gtk.StateFlags.NORMAL, color)
 gtk.gdk.BUTTON_PRESS gdk.EventType.BUTTON_PRESS
 gdk.color_parse gdk.RGBA.parse ///// Not always and need to create an instance of gdk.RGBA
+    gdk_color = gdk.RGBA()
+    gdk_color.parse(color)
 unicode str
 gtk.gdk.CROSSING_NORMAL gdk.CrossingMode.NORMAL
 get_pointer() get_window(gtk.TextWindowType.TEXT).get_pointer() // el TextWindowType puede cambiar
 // en event.type:
 gtk.gdk.ENTER_NOTIFY gdk.EventType.ENTER_NOTIFY
 gtk.gdk.LEAVE_NOTIFY gdk.EventType.LEAVE_NOTIFY
+gtk.POLICY_NEVER gtk.PolicyType.NEVER
+gtk.POLICY_AUTOMATIC gtk.PolicyType.AUTOMATIC
+*.child *.get_child()
+gtk.SELECTION_SINGLE Gtk.SelectionMode.SINGLE
+gtk.gdk._2BUTTON_PRESS gdk.EventType._2BUTTON_PRESS
+
+gtk.glade.XML(self.gladefile, "adv_emerge_dialog", config.Prefs.APP) | gtk.Builder() .add_from_file(self.gladefile) .set_translation_domain(config.Prefs.APP)
+self.wtree.get_object("adv_emerge_dialog") .wtree.get_object("adv_emerge_dialog")
+
 
 
 https://lazka.github.io/pgi-docs/#Gdk-3.0/classes/EventWindowState.html#Gdk.EventWindowState
@@ -54,12 +65,13 @@ pango.SCALE* https://developer.gnome.org/pygtk/stable/class-pangoattribute.html
 
 
 archivos que tengo que volver a revisar porque tengo cambios que rehacer:
-porthole/startup.py
+    porthole/startup.py
 
 archivos donde cambie cosas que muy probablemente no debí cambiar:
-por lo de get_tags()
-    porthole/packagebook/summary.py
-    porthole/views/markup.py
-    https://github.com/timlau/yumex-dnf/commit/b338a2b7408199e818c23263dffd0d2997eb0e9c
-
+    por lo de get_tags()
+        porthole/packagebook/summary.py
+        porthole/views/markup.py
+        https://github.com/timlau/yumex-dnf/commit/b338a2b7408199e818c23263dffd0d2997eb0e9c
+    style.bg[Gladeui.PropertyState.NORMAL] da error "index out of range":
+        porthole/advancedemerge/advemerge.py
 
