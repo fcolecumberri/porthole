@@ -3,7 +3,7 @@
 '''
     Porthole Reader Class: Upgradable List Reader
 
-    Copyright (C) 2003 - 2008 Fredrik Arnerup, Brian Dolbec, 
+    Copyright (C) 2003 - 2008 Fredrik Arnerup, Brian Dolbec,
     Daniel G. Taylor and Wm. F. Wheeler, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,10 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import os, time, _thread, threading
+import os
+import time
+import _thread
+import threading
 from sys import stderr
 from gettext import gettext as _
 
@@ -62,7 +65,7 @@ class UpgradableListReader(CommonReader):
         # command lifted fom emwrap and emwrap.sh
         self.system_cmd = "emerge -ep --nocolor --nospinner system | cut -s -f2 -d ']'| cut -f1 -d '[' | sed 's/^[ ]\+//' | sed 's/[ ].*$//'"
         #self.start = self.run
- 
+
     def run( self ):
         """fill upgrade tree"""
         debug.dprint("READERS: UpgradableListReader(); process id = %d *******************" %os.getpid())
@@ -134,4 +137,4 @@ class UpgradableListReader(CommonReader):
             sets_list.append(_("Sets")+"-"+name)
         self.cat_order = [_("System")] + sets_list + [_("World"), _("Dependencies")]
         return #sets_lists
-                
+

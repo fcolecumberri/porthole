@@ -4,7 +4,7 @@
     ============
     | File Save |
     -----------------------------------------------------------
-    Copyright (C) 2003 - 2008 Fredrik Arnerup, Brian Dolbec, 
+    Copyright (C) 2003 - 2008 Fredrik Arnerup, Brian Dolbec,
     Daniel G. Taylor, Wm. F. Wheeler, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify
@@ -23,18 +23,23 @@
 
     -------------------------------------------------------------------------
     To use this program as a module:
-    
+
         from fileselector import FileSelector
 """
 
 import gi; gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-import os, os.path
+from gi.repository import GObject
+
+import os
+import os.path
+
+from gettext import gettext as _
 
 from porthole.utils import debug
 
 # deprecated by gtk+
-class FileSel(Gtk.FileSelection):
+class FileSel(Gtk.FileChooserDialog):
     def __init__(self, title):
         GObject.GObject.__init__(self, title)
         self.result = False
@@ -63,7 +68,7 @@ class FileSel(Gtk.FileSelection):
 # deprecated by gtk+
 class FileSelector:
     """Generic file selector dialog for opening or saving files"""
-    
+
     def __init__(self, parent_window, target_path, callback = None, overwrite_confirm = True):
         self.window = parent_window
         self.callback = callback
@@ -74,7 +79,6 @@ class FileSelector:
     def _save_as_ok_func(self, filename):
         """file selector callback function"""
         debug.dprint("FILESELECTOR: Entering _save_as_ok_func")
-        old_filename = self.filename
         if self.overwrite_confirm and (not self.filename or filename != self.filename):
             if os.path.exists(filename):
                 err = _("Ovewrite existing file '%s'?")  % filename
@@ -91,8 +95,8 @@ class FileSelector:
 
     def save_as(self, title):
         debug.dprint("FILESELECTOR: Entering save_as()")
-        return FileSel(title).run(window, self.filename, self._save_as_ok_func)
-        
+        return FileSel(title).run(self.window, self.filename, self._save_as_ok_func)
+
     def get_filename(self, title):
         debug.dprint("FILESELECTOR: Entering get_filename()")
         result = FileSel(title).run(self.window, self.directory, self._save_as_ok_func)
@@ -104,7 +108,7 @@ class FileSelector:
 
 class FileSelector2:
     """Generic file selector dialog for opening or saving files"""
-    
+
     def __init__(self, parent_window, target_path, callback = None, overwrite_confirm = True, filter = None):
         debug.dprint("FILESELECTOR2: __init__(); # 109 target_path = %s" %str(target_path))
         self.window = parent_window
@@ -122,7 +126,7 @@ class FileSelector2:
             self.directory, self.target  =os.path.split(target_path)
             debug.dprint("FILESELECTOR2: __init__(); # 123 directory = %s" %str(self.directory))
         self.filter = filter
-        
+
         self.actions = {'save': Gtk.FileChooserAction.SAVE,
                                 'open': Gtk.FileChooserAction.OPEN,
                                 'select_folder': Gtk.FileChooserAction.SELECT_FOLDER,
@@ -156,13 +160,13 @@ class FileSelector2:
             self.dialog.set_filter(filter)
         else:
             self.dialog.set_filter(show_all)
-        
+
     def get_filename(self, title, action):
         debug.dprint("FILESELECTOR2: Entering get_filename()")
         self.create_selector(title, action)
         result = self.dialog.run()
         debug.dprint("FILESELECTOR2: get_filename(); result = " + str(result))
-        if result in [Gtk.ResponseType.OK, Gtk.ResponseType.ACCEPT, Gtk.ResponseType.YES]: 
+        if result in [Gtk.ResponseType.OK, Gtk.ResponseType.ACCEPT, Gtk.ResponseType.YES]:
             filename = self.dialog.get_filename()
         elif result in [Gtk.ResponseType.CANCEL, Gtk.ResponseType.DELETE_EVENT, Gtk.ResponseType.CLOSE]:
             filename = ''

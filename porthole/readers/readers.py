@@ -4,7 +4,7 @@
     Porthole Reader Classes
     The main interface the user will interact with
 
-    Copyright (C) 2003 - 2008 Fredrik Arnerup, Brian Dolbec, 
+    Copyright (C) 2003 - 2008 Fredrik Arnerup, Brian Dolbec,
     Daniel G. Taylor and Wm. F. Wheeler, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify
@@ -25,12 +25,13 @@
 
 ## DEPRICATED MODULE
 
-import threading, re, gtk, os, pickle, time
+import os
+import threading
+import time
+import re
 from gettext import gettext as _
 
-from views import DependsView, CommonTreeView
 import utils.debug
-from utils.utils import get_icon_for_package, get_icon_for_upgrade_package
 from sterminal import SimpleTerminal
 import backends
 portage_lib = backends.portage_lib
@@ -44,8 +45,8 @@ class ToolChain:
         self.build = build
         self.tc_conf = ""
         self.tc_stdc = ""
-        self.TC_build = ["sys-kernel/linux-headers", "sys-libs/glibc", tc_conf, \
-                      "sys-devel/binutils", "sys-devel/gcc", tc_stdc]
+        self.TC_build = ["sys-kernel/linux-headers", "sys-libs/glibc", self.tc_conf, \
+                      "sys-devel/binutils", "sys-devel/gcc", self.tc_stdc]
         self.TC="linux-headers glibc $tc_conf_regx binutils-[0-9].* gcc-[0-9].* glibc binutils-[0-9].* gcc-[0-9].* $tc_stdc"
         self.TC_glb="glibc $tc_conf_regx binutils-[0-9].* gcc-[0-9].* glibc binutils-[0-9].* gcc-[0-9].* $tc_stdc"
         self.TCmini="$tc_conf_regx binutils-[0-9].* gcc-[0-9].* binutils-[0-9].* gcc-[0-9].* $tc_stdc"
@@ -97,12 +98,12 @@ class UpgradableListReader(CommonReader):
         # command lifted fom emwrap and emwrap.sh
         self.system_cmd = "emerge -ep --nocolor --nospinner system | cut -s -f2 -d ']'| cut -f1 -d '[' | sed 's/^[ ]\+//' | sed 's/[ ].*$//'"
 
- 
+
     def run( self ):
         """fill upgrade tree"""
         utils.debug.dprint("READERS: UpgradableListReader(); process id = %d *******************" %os.getpid())
         self.get_system_list()
-        upgradeflag = self.upgrade_only and True or False
+        #upgradeflag = self.upgrade_only and True or False
         # find upgradable packages
         for cat, packages in self.installed_items:
             for name, package in list(packages.items()):
@@ -120,7 +121,7 @@ class UpgradableListReader(CommonReader):
         for key in self.pkg_count:
             self.upgrade_total += self.pkg_count[key]
             if self.upgradables[key] == {}:
-                pkg = _portage_lib.Package(_("None"))
+                pkg = portage_lib.Package(_("None"))
                 self.upgradables[key][_("None")] = pkg
         # set the thread as finished
         self.done = True
@@ -136,7 +137,7 @@ class UpgradableListReader(CommonReader):
                 time.sleep(0.10)
             self.categories["System"] = self.make_list(self.terminal.reader.string)
         else:
-            self.categories["System"] = _portage_lib.get_system_pkgs()
+            self.categories["System"] = portage_lib.get_system_pkgs()
         self.progress = 2
         utils.debug.dprint("READERS: UpgradableListReader; new system pkg list %s" %str(self.categories["System"]))
 
@@ -145,13 +146,13 @@ class UpgradableListReader(CommonReader):
         list1 = from_string.split('\n')
         list2 = []
         for pkg in list1:
-            list2.append(_portage_lib.get_full_name(pkg.rstrip("\r")))
+            list2.append(portage_lib.get_full_name(pkg.rstrip("\r")))
         return list2
 
     def get_sets( self):
         """Get any package lists stored in the /etc/portage/sets directory
            and add them to the categories list"""
-        
+
 
 
 class DescriptionReader( CommonReader ):
@@ -176,7 +177,7 @@ class DescriptionReader( CommonReader ):
 
 class SearchReader( CommonReader ):
     """Create a list of matching packages to searh term"""
-    
+
     def __init__( self, db_list, search_desc, tmp_search_term, desc_db = None, callback = None ):
         """ Initialize """
         CommonReader.__init__(self)
@@ -190,8 +191,8 @@ class SearchReader( CommonReader ):
         self.package_list = {}
         self.pkg_count = 0
         self.count = 0
-    
-    
+
+
     def run( self ):
             utils.debug.dprint("READERS: SearchReader(); process id = %d *****************" %os.getpid())
             self.search_term = ''
@@ -201,7 +202,7 @@ class SearchReader( CommonReader ):
                 if char in EXCEPTION_LIST:# =="+":
                     utils.debug.dprint("READERS: SearchReader();  '%s' exception found" %char)
                     char = "\\" + char
-                self.search_term += char 
+                self.search_term += char
             utils.debug.dprint("READERS: SearchReader(); ===> escaped search_term = :%s" %self.search_term)
             re_object = re.compile(self.search_term, re.I)
             # no need to sort self.db_list; it is already sorted

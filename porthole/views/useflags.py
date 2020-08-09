@@ -2,19 +2,16 @@
 
 import datetime
 _id = datetime.datetime.now().microsecond
+from gi.repository import GObject
 from gi.repository import Gtk
-import Gtk.glade
-from Gtk.gdk import Event, WINDOW_STATE
 
-from porthole.utils import utils
+from gettext import gettext as _
+
 from porthole.utils import debug
 from porthole import backends
-from porthole import config
-from porthole import db
-from porthole.views import package
 portage_lib = backends.portage_lib
-from porthole.backends.utilities import (get_reduced_flags, abs_list,
-        abs_flag, filter_flags)
+from porthole.backends.utilities import (get_reduced_flags,
+        abs_flag, )
 
 
 class UseFlagCheckbuttons(Gtk.HBox):
@@ -130,7 +127,7 @@ class UseFlagWidget(Gtk.Table):
       for child in self.ufList:
          #flag = child[1]
          flag = child[0].get_flag()
-         base_flag = abs_flag(flag)
+         #base_flag = abs_flag(flag)
          if flag[0] == '+':
             if not flag[1:] in ebuild_use_flags:
                   flaglist.append(flag)

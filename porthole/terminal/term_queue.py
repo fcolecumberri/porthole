@@ -6,7 +6,7 @@
     -----------------------------------------------------------
     A graphical process queue
     -----------------------------------------------------------
-    Copyright (C) 2003 - 2009 Fredrik Arnerup, Brian Dolbec, 
+    Copyright (C) 2003 - 2009 Fredrik Arnerup, Brian Dolbec,
     Daniel G. Taylor, Wm. F. Wheeler, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 
     -------------------------------------------------------------------------
     To use this program as a module:
-    
+
         from term_queue import TerminalQueue
 
         def callback():
@@ -36,26 +36,42 @@
         ...
     -------------------------------------------------------------------------
     References & Notes
-    
+
     1. Pygtk2 refs & tutorials - http://www.pyGtk.org
     2. GTK2 text tags can use named colors (see /usr/X11R6/lib/X11/rgb.txt)
         or standard internet rgb values (e.g. #02FF80)
-    
+
 """
 
 # import external [system] modules
 import gi; gi.require_version('Gtk', '3.0')
-import gtk, Gtk.glade, gobject
-from gi.repository import Pango
-from types import *
-#import signal, os, pty, threading, time, sre, portagelib
-#import datetime, pango, errno
+from gi.repository import Gdk
+from gi.repository import GdkPixbuf
+from gi.repository import Gtk
+from gi.repository import GObject
+
+from gettext import gettext as _
+
+from types import (
+    BuiltinFunctionType,
+    BuiltinMethodType,
+    FunctionType,
+    MethodType,
+)
 
 #from porthole.utils import Dispatcher
 #from porthole.readers import ProcessOutputReader
 from porthole.utils.utils import get_treeview_selection
 from porthole.utils import debug
-from porthole.terminal.constants import *
+from porthole.terminal.constants import (
+    COMPLETED,
+    EXECUTE,
+    FAILED,
+    KILLED,
+    PENDING,
+    PAUSED,
+    TAB_QUEUE,
+)
 from porthole.dialogs.simple import SingleButtonDialog
 
 FUNCTIONTYPES = [FunctionType, MethodType, BuiltinFunctionType, BuiltinMethodType]
@@ -63,14 +79,14 @@ FUNCTIONTYPES = [FunctionType, MethodType, BuiltinFunctionType, BuiltinMethodTyp
 class QueueModel(Gtk.ListStore):
     def __init__(self):
         GObject.GObject.__init__(self, GdkPixbuf.Pixbuf,            # hold the status icon
-                                        GObject.TYPE_STRING,         # package name/ command name
-                                        GObject.TYPE_STRING,         # command
-                                        GObject.TYPE_INT,                # entry id
+                                        GObject.TYPE_STRING,        # package name/ command name
+                                        GObject.TYPE_STRING,        # command
+                                        GObject.TYPE_INT,           # entry id
                                         GObject.TYPE_STRING,        # sender
-                                        GObject.TYPE_BOOLEAN,    # killed
-                                        GObject.TYPE_PYOBJECT,   # callback function
-                                        GObject.TYPE_BOOLEAN,    # completed
-                                        GObject.TYPE_INT                # killed_id
+                                        GObject.TYPE_BOOLEAN,       # killed
+                                        GObject.TYPE_PYOBJECT,      # callback function
+                                        GObject.TYPE_BOOLEAN,       # completed
+                                        GObject.TYPE_INT            # killed_id
                                         )
         self.column = {'icon': 0,
                                 'name':  1,
@@ -107,11 +123,11 @@ class QueueModel(Gtk.ListStore):
 
     def set_data(self, iter, data):
         if iter:
-            if type(data) is DictType:
+            if isinstance(data, dict):
                 debug.dprint("QueueModel: set_data(); DictType data['icon'] type = " + str(type(data['icon'])))
                 for i in data:
                     self.set_value(iter,self.column[i], data[i])
-            elif type(data) is ListType:
+            elif isinstance(data, list):
                 debug.dprint("QueueModel: set_data(); ListType data = " + str(data))
                 #if type(data[self.column['icon']]) is NoneType:
                 self.set(iter, self.column['icon'], data[self.column['icon']],
@@ -158,11 +174,11 @@ class TerminalQueue:
         self.pause_menu = self.wtree.get_widget("pause")
         #debug.dprint("TERM_QUEUE: Attempting to change the pause, paly button image colors")
         """ Set up different colors for the pause & play buttons depending on it's state
-            Gtk.StateType.NORMAL	State during normal operation.
-            Gtk.StateType.ACTIVE	State of a currently active widget, such as a depressed button.
-            Gtk.StateType.PRELIGHT	State indicating that the mouse pointer is over the widget and the widget will respond to mouse clicks.
-            Gtk.StateType.SELECTED	State of a selected item, such the selected row in a list.
-            Gtk.StateType.INSENSITIVE	State indicating that the widget is unresponsive to user actions.
+            Gtk.StateType.NORMAL    State during normal operation.
+            Gtk.StateType.ACTIVE    State of a currently active widget, such as a depressed button.
+            Gtk.StateType.PRELIGHT  State indicating that the mouse pointer is over the widget and the widget will respond to mouse clicks.
+            Gtk.StateType.SELECTED  State of a selected item, such the selected row in a list.
+            Gtk.StateType.INSENSITIVE   State indicating that the widget is unresponsive to user actions.
         """
         self.pause_btn.modify_fg(Gtk.StateType.INSENSITIVE, Gdk.color_parse("#962A1C"))
         self.pause_btn.modify_fg(Gtk.StateType.NORMAL, Gdk.color_parse("#DA311B"))
@@ -404,9 +420,9 @@ class TerminalQueue:
             (direction and path < len(self.queue_model)):
             # get the adjacent values
             destination_iter = self.queue_model.get_iter(path + direction)
-            destination_id = self.queue_model.get_value(destination_iter, self.queue_model.column['id']) 
+            destination_id = self.queue_model.get_value(destination_iter, self.queue_model.column['id'])
             destination_icon = self.queue_model.get_value(destination_iter, self.queue_model.column['icon'])
-            sel_id = self.queue_model.get_value(selected_iter, self.queue_model.column['id']) 
+            sel_id = self.queue_model.get_value(selected_iter, self.queue_model.column['id'])
             sel_icon = self.queue_model.get_value(selected_iter, self.queue_model.column['icon'])
             # switch places and make sure the original is still selected
             self.queue_model.swap(selected_iter, destination_iter)
@@ -471,7 +487,7 @@ class TerminalQueue:
             return False
         path = self.queue_model.get_path(selected_iter)[0]
         try:
-            id = self.queue_model.get_value(selected_iter,  self.queue_model.column['id'])
+            _id = self.queue_model.get_value(selected_iter,  self.queue_model.column['id'])
             end_iter = self.queue_model.get_iter(self.next_id-2)
             self.queue_model.move_after(selected_iter, end_iter)
         except Exception as e:
@@ -484,10 +500,10 @@ class TerminalQueue:
                 self.paused_iter = self.queue_model.get_iter(self.paused_path)
             except Exception as e:
                 debug.dprint("TERM_QUEUE: move_item_bottom(); exception resetting paused_iter, exception :" + str(e))
-        self.renum_ids(path, id)
+        self.renum_ids(path, _id)
         # We're done, reset queue moves
         result = self.clicked(self.queue_tree)
-        del end_iter, selected_iter, id, path, paused
+        del end_iter, selected_iter, _id, path, paused
 
     def remove_item(self, widget):
         """ Remove the selected item from the queue """
@@ -497,7 +513,7 @@ class TerminalQueue:
         # find if this item is still in our process list
         name = get_treeview_selection(self.queue_tree, self.queue_model.column['name'])
         if selected_iter:
-            id = get_treeview_selection(self.queue_tree, self.queue_model.column['id'])
+            _id = get_treeview_selection(self.queue_tree, self.queue_model.column['id'])
             debug.dprint("TERM_QUEUE: remove_item(); id = " + str(id) + " next_id = " + str(self.next_id) + " paused_id = " + str(self.paused_id))
             self.queue_model.remove(selected_iter)
             # iters are no longer valid.  reset them
@@ -508,23 +524,23 @@ class TerminalQueue:
             if self.queue_paused:
                 self.paused_iter = self.queue_model.get_iter(self.paused_path)
             self.next_id -= 1
-            if id < self.next_id:
-                self.renum_ids(path, id)
-                if id == self.paused_id:
-                    self.set_icon(PAUSED, id, path)
+            if _id < self.next_id:
+                self.renum_ids(path, _id)
+                if _id == self.paused_id:
+                    self.set_icon(PAUSED, _id, path)
         self.set_menu_state()
         # We're done
-        del name, id, selected_iter, path
+        del name, _id, selected_iter, path
 
-    def renum_ids(self, path, id):
-        if not id or  path == None:
+    def renum_ids(self, path, _id):
+        if not _id or  path == None:
             return
         try:
             iter = self.queue_model.get_iter(path)
             while iter:
-                self.queue_model.set_value(iter, self.queue_model.column['id'], id)
+                self.queue_model.set_value(iter, self.queue_model.column['id'], _id)
                 iter = self.queue_model.iter_next(iter)
-                id += 1
+                _id += 1
         except:
             debug.dprint("TERM_QUEUE: renum_ids; exception raised during renumber, path, id = " +str(path) + ", " + str(id))
         del iter
@@ -546,34 +562,34 @@ class TerminalQueue:
         # don't make the controls sensitive and return
         name = get_treeview_selection(self.queue_tree, self.queue_model.column['name'])
         killed = get_treeview_selection(self.queue_tree, self.queue_model.column['killed'])
-        id = get_treeview_selection(self.queue_tree, self.queue_model.column['id'])
+        _id = get_treeview_selection(self.queue_tree, self.queue_model.column['id'])
         #in_list = 0
-        if id <= self.process_id: #not in_list or in_list == 1:
+        if _id <= self.process_id: #not in_list or in_list == 1:
             state = [False, False, False, False]
-            if id == self.process_id and not killed :
+            if _id == self.process_id and not killed :
                 state.append(False)
             else:
                 state.append(True)
             self.set_queue_moves(state)
             debug.dprint("TERM_QUEUE: clicked(); finished... returning")
-            del selected_iter, id, name, killed, state
+            del selected_iter, _id, name, killed, state
             return True
         # if we reach here it's still needs to be processed
         # set the correct directions sensitive
         # shouldn't be able to move the top item up, etc...
-        debug.dprint("TERM_QUEUE: clicked(); id = " + str(id) + " next_id = " +str(self.next_id) + " process_id = " + str(self.process_id))
-        if id == self.process_id + 1 or path == 0:
+        debug.dprint("TERM_QUEUE: clicked(); id = " + str(_id) + " next_id = " +str(self.next_id) + " process_id = " + str(self.process_id))
+        if _id == self.process_id + 1 or path == 0:
             # set move_top and move_up
             state = [False, False]
             debug.dprint("TERM_QUEUE: clicked(); 550 set top,up to False,False")
-            if id == self.next_id - 1:
+            if _id == self.next_id - 1:
                 # set move_down and move_bottom
                 state += [False, False]
                 debug.dprint("TERM_QUEUE: clicked(); 554 set down,bottom to False,False")
             else:
                 state += [True, True]
                 debug.dprint("TERM_QUEUE: clicked();  557 set down,bottom to True,True")
-        elif id == self.next_id - 1:
+        elif _id == self.next_id - 1:
             state = [True, True, False, False]
             debug.dprint("TERM_QUEUE: clicked();560 set top,up,down,bottom to True,True,False,False")
         else:
@@ -584,7 +600,7 @@ class TerminalQueue:
         state.append(True)
         self.set_queue_moves(state)
         #debug.dprint("TERM_QUEUE: clicked(); finished... returning")
-        del selected_iter, id, name, killed, state
+        del _id, name, killed, state
         return True
 
     def clear( self, *widget ):
@@ -622,10 +638,10 @@ class TerminalQueue:
         path = int(process_id) -1
         try:
             self.locate_iter = self.queue_model.get_iter(path)
-            id = self.queue_model.get_value(self.locate_iter,self.queue_model.column['id'])
-            if id != process_id:
+            _id = self.queue_model.get_value(self.locate_iter,self.queue_model.column['id'])
+            if _id != process_id:
                 #debug.dprint("TERM_QUEUE: locate_id(); ID mismatch, something is out of sink")
-                raise Exception("ID mismatch", id, process_id)
+                raise Exception("ID mismatch", _id, process_id)
         except Exception as e:
             debug.dprint("TERM_QUEUE: locate_id(); execption raised = " + str(e) + " ^^^ path = " + str(path))
             self.locate_iter = self.queue_model.get_iter_first()
@@ -753,10 +769,10 @@ class TerminalQueue:
 
     def get_process( self ):
         name = self.get_name()
-        command - get_command()
+        command = self.get_command()
         callback = self.get_callback()
-        id = self.get_id()
-        return [name, command, id, callback]
+        _id = self.get_id()
+        return [name, command, _id, callback]
 
     def set_completed( self, state ):
         """set the queue model completed state (boolean)

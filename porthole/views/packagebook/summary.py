@@ -22,9 +22,13 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import gtk, pango
-import re
-from types import *
+import gi; gi.require_version("Gtk", "3.0") # make sure we have the right version
+from gi.repository import Gdk
+from gi.repository import GObject
+from gi.repository import Gtk
+from gi.repository import Pango
+
+
 from gettext import gettext as _
 
 from porthole.utils import debug
@@ -36,7 +40,7 @@ from porthole.db.user_configs import CONFIG_MASK_ATOMS
 from porthole import config
 from porthole.backends.version_sort import ver_sort
 from porthole.backends.utilities import (reduce_flags, get_reduced_flags,
-    abs_flag, abs_list, flag_defaults, filter_flags)
+    abs_flag, abs_list, filter_flags)
 from porthole.loaders.loaders import load_web_page
 
 class Summary(Gtk.TextView):
@@ -359,7 +363,7 @@ class Summary(Gtk.TextView):
                 slot_label.set_padding(3, 3)
                 # overlay column
                 overlay = portage_lib.get_overlay(ebuild)
-                if type(overlay) is IntType: # catch obsolete
+                if type(overlay) in (int,): # catch obsolete
                     overlay = _("Ebuild version no longer supported")
                     overlay_label = Gtk.Label(label=_("Obsolete"))
                     label_color = "#ED9191"
@@ -651,7 +655,7 @@ class Summary(Gtk.TextView):
         debug.dprint("IUSE_FLAGS: %s" % use_flags)
         keywords = props.get_keywords()
         licenses = props.license
-        slot = unicode(props.get_slot())
+        slot = bytes(props.get_slot())
 
         # Sort the versions in release order
         versions = ver_sort(versions)

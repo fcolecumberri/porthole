@@ -22,14 +22,16 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import gtk, gobject, string
+from gi.repository import GdkPixbuf
+from gi.repository import GObject
+from gi.repository import Gtk
+
 from gettext import gettext as _
 
 from porthole.utils import debug
 from porthole import backends
 portage_lib = backends.portage_lib
-from porthole.backends.utilities import get_reduced_flags, slot_split, \
-    use_required_split, get_sync_info
+from porthole.backends.utilities import get_reduced_flags
 from porthole import db
 from porthole.views.packagebook.depends import  Depends, LAZYNAME
 

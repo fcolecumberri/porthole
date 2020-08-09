@@ -14,7 +14,6 @@ Adapted to Porthole by, Brian Dolbec <dol-sen@users.sourceforge.net>
 
 
 from gi.repository import Gtk
-#import logging
 
 from porthole.utils import debug
 from porthole.views.lazyview import LazyView

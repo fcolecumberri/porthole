@@ -22,12 +22,10 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import threading, re #, types
 import gi; gi.require_version("Gtk", "3.0") # make sure we have the right version
-import gtk, Gtk.glade, gobject, pango
+from gi.repository import Gtk
 
 
-import os, sys
 from gettext import gettext as _
 
 from porthole.utils import debug
@@ -39,14 +37,10 @@ from porthole import config
 from porthole.utils.dispatcher import Dispatcher
 from porthole.views.packagebook.summary import Summary
 from porthole.views.depends import DependsView
-from porthole.views.commontreeview import CommonTreeView
 from porthole.views.highlight import HighlightView
 from porthole.views.changelog import ChangeLogView
 from porthole.views.useflags import UseFlagWidget
-from porthole.mwsupport.plugingui import PluginGUI
-from porthole.mwsupport.pluginmanager import PluginManager
-from porthole.loaders.loaders import *
-from porthole.backends.version_sort import ver_match
+from porthole.loaders.loaders import load_installed_files
 #from timeit import Timer
 
 
@@ -79,13 +73,13 @@ class PackageNotebook(object):
         # summary view
         scroller = self.wtree.get_widget("summary_text_scrolled_window");
         self.summary = Summary(Dispatcher(self.callbacks["action_callback"]), self.callbacks["re_init_portage"])
-        result = scroller.add(self.summary)
+        scroller.add(self.summary)
         self.summary.show()
         # setup the dependency treeview
         parent_tree = parent_tree or []
         self.deps_view = DependsView(self.new_notebook, parent_name, parent_tree, Dispatcher(self.callbacks["action_callback"]))
         self.dep_window = {'window': None, 'notebook': None, 'callback': None, 'label': None, 'tooltip': None, 'tree': '', 'depth': 0}
-        result = self.wtree.get_widget("dependencies_scrolled_window").add(self.deps_view)
+        self.wtree.get_widget("dependencies_scrolled_window").add(self.deps_view)
 
         self.use_flag_page = self.wtree.get_widget("use_scrolledwindow")
         self.use_flag_view = None
@@ -225,7 +219,7 @@ class PackageNotebook(object):
 
     def set_new_parent(self, name):
         if self.dep_window["notebook"] != None:
-            self.dep_window["notebook"].set_new_parent(package.full_name)
+            self.dep_window["notebook"].set_new_parent(self.package.full_name)
             self.dep_window["notebook"].notebook.set_sensitive(False)
             self.dep_window["tree"] = self.dep_window["tree"][:-1]
             self.dep_window.deps_view.parent_tree = self.dep_window.deps_view.parent_tree[:-1]

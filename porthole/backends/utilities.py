@@ -28,7 +28,6 @@ import datetime
 id = datetime.datetime.now().microsecond
 print("UTILITIES: id initialized to ", id)
 
-import os
 from gettext import gettext as _
 
 from porthole.utils import debug

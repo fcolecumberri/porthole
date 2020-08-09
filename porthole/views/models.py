@@ -23,13 +23,18 @@
 '''
 
 import gi; gi.require_version("Gtk", "3.0") # make sure we have the right version
-import gtk, gobject
+from gi.repository import GdkPixbuf
+from gi.repository import GObject
+from gi.repository import Gtk
+
 #from gettext import gettext as _
 
 #from porthole.utils import debug
-from porthole.views.helpers import *
-from porthole.views.sorts import (size_sort_func, latest_sort_func,
-    installed_sort_func, package_sort_func)
+from porthole.views.sorts import (
+    size_sort_func,
+    latest_sort_func,
+    installed_sort_func
+)
 
 MODEL_ITEM = {"name": 0,
               "checkbox": 1,

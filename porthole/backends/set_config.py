@@ -22,7 +22,14 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 """
 
-import sys, os, os.path, codecs, re, datetime, time
+import datetime
+import os
+import os.path
+import codecs
+import re
+import sys
+
+from gettext import gettext as _
 
 import portage
 try: # >=portage 2.2 modules
@@ -216,7 +223,7 @@ def set_user_config(filename, name='', ebuild='', comment = '',
                 return set_user_config(filename, name=cp, remove=remove)
         else: # package.mask/unmask: list of names to add
             config.extend([[item] for item in add])
-            dprint("SET_CONFIG: added %d lines to %s" % (len(add), file))
+            dprint("SET_CONFIG: added %d lines to %s" % (len(add), filename))
         done = True
     # add one blank line to end (so we end with a \n)
     config.append([''])
@@ -406,7 +413,7 @@ class MakeConf:
 
         paths = []
         for i in self.overlays:
-            paths.append(path((self.storage, i.name, )))
+            paths.append(os.path((self.storage, i.name, )))
         overlays = 'PORTDIR_OVERLAY="\n'
         overlays += '\n'.join(paths) + '\n'
         overlays += '$PORTDIR_OVERLAY\n'
@@ -485,6 +492,7 @@ class MakeConf:
     def get_properties(self):
         """Parses /etc/make.conf into a dictionary of items with
             dict[setting] = properties list"""
+        _dict = {}
         if not self.properties:
             self.get_property_list()
         for _property in self.properties:

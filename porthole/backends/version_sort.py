@@ -32,27 +32,12 @@ if __name__ == "__main__":
     # setup our path so we can load our custom modules
     from sys import path
     path.append('/home/brian/dev/git/porthole')
-    from sys import argv, exit, stderr
-    from getopt import getopt, GetoptError
 
 import re
 
 
 from porthole.utils.debug import dprint
-from porthole import config
-#~ from porthole.importer import my_import
-#~ comps = config.Prefs.PORTAGE.split('.')
-#~ print comps
-#~ if comps[0] in 'backends':
-   #~ comps = comps[1:]
-#~ print comps
-#~ name = '.'.join(comps)
 
-#~ portage_lib = my_import(name)
-
-## circular import problem
-##from porthole import backends
-##portage_lib = backends.portage_lib
 
 ############### new code ###############
 

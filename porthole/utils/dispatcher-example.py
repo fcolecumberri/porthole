@@ -26,8 +26,9 @@
 
 import gi; gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+from gi.repository import GObject
 from time import sleep
-import threading, gobject, os
+import threading, os
 from .dispatcher import Dispatcher
 
 # ####################################
@@ -98,7 +99,7 @@ def on_window_map_event(event, param):
 
 
 if __name__ == "__main__":
-       
+
     Gtk.threads_init()
     window = Gtk.Window(Gtk.WindowType.TOPLEVEL)
     textview = Gtk.TextView()

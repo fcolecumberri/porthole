@@ -28,13 +28,16 @@ print("PREFERENCES: id initialized to ", id)
 
 import os
 from gettext import gettext as _
-from types import *
 
 from porthole.version import version
-from porthole._xml.xmlmgr import XMLManager, XMLManagerError
+from porthole._xml.xmlmgr import (
+    XMLManager,
+    XMLManagerError
+)
 from porthole.utils import debug
-print("PREFERENCES: imported debug.id = ", debug.id)
+print("PREFERENCES: imported debug.id = ", debug._id)
 from porthole.utils.utils import get_user_home_dir, can_gksu
+
 
 class OptionsClass(object):
     """Blank class to hold options"""
@@ -42,6 +45,7 @@ class OptionsClass(object):
     def __repr__(self):
         """Return options as a string"""
         return self.__dict__.__repr__()
+
 
 class EmergeOptions(OptionsClass):
     """ Holds common emerge options """
@@ -69,6 +73,7 @@ class EmergeOptions(OptionsClass):
         if self.noreplace: opt_string += '--noreplace '
         if self.oneshot: opt_string += '--oneshot '
         return opt_string
+
 
 class PortholePreferences:
     """ Holds all of Porthole's user configurable preferences """
@@ -306,7 +311,7 @@ class PortholePreferences:
         for option, default in globaloptions:
             try:
                 value = dom.getitem(''.join(['/globals/', option]))
-                if type(value) == StringType: # remove xml indent padding
+                if type(value) in (bytes, str): # remove xml indent padding
                    value = value.strip()
                 if value == "emerge sync": # upgrade from depricated action 'sync'
                     value = default

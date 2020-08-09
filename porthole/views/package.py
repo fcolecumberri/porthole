@@ -23,7 +23,11 @@
 '''
 
 import gi; gi.require_version("Gtk", "3.0") # make sure we have the right version
-import gtk, gobject, pango
+from gi.repository import Gdk
+from gi.repository import Gtk
+from gi.repository import GObject
+from gi.repository import Pango
+
 import os
 from gettext import gettext as _
 
@@ -36,8 +40,10 @@ from porthole import db
 from porthole.views.commontreeview import CommonTreeView
 from porthole.utils import utils
 from porthole.utils import debug
-from porthole.views.helpers import *
-from porthole.views.models import PackageModel, MODEL_ITEM
+from porthole.views.models import (
+    PackageModel,
+    MODEL_ITEM,
+)
 
 PACKAGES = 0
 INSTALLED = 1
@@ -49,6 +55,7 @@ BLANK = 6
 TEMP = 7
 MODEL_NAMES = ["All", "Installed", "Search", "Upgradable", "Deprecated", "Sets", "Blank", "Temp"]
 GROUP_SELECTABLE = [UPGRADABLE, DEPRECATED , SETS]
+
 
 class PackageView(CommonTreeView):
     """ Self contained treeview of packages """
@@ -592,7 +599,7 @@ class PackageView(CommonTreeView):
                     debug.dprint("VIEWS populate_info(): Failed to get item description for '%s'" % package.full_name)
                 self.iter = model.iter_next(iter)
                 #Gtk.threads_leave()
-            except Exception, e:
+            except Exception as e:
                 debug.dprint("VIEWS: populate_info(): Stopping due to exception '%s'" % e)
                 #self.iter = model.iter_next(iter)
                 return False # will not be called again

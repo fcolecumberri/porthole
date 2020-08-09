@@ -9,7 +9,11 @@ which I've aslo backported for use in python 2.7 and 3.1
 Copyright Brian Dolbec <brian.dolbec@gmail.com>
 """
 
-from collections import namedtuple, deque
+from collections import (
+    deque,
+    OrderedDict,
+    namedtuple,
+)
 from functools import wraps
 from itertools import filterfalse
 from heapq import nsmallest
@@ -122,6 +126,7 @@ def lfu_cache(maxsize=100):
         cache = {}                      # mapping of args to results
         use_count = Counter()           # times each key has been accessed
         kwd_mark = object()             # separate positional and keyword args
+        lock = Lock()
 
         @wraps(user_function)
         def wrapper(*args, **kwds):
@@ -193,6 +198,8 @@ def lru_cache2(maxsize=100): # py-2.7 or 3.1, builtin in py-3.2
 
         kwd_mark = object()             # separates positional and keyword args
         lock = Lock()
+        hits = 0
+        misses = 0
 
         if maxsize is None:
             cache = dict()              # simple cache without ordering or size limit

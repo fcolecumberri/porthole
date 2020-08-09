@@ -26,10 +26,10 @@ import datetime
 _id = datetime.datetime.now().microsecond
 print("DATABASE: id initialized to ", _id)
 
-import pwd, pickle, os
+import pickle
+import os
 from gi.repository import GObject
 
-from porthole.db.package import Package
 from porthole import backends
 portage_lib = backends.portage_lib
 from porthole.db.dbreader import DatabaseReader
@@ -95,8 +95,8 @@ class Database(DBBase):
     def update_package(self, fullname):
         """Update the package info in the full list and the installed list"""
         #category, name = fullname.split("/")
-        category = portage_lib.get_category(full_name)
-        name = portage_lib.get_name(full_name)
+        category = portage_lib.get_category(fullname)
+        name = portage_lib.get_name(fullname)
         if (category in self.categories and name in self.categories[category]):
             self.categories[category][name].update_info()
         if (category in self.installed and name in self.installed[category]):
@@ -105,7 +105,7 @@ class Database(DBBase):
     def update(self, pkg):
         """callback function to update an individual package
             after a successfull install action was detected"""
-        raise NotImplemented
+        raise NotImplementedError
 
     def save(self):
         """saves the db to a file"""

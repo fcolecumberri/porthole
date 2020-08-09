@@ -4,7 +4,7 @@
     Porthole loader functions
     The main interface the user will interact with
 
-    Copyright (C) 2003 - 2008 Fredrik Arnerup, Brian Dolbec, 
+    Copyright (C) 2003 - 2008 Fredrik Arnerup, Brian Dolbec,
     Daniel G. Taylor, Wm. F. Wheeler, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify
@@ -22,9 +22,8 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import os, threading
-#import errno
-from gi.repository import Gtk
+import os
+import threading
 from gettext import gettext as _
 
 from porthole.utils import debug
@@ -63,7 +62,7 @@ def get_textfile(path):
     f = open(path)
     data = f.read(); f.close()
     return data
-    
+
 def decode_text(data = None, mode = None):
     if data == None:
         return ''
@@ -167,7 +166,7 @@ def load_installed_files(window, view, package = None, ebuild = None):
                             "The package may not be installed"))
             return
         d= {"installed_count" : len(installed_files), "ebuild" : ebuild}
-        view.set_text((_("%(installed_count)i installed files for: %(ebuild)s \n\n") % d) 
+        view.set_text((_("%(installed_count)i installed files for: %(ebuild)s \n\n") % d)
                             + "\n".join(installed_files))
 
 

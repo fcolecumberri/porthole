@@ -29,8 +29,14 @@ from gettext import gettext as _
 from porthole import db
 from porthole.utils import debug
 
-from porthole.mwsupport.constants import (SHOW_ALL,
-    SHOW_INSTALLED, SHOW_SEARCH, SHOW_UPGRADE, SHOW_DEPRECATED, SHOW_SETS)
+from porthole.mwsupport.constants import (
+    SHOW_ALL,
+    SHOW_INSTALLED,
+    SHOW_SEARCH,
+    SHOW_UPGRADE,
+    SHOW_DEPRECATED,
+    SHOW_SETS
+)
 
 
 class StatusHandler(object):

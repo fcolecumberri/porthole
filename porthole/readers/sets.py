@@ -3,7 +3,7 @@
 '''
     Porthole Reader Class: Sets List Reader
 
-    Copyright (C) 2003 - 2007 Fredrik Arnerup, Brian Dolbec, 
+    Copyright (C) 2003 - 2007 Fredrik Arnerup, Brian Dolbec,
     Daniel G. Taylor and Wm. F. Wheeler, Tommy Iorns
 
     This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,8 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
-import os, types
+import os
+from gettext import gettext as _
 
 from porthole.utils import debug
 from porthole import backends
@@ -43,7 +44,7 @@ class SetListReader(CommonReader):
         self.count = 0
         self.pkg_dict_total = 0
 
- 
+
     def run( self ):
         """fill SETS tree"""
         debug.dprint("READERS: SetListReader(); process id = %d *******************" %os.getpid())
@@ -78,4 +79,4 @@ class SetListReader(CommonReader):
         return
 
 
-      
+

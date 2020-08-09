@@ -34,8 +34,12 @@ from porthole.views.package import PackageView
 from porthole.views.models import MODEL_ITEM as PACKAGE_MODEL_ITEM
 from porthole.dialogs.simple import YesNoDialog
 from porthole.mwsupport.base import MainBase
-from porthole.mwsupport.constants import (INDEX_TYPES, SHOW_SEARCH,
-    SHOW_DEPRECATED, GROUP_SELECTABLE)
+from porthole.mwsupport.constants import (
+    INDEX_TYPES,
+    SHOW_SEARCH,
+    SHOW_DEPRECATED,
+    GROUP_SELECTABLE
+)
 
 
 class PackageHandler(MainBase):

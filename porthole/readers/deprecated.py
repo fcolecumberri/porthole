@@ -22,8 +22,8 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import os, time
-from types import *
+import os
+from gettext import gettext as _
 
 from porthole.utils import debug
 #from porthole.sterminal import SimpleTerminal

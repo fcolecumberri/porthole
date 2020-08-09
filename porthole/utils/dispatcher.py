@@ -23,10 +23,15 @@
 # Fredrik Arnerup <foo@stacken.kth.se>, 2004-12-19
 # Brian Dolbec<dol-sen@telus.net>,2005-3-30
 
-import gobject, os, queue
+from gi.repository import GObject
+import os
+import queue
 from select import select
 from sys import stderr
-import _thread, threading
+import _thread
+import time
+import threading
+
 
 class Dispatcher:
     """Send signals from a thread to another thread through a pipe
@@ -45,7 +50,7 @@ class Dispatcher:
         self.queue.put(args)
         # write to pipe afterwards
         os.write(self.pipe_w, "X")
-    
+
     def on_data(self, source, cb_condition):
         if select([self.pipe_r],[],[], 0)[0] and os.read(self.pipe_r,1):
             if self.callback_args:
@@ -54,6 +59,7 @@ class Dispatcher:
             else:
                 self.callback(*self.queue.get(), **self.callback_kwargs)
         return self.continue_io_watch
+
 
 class Dispatch_wait:
     """Send signals from a thread to another thread through a pipe
@@ -72,32 +78,32 @@ class Dispatch_wait:
 
     def __call__(self, *args):  # this function is running in the calling thread
         """Emit signal from thread"""
-        id = _thread.get_ident()
-        self.queue.put([args, id])
+        _id = _thread.get_ident()
+        self.queue.put([args, _id])
         # write to pipe afterwards
         os.write(self.callpipe_w, "X")
         # now wait for the reply
         self.semaphore.aquire()
-        self.wait[id] = True
+        self.wait[_id] = True
         self.Semaphore.release()
         while self.wait[myid]:
             #pass the time waiting for a reply by having a snooze
             time.sleep(0.01)
-        myreply. reply_id = self.reply.get()
-        if reply_id != id:
+        myreply, reply_id = self.reply.get()
+        if reply_id != _id:
             print("DISPATCH_WAIT:  Uh-Oh! id's do not match!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", file=stderr)
         return myreply
-        
-    
+
+
     def on_calldata(self, source, cb_condition):
         if select([self.callpipe_r],[],[], 0)[0] and os.read(self.callpipe_r,1):
-            args, id =self.queue.get()
+            args, _id =self.queue.get()
             if self.callback_args:
                 reply = self.callback(*( self.callback_args + args), **self.callback_kwargs)
             else:
                 reply = self.callback(*args, **self.callback_kwargs)
             self.semaphore.aquire()
-            self.reply.put([reply, id])
-            self.wait[id] = False
+            self.reply.put([reply, _id])
+            self.wait[_id] = False
             self.semaphore.release()
         return self.continue_io_watch

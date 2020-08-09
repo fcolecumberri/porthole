@@ -65,13 +65,13 @@ class PluginHandler(ActionHandler):
         self.plugin_package_tabs = {}
         self.packagebook = None
 
-    def new_plugin_package_tab( self, name, callbacks ):
+    def new_plugin_package_tab( self, name, callbacks, widget ):
         """adds a pckagebook notebook page to the notebook"""
         notebook = self.packagebook.notebook
         label = Gtk.Label(label=name)
         notebook.append_page(widget, label)
         page_num = notebook.page_num(widget)
-        self.plugin_package_tabs[name] = [callback, label, page_num]
+        self.plugin_package_tabs[name] = [callbacks, label, page_num]
 
     def del_plugin_package_tab( self, name ):
         """removes a packagenotebook page from the notebook"""

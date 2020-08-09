@@ -23,7 +23,7 @@ import os
 
 #version = "0.6.1"
 
-copyright = _("Copyright (c) 2003 - 2011")
+copyright = _("Copyright (c) 2003 - 2020")
 
 version ="git-"
 
@@ -39,10 +39,11 @@ def get_git_info(prop):
         try:
             from subprocess import Popen, PIPE
             mp= os.path.dirname(os.path.abspath(__file__))
-            data = Popen(["git","log", "HEAD^..HEAD"],stdout=PIPE).communicate()[0].split('\n')
-            branches = Popen(["git","branch"],stdout=PIPE).communicate()[0].split('\n')
+            data = str(Popen(["git", "--no-pager", "log", "HEAD^..HEAD"],stdout=PIPE).communicate()[0].split(b'\n'))
+            branches = str(Popen(["git", "--no-pager", "branch"],stdout=PIPE).communicate()[0].split(b'\n'))
         except:
             print("Error obtaining git log and branch info")
+            exit()
 
         for item in data:
             if item.startswith('commit'):

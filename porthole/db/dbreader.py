@@ -25,7 +25,8 @@ import datetime
 id = datetime.datetime.now().microsecond
 print("DBREADER: import id initialized to ", id)
 
-import threading, os
+import os
+import threading
 
 from porthole.utils import debug
 from porthole.db.package import Package

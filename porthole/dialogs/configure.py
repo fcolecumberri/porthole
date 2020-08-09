@@ -22,7 +22,8 @@
 '''
 
 import gi; gi.require_version("Gtk", "3.0") # make sure we have the right version
-import gtk, Gtk.glade
+from gi.repository import Gtk
+from gi.repository import Gdk
 
 from porthole.utils import debug
 from porthole.loaders.loaders import load_web_page
@@ -35,11 +36,11 @@ class ConfigDialog:
 
     def __init__(self):
         """ Initialize Config GUI """
-        
+
         # Parse glade file
         self.gladefile = config.Prefs.DATA_PATH + "/glade/config.glade"
         self.wtree = Gtk.glade.XML(self.gladefile, "config", config.Prefs.APP)
-     
+
         # register callbacks
         callbacks = {
             "on_config_response" : self.on_config_response,
@@ -48,17 +49,17 @@ class ConfigDialog:
             "on_enable_archlist_toggled" : self.toggle_archlist,
             "on_globals_use_custom_browser_toggled" : self.toggle_browser_table,
         }
-        
+
         self.window = self.wtree.get_widget("config")
         self.KeywordsFrame = self.wtree.get_widget("archlist_frame")
         self.wtree.signal_autoconnect(callbacks)
-       
+
         # Hide widgets which haven't been implemented yet
         self.hide_widgets()
-        
+
         # build list of widgets and equivalent prefs
         self.build_widget_lists()
-        
+
         # set widget values to values in prefs
         self.set_widget_values()
 
@@ -81,7 +82,7 @@ class ConfigDialog:
             load_web_page('file://' + config.Prefs.DATA_PATH + 'help/customize.html')
         else:
             pass
-    
+
     def on_color_clicked(self, button_widget, event):
         """ Make sure colour dialog doesn't show alpha choice """
         debug.dprint("CONFIGDIALOG: on_color_clicked()")
@@ -108,7 +109,7 @@ class ConfigDialog:
                 button_widget.set_use_alpha(False)
                 self.on_color_set(button_widget)
                 return True
-    
+
     def on_color_set(self, button_widget):
         debug.dprint("CONFIGDIALOG: on_color_set()")
         # if button is default-button: change colour in all buttons using default.
@@ -158,7 +159,7 @@ class ConfigDialog:
             tabnum = notewidget.page_num(tabwidget)
             notewidget.remove_page(tabnum)
         return
-    
+
     def build_widget_lists(self):
         """ Build lists of widgets and equivalent prefs """
         self.tagnamelist = ['command', 'emerge', 'error', 'info', 'caution',
@@ -186,14 +187,14 @@ class ConfigDialog:
             ['advemerge', 'show_make_conf_button'],
         ]
         self.syncmethods = config.Prefs.globals.Sync_methods
-    
+
     def set_widget_values(self):
         """ Set widget attributes based on prefs """
-        
+
         # Display current CPU architecture
         widget = self.wtree.get_widget('current_arch')
         widget.set_label(config.Prefs.myarch)
-        
+
         # Terminal Color Tags
         default = config.Prefs.TAG_DICT['default']
         attributes = Gtk.TextView().get_default_attributes()
@@ -203,7 +204,7 @@ class ConfigDialog:
         else: default_fg = self.default_textview_fg
         if default[1]: default_bg = Gdk.color_parse(default[1])
         else: default_bg = self.default_textview_bg
-        
+
         for name in self.tagnamelist:
             color = config.Prefs.TAG_DICT[name][0] # fg
             widget = self.wtree.get_widget(name + '_fg')
@@ -223,14 +224,14 @@ class ConfigDialog:
                     widget.set_color(default_bg)
                     widget.set_alpha(32767) # to show it's using the default value
                     widget.set_use_alpha(True)
-        
+
         # Terminal Font:
         widget = self.wtree.get_widget('terminal_font')
         if widget:
             if config.Prefs.terminal.font:
                 widget.set_font_name(config.Prefs.terminal.font)
             self.terminal_font = widget.get_font_name()
-        
+
         # Default XTerm colours:
         for name in self.xtermtaglist:
             color = config.Prefs.TAG_DICT['fg_' + name][0]
@@ -247,7 +248,7 @@ class ConfigDialog:
                     widget.set_color(Gdk.color_parse(color))
                 else: # this should never happen, but just in case...
                     widget.set_color(Gdk.color_parse(name))
-        
+
         # View Colours
         for name in self.viewoptions:
             color = getattr(config.Prefs.views, name)
@@ -257,7 +258,7 @@ class ConfigDialog:
                     widget.set_color(Gdk.color_parse(color))
                 else:
                     widget.set_color(default_fg)
-        
+
         # Checkboxes:
         for category, name in self.checkboxes:
             widget = self.wtree.get_widget('_'.join([category, name]))
@@ -270,7 +271,7 @@ class ConfigDialog:
                 widget.set_active(active)
             else:
                 debug.dprint("CONFIGDIALOG: set_widget_values(); Checkboxes: widget = %s not found!" %('_'.join([category, name])))
-        
+
         # Sync combobox
         store = Gtk.ListStore(str)
         widget = self.wtree.get_widget('sync_combobox')
@@ -287,14 +288,14 @@ class ConfigDialog:
             widget.add_attribute(cell, 'text', 0)
             if tempiter:
                 widget.set_active_iter(iter)
-        
+
         # Custom Command History
         for x in [1, 2, 3, 4, 5]:
             widget = self.wtree.get_widget('history' + str(x))
             if widget:
                 pref = config.Prefs.run_dialog.history[x]
                 widget.set_text(pref)
-        
+
         # custom browser command
         widget = self.wtree.get_widget('custom_browser_command')
         if widget:
@@ -303,18 +304,18 @@ class ConfigDialog:
                 widget.set_text(command)
             if not config.Prefs.globals.use_custom_browser:
                 self.wtree.get_widget('custom_browser_table').set_sensitive(False)
-                
+
         # gui su client command
         widget = self.wtree.get_widget('su_client')
         if widget:
             command = config.Prefs.globals.su
             if command:
                 widget.set_text(command)
-        
+
         # build the arch list widget
         self.build_archlist_widget()
-        
-    
+
+
     def apply_widget_values(self):
         """ Set prefs from widget values """
         # Terminal Color Tags
@@ -341,12 +342,12 @@ class ConfigDialog:
                 else:
                     #debug.dprint("CONFIGDIALOG: setting to ''")
                     config.Prefs.TAG_DICT[name][1] = ''
-        
+
         # Terminal Font:
         widget = self.wtree.get_widget('terminal_font')
         if widget and self.terminal_font != widget.get_font_name():
             config.Prefs.terminal.font = widget.get_font_name()
-        
+
         # Default XTerm colours:
         for name in self.xtermtaglist:
             widget = self.wtree.get_widget('fg_' + name)
@@ -361,7 +362,7 @@ class ConfigDialog:
                     config.Prefs.TAG_DICT['bg_' + name][1] = self.get_color_spec(color)
                 else: # this should never happen, but just in case...
                     widget.set_color(Gdk.color_parse(name))
-        
+
         # View Colours
         for name in self.viewoptions:
             widget = self.wtree.get_widget(name)
@@ -372,7 +373,7 @@ class ConfigDialog:
                     setattr(config.Prefs.views, name, self.get_color_spec(color))
                 else:
                     setattr(config.Prefs.views, name, '')
-        
+
         # Checkboxes:
         for category, name in self.checkboxes:
             debug.dprint("CONFIGDIALOG: apply_widget_values(); name = %s" %name)
@@ -391,8 +392,8 @@ class ConfigDialog:
                             archlist.append(keyword)
                     debug.dprint("CONFIGDIALOG: new archlist = %s" %str(archlist))
                     config.Prefs.globals.archlist = archlist[:]
-            
-        
+
+
         # Sync combobox
         widget = self.wtree.get_widget('sync_combobox')
         if widget:
@@ -404,7 +405,7 @@ class ConfigDialog:
                     config.Prefs.globals.Sync = command
                     config.Prefs.globals.Sync_label = label
                     break
-        
+
         # Custom Command History
         for x in [1, 2, 3, 4, 5]:
             widget = self.wtree.get_widget('history' + str(x))
@@ -412,30 +413,30 @@ class ConfigDialog:
                 text = widget.get_text()
                 if text != config.Prefs.run_dialog.history[x]:
                     config.Prefs.run_dialog.history[x] = text
-        
+
         # custom browser command
         widget = self.wtree.get_widget('custom_browser_command')
         if widget:
             text = widget.get_text()
             if text:
                 config.Prefs.globals.custom_browser_command = text
-        
+
         # gui su client command
         widget = self.wtree.get_widget('su_client')
         if widget:
             text = widget.get_text()
             if text:
                 config.Prefs.globals.su = text
-        
+
 
     def get_color_spec(self, color):
         red = hex(color.red)[2:].zfill(4)
         green = hex(color.green)[2:].zfill(4)
         blue = hex(color.blue)[2:].zfill(4)
         return '#' + red + green + blue
-    
+
     def build_archlist_widget(self):
-        """ Create a table layout and populate it with 
+        """ Create a table layout and populate it with
             checkbox widgets representing the available
             keywords
         """
@@ -447,7 +448,7 @@ class ConfigDialog:
             self.KeywordsFrame.remove(child)
 
         keywords = portage_lib.get_archlist()
-        
+
         # Build table to hold radiobuttons
         size = len(keywords)
         maxcol = 3
@@ -458,7 +459,7 @@ class ConfigDialog:
         self.KeywordsFrame.add(table)
         self.kwList = []
 
-        # Iterate through use flags collection, create 
+        # Iterate through use flags collection, create
         # checkboxes and attach to table
         col = 0
         row = 0
@@ -486,7 +487,7 @@ class ConfigDialog:
         else:
             self.KeywordsFrame.set_sensitive(False)
         debug.dprint("CONFIGDIALOG: build_archlist_widget(); widget build completed")
-        
+
     def toggle_archlist(self, widget):
         """Toggles the archlist frame sensitivity
         """

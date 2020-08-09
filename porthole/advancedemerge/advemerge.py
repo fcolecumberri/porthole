@@ -28,7 +28,6 @@ _id = datetime.datetime.now().microsecond
 print("ADVEMERGE: id initialized to ", _id)
 
 from gi.repository import Gtk
-import Gtk.glade
 from gettext import gettext as _
 
 
@@ -39,8 +38,12 @@ from porthole import backends
 portage_lib = backends.portage_lib
 from porthole import db
 from porthole.backends.version_sort import ver_sort
-from porthole.backends.utilities import (get_reduced_flags,
-    abs_list, abs_flag, filter_flags)
+from porthole.backends.utilities import (
+#    get_reduced_flags,
+    abs_list,
+#    abs_flag,
+    filter_flags
+)
 from porthole.loaders.loaders import load_web_page
 from porthole.utils.dispatcher import Dispatcher
 #from porthole.advancedemerge.useflag import UseFlagWidget

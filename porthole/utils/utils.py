@@ -23,20 +23,15 @@
 '''
 
 
-import os, threading
-import errno
-import string
+import os
 import re
 import datetime
-from sys import stderr
 import gi; gi.require_version("Gtk", "3.0") # make sure we have the right version
 from gi.repository import Gtk
 import grp
-import pwd, pickle
+import pwd
 from gettext import gettext as _
 
-from porthole.version import version
-from porthole._xml.xmlmgr import XMLManager, XMLManagerError
 from porthole import config
 from porthole.utils import debug
 

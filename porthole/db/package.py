@@ -26,7 +26,7 @@ import datetime
 _id = datetime.datetime.now().microsecond
 print("PACKAGE: id initialized to ", _id)
 
-from types import IntType
+from gettext import gettext as _
 
 ## circular import problem
 ##from porthole.db import userconfigs
@@ -85,7 +85,7 @@ class Package:
         if self.full_name == _("None"):
             return
         self.is_upgradeable(REFRESH)
-        self.in_world = full_name in portage_lib.settings.get_world()
+        self.in_world = self.full_name in portage_lib.settings.get_world()
 
     def get_installed(self, refresh = False):
         """Returns a list of all installed ebuilds."""
@@ -319,7 +319,7 @@ class Package:
         ebuilds = self.get_installed()
         for ebuild in ebuilds:
             overlay = portage_lib.get_overlay(ebuild)
-            if type(overlay) is IntType: # catch obsolete
+            if type(overlay) in (int,): # catch obsolete
                 # add the ebuild to Ebuilds list
                 self.unavailable.append(ebuild)
         return self.unavailable

@@ -11,11 +11,7 @@ There is NO WARRANTY, to the extent permitted by law.
 Written by  René 'Necoro' Neumann <necoro@necoro.net>
 Adapted to Porthole by, Brian Dolbec <dol-sen@users.sourceforge.net>
 """
-#from __future__ import absolute_import, with_statement
 
-#import logging
-
-from porthole.utils import debug
 
 class LazyView (object):
     def __init__ (self):
@@ -29,7 +25,7 @@ class LazyView (object):
         self.pkg = pkg
         self.ebuild = None
         self.updated = True
-        
+
         if force:
             self.cb_mapped()
 

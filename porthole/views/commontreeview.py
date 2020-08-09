@@ -23,7 +23,7 @@
 
 import gi; gi.require_version("Gtk", "3.0") # make sure we have the right version
 from gi.repository import Gtk
-#from gettext import gettext as _
+from gi.repository import GObject
 
 #from porthole.utils import debug
 

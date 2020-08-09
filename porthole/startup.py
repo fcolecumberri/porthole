@@ -29,10 +29,13 @@ _id = datetime.datetime.now().microsecond
 from gi.repository import GObject
 GObject.threads_init()
 # now for the rest
+from gi.repository import GdkPixbuf
+from gi.repository import Gtk
 
 # setup our path so we can load our custom modules
-import sys, os, _thread
-import time
+
+import os
+import sys
 
 # Load EPREFIX from Portage, fall back to the empty string if it fails
 try:
@@ -65,19 +68,12 @@ RUN_LOCAL = False
 DIR_LIST = [LOG_FILE_DIR, DB_FILE_DIR]
 
 
-import os
 #from thread import *
 import gi; gi.require_version("Gtk", "3.0") # make sure we have the right version
-import gtk, time, pwd
 while EPREFIX + '/usr/bin' in sys.path: # and now importing gtk re-adds it! Grrrr, rude
     sys.path.remove(EPREFIX + '/usr/bin')
-from getopt import getopt, GetoptError
-import locale, gettext
-from gettext import gettext as _
-
-# it is recommended to init threads right after importing gtk just in case
-#Gtk.threads_init()
-#Gdk.threads_init()
+import locale
+import gettext
 
 
 def create_dir(new_dir):
@@ -131,8 +127,8 @@ def print_version():
     sys.exit(0)
 
 def set_backend(arg):
-    if arg in choices:
-        BACKEND = choices[arg]
+    if arg in Choices:
+        BACKEND = Choices[arg]
     else:
         useage()
 
@@ -171,31 +167,31 @@ def main():
     from porthole.utils import debug
     from porthole import backends
     from porthole.backends import load
-    loaded = load(BACKEND)
+    load(BACKEND)
     print("PORTHOLE: importing MainWindow")
     from porthole.mainwindow import MainWindow
 
     locale.setlocale (locale.LC_ALL, '')
     gettext.bindtextdomain (APP, i18n_DIR)
     gettext.textdomain (APP)
-    gettext.install (APP, i18n_DIR, str=1)
-    Gtk.glade.bindtextdomain (APP, i18n_DIR)
-    Gtk.glade.textdomain (APP)
+    gettext.install (APP, i18n_DIR)
+    #Gtk.glade.bindtextdomain (APP, i18n_DIR)
+    #Gtk.glade.textdomain (APP)
 
     # make sure gtk lets threads run
     #os.putenv("PYGTK_USE_GIL_STATE_API", "True")
-    Gdk.threads_init()
+    #Gtk.threads_init()
 
     debug.dprint("PORTHOLE: process id = %d ****************" %os.getpid())
     # setup our app icon
     myicon = GdkPixbuf.Pixbuf.new_from_file(DATA_PATH + "pixmaps/porthole-icon.png")
-    Gtk.window_set_default_icon_list(myicon)
+    #Gtk.window_set_default_icon_list(myicon)
     # load config info
     config.Config.set_path(DATA_PATH)
     config.Config.load()
     config.Prefs.use_gladefile = "not assigned"
     # create the main window
-    myapp = MainWindow() #config.Prefs, config.Config)
+    MainWindow() #config.Prefs, config.Config)
     # start the program loop
     Gtk.main()
     # save the prefs to disk for next time

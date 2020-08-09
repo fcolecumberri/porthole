@@ -23,14 +23,18 @@
 '''
 
 import gi; gi.require_version("Gtk", "3.0") # make sure we have the right version
-import gtk, gobject, pango
-import threading, os
+from gi.repository import Gtk
+
 from gettext import gettext as _
 
 from porthole.views.commontreeview import CommonTreeView
 from porthole.utils import debug
-from porthole.views.helpers import *
-from .models import C_ITEM, CategoryModel
+#from porthole.views.helpers import *
+from .models import (
+    C_ITEM,
+    CategoryModel,
+)
+
 
 class CategoryView(CommonTreeView):
     """ Self contained treeview to hold categories """
@@ -88,7 +92,7 @@ class CategoryView(CommonTreeView):
                 self._category_changed(category)
         # save current selection as last selected
         self.last_category = category
-        
+
     def populate(self, categories, _sort = True, counts = None):
         """Fill the category tree."""
         self.clear()
@@ -113,7 +117,7 @@ class CategoryView(CommonTreeView):
                     full_name = '-'.join(cat_split[:i+1] or cat_split[0])
                     if i < max_level:
                         # add parent/subparent row
-                        len_full_names = len(last_full_names) 
+                        len_full_names = len(last_full_names)
                         #debug.dprint(" VIEWS: CategoryView.populate():i<max_level 117 i = " +str(i) +" new full_name = " + full_name +' >> ' + str(last_full_names) + str(len_full_names))
                         if len_full_names > i  and last_full_names[i] == full_name:
                             #debug.dprint(" VIEWS: CategoryView.populate():i<max_level 119 matching full_name...continuing")
@@ -156,7 +160,7 @@ class CategoryView(CommonTreeView):
                             #debug.dprint("VIEWS: Counts: %s = %s" %(cat, str(counts[cat])))
                             self.model.set_value( parent_iter[i+1], C_ITEM["count"], str(counts[cat]) )
                             path = self.model.get_path( parent_iter[i+1])
-                            p = i 
+                            p = i
                             while p > 0:
                                 path = path[:p]
                                 #debug.dprint(" VIEWS: CategoryView.populate(): 178 update parent counts path = "+str(path))

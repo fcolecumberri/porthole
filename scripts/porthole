@@ -23,7 +23,10 @@
 '''
 import os
 import sys
-from getopt import getopt, GetoptError
+from getopt import (
+    getopt,
+    GetoptError
+)
 """
 try:
     import cherrypy
@@ -38,7 +41,7 @@ except:
 
 print("Porthole: python version = ", sys.version)
 
-def usage(object):
+def usage():
     tabs = "\t\t"
     print("Usage: porthole [OPTION...]\n")
     print("  -h, --help" + tabs + "Show this help message")

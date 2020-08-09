@@ -25,7 +25,7 @@
 
 import gi
 gi.require_version("Gtk", "3.0") # make sure we have the right version
-import gtk, Gtk.glade
+from gi.repository import Gtk
 from gettext import gettext as _
 
 
@@ -78,10 +78,10 @@ class MainBase(object):
         debug.dprint("MAINWINDOW: Prefs.myarch = " + config.Prefs.myarch)
         #self.config = configs
         # setup glade
+        builder = Gtk.Builder()
         self.gladefile = config.Prefs.DATA_PATH + config.Prefs.use_gladefile
-        self.wtree = Gtk.glade.XML(self.gladefile,
-            "main_window",
-            config.Prefs.APP)
+        self.wtree = builder.add_objects_from_file(self.gladefile, "main_window")
+#            config.Prefs.APP)
 
         # aliases for convenience
         self.mainwindow = self.wtree.get_widget("main_window")

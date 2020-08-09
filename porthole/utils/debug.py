@@ -23,14 +23,12 @@
 '''
 
 import datetime
-id = datetime.datetime.now().microsecond
-print("DEBUG: id initialized to ", id)
+_id = datetime.datetime.now().microsecond
+print("DEBUG: id initialized to ", _id)
 
-import errno
-import string
-#import re
 from sys import stderr
-import pwd, pickle
+import pwd
+import pickle
 import os
 
 
@@ -43,10 +41,10 @@ global dprint, dsave, debug, debug_target
 debug = False
 debug_target = "ALL"
 
-    
+
 # initialize to dummy functions
 dprint = __dummy
-dsave = __dummy 
+dsave = __dummy
 
 def set_debug(mode):
     global debug, dprint, dsave
@@ -54,23 +52,23 @@ def set_debug(mode):
         dprint = _dprint
         dsave = _dsave
     else:
-        dprint = __dummy 
+        dprint = __dummy
         dsave = __dummy
     debug = mode
-    
+
 def _dprint(message):
-	"""Print debug message if debug is true."""
-	#print >>stderr, message
-	if debug_target == "ALL" or debug_target in message:
-		print(message, file=stderr)
-	#else:
-	#    print >>stderr, "message filtered"
+    """Print debug message if debug is true."""
+    #print >>stderr, message
+    if debug_target == "ALL" or debug_target in message:
+        print(message, file=stderr)
+    #else:
+    #    print >>stderr, "message filtered"
 
 def _dsave(name, item = None):
-	"""saves 'item' to file 'name' if debug is true"""
-	_dprint("UTILS: dsave() Pickling 'item' to file: %s" %name)
-	# get home directory
-	home = pwd.getpwuid(os.getuid())[5]
-	# pickle it baby, yeah!
-	pickle.dump(item, open(home + "/.porthole/" + name, "w"))
+    """saves 'item' to file 'name' if debug is true"""
+    _dprint("UTILS: dsave() Pickling 'item' to file: %s" %name)
+    # get home directory
+    home = pwd.getpwuid(os.getuid())[5]
+    # pickle it baby, yeah!
+    pickle.dump(item, open(home + "/.porthole/" + name, "w"))
 

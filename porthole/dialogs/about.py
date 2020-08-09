@@ -21,11 +21,20 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import gtk, Gtk.glade
+from gi.repository import Gtk
+
+from gettext import gettext as _
 
 from porthole.utils import debug
-from porthole.loaders.loaders import load_web_page, decode_text, get_textfile
-from porthole.version import version, copyright
+from porthole.loaders.loaders import (
+    load_web_page,
+    decode_text,
+    get_textfile
+)
+from porthole.version import (
+    copyright,
+    version
+)
 from porthole import config
 from porthole import backends
 portage_lib = backends.portage_lib

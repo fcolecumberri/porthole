@@ -25,10 +25,14 @@ import datetime
 id = datetime.datetime.now().microsecond
 print("USERCONFIGS: id initialized to ", id)
 
+from gettext import gettext as _
 import os
 
 from porthole import config
-from porthole.backends.utilities import read_bash, reduce_flags
+from porthole.backends.utilities import (
+    read_bash,
+    reduce_flags
+)
 from porthole.backends import set_config
 from porthole.utils.dispatcher import Dispatcher
 from porthole.sterminal import SimpleTerminal
@@ -437,7 +441,7 @@ class UserConfigs:
             old_file_atoms.sort(cmp)
         else:
             old_file_atoms =  []
-        old_length = len(old_file_atoms)
+        #old_length = len(old_file_atoms)
         #debug.dprint(" * USER_CONFIGS: reload_file(): old atoms : " +
             #str(old_file_atoms))
         for a in old_file_atoms:

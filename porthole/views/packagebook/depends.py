@@ -27,10 +27,7 @@ from gettext import gettext as _
 from porthole.utils import debug
 from porthole import backends
 portage_lib = backends.portage_lib
-from porthole.backends.utilities import get_reduced_flags, dep_split, get_sync_info
-#from porthole.utils.enable import Enabler
-from porthole.db.package import Package
-from porthole import db
+from porthole.backends.utilities import dep_split
 import datetime
 
 #from exceptions import Exception
@@ -56,15 +53,15 @@ class DependKey(object):
 
     def get_key(self, mytype, useflag, atom, parent, children):
         """Generates a key based on the mytype parameter
-        
+
         @param mytype:string = one of  ['USING', 'NOTUSING', 'OPTION', 'GROUP',...]
         @param useflag: string  ie.  'ffmpeg'
         @param atom: string  ie. '>=app-portage/porthole-0.6.0'
         @param parent: tuple containing a unigue id
-        
+
         @rtype key: tuple of values
         """
-        
+
         if mytype in ['USING', 'NOTUSING']:
             #debug.dprint("DependKey: ['USING', 'NOTUSING'], mytype = " + mytype)
             return ((mytype, useflag, atom, parent))
@@ -82,7 +79,7 @@ class DependKey(object):
 class DependAtom(DependKey):
     """Dependency Atom Class.
     Important methods: __repr__(), __eq__(), is_satisfied().
-    
+
         @param atom: string  ie. '>=app-portage/porthole-0.6.0'
         @param name: string  ie. 'app-portage/porthole-0.6.0'
         @param mytpe: string = one of  ['USING', 'NOTUSING', 'OPTION', 'GROUP',...]
@@ -97,7 +94,7 @@ class DependAtom(DependKey):
     def __init__(self, atom = '', name='', mytype='', parent='',
         cmp='', slot='', useflag='', req_use='', children=None
         ):
-        
+
         self.atom = atom
         self.mytype = mytype
         self.parent = parent
@@ -116,10 +113,10 @@ class DependAtom(DependKey):
     def __repr__(self): # called by the "print" function
         """Returns a human-readable string representation of the DependAtom
         (used by the "print" statement)."""
-        
-        if self.mytype == 'DEP': 
+
+        if self.mytype == 'DEP':
             return self.get_depname() + self.get_required_use()
-        elif self.mytype == 'BLOCKER': 
+        elif self.mytype == 'BLOCKER':
             return  self.get_depname() + self.get_required_use()
         elif self.mytype == 'OPTION': prefix = '||'
         elif self.mytype == 'GROUP': prefix = ''
@@ -155,7 +152,7 @@ class DependAtom(DependKey):
     def is_satisfied(self, use_flags):
         """Currently returns an object of variable DEPEND type, indicating whether
         this dependency is satisfied.
-        
+
         Returns -1 if being satisfied is irrelevant (e.g. use flag for a
         "USING" DependAtom is not set). Otherwise, the return value can be
         evaluated as True if the dep is satisfied, False if unsatisfied.
@@ -185,7 +182,7 @@ class DependAtom(DependKey):
         return satisfied
 
     def _USING_is_satisfied(self, use_flags):
-        """ self.mytype == 'USING' 
+        """ self.mytype == 'USING'
         @param use_flags: string of space separated use flags
         @rtype: integer
         @rval: -1 if not using, 0 if not satisfied, 1 if satisfied"""
@@ -199,7 +196,7 @@ class DependAtom(DependKey):
         return satisfied
 
     def _NOTUSING_is_satisfied(self, use_flags):
-        """ self.mytype == 'NOTUSING' 
+        """ self.mytype == 'NOTUSING'
         @param use_flags: string of space separated use flags
         @rtype: integer
         @rval: -1 if using, 0 if not satisfied, 1 if satisfied"""
@@ -217,7 +214,7 @@ class DependAtom(DependKey):
         return portage_lib.get_installed(self.get_depname() + self.get_required_use())
 
     def _OPTION_is_satisfied(self, use_flags):
-        """ self.mytype == 'OPTION' 
+        """ self.mytype == 'OPTION'
         @param use_flags: string of space separated use flags
         @rtype: nonempty if any child is satisfied"""
         satisfied = []
@@ -230,7 +227,7 @@ class DependAtom(DependKey):
         return 0
 
     def get_depname(self):
-        """Returns the dependecy name properly formatted according to 
+        """Returns the dependecy name properly formatted according to
         the atom's mytype.
         """
         return getattr(self, '_%s_name' % self.mytype)()
@@ -286,7 +283,7 @@ class DependAtom(DependKey):
 class DepCache(DependKey):
     """Dependency atom cache and methods/functions for creating, adding,
     and retrieving DependAtom instances and controlling their re-use
-    
+
     Important methods/functions:
         add(), get(), reset()
     """
@@ -299,13 +296,13 @@ class DepCache(DependKey):
                 parent='', useflag='', children=None):
         """Add a new DependAtom to the cache if it does not already exist.
         Or returns an existing DependAtom depending on the atom.mytype
-        
+
         @param mytpe: string = one of  ['USING', 'NOTUSING', 'OPTION', 'GROUP',...]
         @param useflag: string  ie.  'ffmpeg'
         @param mydep: string  ie. '>=app-portage/porthole-0.6.0'
         @param parent: tuple containing a unigue id
         @param children: list of child atom keys
-        
+
         @rtype key: a DependKey generated key used to reference the DependAtom instance
         """
         key = self.get_key(mytype, useflag, mydep, parent, children)
@@ -334,9 +331,9 @@ class DepCache(DependKey):
 
     def add_lazy(self,  atom):
         """Add a new LAZY DependAtom to the cache.
-        
+
         @param atom: The parent atom instance to be used to link with
-        
+
         @rtype key: a DependKey generated key used to reference the DependAtom instance
         """
         parent = self.get_key(mytype=atom.mytype, useflag=atom.useflag,
@@ -357,8 +354,8 @@ class DepCache(DependKey):
                 useflag='', parent='', children=None):
         """Creates a new DependAtom instance with supplied
         data and Adds it to the cache. Normally called by the add().
-        
-        @param key: a DependKey generated key used to reference the DependAtom with 
+
+        @param key: a DependKey generated key used to reference the DependAtom with
                     in the cache dict or control atoms set.
         Please refer to the add() for all other input parameter details.
         """
@@ -372,7 +369,7 @@ class DepCache(DependKey):
 
     def get(self, key):
         """Returns the cached DependAtom associated with 'key'
-        
+
         @param key: DependKey generated key used to refeernce
                     the stored DependAtom
         @rtype atom: The DependAtom instance requested.
@@ -405,7 +402,7 @@ class Depends(object):
     in a Dependency viewer or any other application the DependAtom model
     is suitable
 
-    Important 
+    Important
         @variable:flags: a list of USE flags to be filtered out and not parsed.
         @methods/functions: get_depends(), parse()
     """
@@ -422,7 +419,7 @@ class Depends(object):
         if more closing brackets are encountered than opening ones then it
         will return, meaning we can recursively pass the unparsed part of the
         list back to ourselves...
-        
+
         @param depends_list: of the form:
                 portage.portdb.aux_get(<ebuild>, ["DEPEND"]).split()
         @param parent: string if a unique parent DependAtom ID that any DependAtoms
@@ -470,7 +467,7 @@ class Depends(object):
                 if not I_am:
                     I_am = tuple((parent, datetime.datetime.now()))
                 children = self.parse(depends_list, I_am)
-                a_key = cache.add(mytype=item_type, parent=I_am,
+                a_key = self.cache.add(mytype=item_type, parent=I_am,
                                         useflag=useflag, children=children)
                 atomized_set.add(a_key)
                 a_key = None
@@ -483,7 +480,7 @@ class Depends(object):
                 return self._atomized_list(atomized_set)
             else: # hopefully a nicely formatted dependency
                 #if filter(lambda a: a in item, ['(', '|', ')']):<== EAPI 3 will kill this [flag1(+), flag2(-)]
-                    #  removed '?' from the list due to required USE flags that may have it. 
+                    #  removed '?' from the list due to required USE flags that may have it.
                     #~ debug.dprint(" *** DEPENDS: atomize_depends_list: DEPENDS PARSE ERROR!!! " + \
                         #~ "Please report this to the authorities. (item = %s)" % item)
                 if item.startswith("!"):
@@ -494,7 +491,7 @@ class Depends(object):
                     item = item[1:]
                 else:
                     item_type = "DEP"
-                
+
                 a_key = self.cache.add(mydep=item, mytype=item_type)
                 atomized_set.add(a_key)
                 a_key = None
@@ -528,7 +525,7 @@ class Depends(object):
         """
         #debug.dprint("Depends: split_group(); starting")
         group = []
-        remainder = []
+        #remainder = []
         if dep_list[0] != '(':
             debug.dprint("Depends: split_group();dep_list passed does not " + \
                 "start with a '(', returning")
@@ -556,12 +553,12 @@ class Depends(object):
 
     def get_depends(self, package, ebuild):
         """Returns a list of DEPEND atoms for a given package and ebuild
-        
+
         Optionally it will return a list stripped of any predefined flags
         and their dependencies.  ie. Depends.flags = ['!bootstrap!']
-        
+
         @param package: porthole.db.package.Package object
-        @param ebuild: specific ebuild version of the 
+        @param ebuild: specific ebuild version of the
                package to get the dependency list for
         @rtype deps: a list of depends atom strings
         """
@@ -584,7 +581,7 @@ class Depends(object):
 
     def _filter_flags(self, depends):
         """Remove any flag enabled dependency entries from depends list
-        
+
         @param depends: list of DEPEND atom strings
         @rtype depends: list of DEPEND atom strings ready for parsing.
         """

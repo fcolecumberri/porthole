@@ -22,8 +22,11 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import signal, os, threading, time, gtk
-import errno, string
+import os
+import threading
+import time
+
+from gi.repository import Gdk
 
 from porthole.utils import debug
 #from porthole.utils.dispatcher import Dispatcher
@@ -77,7 +80,7 @@ class ProcessOutputReader(threading.Thread):
                         char = None
                 elif self.file_input:
                     try:
-                        # keep read(number) small so as to not cripple the 
+                        # keep read(number) small so as to not cripple the
                         # system reading large files.  even 2 can hinder gui response
                         char = self.f.read(1)
                     except OSError as e:

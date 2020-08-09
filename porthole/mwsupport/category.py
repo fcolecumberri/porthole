@@ -29,8 +29,15 @@ from porthole.utils import debug
 from porthole.views.category import CategoryView
 
 from porthole.mwsupport.package import PackageHandler
-from porthole.mwsupport.constants import (INDEX_TYPES, SHOW_ALL,
-    SHOW_INSTALLED, SHOW_SEARCH, SHOW_UPGRADE, SHOW_DEPRECATED, SHOW_SETS)
+from porthole.mwsupport.constants import (
+    INDEX_TYPES,
+    SHOW_ALL,
+    SHOW_INSTALLED,
+    SHOW_SEARCH,
+    SHOW_UPGRADE,
+    SHOW_DEPRECATED,
+    SHOW_SETS
+)
 
 
 class CategoryHandler(PackageHandler):

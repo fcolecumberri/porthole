@@ -21,7 +21,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-from porthole.utils import debug
 from porthole import backends
 portage_lib = backends.portage_lib
 
@@ -32,8 +31,8 @@ class ToolChain:
         self.build = build
         self.tc_conf = ""
         self.tc_stdc = ""
-        self.TC_build = ["sys-kernel/linux-headers", "sys-libs/glibc", tc_conf, \
-                      "sys-devel/binutils", "sys-devel/gcc", tc_stdc]
+        self.TC_build = ["sys-kernel/linux-headers", "sys-libs/glibc", self.tc_conf, \
+                      "sys-devel/binutils", "sys-devel/gcc", self.tc_stdc]
         self.TC="linux-headers glibc $tc_conf_regx binutils-[0-9].* gcc-[0-9].* glibc binutils-[0-9].* gcc-[0-9].* $tc_stdc"
         self.TC_glb="glibc $tc_conf_regx binutils-[0-9].* gcc-[0-9].* glibc binutils-[0-9].* gcc-[0-9].* $tc_stdc"
         self.TCmini="$tc_conf_regx binutils-[0-9].* gcc-[0-9].* binutils-[0-9].* gcc-[0-9].* $tc_stdc"

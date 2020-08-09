@@ -23,8 +23,9 @@
 '''
 
 import gi; gi.require_version("Gtk", "3.0") # make sure we have the right version
-import gtk, gobject, pango
-import threading, os
+from gi.repository import Gtk
+from gi.repository import Gdk
+
 from gettext import gettext as _
 
 from porthole.utils import utils
@@ -33,7 +34,7 @@ portage_lib = backends.portage_lib
 from porthole.views.packagebook.dependstree import DependsTree
 from porthole.views.commontreeview import CommonTreeView
 from porthole.utils import debug
-from porthole.views.helpers import *
+#from porthole.views.helpers import *
 from porthole import config
 from porthole import db
 
@@ -357,7 +358,7 @@ class DependsView(CommonTreeView):
         pathinfo = widget.get_path_at_pos(int(event.x), int(event.y))
         if pathinfo == None:
             debug.dprint("DependsView: pathinfo = None" )
-            self.dopopup = do_dep_window = False
+            self.dopopup = _do_dep_window = False
             return True
         else:
             #path, col, cellx, celly = pathinfo

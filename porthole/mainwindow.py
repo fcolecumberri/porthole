@@ -28,17 +28,28 @@ print("MAINWINDOW: id initialized to ", _id)
 
 import gi
 gi.require_version("Gtk", "3.0") # make sure we have the right version
-import gtk, Gtk.glade, gobject
+from gi.repository import GObject
+from gi.repository import Gdk
+from gi.repository import Gtk
+
 import os
 from gettext import gettext as _
 
-from porthole.utils import utils, debug
+from porthole.utils import (
+    utils,
+    debug
+)
 from porthole import config
 from porthole import backends
 PMS_LIB = backends.portage_lib
 #World = PMS_LIB.settings.get_world
-from porthole.views.package import PACKAGES, SEARCH, \
-        UPGRADABLE, DEPRECATED, SETS
+from porthole.views.package import (
+    PACKAGES,
+    SEARCH,
+    UPGRADABLE,
+    DEPRECATED,
+    SETS
+)
 from porthole.utils.dispatcher import Dispatcher
 from porthole.dialogs.simple import SingleButtonDialog
 from porthole.readers.upgradeables import UpgradableListReader
@@ -51,9 +62,18 @@ from porthole.mwsupport.status import StatusHandler
 from porthole.mwsupport.plugin import PluginHandler
 
 
-from porthole.mwsupport.constants import (INDEX_TYPES, SHOW_ALL,
-    SHOW_INSTALLED, SHOW_SEARCH, SHOW_UPGRADE, SHOW_DEPRECATED, SHOW_SETS,
-    ON, OFF, READER_NAMES)
+from porthole.mwsupport.constants import (
+    INDEX_TYPES,
+    SHOW_ALL,
+    SHOW_INSTALLED,
+    SHOW_SEARCH,
+    SHOW_UPGRADE,
+    SHOW_DEPRECATED,
+    SHOW_SETS,
+    ON,
+    OFF,
+    READER_NAMES
+)
 
 
 

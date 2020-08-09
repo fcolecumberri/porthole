@@ -41,13 +41,16 @@ IMPORT_DONE = False
 
 from porthole.utils import debug
 from porthole.utils.utils import  is_root
-from porthole.utils.dispatcher import Dispatcher, Dispatch_wait
+from porthole.utils.dispatcher import (
+    Dispatcher,
+    Dispatch_wait
+)
 from porthole.utils.caches import lru_cache
 from porthole.sterminal import SimpleTerminal
-from porthole.backends import version_sort
 from porthole.backends.properties import Properties
 from porthole import config
 from porthole.backends.metadata import parse_metadata
+from porthole.backends.utilities import read_bash
 
 try: # >=portage 2.2 modules
     import portage

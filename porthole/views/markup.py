@@ -15,17 +15,16 @@ based on accumulated code fron the original summary.py module
 """
 
 
-import gtk, pango
+from gi.repository import Gdk
+from gi.repository import Gtk
+from gi.repository import Pango
 
-from porthole.utils import debug
-#from porthole import backends
-#portage_lib = backends.portage_lib
 from porthole.loaders.loaders import load_web_page
 
 
 
 class URLObject(object):
-    """Structure to hold all relavent data about the url to 
+    """Structure to hold all relavent data about the url to
     be used to correctly process and produce the desired result"""
 
     def __init__(self, text='', url='', color='blue', type='', tag=None, handler=None):
@@ -69,7 +68,7 @@ class MarkupView (object):
         tagtable = self._create_tag_table()
         self.buffer = Gtk.TextBuffer(tagtable)
         self.set_buffer(self.buffer)
-        
+
         # Capture any mouse motion in this tab so we
         # can highlight URL links & change mouse pointer
         self.connect("motion_notify_event", self.on_mouse_motion)
@@ -126,7 +125,7 @@ class MarkupView (object):
         self.append(text, tag.get_property("name"))
 
     def nl(self, x=1):
-        """ Append x new lines to the buffer """ 
+        """ Append x new lines to the buffer """
         self.append("\n"*x)
 
     def _create_tag_table(self):
@@ -151,7 +150,7 @@ class MarkupView (object):
 
     def on_mouse_motion(self, widget, event, data = None):
         # we need to call get_pointer, or we won't get any more events
-        pointer = self.window.get_pointer()
+        self.window.get_pointer()
         x, y, spam = self.window.get_pointer()
         x, y = self.window_to_buffer_coords(Gtk.TextWindowType.TEXT, x, y)
         tags = self.get_iter_at_location(x, y).get_tags()

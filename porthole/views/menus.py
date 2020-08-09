@@ -23,16 +23,15 @@
 '''
 
 import gi; gi.require_version("Gtk", "3.0") # make sure we have the right version
-import gtk, gobject, pango
-import threading, os
+from gi.repository import Gtk
+
+
 from gettext import gettext as _
 
 from porthole.utils import utils
 from porthole import backends
 portage_lib = backends.portage_lib
-from porthole.views.packagebook.depends import DependsTree
 from porthole.utils import debug
-from porthole.views.helpers import *
 
 
 class RMBMenu:

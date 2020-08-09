@@ -28,7 +28,10 @@ from gettext import gettext as _
 from porthole import config
 from porthole import db
 
-from porthole.utils import utils, debug
+from porthole.utils import (
+    debug,
+    utils
+)
 from porthole import backends
 PMS_LIB = backends.portage_lib
 from porthole.advancedemerge.advemerge import AdvancedEmergeDialog

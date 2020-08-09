@@ -26,7 +26,7 @@ from sys import exit
 import os
 from gettext import gettext as _
 
-from timeit import Timer
+#from timeit import Timer
 import imp
 
 try:
@@ -57,7 +57,11 @@ except ImportError:
     exit(_('Could not find portage module.\n'
          'Are you sure this is a Gentoo system?'))
 
-from utils import dprint, dsave, is_root
+from utils import (
+    dprint,
+#    dsave,
+    is_root
+)
 from sterminal import SimpleTerminal
 from dispatcher import Dispatcher
 from . import version_sort
@@ -73,7 +77,7 @@ Lib = "Pkgcore"
 
 thread_id = os.getpid()
 
-CONFIG = pkgcore.config.load_config() 
+CONFIG = pkgcore.config.load_config()
 VDB = CONFIG.repo['vdb']   # installed packages list
 # <bharring> grab the raw_repo from the domain repo.
 # <bharring> domain_repo_instances.raw_repo == configured_repo
@@ -155,11 +159,11 @@ def reload_portage():
     imp.reload(portage_const)
 
 def get_use_flag_dict():
-    """ Get all the use flags and return them as a dictionary 
+    """ Get all the use flags and return them as a dictionary
         key = use flag forced to lowercase
         data = list[0] = 'local' or 'global'
                list[1] = 'package-name'
-               list[2] = description of flag   
+               list[2] = description of flag
     """
     dict = {}
 
@@ -191,7 +195,7 @@ UseFlagDict = get_use_flag_dict()
 #polibkeys.sort()
 #for polibkey in polibkeys:
 #    print polibkey, ':', UseFlagDict[polibkey]
-    
+
 def get_portage_environ(var):
     """Returns environment variable from portage if possible, else None"""
     try: temp = portage.config(clone=portage.settings).environ()[var]
@@ -279,12 +283,12 @@ def get_user_config(file, name=None, ebuild=None):
     """
     Function for parsing package.use, package.mask, package.unmask
     and package.keywords.
-    
+
     Returns /etc/portage/<file> as a dictionary of ebuilds, with
     dict[ebuild] = list of flags.
     If name is given, it will be parsed for ebuilds with xmatch('match-all'),
     and only those ebuilds will be returned in dict.
-    
+
     If <ebuild> is given, it will be matched against each line in <file>.
     For package.use/keywords, a list of applicable flags is returned.
     For package.mask/unmask, a list containing the matching lines is returned.
@@ -345,7 +349,7 @@ def set_user_config(prefs, file, name='', ebuild='', add='', remove='', callback
     """
     Adds <name> or '=' + <ebuild> to <file> with flags <add>.
     If an existing entry is found, items in <remove> are removed and <add> is added.
-    
+
     If <name> and <ebuild> are not given then lines starting with something in
     remove are removed, and items in <add> are added as new lines.
     """
@@ -398,10 +402,10 @@ def get_make_conf(want_linelist=False, savecopy=False):
     """
     Parses /etc/make.conf into a dictionary of items with
     dict[setting] = properties string
-    
+
     If want_linelist is True, the list of lines read from make.conf will also
     be returned.
-    
+
     If savecopy is true, a copy of make.conf is saved in make.conf.bak.
     """
     dprint("PKGCORE_LIB: get_make_conf()")
@@ -445,9 +449,9 @@ def set_make_conf(prefs, property, add='', remove='', replace='', callback=None)
     If remove: removes elements of <remove> from variable string.
     If add: adds elements of <add> to variable string.
     If replace: replaces entire variable string with <replace>.
-    
+
     if remove contains the variable name, the whole variable is removed.
-    
+
     e.g. set_make_conf('USE', add=['gtk', 'gtk2'], remove=['-gtk', '-gtk2'])
     e.g. set_make_conf('ACCEPT_KEYWORDS', remove='ACCEPT_KEYWORDS')
     e.g. set_make_conf('PORTAGE_NICENESS', replace='15')
@@ -535,7 +539,7 @@ def best(versions):
     """returns the best version in the list"""
     dprint("PKGCORE_LIB: best(); versions: " + str(versions))
     return portage.best(versions)
-    
+
 
 def get_archlist():
     """lists the architectures accepted by portage as valid keywords"""
@@ -557,11 +561,11 @@ class Properties:
     """Contains all variables in an ebuild."""
     def __init__(self, dict = None):
         self.__dict = dict
-        
+
     def __getattr__(self, name):
         try: return self.__dict[name]
         except: return ''
-        
+
     def get_slot(self):
         """Return ebuild slot"""
         return self.slot
@@ -632,7 +636,7 @@ def get_properties(ebuild):
         if vartree.dbapi.cpv_exists(ebuild): # elif in installed pkg tree
             return Properties(dict(list(zip(keys, vartree.dbapi.aux_get(ebuild, portage.auxdbkeys)))))
         else: return Properties()
-    
+
 def get_metadata(package):
     """Get the metadata for a package"""
     # we could check the overlay as well,
@@ -661,7 +665,7 @@ class Package:
         self.in_world = full_name in World
         self.is_checked = False
         self.pkgcore_pkg = None
-        
+
     def get_pkgcore_pkg( self , version):
         self.pkgcore_pkg = TREE[self.full_name + '-' + version]
 
@@ -681,7 +685,7 @@ class Package:
             # insert routine for checking the if the package is in the specified list
             return self.full_name in list
         return False
-            
+
 
     def update_info(self):
         """Update the package info"""
@@ -700,7 +704,7 @@ class Package:
         if self.installed_ebuilds == None:
             self.installed_ebuilds = get_installed(self.full_name)
         return self.installed_ebuilds
-    
+
     def get_name(self):
         """Return name portion of a package"""
         if self.full_name == "None":
@@ -735,7 +739,7 @@ class Package:
             return portage.best(self.get_versions())
         if self.latest_ebuild == None:
             vers = self.get_versions()
-            #dprint("PKGCORE_LIB: get_latest_ebuild; vers = " + str(vers)) 
+            #dprint("PKGCORE_LIB: get_latest_ebuild; vers = " + str(vers))
             for m in self.get_hard_masked(check_unmask = True):
                 while m in vers:
                     vers.remove(m)
@@ -849,7 +853,7 @@ class Package:
             self.hard_masked = hardmasked
         if check_unmask: return self.hard_masked
         else: return self.hard_masked_nocheck
-        
+
 
     def is_upgradable(self):
         """Indicates whether an unmasked upgrade/downgrade is available.
@@ -896,7 +900,7 @@ class Database:
         # the next 2 tuples hold pkg counts for each category
         self.pkg_count = {}
         self.installed_pkg_count = {}
-        
+
     def get_package(self, full_name):
         """Get a Package object based on full name."""
         try:

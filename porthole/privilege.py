@@ -21,7 +21,8 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import os, pwd
+import os
+import pwd
 from operator import itemgetter
 from sys import stderr
 
@@ -37,13 +38,13 @@ SHELL = 6
 
 class Stack(list):
     """simple stack (list subclass) that defines push(), top, bottom,
-    previuos.  Also defines 2 functions to retieve only 1 property of 
+    previuos.  Also defines 2 functions to retieve only 1 property of
     the top's data tuple"""
-    
+
     top = property(itemgetter(-1))
     bottom = property(itemgetter(0))
     push = list.append
-    
+
     def __init__(self):
         list.__init__(self)
 
@@ -55,10 +56,10 @@ class Stack(list):
 
 
 class PrivilegeControl(object):
-    
+
     user = ''
     user_pwd = None
-    
+
     def __init__(self, privileged):
         """No input initialization parameters."""
         self.privileged = privileged
@@ -112,7 +113,7 @@ class PrivilegeControl(object):
 
     def end_privileges(self, _module):
         """Ends the privileged effective user id and group, resets to the
-        previuos 
+        previuos
         """
         print("PrivilegeControl: end_privileges(); " +\
             "ending: %s" %_module, file=stderr)

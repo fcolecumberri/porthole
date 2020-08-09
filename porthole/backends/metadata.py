@@ -28,7 +28,7 @@ print("METADATA: id initialized to ", id)
 
 from xml.sax import make_parser
 from xml.sax.handler import *
-from re import compile, sub
+from re import compile
 from os.path import exists
 from gettext import gettext as _
 
@@ -156,7 +156,6 @@ if __name__ == '__main__':
         print(("Maintainers:", metadata.maintainers))
 
     import profile, pstats
-    from sys import stdout
     profile.run("main()", "stats.txt")
 
     stats = pstats.Stats("stats.txt")

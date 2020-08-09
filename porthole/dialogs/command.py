@@ -22,12 +22,11 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-import gtk, Gtk.glade
+from gi.repository import Gtk
 from gettext import gettext as _
 
 from porthole.utils import debug
 from porthole.loaders.loaders import load_web_page
-from porthole.version import version
 from porthole import config
 
 class RunDialog:
@@ -62,19 +61,19 @@ class RunDialog:
         self.combo = self.wtree.get_widget("comboboxentry1")
         self.entry = self.combo.get_child()
         #self.list = self.wtree.get_widget("combo-list")
-        # Build a formatted combo list from the versioninfo list 
+        # Build a formatted combo list from the versioninfo list
         self.comboList = Gtk.ListStore(str)
         index = 0
         for x in self.history:
             # Set the combo list
             self.comboList.append([x])
-        
+
         # Set the comboboxentry to the new model
         self.combo.set_model(self.comboList)
         self.combo.set_text_column(0)
         self.entry.connect("activate", self.activate, self.command)
         if config.Prefs:
-            self.window.resize(config.Prefs.run_dialog.width, 
+            self.window.resize(config.Prefs.run_dialog.width,
                                 config.Prefs.run_dialog.height)
             # MUST! do this command last, or nothing else will _init__
             # after it until emerge is finished.
@@ -89,7 +88,7 @@ class RunDialog:
             self.call_back(_("command line entry"), self.command, self.run_anyway)
             self.history_add()
         self.cancel(None)
-        
+
     def execute(self, widget):
         """Adds the command line entry to the queue"""
         self.command = self.entry.get_text()
@@ -102,7 +101,7 @@ class RunDialog:
     def cancel(self, widget):
         """cancels run dialog"""
         self.window.destroy()
-        
+
     def help(self, widget):
         """ Display help file with web browser """
         load_web_page('file://' + config.Prefs.DATA_PATH + 'help/custcmd.html', config.Prefs)
@@ -140,4 +139,4 @@ class RunDialog:
         model = widget.get_model()
         iter = widget.get_active_iter()
         selection = model.get_value(iter, 0)
-        
+

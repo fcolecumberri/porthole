@@ -27,6 +27,7 @@ from gettext import gettext as _
 
 import gi; gi.require_version("Gtk", "3.0") # make sure we have the right version
 from gi.repository import Gtk
+from gi.repository import GObject
 
 #from porthole.utils import debug
 
@@ -45,7 +46,7 @@ class CommonDialog(Gtk.Dialog):
             callback = self.__callback
         self.connect("response", callback)
         self.show_all()
-    
+
     def __callback(self, widget, response):
         # If no callback is given, just remove the dialog when clicked
         self.destroy()
@@ -58,7 +59,7 @@ class YesNoDialog(CommonDialog):
                                            callback, _("_Yes"))
         # add "No" button
         self.add_button(_("_No"), 1)
-        
+
 
 class SingleButtonDialog(CommonDialog):
     """ A simple please wait dialog class """
