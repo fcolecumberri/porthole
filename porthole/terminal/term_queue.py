@@ -37,7 +37,7 @@
     -------------------------------------------------------------------------
     References & Notes
 
-    1. Pygtk2 refs & tutorials - http://www.pyGtk.org
+    1. Pygtk2 refs & tutorials - http://www.pygtk.org
     2. GTK2 text tags can use named colors (see /usr/X11R6/lib/X11/rgb.txt)
         or standard internet rgb values (e.g. #02FF80)
 
@@ -180,13 +180,6 @@ class TerminalQueue:
             Gtk.StateType.PRELIGHT  State indicating that the mouse pointer is over the widget and the widget will respond to mouse clicks.
             Gtk.StateType.SELECTED  State of a selected item, such the selected row in a list.
             Gtk.StateType.INSENSITIVE   State indicating that the widget is unresponsive to user actions.
-        """
-        self.pause_btn.modify_fg(Gtk.StateType.INSENSITIVE, Gdk.color_parse("#962A1C"))
-        self.pause_btn.modify_fg(Gtk.StateType.NORMAL, Gdk.color_parse("#DA311B"))
-        self.pause_btn.modify_fg(Gtk.StateType.PRELIGHT, Gdk.color_parse("#F65540"))
-        self.play_btn.modify_fg(Gtk.StateType.INSENSITIVE, Gdk.color_parse("#3C6E38"))
-        self.play_btn.modify_fg(Gtk.StateType.NORMAL, Gdk.color_parse("#4EBA44"))
-        self.play_btn.modify_fg(Gtk.StateType.PRELIGHT, Gdk.color_parse("#58F64A"))
 # =======
             # Gladeui.PropertyState.NORMAL    State during normal operation.
             # Gtk.STATE_ACTIVE    State of a currently active widget, such as a depressed button.
@@ -194,12 +187,12 @@ class TerminalQueue:
             # Gtk.STATE_SELECTED  State of a selected item, such the selected row in a list.
             # Gtk.STATE_INSENSITIVE   State indicating that the widget is unresponsive to user actions.
         # """
-        # self.pause_btn.modify_fg(Gtk.STATE_INSENSITIVE, gdk.color_parse("#962A1C"))
-        # self.pause_btn.modify_fg(Gladeui.PropertyState.NORMAL, gdk.color_parse("#DA311B"))
-        # self.pause_btn.modify_fg(Gtk.STATE_PRELIGHT, gdk.color_parse("#F65540"))
-        # self.play_btn.modify_fg(Gtk.STATE_INSENSITIVE, gdk.color_parse("#3C6E38"))
-        # self.play_btn.modify_fg(Gladeui.PropertyState.NORMAL, gdk.color_parse("#4EBA44"))
-        # self.play_btn.modify_fg(Gtk.STATE_PRELIGHT, gdk.color_parse("#58F64A"))
+        # self.pause_btn.modify_fg(Gtk.STATE_INSENSITIVE, Gdk.color_parse("#962A1C"))
+        # self.pause_btn.modify_fg(Gladeui.PropertyState.NORMAL, Gdk.color_parse("#DA311B"))
+        # self.pause_btn.modify_fg(Gtk.STATE_PRELIGHT, Gdk.color_parse("#F65540"))
+        # self.play_btn.modify_fg(Gtk.STATE_INSENSITIVE, Gdk.color_parse("#3C6E38"))
+        # self.play_btn.modify_fg(Gladeui.PropertyState.NORMAL, Gdk.color_parse("#4EBA44"))
+        # self.play_btn.modify_fg(Gtk.STATE_PRELIGHT, Gdk.color_parse("#58F64A"))
 #>>>>>>> theirs
         # initialize the model
         self.queue_model = QueueModel()

@@ -43,7 +43,7 @@
     -------------------------------------------------------------------------
     References & Notes
 
-    1. Pygtk2 refs & tutorials - http://www.pyGtk.org
+    1. Pygtk2 refs & tutorials - http://www.pygtk.org
     2. GTK2 text tags can use named colors (see /usr/X11R6/lib/X11/rgb.txt)
        or standard internet rgb values (e.g. #02FF80)
 
