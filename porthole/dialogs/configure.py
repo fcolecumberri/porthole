@@ -40,7 +40,9 @@ class ConfigDialog:
 
         # Parse glade file
         self.gladefile = config.Prefs.DATA_PATH + "/glade/config.glade"
-        self.wtree = Gtk.glade.XML(self.gladefile, "config", config.Prefs.APP)
+        self.wtree = Gtk.Builder()
+        self.wtree.add_from_file(self.gladefile)
+        self.wtree.set_translation_domain(config.Prefs.APP)
 
         # register callbacks
         callbacks = {
@@ -147,18 +149,18 @@ class ConfigDialog:
         for name in hidelist:
             widget = self.wtree.get_object(name)
             if widget:
-                widget.hide_all()
+                widget.hide()
         # hide unimplemented notebook tabs
-        removelist = [ # [notebook, tab to remove]
-            ['terminal_notebook', 'filter_tab'],
-            ['main_window_notebook', 'category_view_tab'],
-            ['main_window_notebook', 'package_view_tab'],
-        ]
-        for notebook, tab in removelist:
-            notewidget = self.wtree.get_object(notebook)
-            tabwidget = self.wtree.get_object(tab)
-            tabnum = notewidget.page_num(tabwidget)
-            notewidget.remove_page(tabnum)
+        # removelist = [ # [notebook, tab to remove]
+        #     ['terminal_notebook', 'filter_tab'],
+        #     ['main_window_notebook', 'category_view_tab'],
+        #     ['main_window_notebook', 'package_view_tab'],
+        # ]
+        # for notebook, tab in removelist:
+        #     notewidget = self.wtree.get_object(notebook)
+        #     tabwidget = self.wtree.get_object(tab)
+        #     tabnum = notewidget.page_num(tabwidget)
+        #     notewidget.remove_page(tabnum)
         return
 
     def build_widget_lists(self):
