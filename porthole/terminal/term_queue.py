@@ -147,8 +147,7 @@ class TerminalQueue:
     def __init__(self, run_function = None, reader = None, wtree = None, term = None, set_resume = None):
         self._run = run_function
         self.reader = reader
-        self.wtree = Gtk.Builder()
-        self.wtree.add_from_file("glade/process_window.glade")
+        self.wtree = wtree
         self.term = term
         self.set_resume = set_resume
         self.window = wtree.get_object("process_window")

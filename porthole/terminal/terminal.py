@@ -236,8 +236,9 @@ class ProcessManager: #dbus.service.Object):
             debug.dprint("TERMINAL: show_window(): returning")
             return True
         # load the glade file
-        self.wtree = Gtk.glade.XML(config.Prefs.DATA_PATH + config.Prefs.use_gladefile,
-                                   "process_window", config.Prefs.APP)
+        self.wtree = Gtk.Builder()
+        self.wtree.add_from_file(config.Prefs.DATA_PATH + "glade/process_window.glade")
+        self.wtree.set_translation_domain(config.Prefs.APP)
         # these need to be before the callbacks
         # setup some aliases for easier access
         self.window = self.wtree.get_object("process_window")
