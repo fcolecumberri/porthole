@@ -196,7 +196,6 @@
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Only _Fetch</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_fetch_activate" swapped="no"/>
                         <accelerator key="F" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </object>
                     </child>
@@ -416,7 +415,6 @@
                 <property name="label" translatable="yes">Queue</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-media-play</property>
-                <signal name="clicked" handler="on_btn_queue_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>

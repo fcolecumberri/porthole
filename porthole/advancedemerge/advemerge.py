@@ -29,7 +29,7 @@ print("ADVEMERGE: id initialized to ", id)
 
 # import gtk & co
 from gi.repository import Gtk
-from gi.repository import Gladeui
+#from gi.repository import Gladeui
 
 from gettext import gettext as _
 
@@ -42,15 +42,15 @@ portage_lib = backends.portage_lib
 from porthole import db
 from porthole.backends.version_sort import ver_sort
 from porthole.backends.utilities import (
-#    get_reduced_flags,
+    get_reduced_flags,
     abs_list,
-#    abs_flag,
+    abs_flag,
     filter_flags
 )
 from porthole.loaders.loaders import load_web_page
 from porthole.utils.dispatcher import Dispatcher
 #from porthole.advancedemerge.useflag import UseFlagWidget
-from porthole.views.useflags import UseFlagWidget
+#from porthole.views.useflags import UseFlagWidget
 
 class AdvancedEmergeDialog:
     """Class to perform advanced emerge dialog functionality."""
@@ -70,7 +70,9 @@ class AdvancedEmergeDialog:
 
         # Parse glade file
         self.gladefile = config.Prefs.DATA_PATH + "glade/advemerge.glade"
-        self.wtree = Gtk.glade.XML(self.gladefile, "adv_emerge_dialog", config.Prefs.APP)
+        self.wtree = Gtk.Builder()
+        self.wtree.add_from_file(self.gladefile)
+        self.wtree.set_translation_domain(config.Prefs.APP)
 
         # register callbacks
         callbacks = {"on_ok_clicked" : self.ok_clicked,
@@ -109,11 +111,18 @@ class AdvancedEmergeDialog:
         self.command_textview = self.wtree.get_object("command_textview")
         self.command_buffer = self.command_textview.get_buffer()
         style = self.keywords_frame.get_style().copy()
-        #self.bgcolor = style.bg[Gtk.StateType.NORMAL]
-        self.bgcolor = style.bg[Gladeui.PropertyState.NORMAL]
-        #self.command_textview.modify_base(Gtk.StateType.NORMAL, self.bgcolor)
-        self.command_textview.modify_base(Gladeui.PropertyState.NORMAL, self.bgcolor)
+# Fixme needs porting ???
+# <<<<<<< ours
+        # #self.bgcolor = style.bg[Gtk.StateType.NORMAL]
+        # self.bgcolor = style.bg[Gladeui.PropertyState.NORMAL]
+        # #self.command_textview.modify_base(Gtk.StateType.NORMAL, self.bgcolor)
+        # self.command_textview.modify_base(Gladeui.PropertyState.NORMAL, self.bgcolor)
 
+# =======
+        # self.bgcolor = style.bg[Gladeui.PropertyState.NORMAL]
+        # self.command_textview.modify_base(Gladeui.PropertyState.NORMAL, self.bgcolor)
+
+# >>>>>>> theirs
         self.btnMakeConf = self.wtree.get_object("btnMakeConf")
         self.btnPkgUse = self.wtree.get_object("btnPkgUse")
         self.btnPkgKeywords = self.wtree.get_object("btnPkgKeywords")
@@ -593,10 +602,68 @@ class AdvancedEmergeDialog:
                 else:
                     self.btnMakeConf.hide()
         # Build table to hold checkboxes
-        uflag_widget = UseFlagWidget(use_flags, ebuild, self.window)
-        uflag_widget.connect('grab-focus', self.on_toggled)
-        UseFlagFrame.add(uflag_widget)
-        uflag_widget.show()
+#fixme needs porting???
+# <<<<<<< ours
+        # uflag_widget = UseFlagWidget(use_flags, ebuild, self.window)
+        # uflag_widget.connect('grab-focus', self.on_toggled)
+        # UseFlagFrame.add(uflag_widget)
+        # uflag_widget.show()
+# =======
+        size = 30
+        maxcol = 3  # = number of columns - 1 = index of last column
+        maxrow = (size - 1) / (maxcol + 1)  # = number of rows - 1
+        # resize the table if it's taller than it is wide
+        table = Gtk.Table(maxrow+1, maxcol+1, True)
+        if maxrow + 1 >= 6: # perhaps have this number configurable?
+            # perhaps add window based on size (in pixels) of table somehow...
+            scrolledwindow = Gtk.ScrolledWindow()
+            scrolledwindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+            UseFlagFrame.add(scrolledwindow)
+            scrolledwindow.add_with_viewport(table)
+            scrolledwindow.set_size_request(1, 100) # min height of 100 pixels
+            scrolledwindow.show()
+        else:
+            UseFlagFrame.add(table)
+
+        self.ufList = []
+
+        # Iterate through use flags collection, create checkboxes
+        # and attach to table
+        col = 0
+        row = 0
+        ebuild_use_flags = get_reduced_flags(ebuild)
+        for flag in use_flags:
+            flag_active = False
+            myflag = abs_flag(flag)
+            if myflag in ebuild_use_flags:
+                flag_active = True
+            button = Gtk.CheckButton(flag)
+            button.set_use_underline(False)
+            button.set_active(flag_active)
+            self.ufList.append([button, flag])
+
+            # Add tooltip, attach button to table and show it off
+            # Use lower case flag, since that is how it is stored
+            # in the UseFlagDict.  In case flag doesn't exist
+            # we'll trap the error
+            button.set_has_tooltip(True)
+            try:
+                button.set_tooltip_text(portage_lib.settings.UseFlagDict[flag.lower()][2])
+            except KeyError:
+                button.set_tooltip_text(_('Unsupported use flag'))
+            table.attach(button, col, col+1, row, row+1)
+            # connect to on_toggled so we can show changes
+            button.connect("toggled", self.on_toggled)
+            button.show()
+            # Increment col & row counters
+            col += 1
+            if col > maxcol:
+                col = 0
+                row += 1
+
+        # Display the entire table
+        table.show()
+# >>>>>>> theirs
 
     def build_keywords_widget(self, keywords):
         """ Create a table layout and populate it with
