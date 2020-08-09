@@ -190,7 +190,7 @@ def main():
     debug.dprint("PORTHOLE: process id = %d ****************" %os.getpid())
     # setup our app icon
     myicon = GdkPixbuf.Pixbuf.new_from_file(DATA_PATH + "pixmaps/porthole-icon.png")
-    #Gtk.window_set_default_icon_list(myicon)
+    gtk.Window.set_default_icon_list([myicon])
     # load config info
     config.Config.set_path(DATA_PATH)
     config.Config.load()
