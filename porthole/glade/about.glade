@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.1 -->
+<!-- Generated with glade 3.22.2 -->
 <!--*- mode: xml -*-->
 <interface>
   <requires lib="gtk+" version="3.0"/>
@@ -14,10 +14,10 @@
 = Project Administrators =
 ==================
 
-Brian Dolbec				(innactive)
-Fredrik Arnerup			(innactive)
-Daniel G. Taylor			(retired)
-Francisco Lecumberri		current lead
+Brian Dolbec
+Fredrik Arnerup
+Daniel G. Taylor
+Francisco Lecumberri
 
 ==============
 = Developers =
@@ -61,7 +61,7 @@ Arkadiusz Kowalski
 Gürkan 'seqizz' Gür</property>
     <property name="logo">../pixmaps/porthole-about.png</property>
     <property name="license_type">gpl-2-0</property>
-    <child>
+    <child type="titlebar">
       <placeholder/>
     </child>
     <child internal-child="vbox">
