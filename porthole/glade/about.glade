@@ -8,57 +8,9 @@
     <property name="type_hint">dialog</property>
     <property name="program_name">Porthole</property>
     <property name="version">0.7</property>
-    <property name="website">https://github.com/fcolecumberri/porthole</property>
-    <property name="authors">
-﻿==================
-= Project Administrators =
-==================
-
-Brian Dolbec
-Fredrik Arnerup
-Daniel G. Taylor
-Francisco Lecumberri
-
-==============
-= Developers =
-==============
-
-Fredrik Arnerup
-Brian Dolbec  (dol-sen)
-Daniel G. Taylor
-Wm. F. Wheeler
-Brian Bockelman
-Tommy Iorns
-Francisco Lecumberri
-
-================
-= Contributers =
-================
-
-Ed Catmur
-Duff
-Jeremy Guarini
-Karl Guertin
-Jess Little
-jonathanl
-Jay Johnston
-Andre Bocchini
-Jason Stubbs
-Florian K. Steinel
-SaDiG
-Thomas Phipps
-Alexis Ballier 
-Paul Varner</property>
-    <property name="translator_credits">
-Bi Cờ Lao
-Timo Gurr
-memoi2001
-Arnaud Leroy
-Oleg Golberg
-Florian K. Steinel
-Gianni Mastronardi aka unz::snu
-Arkadiusz Kowalski
-Gürkan 'seqizz' Gür</property>
+    <property name="website">http://porthole.sourceforge.net</property>
+    <property name="website_label">Porthole Homepage</property>
+    <property name="authors"/>
     <property name="logo">../pixmaps/porthole-about.png</property>
     <property name="license_type">gpl-2-0</property>
     <child type="titlebar">

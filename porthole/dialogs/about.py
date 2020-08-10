@@ -4,7 +4,7 @@
     Porthole About Dialog
     Shows information about Porthole
 
-    Copyright (C) 2003 - 2008 Fredrik Arnerup and Daniel G. Taylor
+    Copyright (C) 2003 - 2020 Fredrik Arnerup and Daniel G. Taylor
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,12 +23,7 @@
 
 from gi.repository import Gtk
 
-from gettext import gettext as _
-
-from porthole.utils import debug
 from porthole.loaders.loaders import (
-    load_web_page,
-    decode_text,
     get_textfile
 )
 from porthole.version import (
@@ -45,17 +40,23 @@ class AboutDialog:
     def __init__(self):
         # setup glade
         self.gladefile = config.Prefs.DATA_PATH + 'glade/about.glade' #config.Prefs.use_gladefile
-        self.wtree = Gtk.Builder()
-        self.wtree.add_from_file(self.gladefile)
-        self.wtree.set_translation_domain(config.Prefs.APP)
-        self.window = self.wtree.get_object("about")
-        self.window.show_all()
-        debug.dprint("ABOUT: Showing About dialog")
+        self.builder = Gtk.Builder()
+        self.builder.add_from_file(self.gladefile)
+        self.builder.set_translation_domain(config.Prefs.APP)
+        self.window = self.builder.get_object("about")
+        license_file = portage_lib.settings.portdir + "/licenses/GPL-2"
+        author_file = config.Prefs.AUTHORS
+        translator_file = config.Prefs.TRANSLATORS
+        self.window.set_property("authors", get_textfile(author_file).split('\n'))
+        self.window.set_property("translator_credits", get_textfile(translator_file))
+        self.window.set_property("version", version)
+        self.window.set_copyright(copyright)
+        self.window.set_license(get_textfile(license_file))
+        self.window.connect("response", self.close)
+        self.open()
 
-    def ok_clicked(self, widget):
-        """Get rid of the about dialog!"""
-        self.wtree.get_object("about_dialog").destroy()
+    def open(self, *args):
+        self.builder.get_object('about').show()
 
-    def homepage_clicked(self, widget):
-        """Open Porthole's Homepage!"""
-        load_web_page("http://porthole.sourceforge.net")
+    def close(self, *args):
+        return self.builder.get_object('about').close()
