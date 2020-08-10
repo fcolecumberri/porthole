@@ -96,7 +96,7 @@ class ProcessOutputReader(threading.Thread):
                         # lock the string
                         self.string_locked = True
                         # add the character to the string
-                        self.string += char
+                        self.string += char.decode(encoding="utf-8", errors="replace")
                         # unlock the string
                         self.string_locked = False
                     if self.dprint_output:
