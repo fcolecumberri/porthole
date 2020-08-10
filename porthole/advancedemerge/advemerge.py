@@ -278,6 +278,7 @@ class AdvancedEmergeDialog:
             else:
                 removelist.append('-' + item)
         #debug.dprint("ADVEMERGE: on_package_use_commit(); addlist:%s,\n removelist:%s" %(str(addlist), str(removelist)))
+        # fixme okay not used
         okay = db.userconfigs.set_user_config('USE', name=self.package.full_name, add=addlist,
                                                                 remove=removelist, callback=self.reload, parent_window = self.window )
         self.version_changed(button_widget)
@@ -311,6 +312,7 @@ class AdvancedEmergeDialog:
             removelist = ["-" + keyword]
         verInfo = self.current_verInfo
         ebuild = verInfo["name"]
+        # fixme okay not used
         okay = db.userconfigs.set_user_config('KEYWORDS', ebuild=ebuild, add=addlist, remove=removelist, callback=self.reload)
 
     #------------------------------------------
@@ -342,7 +344,6 @@ class AdvancedEmergeDialog:
 
         # Rebuild version liststore
         self.comboList = Gtk.ListStore(str)
-        index = 0
         for x in range(len(self.verList)):
             ver = self.verList[x]
             info = ver["number"]
@@ -360,7 +361,6 @@ class AdvancedEmergeDialog:
                     info += _('   (recommended) (downgrade)')
                 else:
                     info += _('   (recommended)')
-                index = x
             if ver["installed"]:
                 info += _('   [installed]')
 

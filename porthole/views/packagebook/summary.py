@@ -661,6 +661,7 @@ class Summary(Gtk.TextView):
         debug.dprint("IUSE_FLAGS: %s" % use_flags)
         keywords = props.get_keywords()
         licenses = props.license
+        # fixme unused slot
         slot = bytes(props.get_slot())
 
         # Sort the versions in release order
@@ -672,6 +673,7 @@ class Summary(Gtk.TextView):
             table.remove(tag)
         self.url_tags = []
 
+        # fixme unused system_use_flags
         # get system use flags
         system_use_flags = portage_lib.settings.SystemUseFlags
 
@@ -947,6 +949,7 @@ class Summary(Gtk.TextView):
         db.userconfigs.set_user_config('KEYWORDS', name=name, add="~"+arch, callback=self.update_callback)
 
     def remove_keyword_ebuild(self, menuitem_widget):
+        # fixme unused arch
         arch = self.arch(True)
         ebuild = "=" + self.selected_ebuild
         db.userconfigs.set_user_config('KEYWORDS', ebuild=ebuild, remove=ebuild, callback=self.update_callback)

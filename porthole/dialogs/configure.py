@@ -31,6 +31,7 @@ from porthole import config
 from porthole import backends
 portage_lib = backends.portage_lib
 
+
 class ConfigDialog:
     """Class to display a GUI for configuring Porthole"""
 

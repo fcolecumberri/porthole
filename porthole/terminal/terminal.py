@@ -192,6 +192,7 @@ class ProcessManager: #dbus.service.Object):
             attributes = Gtk.TextView().get_default_attributes()
             default_fg = attributes.fg_color
             default_bg = attributes.bg_color
+            # fixme unused default_weight
             default_weight = attributes.font.get_weight()
             default_font = attributes.font.to_string()
             self.term.last_text = [] # re-set last-text
@@ -1144,6 +1145,7 @@ class ProcessManager: #dbus.service.Object):
         if not self.directory:
             self.set_directory()
         if self.set_save_buffer():
+            # fixme unused result
             result = self.check_buffer_saved(self.buffer_to_save, False)
         else:
             debug.dprint("TERMINAL: Error: buffer is already saved")
@@ -1157,6 +1159,7 @@ class ProcessManager: #dbus.service.Object):
             self.do_save_as(widget)
         else:
             if self.set_save_buffer():
+                # fixme unused result
                 result = self.check_buffer_saved(self.buffer_to_save, True)
             else:
                 debug.dprint("LOG: set_save_buffer error")
@@ -1244,6 +1247,7 @@ class ProcessManager: #dbus.service.Object):
             dialog = Gtk.MessageDialog(self.window, Gtk.DialogFlags.MODAL,
                                        Gtk.MessageType.INFO,
                                        Gtk.ButtonsType.OK, err);
+            # fixme unused result
             result = dialog.run()
             dialog.destroy()
             return False

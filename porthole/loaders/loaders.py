@@ -35,6 +35,7 @@ from porthole import config
 try:
     import gnome
     try:
+        # fixme unused import
         import gnomevfs
     except: # try the depricated module
         #no it's too old now ##  import gnome.vfs
@@ -91,9 +92,11 @@ def load_textfile(view, package, mode, version = None):
                 #~ package_file = ('/' + package.full_name + '/' + ebuild.split('/')[1]) + Textfile_type[mode]
             elif mode != "changelog":
                 installed = package.get_installed()
+                # fixme unused versions
                 versions = package.get_versions()
                 nonmasked = package.get_versions(include_masked = False)
                 if package.depricated or mode == "installed_ebuild":
+                    # fixme unused ebuild_path
                     ebuild_path = portage_lib.get_vdb
                 if mode == "best_ebuild":
                     best = portage_lib.best(installed + nonmasked)

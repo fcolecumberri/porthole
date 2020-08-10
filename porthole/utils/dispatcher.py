@@ -86,6 +86,7 @@ class Dispatch_wait:
         self.semaphore.aquire()
         self.wait[_id] = True
         self.Semaphore.release()
+        # fixme hidden *args
         while self.wait[myid]:
             #pass the time waiting for a reply by having a snooze
             time.sleep(0.01)

@@ -84,6 +84,7 @@ class DependsTree(Gtk.TreeStore):
            Returns a list of (parent, dep, satisfied) for each dep"""
         new_list = []
         use_list = []
+        # fixme unused ops
         ops = ""
         using_list=False
         for dep in depends_list:

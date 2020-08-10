@@ -127,6 +127,7 @@ def print_version():
 
 def set_backend(arg):
     if arg in Choices:
+        # fixme unused BACKEND
         BACKEND = Choices[arg]
     else:
         useage()
@@ -161,6 +162,7 @@ def main():
     config.Prefs = preferences.PortholePreferences(prefs_additions)
     #print config.Prefs
     #print "STARTUP: main(); importing version"
+    # fixme unused version
     from porthole.version import version
     #print "STARTUP: main(); importing utils"
     from porthole.utils import debug
@@ -198,6 +200,7 @@ def main():
     Gtk.main()
     # save the prefs to disk for next time
     config.Prefs.save()
+    # fixme unused hits, misses
     hits = backends.portage_lib.get_metadata.hits
     misses = backends.portage_lib.get_metadata.misses
     print("metadata", backends.portage_lib.get_metadata.cache_info())

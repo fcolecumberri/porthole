@@ -242,6 +242,7 @@ def set_package_mask(filename, name='', ebuild='', comment='', username='', add=
         return False
     #dprint(" * SET_CONFIG: set_package_mask(): filename = " + filename)
     configlines =  get_configlines(filename, username)
+    # fixme unused groups
     groups = group_by_blanklines(configlines)
 
     # do some more stuff

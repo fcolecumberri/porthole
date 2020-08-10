@@ -196,6 +196,7 @@ class SearchReader( CommonReader ):
     def run( self ):
             utils.debug.dprint("READERS: SearchReader(); process id = %d *****************" %os.getpid())
             self.search_term = ''
+            # fixme unused Plus_exeption_count
             Plus_exeption_count = 0
             for char in self.tmp_search_term:
                 #utils.debug.dprint(char)

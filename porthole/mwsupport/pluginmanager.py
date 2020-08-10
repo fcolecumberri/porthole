@@ -26,7 +26,6 @@ id = datetime.datetime.now().microsecond
 print("PLUGIN: id initialized to ", id)
 
 import os
-#import imp
 
 #from porthole.utils import utils
 from porthole.utils import debug
@@ -175,4 +174,3 @@ class Plugin:
                 " '%s' as response from %s" %(str(a), self.name))
         return a
         #return self.event_table[event](*args)
-

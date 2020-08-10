@@ -63,7 +63,6 @@ class RunDialog:
         #self.list = self.wtree.get_object("combo-list")
         # Build a formatted combo list from the versioninfo list
         self.comboList = Gtk.ListStore(str)
-        index = 0
         for x in self.history:
             # Set the combo list
             self.comboList.append([x])
@@ -138,5 +137,6 @@ class RunDialog:
         return # not needed at this time
         model = widget.get_model()
         iter = widget.get_active_iter()
+        # fixme unused selection
         selection = model.get_value(iter, 0)
 

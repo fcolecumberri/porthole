@@ -26,8 +26,8 @@ import datetime
 id = datetime.datetime.now().microsecond
 print("DATABASE: id initialized to ", id)
 
-import pickle
 import os
+import pickle
 from gi.repository import GObject
 
 from porthole import backends

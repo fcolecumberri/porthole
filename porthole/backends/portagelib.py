@@ -36,6 +36,7 @@ import os
 from gettext import gettext as _
 from sys import exit, stderr
 import _thread
+# from itertools import izip
 
 
 IMPORT_DONE = False

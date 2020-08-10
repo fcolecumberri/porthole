@@ -106,14 +106,34 @@ if __name__ == "__main__":
                 os.path.dirname(os.path.abspath(__file__)))))
             #print("\n")
             #print(sys.path)
-            from porthole.startup import *
+            from porthole.startup import (
+                Choices,
+                insert_path,
+                local,
+                main,
+                print_version,
+                set_backend,
+                set_debug,
+                set_user,
+                useage,
+            )
             RUN_LOCAL = True
             local()
 
     if not RUN_LOCAL:
         print("importing installed modules")
-        from porthole.startup import *
-        #print("inserting path to modules"
+        from porthole.startup import (
+            Choices,
+            insert_path,
+            local,
+            main,
+            print_version,
+            set_backend,
+            set_debug,
+            set_user,
+            useage,
+        )
+        #print("inserting path to modules")
         insert_path()
 
     for opt, arg in opts:
