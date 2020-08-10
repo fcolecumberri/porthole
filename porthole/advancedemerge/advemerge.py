@@ -609,7 +609,7 @@ class AdvancedEmergeDialog:
         # UseFlagFrame.add(uflag_widget)
         # uflag_widget.show()
 # =======
-        size = 30
+        size = len(use_flags) #30
         maxcol = 3  # = number of columns - 1 = index of last column
         maxrow = (size - 1) / (maxcol + 1)  # = number of rows - 1
         # resize the table if it's taller than it is wide
