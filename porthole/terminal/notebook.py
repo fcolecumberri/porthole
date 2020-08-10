@@ -207,8 +207,8 @@ class TerminalNotebook:
             label, tab, pos = _(TAB_LABELS[TAB_QUEUE]), self.queue_tab, 4
             self.tab_showing[TAB_QUEUE] = True
         # pack the icon and label onto the hbox
-        hbox.pack_start(icon, True, True, 0)
-        hbox.pack_start(Gtk.Label(label, True, True, 0))
+        hbox.pack_start(icon, False, False, False)
+        hbox.pack_start(Gtk.Label(label), False, False, False)
         hbox.show_all()
         # insert the tab
         self.notebook.insert_page(tab, hbox, pos)
@@ -292,10 +292,10 @@ class TerminalNotebook:
     def set_scroll(self,  vadjustment):
         """Sets autoscrolling on when moved to bottom of scrollbar"""
         #debug.dprint("NOTEBOOK: set_scroll() -- vadjustment")
-        self.auto_scroll[self.current_tab] = ((vadjustment.upper - \
+        self.auto_scroll[self.current_tab] = ((vadjustment.get_upper() - \
                                                         vadjustment.get_value()) - \
-                                                        vadjustment.page_size < \
-                                                         (SLIDER_CLOSE_ENOUGH * vadjustment.page_size))
+                                                        vadjustment.get_page_size() < \
+                                                         (SLIDER_CLOSE_ENOUGH * vadjustment.get_page_size()))
         return
 
     def switch_page(self, notebook, page, page_num):

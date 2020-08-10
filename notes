@@ -51,6 +51,9 @@ gtk.POLICY_AUTOMATIC gtk.PolicyType.AUTOMATIC
 *.child *.get_child()
 gtk.SELECTION_SINGLE Gtk.SelectionMode.SINGLE
 gtk.gdk._2BUTTON_PRESS gdk.EventType._2BUTTON_PRESS
+gtk.STATE_INSENSITIVE gtk.StateType.INSENSITIVE
+gtk.STATE_PRELIGHT gtk.StateType.PRELIGHT
+gtk.gdk.WINDOW_STATE_ICONIFIED gdk.WindowState.ICONIFIED
 
 gtk.glade.XML(self.gladefile, "adv_emerge_dialog", config.Prefs.APP) | gtk.Builder() .add_from_file(self.gladefile) .set_translation_domain(config.Prefs.APP)
 self.wtree.get_object("adv_emerge_dialog") .wtree.get_object("adv_emerge_dialog")

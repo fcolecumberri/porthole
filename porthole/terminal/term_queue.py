@@ -48,6 +48,7 @@ import gi; gi.require_version('Gtk', '3.0')
 from gi.repository import Gdk
 from gi.repository import GdkPixbuf
 from gi.repository import Gtk
+from gi.repository import Gladeui
 from gi.repository import GObject
 
 from gettext import gettext as _
@@ -78,15 +79,15 @@ FUNCTIONTYPES = [FunctionType, MethodType, BuiltinFunctionType, BuiltinMethodTyp
 
 class QueueModel(Gtk.ListStore):
     def __init__(self):
-        GObject.GObject.__init__(self, GdkPixbuf.Pixbuf,            # hold the status icon
-                                        GObject.TYPE_STRING,        # package name/ command name
-                                        GObject.TYPE_STRING,        # command
-                                        GObject.TYPE_INT,           # entry id
-                                        GObject.TYPE_STRING,        # sender
-                                        GObject.TYPE_BOOLEAN,       # killed
-                                        GObject.TYPE_PYOBJECT,      # callback function
-                                        GObject.TYPE_BOOLEAN,       # completed
-                                        GObject.TYPE_INT            # killed_id
+        Gtk.ListStore.__init__(self, GdkPixbuf.Pixbuf,           # hold the status icon
+                                        GObject.TYPE_STRING,     # package name/ command name
+                                        GObject.TYPE_STRING,     # command
+                                        GObject.TYPE_INT,        # entry id
+                                        GObject.TYPE_STRING,     # sender
+                                        GObject.TYPE_BOOLEAN,    # killed
+                                        GObject.TYPE_PYOBJECT,   # callback function
+                                        GObject.TYPE_BOOLEAN,    # completed
+                                        GObject.TYPE_INT         # killed_id
                                         )
         self.column = {'icon': 0,
                                 'name':  1,
@@ -174,26 +175,18 @@ class TerminalQueue:
         self.pause_menu = self.wtree.get_object("pause")
         #debug.dprint("TERM_QUEUE: Attempting to change the pause, paly button image colors")
         """ Set up different colors for the pause & play buttons depending on it's state
-<<<<<<< ours
             Gtk.StateType.NORMAL    State during normal operation.
             Gtk.StateType.ACTIVE    State of a currently active widget, such as a depressed button.
             Gtk.StateType.PRELIGHT  State indicating that the mouse pointer is over the widget and the widget will respond to mouse clicks.
             Gtk.StateType.SELECTED  State of a selected item, such the selected row in a list.
             Gtk.StateType.INSENSITIVE   State indicating that the widget is unresponsive to user actions.
-# =======
-            # Gladeui.PropertyState.NORMAL    State during normal operation.
-            # Gtk.STATE_ACTIVE    State of a currently active widget, such as a depressed button.
-            # Gtk.STATE_PRELIGHT  State indicating that the mouse pointer is over the widget and the widget will respond to mouse clicks.
-            # Gtk.STATE_SELECTED  State of a selected item, such the selected row in a list.
-            # Gtk.STATE_INSENSITIVE   State indicating that the widget is unresponsive to user actions.
-        # """
-        # self.pause_btn.modify_fg(Gtk.STATE_INSENSITIVE, Gdk.color_parse("#962A1C"))
-        # self.pause_btn.modify_fg(Gladeui.PropertyState.NORMAL, Gdk.color_parse("#DA311B"))
-        # self.pause_btn.modify_fg(Gtk.STATE_PRELIGHT, Gdk.color_parse("#F65540"))
-        # self.play_btn.modify_fg(Gtk.STATE_INSENSITIVE, Gdk.color_parse("#3C6E38"))
-        # self.play_btn.modify_fg(Gladeui.PropertyState.NORMAL, Gdk.color_parse("#4EBA44"))
-        # self.play_btn.modify_fg(Gtk.STATE_PRELIGHT, Gdk.color_parse("#58F64A"))
-#>>>>>>> theirs
+        """
+        self.pause_btn.modify_fg(Gtk.StateType.INSENSITIVE, Gdk.color_parse("#962A1C"))
+        self.pause_btn.modify_fg(Gladeui.PropertyState.NORMAL, Gdk.color_parse("#DA311B"))
+        self.pause_btn.modify_fg(Gtk.StateType.PRELIGHT, Gdk.color_parse("#F65540"))
+        self.play_btn.modify_fg(Gtk.StateType.INSENSITIVE, Gdk.color_parse("#3C6E38"))
+        self.play_btn.modify_fg(Gladeui.PropertyState.NORMAL, Gdk.color_parse("#4EBA44"))
+        self.play_btn.modify_fg(Gtk.StateType.PRELIGHT, Gdk.color_parse("#58F64A"))
         # initialize the model
         self.queue_model = QueueModel()
         # initialize some variables

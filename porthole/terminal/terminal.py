@@ -318,7 +318,7 @@ class ProcessManager: #dbus.service.Object):
             # MUST! do this command last, or nothing else will _init__
             # after it until emerge is finished.
             # Also causes runaway recursion.
-            self.window.connect("size_request", self.on_size_request)
+            # self.window.connect("size_request", self.on_size_request)
 
     #~ @dbus.service.method(CONN_INTERFACE, in_signature='ss', out_signature='', sender_keyword='sender')
     #~ def request_add( self, name, command, sender ):
