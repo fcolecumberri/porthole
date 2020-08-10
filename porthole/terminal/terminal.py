@@ -496,7 +496,7 @@ class ProcessManager: #dbus.service.Object):
         if self.pid and not self.killed:
             try:
                 if self.reader.fd:
-                    os.write(self.reader.fd, "\x03")
+                    os.write(self.reader.fd, b"\x03")
                     debug.dprint("TERMINAL: ctrl-C sent to process")
                     self.resume_available = True
                     # make sure the thread notices
