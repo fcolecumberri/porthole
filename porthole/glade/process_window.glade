@@ -9,7 +9,7 @@
     <property name="default_width">600</property>
     <property name="default_height">400</property>
     <signal name="destroy" handler="on_process_window_destroy" swapped="no"/>
-    <child>
+    <child type="titlebar">
       <placeholder/>
     </child>
     <child>
@@ -43,7 +43,6 @@
                             <property name="can_focus">False</property>
                             <property name="use_underline">True</property>
                             <property name="use_stock">False</property>
-                            <signal name="activate" handler="on_resume1_activate" swapped="no"/>
                             <child type="submenu">
                               <object class="GtkMenu" id="resume_menu">
                                 <property name="can_focus">False</property>
@@ -332,6 +331,7 @@
           <object class="GtkAlignment" id="alignment5">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="vexpand">True</property>
             <child>
               <object class="GtkEventBox" id="eventbox1">
                 <property name="visible">True</property>
@@ -778,5 +778,4 @@
       </object>
     </child>
   </object>
-
 </interface>
