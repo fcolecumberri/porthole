@@ -54,6 +54,8 @@ gtk.gdk._2BUTTON_PRESS gdk.EventType._2BUTTON_PRESS
 gtk.STATE_INSENSITIVE gtk.StateType.INSENSITIVE
 gtk.STATE_PRELIGHT gtk.StateType.PRELIGHT
 gtk.gdk.WINDOW_STATE_ICONIFIED gdk.WindowState.ICONIFIED
+gtk.DIALOG_MODAL gtk.DialogFlag.MODAL
+gtk.DIALOG_DESTROY_WITH_PARENT gtk.DialogFlag.DESTROY_WITH_PARENT
 
 gtk.glade.XML(self.gladefile, "adv_emerge_dialog", config.Prefs.APP) | gtk.Builder() .add_from_file(self.gladefile) .set_translation_domain(config.Prefs.APP)
 self.wtree.get_object("adv_emerge_dialog") .wtree.get_object("adv_emerge_dialog")

@@ -27,7 +27,6 @@ from gettext import gettext as _
 
 import gi; gi.require_version("Gtk", "3.0") # make sure we have the right version
 from gi.repository import Gtk
-from gi.repository import GObject
 
 #from porthole.utils import debug
 
@@ -40,7 +39,7 @@ class CommonDialog(Gtk.Dialog):
         text = Gtk.Label(label=message)
         text.set_padding(5, 5)
         text.show()
-        self.vbox.pack_start(text, True, True, 0)
+        self.vbox.pack_start(text, False, False, False)
         # register callback
         if not callback:
             callback = self.__callback
