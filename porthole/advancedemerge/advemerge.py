@@ -687,11 +687,11 @@ class AdvancedEmergeDialog:
         KeywordsFrame.add(table)
         self.kwList = []
 
-        # Iterate through use flags collection, create
+        # Iterate through keywords, create
         # checkboxes and attach to table
         col = 0
         row = 0
-        button = Gtk.RadioButton(None, _('None'))
+        button = Gtk.RadioButton(label=_('None'))
         self.kwList.append([button, None])
         rbGroup = button
         table.attach(button, col, col+1, row, row+1)
@@ -703,17 +703,17 @@ class AdvancedEmergeDialog:
             if keyword[0] == '~' and (keyword[1:] == self.arch) or \
                         (config.Prefs.globals.enable_archlist and
                             ((keyword[1:] in config.Prefs.globals.archlist) or  (keyword in config.Prefs.globals.archlist))):
-                button = Gtk.RadioButton(rbGroup, keyword, use_underline=False)
-                self.kwList.append([button, keyword])
-                table.attach(button, col, col+1, row, row+1)
+                button2 = Gtk.RadioButton.new_with_label_from_widget(rbGroup, label=keyword)
+                self.kwList.append([button2, keyword])
+                table.attach(button2, col, col+1, row, row+1)
                 # connect to on_toggled so we can show changes
-                button.connect("toggled", self.on_toggled)
-                button.show()
+                button2.connect("toggled", self.on_toggled)
+                button2.show()
                 button_added = True
                 clickable_button = True
                 if keyword[1:] == self.arch and self.current_verInfo["stable"]:
                     # i.e. package has been keyword unmasked already
-                    button.set_active(True)
+                    button2.set_active(True)
             else:
                 #if (keyword == self.arch)
                 label = Gtk.Label(label=keyword)
