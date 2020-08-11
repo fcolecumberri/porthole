@@ -737,7 +737,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkScrolledWindow" id="ebuild_scrolledwindow">
+                  <object class="GtkScrolledWindow" id="use_scrolledwindow">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <child>
