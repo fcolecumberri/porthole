@@ -472,9 +472,10 @@ class AdvancedEmergeDialog:
         UseFlagsFrame = self.wtree.get_object('frameUseFlags')
         child = UseFlagsFrame.get_child()
         if child is None:
-           return None
+            return None
         else:
-           return child.get_use_flags()
+            # fixme AttributeError: 'Table' object has no attribute 'get_use_flags'
+            return child.get_use_flags()
 
     def get_options(self):
         """ Create keyword list from option checkboxes """
