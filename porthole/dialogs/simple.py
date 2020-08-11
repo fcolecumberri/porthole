@@ -39,7 +39,7 @@ class CommonDialog(Gtk.Dialog):
         text = Gtk.Label(label=message)
         text.set_padding(5, 5)
         text.show()
-        self.vbox.pack_start(text, False, False, False)
+        self.vbox.pack_start(text, expand=False, fill=False, padding=2)
         # register callback
         if not callback:
             callback = self.__callback

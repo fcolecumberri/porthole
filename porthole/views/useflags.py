@@ -31,8 +31,8 @@ class UseFlagCheckbuttons(Gtk.HBox):
       flag_label = Gtk.Label(label=useflag + "(" + default_status + ")")
       flag_label.show()
 
-      self.pack_start(self.enable_box, fill=False, expand=False)
-      self.pack_start(self.disable_box, fill=False, expand=False)
+      self.pack_start(self.enable_box, expand=False, fill=False, padding=2)
+      self.pack_start(self.disable_box, expand=False, fill=False, padding=2)
       self.pack_end(flag_label, True, True, 0)
 
    def set_enabled(self, widget=None):
