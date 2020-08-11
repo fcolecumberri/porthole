@@ -23,7 +23,6 @@
 '''
 
 from porthole import backends
-portage_lib = backends.portage_lib
 from porthole.utils import debug
 from porthole.utils import utils
 
@@ -41,14 +40,14 @@ def register_callbacks(self, callback = None):
     mainwindow_callback = callback
 
 def add_keyword(self, widget):
-    arch = "~" + portage_lib.get_arch()
+    arch = "~" + backends.portage_lib.get_arch()
     name = utils.get_treeview_selection(self, 2).full_name
     string = name + " " + arch + "\n"
     debug.dprint("VIEWS: Package view add_keyword(); %s" %string)
     def callback():
         global mainwindow_callback
         mainwindow_callback("refresh")
-    portage_lib.set_user_config('package.keywords', name=name, add=arch, callback=callback)
+    backends.portage_lib.set_user_config('package.keywords', name=name, add=arch, callback=callback)
     #package = utils.get_treeview_selection(self,2)
     #package.best_ebuild = package.get_latest_ebuild()
     #mainwindow_callback("refresh")

@@ -29,7 +29,6 @@ from gettext import gettext as _
 
 from porthole.utils import utils
 from porthole import backends
-portage_lib = backends.portage_lib
 from porthole.utils import debug
 
 
@@ -39,7 +38,7 @@ class RMBMenu:
 
     def __init__(self):
         # create popup menu for rmb-click
-        arch = "~" + portage_lib.get_arch()
+        arch = "~" + backends.portage_lib.get_arch()
         menu = Gtk.Menu()
         menuitems = {}
         menuitems["emerge"] = Gtk.MenuItem(_("Emerge"))

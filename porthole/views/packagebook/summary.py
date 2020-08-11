@@ -34,7 +34,6 @@ from gettext import gettext as _
 from porthole.utils import debug
 from porthole.utils import utils
 from porthole import backends
-portage_lib = backends.portage_lib
 from porthole import db
 from porthole.db.user_configs import CONFIG_MASK_ATOMS
 from porthole import config
@@ -53,7 +52,7 @@ class Summary(Gtk.TextView):
         #self.enable_archlist = config.Prefs.globals.enable_archlist
         #self.archlist = config.Prefs.globals.archlist
         self.dispatch = dispatcher
-        self.myarch = portage_lib.get_arch()
+        self.myarch = backends.portage_lib.get_arch()
         #self.selected_arch = None
         self.selected_arch = self.myarch
         #self.tooltips = Gtk.Tooltips()
@@ -66,7 +65,7 @@ class Summary(Gtk.TextView):
         tagtable = self.create_tag_table()
         self.buffer = Gtk.TextBuffer(tagtable)
         self.set_buffer(self.buffer)
-        self.license_dir = "file://"+ portage_lib.settings.portdir + "/licenses/"
+        self.license_dir = "file://"+ backends.portage_lib.settings.portdir + "/licenses/"
         self.package = None
         self.ebuild = None
         self.config_types = db.userconfigs.get_types()
@@ -267,12 +266,12 @@ class Summary(Gtk.TextView):
             for ebuild in ebuilds:
                 # set the tag to the default
                 tag = "value"
-                version = portage_lib.get_version(ebuild)
+                version = backends.portage_lib.get_version(ebuild)
                 keys = package.get_properties(ebuild).get_keywords()
                 if not show_all and self.myarch not in keys and ''.join(['~',self.myarch]) not in keys:
                     # we won't display the ebuild if it's not available to us
                     continue
-                slot = portage_lib.get_property(ebuild, "SLOT")
+                slot = backends.portage_lib.get_property(ebuild, "SLOT")
                 if not slot == oldslot:
                     if spam:
                         #append(", ".join(spam), "value")
@@ -357,7 +356,7 @@ class Summary(Gtk.TextView):
             y = rows
             for ebuild in ebuilds:
                 y -= 1
-                version = portage_lib.get_version(ebuild)
+                version = backends.portage_lib.get_version(ebuild)
                 ver_label = Gtk.Label(label=str(version))
                 ver_label.set_padding(3, 3)
                 # slot column
@@ -365,13 +364,13 @@ class Summary(Gtk.TextView):
                 slot_label = Gtk.Label(label=str(slot))
                 slot_label.set_padding(3, 3)
                 # overlay column
-                overlay = portage_lib.get_overlay(ebuild)
+                overlay = backends.portage_lib.get_overlay(ebuild)
                 if type(overlay) in (int,): # catch obsolete
                     overlay = _("Ebuild version no longer supported")
                     overlay_label = Gtk.Label(label=_("Obsolete"))
                     label_color = "#ED9191"
                 else:
-                    overlay_label = Gtk.Label(label=portage_lib.get_overlay_name(overlay))
+                    overlay_label = Gtk.Label(label=backends.portage_lib.get_overlay_name(overlay))
                     label_color = "#EEEEEE"
                 overlay_label.set_padding(3, 3)
                 box = boxify(overlay_label, label_color)
@@ -412,14 +411,14 @@ class Summary(Gtk.TextView):
                                 ('~' + arch in self.keyword_unmasked[ebuild] or self.keyword_unmasked[ebuild] == [] )):
                         # take account of package.keywords in text but leave colour unchanged
                         text = text.replace('~', '(+)')
-                    if 'profile' not in portage_lib.get_masking_status(ebuild):
+                    if 'profile' not in backends.portage_lib.get_masking_status(ebuild):
                         if ebuild in package_unmasked and 'M' in text:
                             text = '[' + text.replace('M', '') + ']'
                     label = Gtk.Label(label=text)
                     box = boxify(label, color=color, ebuild=ebuild, arch=arch, text=text)
                     if "M" in text or "[" in text:
                         box.set_has_tooltip(True)
-                        box.set_tooltip_text(portage_lib.get_masking_reason(ebuild))
+                        box.set_tooltip_text(backends.portage_lib.get_masking_reason(ebuild))
                     table.attach(box, x, x+1, y, y+1)
             table.set_row_spacings(1)
             table.set_col_spacings(1)
@@ -457,7 +456,7 @@ class Summary(Gtk.TextView):
             # parent module defined use_flags
             if use_flags and config.Prefs.summary.showuseflags:
                 #debug.dprint("SUMMARY: SHOW_PROPS(); use_flags = " +str(use_flags))
-                final_use, use_expand_hidden, usemasked, useforced = portage_lib.get_cpv_use(ebuild)
+                final_use, use_expand_hidden, usemasked, useforced = backends.portage_lib.get_cpv_use(ebuild)
                 iuse_output = False
                 myflags = filter_flags(iuse, use_expand_hidden, usemasked, useforced)
                 if myflags != []:
@@ -630,15 +629,15 @@ class Summary(Gtk.TextView):
             status[_ver] = []
         s_check = set(versions).difference(hardmasked, nonmasked)
         for _ver in s_check:
-            status[_ver] = portage_lib.get_masking_status(_ver)
+            status[_ver] = backends.portage_lib.get_masking_status(_ver)
         debug.dprint("SUMMARY: hardmasked = " + str(hardmasked))
-        #self.keyword_unmasked = portage_lib.get_keyword_unmasked_ebuilds(
+        #self.keyword_unmasked = backends.portage_lib.get_keyword_unmasked_ebuilds(
         #                    archlist=config.Prefs.globals.archlist, full_name=package.full_name)
         debug.dprint("SUMMARY: get package info, name = " + package.full_name)
         self.keyword_unmasked = db.userconfigs.get_user_config('KEYWORDS', name=package.full_name)
         package_unmasked = db.userconfigs.get_user_config('UNMASK', name=package.full_name)
 
-        best = portage_lib.get_best_ebuild(package.full_name)
+        best = backends.portage_lib.get_best_ebuild(package.full_name)
         debug.dprint("SUMMARY: best = %s" %best)
         if _ebuild:
             self.ebuild = _ebuild
@@ -675,7 +674,7 @@ class Summary(Gtk.TextView):
 
         # fixme unused system_use_flags
         # get system use flags
-        system_use_flags = portage_lib.settings.SystemUseFlags
+        system_use_flags = backends.portage_lib.settings.SystemUseFlags
 
         #############################
         # Begin adding text to tab
@@ -730,7 +729,7 @@ class Summary(Gtk.TextView):
             nl(2)
 
         append(_("Properties for version: "), "property")
-        append(portage_lib.get_version(self.ebuild))
+        append(backends.portage_lib.get_version(self.ebuild))
         nl(2)
         show_props(self.ebuild)
         nl()
@@ -963,7 +962,7 @@ class Summary(Gtk.TextView):
 
     def package_mask(self, widget, atoms):
         if atoms == 'all':
-            ebuild = portage_lib.get_full_name(self.selected_ebuild)
+            ebuild = backends.portage_lib.get_full_name(self.selected_ebuild)
         else:
             ebuild = atoms + self.selected_ebuild
         # TODO add reasons info to entry
@@ -972,7 +971,7 @@ class Summary(Gtk.TextView):
 
     def package_unmask(self, widget, atoms):
         if atoms == 'all':
-            ebuild = portage_lib.get_full_name(self.selected_ebuild)
+            ebuild = backends.portage_lib.get_full_name(self.selected_ebuild)
         else:
             ebuild = atoms + self.selected_ebuild
         debug.dprint("Summary: Package view  package_unmask(); %s" %ebuild)

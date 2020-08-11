@@ -21,9 +21,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
-from porthole import backends
-portage_lib = backends.portage_lib
-
 
 class ToolChain:
     """Class to handle all toolchain related info and decisions"""

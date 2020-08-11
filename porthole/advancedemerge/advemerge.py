@@ -38,7 +38,6 @@ from porthole.utils import utils
 from porthole.utils import debug
 from porthole import config
 from porthole import backends
-portage_lib = backends.portage_lib
 from porthole import db
 from porthole.backends.version_sort import ver_sort
 from porthole.backends.utilities import (
@@ -61,8 +60,8 @@ class AdvancedEmergeDialog:
         self.package = package
         self.setup_command = setup_command
         self.re_init_portage = re_init_portage
-        self.arch = portage_lib.get_arch()
-        self.system_use_flags = portage_lib.settings.SystemUseFlags
+        self.arch = backends.portage_lib.get_arch()
+        self.system_use_flags = backends.portage_lib.settings.SystemUseFlags
         self.emerge_unmerge = "emerge"
         self.is_root = utils.is_root()
         self.package_use_flags = db.userconfigs.get_user_config('USE', package.full_name)
@@ -307,7 +306,7 @@ class AdvancedEmergeDialog:
         # we need to set package.use in case the flag was set there originally!
         package_use_callback = Dispatcher( db.userconfigs.set_user_config,\
                 'USE', self.package.full_name, '', '', removelist, self.reload )
-        portage_lib.set_make_conf('USE', add=addlist, remove=removelist, callback=package_use_callback )
+        backends.portage_lib.set_make_conf('USE', add=addlist, remove=removelist, callback=package_use_callback )
         self.version_changed(button_widget)
 
     def on_package_keywords_commit(self, button_widget):
@@ -342,7 +341,7 @@ class AdvancedEmergeDialog:
             #~ del self.package.properties[ebuild]
         # Remove properties object so everything's recalculated
         self.package.properties.pop(ebuild, None)
-        self.system_use_flags = portage_lib.settings.SystemUseFlags
+        self.system_use_flags = backends.portage_lib.settings.SystemUseFlags
         self.package_use_flags = db.userconfigs.get_user_config('USE', self.package.full_name)
         #debug.dprint(self.package_use_flags)
 
@@ -419,17 +418,17 @@ class AdvancedEmergeDialog:
             info = {}
             props = self.package.get_properties(ebuild)
             info["name"] = ebuild
-            info["number"] = portage_lib.get_version(ebuild)
+            info["number"] = backends.portage_lib.get_version(ebuild)
             if ebuild == self.package.get_best_ebuild():
                 info["best"] = True
-                info["best_downgrades"] = ebuild not in portage_lib.best(installed + [ebuild])
+                info["best_downgrades"] = ebuild not in backends.portage_lib.best(installed + [ebuild])
             else:
                 info["best"] = info["best_downgrades"] = False
             info["installed"] = ebuild in installed
             info["slot"] = props.get_slot()
             info["keywords"] = props.get_keywords()
             iuse = props.get_use_flags()
-            final_use, use_expand_hidden, usemasked, useforced = portage_lib.get_cpv_use(ebuild)
+            final_use, use_expand_hidden, usemasked, useforced = backends.portage_lib.get_cpv_use(ebuild)
             myflags = filter_flags(iuse, use_expand_hidden, usemasked, useforced)
             info["use_flags"] = abs_list(myflags)
             info["stable"] = ebuild in nonmasked
@@ -464,13 +463,13 @@ class AdvancedEmergeDialog:
                         # so: re-mask it (for use with package.keywords button)
                         return "-~" + self.arch
                     keyword = ''
-                if verInfo["stable"] and keyword in portage_lib.settings.settings["ACCEPT_KEYWORDS"]: return ''
+                if verInfo["stable"] and keyword in backends.portage_lib.settings.settings["ACCEPT_KEYWORDS"]: return ''
                 return keyword.strip()
         return ''
 
     def get_use_flags(self, ebuild=None):
         """ Get use flags selected by user """
-        UseFlagsFrame = self.wtree.get_widget('frameUseFlags')
+        UseFlagsFrame = self.wtree.get_object('frameUseFlags')
         child = UseFlagsFrame.get_child()
         if child is None:
            return None
@@ -648,7 +647,7 @@ class AdvancedEmergeDialog:
             # we'll trap the error
             button.set_has_tooltip(True)
             try:
-                button.set_tooltip_text(portage_lib.settings.UseFlagDict[flag.lower()][2])
+                button.set_tooltip_text(backends.portage_lib.settings.UseFlagDict[flag.lower()][2])
             except KeyError:
                 button.set_tooltip_text(_('Unsupported use flag'))
             table.attach(button, col, col+1, row, row+1)

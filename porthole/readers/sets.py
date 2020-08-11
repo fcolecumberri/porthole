@@ -24,8 +24,6 @@ import os
 from gettext import gettext as _
 
 from porthole.utils import debug
-from porthole import backends
-portage_lib = backends.portage_lib
 from porthole import db
 from porthole.db.package import Package
 from porthole.readers.commonreader import CommonReader

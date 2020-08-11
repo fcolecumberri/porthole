@@ -30,7 +30,6 @@ from gettext import gettext as _
 
 from porthole.utils import utils
 from porthole import backends
-portage_lib = backends.portage_lib
 from porthole.views.packagebook.dependstree import DependsTree
 from porthole.views.commontreeview import CommonTreeView
 from porthole.utils import debug
@@ -123,7 +122,7 @@ class DependsView(CommonTreeView):
         self.set_rules_hint(True)
 
         # create popup menu for rmb-click
-        arch = "~" + portage_lib.get_arch()
+        arch = "~" + backends.portage_lib.get_arch()
         menu = Gtk.Menu()
         menuitems = {}
         menuitems["emerge --oneshot"] = Gtk.MenuItem(_("Emerge"))
@@ -185,29 +184,29 @@ class DependsView(CommonTreeView):
                     debug.dprint("DependsView: populate_info(); found package: " + name)
                     latest_installed = package.get_latest_installed()
                     debug.dprint("DependsView: populate_info(); latest_installed: %s, getting best_ebuild" %str(latest_installed))
-                    best_ebuild, keyworded_ebuild, masked_ebuild = portage_lib.get_dep_ebuild(model.get_value(iter,model.column["depend"]))
+                    best_ebuild, keyworded_ebuild, masked_ebuild = backends.portage_lib.get_dep_ebuild(model.get_value(iter,model.column["depend"]))
                     debug.dprint("DependsView: populate_info(); best_ebuild: %s, getting latest_ebuild" %str(best_ebuild))
                     #latest_ebuild = package.get_latest_ebuild(False) # include_masked = False
                     #debug.dprint("DependsView: populate_info(); latest_ebuild: %s" %str(latest_ebuild))
-                    model.set_value(iter, model.column["installed"], portage_lib.get_version(latest_installed)) # installed
+                    model.set_value(iter, model.column["installed"], backends.portage_lib.get_version(latest_installed)) # installed
                     #debug.dprint("DependsView: populate_info(); model.latest_installed version = " + model.get_value(iter, model.column["installed"]))
                     keywords = ''
                     if best_ebuild != '':
-                        model.set_value(iter, model.column["latest"], portage_lib.get_version(best_ebuild)) #  recommended by portage
-                        name = portage_lib.get_full_name(best_ebuild)
+                        model.set_value(iter, model.column["latest"], backends.portage_lib.get_version(best_ebuild)) #  recommended by portage
+                        name = backends.portage_lib.get_full_name(best_ebuild)
                         keywords = self.get_relevant_keywords(package, best_ebuild)
                     elif keyworded_ebuild != '':
-                        model.set_value(iter, model.column["latest"], "(" + portage_lib.get_version(keyworded_ebuild) + ")") # latest
-                        name = portage_lib.get_full_name(keyworded_ebuild)
+                        model.set_value(iter, model.column["latest"], "(" + backends.portage_lib.get_version(keyworded_ebuild) + ")") # latest
+                        name = backends.portage_lib.get_full_name(keyworded_ebuild)
                         keywords = self.get_relevant_keywords(package, keyworded_ebuild)
                     elif masked_ebuild != '':
-                        model.set_value(iter, model.column["latest"], "M(" + portage_lib.get_version(masked_ebuild) + ")") # hard masked
-                        name = portage_lib.get_full_name(masked_ebuild)
+                        model.set_value(iter, model.column["latest"], "M(" + backends.portage_lib.get_version(masked_ebuild) + ")") # hard masked
+                        name = backends.portage_lib.get_full_name(masked_ebuild)
                         keywords = self.get_relevant_keywords(package, masked_ebuild)
                     if latest_installed:
-                        name = portage_lib.get_full_name(latest_installed)
+                        name = backends.portage_lib.get_full_name(latest_installed)
                     if "virtual" in name:
-                        name = portage_lib.get_virtual_dep(name)
+                        name = backends.portage_lib.get_virtual_dep(name)
                     model.set_value(iter, model.column["name"], name)
                     model.set_value(iter, model.column["keyword"], keywords)
                 except Exception as e:
@@ -222,7 +221,7 @@ class DependsView(CommonTreeView):
         if config.Prefs.globals.enable_archlist:
             archlist = config.Prefs.globals.archlist
         else:
-            archlist = [portage_lib.get_arch()]
+            archlist = [backends.portage_lib.get_arch()]
         #debug.dprint("DependsView: get_relevant_keywords(); archlist = " + str(archlist))
         keywords = ''
         x = 1
@@ -436,7 +435,7 @@ class DependsView(CommonTreeView):
         self.dispatch(emergestring, {'caller': "DependsView: emerge()", 'package': utils.get_treeview_selection(self, 2)})
 
     def add_keyword(self, widget):
-        arch = "~" + portage_lib.get_arch()
+        arch = "~" + backends.portage_lib.get_arch()
         name = utils.get_treeview_selection(self, 2).full_name
         string = name + " " + arch + "\n"
         debug.dprint("DependsView: dependsview add_keyword(); %s" %string)

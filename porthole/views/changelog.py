@@ -20,19 +20,18 @@ from porthole.utils import debug
 from porthole.views.list import ListView
 from porthole.views.markup import MarkupView
 from porthole import backends
-portage_lib = backends.portage_lib
 from porthole.loaders.loaders import load_web_page
 
 
 class ChangeLogView (ListView, MarkupView):
     """ChangeLog subclass which adds bug# highlighting and opening in
     the defined webbrowser
-    
+
     example use:
     from porthole.views.changelog import ChangeLogView
     myview = ChangeLogView()
     myview.update(ebuild)
-    
+
     """
 
     bug_re = re.compile(r'\d{4,}')
@@ -56,14 +55,14 @@ class ChangeLogView (ListView, MarkupView):
         self.bugzilla_url = "http://bugs.gentoo.org/show_bug.cgi?id="
         self.bugs = {}
         self.bug_id = 0
-        
+
         self.indent = ' '*4
 
 
 
     def _get_fn(self, cpv):
         """Returns a path to the specified category/package-version ChangeLog"""
-        dir, file = os.path.split(portage_lib.get_path(cpv))
+        dir, file = os.path.split(backends.portage_lib.get_path(cpv))
         if dir:
             return os.path.join(dir, "ChangeLog")
         return ''
@@ -105,7 +104,7 @@ class ChangeLogView (ListView, MarkupView):
     def _update_(self, parts):
         #debug.dprint("ChangeLogView: _update_(), parts = %s" %str(parts))
         self.append_date(parts['date'], self.indent)
-        self.append(' ') 
+        self.append(' ')
         self.append_developer(parts['developer'])
         self.append(' ')
         if self.atom_re.match(parts['text']):
@@ -117,7 +116,7 @@ class ChangeLogView (ListView, MarkupView):
     def _update2_(self, parts):
         #debug.dprint("ChangeLogView: _update2_(), parts = %s" %str(parts))
         self.append_date(parts['date'], self.indent)
-        self.append(' ') 
+        self.append(' ')
         self.append_developer(parts['developer'])
         self.nl()
         return

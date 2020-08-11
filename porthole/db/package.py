@@ -33,7 +33,6 @@ from gettext import gettext as _
 from porthole.backends.version_sort import ver_sort
 from porthole.utils import debug
 from porthole import backends
-portage_lib = backends.portage_lib
 
 REFRESH = True
 USERCONFIGS = None
@@ -57,7 +56,7 @@ class Package:
         self.latest_installed = None
         self.size = None
         self.digest_file = None
-        self.in_world = full_name in portage_lib.settings.get_world()
+        self.in_world = full_name in backends.portage_lib.settings.get_world()
         self.is_checked = False
         self.deprecated = False
         self.unavailable = []
@@ -85,14 +84,14 @@ class Package:
         if self.full_name == _("None"):
             return
         self.is_upgradeable(REFRESH)
-        self.in_world = self.full_name in portage_lib.settings.get_world()
+        self.in_world = self.full_name in backends.portage_lib.settings.get_world()
 
     def get_installed(self, refresh = False):
         """Returns a list of all installed ebuilds."""
         if self.full_name == _("None"):
             return []
         if self.installed_ebuilds == None or refresh:
-            self.installed_ebuilds = portage_lib.get_installed(self.full_name)
+            self.installed_ebuilds = backends.portage_lib.get_installed(self.full_name)
         return self.installed_ebuilds
 
     def get_name(self):
@@ -100,7 +99,7 @@ class Package:
         if self.full_name == _("None"):
             return self.full_name
         if self.name == None:
-            self.name = portage_lib.get_name(self.full_name)
+            self.name = backends.portage_lib.get_name(self.full_name)
         return self.name
 
     def get_category(self):
@@ -108,7 +107,7 @@ class Package:
         if self.full_name == _("None"):
             return ''
         if self.category == None:
-            self.category = portage_lib.get_category(self.full_name)
+            self.category = backends.portage_lib.get_category(self.full_name)
         return self.category
 
     def get_latest_ebuild(self, include_masked = False):
@@ -122,14 +121,14 @@ class Package:
         vers = self.get_versions()[:] # make a copy in case it is a pointer
         #debug.dprint("PACKAGE: get_latest_ebuild(); versions: " + str(vers))
         if include_masked:
-            #debug.dprint("PACKAGE: get_latest_ebuild(); trying portage_lib.best() of versions: " + str(vers))
-            return portage_lib.best(vers)
+            #debug.dprint("PACKAGE: get_latest_ebuild(); trying backends.portage_lib.best() of versions: " + str(vers))
+            return backends.portage_lib.best(vers)
         if self.latest_ebuild == None:
             #debug.dprint("PACKAGE: get_latest_ebuild(); checking hard masked vers = " + str(vers))
             for m in self.get_hard_masked(check_unmask = True):
                 while m in vers:
                     vers.remove(m)
-            self.latest_ebuild = portage_lib.best(vers)
+            self.latest_ebuild = backends.portage_lib.best(vers)
         return self.latest_ebuild
 
     def get_best_ebuild(self, refresh = False):
@@ -138,7 +137,7 @@ class Package:
         if self.full_name == _("None"):
             return ''
         if self.best_ebuild == None or refresh:
-            self.best_ebuild = portage_lib.get_best_ebuild(self.full_name)
+            self.best_ebuild = backends.portage_lib.get_best_ebuild(self.full_name)
             #debug.dprint("PACKAGE: get_best_ebuild();  = " + str(self.best_ebuild))
         return self.best_ebuild
 
@@ -149,7 +148,7 @@ class Package:
             return ''
         dep = self.get_dep_atom()
         if self.best_ebuild == None or refresh:
-            best, keyworded, hardmasked = portage_lib.get_dep_ebuild(dep)
+            best, keyworded, hardmasked = backends.portage_lib.get_dep_ebuild(dep)
             self.best_ebuild = best
             #debug.dprint("PACKAGE: get_best_ebuild();  = " + str(self.best_ebuild))
         return self.best_ebuild
@@ -169,21 +168,21 @@ class Package:
             if not ebuild:
                 ebuild = self.get_default_ebuild()
                 if ebuild:
-                    self.size = portage_lib.get_size(ebuild)
+                    self.size = backends.portage_lib.get_size(ebuild)
                 else:
                     self.size = ''
                 #debug.dprint("PACKAGE: get_size(); returning self.size")
                 return self.size
             else: # return the specific ebuild size
-                #debug.dprint("PACKAGE: get_size(); returning portage_lib.get_size(ebuild)")
-                self.size = portage_lib.get_size(ebuild)
+                #debug.dprint("PACKAGE: get_size(); returning backends.portage_lib.get_size(ebuild)")
+                self.size = backends.portage_lib.get_size(ebuild)
         return self.size
 
     def get_digest(self):
         if self.full_name == _("None"):
             return ''
         if self.digest_file == None:
-            self.digest_file = portage_lib.get_digest( self.get_latest_ebuild() )
+            self.digest_file = backends.portage_lib.get_digest( self.get_latest_ebuild() )
         return self.digest_file
 
     def get_latest_installed(self, refresh = False):
@@ -210,7 +209,7 @@ class Package:
             return ''
         if not cpv:
             cpv = self.get_best_ebuild()
-        return portage_lib.get_metadata(cpv)
+        return backends.portage_lib.get_metadata(cpv)
 
     def get_properties(self, specific_ebuild = None):
         """ Returns properties of specific ebuild.
@@ -228,7 +227,7 @@ class Package:
             ebuild = specific_ebuild
         if not ebuild in self.properties:
             #debug.dprint("PACKAGE: geting properties for '%s'" % str(ebuild))
-            self.properties[ebuild] = portage_lib.get_properties(ebuild)
+            self.properties[ebuild] = backends.portage_lib.get_properties(ebuild)
         return self.properties[ebuild]
 
     def get_versions(self, include_masked = True):
@@ -236,7 +235,7 @@ class Package:
         if self.full_name == _("None"):
             return ''
         # Note: this is slow, especially when include_masked is false
-        v = portage_lib.get_versions(self.full_name, include_masked)
+        v = backends.portage_lib.get_versions(self.full_name, include_masked)
         #debug.dprint("PACKAGE: SUMMARY get_versions(); v = " + str(v))
         return v
 
@@ -246,7 +245,7 @@ class Package:
         if self.full_name == _("None"):
             return ''
         if self.hard_masked_nocheck == None:
-            self.hard_masked_nocheck, self.hard_masked = portage_lib.get_hard_masked(self.full_name)
+            self.hard_masked_nocheck, self.hard_masked = backends.portage_lib.get_hard_masked(self.full_name)
         if check_unmask: return self.hard_masked
         else: return self.hard_masked_nocheck
 
@@ -265,7 +264,7 @@ class Package:
             if not best or not installed:
                 self.upgradable = 0
                 return self.upgradable
-            better = portage_lib.best([best,installed])
+            better = backends.portage_lib.best([best,installed])
             if best == installed:
                 self.upgradable = 0
             elif better == best:
@@ -285,12 +284,12 @@ class Package:
         if dep == None:
             dep = self.get_dep_atom()
         if self.dep_upgradable == None or refresh:
-            best, keyworded, hardmasked = portage_lib.get_dep_ebuild(dep)
+            best, keyworded, hardmasked = backends.portage_lib.get_dep_ebuild(dep)
             installed = self.get_latest_installed(refresh)
             if not best or not installed:
                 self.dep_upgradable = 0
                 return self.dep_upgradable
-            better = portage_lib.best([best,installed])
+            better = backends.portage_lib.best([best,installed])
             if best == installed:
                 self.dep_upgradable = 0
             elif better == best:
@@ -318,7 +317,7 @@ class Package:
             return self.unavailable
         ebuilds = self.get_installed()
         for ebuild in ebuilds:
-            overlay = portage_lib.get_overlay(ebuild)
+            overlay = backends.portage_lib.get_overlay(ebuild)
             if type(overlay) in (int,): # catch obsolete
                 # add the ebuild to Ebuilds list
                 self.unavailable.append(ebuild)

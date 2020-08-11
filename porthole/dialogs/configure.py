@@ -29,7 +29,6 @@ from porthole.utils import debug
 from porthole.loaders.loaders import load_web_page
 from porthole import config
 from porthole import backends
-portage_lib = backends.portage_lib
 
 
 class ConfigDialog:
@@ -450,7 +449,7 @@ class ConfigDialog:
         if child != None:
             self.KeywordsFrame.remove(child)
 
-        keywords = portage_lib.get_archlist()
+        keywords = backends.portage_lib.get_archlist()
 
         # Build table to hold radiobuttons
         size = len(keywords)

@@ -42,7 +42,7 @@ from porthole.backends.version_sort import ver_match
 def check_glade():
     """determine the libglade version installed
     and return the correct glade file to use"""
-    porthole_gladefile = "glade/porthole.glade"
+    porthole_gladefile = "glade/main_window.glade"
     #return porthole_gladefile
     # determine glade version
     versions = PMS_LIB.get_installed("gnome-base/libglade")

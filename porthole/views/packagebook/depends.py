@@ -26,7 +26,6 @@ from gettext import gettext as _
 
 from porthole.utils import debug
 from porthole import backends
-portage_lib = backends.portage_lib
 from porthole.backends.utilities import dep_split
 import datetime
 
@@ -163,13 +162,13 @@ class DependAtom(DependKey):
         """ self.mytype == 'DEP
         @param use_flags: string of space separated use flags
         @rtype: non-empty if satisfied'"""
-        return portage_lib.get_installed(self.get_depname() + self.get_required_use())
+        return backends.portage_lib.get_installed(self.get_depname() + self.get_required_use())
 
     def _BLOCKER_is_satisfied(self, use_flags):
         """ self.mytype == 'BLOCKER
         @param use_flags: string of space separated use flags
         @rtype: non-empty if satisfied????'"""
-        return not portage_lib.get_installed(self.get_depname() + self.get_required_use())
+        return not backends.portage_lib.get_installed(self.get_depname() + self.get_required_use())
 
     def _GROUP_is_satisfied(self, use_flags):
         """ self.mytype == 'GROUP'
@@ -211,7 +210,7 @@ class DependAtom(DependKey):
         """ self.mytype == 'REVISIONABLE'
         @param use_flags: string of space separated use flags
         @rtype: nonempty if is satisfied"""
-        return portage_lib.get_installed(self.get_depname() + self.get_required_use())
+        return backends.portage_lib.get_installed(self.get_depname() + self.get_required_use())
 
     def _OPTION_is_satisfied(self, use_flags):
         """ self.mytype == 'OPTION'

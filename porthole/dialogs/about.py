@@ -32,7 +32,6 @@ from porthole.version import (
 )
 from porthole import config
 from porthole import backends
-portage_lib = backends.portage_lib
 
 class AboutDialog:
     """Class to hold about dialog and functionality."""
@@ -44,7 +43,7 @@ class AboutDialog:
         self.builder.add_from_file(self.gladefile)
         self.builder.set_translation_domain(config.Prefs.APP)
         self.window = self.builder.get_object("about")
-        license_file = portage_lib.settings.portdir + "/licenses/GPL-2"
+        license_file = backends.portage_lib.settings.portdir + "/licenses/GPL-2"
         author_file = config.Prefs.AUTHORS
         translator_file = config.Prefs.TRANSLATORS
         self.window.set_property("authors", get_textfile(author_file).split('\n'))

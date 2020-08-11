@@ -9,7 +9,6 @@ from gettext import gettext as _
 
 from porthole.utils import debug
 from porthole import backends
-portage_lib = backends.portage_lib
 from porthole.backends.utilities import (get_reduced_flags,
         abs_flag, )
 
@@ -102,7 +101,7 @@ class UseFlagWidget(Gtk.Table):
 
          button.set_has_tooltip=True
          try:
-            button.set_tooltip_text(portage_lib.settings.UseFlagDict[myflag.lower()][2])
+            button.set_tooltip_text(backends.portage_lib.settings.UseFlagDict[myflag.lower()][2])
          except KeyError:
             button.set_tooltip_text(_('Unsupported use flag'))
          table.attach(button, col, col+1, row, row+1)

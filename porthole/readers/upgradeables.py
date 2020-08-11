@@ -31,7 +31,6 @@ from gettext import gettext as _
 from porthole.utils import debug
 from porthole.sterminal import SimpleTerminal
 from porthole import backends
-portage_lib = backends.portage_lib
 from porthole import db
 from porthole.db.package import Package
 from porthole.readers.commonreader import CommonReader
@@ -115,7 +114,7 @@ class UpgradableListReader(CommonReader):
                 time.sleep(0.10)
             self.categories[_("System")] = self.make_list(self.terminal.reader.string)
         else:
-            self.categories[_("System")] = portage_lib.get_system_pkgs()
+            self.categories[_("System")] = backends.portage_lib.get_system_pkgs()
         self.progress = 2
         debug.dprint("READERS: UpgradableListReader; new system pkg list %s" %str(self.categories[_("System")]))
 
@@ -124,7 +123,7 @@ class UpgradableListReader(CommonReader):
         list1 = from_string.split('\n')
         list2 = []
         for pkg in list1:
-            list2.append(portage_lib.get_full_name(pkg.rstrip("\r")))
+            list2.append(backends.portage_lib.get_full_name(pkg.rstrip("\r")))
         return list2
 
     def get_sets( self):

@@ -30,8 +30,7 @@ from gettext import gettext as _
 from porthole.utils import debug
 from porthole.utils import utils
 from porthole import backends
-portage_lib = backends.portage_lib
-#World = portage_lib.settings.get_world()
+#World = backends.portage_lib.settings.get_world()
 from porthole import config
 from porthole.utils.dispatcher import Dispatcher
 from porthole.views.packagebook.summary import Summary
@@ -65,7 +64,7 @@ class PackageNotebook(object):
         self.installed_files = self.wtree.get_object("installed_files").get_buffer()
         #self.ebuild = self.wtree.get_object("ebuild").get_buffer()
         self.ebuild_scrolledwindow = self.wtree.get_object('ebuild_scrolled_window')
-        self.ebuild = HighlightView(portage_lib.get_path, ['gentoo', 'shell'])
+        self.ebuild = HighlightView(backends.portage_lib.get_path, ['gentoo', 'shell'])
         self.ebuild_scrolledwindow.add(self.ebuild)
         self.ebuild_scrolledwindow.show_all()
 

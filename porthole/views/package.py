@@ -33,7 +33,6 @@ from gettext import gettext as _
 
 
 from porthole import backends
-portage_lib = backends.portage_lib
 from porthole.backends import utilities
 from porthole import config
 from porthole import db
@@ -69,7 +68,7 @@ class PackageView(CommonTreeView):
         CommonTreeView.__init__(self)
 
         # create popup menu for rmb-click
-        arch = "~" + portage_lib.get_arch()
+        arch = "~" + backends.portage_lib.get_arch()
         menu = Gtk.Menu()
         menuitems = {}
         menuitems["emerge"] = Gtk.MenuItem(_("Emerge"))
@@ -305,7 +304,7 @@ class PackageView(CommonTreeView):
         return True
 
     def add_keyword(self, widget):
-        arch = "~" + portage_lib.get_arch()
+        arch = "~" + backends.portage_lib.get_arch()
         name = utils.get_treeview_selection(self, MODEL_ITEM["package"]).full_name
         string = name + " " + arch + "\n"
         debug.dprint("VIEWS: Package view add_keyword(); %s" %string)
@@ -564,16 +563,16 @@ class PackageView(CommonTreeView):
                     #debug.dprint("VIEWS: populate_info(); best_dep_ebuild: %s, getting latest_ebuild" %str(best_ebuild))
                     latest_ebuild = package.get_latest_ebuild(include_masked = False)
                     #debug.dprint("VIEWS: populate_info(); latest_ebuild: %s" %str(latest_ebuild))
-                    model.set_value(iter, MODEL_ITEM["installed"], portage_lib.get_version(latest_installed)) # installed
+                    model.set_value(iter, MODEL_ITEM["installed"], backends.portage_lib.get_version(latest_installed)) # installed
                 else:
                     ebuild = model.get_value(iter,MODEL_ITEM["name"])
                     #debug.dprint("VIEWS: populate_info(); ebuild: '%s', getting latest..." % str(ebuild))
                     latest_installed = ''
                     debug.dprint("VIEWS: populate_info(); latest_installed: '%s', getting slot_dep" % str(latest_installed))
-                    slot = portage_lib.get_slot(ebuild)
+                    slot = backends.portage_lib.get_slot(ebuild)
                     slot_dep = ':'.join([package.full_name, slot] if slot else [package.full_name])
                     debug.dprint("VIEWS: populate_info(); slot_dep: '%s', getting best_ebuild" % slot_dep)
-                    best_ebuild, keyworded_ebuild, masked_ebuild = portage_lib.get_dep_ebuild(slot_dep)
+                    best_ebuild, keyworded_ebuild, masked_ebuild = backends.portage_lib.get_dep_ebuild(slot_dep)
                     debug.dprint("VIEWS: populate_info(); best_dep_ebuild: %s, getting latest_ebuild" % str(best_ebuild))
                     latest_ebuild = package.get_latest_ebuild(include_masked = False)
                     debug.dprint("VIEWS: populate_info(); latest_ebuild: %s" %str(latest_ebuild))
@@ -585,10 +584,10 @@ class PackageView(CommonTreeView):
                 except:
                     debug.dprint("VIEWS: populate_info(); Had issues getting size for '%s'" % str(package.full_name))
                 if best_ebuild:
-                    model.set_value(iter, MODEL_ITEM["recommended"], portage_lib.get_version(best_ebuild)) #  recommended by portage
+                    model.set_value(iter, MODEL_ITEM["recommended"], backends.portage_lib.get_version(best_ebuild)) #  recommended by portage
                     #debug.dprint("VIEWS populate_info(): got best ebuild for '%s' = %s" % (package.full_name, best_ebuild))
                 elif latest_ebuild:
-                    model.set_value(iter, MODEL_ITEM["recommended"], "(" + portage_lib.get_version(latest_ebuild) + ")") # latest
+                    model.set_value(iter, MODEL_ITEM["recommended"], "(" + backends.portage_lib.get_version(latest_ebuild) + ")") # latest
                     #debug.dprint("VIEWS populate_info(): got latest ebuild for '%s' = %s" % (package.full_name, latest_ebuild))
                 else:
                     model.set_value(iter, MODEL_ITEM["recommended"], "masked") # hard masked - don't display

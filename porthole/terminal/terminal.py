@@ -84,7 +84,6 @@ from gettext import gettext as _
 
 # import custom modules
 from porthole import backends
-portage_lib = backends.portage_lib
 from porthole.readers.process_reader import ProcessOutputReader
 from porthole.utils.dispatcher import Dispatcher
 from porthole.utils import debug
@@ -1059,7 +1058,7 @@ class ProcessManager: #dbus.service.Object):
             if config.Config.ebuild_re.match(line):
                 tokens = line.split(']')
                 tokens = tokens[1].split()
-                tmp_name = portage_lib.get_name(tokens[0])
+                tmp_name = backends.portage_lib.get_name(tokens[0])
                 name = ""
                 # We want to get rid of the version number in the package name
                 # because if a user is upgrading from, for instance, mozilla 1.4 to

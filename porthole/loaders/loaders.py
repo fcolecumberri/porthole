@@ -28,7 +28,6 @@ from gettext import gettext as _
 
 from porthole.utils import debug
 from porthole import backends
-portage_lib = backends.portage_lib
 from porthole import config
 
 # if using gnome, see if we can import it
@@ -97,9 +96,9 @@ def load_textfile(view, package, mode, version = None):
                 nonmasked = package.get_versions(include_masked = False)
                 if package.depricated or mode == "installed_ebuild":
                     # fixme unused ebuild_path
-                    ebuild_path = portage_lib.get_vdb
+                    ebuild_path = backends.portage_lib.get_vdb
                 if mode == "best_ebuild":
-                    best = portage_lib.best(installed + nonmasked)
+                    best = backends.portage_lib.best(installed + nonmasked)
                     if best == "": # all versions are masked and the package is not installed
                         ebuild = package.get_latest_ebuild(True) # get latest masked version
                     else:
@@ -117,21 +116,21 @@ def load_textfile(view, package, mode, version = None):
                 debug.dprint("loaders:load_textfile(); try opening & reading the file")
                 if mode == "changelog":
                     try:
-                        f = open(portage_lib.settings.portdir + package_file)
+                        f = open(backends.portage_lib.settings.portdir + package_file)
                     except:
                         # need to add multiple overlay support
-                        f = open(portage_lib.settings.portdir_overlay + package_file)
-                #~ elif portage_lib.is_overlay(ebuild):
+                        f = open(backends.portage_lib.settings.portdir_overlay + package_file)
+                #~ elif backends.portage_lib.is_overlay(ebuild):
                     #~ debug.dprint("LOADERS: load_textfile(); loading from an overlay")
-                    #~ f = open(portage_lib.settings.portdir_overlay + package_file)
+                    #~ f = open(backends.portage_lib.settings.portdir_overlay + package_file)
                 elif mode == "version_ebuild":
                     #debug.dprint("LOADERS: load_textfile(): version_ebiuld, getting path for: " + ebuild)
-                    path = portage_lib.get_path(version)
+                    path = backends.portage_lib.get_path(version)
                     debug.dprint("LOADERS: load_textfile(): loading from: " + path)
                     f = open(path)
                 else:
                     debug.dprint("LOADERS: load_textfile(): loading from the portage tree")
-                    f = open(portage_lib.settings.portdir + package_file)
+                    f = open(backends.portage_lib.settings.portdir + package_file)
                 data = f.read(); f.close()
 
                 if data != None:
@@ -151,7 +150,7 @@ def load_installed_files(window, view, package = None, ebuild = None):
         debug.dprint("LOADERS: load_installed_files(); package = %s, ebuild = %s" %(package.full_name,ebuild))
         if ebuild:
             debug.dprint("LOADERS: load_installed_files(); get installed files for ebuild")
-            installed_files = portage_lib.get_installed_files(ebuild)
+            installed_files = backends.portage_lib.get_installed_files(ebuild)
         elif package:
             debug.dprint("LOADERS: load_installed_files(); get installed files for latest installed version of package")
             installed = package.get_installed()
@@ -160,7 +159,7 @@ def load_installed_files(window, view, package = None, ebuild = None):
             if is_installed:
                 installed.sort()
                 ebuild = installed[-1]
-                installed_files = portage_lib.get_installed_files(installed[-1])
+                installed_files = backends.portage_lib.get_installed_files(installed[-1])
             else:
                 view.set_text(_("Not installed"))
         else:

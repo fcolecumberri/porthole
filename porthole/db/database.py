@@ -31,7 +31,6 @@ import pickle
 from gi.repository import GObject
 
 from porthole import backends
-portage_lib = backends.portage_lib
 from porthole.db.dbreader import DatabaseReader
 from porthole.readers.descriptions import DescriptionReader
 from porthole.db.dbbase import DBBase
@@ -79,8 +78,8 @@ class Database(DBBase):
         """Get a Package object based on full name."""
         try:
             #debug.dprint("Database: get_package(); fullname = " + full_name)
-            category = portage_lib.get_category(full_name)
-            name = portage_lib.get_name(full_name)
+            category = backends.portage_lib.get_category(full_name)
+            name = backends.portage_lib.get_name(full_name)
             if (category in self.categories and name in self.categories[category]):
                 return self.categories[category][name]
             else:
@@ -95,8 +94,8 @@ class Database(DBBase):
     def update_package(self, fullname):
         """Update the package info in the full list and the installed list"""
         #category, name = fullname.split("/")
-        category = portage_lib.get_category(fullname)
-        name = portage_lib.get_name(fullname)
+        category = backends.portage_lib.get_category(fullname)
+        name = backends.portage_lib.get_name(fullname)
         if (category in self.categories and name in self.categories[category]):
             self.categories[category][name].update_info()
         if (category in self.installed and name in self.installed[category]):

@@ -38,7 +38,6 @@ from porthole.utils.dispatcher import Dispatcher
 from porthole.sterminal import SimpleTerminal
 from porthole.dialogs.fileselector import FileSelector2 #as FileSelector
 from porthole import backends
-portage_lib = backends.portage_lib
 from porthole.utils import debug
 from porthole.privilege import controller as privileges
 
@@ -141,7 +140,7 @@ class UserConfigs:
             self.sources[mytype] = {}
         for file in CONFIG_FILES:
             debug.dprint("USER_CONFIGS: __init__(); file = " + file)
-            self.load(os.path.join(portage_lib.settings.config_root, portage_lib.settings.user_config_dir,file))
+            self.load(os.path.join(backends.portage_lib.settings.config_root, backends.portage_lib.settings.user_config_dir,file))
 
     def load(self, myfilename, recursive = True):
         lines = []
@@ -168,7 +167,7 @@ class UserConfigs:
         debug.dprint("USER_CONFIGS: atomize(); source = %s, mytype = %s"  %(str(source),str(mytype)))
         for line in lines:
             values = line.split()
-            name,atoms, version = portage_lib.split_atom_pkg( values[0] )
+            name,atoms, version = backends.portage_lib.split_atom_pkg( values[0] )
             atom = ConfigAtom(name)
             atom.atoms = atoms
             atom.version = version
@@ -200,7 +199,7 @@ class UserConfigs:
                 #~ result = []
         elif ebuild and ebuild != '':
             #debug.dprint("USER_CONFIGS: get_atom(); ebuild = " + ebuild)
-            pkgname = portage_lib.get_full_name(ebuild)
+            pkgname = backends.portage_lib.get_full_name(ebuild)
             #debug.dprint("USER_CONFIGS: get_atom(); pkgname = " + pkgname)
             if pkgname in self.db[mytype]:
                 result = self.db[mytype][pkgname]
@@ -269,7 +268,7 @@ class UserConfigs:
                 return result
             for atom in atoms:
                 acpv = atom.acpv()
-                match = portage_lib.xmatch('match-list', acpv, mylist=[ebuild])
+                match = backends.portage_lib.xmatch('match-list', acpv, mylist=[ebuild])
                 if match:
                     if mytype in masktypes:
                         result.extend(acpv) # package.mask/unmask
@@ -277,10 +276,10 @@ class UserConfigs:
                         result.extend(atom.value[:]) # package.use/keywords
             return result
         if name:
-            target = portage_lib.xmatch('match-all', name)
+            target = backends.portage_lib.xmatch('match-all', name)
             for atom in atoms:
                 acpv = atom.acpv()
-                ebuilds = portage_lib.xmatch('match-all', acpv)
+                ebuilds = backends.portage_lib.xmatch('match-all', acpv)
                 for ebuild in ebuilds:
                     if ebuild in target:
                         if ebuild in dict:
@@ -290,7 +289,7 @@ class UserConfigs:
         else:
             for atom in atoms:
                 acpv = atom.acpv()
-                ebuilds = portage_lib.xmatch('match-all', acpv)
+                ebuilds = backends.portage_lib.xmatch('match-all', acpv)
                 for ebuild in ebuilds:
                     if ebuild in dict:
                         dict[ebuild].extend(atom.value[:])
@@ -317,8 +316,8 @@ class UserConfigs:
             debug.dprint("USER_CONFIGS: set_user_config(): unsupported " +
                 "config mytype '%s'" % mytype)
             return False
-        config_path = os.path.join(portage_lib.settings.config_root,
-            portage_lib.settings.user_config_dir)
+        config_path = os.path.join(backends.portage_lib.settings.config_root,
+            backends.portage_lib.settings.user_config_dir)
         # get an existing atom if one exists.  pass both name and ebuild,
         # no need to check which one, I think
         atom = self.get_atom(mytype, name, ebuild)
@@ -394,7 +393,7 @@ class UserConfigs:
             debug.dprint(" * USER_CONFIGS: set_user_config(): command = %s"
                 %command )
             # add code to update_config()
-            mycallback = self.set_config_callback #portage_lib.reload_portage
+            mycallback = self.set_config_callback #backends.portage_lib.reload_portage
             app = SimpleTerminal(command, False,
                 dprint_output='SET_USER_CONFIG CHILD APP: ',
                 callback=Dispatcher(mycallback))
@@ -410,7 +409,7 @@ class UserConfigs:
         # Note: could perhaps just update portage.settings.
         # portage.settings.pmaskdict, punmaskdict, pkeywordsdict, pusedict
         # or portage.portdb.mysettings ?
-        portage_lib.reload_portage()
+        backends.portage_lib.reload_portage()
         if self.set_callback:
             debug.dprint(" * USER_CONFIGS: set_config_callback(): " +
                 "doing self.set_callback()" )

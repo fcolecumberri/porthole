@@ -34,7 +34,6 @@ from gettext import gettext as _
 import utils.debug
 from sterminal import SimpleTerminal
 import backends
-portage_lib = backends.portage_lib
 
 
 EXCEPTION_LIST = ['.','^','$','*','+','?','(',')','\\','[',']','|','{','}']
@@ -121,7 +120,7 @@ class UpgradableListReader(CommonReader):
         for key in self.pkg_count:
             self.upgrade_total += self.pkg_count[key]
             if self.upgradables[key] == {}:
-                pkg = portage_lib.Package(_("None"))
+                pkg = backends.portage_lib.Package(_("None"))
                 self.upgradables[key][_("None")] = pkg
         # set the thread as finished
         self.done = True
@@ -137,7 +136,7 @@ class UpgradableListReader(CommonReader):
                 time.sleep(0.10)
             self.categories["System"] = self.make_list(self.terminal.reader.string)
         else:
-            self.categories["System"] = portage_lib.get_system_pkgs()
+            self.categories["System"] = backends.portage_lib.get_system_pkgs()
         self.progress = 2
         utils.debug.dprint("READERS: UpgradableListReader; new system pkg list %s" %str(self.categories["System"]))
 
@@ -146,7 +145,7 @@ class UpgradableListReader(CommonReader):
         list1 = from_string.split('\n')
         list2 = []
         for pkg in list1:
-            list2.append(portage_lib.get_full_name(pkg.rstrip("\r")))
+            list2.append(backends.portage_lib.get_full_name(pkg.rstrip("\r")))
         return list2
 
     def get_sets( self):

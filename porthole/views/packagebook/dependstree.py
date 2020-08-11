@@ -30,7 +30,6 @@ from gettext import gettext as _
 
 from porthole.utils import debug
 from porthole import backends
-portage_lib = backends.portage_lib
 from porthole.backends.utilities import get_reduced_flags
 from porthole import db
 from porthole.views.packagebook.depends import  Depends, LAZYNAME
@@ -97,7 +96,7 @@ class DependsTree(Gtk.TreeStore):
                     parent = _("Not Using ") + dep[1:-1]
             else:
                 if dep not in ["(", ")", ":", "||"]:
-                    satisfied = portage_lib.get_installed(dep)
+                    satisfied = backends.portage_lib.get_installed(dep)
                     if using_list:
                         if [parent,dep,satisfied] not in use_list:
                             use_list.append([parent, dep, satisfied])
@@ -121,7 +120,7 @@ class DependsTree(Gtk.TreeStore):
             #debug.dprint(" * DependsTree: add_atomized_depends_list():" +
                 #" parent_use_flags = reduced: " + str(self.parent_use_flags[depth]))
         elif is_new_child: # and atomized_depends_list[0].mytype not in ['LAZY']:
-            self.parent_use_flags[depth] = portage_lib.settings.SystemUseFlags
+            self.parent_use_flags[depth] = backends.portage_lib.settings.SystemUseFlags
             #debug.dprint(" * DependsTree: add_atomized_depends_list(): 122, is_new_child " +
             #    " parent_use_flags = system only")
         for atom in atomized_depends_list:
@@ -254,7 +253,7 @@ class DependsTree(Gtk.TreeStore):
             debug.dprint("DependsTree:  _get_ebuild(): atom.atom = Null for atom:%s"
                 %atom.__repr__())
             return None
-        best, keyworded, masked  = portage_lib.get_dep_ebuild(atom.atom) #__repr__())
+        best, keyworded, masked  = backends.portage_lib.get_dep_ebuild(atom.atom) #__repr__())
         #debug.dprint("DependsTree:  _get_ebuild(): results = " + \
             #', '.join([best,keyworded,masked]))
         #
@@ -328,7 +327,7 @@ class DependsTree(Gtk.TreeStore):
             #" time= %s" % (end2-start))
 
     def _get_package(self, atom):
-        name = portage_lib.split_atom_pkg(atom.name)[0]
+        name = backends.portage_lib.split_atom_pkg(atom.name)[0]
         #debug.dprint(" * DependsTree: _get_package(): name=" + name)
         if not name:
             debug.dprint(" * DependsTree: _get_package():" +

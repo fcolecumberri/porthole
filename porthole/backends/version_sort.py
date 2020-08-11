@@ -181,12 +181,11 @@ def get_versions_only(versions):
     #dprint("VERSION_SORT: get_versions()")
     # convert versions into the padded version only list
     #from porthole import backends
-    #portage_lib = backends.portage_lib
-    from porthole.backends import portagelib as portage_lib
+    from porthole import backends
     vlist = []
     for v in versions:
         #dprint(v)
-        vlist += [portage_lib.get_version(v)]
+        vlist += [backends.portage_lib.get_version(v)]
         #dprint(vlist)
     return vlist
 
