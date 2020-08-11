@@ -58,7 +58,7 @@ class UseFlagCheckbuttons(Gtk.HBox):
 
 class UseFlagWidget(Gtk.Table):
    def __init__(self, use_flags, ebuild, parent_window):
-      GObject.GObject.__init__(self)
+      Gtk.Table.__init__(self)
       self.ebuild = ebuild
       self.parent_window = parent_window
       debug.dprint("USEFLAGDIALOG: __INIT__()")
