@@ -224,7 +224,7 @@ class PackageView(CommonTreeView):
         #self._installed_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
         #self._size_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
         text_desc = Gtk.CellRendererText()
-        self._desc_column.pack_start(text_desc, False, True, 0)
+        self._desc_column.pack_start(text_desc, expand=False)
         self._desc_column.add_attribute(text_desc, 'text', MODEL_ITEM["description"])
         self._desc_column.set_cell_data_func(text_desc, self.cell_data_func, None)
         #self._desc_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
