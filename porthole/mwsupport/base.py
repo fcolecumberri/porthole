@@ -55,10 +55,10 @@ def check_glade():
             debug.dprint("MAINWINDOW: Check_glade(); Porthole no longer " +
                 "supports the older versions\nof libglade.  Please upgrade " +
                 "libglade to >=2.5.0 for all GUI features to work")
-            porthole_gladefile = "glade/porthole.glade"
+            porthole_gladefile = "glade/main_window.glade"
             new_toolbar_api = False
         elif new:
-            porthole_gladefile = "glade/porthole.glade"
+            porthole_gladefile = "glade/main_window.glade"
             new_toolbar_api = True
     else:
         debug.dprint("MAINWINDOW: No version list returned for libglade")
@@ -78,16 +78,10 @@ class MainBase(object):
         debug.dprint("MAINWINDOW: Prefs.myarch = " + config.Prefs.myarch)
         #self.config = configs
         # setup glade
-        builder = Gtk.Builder()
         self.gladefile = config.Prefs.DATA_PATH + config.Prefs.use_gladefile
-        self.wtree = builder.add_objects_from_file(self.gladefile, "main_window")
-#            config.Prefs.APP)
-
-        # aliases for convenience
-        self.mainwindow = self.wtree.get_widget("main_window")
-        # save the mainwindow widget to Config for use by other modules
-        # as a parent window
-        config.Mainwindow = self.mainwindow
+        self.wtree = Gtk.Builder()
+        self.wtree.add_from_file(self.gladefile)
+        self.wtree.set_translation_domain(config.Prefs.APP)
 
         # register callbacks  note: Gtk.mainquit deprecated
         self.callbacks = {
@@ -115,14 +109,20 @@ class MainBase(object):
             "on_root_warning_clicked" : self.check_for_root,
             "on_configure_porthole" : self.configure_porthole,
         }
-        self.wtree.signal_autoconnect(self.callbacks)
+        self.wtree.connect_signals(self.callbacks)
+
+        # aliases for convenience
+        self.mainwindow = self.wtree.get_object("main_window")
+        # save the mainwindow widget to Config for use by other modules
+        # as a parent window
+        config.Mainwindow = self.mainwindow
 
         # how should we setup our saved menus?
         settings = ["pretend", "fetch", "update", "verbose", "noreplace",
                         "oneshot"] # "search_descriptions1"]
         option = 'empty'
         for option in settings:
-            widget = self.wtree.get_widget(option)
+            widget = self.wtree.get_object(option)
             state = getattr(config.Prefs.emerge, option) or False
             debug.dprint("MAINWINDOW: __init__(); option = %s, state = %s"
                     %(option, str(state)))
@@ -134,7 +134,7 @@ class MainBase(object):
                 "btn_unmerge", "btn_sync", "view_refresh", "view_filter"]
         self.widget = {}
         for x in self.tool_widgets:
-            self.widget[x] = self.wtree.get_widget(x)
+            self.widget[x] = self.wtree.get_object(x)
             if not self.widget[x]:
                 debug.dprint("MAINWINDOW: __init__(); Failure to obtain " +
                         "widget '%s'" %x)
@@ -163,7 +163,7 @@ class MainBase(object):
 
     def set_cancel_btn(self, state):
         """function name and parameter says it all"""
-        self.wtree.get_widget("btn_cancel").set_sensitive(state)
+        self.wtree.get_object("btn_cancel").set_sensitive(state)
 
     def size_update(self, widget, event):
         #debug.dprint("MAINWINDOW: size_update(); called.")

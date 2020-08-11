@@ -42,7 +42,7 @@ class PluginGUI(Gtk.Window):
         """ Initialize Plugins Dialog Window """
         # Preserve passed parameters and manager
         self.plugin_manager = plugin_manager
-        self.gladefile = config.Prefs.DATA_PATH + "glade/porthole.glade"
+        self.gladefile = config.Prefs.DATA_PATH + "glade/plugin_dialog.glade"
         self.wtree = Gtk.glade.XML(self.gladefile, "plugin_dialog", config.Prefs.APP)
 
         # Connect Callbacks
