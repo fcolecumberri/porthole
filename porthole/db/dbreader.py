@@ -22,8 +22,8 @@
 """
 
 import datetime
-id = datetime.datetime.now().microsecond
-print("DBREADER: import id initialized to ", id)
+_id = datetime.datetime.now().microsecond
+print("DBREADER: import id initialized to ", _id)
 
 import os
 import threading

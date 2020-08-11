@@ -23,8 +23,8 @@
 """
 
 import datetime
-id = datetime.datetime.now().microsecond
-print("METADATA: id initialized to ", id)
+_id = datetime.datetime.now().microsecond
+print("METADATA: id initialized to ", _id)
 
 from xml.sax import make_parser
 from xml.sax.handler import *

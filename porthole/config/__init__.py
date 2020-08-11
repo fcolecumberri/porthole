@@ -23,8 +23,8 @@
 '''
 
 import datetime
-id = datetime.datetime.now().microsecond
-print("CONFIG: id initialized to " + str(id))
+_id = datetime.datetime.now().microsecond
+print("CONFIG: id initialized to " + str(_id))
 
 from porthole.config.configuration import PortholeConfiguration
 

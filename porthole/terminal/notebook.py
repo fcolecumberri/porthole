@@ -139,8 +139,8 @@ class TerminalNotebook:
             #debug.dprint(x)
             adj = self.scrolled_window[x].get_vadjustment()
             self.vadjustment +=  [adj]
-            id = self.vadjustment[x].connect("value_changed", self.set_scroll)
-            self.vhandler_id += [id]
+            _id = self.vadjustment[x].connect("value_changed", self.set_scroll)
+            self.vhandler_id += [_id]
             #self.auto_scroll[x] = False  # already initialized to True
             # create autoscroll end marks to seek to &
             end_mark = self.view_buffer[x].create_mark(("end_mark"+str(x)), self.view_buffer[x].get_end_iter(), False)

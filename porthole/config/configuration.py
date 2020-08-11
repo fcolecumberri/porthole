@@ -23,8 +23,8 @@
 '''
 
 import datetime
-id = datetime.datetime.now().microsecond
-print("CONFIGURATION: id initialized to " + str(id))
+_id = datetime.datetime.now().microsecond
+print("CONFIGURATION: id initialized to " + str(_id))
 
 import re
 

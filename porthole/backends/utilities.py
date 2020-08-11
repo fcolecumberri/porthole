@@ -25,8 +25,8 @@
 """
 
 import datetime
-id = datetime.datetime.now().microsecond
-print("UTILITIES: id initialized to ", id)
+_id = datetime.datetime.now().microsecond
+print("UTILITIES: id initialized to ", _id)
 
 from gettext import gettext as _
 

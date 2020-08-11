@@ -22,8 +22,8 @@
 '''
 
 import datetime
-id = datetime.datetime.now().microsecond
-print("USERCONFIGS: id initialized to ", id)
+_id = datetime.datetime.now().microsecond
+print("USERCONFIGS: id initialized to ", _id)
 
 from gettext import gettext as _
 import os

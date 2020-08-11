@@ -101,10 +101,10 @@ class MarkupView (object):
         if text[0]:
             self.append(text[0],'normal')
         # need to track tag-id's due to multiple occurances of bug #
-        id = 'tag_id-%d' %self.bug_id
+        _id = 'tag_id-%d' %self.bug_id
         self.bug_id += 1
-        self.bugs[id] = num
-        self.append_url(num, id, self.url_color)
+        self.bugs[_id] = num
+        self.append_url(num, _id, self.url_color)
         if text[1]:
             self.append(text[1],'normal')
         return

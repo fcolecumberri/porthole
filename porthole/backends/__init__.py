@@ -23,8 +23,8 @@
 '''
 
 import datetime
-id = datetime.datetime.now().microsecond
-print("BACKENDS: id initialized to ", id)
+_id = datetime.datetime.now().microsecond
+print("BACKENDS: id initialized to ", _id)
 
 
 portage_lib = None

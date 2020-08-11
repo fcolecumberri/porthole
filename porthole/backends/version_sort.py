@@ -24,8 +24,8 @@
 '''
 
 import datetime
-id = datetime.datetime.now().microsecond
-print("VERSION_SORT: id initialized to ", id)
+_id = datetime.datetime.now().microsecond
+print("VERSION_SORT: id initialized to ", _id)
 
 if __name__ == "__main__":
 

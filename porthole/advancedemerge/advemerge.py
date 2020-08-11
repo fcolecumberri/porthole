@@ -24,8 +24,8 @@
 '''
 
 import datetime
-id = datetime.datetime.now().microsecond
-print("ADVEMERGE: id initialized to ", id)
+_id = datetime.datetime.now().microsecond
+print("ADVEMERGE: id initialized to ", _id)
 
 # import gtk & co
 from gi.repository import Gtk
