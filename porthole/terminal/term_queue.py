@@ -817,11 +817,11 @@ class TerminalQueue:
     def resume_dialog(self, message):
         """ Handle response when user tries to re-add killed process to queue """
         window = self.wtree.get_object("process_window")
-        _dialog = Gtk.MessageDialog(window, Gtk.DIALOG_MODAL,
-                                    Gtk.MESSAGE_QUESTION,
-                                    Gtk.BUTTONS_CANCEL, message);
-        _dialog.add_button(Gtk.STOCK_EXECUTE, Gtk.RESPONSE_ACCEPT)
-        _dialog.add_button("Resume", Gtk.RESPONSE_YES)
+        _dialog = Gtk.MessageDialog(window, Gtk.DialogFlags.MODAL,
+                                    Gtk.MessageType.QUESTION,
+                                    Gtk.ButtonsType.CANCEL, message);
+        _dialog.add_button(Gtk.STOCK_EXECUTE, Gtk.ResponseType.ACCEPT)
+        _dialog.add_button("Resume", Gtk.ResponseType.YES)
         result = _dialog.run()
         _dialog.destroy()
         return result
