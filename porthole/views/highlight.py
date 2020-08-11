@@ -12,6 +12,9 @@ Written by René 'Necoro' Neumann <necoro@necoro.net>
 Adapted to Porthole by, Brian Dolbec <dol-sen@users.sourceforge.net>
 """
 
+import gi
+gi.require_version('GtkSource', '4')
+
 from gi.repository import GtkSource
 
 from porthole.utils import debug
