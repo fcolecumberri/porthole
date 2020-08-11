@@ -63,7 +63,7 @@ class PluginGUI(Gtk.Window):
 
     def create_plugin_list(self):
         """Creates the list-view of the plugins"""
-        self.plugin_view = self.wtree.get_widget("plugin_view")
+        self.plugin_view = self.wtree.get_object("plugin_view")
 
         self.liststore = Gtk.ListStore(bool, str, bool)
         self.plugin_view.set_model(self.liststore)
@@ -125,13 +125,13 @@ class PluginGUI(Gtk.Window):
         if not row:
             return
         changed_plugin = self.plugin_manager.get_plugin(*changed_plugin_name)
-        plugin_desc = self.wtree.get_widget("plugin_desc")
+        plugin_desc = self.wtree.get_object("plugin_desc")
         text_buffer = Gtk.TextBuffer()
         text_buffer.set_text(changed_plugin.desc)
         plugin_desc.set_buffer(text_buffer)
         #Load a plugin's option screen here
 
     def destroy_cb(self, *args):
-        window = self.wtree.get_widget("plugin_dialog")
+        window = self.wtree.get_object("plugin_dialog")
         if window:
             window.destroy()

@@ -60,7 +60,7 @@ class CategoryHandler(PackageHandler):
         # setup the category view
         self.category_view = CategoryView()
         self.category_view.register_callback(self.category_changed)
-        self.wtree.get_widget("category_scrolled_window"
+        self.wtree.get_object("category_scrolled_window"
                         ).add(self.category_view)
         self.plugin_views = None
 

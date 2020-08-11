@@ -109,7 +109,7 @@ class PackageHandler(MainBase):
         if not db.db.desc_loaded and config.Prefs.main.search_desc:
             self.load_descriptions_list()
             return
-        tmp_search_term = self.wtree.get_widget("search_entry").get_text()
+        tmp_search_term = self.wtree.get_object("search_entry").get_text()
         #debug.dprint(tmp_search_term)
         if tmp_search_term:
             # change view and statusbar so user knows it's searching.
@@ -315,12 +315,12 @@ class PackageHandler(MainBase):
 
     def chg_pkgview(self, view):
         if not self.current_pkgview:
-            self.wtree.get_widget("package_scrolled_window"
+            self.wtree.get_object("package_scrolled_window"
                         ).add(view)
         elif self.current_pkgview != view:
-            self.wtree.get_widget("package_scrolled_window"
+            self.wtree.get_object("package_scrolled_window"
                         ).remove(self.current_view)
-            self.wtree.get_widget("package_scrolled_window"
+            self.wtree.get_object("package_scrolled_window"
                         ).add(view)
         self.current_pkgview = view
 

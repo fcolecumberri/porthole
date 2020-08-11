@@ -60,7 +60,7 @@ class PluginHandler(ActionHandler):
         self.plugin_root_menu = Gtk.MenuItem(_("Active Plugins"))
         self.plugin_menu = Gtk.Menu()
         self.plugin_root_menu.set_submenu(self.plugin_menu)
-        self.wtree.get_widget("menubar").append(self.plugin_root_menu)
+        self.wtree.get_object("menubar").append(self.plugin_root_menu)
         self.plugin_manager = PluginManager(self)
         self.plugin_package_tabs = {}
         self.packagebook = None
