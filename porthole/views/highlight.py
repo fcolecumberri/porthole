@@ -47,10 +47,11 @@ class HighlightView (GtkSource.View, LazyView):
         if not language and old_lang:
             debug.dprint("HIGHLIGHT: No %(old)s language file installed. Disable highlighting." %{"old" : old_lang})
 
-        buf = GtkSource.Buffer()
-        buf.set_language(language)
+        # fixme or port me
+        #buf = GtkSource.Buffer()
+        #buf.set_language(language)
 
-        GtkSource.View.__init__(self, buf)
+        GtkSource.View.__init__(self)
         LazyView.__init__(self)
 
         self.set_editable(False)
