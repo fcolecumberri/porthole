@@ -45,7 +45,7 @@ class DependsTree(Gtk.TreeStore):
 
         @param populate_info: function supplied to add aditional info to the treeview row
         """
-        GObject.GObject.__init__(self,
+        Gtk.TreeStore.__init__(self,
                 GObject.TYPE_STRING,       # depend name
                 GdkPixbuf.Pixbuf,            # icon to display
                 GObject.TYPE_PYOBJECT,     # package object
