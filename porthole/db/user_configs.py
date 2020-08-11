@@ -268,7 +268,7 @@ class UserConfigs:
                 return result
             for atom in atoms:
                 acpv = atom.acpv()
-                match = backends.portage_lib.xmatch('match-list', acpv, mylist=[ebuild])
+                match = backends.portage_lib.xmatch('match-all', acpv, mylist=[ebuild])
                 if match:
                     if mytype in masktypes:
                         result.extend(acpv) # package.mask/unmask
