@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.1 -->
+<!-- Generated with glade 3.22.2 -->
 <interface>
   <requires lib="gtk+" version="3.0"/>
   <object class="GtkDialog" id="config">
     <property name="can_focus">False</property>
     <property name="type_hint">dialog</property>
-    <child>
+    <child type="titlebar">
       <placeholder/>
     </child>
     <child internal-child="vbox">
@@ -254,6 +254,7 @@
                                         <property name="use_underline">True</property>
                                         <property name="active">True</property>
                                         <property name="draw_indicator">True</property>
+                                        <property name="group">globals_use_custom_browser</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -269,6 +270,7 @@
                                         <property name="receives_default">False</property>
                                         <property name="use_underline">True</property>
                                         <property name="draw_indicator">True</property>
+                                        <property name="group">use_default_browser</property>
                                         <signal name="toggled" handler="on_globals_use_custom_browser_toggled" swapped="no"/>
                                       </object>
                                       <packing>

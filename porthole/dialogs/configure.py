@@ -200,8 +200,8 @@ class ConfigDialog:
         # Terminal Color Tags
         default = config.Prefs.TAG_DICT['default']
         attributes = Gtk.TextView().get_default_attributes()
-        self.default_textview_fg = attributes.fg_color
-        self.default_textview_bg = attributes.bg_color
+        self.default_textview_fg = attributes.appearance.fg_color
+        self.default_textview_bg = attributes.appearance.bg_color
         if default[0]: default_fg = Gdk.color_parse(default[0])
         else: default_fg = self.default_textview_fg
         if default[1]: default_bg = Gdk.color_parse(default[1])
@@ -304,8 +304,9 @@ class ConfigDialog:
             command = config.Prefs.globals.custom_browser_command
             if command:
                 widget.set_text(command)
-            if not config.Prefs.globals.use_custom_browser:
-                self.wtree.get_object('custom_browser_table').set_sensitive(False)
+            # fixme needs porting
+            #if not config.Prefs.globals.use_custom_browser:
+            #    self.wtree.get_object('custom_browser_table').set_sensitive(False)
 
         # gui su client command
         widget = self.wtree.get_object('su_client')
