@@ -202,8 +202,6 @@ class ProcessManager: #dbus.service.Object):
                 if x == "process_text" or config.Prefs.terminal.all_tabs_use_custom_colors:
                     fg, bg, weight = config.Prefs.TAG_DICT['default']
                     font = config.Prefs.terminal.font
-# fixme which ???
-#<<<<<<< ours
                     if bg: view.modify_base(Gtk.StateType.NORMAL, Gdk.color_parse(bg))
                     else: view.modify_base(Gtk.StateType.NORMAL, default_bg)
                     if fg: view.modify_text(Gtk.StateType.NORMAL, Gdk.color_parse(fg))
@@ -213,17 +211,6 @@ class ProcessManager: #dbus.service.Object):
                     view.modify_base(Gtk.StateType.NORMAL, default_bg)
                     view.modify_text(Gtk.StateType.NORMAL, default_fg)
                     view.modify_font(Pango.FontDescription(default_font))
-# =======
-                    # if bg: view.modify_base(Gladeui.PropertyState.NORMAL, gdk.color_parse(bg))
-                    # else: view.modify_base(Gladeui.PropertyState.NORMAL, default_bg)
-                    # if fg: view.modify_text(Gladeui.PropertyState.NORMAL, gdk.color_parse(fg))
-                    # else: view.modify_text(Gladeui.PropertyState.NORMAL, default_fg)
-                    # view.modify_font(pango.FontDescription(font or default_font))
-                # else:
-                    # view.modify_base(Gladeui.PropertyState.NORMAL, default_bg)
-                    # view.modify_text(Gladeui.PropertyState.NORMAL, default_fg)
-                    # view.modify_font(pango.FontDescription(default_font))
-# >>>>>>> theirs
             # re-set misc. stuff
             self.term.command_start = None
             # re-set text tags
