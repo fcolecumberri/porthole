@@ -50,7 +50,7 @@ class MarkupView (object):
         self.set_left_margin(margin)
         self.set_right_margin(margin)
         self.tags = {'new_ver': ({'weight': Pango.Weight.BOLD,
-                        'scale': Pango.SCALE_LARGE,
+                        'scale': 1.2, #Pango.SCALE_LARGE,
                         'pixels-above-lines': 5}),
                         'description': ({"style": Pango.Style.ITALIC}),
                         'url': ({'foreground': 'blue'}),
@@ -66,7 +66,7 @@ class MarkupView (object):
         }
 
         tagtable = self._create_tag_table()
-        self.buffer = Gtk.TextBuffer(tagtable)
+        self.buffer = Gtk.TextBuffer()
         self.set_buffer(self.buffer)
 
         # Capture any mouse motion in this tab so we
@@ -134,7 +134,9 @@ class MarkupView (object):
         def create(descs):
             table = Gtk.TextTagTable()
             for name, properties in list(descs.items()):
-                tag = Gtk.TextTag(name); table.add(tag)
+                tag = Gtk.TextTag()
+                tag.name = name
+                table.add(tag)
                 for property, value in list(properties.items()):
                     tag.set_property(property, value)
             return table
