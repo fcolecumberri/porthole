@@ -878,8 +878,8 @@ class Summary(Gtk.TextView):
         return True
 
     def on_table_mouse(self, eventbox, event):
-        if event.mode != Gdk.CROSSING_NORMAL: return False
-        if event.type == Gdk.ENTER_NOTIFY:
+        if event.mode != Gdk.CrossingMode.NORMAL: return False
+        if event.type == Gdk.EventType.ENTER_NOTIFY:
             #debug.dprint("SUMMARY: on_table_mouse(): Enter notify")
             # note: colour should be of form "#xxxxxx" (not name)
             if eventbox.color.startswith('#'):
