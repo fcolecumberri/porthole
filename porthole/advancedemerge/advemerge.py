@@ -469,13 +469,29 @@ class AdvancedEmergeDialog:
 
     def get_use_flags(self, ebuild=None):
         """ Get use flags selected by user """
-        UseFlagsFrame = self.wtree.get_object('frameUseFlags')
-        child = UseFlagsFrame.get_child()
-        if child is None:
-            return None
-        else:
-            # fixme AttributeError: 'Table' object has no attribute 'get_use_flags'
-            return child.get_use_flags()
+        if not ebuild:
+            iter = self.combobox.get_active_iter()
+            model = self.combobox.get_model()
+            sel_ver = model.get_value(iter, 0)
+            verInfo = self.get_verInfo(sel_ver)
+            ebuild = verInfo["name"]
+        flaglist = []
+        ebuild_use_flags = get_reduced_flags(ebuild)
+        for child in self.ufList:
+            flag = child[1]
+            if flag in ebuild_use_flags:
+                    flag_active = True
+            else:
+                flag_active = False
+            if child[0].get_active():
+                if not flag_active:
+                    flaglist.append(flag)
+            else:
+                if flag_active:
+                    flaglist.append('-' + flag)
+        flags = ' '.join(flaglist)
+        debug.dprint("ADVEMERGE: get_use_flags(); flags = %s" %str(flags))
+        return flags
 
     def get_options(self):
         """ Create keyword list from option checkboxes """
