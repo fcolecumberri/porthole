@@ -41,15 +41,12 @@ from porthole import backends
 from porthole import db
 from porthole.backends.version_sort import ver_sort
 from porthole.backends.utilities import (
-    get_reduced_flags,
     abs_list,
-    abs_flag,
     filter_flags
 )
 from porthole.loaders.loaders import load_web_page
 from porthole.utils.dispatcher import Dispatcher
-#from porthole.advancedemerge.useflag import UseFlagWidget
-#from porthole.views.useflags import UseFlagWidget
+from porthole.views.useflags import UseFlagWidget
 
 class AdvancedEmergeDialog:
     """Class to perform advanced emerge dialog functionality."""
@@ -469,29 +466,12 @@ class AdvancedEmergeDialog:
 
     def get_use_flags(self, ebuild=None):
         """ Get use flags selected by user """
-        if not ebuild:
-            iter = self.combobox.get_active_iter()
-            model = self.combobox.get_model()
-            sel_ver = model.get_value(iter, 0)
-            verInfo = self.get_verInfo(sel_ver)
-            ebuild = verInfo["name"]
-        flaglist = []
-        ebuild_use_flags = get_reduced_flags(ebuild)
-        for child in self.ufList:
-            flag = child[1]
-            if flag in ebuild_use_flags:
-                    flag_active = True
-            else:
-                flag_active = False
-            if child[0].get_active():
-                if not flag_active:
-                    flaglist.append(flag)
-            else:
-                if flag_active:
-                    flaglist.append('-' + flag)
-        flags = ' '.join(flaglist)
-        debug.dprint("ADVEMERGE: get_use_flags(); flags = %s" %str(flags))
-        return flags
+        UseFlagsFrame = self.wtree.get_object('frameUseFlags')
+        child = UseFlagsFrame.get_child()
+        if child is None:
+           return None
+        else:
+           return child.get_use_flags()
 
     def get_options(self):
         """ Create keyword list from option checkboxes """
@@ -618,68 +598,10 @@ class AdvancedEmergeDialog:
                 else:
                     self.btnMakeConf.hide()
         # Build table to hold checkboxes
-#fixme needs porting???
-# <<<<<<< ours
-        # uflag_widget = UseFlagWidget(use_flags, ebuild, self.window)
-        # uflag_widget.connect('grab-focus', self.on_toggled)
-        # UseFlagFrame.add(uflag_widget)
-        # uflag_widget.show()
-# =======
-        size = len(use_flags) #30
-        maxcol = 3  # = number of columns - 1 = index of last column
-        maxrow = (size - 1) / (maxcol + 1)  # = number of rows - 1
-        # resize the table if it's taller than it is wide
-        table = Gtk.Table(maxrow+1, maxcol+1, True)
-        if maxrow + 1 >= 6: # perhaps have this number configurable?
-            # perhaps add window based on size (in pixels) of table somehow...
-            scrolledwindow = Gtk.ScrolledWindow()
-            scrolledwindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-            UseFlagFrame.add(scrolledwindow)
-            scrolledwindow.add_with_viewport(table)
-            scrolledwindow.set_size_request(1, 100) # min height of 100 pixels
-            scrolledwindow.show()
-        else:
-            UseFlagFrame.add(table)
-
-        self.ufList = []
-
-        # Iterate through use flags collection, create checkboxes
-        # and attach to table
-        col = 0
-        row = 0
-        ebuild_use_flags = get_reduced_flags(ebuild)
-        for flag in use_flags:
-            flag_active = False
-            myflag = abs_flag(flag)
-            if myflag in ebuild_use_flags:
-                flag_active = True
-            button = Gtk.CheckButton(flag)
-            button.set_use_underline(False)
-            button.set_active(flag_active)
-            self.ufList.append([button, flag])
-
-            # Add tooltip, attach button to table and show it off
-            # Use lower case flag, since that is how it is stored
-            # in the UseFlagDict.  In case flag doesn't exist
-            # we'll trap the error
-            button.set_has_tooltip(True)
-            try:
-                button.set_tooltip_text(backends.portage_lib.settings.UseFlagDict[flag.lower()][2])
-            except KeyError:
-                button.set_tooltip_text(_('Unsupported use flag'))
-            table.attach(button, col, col+1, row, row+1)
-            # connect to on_toggled so we can show changes
-            button.connect("toggled", self.on_toggled)
-            button.show()
-            # Increment col & row counters
-            col += 1
-            if col > maxcol:
-                col = 0
-                row += 1
-
-        # Display the entire table
-        table.show()
-# >>>>>>> theirs
+        uflag_widget = UseFlagWidget(use_flags, ebuild, self.window)
+        uflag_widget.connect('grab-focus', self.on_toggled)
+        UseFlagFrame.add(uflag_widget)
+        uflag_widget.show()
 
     def build_keywords_widget(self, keywords):
         """ Create a table layout and populate it with
