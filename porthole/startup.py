@@ -130,8 +130,9 @@ def set_backend(arg):
     if arg in Choices:
         # fixme unused BACKEND
         BACKEND = Choices[arg]
+        print("***** BACKEND set to:", BACKEND)
     else:
-        useage()
+        usage()
 
 def insert_path():
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
