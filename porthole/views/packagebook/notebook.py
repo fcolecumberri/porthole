@@ -39,6 +39,10 @@ from porthole.views.highlight import HighlightView
 from porthole.views.changelog import ChangeLogView
 from porthole.views.useflags import UseFlagWidget
 from porthole.loaders.loaders import load_installed_files
+from porthole.backends.utilities import (
+    abs_list,
+    filter_flags
+)
 #from timeit import Timer
 
 
@@ -140,7 +144,10 @@ class PackageNotebook(object):
             frame = Gtk.VBox()
             ebuild = self.summary.ebuild
             props = self.summary.package.get_properties(ebuild)
-            use_flags = props.get_use_flags()
+            iuse = props.get_use_flags()
+            final_use, use_expand_hidden, usemasked, useforced = backends.portage_lib.get_cpv_use(ebuild)
+            myflags = filter_flags(iuse, use_expand_hidden, usemasked, useforced)
+            use_flags = abs_list(myflags)
             self.use_flag_view = UseFlagWidget(use_flags, ebuild, None)
             self.use_flag_view.show()
             frame.pack_start(self.use_flag_view, expand=True, fill=True, padding=0)
