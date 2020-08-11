@@ -34,7 +34,7 @@ from gi.repository import GObject
 class CommonDialog(Gtk.Dialog):
     """ A common gtk Dialog class """
     def __init__(self, title, parent, message, callback, button):
-        GObject.GObject.__init__(self, title, parent, Gtk.DialogFlags.MODAL or
+        Gtk.Dialog.__init__(self, title, parent, Gtk.DialogFlags.MODAL or
                             Gtk.DialogFlags.DESTROY_WITH_PARENT, (str(button), 0))
         # add message
         text = Gtk.Label(label=message)
