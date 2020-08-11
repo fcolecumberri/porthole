@@ -63,7 +63,7 @@ class Summary(Gtk.TextView):
         self.set_left_margin(margin)
         self.set_right_margin(margin)
         tagtable = self.create_tag_table()
-        self.buffer = Gtk.TextBuffer(tagtable)
+        self.buffer = Gtk.TextBuffer.new(tagtable)
         self.set_buffer(self.buffer)
         self.license_dir = "file://"+ backends.portage_lib.settings.portdir + "/licenses/"
         self.package = None
@@ -187,7 +187,7 @@ class Summary(Gtk.TextView):
         def create(descs):
             table = Gtk.TextTagTable()
             for name, properties in descs.items():
-                tag = Gtk.TextTag(name)
+                tag = Gtk.TextTag.new(name)
                 table.add(tag)
                 for property, value in properties.items():
                     tag.set_property(property, value)
@@ -661,7 +661,7 @@ class Summary(Gtk.TextView):
         keywords = props.get_keywords()
         licenses = props.license
         # fixme unused slot
-        slot = bytes(props.get_slot())
+        slot = str(props.get_slot())
 
         # Sort the versions in release order
         versions = ver_sort(versions)
