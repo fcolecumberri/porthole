@@ -15,7 +15,7 @@ from porthole.backends.utilities import (get_reduced_flags,
 
 class UseFlagCheckbuttons(Gtk.HBox):
    def __init__(self, useflag, default_status):
-      GObject.GObject.__init__(self)
+      Gtk.HBox.__init__(self)
       debug.dprint("USEFLAGCHECKBUTTONS: __INIT__()")
       self.homogenous = False # Not all widgets are created equal
       self.flag = useflag
@@ -31,9 +31,9 @@ class UseFlagCheckbuttons(Gtk.HBox):
       flag_label = Gtk.Label(label=useflag + "(" + default_status + ")")
       flag_label.show()
 
-      self.pack_start(self.enable_box, expand=False, fill=False, padding=2)
-      self.pack_start(self.disable_box, expand=False, fill=False, padding=2)
-      self.pack_end(flag_label, True, True, 0)
+      self.pack_start(self.enable_box, expand=False, fill=False, padding=0)
+      self.pack_start(self.disable_box, expand=False, fill=False, padding=0)
+      self.pack_start(flag_label, expand=False, fill=False, padding=0)
 
    def set_enabled(self, widget=None):
       debug.dprint("USEFLAGS: set_enabled()")
