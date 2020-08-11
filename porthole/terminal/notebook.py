@@ -96,16 +96,9 @@ class TerminalNotebook:
             #if x == "process_text" or config.Prefs.terminal.all_tabs_use_custom_colors:
             fg, bg, weight = config.Prefs.TAG_DICT['default']
             font = config.Prefs.terminal.font
-# fixme which???
-# <<<<<<< ours
             if bg: view.modify_base(Gtk.StateType.NORMAL, Gdk.color_parse(bg))
             if fg: view.modify_text(Gtk.StateType.NORMAL, Gdk.color_parse(fg))
             if font: view.modify_font(Pango.FontDescription(font))
-# =======
-            # if bg: view.modify_base(Gladeui.PropertyState.NORMAL, Gdk.color_parse(bg))
-            # if fg: view.modify_text(Gladeui.PropertyState.NORMAL, Gdk.color_parse(fg))
-            # if font: view.modify_font(pango.FontDescription(font))
-# >>>>>>> theirs
         del buff
         widget_labels = ["scrolledwindow2", "scrolledwindow8", "scrolledwindow7",
                          "scrolledwindow5", "scrolledwindow4"]
