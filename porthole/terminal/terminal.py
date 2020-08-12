@@ -876,7 +876,7 @@ class ProcessManager: #dbus.service.Object):
 
     def get_password_cb(self, entrywidget, entrydialog):
         """ Callback to get new password from the entry dialog"""
-        self.password = b64encode(entrywidget.get_text())
+        self.password = b64encode(bytes(entrywidget.get_text().encode("utf-8")))
         self.forward_password()
         entrydialog.response(1)
 
@@ -884,7 +884,7 @@ class ProcessManager: #dbus.service.Object):
         """ Callback to pass a password to the terminal process """
         if self.reader.fd:
             try:
-                os.write(self.reader.fd, b64decode(self.password) + '\n')
+                os.write(self.reader.fd, b64decode(self.password) + b'\n')
             except OSError:
                 debug.dprint(" * TERMINAL: forward_password(): Error forwarding password!")
             self.term.append(TAB_PROCESS, '********')
