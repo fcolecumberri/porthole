@@ -414,8 +414,7 @@ def get_installed_files(ebuild):
     files = []
     try:
         # hoping some clown won't use spaces in filenames ...
-        files = [line.split()[1].decode('ascii')
-                 for line in open(path, "r").readlines()]
+        files = [line.split()[1] for line in open(path, "r").readlines()]
     except: pass
     files.sort()
     return files
