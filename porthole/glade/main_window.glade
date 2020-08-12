@@ -520,35 +520,19 @@
               </packing>
             </child>
             <child>
-              <object class="GtkEntry" id="search_entry">
+              <object class="GtkSearchEntry" id="search_entry">
                 <property name="visible">True</property>
-                <property name="sensitive">False</property>
                 <property name="can_focus">True</property>
-                <property name="hexpand">True</property>
+                <property name="max_width_chars">40</property>
+                <property name="primary_icon_name">edit-find-symbolic</property>
+                <property name="primary_icon_activatable">False</property>
+                <property name="primary_icon_sensitive">False</property>
                 <signal name="activate" handler="on_search_entry_activate" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="padding">2</property>
-                <property name="position">4</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="btn_search">
-                <property name="label">gtk-find</property>
-                <property name="visible">True</property>
-                <property name="sensitive">False</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="border_width">3</property>
-                <property name="use_stock">True</property>
-                <signal name="clicked" handler="on_package_search" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
                 <property name="fill">False</property>
-                <property name="position">5</property>
+                <property name="position">4</property>
               </packing>
             </child>
           </object>

@@ -677,8 +677,13 @@ class MainWindow(PluginHandler):
         debug.dprint("StatusHandler: _update_db_done(); " +
             "setting menubar,toolbar,etc to sensitive...")
         for x in ["menubar", "toolbar", "view_filter", "search_entry",
-                    "btn_search", "view_refresh"]:
-            self.wtree.get_object(x).set_sensitive(True)
+                    "view_refresh"]:
+            widget = self.wtree.get_object(x)
+            if widget:
+                widget.set_sensitive(True)
+            else:
+                debug.dprint("StatusHandler: _update_db_done(); " +
+                    "Failed to get object: " + x)
         if self.plugin_manager and not self.plugin_manager.plugins:
             # no plugins
             self.wtree.get_object("plugin_settings").set_sensitive(False)
