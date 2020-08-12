@@ -30,6 +30,7 @@ import gi
 gi.require_version("Gtk", "3.0") # make sure we have the right version
 from gi.repository import GObject
 from gi.repository import Gdk
+from gi.repository import Gtk
 
 import os
 
@@ -160,14 +161,13 @@ class MainWindow(PluginHandler):
         self.reader_running = False
         self.reader = None
         # populate the view_filter menu
-        # fixme not ported?
-        # self.widget["view_filter_list"] = Gtk.ListStore(str)
-        # for i in [_("All Packages"), _("Installed Packages"),
-                    # _("Search Results"), _("Upgradable Packages"),
-                    # _("Deprecated Packages"), _("Sets")]:
-            # self.widget["view_filter_list"].append([i])
-        # self.widget["view_filter"].set_model(self.widget["view_filter_list"])
-        # self.widget["view_filter"].set_active(SHOW_ALL)
+        self.widget["view_filter_list"] = Gtk.ListStore(str)
+        for i in [_("All Packages"), _("Installed Packages"),
+                    _("Search Results"), _("Upgradable Packages"),
+                    _("Deprecated Packages"), _("Sets")]:
+            self.widget["view_filter_list"].append([i])
+        self.widget["view_filter"].set_model(self.widget["view_filter_list"])
+        self.widget["view_filter"].set_active(SHOW_ALL)
         self.setup_plugins()
 
         callbacks = {

@@ -477,14 +477,6 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="active">0</property>
-                <items>
-                  <item id="0" translatable="yes">All Packages</item>
-                  <item id="1" translatable="yes">Installed Packages</item>
-                  <item id="2" translatable="yes">Search Results</item>
-                  <item id="3" translatable="yes">Upgradable Packages</item>
-                  <item id="4" translatable="yes">Deprecated Packages</item>
-                  <item id="5" translatable="yes">Sets</item>
-                </items>
                 <signal name="changed" handler="view_filter_changed" swapped="no"/>
               </object>
               <packing>
