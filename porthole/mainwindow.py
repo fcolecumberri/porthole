@@ -643,8 +643,7 @@ class MainWindow(PluginHandler):
             self._update_db_statusbar(args)
         elif args['db_thread_error']:
             # todo: display error dialog instead
-            self.status.set_statusbar2(args['db_thread_error'].decode('ascii',
-                    'replace'))
+            self.status.set_statusbar2(args['db_thread_error'])
             return False  # disconnect from timeout
         else: # args["done"] == True - db_thread is done
             self._update_db_done()
