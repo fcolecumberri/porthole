@@ -76,25 +76,15 @@ from porthole.mwsupport.constants import (
 )
 
 
-# def check_glade():
-    # """determine the libglade version installed
-    # and return the correct glade file to use"""
-    # porthole_gladefile = "glade/main_window.glade"
-    # debug.dprint("MAINWINDOW: __init__(); glade file = %s" %porthole_gladefile)
-    # return porthole_gladefile, True
-
 class MainWindow(PluginHandler):
     """Main Window class to setup and manage main window interface."""
     def __init__(self) :
         debug.dprint("MAINWINDOW: process id = %d ****************"
             %os.getpid())
-# fixme which ???
-#<<<<<<< ours
 
         # set unfinished items to not be sensitive
         #self.wtree.get_object("contents2").set_sensitive(False)
         # self.wtree.get_object("btn_help").set_sensitive(False)
-
 
         # Initialize our subclasses
         PluginHandler.__init__(self)
@@ -120,101 +110,6 @@ class MainWindow(PluginHandler):
         self.loaded = {}
         self.last_view_setting = None
 
-# =======
-        # config.Prefs.use_gladefile, self.new_toolbar_api = check_glade()
-        # # setup prefs
-        # config.Prefs.myarch = PMS_LIB.get_arch()
-        # debug.dprint("MAINWINDOW: Prefs.myarch = " + config.Prefs.myarch)
-        # #self.config = configs
-        # # setup glade
-        # self.gladefile = config.Prefs.DATA_PATH + config.Prefs.use_gladefile
-        # # self.wtree = Gtk.glade.XML(self.gladefile,
-        # #     "main_window",
-        # #     config.Prefs.APP)
-        # self.wtree = Gtk.Builder()
-        # self.wtree.add_from_file(self.gladefile)
-        # self.wtree.set_translation_domain(config.Prefs.APP)
-        # option = 'empty'
-        # # register callbacks  note: Gtk.mainquit deprecated
-        # callbacks = {
-            # "on_main_window_destroy" : self.goodbye,
-            # "on_quit1_activate" : self.quit,
-            # "on_emerge_package" : self.emerge_btn,
-            # "on_adv_emerge_package" : self.adv_emerge_btn,
-            # "on_unmerge_package" : self.unmerge_btn,
-            # "on_sync_tree" : self.sync_tree,
-            # "on_upgrade_packages" : self.upgrade_packages,
-            # "on_package_search" : self.package_search,
-            # "on_search_entry_activate": self.package_search,
-            # "on_help_contents" : self.help_contents,
-            # "on_about" : self.about,
-            # "view_filter_changed" : self.view_filter_changed,
-            # "on_search_descriptions1_activate" : self.search_set,
-            # "on_open_log" : self.open_log,
-            # "on_run_custom" : self.custom_run,
-            # "on_reload_db" : self.reload_db,
-            # "on_re_init_portage" : self.re_init_portage,
-            # "on_cancel_btn" : self.on_cancel_btn,
-            # #"on_main_window_size_request" : self.size_update,
-            # "on_plugin_settings_activate" : self.plugin_settings_activate,
-            # "on_view_refresh" : self.reload_view,
-            # "on_root_warning_clicked" : self.check_for_root,
-            # "on_configure_porthole" : self.configure_porthole,
-        # }
-        # self.wtree.connect_signals(callbacks)
-        # self.set_statusbar2("Starting")
-        # # aliases for convenience
-        # self.mainwindow = self.wtree.get_object("main_window")
-        # # save the mainwindow widget to Config for use by other modules
-        # # as a parent window
-        # config.Mainwindow = self.mainwindow
-        # callbacks = {
-            # "action_callback" : self.action_callback,
-            # "re_init_portage" : self.re_init_portage,
-            # "set_package_actions_sensitive" : self.set_package_actions_sensitive
-        # }
-        # # initialize this now cause we need it next
-        # self.plugin_package_tabs = {}
-        # # create the primary package notebook
-        # self.packagebook = PackageNotebook(self.wtree,
-                            # callbacks,self.plugin_package_tabs)
-        # # set unfinished items to not be sensitive
-        # #self.wtree.get_object("contents2").set_sensitive(False)
-        # # self.wtree.get_object("btn_help").set_sensitive(False)
-        # # setup the category view
-        # self.category_view = CategoryView()
-        # self.category_view.register_callback(self.category_changed)
-        # result = self.wtree.get_object("category_scrolled_window"
-                        # ).add(self.category_view)
-        # # setup the package treeview
-        # self.package_view = PackageView()
-        # #self.package_view.register_callbacks(self.package_changed,
-                # #None, self.pkg_path_callback)
-        # #self.package_view.register_callbacks(self.packageview_callback)
-        # self.package_view.register_callbacks(self.action_callback)
-        # result = self.wtree.get_object("package_scrolled_window"
-                        # ).add(self.package_view)
-        # # how should we setup our saved menus?
-        # settings = ["pretend", "fetch", "update", "verbose", "noreplace",
-                        # "oneshot"] # "search_descriptions1"]
-        # for option in settings:
-            # widget = self.wtree.get_object(option)
-            # state = getattr(config.Prefs.emerge, option) or False
-            # debug.dprint("MAINWINDOW: __init__(); option = %s, state = %s"
-                    # %(option, str(state)))
-            # widget.set_active(state)
-            # widget.connect("activate", self.emerge_setting_set, option)
-        # # setup a convienience tuple
-        # self.tool_widgets = ["emerge_package1", "adv_emerge_package1",
-                # "unmerge_package1", "btn_emerge", "btn_adv_emerge",
-                # "btn_unmerge", "btn_sync", "view_refresh", "view_filter"]
-        # self.widget = {}
-        # for x in self.tool_widgets:
-            # self.widget[x] = self.wtree.get_object(x)
-            # if not self.widget[x]:
-                # debug.dprint("MAINWINDOW: __init__(); Failure to obtain " +
-                        # "widget '%s'" %x)
-# >>>>>>> theirs
         # get an empty tooltip
         ##self.synctooltip = Gtk.Tooltips()
         self.sync_tip = _(
