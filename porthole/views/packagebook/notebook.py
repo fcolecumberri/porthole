@@ -196,7 +196,8 @@ class PackageNotebook(object):
             self.dep_window['label'].set_has_tooltip(True)
             self.dep_window['label'].set_tooltip_text('')
             gladefile = config.Prefs.DATA_PATH + config.Prefs.use_gladefile
-            self.deptree = Gtk.glade.XML(gladefile, "notebook", config.Prefs.APP)
+            self.deptree = Gtk.Builder()
+            self.deptree.add_objects_from_file(gladefile, ["notebook"])
             self.dep_window["notebook"] = PackageNotebook(self.deptree, self.callbacks, self.plugin_package_tabs, parent_name, parent_tree[:])
             v_box.pack_start(self.dep_window["notebook"].notebook, expand=True, fill=True, padding=0)
             self.dep_window["window"].add(v_box)
