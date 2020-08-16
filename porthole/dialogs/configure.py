@@ -65,6 +65,8 @@ class ConfigDialog:
         # set widget values to values in prefs
         self.set_widget_values()
 
+        self.window.show_all()
+
     #-----------------------------------------------
     # GUI Callback function definitions start here
     #-----------------------------------------------
