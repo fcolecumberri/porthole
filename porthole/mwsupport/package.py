@@ -247,8 +247,6 @@ class PackageHandler(MainBase):
                     #use the full name
                 return
 
-
-
     def is_group_selectable(self):
         return self.last_view_setting in GROUP_SELECTABLE
 
