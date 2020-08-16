@@ -530,8 +530,8 @@
                 <signal name="activate" handler="on_search_entry_activate" swapped="no"/>
               </object>
               <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
                 <property name="position">4</property>
               </packing>
             </child>
@@ -557,6 +557,8 @@
                   <object class="GtkScrolledWindow" id="category_scrolled_window">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
+                    <property name="margin_top">1</property>
+                    <property name="margin_bottom">1</property>
                     <property name="border_width">1</property>
                     <property name="shadow_type">in</property>
                   </object>
@@ -569,6 +571,8 @@
                   <object class="GtkScrolledWindow" id="package_scrolled_window">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
+                    <property name="margin_right">1</property>
+                    <property name="margin_top">1</property>
                     <property name="margin_bottom">1</property>
                     <property name="border_width">1</property>
                     <property name="shadow_type">in</property>
