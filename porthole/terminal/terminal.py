@@ -911,7 +911,7 @@ class ProcessManager: #dbus.service.Object):
         """Forward text to the terminal process. Very low tech."""
         if self.reader.fd:
             try:
-                os.write(self.reader.fd, text)
+                os.write(self.reader.fd, text.encode())
                 return True
             except OSError as e:
                 debug.dprint(" * TERMINAL: write_to_term(): Error '%s' writing text '%s'"
