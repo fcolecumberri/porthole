@@ -403,7 +403,7 @@ class PackageView(CommonTreeView):
                     else:
                         self.popup_menuitems["sudo-emerge"].hide()
                     self.popup_menuitems["pretend-emerge"].show()
-            self.popup_menu.popup(None, None, None, self.event.button, self.event.time)
+            self.popup_menu.popup(None, None, None, None, self.event.button, self.event.time)
             self.dopopup = False
             self.event = None
             return True
