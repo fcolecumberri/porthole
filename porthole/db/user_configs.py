@@ -84,6 +84,12 @@ def compare_atoms(a=None, b=None):
 
 def cmp(a=None, b=None):
     """comparison function for sorting ConfigAtoms"""
+    if a is None and b is None:
+        return 0
+    if a is None:
+        return -1
+    if b is None:
+        return 1
     if a.name == b.name:
         return 0
     if a.name < b.name:
@@ -430,14 +436,14 @@ class UserConfigs:
         lines = read_bash(file)
         if lines:
             self.atomize(lines, file, temp_db, temp_sources)
-            temp_sources[mytype][file].sort(cmp)
+            temp_sources[mytype][file].sort(key=cmp)
             new_length = len(temp_sources[mytype][file])
         else:
             new_length = 0
         # get all atoms matching the correct file
         if file in self.sources[mytype]:
             old_file_atoms = self.sources[mytype][file]
-            old_file_atoms.sort(cmp)
+            old_file_atoms.sort(key=cmp)
         else:
             old_file_atoms =  []
         #old_length = len(old_file_atoms)
