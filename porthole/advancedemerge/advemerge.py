@@ -282,6 +282,7 @@ class AdvancedEmergeDialog:
                 removelist.append(item[1:])
             else:
                 removelist.append('-' + item)
+        addlist = [item[1:] if item.startswith('+') else item for item in addlist]
         #debug.dprint("ADVEMERGE: on_package_use_commit(); addlist:%s,\n removelist:%s" %(str(addlist), str(removelist)))
         # fixme okay not used
         okay = db.userconfigs.set_user_config('USE', name=self.package.full_name, add=addlist,
