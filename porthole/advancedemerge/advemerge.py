@@ -557,7 +557,7 @@ class AdvancedEmergeDialog:
         # Send command to be processed
         command = ''.join([ \
             use_flags,
-            accept_keyword,
+            # accept_keyword, # this sole 'feature' has caused so many times emerging unstable code.
             emerge_unmerge,
             self.get_options(),
             '=',
