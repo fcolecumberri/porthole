@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.2 -->
+<!-- Generated with glade 3.36.0 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
   <object class="GtkWindow" id="process_window">
@@ -9,9 +9,6 @@
     <property name="default_width">600</property>
     <property name="default_height">400</property>
     <signal name="destroy" handler="on_process_window_destroy" swapped="no"/>
-    <child type="titlebar">
-      <placeholder/>
-    </child>
     <child>
       <object class="GtkBox" id="vbox3">
         <property name="visible">True</property>
@@ -344,6 +341,7 @@
                       <object class="GtkScrolledWindow" id="scrolledwindow2">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
+                        <property name="vscrollbar_policy">always</property>
                         <child>
                           <object class="GtkTextView" id="process_text">
                             <property name="visible">True</property>
@@ -773,6 +771,9 @@
           </packing>
         </child>
       </object>
+    </child>
+    <child type="titlebar">
+      <placeholder/>
     </child>
   </object>
 </interface>
