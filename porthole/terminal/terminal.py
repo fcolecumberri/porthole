@@ -189,8 +189,8 @@ class ProcessManager: #dbus.service.Object):
                 self.term.hide_tab(tab)
             # re-set base values for textviews
             attributes = Gtk.TextView().get_default_attributes()
-            default_fg = attributes.fg_color
-            default_bg = attributes.bg_color
+            default_fg = attributes.appearance.fg_color
+            default_bg = attributes.appearance.bg_color
             # fixme unused default_weight
             default_weight = attributes.font.get_weight()
             default_font = attributes.font.to_string()
