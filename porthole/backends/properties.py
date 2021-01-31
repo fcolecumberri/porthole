@@ -27,6 +27,14 @@ _id = datetime.datetime.now().microsecond
 print("PROPERTIES: id initialized to ", _id)
 
 
+def comp_iuse(iuse):
+    if iuse:
+        if len(iuse) > 1:
+            if (iuse[0] == '+') or (iuse[0] == '-'):
+                return iuse[1:]
+    return iuse
+
+
 class Properties:
     """Contains all variables in an ebuild."""
     def __init__(self, dict = None):
@@ -48,8 +56,11 @@ class Properties:
 
     def get_use_flags(self):
         """Returns a list of strings."""
-        # iuse may have dupes, so filter them out
-        return list(set(self.iuse.split()))
+        ## iuse may have dupes, so filter them out
+        iuse_flags = list(set(self.iuse.split()))
+        iuse_flags.sort(key=comp_iuse)
+        return iuse_flags
+        # return list(set(self.iuse.split()))
 
     def get_homepages(self):
         """Returns a list of strings."""
